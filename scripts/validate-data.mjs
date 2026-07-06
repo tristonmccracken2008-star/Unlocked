@@ -8,6 +8,7 @@ const curated = read("schools.json");
 const imported = read("institutions.json");
 const benefits = read("benefits.json");
 const relationships = read("school-benefits.json");
+const aiTools = read("ai-tools.json");
 
 function normalize(value) {
   return value.trim().toLowerCase().replace(/^https?:\/\//, "").replace(/^www\./, "").replace(/^.*@/, "").replace(/[/?#].*$/, "").replace(/[.,]/g, "").replace(/[-_\s]+/g, " ");
@@ -63,6 +64,19 @@ if (!northeastern) failures.push("Northeastern University is missing from the sc
 const northeasternSpecific = relationships.filter((relation) => relation.schoolId === "northeastern-university");
 if (northeasternSpecific.length) failures.push("Northeastern has unreviewed school-specific relationships");
 
+const aiToolSlugs = new Set();
+const aiOfferTypes = new Set(["free_for_everyone", "student_discount", "free_with_edu", "university_specific", "no_verified_student_offer"]);
+for (const tool of aiTools) {
+  if (aiToolSlugs.has(tool.slug)) failures.push(`Duplicate AI tool slug: ${tool.slug}`);
+  aiToolSlugs.add(tool.slug);
+  for (const field of ["name", "company", "description", "studentOffer", "eligibility", "category", "lastVerifiedAt"]) if (!tool[field]) failures.push(`AI tool ${tool.slug} is missing ${field}`);
+  if (!tool.officialSourceUrl?.startsWith("https://")) failures.push(`AI tool source is not HTTPS: ${tool.slug}`);
+  if (!aiOfferTypes.has(tool.offerType)) failures.push(`Invalid AI tool offer type: ${tool.slug}`);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(tool.lastVerifiedAt)) failures.push(`Invalid AI tool date: ${tool.slug}`);
+  if (tool.estimatedAnnualValue !== null && (typeof tool.estimatedAnnualValue !== "number" || tool.estimatedAnnualValue < 0)) failures.push(`Invalid AI tool estimated value: ${tool.slug}`);
+}
+if (aiTools.length < 30) failures.push(`AI tool catalog has only ${aiTools.length} records; at least 30 are required`);
+
 if (failures.length) {
   console.error(failures.join("\n"));
   process.exit(1);
@@ -71,3 +85,4 @@ if (failures.length) {
 const searchTermCount = [...termsBySchool.values()].reduce((sum, terms) => sum + terms.length, 0);
 console.log(`Validated ${schools.length} schools and ${searchTermCount} searchable names, domains, slugs, abbreviations, and aliases.`);
 console.log(`Validated ${relationships.length} official school-specific benefit relationships; Northeastern currently has 0.`);
+console.log(`Validated ${aiTools.length} AI tools with structured offers, eligibility, dates, and official sources.`);

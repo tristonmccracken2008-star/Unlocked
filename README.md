@@ -21,6 +21,8 @@ See the complete [data administration guide](./docs/DATA_ADMIN_GUIDE.md) for exa
 
 All benefit records use a four-state verification lifecycle and an internal review score. Follow the [benefit verification guide](./docs/VERIFICATION_GUIDE.md) before publishing or changing a benefit’s status.
 
+The dashboard AI catalog is maintained separately from benefits. Follow the [AI tools catalog guide](./docs/AI_TOOLS_GUIDE.md) before adding or changing a tool or student-access claim.
+
 ## Category and editorial pages
 
 Category pages are generated from the `categories` array at `/categories/[slug]`. Editorial SEO pages live in the `app` directory:

@@ -6,11 +6,12 @@ import { benefits, getSchoolBenefits, schools, type School } from "@/data/seed";
 import { findExactSchoolMatches, findSchoolMatches, normalizeSchoolQuery } from "@/data/school-search";
 import { ArrowIcon, CheckIcon, SearchIcon } from "./icons";
 import { StatusBadge } from "./status-badge";
+import { AIToolsSection } from "./ai-tools-section";
 
 type StudentProfile = { schoolSlug: string; year: string; major: string };
 const storageKey = "unlocked-student-profile";
 const years = ["First year", "Second year", "Third year", "Fourth year", "Graduate student", "Other"];
-const comingSoon = ["AI Tools", "Free Software", "Career", "Scholarships", "Local", "Research"];
+const comingSoon = ["Free Software", "Career", "Scholarships", "Local", "Research"];
 
 export function PersonalizedHome() {
   const [ready, setReady] = useState(false);
@@ -98,6 +99,8 @@ function StudentDashboard({ profile, onEdit }: { profile: StudentProfile; onEdit
       <div className="border-b-2 border-ink">{featured.map((item,index)=><Link href={`/benefits/${item.slug}`} key={item.slug} className="group grid gap-3 border-b border-ink/20 bg-white px-4 py-5 last:border-b-0 sm:grid-cols-[36px_1fr_170px] sm:items-center"><span className="hidden font-mono text-xs text-ink/30 sm:block">{String(index+1).padStart(2,"0")}</span><div><div className="flex flex-wrap items-center gap-3"><span className="rule-label text-forest">{item.category}</span><StatusBadge status={item.status}/></div><h3 className="mt-2 font-editorial text-xl font-bold group-hover:text-forest">{item.name}</h3><p className="mt-1 text-sm text-ink/45">{item.scope === "national" ? "National student benefit" : `${school.name}–specific benefit`}</p></div><div className="sm:text-right"><p className="font-bold text-forest">{item.value}</p><p className="mt-2 inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wider">Details <ArrowIcon /></p></div></Link>)}</div>
       {featured.length===0&&<div className="border-b-2 border-ink bg-white py-10 text-center"><p className="font-bold">No verified benefits available yet.</p></div>}
     </section>
+
+    <AIToolsSection />
 
     <section className="border-t-2 border-ink bg-white"><div className="grid sm:grid-cols-2 lg:grid-cols-3">{comingSoon.map((title)=><div key={title} className="min-h-40 border-b border-r border-ink/20 p-6"><div className="flex items-center justify-between"><h2 className="font-editorial text-2xl font-bold">{title}</h2><CheckIcon className="h-4 w-4 text-ink/20"/></div><p className="mt-12 rule-label text-ink/35">Coming Soon</p></div>)}</div></section>
   </div>;
