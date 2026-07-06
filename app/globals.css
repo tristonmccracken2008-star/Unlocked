@@ -1,0 +1,15 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root { color: #10243e; background: #f7f3e8; }
+html { scroll-behavior: smooth; }
+body { min-height: 100vh; background: #f7f3e8; font-family: Arial, Helvetica, ui-sans-serif, sans-serif; }
+button, a, input, select, textarea { transition-duration: 150ms; }
+::selection { background: #f0dfb2; color: #10243e; }
+.font-editorial { font-family: Georgia, "Times New Roman", serif; }
+.rule-label { font-size: .68rem; font-weight: 800; letter-spacing: .15em; text-transform: uppercase; }
+.scrollbar-none::-webkit-scrollbar { display: none; }
+.scrollbar-none { scrollbar-width: none; }
+.prose-copy h2 { font-size: 1.25rem; font-weight: 800; letter-spacing: -0.02em; }
+.prose-copy p { margin-top: .65rem; color: rgb(16 36 62 / .62); line-height: 1.75; }

@@ -1,0 +1,5 @@
+import type { Metadata } from "next";
+import { SeoLanding } from "@/components/seo-landing";
+import { benefits } from "@/data/seed";
+export const metadata: Metadata = { title: "Best .edu email perks for students", description: "Explore the best discounts, free software, subscriptions, and resources unlocked by a college email address." };
+export default function Page() { return <SeoLanding eyebrow="The .edu advantage" title="The best .edu email perks worth claiming" intro="Your school email can unlock hundreds of dollars in software, entertainment, travel, and everyday savings. Start with these high-value offers." benefits={[...benefits].sort((a,b) => b.annualValue-a.annualValue)} guideTitle="Get more from your school email" guide={["Use your active school email when creating or upgrading an account.", "Complete the provider’s enrollment check. Some offers use services such as SheerID or UNiDAYS.", "Set a reminder before annual renewal so you can reverify without losing access."]} />; }

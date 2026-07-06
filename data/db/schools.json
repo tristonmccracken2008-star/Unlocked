@@ -1,0 +1,153 @@
+[
+  {
+    "slug": "university-of-chicago",
+    "name": "University of Chicago",
+    "aliases": [
+      "UChicago",
+      "Chicago",
+      "U of C"
+    ],
+    "domain": "uchicago.edu",
+    "location": "Chicago, IL",
+    "initials": "UC"
+  },
+  {
+    "slug": "university-of-michigan",
+    "name": "University of Michigan",
+    "aliases": [
+      "Michigan",
+      "UMich",
+      "U-M",
+      "Michigan Ann Arbor"
+    ],
+    "domain": "umich.edu",
+    "location": "Ann Arbor, MI",
+    "initials": "M"
+  },
+  {
+    "slug": "new-york-university",
+    "name": "New York University",
+    "aliases": [
+      "NYU",
+      "New York U"
+    ],
+    "domain": "nyu.edu",
+    "location": "New York, NY",
+    "initials": "NYU"
+  },
+  {
+    "slug": "university-of-california-los-angeles",
+    "name": "University of California, Los Angeles",
+    "aliases": [
+      "UCLA",
+      "UC Los Angeles"
+    ],
+    "domain": "ucla.edu",
+    "location": "Los Angeles, CA",
+    "initials": "UCLA"
+  },
+  {
+    "slug": "penn-state-university",
+    "name": "Penn State University",
+    "aliases": [
+      "Penn State",
+      "PSU",
+      "Pennsylvania State University"
+    ],
+    "domain": "psu.edu",
+    "location": "University Park, PA",
+    "initials": "PSU"
+  },
+  {
+    "slug": "harvard-university",
+    "name": "Harvard University",
+    "aliases": [
+      "Harvard",
+      "HU"
+    ],
+    "domain": "harvard.edu",
+    "location": "Cambridge, MA",
+    "initials": "H"
+  },
+  {
+    "slug": "stanford-university",
+    "name": "Stanford University",
+    "aliases": [
+      "Stanford",
+      "SU"
+    ],
+    "domain": "stanford.edu",
+    "location": "Stanford, CA",
+    "initials": "S"
+  },
+  {
+    "slug": "massachusetts-institute-of-technology",
+    "name": "Massachusetts Institute of Technology",
+    "aliases": [
+      "MIT",
+      "Mass Tech"
+    ],
+    "domain": "mit.edu",
+    "location": "Cambridge, MA",
+    "initials": "MIT"
+  },
+  {
+    "slug": "columbia-university",
+    "name": "Columbia University",
+    "aliases": [
+      "Columbia",
+      "CU",
+      "Columbia NYC"
+    ],
+    "domain": "columbia.edu",
+    "location": "New York, NY",
+    "initials": "CU"
+  },
+  {
+    "slug": "university-of-pennsylvania",
+    "name": "University of Pennsylvania",
+    "aliases": [
+      "UPenn",
+      "Penn",
+      "University of Penn"
+    ],
+    "domain": "upenn.edu",
+    "location": "Philadelphia, PA",
+    "initials": "Penn"
+  },
+  {
+    "slug": "university-of-texas-austin",
+    "name": "University of Texas at Austin",
+    "aliases": [
+      "UT Austin",
+      "Texas",
+      "UT"
+    ],
+    "domain": "utexas.edu",
+    "location": "Austin, TX",
+    "initials": "UT"
+  },
+  {
+    "slug": "university-of-california-berkeley",
+    "name": "University of California, Berkeley",
+    "aliases": [
+      "UC Berkeley",
+      "Berkeley",
+      "Cal"
+    ],
+    "domain": "berkeley.edu",
+    "location": "Berkeley, CA",
+    "initials": "Cal"
+  },
+  {
+    "slug": "arizona-state-university",
+    "name": "Arizona State University",
+    "aliases": [
+      "ASU",
+      "Arizona State"
+    ],
+    "domain": "asu.edu",
+    "location": "Tempe, AZ",
+    "initials": "ASU"
+  }
+]

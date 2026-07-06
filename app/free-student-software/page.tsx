@@ -1,0 +1,5 @@
+import type { Metadata } from "next";
+import { SeoLanding } from "@/components/seo-landing";
+import { benefits } from "@/data/seed";
+export const metadata: Metadata = { title: "Free software for students", description: "Discover free and discounted student software for coding, design, data analysis, productivity, and coursework." };
+export default function Page() { return <SeoLanding eyebrow="Build for less" title="Free student software for serious work" intro="Use professional tools for coding, design, data, cloud development, and coursework without paying full professional prices." benefits={benefits.filter((item) => item.category === "Software")} guideTitle="Build your student toolkit" guide={["Check your campus software portal first; institutional licenses are often the highest-value option.", "Claim individual education plans using your school email when a campus license is unavailable.", "Export important files before graduation because some education licenses end with enrollment."]} />; }

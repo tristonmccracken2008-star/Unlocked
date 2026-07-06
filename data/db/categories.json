@@ -1,0 +1,42 @@
+[
+  {
+    "id": "ai",
+    "name": "AI",
+    "slug": "ai"
+  },
+  {
+    "id": "software",
+    "name": "Software",
+    "slug": "software"
+  },
+  {
+    "id": "streaming",
+    "name": "Streaming",
+    "slug": "streaming"
+  },
+  {
+    "id": "shopping",
+    "name": "Shopping",
+    "slug": "shopping"
+  },
+  {
+    "id": "finance",
+    "name": "Finance",
+    "slug": "finance"
+  },
+  {
+    "id": "travel",
+    "name": "Travel",
+    "slug": "travel"
+  },
+  {
+    "id": "campus",
+    "name": "Campus",
+    "slug": "campus"
+  },
+  {
+    "id": "other",
+    "name": "Other",
+    "slug": "other"
+  }
+]

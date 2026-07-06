@@ -1,0 +1,254 @@
+[
+  {
+    "id": "source-github-student-developer-pack",
+    "benefitId": "github-student-developer-pack",
+    "provider": "GitHub Education",
+    "url": "https://education.github.com/pack",
+    "lastVerified": "2026-07-06"
+  },
+  {
+    "id": "source-notion-education-plus",
+    "benefitId": "notion-education-plus",
+    "provider": "Notion",
+    "url": "https://www.notion.com/product/notion-for-education",
+    "lastVerified": "2026-07-06"
+  },
+  {
+    "id": "source-figma-for-education",
+    "benefitId": "figma-for-education",
+    "provider": "Figma",
+    "url": "https://www.figma.com/education/",
+    "lastVerified": "2026-07-06"
+  },
+  {
+    "id": "source-jetbrains-student-pack",
+    "benefitId": "jetbrains-student-pack",
+    "provider": "JetBrains",
+    "url": "https://www.jetbrains.com/community/education/#students",
+    "lastVerified": "2026-07-06"
+  },
+  {
+    "id": "source-microsoft-azure-for-students",
+    "benefitId": "microsoft-azure-for-students",
+    "provider": "Microsoft Azure",
+    "url": "https://azure.microsoft.com/free/students",
+    "lastVerified": "2026-07-06"
+  },
+  {
+    "id": "source-autodesk-education",
+    "benefitId": "autodesk-education",
+    "provider": "Autodesk",
+    "url": "https://www.autodesk.com/education/edu-software/overview",
+    "lastVerified": "2026-07-06"
+  },
+  {
+    "id": "source-tableau-for-students",
+    "benefitId": "tableau-for-students",
+    "provider": "Tableau",
+    "url": "https://www.tableau.com/academic/students",
+    "lastVerified": "2026-07-06"
+  },
+  {
+    "id": "source-perplexity-education-pro",
+    "benefitId": "perplexity-education-pro",
+    "provider": "Perplexity",
+    "url": "https://www.perplexity.ai/students",
+    "lastVerified": "2026-07-06"
+  },
+  {
+    "id": "source-google-gemini-education",
+    "benefitId": "google-gemini-education",
+    "provider": "Google",
+    "url": "https://gemini.google/students/",
+    "lastVerified": "2026-07-06"
+  },
+  {
+    "id": "source-wolfram-alpha-student",
+    "benefitId": "wolfram-alpha-student",
+    "provider": "Wolfram",
+    "url": "https://www.wolframalpha.com/pro/pricing/students/",
+    "lastVerified": "2026-07-06"
+  },
+  {
+    "id": "source-spotify-premium-student",
+    "benefitId": "spotify-premium-student",
+    "provider": "Spotify",
+    "url": "https://www.spotify.com/us/student/",
+    "lastVerified": "2026-07-06"
+  },
+  {
+    "id": "source-youtube-premium-student",
+    "benefitId": "youtube-premium-student",
+    "provider": "YouTube",
+    "url": "https://www.youtube.com/premium/student",
+    "lastVerified": "2026-07-06"
+  },
+  {
+    "id": "source-apple-music-student",
+    "benefitId": "apple-music-student",
+    "provider": "Apple Music",
+    "url": "https://support.apple.com/106008",
+    "lastVerified": "2026-07-06"
+  },
+  {
+    "id": "source-hulu-student",
+    "benefitId": "hulu-student",
+    "provider": "Hulu",
+    "url": "https://www.hulu.com/student",
+    "lastVerified": "2026-07-06"
+  },
+  {
+    "id": "source-peacock-student",
+    "benefitId": "peacock-student",
+    "provider": "Peacock",
+    "url": "https://www.peacocktv.com/student",
+    "lastVerified": "2026-07-06"
+  },
+  {
+    "id": "source-amazon-prime-student",
+    "benefitId": "amazon-prime-student",
+    "provider": "Amazon",
+    "url": "https://www.amazon.com/amazonprime",
+    "lastVerified": "2026-07-06"
+  },
+  {
+    "id": "source-apple-education-store",
+    "benefitId": "apple-education-store",
+    "provider": "Apple",
+    "url": "https://www.apple.com/us-edu/store",
+    "lastVerified": "2026-07-06"
+  },
+  {
+    "id": "source-samsung-education-offers",
+    "benefitId": "samsung-education-offers",
+    "provider": "Samsung",
+    "url": "https://www.samsung.com/us/shop/offer-program/education/",
+    "lastVerified": "2026-07-06"
+  },
+  {
+    "id": "source-lenovo-student-discount",
+    "benefitId": "lenovo-student-discount",
+    "provider": "Lenovo",
+    "url": "https://www.lenovo.com/us/en/d/deals/student-discount/",
+    "lastVerified": "2026-07-06"
+  },
+  {
+    "id": "source-adobe-student-discount",
+    "benefitId": "adobe-student-discount",
+    "provider": "Adobe",
+    "url": "https://www.adobe.com/creativecloud/buy/students.html",
+    "lastVerified": "2026-07-06"
+  },
+  {
+    "id": "source-unidays-student-discounts",
+    "benefitId": "unidays-student-discounts",
+    "provider": "UNiDAYS",
+    "url": "https://www.myunidays.com/",
+    "lastVerified": "2026-07-06"
+  },
+  {
+    "id": "source-ynab-college-student",
+    "benefitId": "ynab-college-student",
+    "provider": "YNAB",
+    "url": "https://www.ynab.com/college",
+    "lastVerified": "2026-07-06"
+  },
+  {
+    "id": "source-amtrak-student-discount",
+    "benefitId": "amtrak-student-discount",
+    "provider": "Amtrak",
+    "url": "https://www.amtrak.com/student-discounts",
+    "lastVerified": "2026-07-06"
+  },
+  {
+    "id": "source-headspace-student",
+    "benefitId": "headspace-student",
+    "provider": "Headspace",
+    "url": "https://www.headspace.com/studentplan",
+    "lastVerified": "2026-07-06"
+  },
+  {
+    "id": "source-the-economist-student",
+    "benefitId": "the-economist-student",
+    "provider": "The Economist",
+    "url": "https://subscribenow.economist.com/student",
+    "lastVerified": "2026-07-06"
+  },
+  {
+    "id": "source-microsoft-365-education",
+    "benefitId": "microsoft-365-education",
+    "provider": "Microsoft Education",
+    "url": "https://www.microsoft.com/en-us/education/products/office",
+    "lastVerified": "2026-07-06"
+  },
+  {
+    "id": "source-dell-student-discount",
+    "benefitId": "dell-student-discount",
+    "provider": "Dell",
+    "url": "https://www.dell.com/en-us/lp/students",
+    "lastVerified": "2026-07-06"
+  },
+  {
+    "id": "source-hp-education-store",
+    "benefitId": "hp-education-store",
+    "provider": "HP",
+    "url": "https://www.hp.com/us-en/shop/cv/hp-education",
+    "lastVerified": "2026-07-06"
+  },
+  {
+    "id": "source-uchicago-artspass",
+    "benefitId": "uchicago-artspass",
+    "provider": "University of Chicago",
+    "url": "https://www.studentarts.uchicago.edu/artspass/",
+    "lastVerified": "2026-07-06"
+  },
+  {
+    "id": "source-ucla-bruin-u-pass",
+    "benefitId": "ucla-bruin-u-pass",
+    "provider": "UCLA Transportation",
+    "url": "https://transportation.ucla.edu/getting-to-ucla/public-transit/bruin-u-pass",
+    "lastVerified": "2026-07-06"
+  },
+  {
+    "id": "source-harvard-campus-museums",
+    "benefitId": "harvard-campus-museums",
+    "provider": "Harvard University",
+    "url": "https://osa.gse.harvard.edu/perks",
+    "lastVerified": "2026-07-06"
+  },
+  {
+    "id": "source-stanford-marguerite",
+    "benefitId": "stanford-marguerite",
+    "provider": "Stanford Transportation",
+    "url": "https://transportation.stanford.edu/getting-stanford/marguerite",
+    "lastVerified": "2026-07-06"
+  },
+  {
+    "id": "source-mit-arts-access",
+    "benefitId": "mit-arts-access",
+    "provider": "Arts at MIT",
+    "url": "https://arts.mit.edu/opportunities/arts-access/",
+    "lastVerified": "2026-07-06"
+  },
+  {
+    "id": "source-columbia-passport-to-museums",
+    "benefitId": "columbia-passport-to-museums",
+    "provider": "Columbia University Arts Initiative",
+    "url": "https://artsinitiative.columbia.edu/",
+    "lastVerified": "2026-07-06"
+  },
+  {
+    "id": "source-penn-transit",
+    "benefitId": "penn-transit",
+    "provider": "University of Pennsylvania",
+    "url": "https://www.business-services.upenn.edu/services",
+    "lastVerified": "2026-07-06"
+  },
+  {
+    "id": "source-penn-state-software-access",
+    "benefitId": "penn-state-software-access",
+    "provider": "Penn State IT",
+    "url": "https://dubois.psu.edu/IT/Free-Stuff",
+    "lastVerified": "2026-07-06"
+  }
+]
