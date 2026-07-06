@@ -6,11 +6,11 @@ import { schools, type School } from "@/data/seed";
 import { SearchIcon } from "./icons";
 
 function normalize(value: string) {
-  return value.trim().toLowerCase().replace(/^https?:\/\//, "").replace(/^www\./, "").replace(/^.*@/, "").replace(/\/$/, "").replace(/[.,]/g, "").replace(/[-_\s]+/g, " ");
+  return value.trim().toLowerCase().replace(/^https?:\/\//, "").replace(/^www\./, "").replace(/^.*@/, "").replace(/[/?#].*$/, "").replace(/[.,]/g, "").replace(/[-_\s]+/g, " ");
 }
 
 function searchTerms(school: School) {
-  return [school.name, school.domain, ...school.aliases].map(normalize);
+  return [school.name, school.domain, school.slug, ...school.aliases].map(normalize);
 }
 
 export function SchoolSearch() {
@@ -22,7 +22,7 @@ export function SchoolSearch() {
   const exact = exactMatches.length === 1 ? exactMatches[0] : undefined;
   const partialMatches = useMemo(() => normalized ? schools.filter((school) => searchTerms(school).some((term) => term.includes(normalized))) : [], [normalized]);
   const suggestions = (exactMatches.length > 1 ? exactMatches : partialMatches).slice(0, 8);
-  const ambiguous = !exact && suggestions.length > 1;
+  const hasSuggestions = suggestions.length > 0;
 
   function choose(school: School) { setShowSuggestions(false); router.push(`/schools/${school.slug}`); }
   function submit(event: FormEvent) {
@@ -39,14 +39,15 @@ export function SchoolSearch() {
         <label className="flex min-w-0 flex-1 items-center gap-3 px-3">
           <SearchIcon className="h-6 w-6 shrink-0 text-ink/35" />
           <span className="sr-only">School name or email domain</span>
-          <input value={query} onChange={(event) => { setQuery(event.target.value); setShowSuggestions(true); }} onFocus={() => setShowSuggestions(true)} className="h-14 min-w-0 flex-1 bg-transparent text-base outline-none placeholder:text-ink/35 sm:text-lg" placeholder="School name, abbreviation, or .edu domain" autoComplete="off" aria-controls="school-suggestions" aria-expanded={showSuggestions && ambiguous} />
+          <input value={query} onChange={(event) => { setQuery(event.target.value); setShowSuggestions(true); }} onFocus={() => setShowSuggestions(true)} className="h-14 min-w-0 flex-1 bg-transparent text-base outline-none placeholder:text-ink/35 sm:text-lg" placeholder="School name, abbreviation, nickname, or .edu domain" autoComplete="off" aria-controls="school-suggestions" aria-expanded={showSuggestions && Boolean(normalized)} />
         </label>
         <button className="border-t-2 border-ink bg-ink px-7 py-4 text-xs font-bold uppercase tracking-widest text-white hover:bg-forest sm:border-l-2 sm:border-t-0">Search directory</button>
       </form>
-      {showSuggestions && ambiguous && <div id="school-suggestions" role="listbox" aria-label="School suggestions" className="absolute z-20 mt-1 w-full border-2 border-ink bg-white text-left shadow-[6px_6px_0_#10243e]">
+      {showSuggestions && normalized && hasSuggestions && <div id="school-suggestions" role="listbox" aria-label="School suggestions" className="absolute z-20 mt-1 w-full border-2 border-ink bg-white text-left shadow-[6px_6px_0_#10243e]">
         <p className="px-3 py-2 text-xs font-bold uppercase tracking-wider text-ink/35">Choose your school</p>
         {suggestions.map((school) => <button type="button" role="option" aria-selected="false" key={school.slug} onMouseDown={(event) => event.preventDefault()} onClick={() => choose(school)} className="flex w-full items-center gap-3 border-t border-ink/15 px-4 py-3 hover:bg-paper"><span className="grid h-9 w-12 shrink-0 place-items-center border border-ink text-xs font-black">{school.initials}</span><span><span className="block font-bold">{school.name}</span><span className="block text-sm text-ink/45">{school.domain} · {school.location}</span></span></button>)}
       </div>}
+      {showSuggestions && normalized && !hasSuggestions && <div id="school-suggestions" className="absolute z-20 mt-1 w-full border-2 border-ink bg-white px-4 py-4 text-left shadow-[6px_6px_0_#10243e]"><p className="font-bold">No matching school found</p><p className="mt-1 text-sm text-ink/50">Try the full name, abbreviation, nickname, or .edu domain.</p></div>}
     </div>
   );
 }
