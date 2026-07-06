@@ -11,10 +11,14 @@
     "name": "GitHub Student Developer Pack",
     "provider": "GitHub Education",
     "description": "A bundle of developer tools, cloud credits, domains, courses, and partner offers for students.",
-    "category": "Software",
+    "categoryId": "software",
     "value": "Free student pack",
     "annualValue": 0,
     "eligibility": "Verified students age 13 or older",
+    "eligibilityNotes": [
+      "Verified students age 13 or older",
+"Verification requirement: School-issued email address or third-party enrollment verification"
+    ],
     "claimUrl": "https://education.github.com/pack",
     "featured": true,
     "claimSteps": [
@@ -37,10 +41,14 @@
     "name": "Notion Education Plus",
     "provider": "Notion",
     "description": "A free Plus workspace with unlimited pages, larger uploads, and extended page history.",
-    "category": "Software",
+    "categoryId": "software",
     "value": "Free Plus plan",
     "annualValue": 0,
     "eligibility": "Students at accredited colleges and universities",
+    "eligibilityNotes": [
+      "Students at accredited colleges and universities",
+      "Verification requirement: School-issued email address or third-party enrollment verification"
+    ],
     "claimUrl": "https://www.notion.com/product/notion-for-education",
     "featured": true,
     "claimSteps": [
@@ -63,10 +71,14 @@
     "name": "Figma for Education",
     "provider": "Figma",
     "description": "Professional design and collaboration features for classroom and individual student work.",
-    "category": "Software",
+    "categoryId": "software",
     "value": "Free education plan",
     "annualValue": 0,
     "eligibility": "Current students and educators",
+    "eligibilityNotes": [
+      "Current students and educators",
+      "Verification requirement: School-issued email address or third-party enrollment verification"
+    ],
     "claimUrl": "https://www.figma.com/education/",
     "claimSteps": [
       "Open the Figma student offer using the claim link.",
@@ -88,10 +100,14 @@
     "name": "JetBrains Student Pack",
     "provider": "JetBrains",
     "description": "Free access to IntelliJ IDEA, PyCharm, WebStorm, and the complete JetBrains IDE suite.",
-    "category": "Software",
+    "categoryId": "software",
     "value": "Free annual license",
     "annualValue": 0,
     "eligibility": "Students at accredited institutions",
+    "eligibilityNotes": [
+      "Students at accredited institutions",
+      "Verification requirement: School-issued email address or third-party enrollment verification"
+    ],
     "claimUrl": "https://www.jetbrains.com/community/education/#students",
     "claimSteps": [
       "Open the JetBrains student offer using the claim link.",
@@ -113,10 +129,14 @@
     "name": "Azure for Students",
     "provider": "Microsoft Azure",
     "description": "Cloud credits and selected Azure services without requiring a credit card.",
-    "category": "Software",
+    "categoryId": "software",
     "value": "$100 credit",
     "annualValue": 100,
     "eligibility": "Full-time university students age 18+",
+    "eligibilityNotes": [
+      "Full-time university students age 18+",
+      "Verification requirement: School-issued email address or third-party enrollment verification"
+    ],
     "claimUrl": "https://azure.microsoft.com/free/students",
     "claimSteps": [
       "Open the Microsoft Azure student offer using the claim link.",
@@ -138,10 +158,14 @@
     "name": "Autodesk Education Access",
     "provider": "Autodesk",
     "description": "Educational access to AutoCAD, Fusion, Maya, Revit, and other professional tools.",
-    "category": "Software",
+    "categoryId": "software",
     "value": "Free education access",
     "annualValue": 0,
     "eligibility": "Eligible students at qualified institutions",
+    "eligibilityNotes": [
+      "Eligible students at qualified institutions",
+      "Verification requirement: School-issued email address or third-party enrollment verification"
+    ],
     "claimUrl": "https://www.autodesk.com/education/edu-software/overview",
     "claimSteps": [
       "Open the Autodesk student offer using the claim link.",
@@ -163,10 +187,14 @@
     "name": "Tableau for Students",
     "provider": "Tableau",
     "description": "A renewable student license for interactive data visualization and analytics projects.",
-    "category": "Software",
+    "categoryId": "software",
     "value": "Free student license",
     "annualValue": 0,
     "eligibility": "Actively enrolled students",
+    "eligibilityNotes": [
+      "Actively enrolled students",
+      "Verification requirement: School-issued email address or third-party enrollment verification"
+    ],
     "claimUrl": "https://www.tableau.com/academic/students",
     "claimSteps": [
       "Open the Tableau student offer using the claim link.",
@@ -188,10 +216,14 @@
     "name": "Perplexity Education Pro",
     "provider": "Perplexity",
     "description": "Expanded AI research, citations, file analysis, and access to advanced models for students.",
-    "category": "AI",
+    "categoryId": "ai",
     "value": "Discounted education plan",
     "annualValue": 0,
     "eligibility": "Verified university students and educators",
+    "eligibilityNotes": [
+      "Verified university students and educators",
+      "Verification requirement: School-issued email address or third-party enrollment verification"
+    ],
     "claimUrl": "https://www.perplexity.ai/students",
     "featured": true,
     "claimSteps": [
@@ -214,10 +246,14 @@
     "name": "Google AI Student Plan",
     "provider": "Google",
     "description": "Premium Gemini features and expanded AI tools offered to eligible college students in select regions.",
-    "category": "AI",
+    "categoryId": "ai",
     "value": "Regional student offer",
     "annualValue": 0,
     "eligibility": "Eligible college students; regional limits apply",
+    "eligibilityNotes": [
+      "Eligible college students; regional limits apply",
+      "Verification requirement: School-issued email address or third-party enrollment verification"
+    ],
     "claimUrl": "https://gemini.google/students/",
     "claimSteps": [
       "Open the Google student offer using the claim link.",
@@ -239,10 +275,14 @@
     "name": "Wolfram|Alpha Student Plan",
     "provider": "Wolfram",
     "description": "Step-by-step computational answers for math, science, data, and engineering coursework.",
-    "category": "AI",
+    "categoryId": "ai",
     "value": "Student pricing",
     "annualValue": 0,
     "eligibility": "Current students",
+    "eligibilityNotes": [
+      "Current students",
+      "Verification requirement: School-issued email address or third-party enrollment verification"
+    ],
     "claimUrl": "https://www.wolframalpha.com/pro/pricing/students/",
     "claimSteps": [
       "Open the Wolfram student offer using the claim link.",
@@ -264,10 +304,14 @@
     "name": "Spotify Premium Student",
     "provider": "Spotify",
     "description": "Discounted Premium listening with ad-free music, downloads, and on-demand playback.",
-    "category": "Streaming",
+    "categoryId": "streaming",
     "value": "Up to $17.99/mo savings",
     "annualValue": 216,
     "eligibility": "Eligible US higher-education students age 18+",
+    "eligibilityNotes": [
+      "Eligible US higher-education students age 18+",
+      "Verification requirement: School-issued email address or third-party enrollment verification"
+    ],
     "claimUrl": "https://www.spotify.com/us/student/",
     "claimSteps": [
       "Open the Spotify student offer using the claim link.",
@@ -289,10 +333,14 @@
     "name": "YouTube Premium Student",
     "provider": "YouTube",
     "description": "Discounted ad-free video, background play, downloads, and YouTube Music Premium.",
-    "category": "Streaming",
+    "categoryId": "streaming",
     "value": "Discounted student plan",
     "annualValue": 0,
     "eligibility": "Students at SheerID-approved higher-education institutions",
+    "eligibilityNotes": [
+      "Students at SheerID-approved higher-education institutions",
+      "Verification requirement: School-issued email address or third-party enrollment verification"
+    ],
     "claimUrl": "https://www.youtube.com/premium/student",
     "claimSteps": [
       "Open the YouTube student offer using the claim link.",
@@ -314,10 +362,14 @@
     "name": "Apple Music Student",
     "provider": "Apple Music",
     "description": "Reduced-price access to Apple Music’s full catalog, playlists, and spatial audio.",
-    "category": "Streaming",
+    "categoryId": "streaming",
     "value": "Discounted student rate",
     "annualValue": 0,
     "eligibility": "Degree-granting university students",
+    "eligibilityNotes": [
+      "Degree-granting university students",
+      "Verification requirement: School-issued email address or third-party enrollment verification"
+    ],
     "claimUrl": "https://support.apple.com/106008",
     "claimSteps": [
       "Open the Apple Music student offer using the claim link.",
@@ -339,10 +391,14 @@
     "name": "Hulu Student",
     "provider": "Hulu",
     "description": "A discounted ad-supported Hulu subscription for eligible college students.",
-    "category": "Streaming",
+    "categoryId": "streaming",
     "value": "$10/mo savings",
     "annualValue": 120,
     "eligibility": "Students at eligible US accredited institutions",
+    "eligibilityNotes": [
+      "Students at eligible US accredited institutions",
+      "Verification requirement: School-issued email address or third-party enrollment verification"
+    ],
     "claimUrl": "https://www.hulu.com/student",
     "claimSteps": [
       "Open the Hulu student offer using the claim link.",
@@ -364,10 +420,14 @@
     "name": "Peacock Student Discount",
     "provider": "Peacock",
     "description": "Reduced monthly pricing for Peacock Premium entertainment and live programming.",
-    "category": "Streaming",
+    "categoryId": "streaming",
     "value": "$5/mo savings",
     "annualValue": 60,
     "eligibility": "Eligible US college students age 18+",
+    "eligibilityNotes": [
+      "Eligible US college students age 18+",
+      "Verification requirement: School-issued email address or third-party enrollment verification"
+    ],
     "claimUrl": "https://www.peacocktv.com/student",
     "claimSteps": [
       "Open the Peacock student offer using the claim link.",
@@ -389,10 +449,14 @@
     "name": "Amazon Prime for Young Adults",
     "provider": "Amazon",
     "description": "A trial and discounted Prime membership with delivery, entertainment, and shopping benefits.",
-    "category": "Shopping",
+    "categoryId": "shopping",
     "value": "Discounted membership",
     "annualValue": 0,
     "eligibility": "Eligible students and young adults",
+    "eligibilityNotes": [
+      "Eligible students and young adults",
+      "Verification requirement: School-issued email address or third-party enrollment verification"
+    ],
     "claimUrl": "https://www.amazon.com/amazonprime",
     "claimSteps": [
       "Open the Amazon student offer using the claim link.",
@@ -414,10 +478,14 @@
     "name": "Apple Education Store",
     "provider": "Apple",
     "description": "Education pricing on eligible Mac and iPad models for college students and educators.",
-    "category": "Shopping",
+    "categoryId": "shopping",
     "value": "Education pricing",
     "annualValue": 0,
     "eligibility": "Current and newly accepted college students",
+    "eligibilityNotes": [
+      "Current and newly accepted college students",
+      "Verification requirement: School-issued email address or third-party enrollment verification"
+    ],
     "claimUrl": "https://www.apple.com/us-edu/store",
     "claimSteps": [
       "Open the Apple student offer using the claim link.",
@@ -439,10 +507,14 @@
     "name": "Samsung Education Offers",
     "provider": "Samsung",
     "description": "Education discounts on select phones, tablets, laptops, displays, and accessories.",
-    "category": "Shopping",
+    "categoryId": "shopping",
     "value": "Product-dependent savings",
     "annualValue": 0,
     "eligibility": "Verified students and educators",
+    "eligibilityNotes": [
+      "Verified students and educators",
+      "Verification requirement: School-issued email address or third-party enrollment verification"
+    ],
     "claimUrl": "https://www.samsung.com/us/shop/offer-program/education/",
     "claimSteps": [
       "Open the Samsung student offer using the claim link.",
@@ -464,10 +536,14 @@
     "name": "Lenovo Student Discount",
     "provider": "Lenovo",
     "description": "Education pricing on eligible laptops, desktops, monitors, and accessories.",
-    "category": "Shopping",
+    "categoryId": "shopping",
     "value": "Product-dependent savings",
     "annualValue": 0,
     "eligibility": "College and university students",
+    "eligibilityNotes": [
+      "College and university students",
+      "Verification requirement: School-issued email address or third-party enrollment verification"
+    ],
     "claimUrl": "https://www.lenovo.com/us/en/d/deals/student-discount/",
     "claimSteps": [
       "Open the Lenovo student offer using the claim link.",
@@ -489,10 +565,14 @@
     "name": "Adobe Creative Cloud Student",
     "provider": "Adobe",
     "description": "Reduced pricing for Photoshop, Illustrator, Premiere Pro, Acrobat, and other Creative Cloud apps.",
-    "category": "Shopping",
+    "categoryId": "shopping",
     "value": "Discounted student pricing",
     "annualValue": 0,
     "eligibility": "Students age 13+ at eligible institutions",
+    "eligibilityNotes": [
+      "Students age 13+ at eligible institutions",
+      "Verification requirement: School-issued email address or third-party enrollment verification"
+    ],
     "claimUrl": "https://www.adobe.com/creativecloud/buy/students.html",
     "claimSteps": [
       "Open the Adobe student offer using the claim link.",
@@ -514,10 +594,14 @@
     "name": "UNiDAYS Student Discounts",
     "provider": "UNiDAYS",
     "description": "A free verification hub for rotating student offers across fashion, technology, food, and more.",
-    "category": "Shopping",
+    "categoryId": "shopping",
     "value": "Free discount access",
     "annualValue": 0,
     "eligibility": "Verified students at supported institutions",
+    "eligibilityNotes": [
+      "Verified students at supported institutions",
+      "Verification requirement: School-issued email address or third-party enrollment verification"
+    ],
     "claimUrl": "https://www.myunidays.com/",
     "claimSteps": [
       "Open the UNiDAYS student offer using the claim link.",
@@ -539,10 +623,14 @@
     "name": "YNAB College Student Year",
     "provider": "YNAB",
     "description": "A free year of budgeting software to organize spending, savings, and recurring bills.",
-    "category": "Finance",
+    "categoryId": "finance",
     "value": "One year free",
     "annualValue": 0,
     "eligibility": "Current college students",
+    "eligibilityNotes": [
+      "Current college students",
+      "Verification requirement: School-issued email address or third-party enrollment verification"
+    ],
     "claimUrl": "https://www.ynab.com/college",
     "claimSteps": [
       "Open the YNAB student offer using the claim link.",
@@ -564,10 +652,14 @@
     "name": "Amtrak Student Discount",
     "provider": "Amtrak",
     "description": "Save on eligible rail fares when booking in advance with the student discount.",
-    "category": "Travel",
+    "categoryId": "travel",
     "value": "15% off eligible fares",
     "annualValue": 0,
     "eligibility": "Students ages 17–24 with valid student ID",
+    "eligibilityNotes": [
+      "Students ages 17–24 with valid student ID",
+      "Verification requirement: School-issued email address or third-party enrollment verification"
+    ],
     "claimUrl": "https://www.amtrak.com/student-discounts",
     "claimSteps": [
       "Open the Amtrak student offer using the claim link.",
@@ -589,10 +681,14 @@
     "name": "Headspace Student Plan",
     "provider": "Headspace",
     "description": "Reduced pricing for guided meditation, sleep content, stress management, and focus tools.",
-    "category": "Other",
+    "categoryId": "other",
     "value": "Discounted student plan",
     "annualValue": 0,
     "eligibility": "Verified college and university students",
+    "eligibilityNotes": [
+      "Verified college and university students",
+      "Verification requirement: School-issued email address or third-party enrollment verification"
+    ],
     "claimUrl": "https://www.headspace.com/studentplan",
     "claimSteps": [
       "Open the Headspace student offer using the claim link.",
@@ -614,10 +710,14 @@
     "name": "The Economist Student",
     "provider": "The Economist",
     "description": "Reduced digital subscription pricing and free Espresso access for eligible students.",
-    "category": "Other",
+    "categoryId": "other",
     "value": "Up to 75% off",
     "annualValue": 0,
     "eligibility": "Verified students age 16+",
+    "eligibilityNotes": [
+      "Verified students age 16+",
+      "Verification requirement: School-issued email address or third-party enrollment verification"
+    ],
     "claimUrl": "https://subscribenow.economist.com/student",
     "claimSteps": [
       "Open the The Economist student offer using the claim link.",
@@ -639,10 +739,14 @@
     "name": "Microsoft 365 Education",
     "provider": "Microsoft Education",
     "description": "Free web versions of Word, Excel, PowerPoint, OneNote, Teams, and Copilot Chat for eligible students.",
-    "category": "Software",
+    "categoryId": "software",
     "value": "Free A1 plan",
     "annualValue": 0,
     "eligibility": "Students with an eligible school email address",
+    "eligibilityNotes": [
+      "Students with an eligible school email address",
+      "Verification requirement: School-issued email address or third-party enrollment verification"
+    ],
     "claimUrl": "https://www.microsoft.com/en-us/education/products/office",
     "claimSteps": [
       "Open the Microsoft Education student offer using the claim link.",
@@ -664,10 +768,14 @@
     "name": "Dell Student Discount",
     "provider": "Dell",
     "description": "Verified student pricing on eligible Dell computers and accessories in the United States.",
-    "category": "Shopping",
+    "categoryId": "shopping",
     "value": "Unknown",
     "annualValue": 0,
     "eligibility": "Eligible US high school, college, university, and trade-school students",
+    "eligibilityNotes": [
+      "Eligible US high school, college, university, and trade-school students",
+      "Verification requirement: School-issued email address or third-party enrollment verification"
+    ],
     "claimUrl": "https://www.dell.com/en-us/lp/students",
     "claimSteps": [
       "Open the Dell student offer using the claim link.",
@@ -689,10 +797,14 @@
     "name": "HP Education Store",
     "provider": "HP",
     "description": "Education-store pricing on eligible laptops, desktops, printers, and accessories.",
-    "category": "Shopping",
+    "categoryId": "shopping",
     "value": "Up to 40% off eligible products",
     "annualValue": 0,
     "eligibility": "University students and educators",
+    "eligibilityNotes": [
+      "University students and educators",
+      "Verification requirement: School-issued email address or third-party enrollment verification"
+    ],
     "claimUrl": "https://www.hp.com/us-en/shop/cv/hp-education",
     "claimSteps": [
       "Open the HP student offer using the claim link.",
@@ -714,10 +826,14 @@
     "name": "UChicago ArtsPass",
     "provider": "University of Chicago",
     "description": "Free and discounted admission at arts and cultural organizations across Chicago using a valid UCID.",
-    "category": "Campus",
+    "categoryId": "campus",
     "value": "Unknown",
     "annualValue": 0,
     "eligibility": "Current University of Chicago students with a valid UCID",
+    "eligibilityNotes": [
+      "Current University of Chicago students with a valid UCID",
+      "Verification requirement: Valid University of Chicago ID"
+    ],
     "claimUrl": "https://www.studentarts.uchicago.edu/artspass/",
     "claimSteps": [
       "Review current ArtsPass partner offers.",
@@ -738,10 +854,14 @@
     "name": "Bruin U-Pass",
     "provider": "UCLA Transportation",
     "description": "Fare-free unlimited rides on participating Los Angeles County transit agencies during eligible academic quarters.",
-    "category": "Campus",
+    "categoryId": "campus",
     "value": "Fare-free transit",
     "annualValue": 0,
     "eligibility": "Registered UCLA undergraduates paying the Universal Access Transit Pass Fee",
+    "eligibilityNotes": [
+      "Registered UCLA undergraduates paying the Universal Access Transit Pass Fee",
+      "Verification requirement: UCLA Logon ID and current undergraduate enrollment"
+    ],
     "claimUrl": "https://transportation.ucla.edu/getting-to-ucla/public-transit/bruin-u-pass",
     "claimSteps": [
       "Sign in to BruinTAP with your UCLA Logon ID.",
@@ -763,10 +883,14 @@
     "name": "Harvard Campus Museum Access",
     "provider": "Harvard University",
     "description": "Free admission to Harvard campus museums with a valid Harvard ID, generally including one guest.",
-    "category": "Campus",
+    "categoryId": "campus",
     "value": "Free admission",
     "annualValue": 0,
     "eligibility": "Current Harvard students with a valid Harvard ID",
+    "eligibilityNotes": [
+      "Current Harvard students with a valid Harvard ID",
+      "Verification requirement: Valid Harvard ID"
+    ],
     "claimUrl": "https://osa.gse.harvard.edu/perks",
     "claimSteps": [
       "Check the participating museum’s current hours.",
@@ -787,10 +911,14 @@
     "name": "Marguerite Shuttle",
     "provider": "Stanford Transportation",
     "description": "Free shuttle service connecting Stanford campus, Palo Alto Transit Center, and nearby destinations.",
-    "category": "Campus",
+    "categoryId": "campus",
     "value": "Free shuttle service",
     "annualValue": 0,
     "eligibility": "Open to Stanford students and the public",
+    "eligibilityNotes": [
+      "Open to Stanford students and the public",
+      "Verification requirement: No verification required on standard Marguerite routes"
+    ],
     "claimUrl": "https://transportation.stanford.edu/getting-stanford/marguerite",
     "claimSteps": [
       "Review the current Marguerite route map and schedule.",
@@ -811,10 +939,14 @@
     "name": "MIT Arts Access",
     "provider": "Arts at MIT",
     "description": "Free admission to participating Boston art museums and subsidized performance tickets for current MIT students.",
-    "category": "Campus",
+    "categoryId": "campus",
     "value": "Free and subsidized admission",
     "annualValue": 0,
     "eligibility": "Currently registered MIT students",
+    "eligibilityNotes": [
+      "Currently registered MIT students",
+      "Verification requirement: Valid MIT ID; some venues require advance reservations"
+    ],
     "claimUrl": "https://arts.mit.edu/opportunities/arts-access/",
     "claimSteps": [
       "Choose a participating museum or performance.",
@@ -835,10 +967,14 @@
     "name": "Passport to Museums",
     "provider": "Columbia University Arts Initiative",
     "description": "Free admission to more than 20 participating New York City museums.",
-    "category": "Campus",
+    "categoryId": "campus",
     "value": "Free museum admission",
     "annualValue": 0,
     "eligibility": "Eligible Columbia students with a valid Columbia ID",
+    "eligibilityNotes": [
+      "Eligible Columbia students with a valid Columbia ID",
+      "Verification requirement: Valid Columbia University ID"
+    ],
     "claimUrl": "https://artsinitiative.columbia.edu/",
     "claimSteps": [
       "Review the current Passport to Museums partners.",
@@ -859,10 +995,14 @@
     "name": "Penn Transit",
     "provider": "University of Pennsylvania",
     "description": "Free bus and shuttle transportation within the Penn Transit service area.",
-    "category": "Campus",
+    "categoryId": "campus",
     "value": "Free transit service",
     "annualValue": 0,
     "eligibility": "Penn community members with a valid PennCard",
+    "eligibilityNotes": [
+      "Penn community members with a valid PennCard",
+      "Verification requirement: Valid PennCard"
+    ],
     "claimUrl": "https://www.business-services.upenn.edu/services",
     "claimSteps": [
       "Review current Penn Transit routes and service hours.",
@@ -883,10 +1023,14 @@
     "name": "Penn State Software Access",
     "provider": "Penn State IT",
     "description": "Access to university-provided software and remote applications, including Adobe Creative Cloud and selected academic tools.",
-    "category": "Campus",
+    "categoryId": "campus",
     "value": "No additional cost",
     "annualValue": 0,
     "eligibility": "Current Penn State students; product eligibility may vary by course or campus",
+    "eligibilityNotes": [
+      "Current Penn State students; product eligibility may vary by course or campus",
+      "Verification requirement: Penn State account and current affiliation"
+    ],
     "claimUrl": "https://dubois.psu.edu/IT/Free-Stuff",
     "claimSteps": [
       "Review the current Penn State software catalog.",

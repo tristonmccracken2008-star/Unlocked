@@ -1,0 +1,3801 @@
+[
+  {
+    "slug": "southern-new-hampshire-university",
+    "name": "Southern New Hampshire University",
+    "aliases": [
+      "SNHU"
+    ],
+    "domain": "snhu.edu",
+    "location": "Manchester, NH",
+    "initials": "SNHU",
+    "website": "https://snhu.edu",
+    "unitId": "183026",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "western-governors-university",
+    "name": "Western Governors University",
+    "aliases": [
+      "WGU Western Governors"
+    ],
+    "domain": "wgu.edu",
+    "location": "Salt Lake City, UT",
+    "initials": "WGU",
+    "website": "https://wgu.edu",
+    "unitId": "433387",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "grand-canyon-university",
+    "name": "Grand Canyon University",
+    "aliases": [
+      "GCU"
+    ],
+    "domain": "gcu.edu",
+    "location": "Phoenix, AZ",
+    "initials": "GCU",
+    "website": "https://gcu.edu",
+    "unitId": "104717",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "texas-a-m-university-college-station",
+    "name": "Texas A&M University-College Station",
+    "aliases": [
+      "Texas A&M University"
+    ],
+    "domain": "tamu.edu",
+    "location": "College Station, TX",
+    "initials": "TAMUCS",
+    "website": "https://tamu.edu",
+    "unitId": "228723",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-central-florida",
+    "name": "University of Central Florida",
+    "aliases": [
+      "UCF"
+    ],
+    "domain": "ucf.edu",
+    "location": "Orlando, FL",
+    "initials": "UCF",
+    "website": "https://ucf.edu",
+    "unitId": "132903",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "liberty-university",
+    "name": "Liberty University",
+    "aliases": [],
+    "domain": "liberty.edu",
+    "location": "Lynchburg, VA",
+    "initials": "LU",
+    "website": "https://liberty.edu",
+    "unitId": "232557",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-maryland-global-campus",
+    "name": "University of Maryland Global Campus",
+    "aliases": [
+      "UMGC"
+    ],
+    "domain": "umgc.edu",
+    "location": "Adelphi, MD",
+    "initials": "UMGC",
+    "website": "https://umgc.edu",
+    "unitId": "163204",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "ohio-state-university-main-campus",
+    "name": "Ohio State University-Main Campus",
+    "aliases": [],
+    "domain": "osu.edu",
+    "location": "Columbus, OH",
+    "initials": "OSUMC",
+    "website": "https://osu.edu",
+    "unitId": "204796",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "purdue-university-main-campus",
+    "name": "Purdue University-Main Campus",
+    "aliases": [
+      "Purdue-West Lafayette",
+      "Purdue",
+      "PU",
+      "Purdue-WL"
+    ],
+    "domain": "purdue.edu",
+    "location": "West Lafayette, IN",
+    "initials": "PUMC",
+    "website": "https://purdue.edu",
+    "unitId": "243780",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-arizona",
+    "name": "University of Arizona",
+    "aliases": [
+      "The University of Arizona",
+      "UArizona",
+      "U of A",
+      "UofA",
+      "UA",
+      "University of AZ",
+      "Univ. of AZ",
+      "The Univ. of AZ"
+    ],
+    "domain": "arizona.edu",
+    "location": "Tucson, AZ",
+    "initials": "UA",
+    "website": "https://arizona.edu",
+    "unitId": "104179",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "kennesaw-state-university",
+    "name": "Kennesaw State University",
+    "aliases": [
+      "KSU"
+    ],
+    "domain": "kennesaw.edu",
+    "location": "Kennesaw, GA",
+    "initials": "KSU",
+    "website": "https://kennesaw.edu",
+    "unitId": "486840",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "michigan-state-university",
+    "name": "Michigan State University",
+    "aliases": [
+      "MSU",
+      "Spartans",
+      "MI State University",
+      "State",
+      "MI State U"
+    ],
+    "domain": "msu.edu",
+    "location": "East Lansing, MI",
+    "initials": "MSU",
+    "website": "https://msu.edu",
+    "unitId": "171100",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "florida-international-university",
+    "name": "Florida International University",
+    "aliases": [
+      "FIU"
+    ],
+    "domain": "fiu.edu",
+    "location": "Miami, FL",
+    "initials": "FIU",
+    "website": "https://fiu.edu",
+    "unitId": "133951",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "california-state-university-fullerton",
+    "name": "California State University-Fullerton",
+    "aliases": [
+      "Cal State Fullerton"
+    ],
+    "domain": "fullerton.edu",
+    "location": "Fullerton, CA",
+    "initials": "CSUF",
+    "website": "https://fullerton.edu",
+    "unitId": "110565",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-houston",
+    "name": "University of Houston",
+    "aliases": [
+      "UH"
+    ],
+    "domain": "uh.edu",
+    "location": "Houston, TX",
+    "initials": "UH",
+    "website": "https://uh.edu",
+    "unitId": "225511",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "indiana-university-bloomington",
+    "name": "Indiana University-Bloomington",
+    "aliases": [
+      "IUB",
+      "IU Bloomington"
+    ],
+    "domain": "bloomington.iu.edu",
+    "location": "Bloomington, IN",
+    "initials": "IUB",
+    "website": "https://bloomington.iu.edu",
+    "unitId": "151351",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "rutgers-university-new-brunswick",
+    "name": "Rutgers University-New Brunswick",
+    "aliases": [
+      "Rutgers, The State University of New Jersey",
+      "Rutgers, The State University",
+      "Rutgers University",
+      "Rutgers U",
+      "Rutgers",
+      "Rutgers-New Brunswick",
+      "Rutgers, New Brunswick",
+      "Rutgers New Brunswick"
+    ],
+    "domain": "newbrunswick.rutgers.edu",
+    "location": "New Brunswick, NJ",
+    "initials": "RUNB",
+    "website": "https://newbrunswick.rutgers.edu",
+    "unitId": "186380",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-south-florida",
+    "name": "University of South Florida",
+    "aliases": [
+      "University of South Florida USF"
+    ],
+    "domain": "usf.edu",
+    "location": "Tampa, FL",
+    "initials": "USF",
+    "website": "https://usf.edu",
+    "unitId": "137351",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-wisconsin-madison",
+    "name": "University of Wisconsin-Madison",
+    "aliases": [],
+    "domain": "wisc.edu",
+    "location": "Madison, WI",
+    "initials": "UWM",
+    "website": "https://wisc.edu",
+    "unitId": "240444",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-illinois-urbana-champaign",
+    "name": "University of Illinois Urbana-Champaign",
+    "aliases": [
+      "Illinois",
+      "Illinios",
+      "Ilinois",
+      "Ilinios",
+      "Urbana",
+      "Champaign",
+      "Champagne",
+      "Champaign-Urbana"
+    ],
+    "domain": "illinois.edu",
+    "location": "Champaign, IL",
+    "initials": "UIUC",
+    "website": "https://illinois.edu",
+    "unitId": "145637",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "texas-state-university",
+    "name": "Texas State University",
+    "aliases": [
+      "Texas State",
+      "Texas State University-San Marcos",
+      "Southwest Texas State University",
+      "Southwest Texas State",
+      "SWT",
+      "SWTSU",
+      "Texas State San Marcos",
+      "TxSt"
+    ],
+    "domain": "txst.edu",
+    "location": "San Marcos, TX",
+    "initials": "TSU",
+    "website": "https://txst.edu",
+    "unitId": "228459",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "california-state-university-long-beach",
+    "name": "California State University-Long Beach",
+    "aliases": [
+      "Cal State Long Beach"
+    ],
+    "domain": "csulb.edu",
+    "location": "Long Beach, CA",
+    "initials": "CSULB",
+    "website": "https://csulb.edu",
+    "unitId": "110583",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-florida",
+    "name": "University of Florida",
+    "aliases": [],
+    "domain": "ufl.edu",
+    "location": "Gainesville, FL",
+    "initials": "UF",
+    "website": "https://ufl.edu",
+    "unitId": "134130",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "san-diego-state-university",
+    "name": "San Diego State University",
+    "aliases": [],
+    "domain": "sdsu.edu",
+    "location": "San Diego, CA",
+    "initials": "SDSU",
+    "website": "https://sdsu.edu",
+    "unitId": "122409",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-california-san-diego",
+    "name": "University of California-San Diego",
+    "aliases": [
+      "UCSD UC San Diego"
+    ],
+    "domain": "ucsd.edu",
+    "location": "La Jolla, CA",
+    "initials": "UCSD",
+    "website": "https://ucsd.edu",
+    "unitId": "110680",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-north-texas",
+    "name": "University of North Texas",
+    "aliases": [
+      "UNT",
+      "North Texas",
+      "Mean Grean"
+    ],
+    "domain": "unt.edu",
+    "location": "Denton, TX",
+    "initials": "UNT",
+    "website": "https://unt.edu",
+    "unitId": "227216",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "the-university-of-alabama",
+    "name": "The University of Alabama",
+    "aliases": [],
+    "domain": "ua.edu",
+    "location": "Tuscaloosa, AL",
+    "initials": "UA",
+    "website": "https://ua.edu",
+    "unitId": "100751",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "brigham-young-university",
+    "name": "Brigham Young University",
+    "aliases": [
+      "BYU"
+    ],
+    "domain": "byu.edu",
+    "location": "Provo, UT",
+    "initials": "BYU",
+    "website": "https://byu.edu",
+    "unitId": "230038",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "california-state-university-northridge",
+    "name": "California State University-Northridge",
+    "aliases": [
+      "CSUN"
+    ],
+    "domain": "csun.edu",
+    "location": "Northridge, CA",
+    "initials": "CSUN",
+    "website": "https://csun.edu",
+    "unitId": "110608",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "texas-tech-university",
+    "name": "Texas Tech University",
+    "aliases": [],
+    "domain": "ttu.edu",
+    "location": "Lubbock, TX",
+    "initials": "TTU",
+    "website": "https://ttu.edu",
+    "unitId": "229115",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "the-university-of-texas-at-arlington",
+    "name": "The University of Texas at Arlington",
+    "aliases": [
+      "UT Arlington"
+    ],
+    "domain": "uta.edu",
+    "location": "Arlington, TX",
+    "initials": "UTA",
+    "website": "https://uta.edu",
+    "unitId": "228769",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-california-davis",
+    "name": "University of California-Davis",
+    "aliases": [
+      "UC Davis"
+    ],
+    "domain": "ucdavis.edu",
+    "location": "Davis, CA",
+    "initials": "UCD",
+    "website": "https://ucdavis.edu",
+    "unitId": "110644",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "florida-state-university",
+    "name": "Florida State University",
+    "aliases": [
+      "Florida State",
+      "F.S.U.",
+      "FSU",
+      "F. S. U.",
+      "Fla. State University",
+      "Fla. State",
+      "Fl State University",
+      "Fl State"
+    ],
+    "domain": "fsu.edu",
+    "location": "Tallahassee, FL",
+    "initials": "FSU",
+    "website": "https://fsu.edu",
+    "unitId": "134097",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-georgia",
+    "name": "University of Georgia",
+    "aliases": [],
+    "domain": "uga.edu",
+    "location": "Athens, GA",
+    "initials": "UG",
+    "website": "https://uga.edu",
+    "unitId": "139959",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-washington-seattle-campus",
+    "name": "University of Washington-Seattle Campus",
+    "aliases": [
+      "UW-Seattle, UDub, UW, Washington"
+    ],
+    "domain": "washington.edu",
+    "location": "Seattle, WA",
+    "initials": "UWSC",
+    "website": "https://washington.edu",
+    "unitId": "236948",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-colorado-boulder",
+    "name": "University of Colorado Boulder",
+    "aliases": [
+      "U of Colorado",
+      "Univ of Colorado",
+      "University of Colorado",
+      "U of CO",
+      "Univ of CO",
+      "University of CO",
+      "Boulder",
+      "CU"
+    ],
+    "domain": "colorado.edu",
+    "location": "Boulder, CO",
+    "initials": "UCB",
+    "website": "https://colorado.edu",
+    "unitId": "126614",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-minnesota-twin-cities",
+    "name": "University of Minnesota-Twin Cities",
+    "aliases": [],
+    "domain": "twin-cities.umn.edu",
+    "location": "Minneapolis, MN",
+    "initials": "UMTC",
+    "website": "https://twin-cities.umn.edu",
+    "unitId": "174066",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "virginia-polytechnic-institute-and-state-university",
+    "name": "Virginia Polytechnic Institute and State University",
+    "aliases": [
+      "Virginia Tech"
+    ],
+    "domain": "vt.edu",
+    "location": "Blacksburg, VA",
+    "initials": "VPISU",
+    "website": "https://vt.edu",
+    "unitId": "233921",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-maryland-college-park",
+    "name": "University of Maryland-College Park",
+    "aliases": [],
+    "domain": "umd.edu",
+    "location": "College Park, MD",
+    "initials": "UMCP",
+    "website": "https://umd.edu",
+    "unitId": "163286",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "oregon-state-university",
+    "name": "Oregon State University",
+    "aliases": [
+      "OSU"
+    ],
+    "domain": "oregonstate.edu",
+    "location": "Corvallis, OR",
+    "initials": "OSU",
+    "website": "https://oregonstate.edu",
+    "unitId": "209542",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "louisiana-state-university-and-agricultural-mechanical-college",
+    "name": "Louisiana State University and Agricultural & Mechanical College",
+    "aliases": [
+      "Louisiana State University",
+      "LSU"
+    ],
+    "domain": "lsu.edu",
+    "location": "Baton Rouge, LA",
+    "initials": "LSUAMC",
+    "website": "https://lsu.edu",
+    "unitId": "159391",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "the-university-of-texas-at-san-antonio",
+    "name": "The University of Texas at San Antonio",
+    "aliases": [
+      "UT San Antonio"
+    ],
+    "domain": "utsa.edu",
+    "location": "San Antonio, TX",
+    "initials": "UTSA",
+    "website": "https://utsa.edu",
+    "unitId": "229027",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "the-university-of-tennessee-knoxville",
+    "name": "The University of Tennessee-Knoxville",
+    "aliases": [],
+    "domain": "utk.edu",
+    "location": "Knoxville, TN",
+    "initials": "UTK",
+    "website": "https://utk.edu",
+    "unitId": "221759",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-california-irvine",
+    "name": "University of California-Irvine",
+    "aliases": [
+      "UCI  UC Irvine"
+    ],
+    "domain": "uci.edu",
+    "location": "Irvine, CA",
+    "initials": "UCI",
+    "website": "https://uci.edu",
+    "unitId": "110653",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-cincinnati-main-campus",
+    "name": "University of Cincinnati-Main Campus",
+    "aliases": [],
+    "domain": "uc.edu",
+    "location": "Cincinnati, OH",
+    "initials": "UCMC",
+    "website": "https://uc.edu",
+    "unitId": "201885",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-south-carolina-columbia",
+    "name": "University of South Carolina-Columbia",
+    "aliases": [],
+    "domain": "sc.edu",
+    "location": "Columbia, SC",
+    "initials": "USCC",
+    "website": "https://sc.edu",
+    "unitId": "218663",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-arkansas",
+    "name": "University of Arkansas",
+    "aliases": [
+      "Arkansas"
+    ],
+    "domain": "uark.edu",
+    "location": "Fayetteville, AR",
+    "initials": "UA",
+    "website": "https://uark.edu",
+    "unitId": "106397",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "the-university-of-texas-rio-grande-valley",
+    "name": "The University of Texas Rio Grande Valley",
+    "aliases": [
+      "UT Rio Grande Valley",
+      "UTRGV",
+      "University of Texas Rio Grande Valley"
+    ],
+    "domain": "utrgv.edu",
+    "location": "Edinburg, TX",
+    "initials": "UTRGV",
+    "website": "https://utrgv.edu",
+    "unitId": "227368",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "california-state-university-sacramento",
+    "name": "California State University-Sacramento",
+    "aliases": [
+      "Sacramento State"
+    ],
+    "domain": "csus.edu",
+    "location": "Sacramento, CA",
+    "initials": "CSUS",
+    "website": "https://csus.edu",
+    "unitId": "110617",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "george-mason-university",
+    "name": "George Mason University",
+    "aliases": [
+      "George Mason"
+    ],
+    "domain": "gmu.edu",
+    "location": "Fairfax, VA",
+    "initials": "GMU",
+    "website": "https://gmu.edu",
+    "unitId": "232186",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "san-jose-state-university",
+    "name": "San Jose State University",
+    "aliases": [],
+    "domain": "sjsu.edu",
+    "location": "San Jose, CA",
+    "initials": "SJSU",
+    "website": "https://sjsu.edu",
+    "unitId": "122755",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "north-carolina-state-university-at-raleigh",
+    "name": "North Carolina State University at Raleigh",
+    "aliases": [
+      "NC State University",
+      "NC State",
+      "N C State University",
+      "N C State",
+      "NCSU"
+    ],
+    "domain": "ncsu.edu",
+    "location": "Raleigh, NC",
+    "initials": "NCSUR",
+    "website": "https://ncsu.edu",
+    "unitId": "199193",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-utah",
+    "name": "University of Utah",
+    "aliases": [
+      "The U"
+    ],
+    "domain": "utah.edu",
+    "location": "Salt Lake City, UT",
+    "initials": "UU",
+    "website": "https://utah.edu",
+    "unitId": "230764",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "auburn-university",
+    "name": "Auburn University",
+    "aliases": [],
+    "domain": "auburn.edu",
+    "location": "Auburn, AL",
+    "initials": "AU",
+    "website": "https://auburn.edu",
+    "unitId": "100858",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "georgia-state-university",
+    "name": "Georgia State University",
+    "aliases": [],
+    "domain": "gsu.edu",
+    "location": "Atlanta, GA",
+    "initials": "GSU",
+    "website": "https://gsu.edu",
+    "unitId": "139940",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "colorado-state-university-fort-collins",
+    "name": "Colorado State University-Fort Collins",
+    "aliases": [],
+    "domain": "colostate.edu",
+    "location": "Fort Collins, CO",
+    "initials": "CSUFC",
+    "website": "https://colostate.edu",
+    "unitId": "126818",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "iowa-state-university",
+    "name": "Iowa State University",
+    "aliases": [
+      "ISU"
+    ],
+    "domain": "iastate.edu",
+    "location": "Ames, IA",
+    "initials": "ISU",
+    "website": "https://iastate.edu",
+    "unitId": "153603",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "california-state-polytechnic-university-pomona",
+    "name": "California State Polytechnic University-Pomona",
+    "aliases": [
+      "Cal Poly Pomona"
+    ],
+    "domain": "cpp.edu",
+    "location": "Pomona, CA",
+    "initials": "CSPUP",
+    "website": "https://cpp.edu",
+    "unitId": "110529",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-kentucky",
+    "name": "University of Kentucky",
+    "aliases": [],
+    "domain": "uky.edu",
+    "location": "Lexington, KY",
+    "initials": "UK",
+    "website": "https://uky.edu",
+    "unitId": "157085",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-nevada-las-vegas",
+    "name": "University of Nevada-Las Vegas",
+    "aliases": [
+      "UNLV"
+    ],
+    "domain": "unlv.edu",
+    "location": "Las Vegas, NV",
+    "initials": "UNLV",
+    "website": "https://unlv.edu",
+    "unitId": "182281",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-north-carolina-at-charlotte",
+    "name": "University of North Carolina at Charlotte",
+    "aliases": [
+      "UNC Charlotte"
+    ],
+    "domain": "charlotte.edu",
+    "location": "Charlotte, NC",
+    "initials": "UNCC",
+    "website": "https://charlotte.edu",
+    "unitId": "199139",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-missouri-columbia",
+    "name": "University of Missouri-Columbia",
+    "aliases": [],
+    "domain": "missouri.edu",
+    "location": "Columbia, MO",
+    "initials": "UMC",
+    "website": "https://missouri.edu",
+    "unitId": "178396",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "florida-atlantic-university",
+    "name": "Florida Atlantic University",
+    "aliases": [
+      "FAU"
+    ],
+    "domain": "fau.edu",
+    "location": "Boca Raton, FL",
+    "initials": "FAU",
+    "website": "https://fau.edu",
+    "unitId": "133669",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-massachusetts-amherst",
+    "name": "University of Massachusetts-Amherst",
+    "aliases": [
+      "UMass Amherst"
+    ],
+    "domain": "umass.edu",
+    "location": "Amherst, MA",
+    "initials": "UMA",
+    "website": "https://umass.edu",
+    "unitId": "166629",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "clemson-university",
+    "name": "Clemson University",
+    "aliases": [],
+    "domain": "clemson.edu",
+    "location": "Clemson, SC",
+    "initials": "CU",
+    "website": "https://clemson.edu",
+    "unitId": "217882",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-california-santa-barbara",
+    "name": "University of California-Santa Barbara",
+    "aliases": [
+      "UCSB  UC Santa Barbara"
+    ],
+    "domain": "ucsb.edu",
+    "location": "Santa Barbara, CA",
+    "initials": "UCSB",
+    "website": "https://ucsb.edu",
+    "unitId": "110705",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "northern-arizona-university",
+    "name": "Northern Arizona University",
+    "aliases": [
+      "NAU"
+    ],
+    "domain": "nau.edu",
+    "location": "Flagstaff, AZ",
+    "initials": "NAU",
+    "website": "https://nau.edu",
+    "unitId": "105330",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-oklahoma-norman-campus",
+    "name": "University of Oklahoma-Norman Campus",
+    "aliases": [
+      "University of Oklahoma",
+      "Oklahoma University",
+      "OU",
+      "Oklahoma"
+    ],
+    "domain": "ou.edu",
+    "location": "Norman, OK",
+    "initials": "UONC",
+    "website": "https://ou.edu",
+    "unitId": "207500",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-the-people",
+    "name": "University of the People",
+    "aliases": [],
+    "domain": "uopeople.edu",
+    "location": "Pasadena, CA",
+    "initials": "UP",
+    "website": "https://uopeople.edu",
+    "unitId": "488846",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-california-riverside",
+    "name": "University of California-Riverside",
+    "aliases": [
+      "UC Riverside"
+    ],
+    "domain": "ucr.edu",
+    "location": "Riverside, CA",
+    "initials": "UCR",
+    "website": "https://ucr.edu",
+    "unitId": "110671",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-iowa",
+    "name": "University of Iowa",
+    "aliases": [
+      "Iowa"
+    ],
+    "domain": "uiowa.edu",
+    "location": "Iowa City, IA",
+    "initials": "UI",
+    "website": "https://uiowa.edu",
+    "unitId": "153658",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-illinois-chicago",
+    "name": "University of Illinois Chicago",
+    "aliases": [
+      "UIC",
+      "U of I-Chicago",
+      "Illinois-Chicago",
+      "U of I-Medical Center",
+      "University of Illinois-Medical Center"
+    ],
+    "domain": "uic.edu",
+    "location": "Chicago, IL",
+    "initials": "UIC",
+    "website": "https://uic.edu",
+    "unitId": "145600",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "california-polytechnic-state-university-san-luis-obispo",
+    "name": "California Polytechnic State University-San Luis Obispo",
+    "aliases": [
+      "Cal Poly"
+    ],
+    "domain": "calpoly.edu",
+    "location": "San Luis Obispo, CA",
+    "initials": "CPSUSL",
+    "website": "https://calpoly.edu",
+    "unitId": "110422",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "georgia-southern-university",
+    "name": "Georgia Southern University",
+    "aliases": [],
+    "domain": "georgiasouthern.edu",
+    "location": "Statesboro, GA",
+    "initials": "GSU",
+    "website": "https://georgiasouthern.edu",
+    "unitId": "139931",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "oklahoma-state-university-main-campus",
+    "name": "Oklahoma State University-Main Campus",
+    "aliases": [],
+    "domain": "okstate.edu",
+    "location": "Stillwater, OK",
+    "initials": "OSUMC",
+    "website": "https://okstate.edu",
+    "unitId": "207388",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "the-university-of-texas-at-dallas",
+    "name": "The University of Texas at Dallas",
+    "aliases": [
+      "UT Dallas"
+    ],
+    "domain": "utdallas.edu",
+    "location": "Richardson, TX",
+    "initials": "UTD",
+    "website": "https://utdallas.edu",
+    "unitId": "228787",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "california-state-university-fresno",
+    "name": "California State University-Fresno",
+    "aliases": [],
+    "domain": "fresnostate.edu",
+    "location": "Fresno, CA",
+    "initials": "CSUF",
+    "website": "https://fresnostate.edu",
+    "unitId": "110556",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-mississippi",
+    "name": "University of Mississippi",
+    "aliases": [
+      "Ole Miss"
+    ],
+    "domain": "olemiss.edu",
+    "location": "University, MS",
+    "initials": "UM",
+    "website": "https://olemiss.edu",
+    "unitId": "176017",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-kansas",
+    "name": "University of Kansas",
+    "aliases": [
+      "Univ of Kansas",
+      "Kansas University",
+      "KU",
+      "Kansas Jayhawks",
+      "Univ of KS",
+      "University of KS",
+      "Kansas Univ"
+    ],
+    "domain": "ku.edu",
+    "location": "Lawrence, KS",
+    "initials": "UK",
+    "website": "https://ku.edu",
+    "unitId": "155317",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "washington-state-university",
+    "name": "Washington State University",
+    "aliases": [],
+    "domain": "wsu.edu",
+    "location": "Pullman, WA",
+    "initials": "WSU",
+    "website": "https://wsu.edu",
+    "unitId": "236939",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "the-university-of-texas-at-el-paso",
+    "name": "The University of Texas at El Paso",
+    "aliases": [
+      "UTEP"
+    ],
+    "domain": "utep.edu",
+    "location": "El Paso, TX",
+    "initials": "UTEP",
+    "website": "https://utep.edu",
+    "unitId": "228796",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "temple-university",
+    "name": "Temple University",
+    "aliases": [
+      "Temple"
+    ],
+    "domain": "temple.edu",
+    "location": "Philadelphia, PA",
+    "initials": "TU",
+    "website": "https://temple.edu",
+    "unitId": "216339",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "james-madison-university",
+    "name": "James Madison University",
+    "aliases": [
+      "JMU"
+    ],
+    "domain": "jmu.edu",
+    "location": "Harrisonburg, VA",
+    "initials": "JMU",
+    "website": "https://jmu.edu",
+    "unitId": "232423",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "virginia-commonwealth-university",
+    "name": "Virginia Commonwealth University",
+    "aliases": [
+      "VCU"
+    ],
+    "domain": "vcu.edu",
+    "location": "Richmond, VA",
+    "initials": "VCU",
+    "website": "https://vcu.edu",
+    "unitId": "234030",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-north-carolina-at-chapel-hill",
+    "name": "University of North Carolina at Chapel Hill",
+    "aliases": [],
+    "domain": "unc.edu",
+    "location": "Chapel Hill, NC",
+    "initials": "UNCCH",
+    "website": "https://unc.edu",
+    "unitId": "199120",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-oregon",
+    "name": "University of Oregon",
+    "aliases": [
+      "UO"
+    ],
+    "domain": "uoregon.edu",
+    "location": "Eugene, OR",
+    "initials": "UO",
+    "website": "https://uoregon.edu",
+    "unitId": "209551",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-southern-california",
+    "name": "University of Southern California",
+    "aliases": [
+      "USC"
+    ],
+    "domain": "usc.edu",
+    "location": "Los Angeles, CA",
+    "initials": "USC",
+    "website": "https://usc.edu",
+    "unitId": "123961",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-pittsburgh-pittsburgh-campus",
+    "name": "University of Pittsburgh-Pittsburgh Campus",
+    "aliases": [],
+    "domain": "pitt.edu",
+    "location": "Pittsburgh, PA",
+    "initials": "UPPC",
+    "website": "https://pitt.edu",
+    "unitId": "215293",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "utah-state-university",
+    "name": "Utah State University",
+    "aliases": [],
+    "domain": "usu.edu",
+    "location": "Logan, UT",
+    "initials": "USU",
+    "website": "https://usu.edu",
+    "unitId": "230728",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "the-university-of-arizona-global-campus",
+    "name": "The University of Arizona Global Campus",
+    "aliases": [],
+    "domain": "uagc.edu",
+    "location": "Chandler, AZ",
+    "initials": "UAGC",
+    "website": "https://uagc.edu",
+    "unitId": "154022",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-at-buffalo",
+    "name": "University at Buffalo",
+    "aliases": [
+      "UB",
+      "State University of New York at Buffalo",
+      "SUNY Buffalo",
+      "University of Buffalo"
+    ],
+    "domain": "buffalo.edu",
+    "location": "Buffalo, NY",
+    "initials": "UB",
+    "website": "https://buffalo.edu",
+    "unitId": "196088",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "east-carolina-university",
+    "name": "East Carolina University",
+    "aliases": [
+      "ECU"
+    ],
+    "domain": "ecu.edu",
+    "location": "Greenville, NC",
+    "initials": "ECU",
+    "website": "https://ecu.edu",
+    "unitId": "198464",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-connecticut",
+    "name": "University of Connecticut",
+    "aliases": [],
+    "domain": "uconn.edu",
+    "location": "Storrs, CT",
+    "initials": "UC",
+    "website": "https://uconn.edu",
+    "unitId": "129020",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "ohio-university-main-campus",
+    "name": "Ohio University-Main Campus",
+    "aliases": [],
+    "domain": "ohio.edu",
+    "location": "Athens, OH",
+    "initials": "OUMC",
+    "website": "https://ohio.edu",
+    "unitId": "204857",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "california-state-university-los-angeles",
+    "name": "California State University-Los Angeles",
+    "aliases": [
+      "Cal State LA"
+    ],
+    "domain": "calstatela.edu",
+    "location": "Los Angeles, CA",
+    "initials": "CSULA",
+    "website": "https://calstatela.edu",
+    "unitId": "110592",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "appalachian-state-university",
+    "name": "Appalachian State University",
+    "aliases": [],
+    "domain": "appstate.edu",
+    "location": "Boone, NC",
+    "initials": "ASU",
+    "website": "https://appstate.edu",
+    "unitId": "197869",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "kent-state-university-at-kent",
+    "name": "Kent State University at Kent",
+    "aliases": [],
+    "domain": "kent.edu",
+    "location": "Kent, OH",
+    "initials": "KSUK",
+    "website": "https://kent.edu",
+    "unitId": "203517",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-nebraska-lincoln",
+    "name": "University of Nebraska-Lincoln",
+    "aliases": [],
+    "domain": "unl.edu",
+    "location": "Lincoln, NE",
+    "initials": "UNL",
+    "website": "https://unl.edu",
+    "unitId": "181464",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-delaware",
+    "name": "University of Delaware",
+    "aliases": [
+      "UD"
+    ],
+    "domain": "udel.edu",
+    "location": "Newark, DE",
+    "initials": "UD",
+    "website": "https://udel.edu",
+    "unitId": "130943",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "illinois-state-university",
+    "name": "Illinois State University",
+    "aliases": [],
+    "domain": "illinoisstate.edu",
+    "location": "Normal, IL",
+    "initials": "ISU",
+    "website": "https://illinoisstate.edu",
+    "unitId": "145813",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "grand-valley-state-university",
+    "name": "Grand Valley State University",
+    "aliases": [
+      "Grand Valley",
+      "GVSU",
+      "Grand Valley State"
+    ],
+    "domain": "gvsu.edu",
+    "location": "Allendale, MI",
+    "initials": "GVSU",
+    "website": "https://gvsu.edu",
+    "unitId": "170082",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "georgia-institute-of-technology-main-campus",
+    "name": "Georgia Institute of Technology-Main Campus",
+    "aliases": [
+      "Georgia Tech"
+    ],
+    "domain": "gatech.edu",
+    "location": "Atlanta, GA",
+    "initials": "GITMC",
+    "website": "https://gatech.edu",
+    "unitId": "139755",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "san-francisco-state-university",
+    "name": "San Francisco State University",
+    "aliases": [],
+    "domain": "sfsu.edu",
+    "location": "San Francisco, CA",
+    "initials": "SFSU",
+    "website": "https://sfsu.edu",
+    "unitId": "122597",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "mississippi-state-university",
+    "name": "Mississippi State University",
+    "aliases": [],
+    "domain": "msstate.edu",
+    "location": "Mississippi State, MS",
+    "initials": "MSU",
+    "website": "https://msstate.edu",
+    "unitId": "176080",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "montclair-state-university",
+    "name": "Montclair State University",
+    "aliases": [],
+    "domain": "montclair.edu",
+    "location": "Montclair, NJ",
+    "initials": "MSU",
+    "website": "https://montclair.edu",
+    "unitId": "185590",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "boston-university",
+    "name": "Boston University",
+    "aliases": [
+      "BU",
+      "Boston U"
+    ],
+    "domain": "bu.edu",
+    "location": "Boston, MA",
+    "initials": "BU",
+    "website": "https://bu.edu",
+    "unitId": "164988",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "stony-brook-university",
+    "name": "Stony Brook University",
+    "aliases": [
+      "SUNY Stony Brook State University of New York at Stony Brook"
+    ],
+    "domain": "stonybrook.edu",
+    "location": "Stony Brook, NY",
+    "initials": "SBU",
+    "website": "https://stonybrook.edu",
+    "unitId": "196097",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-california-santa-cruz",
+    "name": "University of California-Santa Cruz",
+    "aliases": [
+      "UC Santa Cruz"
+    ],
+    "domain": "ucsc.edu",
+    "location": "Santa Cruz, CA",
+    "initials": "UCSC",
+    "website": "https://ucsc.edu",
+    "unitId": "110714",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "sam-houston-state-university",
+    "name": "Sam Houston State University",
+    "aliases": [
+      "SHSU"
+    ],
+    "domain": "shsu.edu",
+    "location": "Huntsville, TX",
+    "initials": "SHSU",
+    "website": "https://shsu.edu",
+    "unitId": "227881",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "boise-state-university",
+    "name": "Boise State University",
+    "aliases": [
+      "Boise State"
+    ],
+    "domain": "boisestate.edu",
+    "location": "Boise, ID",
+    "initials": "BSU",
+    "website": "https://boisestate.edu",
+    "unitId": "142115",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-virginia-main-campus",
+    "name": "University of Virginia-Main Campus",
+    "aliases": [
+      "University of Virginia  UVa  UVA"
+    ],
+    "domain": "virginia.edu",
+    "location": "Charlottesville, VA",
+    "initials": "UVMC",
+    "website": "https://virginia.edu",
+    "unitId": "234076",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "old-dominion-university",
+    "name": "Old Dominion University",
+    "aliases": [
+      "ODU, Old Dominion"
+    ],
+    "domain": "odu.edu",
+    "location": "Norfolk, VA",
+    "initials": "ODU",
+    "website": "https://odu.edu",
+    "unitId": "232982",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "west-virginia-university",
+    "name": "West Virginia University",
+    "aliases": [
+      "WVU"
+    ],
+    "domain": "wvu.edu",
+    "location": "Morgantown, WV",
+    "initials": "WVU",
+    "website": "https://wvu.edu",
+    "unitId": "238032",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "northeastern-university",
+    "name": "Northeastern University",
+    "aliases": [],
+    "domain": "northeastern.edu",
+    "location": "Boston, MA",
+    "initials": "NU",
+    "website": "https://northeastern.edu",
+    "unitId": "167358",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-new-mexico-main-campus",
+    "name": "University of New Mexico-Main Campus",
+    "aliases": [
+      "UNM"
+    ],
+    "domain": "unm.edu",
+    "location": "Albuquerque, NM",
+    "initials": "UNMMC",
+    "website": "https://unm.edu",
+    "unitId": "187985",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-wisconsin-milwaukee",
+    "name": "University of Wisconsin-Milwaukee",
+    "aliases": [
+      "UWM"
+    ],
+    "domain": "uwm.edu",
+    "location": "Milwaukee, WI",
+    "initials": "UWM",
+    "website": "https://uwm.edu",
+    "unitId": "240453",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "miami-university-oxford",
+    "name": "Miami University-Oxford",
+    "aliases": [
+      "Miami of Ohio"
+    ],
+    "domain": "miamioh.edu",
+    "location": "Oxford, OH",
+    "initials": "MUO",
+    "website": "https://miamioh.edu",
+    "unitId": "204024",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "middle-tennessee-state-university",
+    "name": "Middle Tennessee State University",
+    "aliases": [],
+    "domain": "mtsu.edu",
+    "location": "Murfreesboro, TN",
+    "initials": "MTSU",
+    "website": "https://mtsu.edu",
+    "unitId": "220978",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "cuny-hunter-college",
+    "name": "CUNY Hunter College",
+    "aliases": [
+      "Hunter",
+      "Hunter College"
+    ],
+    "domain": "hunter.cuny.edu",
+    "location": "New York, NY",
+    "initials": "CHC",
+    "website": "https://hunter.cuny.edu",
+    "unitId": "190594",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "cuny-bernard-m-baruch-college",
+    "name": "CUNY Bernard M Baruch College",
+    "aliases": [
+      "Baruch",
+      "Baruch College"
+    ],
+    "domain": "baruch.cuny.edu",
+    "location": "New York, NY",
+    "initials": "CBMBC",
+    "website": "https://baruch.cuny.edu",
+    "unitId": "190512",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-north-georgia",
+    "name": "University of North Georgia",
+    "aliases": [
+      "UNG"
+    ],
+    "domain": "ung.edu",
+    "location": "Dahlonega, GA",
+    "initials": "UNG",
+    "website": "https://ung.edu",
+    "unitId": "482680",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "towson-university",
+    "name": "Towson University",
+    "aliases": [],
+    "domain": "towson.edu",
+    "location": "Towson, MD",
+    "initials": "TU",
+    "website": "https://towson.edu",
+    "unitId": "164076",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "cornell-university",
+    "name": "Cornell University",
+    "aliases": [],
+    "domain": "cornell.edu",
+    "location": "Ithaca, NY",
+    "initials": "CU",
+    "website": "https://cornell.edu",
+    "unitId": "190415",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "rowan-university",
+    "name": "Rowan University",
+    "aliases": [
+      "Rowan College of New Jersey   Glassboro State College"
+    ],
+    "domain": "rowan.edu",
+    "location": "Glassboro, NJ",
+    "initials": "RU",
+    "website": "https://rowan.edu",
+    "unitId": "184782",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-nevada-reno",
+    "name": "University of Nevada-Reno",
+    "aliases": [],
+    "domain": "unr.edu",
+    "location": "Reno, NV",
+    "initials": "UNR",
+    "website": "https://unr.edu",
+    "unitId": "182290",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "wayne-state-university",
+    "name": "Wayne State University",
+    "aliases": [
+      "WSU"
+    ],
+    "domain": "wayne.edu",
+    "location": "Detroit, MI",
+    "initials": "WSU",
+    "website": "https://wayne.edu",
+    "unitId": "172644",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "syracuse-university",
+    "name": "Syracuse University",
+    "aliases": [],
+    "domain": "syracuse.edu",
+    "location": "Syracuse, NY",
+    "initials": "SU",
+    "website": "https://syracuse.edu",
+    "unitId": "196413",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "savannah-college-of-art-and-design",
+    "name": "Savannah College of Art and Design",
+    "aliases": [
+      "SCAD"
+    ],
+    "domain": "scad.edu",
+    "location": "Savannah, GA",
+    "initials": "SCAD",
+    "website": "https://scad.edu",
+    "unitId": "140951",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "kansas-state-university",
+    "name": "Kansas State University",
+    "aliases": [
+      "K-State"
+    ],
+    "domain": "k-state.edu",
+    "location": "Manhattan, KS",
+    "initials": "KSU",
+    "website": "https://k-state.edu",
+    "unitId": "155399",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-hawaii-at-manoa",
+    "name": "University of Hawaii at Manoa",
+    "aliases": [
+      "UH Manoa / UHM"
+    ],
+    "domain": "manoa.hawaii.edu",
+    "location": "Honolulu, HI",
+    "initials": "UHM",
+    "website": "https://manoa.hawaii.edu",
+    "unitId": "141574",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "california-state-university-san-bernardino",
+    "name": "California State University-San Bernardino",
+    "aliases": [
+      "Cal State San Bernardino"
+    ],
+    "domain": "csusb.edu",
+    "location": "San Bernardino, CA",
+    "initials": "CSUSB",
+    "website": "https://csusb.edu",
+    "unitId": "110510",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "metropolitan-state-university-of-denver",
+    "name": "Metropolitan State University of Denver",
+    "aliases": [
+      "MSU Denver"
+    ],
+    "domain": "msudenver.edu",
+    "location": "Denver, CO",
+    "initials": "MSUD",
+    "website": "https://msudenver.edu",
+    "unitId": "127565",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-north-carolina-wilmington",
+    "name": "University of North Carolina Wilmington",
+    "aliases": [
+      "UNCW",
+      "University of North Carolina at Wilmington",
+      "UNC Wilmington",
+      "UNC W",
+      "University of NC at Wilmington",
+      "Univ of NC-Wilmington",
+      "UNC-W"
+    ],
+    "domain": "uncw.edu",
+    "location": "Wilmington, NC",
+    "initials": "UNCW",
+    "website": "https://uncw.edu",
+    "unitId": "199218",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "california-state-university-san-marcos",
+    "name": "California State University-San Marcos",
+    "aliases": [],
+    "domain": "csusm.edu",
+    "location": "San Marcos, CA",
+    "initials": "CSUSM",
+    "website": "https://csusm.edu",
+    "unitId": "366711",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "baylor-university",
+    "name": "Baylor University",
+    "aliases": [],
+    "domain": "baylor.edu",
+    "location": "Waco, TX",
+    "initials": "BU",
+    "website": "https://baylor.edu",
+    "unitId": "223232",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-louisville",
+    "name": "University of Louisville",
+    "aliases": [],
+    "domain": "louisville.edu",
+    "location": "Louisville, KY",
+    "initials": "UL",
+    "website": "https://louisville.edu",
+    "unitId": "157289",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "binghamton-university",
+    "name": "Binghamton University",
+    "aliases": [],
+    "domain": "binghamton.edu",
+    "location": "Vestal, NY",
+    "initials": "BU",
+    "website": "https://binghamton.edu",
+    "unitId": "196079",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "montana-state-university",
+    "name": "Montana State University",
+    "aliases": [
+      "MSU"
+    ],
+    "domain": "montana.edu",
+    "location": "Bozeman, MT",
+    "initials": "MSU",
+    "website": "https://montana.edu",
+    "unitId": "180461",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "west-chester-university-of-pennsylvania",
+    "name": "West Chester University of Pennsylvania",
+    "aliases": [
+      "WCU"
+    ],
+    "domain": "wcupa.edu",
+    "location": "West Chester, PA",
+    "initials": "WCUP",
+    "website": "https://wcupa.edu",
+    "unitId": "216764",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "depaul-university",
+    "name": "DePaul University",
+    "aliases": [],
+    "domain": "depaul.edu",
+    "location": "Chicago, IL",
+    "initials": "DU",
+    "website": "https://depaul.edu",
+    "unitId": "144740",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-north-carolina-at-greensboro",
+    "name": "University of North Carolina at Greensboro",
+    "aliases": [
+      "UNCG"
+    ],
+    "domain": "uncg.edu",
+    "location": "Greensboro, NC",
+    "initials": "UNCG",
+    "website": "https://uncg.edu",
+    "unitId": "199148",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "ball-state-university",
+    "name": "Ball State University",
+    "aliases": [
+      "BSU",
+      "Ball U"
+    ],
+    "domain": "bsu.edu",
+    "location": "Muncie, IN",
+    "initials": "BSU",
+    "website": "https://bsu.edu",
+    "unitId": "150136",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "florida-gulf-coast-university",
+    "name": "Florida Gulf Coast University",
+    "aliases": [],
+    "domain": "fgcu.edu",
+    "location": "Fort Myers, FL",
+    "initials": "FGCU",
+    "website": "https://fgcu.edu",
+    "unitId": "433660",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "indiana-university-indianapolis",
+    "name": "Indiana University-Indianapolis",
+    "aliases": [
+      "IU Indianapolis"
+    ],
+    "domain": "indianapolis.iu.edu",
+    "location": "Indianapolis, IN",
+    "initials": "IUI",
+    "website": "https://indianapolis.iu.edu",
+    "unitId": "151111",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "california-state-university-chico",
+    "name": "California State University-Chico",
+    "aliases": [],
+    "domain": "csuchico.edu",
+    "location": "Chico, CA",
+    "initials": "CSUC",
+    "website": "https://csuchico.edu",
+    "unitId": "110538",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "cuny-new-york-city-college-of-technology",
+    "name": "CUNY New York City College of Technology",
+    "aliases": [
+      "City Tech",
+      "New York City College of Technology"
+    ],
+    "domain": "citytech.cuny.edu",
+    "location": "Brooklyn, NY",
+    "initials": "CNYCCT",
+    "website": "https://citytech.cuny.edu",
+    "unitId": "190655",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "western-washington-university",
+    "name": "Western Washington University",
+    "aliases": [
+      "Western Washington State College",
+      "Western Washington College of Education"
+    ],
+    "domain": "wwu.edu",
+    "location": "Bellingham, WA",
+    "initials": "WWU",
+    "website": "https://wwu.edu",
+    "unitId": "237011",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-rhode-island",
+    "name": "University of Rhode Island",
+    "aliases": [
+      "URI"
+    ],
+    "domain": "web.uri.edu",
+    "location": "Kingston, RI",
+    "initials": "URI",
+    "website": "https://web.uri.edu",
+    "unitId": "217484",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-north-florida",
+    "name": "University of North Florida",
+    "aliases": [
+      "UNF"
+    ],
+    "domain": "unf.edu",
+    "location": "Jacksonville, FL",
+    "initials": "UNF",
+    "website": "https://unf.edu",
+    "unitId": "136172",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "missouri-state-university-springfield",
+    "name": "Missouri State University-Springfield",
+    "aliases": [],
+    "domain": "missouristate.edu",
+    "location": "Springfield, MO",
+    "initials": "MSUS",
+    "website": "https://missouristate.edu",
+    "unitId": "179566",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "drexel-university",
+    "name": "Drexel University",
+    "aliases": [
+      "Drexel"
+    ],
+    "domain": "drexel.edu",
+    "location": "Philadelphia, PA",
+    "initials": "DU",
+    "website": "https://drexel.edu",
+    "unitId": "212054",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "rochester-institute-of-technology",
+    "name": "Rochester Institute of Technology",
+    "aliases": [
+      "RIT"
+    ],
+    "domain": "rit.edu",
+    "location": "Rochester, NY",
+    "initials": "RIT",
+    "website": "https://rit.edu",
+    "unitId": "195003",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "portland-state-university",
+    "name": "Portland State University",
+    "aliases": [],
+    "domain": "pdx.edu",
+    "location": "Portland, OR",
+    "initials": "PSU",
+    "website": "https://pdx.edu",
+    "unitId": "209807",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-miami",
+    "name": "University of Miami",
+    "aliases": [],
+    "domain": "miami.edu",
+    "location": "Coral Gables, FL",
+    "initials": "UM",
+    "website": "https://miami.edu",
+    "unitId": "135726",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "bowling-green-state-university-main-campus",
+    "name": "Bowling Green State University-Main Campus",
+    "aliases": [
+      "BGSU"
+    ],
+    "domain": "bgsu.edu",
+    "location": "Bowling Green, OH",
+    "initials": "BGSUMC",
+    "website": "https://bgsu.edu",
+    "unitId": "201441",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-memphis",
+    "name": "University of Memphis",
+    "aliases": [],
+    "domain": "memphis.edu",
+    "location": "Memphis, TN",
+    "initials": "UM",
+    "website": "https://memphis.edu",
+    "unitId": "220862",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "tarleton-state-university",
+    "name": "Tarleton State University",
+    "aliases": [
+      "Tarleton",
+      "Texans",
+      "TSU",
+      "Tarleton State"
+    ],
+    "domain": "tarleton.edu",
+    "location": "Stephenville, TX",
+    "initials": "TSU",
+    "website": "https://tarleton.edu",
+    "unitId": "228529",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "western-michigan-university",
+    "name": "Western Michigan University",
+    "aliases": [
+      "WMU"
+    ],
+    "domain": "wmich.edu",
+    "location": "Kalamazoo, MI",
+    "initials": "WMU",
+    "website": "https://wmich.edu",
+    "unitId": "172699",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-at-albany",
+    "name": "University at Albany",
+    "aliases": [
+      "SUNY at Albany"
+    ],
+    "domain": "albany.edu",
+    "location": "Albany, NY",
+    "initials": "UA",
+    "website": "https://albany.edu",
+    "unitId": "196060",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-houston-downtown",
+    "name": "University of Houston-Downtown",
+    "aliases": [],
+    "domain": "uhd.edu",
+    "location": "Houston, TX",
+    "initials": "UHD",
+    "website": "https://uhd.edu",
+    "unitId": "225432",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "cuny-queens-college",
+    "name": "CUNY Queens College",
+    "aliases": [
+      "Queens",
+      "Queens College"
+    ],
+    "domain": "qc.cuny.edu",
+    "location": "Queens, NY",
+    "initials": "CQC",
+    "website": "https://qc.cuny.edu",
+    "unitId": "190664",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "california-state-university-dominguez-hills",
+    "name": "California State University-Dominguez Hills",
+    "aliases": [
+      "CSUDH"
+    ],
+    "domain": "csudh.edu",
+    "location": "Carson, CA",
+    "initials": "CSUDH",
+    "website": "https://csudh.edu",
+    "unitId": "110547",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "cuny-city-college",
+    "name": "CUNY City College",
+    "aliases": [
+      "City",
+      "City College",
+      "CCNY",
+      "City College of New York"
+    ],
+    "domain": "ccny.cuny.edu",
+    "location": "New York, NY",
+    "initials": "CCC",
+    "website": "https://ccny.cuny.edu",
+    "unitId": "190567",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-louisiana-at-lafayette",
+    "name": "University of Louisiana at Lafayette",
+    "aliases": [
+      "UL Lafayette"
+    ],
+    "domain": "louisiana.edu",
+    "location": "Lafayette, LA",
+    "initials": "ULL",
+    "website": "https://louisiana.edu",
+    "unitId": "160658",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "oakland-university",
+    "name": "Oakland University",
+    "aliases": [
+      "Oakland",
+      "OU",
+      "O.U."
+    ],
+    "domain": "oakland.edu",
+    "location": "Rochester Hills, MI",
+    "initials": "OU",
+    "website": "https://oakland.edu",
+    "unitId": "171571",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "eastern-kentucky-university",
+    "name": "Eastern Kentucky University",
+    "aliases": [
+      "Eastern EKU"
+    ],
+    "domain": "eku.edu",
+    "location": "Richmond, KY",
+    "initials": "EKU",
+    "website": "https://eku.edu",
+    "unitId": "156620",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "north-carolina-a-t-state-university",
+    "name": "North Carolina A & T State University",
+    "aliases": [
+      "NCAT"
+    ],
+    "domain": "ncat.edu",
+    "location": "Greensboro, NC",
+    "initials": "NCATSU",
+    "website": "https://ncat.edu",
+    "unitId": "199102",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "western-kentucky-university",
+    "name": "Western Kentucky University",
+    "aliases": [
+      "WKU, HILLTOPPERS"
+    ],
+    "domain": "wku.edu",
+    "location": "Bowling Green, KY",
+    "initials": "WKU",
+    "website": "https://wku.edu",
+    "unitId": "157951",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "new-mexico-state-university-main-campus",
+    "name": "New Mexico State University-Main Campus",
+    "aliases": [
+      "NMSU"
+    ],
+    "domain": "nmsu.edu",
+    "location": "Las Cruces, NM",
+    "initials": "NMSUMC",
+    "website": "https://nmsu.edu",
+    "unitId": "188030",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-vermont",
+    "name": "University of Vermont",
+    "aliases": [
+      "UVM"
+    ],
+    "domain": "uvm.edu",
+    "location": "Burlington, VT",
+    "initials": "UV",
+    "website": "https://uvm.edu",
+    "unitId": "231174",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "loyola-university-chicago",
+    "name": "Loyola University Chicago",
+    "aliases": [],
+    "domain": "luc.edu",
+    "location": "Chicago, IL",
+    "initials": "LUC",
+    "website": "https://luc.edu",
+    "unitId": "146719",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "minnesota-state-university-mankato",
+    "name": "Minnesota State University-Mankato",
+    "aliases": [],
+    "domain": "mnsu.edu",
+    "location": "Mankato, MN",
+    "initials": "MSUM",
+    "website": "https://mnsu.edu",
+    "unitId": "173920",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-alabama-at-birmingham",
+    "name": "University of Alabama at Birmingham",
+    "aliases": [
+      "UAB"
+    ],
+    "domain": "uab.edu",
+    "location": "Birmingham, AL",
+    "initials": "UAB",
+    "website": "https://uab.edu",
+    "unitId": "100663",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "cuny-john-jay-college-of-criminal-justice",
+    "name": "CUNY John Jay College of Criminal Justice",
+    "aliases": [
+      "John Jay",
+      "John Jay College of Criminal Justice"
+    ],
+    "domain": "jjay.cuny.edu",
+    "location": "New York, NY",
+    "initials": "CJJCCJ",
+    "website": "https://jjay.cuny.edu",
+    "unitId": "190600",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "excelsior-university",
+    "name": "Excelsior University",
+    "aliases": [],
+    "domain": "excelsior.edu",
+    "location": "Albany, NY",
+    "initials": "EU",
+    "website": "https://excelsior.edu",
+    "unitId": "196680",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-massachusetts-boston",
+    "name": "University of Massachusetts-Boston",
+    "aliases": [],
+    "domain": "umb.edu",
+    "location": "Boston, MA",
+    "initials": "UMB",
+    "website": "https://umb.edu",
+    "unitId": "166638",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-nebraska-at-omaha",
+    "name": "University of Nebraska at Omaha",
+    "aliases": [
+      "UNOMAHA"
+    ],
+    "domain": "unomaha.edu",
+    "location": "Omaha, NE",
+    "initials": "UNO",
+    "website": "https://unomaha.edu",
+    "unitId": "181394",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-massachusetts-lowell",
+    "name": "University of Massachusetts-Lowell",
+    "aliases": [],
+    "domain": "uml.edu",
+    "location": "Lowell, MA",
+    "initials": "UML",
+    "website": "https://uml.edu",
+    "unitId": "166513",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "kean-university",
+    "name": "Kean University",
+    "aliases": [
+      "Kean"
+    ],
+    "domain": "kean.edu",
+    "location": "Union, NJ",
+    "initials": "KU",
+    "website": "https://kean.edu",
+    "unitId": "185262",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "georgia-gwinnett-college",
+    "name": "Georgia Gwinnett College",
+    "aliases": [],
+    "domain": "ggc.edu",
+    "location": "Lawrenceville, GA",
+    "initials": "GGC",
+    "website": "https://ggc.edu",
+    "unitId": "447689",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "northern-illinois-university",
+    "name": "Northern Illinois University",
+    "aliases": [],
+    "domain": "niu.edu",
+    "location": "Dekalb, IL",
+    "initials": "NIU",
+    "website": "https://niu.edu",
+    "unitId": "147703",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-new-hampshire-main-campus",
+    "name": "University of New Hampshire-Main Campus",
+    "aliases": [],
+    "domain": "unh.edu",
+    "location": "Durham, NH",
+    "initials": "UNHMC",
+    "website": "https://unh.edu",
+    "unitId": "183044",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "george-washington-university",
+    "name": "George Washington University",
+    "aliases": [
+      "GWU",
+      "GW"
+    ],
+    "domain": "gwu.edu",
+    "location": "Washington, DC",
+    "initials": "GWU",
+    "website": "https://gwu.edu",
+    "unitId": "131469",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "texas-christian-university",
+    "name": "Texas Christian University",
+    "aliases": [
+      "TCU"
+    ],
+    "domain": "tcu.edu",
+    "location": "Fort Worth, TX",
+    "initials": "TCU",
+    "website": "https://tcu.edu",
+    "unitId": "228875",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "national-university",
+    "name": "National University",
+    "aliases": [],
+    "domain": "nu.edu",
+    "location": "San Diego, CA",
+    "initials": "NU",
+    "website": "https://nu.edu",
+    "unitId": "119605",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "wichita-state-university",
+    "name": "Wichita State University",
+    "aliases": [
+      "WSU"
+    ],
+    "domain": "wichita.edu",
+    "location": "Wichita, KS",
+    "initials": "WSU",
+    "website": "https://wichita.edu",
+    "unitId": "156125",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-maryland-baltimore-county",
+    "name": "University of Maryland-Baltimore County",
+    "aliases": [
+      "UMBC"
+    ],
+    "domain": "umbc.edu",
+    "location": "Baltimore, MD",
+    "initials": "UMBC",
+    "website": "https://umbc.edu",
+    "unitId": "163268",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "cuny-lehman-college",
+    "name": "CUNY Lehman College",
+    "aliases": [
+      "Lehman",
+      "Lehman College"
+    ],
+    "domain": "lehman.edu",
+    "location": "Bronx, NY",
+    "initials": "CLC",
+    "website": "https://lehman.edu",
+    "unitId": "190637",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "the-university-of-tampa",
+    "name": "The University of Tampa",
+    "aliases": [],
+    "domain": "ut.edu",
+    "location": "Tampa, FL",
+    "initials": "UT",
+    "website": "https://ut.edu",
+    "unitId": "137847",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "college-of-charleston",
+    "name": "College of Charleston",
+    "aliases": [],
+    "domain": "charleston.edu",
+    "location": "Charleston, SC",
+    "initials": "CC",
+    "website": "https://charleston.edu",
+    "unitId": "217819",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "cuny-brooklyn-college",
+    "name": "CUNY Brooklyn College",
+    "aliases": [
+      "Brooklyn",
+      "Brooklyn College"
+    ],
+    "domain": "brooklyn.edu",
+    "location": "Brooklyn, NY",
+    "initials": "CBC",
+    "website": "https://brooklyn.edu",
+    "unitId": "190549",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-colorado-denver-anschutz-medical-campus",
+    "name": "University of Colorado Denver/Anschutz Medical Campus",
+    "aliases": [],
+    "domain": "ucdenver.edu",
+    "location": "Denver, CO",
+    "initials": "UCDAMC",
+    "website": "https://ucdenver.edu",
+    "unitId": "126562",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "fordham-university",
+    "name": "Fordham University",
+    "aliases": [],
+    "domain": "fordham.edu",
+    "location": "Bronx, NY",
+    "initials": "FU",
+    "website": "https://fordham.edu",
+    "unitId": "191241",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "coastal-carolina-university",
+    "name": "Coastal Carolina University",
+    "aliases": [],
+    "domain": "coastal.edu",
+    "location": "Conway, SC",
+    "initials": "CCU",
+    "website": "https://coastal.edu",
+    "unitId": "218724",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "bellevue-university",
+    "name": "Bellevue University",
+    "aliases": [],
+    "domain": "bellevue.edu",
+    "location": "Bellevue, NE",
+    "initials": "BU",
+    "website": "https://bellevue.edu",
+    "unitId": "180814",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-central-oklahoma",
+    "name": "University of Central Oklahoma",
+    "aliases": [
+      "UCO, Central"
+    ],
+    "domain": "uco.edu",
+    "location": "Edmond, OK",
+    "initials": "UCO",
+    "website": "https://uco.edu",
+    "unitId": "206941",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "howard-university",
+    "name": "Howard University",
+    "aliases": [
+      "HU"
+    ],
+    "domain": "howard.edu",
+    "location": "Washington, DC",
+    "initials": "HU",
+    "website": "https://howard.edu",
+    "unitId": "131520",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "boston-college",
+    "name": "Boston College",
+    "aliases": [],
+    "domain": "bc.edu",
+    "location": "Chestnut Hill, MA",
+    "initials": "BC",
+    "website": "https://bc.edu",
+    "unitId": "164924",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-southern-mississippi",
+    "name": "University of Southern Mississippi",
+    "aliases": [],
+    "domain": "usm.edu",
+    "location": "Hattiesburg, MS",
+    "initials": "USM",
+    "website": "https://usm.edu",
+    "unitId": "176372",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "the-university-of-tennessee-chattanooga",
+    "name": "The University of Tennessee-Chattanooga",
+    "aliases": [
+      "UTC"
+    ],
+    "domain": "utc.edu",
+    "location": "Chattanooga, TN",
+    "initials": "UTC",
+    "website": "https://utc.edu",
+    "unitId": "221740",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "eastern-michigan-university",
+    "name": "Eastern Michigan University",
+    "aliases": [],
+    "domain": "emich.edu",
+    "location": "Ypsilanti, MI",
+    "initials": "EMU",
+    "website": "https://emich.edu",
+    "unitId": "169798",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "central-michigan-university",
+    "name": "Central Michigan University",
+    "aliases": [],
+    "domain": "cmich.edu",
+    "location": "Mount Pleasant, MI",
+    "initials": "CMU",
+    "website": "https://cmich.edu",
+    "unitId": "169248",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "western-carolina-university",
+    "name": "Western Carolina University",
+    "aliases": [
+      "Western"
+    ],
+    "domain": "wcu.edu",
+    "location": "Cullowhee, NC",
+    "initials": "WCU",
+    "website": "https://wcu.edu",
+    "unitId": "200004",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "east-tennessee-state-university",
+    "name": "East Tennessee State University",
+    "aliases": [
+      "ETSU"
+    ],
+    "domain": "etsu.edu",
+    "location": "Johnson City, TN",
+    "initials": "ETSU",
+    "website": "https://etsu.edu",
+    "unitId": "220075",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-north-dakota",
+    "name": "University of North Dakota",
+    "aliases": [],
+    "domain": "und.edu",
+    "location": "Grand Forks, ND",
+    "initials": "UND",
+    "website": "https://und.edu",
+    "unitId": "200280",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "east-texas-a-m-university",
+    "name": "East Texas A&M University",
+    "aliases": [
+      "East Texas A&M"
+    ],
+    "domain": "etamu.edu",
+    "location": "Commerce, TX",
+    "initials": "ETAMU",
+    "website": "https://etamu.edu",
+    "unitId": "224554",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "california-state-university-east-bay",
+    "name": "California State University-East Bay",
+    "aliases": [
+      "Cal State East Bay"
+    ],
+    "domain": "csueastbay.edu",
+    "location": "Hayward, CA",
+    "initials": "CSUEB",
+    "website": "https://csueastbay.edu",
+    "unitId": "110574",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "troy-university",
+    "name": "Troy University",
+    "aliases": [
+      "TROY"
+    ],
+    "domain": "troy.edu",
+    "location": "Troy, AL",
+    "initials": "TU",
+    "website": "https://troy.edu",
+    "unitId": "102368",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-toledo",
+    "name": "University of Toledo",
+    "aliases": [],
+    "domain": "utoledo.edu",
+    "location": "Toledo, OH",
+    "initials": "UT",
+    "website": "https://utoledo.edu",
+    "unitId": "206084",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "fort-hays-state-university",
+    "name": "Fort Hays State University",
+    "aliases": [
+      "FHSU"
+    ],
+    "domain": "fhsu.edu",
+    "location": "Hays, KS",
+    "initials": "FHSU",
+    "website": "https://fhsu.edu",
+    "unitId": "155061",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "college-of-staten-island-cuny",
+    "name": "College of Staten Island CUNY",
+    "aliases": [
+      "Staten Island",
+      "CSI",
+      "College of Staten Island"
+    ],
+    "domain": "csi.cuny.edu",
+    "location": "Staten Island, NY",
+    "initials": "CSIC",
+    "website": "https://csi.cuny.edu",
+    "unitId": "190558",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "farmingdale-state-college",
+    "name": "Farmingdale State College",
+    "aliases": [
+      "SUNY College of Technology at Farmingdale"
+    ],
+    "domain": "farmingdale.edu",
+    "location": "Farmingdale, NY",
+    "initials": "FSC",
+    "website": "https://farmingdale.edu",
+    "unitId": "196042",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-puerto-rico-mayaguez",
+    "name": "University of Puerto Rico-Mayaguez",
+    "aliases": [
+      "UPRM",
+      "RUM",
+      "Colegio",
+      "Colegio de Mayaguez",
+      "UPR-Mayaguez",
+      "CAAM",
+      "Recinto de Mayaguez"
+    ],
+    "domain": "uprm.edu",
+    "location": "Mayaguez, PR",
+    "initials": "UPRM",
+    "website": "https://uprm.edu",
+    "unitId": "243197",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "southeastern-louisiana-university",
+    "name": "Southeastern Louisiana University",
+    "aliases": [
+      "Southeastern"
+    ],
+    "domain": "southeastern.edu",
+    "location": "Hammond, LA",
+    "initials": "SLU",
+    "website": "https://southeastern.edu",
+    "unitId": "160612",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "st-john-s-university-new-york",
+    "name": "St. John's University-New York",
+    "aliases": [],
+    "domain": "stjohns.edu",
+    "location": "Queens, NY",
+    "initials": "SJSUNY",
+    "website": "https://stjohns.edu",
+    "unitId": "195809",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "north-dakota-state-university-main-campus",
+    "name": "North Dakota State University-Main Campus",
+    "aliases": [
+      "North Dakota State University, NDSU"
+    ],
+    "domain": "ndsu.edu",
+    "location": "Fargo, ND",
+    "initials": "NDSUMC",
+    "website": "https://ndsu.edu",
+    "unitId": "200332",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-wisconsin-whitewater",
+    "name": "University of Wisconsin-Whitewater",
+    "aliases": [],
+    "domain": "uww.edu",
+    "location": "Whitewater, WI",
+    "initials": "UWW",
+    "website": "https://uww.edu",
+    "unitId": "240189",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-west-florida",
+    "name": "University of West Florida",
+    "aliases": [],
+    "domain": "uwf.edu",
+    "location": "Pensacola, FL",
+    "initials": "UWF",
+    "website": "https://uwf.edu",
+    "unitId": "138354",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "southern-utah-university",
+    "name": "Southern Utah University",
+    "aliases": [],
+    "domain": "suu.edu",
+    "location": "Cedar City, UT",
+    "initials": "SUU",
+    "website": "https://suu.edu",
+    "unitId": "230603",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-wisconsin-la-crosse",
+    "name": "University of Wisconsin-La Crosse",
+    "aliases": [],
+    "domain": "uwlax.edu",
+    "location": "La Crosse, WI",
+    "initials": "UWLC",
+    "website": "https://uwlax.edu",
+    "unitId": "240329",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "commonwealth-university-of-pennsylvania",
+    "name": "Commonwealth University of Pennsylvania",
+    "aliases": [],
+    "domain": "commonwealthu.edu",
+    "location": "Bloomsburg, PA",
+    "initials": "CUP",
+    "website": "https://commonwealthu.edu",
+    "unitId": "498562",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "northwestern-university",
+    "name": "Northwestern University",
+    "aliases": [],
+    "domain": "northwestern.edu",
+    "location": "Evanston, IL",
+    "initials": "NU",
+    "website": "https://northwestern.edu",
+    "unitId": "147767",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "south-dakota-state-university",
+    "name": "South Dakota State University",
+    "aliases": [],
+    "domain": "sdstate.edu",
+    "location": "Brookings, SD",
+    "initials": "SDSU",
+    "website": "https://sdstate.edu",
+    "unitId": "219356",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "embry-riddle-aeronautical-university-worldwide",
+    "name": "Embry-Riddle Aeronautical University-Worldwide",
+    "aliases": [
+      "Embry Riddle Aeronautical University-Worldwide"
+    ],
+    "domain": "worldwide.erau.edu",
+    "location": "Daytona Beach, FL",
+    "initials": "ERAUW",
+    "website": "https://worldwide.erau.edu",
+    "unitId": "426314",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "arkansas-state-university",
+    "name": "Arkansas State University",
+    "aliases": [
+      "A-State, AState"
+    ],
+    "domain": "astate.edu",
+    "location": "Jonesboro, AR",
+    "initials": "ASU",
+    "website": "https://astate.edu",
+    "unitId": "106458",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-akron-main-campus",
+    "name": "University of Akron Main Campus",
+    "aliases": [],
+    "domain": "uakron.edu",
+    "location": "Akron, OH",
+    "initials": "UAMC",
+    "website": "https://uakron.edu",
+    "unitId": "200800",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "morgan-state-university",
+    "name": "Morgan State University",
+    "aliases": [],
+    "domain": "morgan.edu",
+    "location": "Baltimore, MD",
+    "initials": "MSU",
+    "website": "https://morgan.edu",
+    "unitId": "163453",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "new-jersey-institute-of-technology",
+    "name": "New Jersey Institute of Technology",
+    "aliases": [
+      "NJIT"
+    ],
+    "domain": "njit.edu",
+    "location": "Newark, NJ",
+    "initials": "NJIT",
+    "website": "https://njit.edu",
+    "unitId": "185828",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "cleveland-state-university",
+    "name": "Cleveland State University",
+    "aliases": [],
+    "domain": "csuohio.edu",
+    "location": "Cleveland, OH",
+    "initials": "CSU",
+    "website": "https://csuohio.edu",
+    "unitId": "202134",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-wisconsin-eau-claire",
+    "name": "University of Wisconsin-Eau Claire",
+    "aliases": [
+      "UW-Eau Claire"
+    ],
+    "domain": "uwec.edu",
+    "location": "Eau Claire, WI",
+    "initials": "UWEC",
+    "website": "https://uwec.edu",
+    "unitId": "240268",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-south-alabama",
+    "name": "University of South Alabama",
+    "aliases": [],
+    "domain": "southalabama.edu",
+    "location": "Mobile, AL",
+    "initials": "USA",
+    "website": "https://southalabama.edu",
+    "unitId": "102094",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "prairie-view-a-m-university",
+    "name": "Prairie View A & M University",
+    "aliases": [
+      "PVAMU"
+    ],
+    "domain": "pvamu.edu",
+    "location": "Prairie View, TX",
+    "initials": "PVAMU",
+    "website": "https://pvamu.edu",
+    "unitId": "227526",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-notre-dame",
+    "name": "University of Notre Dame",
+    "aliases": [
+      "Notre Dame",
+      "Fighting Irish",
+      "ND"
+    ],
+    "domain": "nd.edu",
+    "location": "Notre Dame, IN",
+    "initials": "UND",
+    "website": "https://nd.edu",
+    "unitId": "152080",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "texas-woman-s-university",
+    "name": "Texas Woman's University",
+    "aliases": [
+      "TWU"
+    ],
+    "domain": "twu.edu",
+    "location": "Denton, TX",
+    "initials": "TWSU",
+    "website": "https://twu.edu",
+    "unitId": "229179",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "southern-illinois-university-edwardsville",
+    "name": "Southern Illinois University Edwardsville",
+    "aliases": [
+      "SIUE"
+    ],
+    "domain": "siue.edu",
+    "location": "Edwardsville, IL",
+    "initials": "SIUE",
+    "website": "https://siue.edu",
+    "unitId": "149231",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "stephen-f-austin-state-university",
+    "name": "Stephen F Austin State University",
+    "aliases": [
+      "SFASU, SFA, Stephen F, Stephen F. Austin"
+    ],
+    "domain": "sfasu.edu",
+    "location": "Nacogdoches, TX",
+    "initials": "SFASU",
+    "website": "https://sfasu.edu",
+    "unitId": "228431",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "tennessee-technological-university",
+    "name": "Tennessee Technological University",
+    "aliases": [
+      "Tennessee Tech University",
+      "Tennessee Tech",
+      "TTU",
+      "Tenn Tech",
+      "TN Tech",
+      "Tech"
+    ],
+    "domain": "tntech.edu",
+    "location": "Cookeville, TN",
+    "initials": "TTU",
+    "website": "https://tntech.edu",
+    "unitId": "221847",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-colorado-colorado-springs",
+    "name": "University of Colorado Colorado Springs",
+    "aliases": [
+      "UCCS"
+    ],
+    "domain": "uccs.edu",
+    "location": "Colorado Springs, CO",
+    "initials": "UCCS",
+    "website": "https://uccs.edu",
+    "unitId": "126580",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "california-state-university-bakersfield",
+    "name": "California State University-Bakersfield",
+    "aliases": [
+      "CSU Bakersfield"
+    ],
+    "domain": "csub.edu",
+    "location": "Bakersfield, CA",
+    "initials": "CSUB",
+    "website": "https://csub.edu",
+    "unitId": "110486",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-puerto-rico-rio-piedras",
+    "name": "University of Puerto Rico-Rio Piedras",
+    "aliases": [
+      "UPRRP"
+    ],
+    "domain": "uprrp.edu",
+    "location": "San Juan, PR",
+    "initials": "UPRRP",
+    "website": "https://uprrp.edu",
+    "unitId": "243221",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-maine",
+    "name": "University of Maine",
+    "aliases": [],
+    "domain": "umaine.edu",
+    "location": "Orono, ME",
+    "initials": "UM",
+    "website": "https://umaine.edu",
+    "unitId": "161253",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "southern-illinois-university-carbondale",
+    "name": "Southern Illinois University-Carbondale",
+    "aliases": [],
+    "domain": "siu.edu",
+    "location": "Carbondale, IL",
+    "initials": "SIUC",
+    "website": "https://siu.edu",
+    "unitId": "149222",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "california-state-university-stanislaus",
+    "name": "California State University-Stanislaus",
+    "aliases": [
+      "Stanislaus State"
+    ],
+    "domain": "csustan.edu",
+    "location": "Turlock, CA",
+    "initials": "CSUS",
+    "website": "https://csustan.edu",
+    "unitId": "110495",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-california-merced",
+    "name": "University of California-Merced",
+    "aliases": [
+      "UC Merced"
+    ],
+    "domain": "ucmerced.edu",
+    "location": "Merced, CA",
+    "initials": "UCM",
+    "website": "https://ucmerced.edu",
+    "unitId": "445188",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "louisiana-tech-university",
+    "name": "Louisiana Tech University",
+    "aliases": [
+      "LA Tech, Louisiana Tech, Tech"
+    ],
+    "domain": "latech.edu",
+    "location": "Ruston, LA",
+    "initials": "LTU",
+    "website": "https://latech.edu",
+    "unitId": "159647",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "northern-kentucky-university",
+    "name": "Northern Kentucky University",
+    "aliases": [
+      "NKU"
+    ],
+    "domain": "nku.edu",
+    "location": "Highland Heights, KY",
+    "initials": "NKU",
+    "website": "https://nku.edu",
+    "unitId": "157447",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "california-baptist-university",
+    "name": "California Baptist University",
+    "aliases": [
+      "CBU"
+    ],
+    "domain": "calbaptist.edu",
+    "location": "Riverside, CA",
+    "initials": "CBU",
+    "website": "https://calbaptist.edu",
+    "unitId": "110361",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "lamar-university",
+    "name": "Lamar University",
+    "aliases": [],
+    "domain": "lamar.edu",
+    "location": "Beaumont, TX",
+    "initials": "LU",
+    "website": "https://lamar.edu",
+    "unitId": "226091",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "ferris-state-university",
+    "name": "Ferris State University",
+    "aliases": [],
+    "domain": "ferris.edu",
+    "location": "Big Rapids, MI",
+    "initials": "FSU",
+    "website": "https://ferris.edu",
+    "unitId": "169910",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "texas-a-m-university-corpus-christi",
+    "name": "Texas A & M University-Corpus Christi",
+    "aliases": [],
+    "domain": "tamucc.edu",
+    "location": "Corpus Christi, TX",
+    "initials": "TAMUCC",
+    "website": "https://tamucc.edu",
+    "unitId": "224147",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "youngstown-state-university",
+    "name": "Youngstown State University",
+    "aliases": [],
+    "domain": "ysu.edu",
+    "location": "Youngstown, OH",
+    "initials": "YSU",
+    "website": "https://ysu.edu",
+    "unitId": "206695",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-wyoming",
+    "name": "University of Wyoming",
+    "aliases": [
+      "UW"
+    ],
+    "domain": "uwyo.edu",
+    "location": "Laramie, WY",
+    "initials": "UW",
+    "website": "https://uwyo.edu",
+    "unitId": "240727",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "wilmington-university",
+    "name": "Wilmington University",
+    "aliases": [],
+    "domain": "wilmu.edu",
+    "location": "New Castle, DE",
+    "initials": "WU",
+    "website": "https://wilmu.edu",
+    "unitId": "131113",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "pennsylvania-state-university-world-campus",
+    "name": "Pennsylvania State University-World Campus",
+    "aliases": [
+      "Penn State"
+    ],
+    "domain": "worldcampus.psu.edu",
+    "location": "University Park, PA",
+    "initials": "PSUWC",
+    "website": "https://worldcampus.psu.edu",
+    "unitId": "479956",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "universidad-ana-g-mendez-gurabo-campus",
+    "name": "Universidad Ana G. Mendez-Gurabo Campus",
+    "aliases": [
+      "UAGM Gurabo"
+    ],
+    "domain": "uagm.edu",
+    "location": "Gurabo, PR",
+    "initials": "UAGMGC",
+    "website": "https://uagm.edu",
+    "unitId": "243601",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "embry-riddle-aeronautical-university-daytona-beach",
+    "name": "Embry-Riddle Aeronautical University-Daytona Beach",
+    "aliases": [
+      "Embry Riddle Aeronautical University-Daytona Beach"
+    ],
+    "domain": "daytonabeach.erau.edu",
+    "location": "Daytona Beach, FL",
+    "initials": "ERAUDB",
+    "website": "https://daytonabeach.erau.edu",
+    "unitId": "133553",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "washington-university-in-st-louis",
+    "name": "Washington University in St Louis",
+    "aliases": [
+      "WashU"
+    ],
+    "domain": "washu.edu",
+    "location": "St. Louis, MO",
+    "initials": "WUISL",
+    "website": "https://washu.edu",
+    "unitId": "179867",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "central-washington-university",
+    "name": "Central Washington University",
+    "aliases": [
+      "CWU"
+    ],
+    "domain": "cwu.edu",
+    "location": "Ellensburg, WA",
+    "initials": "CWU",
+    "website": "https://cwu.edu",
+    "unitId": "234827",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "bridgewater-state-university",
+    "name": "Bridgewater State University",
+    "aliases": [
+      "BSU",
+      "Bridgewater State"
+    ],
+    "domain": "bridgew.edu",
+    "location": "Bridgewater, MA",
+    "initials": "BSU",
+    "website": "https://bridgew.edu",
+    "unitId": "165024",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "central-connecticut-state-university",
+    "name": "Central Connecticut State University",
+    "aliases": [
+      "CCSU"
+    ],
+    "domain": "ccsu.edu",
+    "location": "New Britain, CT",
+    "initials": "CCSU",
+    "website": "https://ccsu.edu",
+    "unitId": "128771",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "tulane-university-of-louisiana",
+    "name": "Tulane University of Louisiana",
+    "aliases": [
+      "Tulane University"
+    ],
+    "domain": "tulane.edu",
+    "location": "New Orleans, LA",
+    "initials": "TUL",
+    "website": "https://tulane.edu",
+    "unitId": "160755",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-central-arkansas",
+    "name": "University of Central Arkansas",
+    "aliases": [],
+    "domain": "uca.edu",
+    "location": "Conway, AR",
+    "initials": "UCA",
+    "website": "https://uca.edu",
+    "unitId": "106704",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-idaho",
+    "name": "University of Idaho",
+    "aliases": [
+      "UIdaho"
+    ],
+    "domain": "uidaho.edu",
+    "location": "Moscow, ID",
+    "initials": "UI",
+    "website": "https://uidaho.edu",
+    "unitId": "142285",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "rutgers-university-newark",
+    "name": "Rutgers University-Newark",
+    "aliases": [
+      "Rutgers, The State University of New Jersey",
+      "Rutgers, The State University",
+      "Rutgers University",
+      "Rutgers U",
+      "Rutgers",
+      "Rutgers-Newark",
+      "Rutgers, Newark",
+      "Rutgers Newark"
+    ],
+    "domain": "newark.rutgers.edu",
+    "location": "Newark, NJ",
+    "initials": "RUN",
+    "website": "https://newark.rutgers.edu",
+    "unitId": "186399",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-dayton",
+    "name": "University of Dayton",
+    "aliases": [],
+    "domain": "udayton.edu",
+    "location": "Dayton, OH",
+    "initials": "UD",
+    "website": "https://udayton.edu",
+    "unitId": "202480",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "pace-university",
+    "name": "Pace University",
+    "aliases": [],
+    "domain": "pace.edu",
+    "location": "New York, NY",
+    "initials": "PU",
+    "website": "https://pace.edu",
+    "unitId": "194310",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "marquette-university",
+    "name": "Marquette University",
+    "aliases": [],
+    "domain": "marquette.edu",
+    "location": "Milwaukee, WI",
+    "initials": "MU",
+    "website": "https://marquette.edu",
+    "unitId": "239105",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "empire-state-university",
+    "name": "Empire State University",
+    "aliases": [],
+    "domain": "sunyempire.edu",
+    "location": "Saratoga Springs, NY",
+    "initials": "ESU",
+    "website": "https://sunyempire.edu",
+    "unitId": "196264",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "idaho-state-university",
+    "name": "Idaho State University",
+    "aliases": [
+      "ISU"
+    ],
+    "domain": "isu.edu",
+    "location": "Pocatello, ID",
+    "initials": "ISU",
+    "website": "https://isu.edu",
+    "unitId": "142276",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "florida-agricultural-and-mechanical-university",
+    "name": "Florida Agricultural and Mechanical University",
+    "aliases": [
+      "FAMU",
+      "Florida A&M University",
+      "Rattlers",
+      "FAMU Rattlers"
+    ],
+    "domain": "famu.edu",
+    "location": "Tallahassee, FL",
+    "initials": "FAMU",
+    "website": "https://famu.edu",
+    "unitId": "133650",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "georgetown-university",
+    "name": "Georgetown University",
+    "aliases": [
+      "Georgetown",
+      "GU"
+    ],
+    "domain": "georgetown.edu",
+    "location": "Washington, DC",
+    "initials": "GU",
+    "website": "https://georgetown.edu",
+    "unitId": "131496",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "austin-peay-state-university",
+    "name": "Austin Peay State University",
+    "aliases": [],
+    "domain": "apsu.edu",
+    "location": "Clarksville, TN",
+    "initials": "APSU",
+    "website": "https://apsu.edu",
+    "unitId": "219602",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "stockton-university",
+    "name": "Stockton University",
+    "aliases": [
+      "The Richard Stockton College of New Jersey"
+    ],
+    "domain": "stockton.edu",
+    "location": "Galloway, NJ",
+    "initials": "SU",
+    "website": "https://stockton.edu",
+    "unitId": "186876",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-northern-iowa",
+    "name": "University of Northern Iowa",
+    "aliases": [
+      "UNI Panthers Northern Iowa"
+    ],
+    "domain": "uni.edu",
+    "location": "Cedar Falls, IA",
+    "initials": "UNI",
+    "website": "https://uni.edu",
+    "unitId": "154095",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-west-georgia",
+    "name": "University of West Georgia",
+    "aliases": [],
+    "domain": "westga.edu",
+    "location": "Carrollton, GA",
+    "initials": "UWG",
+    "website": "https://westga.edu",
+    "unitId": "141334",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "the-university-of-montana",
+    "name": "The University of Montana",
+    "aliases": [
+      "University of Montana"
+    ],
+    "domain": "umt.edu",
+    "location": "Missoula, MT",
+    "initials": "UM",
+    "website": "https://umt.edu",
+    "unitId": "180489",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "chapman-university",
+    "name": "Chapman University",
+    "aliases": [],
+    "domain": "chapman.edu",
+    "location": "Orange, CA",
+    "initials": "CU",
+    "website": "https://chapman.edu",
+    "unitId": "111948",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "berklee-college-of-music",
+    "name": "Berklee College of Music",
+    "aliases": [
+      "Berklee School of Music"
+    ],
+    "domain": "berklee.edu",
+    "location": "Boston, MA",
+    "initials": "BCM",
+    "website": "https://berklee.edu",
+    "unitId": "164748",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "pennsylvania-western-university",
+    "name": "Pennsylvania Western University",
+    "aliases": [
+      "PennWest University"
+    ],
+    "domain": "pennwest.edu",
+    "location": "California, PA",
+    "initials": "PWU",
+    "website": "https://pennwest.edu",
+    "unitId": "498571",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "the-university-of-texas-at-tyler",
+    "name": "The University of Texas at Tyler",
+    "aliases": [
+      "UT Tyler"
+    ],
+    "domain": "uttyler.edu",
+    "location": "Tyler, TX",
+    "initials": "UTT",
+    "website": "https://uttyler.edu",
+    "unitId": "228802",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-minnesota-duluth",
+    "name": "University of Minnesota-Duluth",
+    "aliases": [],
+    "domain": "d.umn.edu",
+    "location": "Duluth, MN",
+    "initials": "UMD",
+    "website": "https://d.umn.edu",
+    "unitId": "174233",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-wisconsin-stevens-point",
+    "name": "University of Wisconsin-Stevens Point",
+    "aliases": [
+      "UW-Stevens Point"
+    ],
+    "domain": "uwsp.edu",
+    "location": "Stevens Point, WI",
+    "initials": "UWSP",
+    "website": "https://uwsp.edu",
+    "unitId": "240480",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "carnegie-mellon-university",
+    "name": "Carnegie Mellon University",
+    "aliases": [
+      "Carnegie Mellon",
+      "CMU"
+    ],
+    "domain": "cmu.edu",
+    "location": "Pittsburgh, PA",
+    "initials": "CMU",
+    "website": "https://cmu.edu",
+    "unitId": "211440",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "emory-university",
+    "name": "Emory University",
+    "aliases": [],
+    "domain": "emory.edu",
+    "location": "Atlanta, GA",
+    "initials": "EU",
+    "website": "https://emory.edu",
+    "unitId": "139658",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "southern-methodist-university",
+    "name": "Southern Methodist University",
+    "aliases": [
+      "SMU"
+    ],
+    "domain": "smu.edu",
+    "location": "Dallas, TX",
+    "initials": "SMU",
+    "website": "https://smu.edu",
+    "unitId": "228246",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "saint-louis-university",
+    "name": "Saint Louis University",
+    "aliases": [],
+    "domain": "slu.edu",
+    "location": "Saint Louis, MO",
+    "initials": "SLU",
+    "website": "https://slu.edu",
+    "unitId": "179159",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "american-university",
+    "name": "American University",
+    "aliases": [
+      "AU"
+    ],
+    "domain": "american.edu",
+    "location": "Washington, DC",
+    "initials": "AU",
+    "website": "https://american.edu",
+    "unitId": "131159",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "marshall-university",
+    "name": "Marshall University",
+    "aliases": [],
+    "domain": "marshall.edu",
+    "location": "Huntington, WV",
+    "initials": "MU",
+    "website": "https://marshall.edu",
+    "unitId": "237525",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "nova-southeastern-university",
+    "name": "Nova Southeastern University",
+    "aliases": [],
+    "domain": "nova.edu",
+    "location": "Fort Lauderdale, FL",
+    "initials": "NSU",
+    "website": "https://nova.edu",
+    "unitId": "136215",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "brown-university",
+    "name": "Brown University",
+    "aliases": [],
+    "domain": "brown.edu",
+    "location": "Providence, RI",
+    "initials": "BU",
+    "website": "https://brown.edu",
+    "unitId": "217156",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-alaska-anchorage",
+    "name": "University of Alaska Anchorage",
+    "aliases": [
+      "UAA"
+    ],
+    "domain": "uaa.alaska.edu",
+    "location": "Anchorage, AK",
+    "initials": "UAA",
+    "website": "https://uaa.alaska.edu",
+    "unitId": "102553",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "vanderbilt-university",
+    "name": "Vanderbilt University",
+    "aliases": [],
+    "domain": "vanderbilt.edu",
+    "location": "Nashville, TN",
+    "initials": "VU",
+    "website": "https://vanderbilt.edu",
+    "unitId": "221999",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "belmont-university",
+    "name": "Belmont University",
+    "aliases": [],
+    "domain": "belmont.edu",
+    "location": "Nashville, TN",
+    "initials": "BU",
+    "website": "https://belmont.edu",
+    "unitId": "219709",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "the-college-of-new-jersey",
+    "name": "The College of New Jersey",
+    "aliases": [
+      "TCNJ"
+    ],
+    "domain": "tcnj.edu",
+    "location": "Ewing, NJ",
+    "initials": "CNJ",
+    "website": "https://tcnj.edu",
+    "unitId": "187134",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "loyola-marymount-university",
+    "name": "Loyola Marymount University",
+    "aliases": [],
+    "domain": "lmu.edu",
+    "location": "Los Angeles, CA",
+    "initials": "LMU",
+    "website": "https://lmu.edu",
+    "unitId": "117946",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "sacred-heart-university",
+    "name": "Sacred Heart University",
+    "aliases": [
+      "SHU"
+    ],
+    "domain": "sacredheart.edu",
+    "location": "Fairfield, CT",
+    "initials": "SHU",
+    "website": "https://sacredheart.edu",
+    "unitId": "130253",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "tufts-university",
+    "name": "Tufts University",
+    "aliases": [],
+    "domain": "tufts.edu",
+    "location": "Medford, MA",
+    "initials": "TU",
+    "website": "https://tufts.edu",
+    "unitId": "168148",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "william-mary",
+    "name": "William & Mary",
+    "aliases": [],
+    "domain": "wm.edu",
+    "location": "Williamsburg, VA",
+    "initials": "WM",
+    "website": "https://wm.edu",
+    "unitId": "231624",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "jacksonville-state-university",
+    "name": "Jacksonville State University",
+    "aliases": [],
+    "domain": "jsu.edu",
+    "location": "Jacksonville, AL",
+    "initials": "JSU",
+    "website": "https://jsu.edu",
+    "unitId": "101480",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "university-of-the-cumberlands",
+    "name": "University of the Cumberlands",
+    "aliases": [
+      "Cumberland College"
+    ],
+    "domain": "ucumberlands.edu",
+    "location": "Williamsburg, KY",
+    "initials": "UC",
+    "website": "https://ucumberlands.edu",
+    "unitId": "156541",
+    "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  }
+]
+

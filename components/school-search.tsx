@@ -18,16 +18,18 @@ export function SchoolSearch() {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const router = useRouter();
   const normalized = normalize(query);
-  const exact = useMemo(() => normalized ? schools.find((school) => searchTerms(school).some((term) => term === normalized)) : undefined, [normalized]);
-  const partial = useMemo(() => normalized ? schools.filter((school) => searchTerms(school).some((term) => term.includes(normalized))) : [], [normalized]);
-  const ambiguous = !exact && partial.length > 1;
+  const exactMatches = useMemo(() => normalized ? schools.filter((school) => searchTerms(school).some((term) => term === normalized)) : [], [normalized]);
+  const exact = exactMatches.length === 1 ? exactMatches[0] : undefined;
+  const partialMatches = useMemo(() => normalized ? schools.filter((school) => searchTerms(school).some((term) => term.includes(normalized))) : [], [normalized]);
+  const suggestions = (exactMatches.length > 1 ? exactMatches : partialMatches).slice(0, 8);
+  const ambiguous = !exact && suggestions.length > 1;
 
   function choose(school: School) { setShowSuggestions(false); router.push(`/schools/${school.slug}`); }
   function submit(event: FormEvent) {
     event.preventDefault();
     if (exact) return choose(exact);
-    if (partial.length === 1) return choose(partial[0]);
-    if (partial.length > 1) return setShowSuggestions(true);
+    if (suggestions.length === 1) return choose(suggestions[0]);
+    if (suggestions.length > 1) return setShowSuggestions(true);
     router.push("/school-not-found");
   }
 
@@ -43,7 +45,7 @@ export function SchoolSearch() {
       </form>
       {showSuggestions && ambiguous && <div id="school-suggestions" role="listbox" aria-label="School suggestions" className="absolute z-20 mt-1 w-full border-2 border-ink bg-white text-left shadow-[6px_6px_0_#10243e]">
         <p className="px-3 py-2 text-xs font-bold uppercase tracking-wider text-ink/35">Choose your school</p>
-        {partial.map((school) => <button type="button" role="option" aria-selected="false" key={school.slug} onMouseDown={(event) => event.preventDefault()} onClick={() => choose(school)} className="flex w-full items-center gap-3 border-t border-ink/15 px-4 py-3 hover:bg-paper"><span className="grid h-9 w-12 shrink-0 place-items-center border border-ink text-xs font-black">{school.initials}</span><span><span className="block font-bold">{school.name}</span><span className="block text-sm text-ink/45">{school.domain} · {school.location}</span></span></button>)}
+        {suggestions.map((school) => <button type="button" role="option" aria-selected="false" key={school.slug} onMouseDown={(event) => event.preventDefault()} onClick={() => choose(school)} className="flex w-full items-center gap-3 border-t border-ink/15 px-4 py-3 hover:bg-paper"><span className="grid h-9 w-12 shrink-0 place-items-center border border-ink text-xs font-black">{school.initials}</span><span><span className="block font-bold">{school.name}</span><span className="block text-sm text-ink/45">{school.domain} · {school.location}</span></span></button>)}
       </div>}
     </div>
   );
