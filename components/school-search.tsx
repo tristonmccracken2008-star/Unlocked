@@ -3,25 +3,17 @@
 import { FormEvent, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { schools, type School } from "@/data/seed";
+import { findExactSchoolMatches, findSchoolMatches, normalizeSchoolQuery } from "@/data/school-search";
 import { SearchIcon } from "./icons";
-
-function normalize(value: string) {
-  return value.trim().toLowerCase().replace(/^https?:\/\//, "").replace(/^www\./, "").replace(/^.*@/, "").replace(/[/?#].*$/, "").replace(/[.,]/g, "").replace(/[-_\s]+/g, " ");
-}
-
-function searchTerms(school: School) {
-  return [school.name, school.domain, school.slug, ...school.aliases].map(normalize);
-}
 
 export function SchoolSearch() {
   const [query, setQuery] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
   const router = useRouter();
-  const normalized = normalize(query);
-  const exactMatches = useMemo(() => normalized ? schools.filter((school) => searchTerms(school).some((term) => term === normalized)) : [], [normalized]);
+  const normalized = normalizeSchoolQuery(query);
+  const exactMatches = useMemo(() => findExactSchoolMatches(schools, query), [query]);
   const exact = exactMatches.length === 1 ? exactMatches[0] : undefined;
-  const partialMatches = useMemo(() => normalized ? schools.filter((school) => searchTerms(school).some((term) => term.includes(normalized))) : [], [normalized]);
-  const suggestions = (exactMatches.length > 1 ? exactMatches : partialMatches).slice(0, 8);
+  const suggestions = useMemo(() => findSchoolMatches(schools, query, 8), [query]);
   const hasSuggestions = suggestions.length > 0;
 
   function choose(school: School) { setShowSuggestions(false); router.push(`/schools/${school.slug}`); }
