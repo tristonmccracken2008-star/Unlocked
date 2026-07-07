@@ -23,6 +23,8 @@ All benefit records use a four-state verification lifecycle and an internal revi
 
 The dashboard AI catalog is maintained separately from benefits. Follow the [AI tools catalog guide](./docs/AI_TOOLS_GUIDE.md) before adding or changing a tool or student-access claim.
 
+Career opportunities have their own verified catalog and ranking rules. Follow the [opportunity catalog guide](./docs/OPPORTUNITIES_GUIDE.md) before adding programs or deadlines.
+
 ## Category and editorial pages
 
 Category pages are generated from the `categories` array at `/categories/[slug]`. Editorial SEO pages live in the `app` directory:

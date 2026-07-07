@@ -9,6 +9,7 @@ const imported = read("institutions.json");
 const benefits = read("benefits.json");
 const relationships = read("school-benefits.json");
 const aiTools = read("ai-tools.json");
+const opportunities = read("opportunities.json");
 
 function normalize(value) {
   return value.trim().toLowerCase().replace(/^https?:\/\//, "").replace(/^www\./, "").replace(/^.*@/, "").replace(/[/?#].*$/, "").replace(/[.,]/g, "").replace(/[-_\s]+/g, " ");
@@ -77,6 +78,23 @@ for (const tool of aiTools) {
 }
 if (aiTools.length < 30) failures.push(`AI tool catalog has only ${aiTools.length} records; at least 30 are required`);
 
+const opportunitySlugs = new Set();
+const opportunityCategories = new Set(["Internships", "Freshman Programs", "Undergraduate Research", "Hackathons", "Competitions", "Fellowships", "Conferences", "Leadership Programs"]);
+for (const opportunity of opportunities) {
+  if (opportunitySlugs.has(opportunity.slug)) failures.push(`Duplicate opportunity slug: ${opportunity.slug}`);
+  opportunitySlugs.add(opportunity.slug);
+  for (const field of ["title", "organization", "category", "description", "eligibility", "scope", "difficulty", "prestige", "location", "lastVerifiedAt", "compensation", "workMode"]) if (!opportunity[field]) failures.push(`Opportunity ${opportunity.slug} is missing ${field}`);
+  if (!opportunityCategories.has(opportunity.category)) failures.push(`Invalid opportunity category: ${opportunity.slug}`);
+  if (!Array.isArray(opportunity.majors) || !opportunity.majors.length) failures.push(`Opportunity has no majors: ${opportunity.slug}`);
+  if (!Array.isArray(opportunity.academicYears) || !opportunity.academicYears.length) failures.push(`Opportunity has no academic years: ${opportunity.slug}`);
+  if (!opportunity.officialSourceUrl?.startsWith("https://")) failures.push(`Opportunity source is not HTTPS: ${opportunity.slug}`);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(opportunity.lastVerifiedAt)) failures.push(`Invalid opportunity date: ${opportunity.slug}`);
+  if (opportunity.deadlineType === "fixed" && !opportunity.applicationDeadline) failures.push(`Fixed deadline missing: ${opportunity.slug}`);
+  if (opportunity.scope === "school" && !opportunity.schoolSlugs?.length) failures.push(`School-specific opportunity has no school relationship: ${opportunity.slug}`);
+}
+if (opportunities.length < 75) failures.push(`Opportunity catalog has only ${opportunities.length} records; at least 75 are required`);
+for (const category of opportunityCategories) if (!opportunities.some((opportunity) => opportunity.category === category)) failures.push(`Opportunity category is empty: ${category}`);
+
 if (failures.length) {
   console.error(failures.join("\n"));
   process.exit(1);
@@ -86,3 +104,4 @@ const searchTermCount = [...termsBySchool.values()].reduce((sum, terms) => sum +
 console.log(`Validated ${schools.length} schools and ${searchTermCount} searchable names, domains, slugs, abbreviations, and aliases.`);
 console.log(`Validated ${relationships.length} official school-specific benefit relationships; Northeastern currently has 0.`);
 console.log(`Validated ${aiTools.length} AI tools with structured offers, eligibility, dates, and official sources.`);
+console.log(`Validated ${opportunities.length} opportunities across ${opportunityCategories.size} categories.`);
