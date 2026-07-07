@@ -59,6 +59,7 @@ export type Opportunity = {
   official_source: string;
   verification_status: VerificationStatus;
   last_verified: string;
+  date_added: string;
   difficulty: OpportunityDifficulty;
   prestige: OpportunityPrestige;
   icon: string | null;
@@ -88,6 +89,7 @@ for (const item of opportunities) {
   if (!opportunityTypes.includes(item.type)) throw new Error(`Invalid opportunity type: ${item.id}`);
   if (!item.official_source.startsWith("https://")) throw new Error(`Opportunity source must use HTTPS: ${item.id}`);
   if (!/^\d{4}-\d{2}-\d{2}$/.test(item.last_verified)) throw new Error(`Invalid verification date: ${item.id}`);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(item.date_added)) throw new Error(`Invalid date added: ${item.id}`);
   if (item.school_scope === "School Specific" && !item.schools.length) throw new Error(`School-specific opportunity has no school: ${item.id}`);
   if (item.application_deadline && !/^\d{4}-\d{2}-\d{2}$/.test(item.application_deadline)) throw new Error(`Invalid application deadline: ${item.id}`);
 }

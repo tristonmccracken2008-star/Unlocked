@@ -20,7 +20,7 @@ for(const school of schools){if(seenSlugs.has(school.slug))failures.push(`Duplic
 function search(query){const normalized=normalize(query);const exact=schools.filter((school)=>termsBySchool.get(school.slug).some((term)=>term===normalized));return exact.length?exact:schools.filter((school)=>termsBySchool.get(school.slug).some((term)=>term.includes(normalized)))}
 for(const school of schools)for(const term of [school.name,school.domain,school.slug,...school.aliases])if(!search(term).some((result)=>result.slug===school.slug))failures.push(`Search term did not find ${school.slug}: ${term}`);
 
-const ids=new Set();const types=new Set(["Benefit","AI","Career","Research","Scholarship"]);const required=["id","title","type","category","description","organization","school_scope","eligibility","location","official_source","verification_status","last_verified","icon"];
+const ids=new Set();const types=new Set(["Benefit","AI","Career","Research","Scholarship"]);const required=["id","title","type","category","description","organization","school_scope","eligibility","location","official_source","verification_status","last_verified","date_added","icon"];
 for(const item of opportunities){
   if(ids.has(item.id))failures.push(`Duplicate opportunity id: ${item.id}`);ids.add(item.id);
   for(const field of required)if(!item[field])failures.push(`Opportunity ${item.id} is missing ${field}`);
@@ -29,6 +29,7 @@ for(const item of opportunities){
   if(!types.has(item.type))failures.push(`Invalid opportunity type: ${item.id}`);
   if(!item.official_source?.startsWith("https://"))failures.push(`Opportunity source is not HTTPS: ${item.id}`);
   if(!/^\d{4}-\d{2}-\d{2}$/.test(item.last_verified))failures.push(`Invalid verification date: ${item.id}`);
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(item.date_added))failures.push(`Invalid date added: ${item.id}`);
   if(item.school_scope==="School Specific"&&!item.schools.length)failures.push(`School-specific opportunity has no schools: ${item.id}`);
   for(const school of item.schools)if(!schoolIds.has(school))failures.push(`Opportunity ${item.id} references unknown school: ${school}`);
   if(item.application_deadline&&!/^\d{4}-\d{2}-\d{2}$/.test(item.application_deadline))failures.push(`Invalid deadline: ${item.id}`);

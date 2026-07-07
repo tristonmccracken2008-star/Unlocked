@@ -6,7 +6,7 @@ The catalog currently contains five types: `Benefit`, `AI`, `Career`, `Research`
 
 ## Core model
 
-Every record includes the same top-level fields: `id`, `title`, `type`, `category`, `description`, `organization`, `school_scope`, `schools`, `majors`, `academic_years`, `eligibility`, `estimated_value`, `application_deadline`, `recurring`, `location`, `remote`, `paid`, `tags`, `official_source`, `verification_status`, `last_verified`, `difficulty`, `prestige`, `icon`, `featured`, and `hidden_gem`.
+Every record includes the same top-level fields: `id`, `title`, `type`, `category`, `description`, `organization`, `school_scope`, `schools`, `majors`, `academic_years`, `eligibility`, `estimated_value`, `application_deadline`, `recurring`, `location`, `remote`, `paid`, `tags`, `official_source`, `verification_status`, `last_verified`, `date_added`, `difficulty`, `prestige`, `icon`, `featured`, and `hidden_gem`.
 
 Type-specific fields belong in `metadata`. Current extensions include benefit claim instructions, AI access type, and career deadline/format labels. Do not add type-specific fields to the core model unless they apply meaningfully to every opportunity.
 
@@ -21,6 +21,8 @@ Type-specific fields belong in `metadata`. Current extensions include benefit cl
 7. Run `npm run validate:data` and `npm run build`.
 
 A valid record automatically receives a universal detail page at `/opportunities/[id]` and appears in the universal filtering engine.
+
+It also enters the recommendation engine automatically. See `RECOMMENDATION_ENGINE.md` for scoring and dashboard collection rules.
 
 ## Add a new opportunity type
 
