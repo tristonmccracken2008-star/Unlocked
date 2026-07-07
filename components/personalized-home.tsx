@@ -7,10 +7,11 @@ import { findExactSchoolMatches, findSchoolMatches, normalizeSchoolQuery } from 
 import { ArrowIcon, SearchIcon } from "./icons";
 import { profileSummary, readStudentProfile, studentProfileStorageKey, writeStudentProfile, type StudentProfile } from "@/data/student-profile";
 import { recentlyAddedOpportunities, recommendedForYou, type RecommendationProfile } from "@/data/recommendations";
-import { deadlineLabel } from "@/data/opportunities";
+import { deadlineLabel, opportunities } from "@/data/opportunities";
 
 const years = ["First year", "Second year", "Third year", "Fourth year", "Graduate student", "Other"];
 const quickLinks = [["AI Tools", "/ai"], ["Career", "/career"], ["Research", "/research"], ["Scholarships", "/scholarships"], ["Software", "/software"], ["Benefits", "/benefits"], ["Financial", "/financial"], ["Local", "/local"]];
+const guestPreview = [...opportunities].filter((item)=>item.verification_status==="verified_recently").sort((a,b)=>Number(b.featured)-Number(a.featured)||b.last_verified.localeCompare(a.last_verified)||a.title.localeCompare(b.title)).slice(0,4);
 
 export function PersonalizedHome() {
   const [ready, setReady] = useState(false);
@@ -61,15 +62,18 @@ export function StudentSetup({ onSave, initialProfile, onCancel }: { onSave: (pr
     event.preventDefault();
     const exact = findExactSchoolMatches(schools, schoolQuery);
     const school = selectedSchool ?? (exact.length === 1 ? exact[0] : undefined);
-    if (step === 1) { if (!school) { setShowSuggestions(true); return; } if (!year) return; setStep(2); return; }
-    if (step === 2) { if (!major.trim()) return; setStep(3); return; }
+    if (step === 1) { if (!school) { setShowSuggestions(true); return; } if (!year || !major.trim()) return; setStep(2); return; }
+    if (step === 2) { setStep(3); return; }
     if (!school || !careerGoal.trim() || !interests.trim()) return;
     onSave({ schoolSlug: school.slug, year, major: major.trim(), minor: minor.trim(), careerGoal: careerGoal.trim(), interests: interests.trim(), clubs: clubs.trim() });
   }
 
   return <>
     <section className="border-b-2 border-ink bg-paper"><div className="mx-auto grid max-w-7xl border-x border-ink/20 lg:grid-cols-[.85fr_1.15fr]">
-      <div className="border-b border-ink/20 px-5 py-10 sm:px-8 lg:border-b-0 lg:border-r lg:py-14"><p className="rule-label text-forest">Build your UnlockED profile</p><h1 className="mt-4 max-w-xl font-editorial text-4xl font-bold leading-tight tracking-[-.035em]">Your student opportunities, organized.</h1><p className="mt-5 max-w-xl text-base leading-7 text-ink/60">Tell us where and what you study to create a private, locally stored dashboard.</p></div>
+      <div className="border-b border-ink/20 px-5 py-8 sm:px-8 lg:border-b-0 lg:border-r"><p className="rule-label text-forest">Your student opportunities, organized</p><h1 className="mt-3 max-w-xl font-editorial text-3xl font-bold leading-tight tracking-[-.03em]">A dashboard built around what you study.</h1><div className="mt-5 flex flex-wrap gap-3"><button type="button" onClick={()=>document.getElementById("profile-school")?.focus()} className="bg-ink px-4 py-3 text-xs font-bold uppercase tracking-wider text-white">Build My Student Dashboard</button><Link href="/opportunities" className="border-2 border-ink px-4 py-3 text-xs font-bold uppercase tracking-wider">Browse Opportunities</Link></div>
+        <div className="mt-6 border-t-2 border-ink pt-4"><p className="rule-label text-forest">Today’s Best Opportunity</p><Link href={`/opportunities/${guestPreview[0].id}`} className="group mt-2 grid grid-cols-[1fr_auto] gap-4"><div><h2 className="font-editorial text-xl font-bold group-hover:text-forest">{guestPreview[0].title}</h2><p className="mt-1 text-xs text-ink/40">{guestPreview[0].organization} · {guestPreview[0].type}</p></div><ArrowIcon/></Link></div>
+        <div className="mt-5"><p className="rule-label text-ink/40">Recommended For You · Preview</p><div className="mt-2 grid sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3">{guestPreview.slice(1,4).map((item)=><Link key={item.id} href={`/opportunities/${item.id}`} className="border-t border-ink/15 py-2.5 sm:border-l sm:border-t-0 sm:px-3 sm:first:border-l-0 sm:first:pl-0 lg:border-l-0 lg:border-t lg:px-0 xl:border-l xl:border-t-0 xl:px-3 xl:first:border-l-0 xl:first:pl-0"><p className="text-sm font-bold leading-tight hover:text-forest">{item.title}</p><p className="mt-1 text-[11px] text-ink/40">{item.type}</p></Link>)}</div></div>
+      </div>
       <div className="bg-white px-5 py-9 sm:px-8 lg:p-10"><div className="flex items-center justify-between"><p className="rule-label text-ink/40">{initialProfile ? "Edit profile" : "Student setup"} · Step {step} of 3</p>{onCancel&&<button type="button" onClick={onCancel} className="text-xs font-bold uppercase tracking-wider text-ink/50">Cancel</button>}</div><div className="mt-4 grid grid-cols-3 gap-2" aria-hidden="true">{[1,2,3].map((item)=><span key={item} className={`h-1 ${item<=step?"bg-gold":"bg-ink/10"}`}/>)}</div><form onSubmit={submit} className="mt-6 space-y-6">
         {step===1&&<>
         <div className="relative"><label htmlFor="profile-school" className="mb-2 block text-sm font-bold">School</label><div className="flex h-12 items-center gap-2 border-2 border-ink px-3"><SearchIcon className="h-4 w-4 text-ink/40"/><input id="profile-school" value={schoolQuery} onFocus={()=>setShowSuggestions(true)} onChange={(event)=>{setSchoolQuery(event.target.value);setSelectedSchool(null);setShowSuggestions(true)}} placeholder="Name, abbreviation, or .edu domain" autoComplete="off" aria-controls="profile-school-suggestions" aria-expanded={showSuggestions&&Boolean(normalized)} className="min-w-0 flex-1 bg-transparent outline-none placeholder:text-ink/35"/></div>
@@ -77,17 +81,17 @@ export function StudentSetup({ onSave, initialProfile, onCancel }: { onSave: (pr
           {showSuggestions&&normalized&&matches.length===0&&<div id="profile-school-suggestions" className="absolute z-20 mt-1 w-full border-2 border-ink bg-white p-4 shadow-[6px_6px_0_#10243e]"><p className="font-bold">School not found</p><Link href={`/contact?school=${encodeURIComponent(schoolQuery)}`} className="mt-2 inline-block border-b border-forest text-sm font-bold text-forest">Request this school</Link></div>}
         </div>
         <label className="block"><span className="mb-2 block text-sm font-bold">Year</span><select value={year} onChange={(event)=>setYear(event.target.value)} required className="h-12 w-full border-2 border-ink bg-white px-3 outline-none"><option value="">Select your year</option>{years.map((item)=><option key={item}>{item}</option>)}</select></label>
+        <label className="block"><span className="mb-2 block text-sm font-bold">Major</span><input value={major} onChange={(event)=>setMajor(event.target.value)} required placeholder="e.g. Computer Science" className="h-12 w-full border-2 border-ink px-3 outline-none placeholder:text-ink/35"/></label>
         </>}
         {step===2&&<>
-        <label className="block"><span className="mb-2 block text-sm font-bold">Major</span><input value={major} onChange={(event)=>setMajor(event.target.value)} required placeholder="e.g. Computer Science" className="h-12 w-full border-2 border-ink px-3 outline-none placeholder:text-ink/35"/></label>
         <label className="block"><span className="mb-2 block text-sm font-bold">Minor <span className="font-normal text-ink/40">(optional)</span></span><input value={minor} onChange={(event)=>setMinor(event.target.value)} placeholder="e.g. Mathematics" className="h-12 w-full border-2 border-ink px-3 outline-none placeholder:text-ink/35"/></label>
+        <label className="block"><span className="mb-2 block text-sm font-bold">Clubs <span className="font-normal text-ink/40">(optional)</span></span><input value={clubs} onChange={(event)=>setClubs(event.target.value)} placeholder="e.g. Robotics Club, Women in Finance" className="h-12 w-full border-2 border-ink px-3 outline-none placeholder:text-ink/35"/></label>
         </>}
         {step===3&&<>
         <label className="block"><span className="mb-2 block text-sm font-bold">Career goal</span><input value={careerGoal} onChange={(event)=>setCareerGoal(event.target.value)} required placeholder="e.g. Quantitative researcher" className="h-12 w-full border-2 border-ink px-3 outline-none placeholder:text-ink/35"/></label>
         <label className="block"><span className="mb-2 block text-sm font-bold">Interests</span><input value={interests} onChange={(event)=>setInterests(event.target.value)} required placeholder="e.g. Quant, AI, research" className="h-12 w-full border-2 border-ink px-3 outline-none placeholder:text-ink/35"/></label>
-        <label className="block"><span className="mb-2 block text-sm font-bold">Clubs <span className="font-normal text-ink/40">(optional)</span></span><input value={clubs} onChange={(event)=>setClubs(event.target.value)} placeholder="e.g. Robotics Club, Women in Finance" className="h-12 w-full border-2 border-ink px-3 outline-none placeholder:text-ink/35"/></label>
         </>}
-        <div className="flex gap-3">{step>1&&<button type="button" onClick={()=>setStep(step-1)} className="border-2 border-ink px-5 py-4 text-sm font-bold uppercase tracking-wider">Back</button>}<button type="submit" className="flex flex-1 items-center justify-center gap-2 bg-ink px-5 py-4 text-sm font-bold uppercase tracking-wider text-white hover:bg-forest">{step===3?(initialProfile?"Save profile":"Open my dashboard"):"Continue"} <ArrowIcon /></button></div>
+        <div className="flex gap-3">{step>1&&<button type="button" onClick={()=>setStep(step-1)} className="border-2 border-ink px-5 py-4 text-sm font-bold uppercase tracking-wider">Back</button>}<button type="submit" className="flex flex-1 items-center justify-center gap-2 bg-ink px-5 py-4 text-sm font-bold uppercase tracking-wider text-white hover:bg-forest">{step===1&&!initialProfile?"Build My Student Dashboard":step===3?(initialProfile?"Save profile":"Open my dashboard"):"Continue"} <ArrowIcon /></button></div>
         <p className="text-xs leading-5 text-ink/40">Your selections stay in this browser. No account is required.</p>
       </form></div>
     </div></section>
