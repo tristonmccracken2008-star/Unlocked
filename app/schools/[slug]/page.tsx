@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BenefitBrowser } from "@/components/benefit-browser";
 import { SchoolSeoSections } from "@/components/school-seo-sections";
@@ -28,6 +29,7 @@ export default async function SchoolPage({ params }: { params: Promise<{ slug: s
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <nav aria-label="Breadcrumb" className="mx-auto flex max-w-7xl items-center gap-2 px-5 py-3 text-xs font-bold uppercase tracking-wider text-ink/40 sm:px-8"><Link href="/">Dashboard</Link><span>/</span><Link href="/university" className="text-forest">My University</Link><span>/</span><span>{school.name}</span></nav>
       <section className="border-b-2 border-ink bg-white">
         <div className="mx-auto grid max-w-7xl border-x border-ink/20 sm:grid-cols-[120px_1fr_260px]">
           <span className="grid min-h-28 place-items-center border-b border-ink/20 bg-ink font-editorial text-3xl font-bold text-white sm:border-b-0 sm:border-r">{school.initials}</span>

@@ -1,0 +1,8 @@
+import Link from "next/link";
+import { ArrowIcon } from "./icons";
+
+export type GoalLink = { title: string; href: string; description: string };
+
+export function GoalHub({ icon, title, purpose, links }: { icon: string; title: string; purpose: string; links: GoalLink[] }) {
+  return <main className="px-5 py-10 sm:px-8 sm:py-14"><div className="mx-auto max-w-6xl"><nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-ink/40"><Link href="/" className="hover:text-forest">Dashboard</Link><span>/</span><span className="text-forest">{title}</span></nav><header className="mt-6 grid gap-6 border-y-2 border-ink bg-white px-5 py-7 sm:grid-cols-[64px_1fr] sm:px-7"><span aria-hidden="true" className="grid h-14 w-14 place-items-center border border-ink/20 bg-paper text-2xl">{icon}</span><div><p className="rule-label text-forest">Student goal</p><h1 className="mt-2 font-editorial text-4xl font-bold">{title}</h1><p className="mt-3 max-w-2xl text-base leading-7 text-ink/55">{purpose}</p></div></header><section className="mt-8"><p className="rule-label text-ink/40">Choose what you want to accomplish</p><div className="mt-3 grid border-l border-t border-ink/15 sm:grid-cols-2 lg:grid-cols-3">{links.map((item)=><Link key={`${item.title}-${item.href}`} href={item.href} className="group flex min-h-40 flex-col border-b border-r border-ink/15 bg-white p-5 hover:bg-paper"><h2 className="font-editorial text-2xl font-bold group-hover:text-forest">{item.title}</h2><p className="mt-3 text-sm leading-6 text-ink/50">{item.description}</p><span className="mt-auto flex items-center gap-2 pt-5 text-xs font-bold uppercase tracking-wider">Explore <ArrowIcon/></span></Link>)}</div></section></div></main>;
+}

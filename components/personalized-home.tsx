@@ -11,7 +11,7 @@ import { deadlineLabel, opportunities, opportunityMajors } from "@/data/opportun
 import { StudentAdvantageCard } from "./student-advantage-card";
 
 const years = ["First year", "Second year", "Third year", "Fourth year", "Graduate student", "Other"];
-const quickLinks = [["AI Tools", "/ai"], ["Career", "/career"], ["Research", "/research"], ["Scholarships", "/scholarships"], ["Software", "/software"], ["Benefits", "/benefits"], ["Financial", "/financial"], ["Local", "/local"]];
+const quickLinks = [["🚀 Get Ahead", "/get-ahead"], ["💼 Build Your Career", "/build-career"], ["💰 Save Money", "/save-money"], ["🏫 My University", "/university"]];
 const guestPreview = [...opportunities].filter((item)=>item.verification_status==="verified_recently").sort((a,b)=>Number(b.featured)-Number(a.featured)||b.last_verified.localeCompare(a.last_verified)||a.title.localeCompare(b.title)).slice(0,4);
 
 export function PersonalizedHome() {
@@ -118,7 +118,7 @@ function StudentDashboard({ profile, onEdit }: { profile: StudentProfile; onEdit
       <section className="border-b border-ink/20 py-5 lg:pl-6"><div className="flex items-end justify-between"><p className="rule-label text-forest">Recommended For You</p><Link href="/opportunities" className="text-xs font-bold uppercase tracking-wider">View all</Link></div><div className="mt-3 grid sm:grid-cols-3">{recommended.map(({opportunity})=><Link key={opportunity.id} href={`/opportunities/${opportunity.id}`} className="group border-t border-ink/15 py-3 sm:border-l sm:border-t-0 sm:px-4 sm:first:border-l-0 sm:first:pl-0"><p className="rule-label text-ink/35">{opportunity.type}</p><h3 className="mt-2 font-editorial text-lg font-bold leading-tight group-hover:text-forest">{opportunity.title}</h3><p className="mt-2 text-xs text-ink/40">{opportunity.organization}</p></Link>)}</div></section>
     </div>
     <div className="grid lg:grid-cols-[1.9fr_1.1fr]">
-      <section className="border-b border-ink/20 py-5 lg:border-r lg:pr-6"><p className="rule-label text-forest">Explore</p><nav className="mt-3 grid grid-cols-2 border-l border-t border-ink/15 sm:grid-cols-4" aria-label="Opportunity sections">{quickLinks.map(([label,href])=><Link key={href} href={href} className="flex items-center justify-between border-b border-r border-ink/15 px-3 py-3 text-sm font-bold hover:bg-paper hover:text-forest">{label}<ArrowIcon /></Link>)}</nav></section>
+      <section className="border-b border-ink/20 py-5 lg:border-r lg:pr-6"><p className="rule-label text-forest">Choose your next goal</p><nav className="mt-3 grid grid-cols-2 border-l border-t border-ink/15 sm:grid-cols-4" aria-label="Student goals">{quickLinks.map(([label,href])=><Link key={href} href={href} className="flex items-center justify-between border-b border-r border-ink/15 px-3 py-3 text-sm font-bold hover:bg-paper hover:text-forest">{label}<ArrowIcon /></Link>)}</nav></section>
       <section className="border-b border-ink/20 py-5 lg:pl-6"><p className="rule-label text-forest">Recent Updates</p><div className="mt-2">{recent.map(({opportunity})=><Link key={opportunity.id} href={`/opportunities/${opportunity.id}`} className="grid grid-cols-[1fr_auto] gap-3 border-b border-ink/15 py-2.5"><div><p className="text-sm font-bold">{opportunity.title}</p><p className="mt-1 text-xs text-ink/40">{opportunity.type} · {opportunity.organization}</p></div><p className="text-xs text-ink/40">{opportunity.application_deadline?deadlineLabel(opportunity):"Updated"}</p></Link>)}</div></section>
     </div>
   </div>;
