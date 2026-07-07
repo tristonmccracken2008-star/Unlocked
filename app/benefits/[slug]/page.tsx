@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowIcon, CheckIcon } from "@/components/icons";
 import { StatusBadge } from "@/components/status-badge";
+import { OpportunityViewTracker } from "@/components/opportunity-activity";
 import { benefits, getBenefit } from "@/data/seed";
 
 export function generateStaticParams() { return benefits.map(({ slug }) => ({ slug })); }
@@ -21,6 +22,7 @@ export default async function BenefitPage({ params }: { params: Promise<{ slug: 
   const externalClaim = item.claimUrl.startsWith("http");
   return (
     <>
+      <OpportunityViewTracker opportunityId={item.opportunityId}/>
       <section className="border-b-2 border-ink bg-white px-5 py-12 sm:px-8 sm:py-16"><div className="mx-auto max-w-5xl"><Link href="/benefits" className="text-sm font-bold text-forest hover:underline">← All verified benefits</Link><div className="mt-8 grid gap-8 border-t border-ink/20 pt-8 md:grid-cols-[1fr_240px]"><div className="max-w-3xl"><div className="mb-4 flex flex-wrap items-center gap-4"><span className="rule-label text-forest">{item.category}</span><StatusBadge status={item.status} /></div><p className="text-sm font-bold uppercase tracking-widest text-ink/40">{item.provider}</p><h1 className="mt-2 font-editorial text-4xl font-bold tracking-tight sm:text-6xl">{item.name}</h1><p className="mt-5 text-lg leading-8 text-ink/60">{item.description}</p></div><div className="border-t-2 border-ink pt-5 md:border-l-2 md:border-t-0 md:pl-6 md:pt-0 md:text-right"><p className="rule-label text-ink/45">Verified offer value</p><p className="mt-3 font-editorial text-3xl font-bold text-forest">{item.value}</p></div></div></div></section>
       <section className="px-5 py-12 sm:px-8 sm:py-16"><div className="mx-auto grid max-w-5xl gap-8 lg:grid-cols-[1fr_320px]">
         <div className="space-y-8"><div className="border-y-2 border-ink bg-white p-6 sm:p-8"><h2 className="font-editorial text-2xl font-bold">How to claim it</h2><ol className="mt-6 divide-y divide-ink/15">{item.claimSteps.map((step, index) => <li key={step} className="grid grid-cols-[34px_1fr] gap-4 py-4"><span className="font-mono text-xs font-bold text-forest">0{index + 1}</span><p className="text-sm leading-6 text-ink/70">{step}</p></li>)}</ol></div><div className="border-y border-ink/20 bg-white p-6 sm:p-8"><h2 className="font-editorial text-2xl font-bold">Renewal and expiration</h2><p className="mt-4 leading-7 text-ink/60">{item.renewalNotes}</p></div></div>
