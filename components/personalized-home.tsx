@@ -32,7 +32,9 @@ export function PersonalizedHome() {
     setEditing(false);
   }
 
-  if (!ready) return <section className="min-h-[70vh] border-b-2 border-ink bg-paper" aria-label="Loading student dashboard" />;
+  // Render the complete guest dashboard in the initial HTML. Local profile data is
+  // applied after hydration, but the homepage must never depend on it to look useful.
+  if (!ready) return <StudentSetup initialProfile={null} onSave={save} />;
   if (!profile || editing) return <StudentSetup initialProfile={profile} onSave={save} onCancel={profile ? () => setEditing(false) : undefined} />;
   return <StudentDashboard profile={profile} onEdit={() => setEditing(true)} />;
 }
