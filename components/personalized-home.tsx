@@ -11,7 +11,7 @@ import { deadlineLabel, opportunities, opportunityMajors } from "@/data/opportun
 import { StudentAdvantageCard } from "./student-advantage-card";
 
 const years = ["First year", "Second year", "Third year", "Fourth year", "Graduate student", "Other"];
-const quickLinks = [["🚀 Get Ahead", "/get-ahead"], ["💼 Build Your Career", "/build-career"], ["💰 Save Money", "/save-money"], ["🏫 My University", "/university"]];
+const quickLinks = [["Get Ahead", "/get-ahead"], ["Build Your Career", "/build-career"], ["Save Money", "/save-money"], ["My University", "/university"]];
 const guestPreview = [...opportunities].filter((item)=>item.verification_status==="verified_recently").sort((a,b)=>Number(b.featured)-Number(a.featured)||b.last_verified.localeCompare(a.last_verified)||a.title.localeCompare(b.title)).slice(0,4);
 
 export function PersonalizedHome() {

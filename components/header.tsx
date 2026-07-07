@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Logo } from "./logo";
 
 export function Header() {
-  const destinations = [["🏠 Dashboard","/"],["🚀 Get Ahead","/get-ahead"],["💼 Build Your Career","/build-career"],["💰 Save Money","/save-money"],["🏫 My University","/university"]];
+  const destinations = [["Dashboard","/"],["Get Ahead","/get-ahead"],["Build Your Career","/build-career"],["Save Money","/save-money"],["My University","/university"]];
   return <header className="border-b-2 border-ink bg-paper">
     <div className="mx-auto flex max-w-7xl items-stretch justify-between px-5 sm:px-8">
       <Logo className="border-x border-ink/20 px-4 py-3.5 sm:px-6" />
