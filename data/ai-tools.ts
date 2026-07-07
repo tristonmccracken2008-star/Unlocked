@@ -1,4 +1,4 @@
-import toolsJson from "./db/ai-tools.json";
+import { filterOpportunities } from "./opportunities";
 
 export const aiToolCategories = ["All", "General Assistant", "Coding", "Research", "Writing", "Design", "Audio & Video", "Productivity", "Machine Learning"] as const;
 export const aiOfferTypes = ["All", "free_for_everyone", "student_discount", "free_with_edu", "university_specific", "no_verified_student_offer"] as const;
@@ -8,6 +8,7 @@ export type AIToolVerificationStatus = "verified_recently" | "needs_review";
 
 export type AITool = {
   slug: string;
+  opportunityId: string;
   name: string;
   company: string;
   description: string;
@@ -21,19 +22,22 @@ export type AITool = {
   estimatedAnnualValue: number | null;
 };
 
-const tools = toolsJson as AITool[];
-const seen = new Set<string>();
-for (const tool of tools) {
-  if (seen.has(tool.slug)) throw new Error(`Duplicate AI tool slug: ${tool.slug}`);
-  seen.add(tool.slug);
-  if (!tool.officialSourceUrl.startsWith("https://")) throw new Error(`AI tool source must use HTTPS: ${tool.slug}`);
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(tool.lastVerifiedAt)) throw new Error(`Invalid AI tool verification date: ${tool.slug}`);
-  if (!aiToolCategories.includes(tool.category)) throw new Error(`Invalid AI tool category: ${tool.slug}`);
-  if (!aiOfferTypes.includes(tool.offerType)) throw new Error(`Invalid AI tool offer type: ${tool.slug}`);
-}
-if (tools.length < 30) throw new Error("AI tool catalog must contain at least 30 records");
+export const aiTools: AITool[] = filterOpportunities({ types: ["AI"] }).map((item) => ({
+  slug: item.metadata.legacySlug ?? item.id,
+  opportunityId: item.id,
+  name: item.title,
+  company: item.organization,
+  description: item.description,
+  studentOffer: item.metadata.studentOffer ?? "No verified student-specific offer.",
+  eligibility: item.eligibility,
+  officialSourceUrl: item.official_source,
+  lastVerifiedAt: item.last_verified,
+  category: item.category as AIToolCategory,
+  offerType: item.metadata.offerType as AIOfferType,
+  verificationStatus: item.verification_status === "verified_recently" ? "verified_recently" : "needs_review",
+  estimatedAnnualValue: item.estimated_value,
+}));
 
-export const aiTools = tools;
 export const aiOfferLabels: Record<AIOfferType, string> = {
   free_for_everyone: "Free for everyone",
   student_discount: "Student discount",

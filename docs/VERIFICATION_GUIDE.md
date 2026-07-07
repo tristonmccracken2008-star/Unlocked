@@ -24,8 +24,8 @@ Before setting a benefit to `verified_recently`, an editor must:
 3. Confirm eligibility, geographic limits, enrollment requirements, and verification method.
 4. Confirm the claim URL and claim steps match the current flow.
 5. Confirm renewal, trial, billing, and expiration language.
-6. Record today’s date in `verifiedAt`, update the human-readable `verified` field, and set the matching source record’s `lastVerified` date.
-7. Include an estimated value only when the official source publishes the comparison price or the calculation can be reproduced from official prices. Otherwise omit `annualValue` and use an unknown/non-monetary value label.
+6. Record today’s date in the Opportunity’s `last_verified` field.
+7. Include `estimated_value` only when the official source publishes the comparison price or the calculation can be reproduced from official prices. Otherwise use `null` and keep any descriptive value label in `metadata.valueLabel`.
 8. Assign the review score using the rubric below and run `npm run build`.
 
 ## Internal review score

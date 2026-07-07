@@ -15,13 +15,13 @@ Open [http://localhost:3000](http://localhost:3000). Use `npm run build` to run 
 
 ## Manage catalog data
 
-Schools, benefits, sources, categories, and relationships are stored separately in [`data/db`](./data/db). The typed loader keeps the current UI working and validates references during the build.
+Every content item is stored in the unified [`opportunities.json`](./data/db/opportunities.json) catalog. Schools remain normalized separately, and typed compatibility views keep existing benefit, AI, career, school, and SEO pages working.
 
-See the complete [data administration guide](./docs/DATA_ADMIN_GUIDE.md) for exact steps to add, verify, update, and remove schools or benefits. Benefit and school pages are generated automatically from the JSON collections.
+See the [Opportunity Engine guide](./docs/OPPORTUNITY_ENGINE.md) and [data administration guide](./docs/DATA_ADMIN_GUIDE.md) for exact maintenance steps. Universal opportunity detail pages and existing compatibility pages are generated automatically.
 
 All benefit records use a four-state verification lifecycle and an internal review score. Follow the [benefit verification guide](./docs/VERIFICATION_GUIDE.md) before publishing or changing a benefit’s status.
 
-The dashboard AI catalog is maintained separately from benefits. Follow the [AI tools catalog guide](./docs/AI_TOOLS_GUIDE.md) before adding or changing a tool or student-access claim.
+AI tools and benefits share the Opportunity model. Follow the [AI tools catalog guide](./docs/AI_TOOLS_GUIDE.md) before changing a tool or student-access claim.
 
 Career opportunities have their own verified catalog and ranking rules. Follow the [opportunity catalog guide](./docs/OPPORTUNITIES_GUIDE.md) before adding programs or deadlines.
 

@@ -1,6 +1,6 @@
 # AI tools catalog maintenance
 
-AI tools are stored in `data/db/ai-tools.json` and loaded through `data/ai-tools.ts`. This catalog is independent from the benefits database: a tool can be useful to students without having a student-specific discount.
+AI tools are `Opportunity` records with `type: "AI"` in `data/db/opportunities.json`. `data/ai-tools.ts` is a read-only compatibility projection for the dashboard. A tool can be useful to students without having a student-specific discount.
 
 ## Required fields
 
@@ -10,8 +10,8 @@ Every record requires:
 - factual `description`
 - `studentOffer` stating exactly what is verified
 - `eligibility`
-- HTTPS `officialSourceUrl`
-- ISO `lastVerifiedAt` date
+- HTTPS `official_source`
+- ISO `last_verified` date
 - normalized `category`
 - `offerType`
 - `verificationStatus`
@@ -32,7 +32,7 @@ Every record requires:
 3. Do not infer student access from a company’s education branding.
 4. Mark uncertain, redirected, region-limited, or unclear offers `needs_review` and use conservative wording.
 5. Never calculate an estimated value unless official current prices support the calculation. Otherwise use `null`.
-6. Update `lastVerifiedAt` only after checking the source and all material claims.
+6. Update `last_verified` only after checking the source and all material claims.
 7. Run `npm run validate:data` and `npm run build` before publishing.
 
 The dashboard deliberately shows “Unknown” for unpriced value and “Needs Review” when a student claim is not sufficiently supported.

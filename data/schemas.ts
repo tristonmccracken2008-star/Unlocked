@@ -15,14 +15,17 @@ export type SchoolRecord = {
   sourceUrl?: string;
 };
 
-export type BenefitRecord = {
+export type School = Omit<SchoolRecord, "aliases"> & { aliases: string[]; benefitSlugs: string[] };
+
+export type Benefit = {
+  opportunityId: string;
   slug: string;
   name: string;
   provider: string;
   description: string;
-  categoryId: string;
-  value?: string;
-  annualValue?: number;
+  category: Category;
+  value: string;
+  annualValue: number;
   eligibility: string;
   eligibilityNotes: string[];
   verified: string;
@@ -30,34 +33,20 @@ export type BenefitRecord = {
   status: VerificationStatus;
   reviewScore: number;
   claimUrl: string;
-  sourceId: string;
+  sourceUrl: string;
   scope: BenefitScope;
   verificationMethod: string;
   claimSteps: string[];
   renewalNotes: string;
   featured?: boolean;
+  verificationConfidence: VerificationConfidence;
 };
 
 export type CategoryRecord = { id: string; name: Category; slug: string };
-export type SourceRecord = { id: string; benefitId: string; provider: string; url: string; lastVerified: string };
-export type SchoolBenefitRecord = { schoolId: string; benefitId: string };
-
-export type Benefit = BenefitRecord & { category: Category; sourceUrl: string; value: string; annualValue: number; verificationConfidence: VerificationConfidence };
-export type School = Omit<SchoolRecord, "aliases"> & { aliases: string[]; benefitSlugs: string[] };
 
 const isText = (value: unknown): value is string => typeof value === "string" && value.length > 0;
 const isObject = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null;
 
 export function assertSchool(value: unknown): asserts value is SchoolRecord {
   if (!isObject(value) || !isText(value.slug) || !isText(value.name) || !isText(value.domain) || !value.domain.endsWith(".edu") || (value.aliases !== undefined && !Array.isArray(value.aliases))) throw new Error("Invalid school record");
-}
-export function assertBenefit(value: unknown): asserts value is BenefitRecord {
-  const statuses: VerificationStatus[] = ["verified_recently", "needs_review", "expired", "community_submitted"];
-  if (!isObject(value) || !isText(value.slug) || !isText(value.name) || !isText(value.categoryId) || !isText(value.eligibility) || !Array.isArray(value.eligibilityNotes) || !value.eligibilityNotes.every(isText) || !isText(value.sourceId) || !isText(value.verifiedAt) || !isText(value.claimUrl) || !statuses.includes(value.status as VerificationStatus) || !Number.isInteger(value.reviewScore) || (value.reviewScore as number) < 0 || (value.reviewScore as number) > 100) throw new Error("Invalid benefit record");
-}
-export function assertSource(value: unknown): asserts value is SourceRecord {
-  if (!isObject(value) || !isText(value.id) || !isText(value.benefitId) || !isText(value.url) || !isText(value.lastVerified)) throw new Error("Invalid source record");
-}
-export function assertRelationship(value: unknown): asserts value is SchoolBenefitRecord {
-  if (!isObject(value) || !isText(value.schoolId) || !isText(value.benefitId)) throw new Error("Invalid school-benefit relationship");
 }
