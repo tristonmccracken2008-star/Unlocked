@@ -117,6 +117,17 @@ export function filterOpportunities(filters: OpportunityFilters = {}, source = o
 
 export const getOpportunity = (id: string) => opportunities.find((item) => item.id === id);
 export const getOpportunityByLegacySlug = (type: OpportunityType, slug: string) => opportunities.find((item) => item.type === type && item.metadata.legacySlug === slug);
+export function getRelatedOpportunities(item: Opportunity, limit = 5) {
+  const tokens = new Set(`${item.title} ${item.category} ${item.tags.join(" ")}`.toLowerCase().split(/[^a-z0-9]+/).filter((token) => token.length > 3));
+  return opportunities.filter((candidate) => candidate.id !== item.id && candidate.verification_status !== "expired").map((candidate) => {
+    const candidateTokens = new Set(`${candidate.title} ${candidate.category} ${candidate.tags.join(" ")}`.toLowerCase().split(/[^a-z0-9]+/).filter((token) => token.length > 3));
+    const tokenOverlap = [...tokens].filter((token) => candidateTokens.has(token)).length;
+    const majorOverlap = item.majors.filter((major) => major !== "Any Major" && candidate.majors.includes(major)).length;
+    const adjacentSoftware = (item.type === "AI" && candidate.type === "Benefit" && candidate.category === "Software") || (item.type === "Benefit" && item.category === "Software" && candidate.type === "AI");
+    const score = tokenOverlap * 3 + majorOverlap * 2 + (candidate.category === item.category ? 6 : 0) + (candidate.type === item.type ? 4 : 0) + (candidate.organization === item.organization ? 2 : 0) + (candidate.school_scope === item.school_scope ? 1 : 0) + (adjacentSoftware ? 5 : 0) + (candidate.featured ? 1 : 0);
+    return { candidate, score };
+  }).sort((a,b) => b.score - a.score || Number(b.candidate.verification_status === "verified_recently") - Number(a.candidate.verification_status === "verified_recently") || a.candidate.title.localeCompare(b.candidate.title)).slice(0,limit).map(({candidate}) => candidate);
+}
 export const careerOpportunities = filterOpportunities({ types: ["Career"] });
 export const researchOpportunities = filterOpportunities({ types: ["Research"] });
 export const scholarshipOpportunities = filterOpportunities({ types: ["Scholarship"] });
