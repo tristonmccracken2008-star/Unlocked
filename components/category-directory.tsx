@@ -15,14 +15,14 @@ import { OpportunityCard } from "./opportunity-card";
 export type DirectoryKind = "ai" | "career" | "research" | "scholarships" | "software" | "benefits" | "financial" | "local";
 
 const copy: Record<DirectoryKind, [string, string]> = {
-  ai: ["AI Tools", "Verified AI access and student offers, ranked for your profile."],
-  career: ["Career", "Internships, programs, hackathons, fellowships, and competitions."],
-  research: ["Research", "Undergraduate research programs from universities, agencies, and national laboratories."],
-  scholarships: ["Scholarships", "Verified awards and funding opportunities matched to your studies."],
-  software: ["Software", "Verified software benefits available through student status."],
-  benefits: ["Benefits", "Verified national and university-specific benefits available through student status."],
-  financial: ["Financial", "Verified financial benefits and student-focused resources."],
-  local: ["Local", "School-specific and nearby opportunities supported by the current database."],
+  ai: ["AI tools for real student work", "Compare verified access for writing, coding, research, design, and productivity—ranked for your profile."],
+  career: ["Career opportunities worth applying for", "Find verified internships, early-career programs, hackathons, fellowships, and competitions with clear deadlines."],
+  research: ["Undergraduate research you can pursue", "Explore verified programs from universities, public agencies, and national laboratories matched to your studies."],
+  scholarships: ["Scholarships matched to your studies", "Compare verified awards, eligibility requirements, deadlines, and official application sources."],
+  software: ["Professional software available to students", "Find verified education licenses and software benefits you can use for coursework and projects."],
+  benefits: ["Verified benefits your student status unlocks", "Compare national and university-specific offers with documented eligibility, value, and official sources."],
+  financial: ["Financial resources built for students", "Review verified banking, budgeting, and financial benefits without unsupported savings claims."],
+  local: ["Opportunities connected to your campus", "See verified school-specific and nearby resources supported by the current database."],
 };
 
 export function CategoryDirectory({ kind }: { kind: DirectoryKind }) {
@@ -47,7 +47,7 @@ export function CategoryDirectory({ kind }: { kind: DirectoryKind }) {
 
   if (!ready) return <div className="min-h-[60vh]" />;
   return <div className="mx-auto max-w-7xl border-x border-ink/20 bg-paper">
-    <header className="border-b-2 border-ink bg-white px-5 py-8 sm:px-8"><p className="rule-label text-forest">UnlockED directory</p><h1 className="mt-2 font-editorial text-4xl font-bold">{copy[kind][0]}</h1><p className="mt-3 max-w-2xl text-sm leading-6 text-ink/55">{copy[kind][1]}</p>{profile&&<p className="mt-4 border-l-2 border-gold pl-3 text-sm font-bold">Personalized for a {profileSummary(profile)}.</p>}{!profile&&<p className="mt-4 text-sm text-ink/50"><Link href="/" className="border-b border-ink font-bold">Create a local profile</Link> to personalize this directory.</p>}</header>
+    <header className="border-b-2 border-ink bg-white px-5 py-8 sm:px-8"><p className="rule-label text-forest">Verified student resource directory</p><h1 className="mt-2 font-editorial text-3xl font-bold sm:text-4xl">{copy[kind][0]}</h1><p className="mt-3 max-w-2xl text-sm leading-6 text-ink/55">{copy[kind][1]}</p>{profile&&<p className="mt-4 border-l-2 border-gold pl-3 text-sm font-bold">Personalized for a {profileSummary(profile)}.</p>}{!profile&&<p className="mt-4 text-sm text-ink/50"><Link href="/" className="border-b border-ink font-bold">Create a local profile</Link> to personalize this directory.</p>}</header>
     {!profile || !school ? <GenericList records={records} empty={kind === "local" ? "Create a profile to see school-specific and nearby opportunities." : "No verified opportunities are available in this section yet."} /> : kind === "ai" ? <AIToolsSection profile={recommendationProfile!} /> : kind === "career" ? <CareerSection major={`${profile.major} ${profile.minor??""} ${profile.interests} ${profile.careerGoal}`} year={profile.year} /> : kind === "research" ? <ResearchSection school={school} major={`${profile.major} ${profile.minor??""} ${profile.interests}`} year={profile.year} /> : kind === "scholarships" ? <ScholarshipSection school={school} major={`${profile.major} ${profile.minor??""} ${profile.interests}`} year={profile.year} /> : <GenericList records={records} empty={kind === "local" ? `No verified local or ${school.name}–specific opportunities are available yet.` : "No verified opportunities are available in this section yet."} />}
   </div>;
 }
