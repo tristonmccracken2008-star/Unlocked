@@ -7,5 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function Home() {
-  return <PersonalizedHome />;
+  return <div data-unlocked-home="personalized-dashboard-v1"><PersonalizedHome /></div>;
 }
