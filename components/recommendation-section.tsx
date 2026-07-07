@@ -5,7 +5,7 @@ import { expiringSoonOpportunities, hiddenGemOpportunities, recentlyAddedOpportu
 import { OpportunityCard } from "./opportunity-card";
 import { ArrowIcon } from "./icons";
 
-type Props = { school: School; major: string; year: string; interests?: string; careerGoals?: string };
+type Props = { school: School; major: string; minor?: string; year: string; interests?: string; careerGoals?: string; clubs?: string };
 
 function CompactList({ items, empty }: { items: ScoredOpportunity[]; empty: string }) {
   if (!items.length) return <p className="border-t border-ink/15 py-6 text-sm leading-6 text-ink/45">{empty}</p>;
@@ -15,8 +15,8 @@ function CompactList({ items, empty }: { items: ScoredOpportunity[]; empty: stri
   </Link>)}</div>;
 }
 
-export function RecommendationSection({ school, major, year, interests, careerGoals }: Props) {
-  const profile: RecommendationProfile = { schoolSlug: school.slug, schoolName: school.name, schoolLocation: school.location, major, academicYear: year, interests, careerGoals };
+export function RecommendationSection({ school, major, minor, year, interests, careerGoals, clubs }: Props) {
+  const profile: RecommendationProfile = { schoolSlug: school.slug, schoolName: school.name, schoolLocation: school.location, major, minor, academicYear: year, interests, careerGoals, clubs };
   const recommended = recommendedForYou(profile, 10);
   const trending = trendingOpportunities(profile);
   const hidden = hiddenGemOpportunities(profile);

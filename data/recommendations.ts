@@ -5,9 +5,11 @@ export type RecommendationProfile = {
   schoolName: string;
   schoolLocation: string;
   major: string;
+  minor?: string;
   academicYear: string;
   interests?: string;
   careerGoals?: string;
+  clubs?: string;
 };
 
 export type ScoredOpportunity = {
@@ -40,9 +42,9 @@ const unique = <T,>(values: T[]) => [...new Set(values)];
 const words = (value: string) => normalize(value).split(" ").filter((term) => term.length > 2);
 
 function profileSignals(profile: RecommendationProfile) {
-  const major = normalize(profile.major);
+  const major = normalize(`${profile.major} ${profile.minor ?? ""}`);
   const derived = Object.entries(majorSignals).flatMap(([key, signals]) => major.includes(key) || key.includes(major) ? signals : []);
-  const explicit = [...words(profile.interests ?? ""), ...words(profile.careerGoals ?? "")];
+  const explicit = [...words(profile.interests ?? ""), ...words(profile.careerGoals ?? ""), ...words(profile.clubs ?? "")];
   return unique([...derived, ...explicit]);
 }
 
@@ -58,7 +60,7 @@ function locationMatch(item: Opportunity, schoolLocation: string) {
 export function scoreOpportunity(item: Opportunity, profile: RecommendationProfile): ScoredOpportunity {
   let score = 0;
   const reasons: string[] = [];
-  const major = normalize(profile.major);
+  const major = normalize(`${profile.major} ${profile.minor ?? ""}`);
   const text = searchableText(item);
 
   if (item.school_scope === "School Specific") {

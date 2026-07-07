@@ -3,20 +3,22 @@
 import { useMemo, useState } from "react";
 import { aiOfferLabels, aiOfferTypes, aiToolCategories, aiTools, type AIOfferType, type AIToolCategory } from "@/data/ai-tools";
 import { ArrowIcon, SearchIcon } from "./icons";
+import { rankOpportunities, type RecommendationProfile } from "@/data/recommendations";
 
 const offerFilterLabels: Record<(typeof aiOfferTypes)[number], string> = { All: "All access types", ...aiOfferLabels };
 
-export function AIToolsSection() {
+export function AIToolsSection({ profile }: { profile: RecommendationProfile }) {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<(typeof aiToolCategories)[number]>("All");
   const [offerType, setOfferType] = useState<(typeof aiOfferTypes)[number]>("All");
   const visible = useMemo(() => {
     const search = query.trim().toLowerCase();
-    return aiTools.filter((tool) => (category === "All" || tool.category === category) && (offerType === "All" || tool.offerType === offerType) && (!search || `${tool.name} ${tool.company} ${tool.description} ${tool.studentOffer}`.toLowerCase().includes(search)));
-  }, [category, offerType, query]);
+    const scores = new Map(rankOpportunities(profile).map((item)=>[item.opportunity.id,item.score]));
+    return aiTools.filter((tool) => (category === "All" || tool.category === category) && (offerType === "All" || tool.offerType === offerType) && (!search || `${tool.name} ${tool.company} ${tool.description} ${tool.studentOffer}`.toLowerCase().includes(search))).sort((a,b)=>(scores.get(b.opportunityId)??0)-(scores.get(a.opportunityId)??0));
+  }, [category, offerType, profile, query]);
 
   return <section className="border-t-2 border-ink px-5 py-10 sm:px-8" aria-labelledby="ai-tools-title">
-    <div className="flex flex-col justify-between gap-4 border-b-2 border-ink pb-4 sm:flex-row sm:items-end"><div><p className="rule-label text-forest">Explore the catalog</p><h2 id="ai-tools-title" className="mt-2 font-editorial text-3xl font-bold">AI Tools</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-ink/50">Compare official access information without assuming every free plan is a student benefit.</p></div><p className="text-sm font-bold text-ink/45">{visible.length} of {aiTools.length} tools</p></div>
+    <div className="flex flex-col justify-between gap-4 border-b-2 border-ink pb-4 sm:flex-row sm:items-end"><div><p className="rule-label text-forest">Personalized AI directory</p><h2 id="ai-tools-title" className="mt-2 font-editorial text-3xl font-bold">AI Tools</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-ink/50">Ranked using your study profile, then filterable by official access information.</p></div><p className="text-sm font-bold text-ink/45">{visible.length} of {aiTools.length} tools</p></div>
     <div className="grid border-b-2 border-ink bg-white lg:grid-cols-[1fr_220px_230px]">
       <label className="flex h-14 items-center gap-3 px-4"><SearchIcon className="h-4 w-4 text-ink/40"/><span className="sr-only">Search AI tools</span><input value={query} onChange={(event)=>setQuery(event.target.value)} placeholder="Search tools, companies, or offers" className="min-w-0 flex-1 bg-transparent outline-none placeholder:text-ink/35"/></label>
       <label className="flex h-14 items-center justify-between gap-3 border-t border-ink/20 px-4 lg:border-l lg:border-t-0"><span className="rule-label text-ink/40">Category</span><select value={category} onChange={(event)=>setCategory(event.target.value as AIToolCategory | "All")} className="min-w-0 bg-transparent text-sm font-bold outline-none">{aiToolCategories.map((item)=><option key={item}>{item}</option>)}</select></label>
