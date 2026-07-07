@@ -6,9 +6,10 @@ import { schools, type School } from "@/data/seed";
 import { findExactSchoolMatches, findSchoolMatches, normalizeSchoolQuery } from "@/data/school-search";
 import { ArrowIcon, SearchIcon } from "./icons";
 import { profileSummary, readStudentProfile, studentProfileStorageKey, writeStudentProfile, type StudentProfile } from "@/data/student-profile";
-import { recentlyAddedOpportunities, recommendedForYou, type RecommendationProfile } from "@/data/recommendations";
-import { deadlineLabel, opportunities, opportunityMajors } from "@/data/opportunities";
+import { recommendedForYou, type RecommendationProfile } from "@/data/recommendations";
+import { opportunities, opportunityMajors } from "@/data/opportunities";
 import { StudentAdvantageCard } from "./student-advantage-card";
+import { WhatsNewFeed } from "./whats-new-feed";
 
 const years = ["First year", "Second year", "Third year", "Fourth year", "Graduate student", "Other"];
 const quickLinks = [["Get Ahead", "/get-ahead"], ["Build Your Career", "/build-career"], ["Save Money", "/save-money"], ["My University", "/university"]];
@@ -108,7 +109,6 @@ function StudentDashboard({ profile, onEdit }: { profile: StudentProfile; onEdit
   const ranked = recommendedForYou(recommendationProfile, 4);
   const today = ranked[0];
   const recommended = ranked.slice(1, 4);
-  const recent = recentlyAddedOpportunities(recommendationProfile, 3);
 
   return <div className="mx-auto max-w-6xl border-x border-ink/20 bg-white px-5 py-5 sm:px-8">
     <section className="flex flex-col justify-between gap-3 border-b-2 border-ink pb-5 sm:flex-row sm:items-end"><div><p className="rule-label text-forest">Your UnlockED dashboard</p><h1 className="mt-2 font-editorial text-3xl font-bold sm:text-4xl">Welcome back.</h1><p className="mt-2 text-sm text-ink/50">{school.name} · Recommended because you’re a {profileSummary(profile)}.</p></div><button onClick={onEdit} className="self-start border-b border-ink pb-1 text-xs font-bold uppercase tracking-wider hover:text-forest sm:self-auto">Edit profile</button></section>
@@ -119,7 +119,7 @@ function StudentDashboard({ profile, onEdit }: { profile: StudentProfile; onEdit
     </div>
     <div className="grid lg:grid-cols-[1.9fr_1.1fr]">
       <section className="border-b border-ink/20 py-5 lg:border-r lg:pr-6"><p className="rule-label text-forest">Choose your next goal</p><nav className="mt-3 grid grid-cols-2 border-l border-t border-ink/15 sm:grid-cols-4" aria-label="Student goals">{quickLinks.map(([label,href])=><Link key={href} href={href} className="flex items-center justify-between border-b border-r border-ink/15 px-3 py-3 text-sm font-bold hover:bg-paper hover:text-forest">{label}<ArrowIcon /></Link>)}</nav></section>
-      <section className="border-b border-ink/20 py-5 lg:pl-6"><p className="rule-label text-forest">Recent Updates</p><div className="mt-2">{recent.map(({opportunity})=><Link key={opportunity.id} href={`/opportunities/${opportunity.id}`} className="grid grid-cols-[1fr_auto] gap-3 border-b border-ink/15 py-2.5"><div><p className="text-sm font-bold">{opportunity.title}</p><p className="mt-1 text-xs text-ink/40">{opportunity.type} · {opportunity.organization}</p></div><p className="text-xs text-ink/40">{opportunity.application_deadline?deadlineLabel(opportunity):"Updated"}</p></Link>)}</div></section>
+      <section className="border-b border-ink/20 py-5 lg:pl-6"><WhatsNewFeed limit={5} /></section>
     </div>
   </div>;
 }
