@@ -12,7 +12,7 @@ import { ResearchSection } from "./research-section";
 import { ScholarshipSection } from "./scholarship-section";
 import { OpportunityCard } from "./opportunity-card";
 
-export type DirectoryKind = "ai" | "career" | "research" | "scholarships" | "software" | "financial" | "local";
+export type DirectoryKind = "ai" | "career" | "research" | "scholarships" | "software" | "benefits" | "financial" | "local";
 
 const copy: Record<DirectoryKind, [string, string]> = {
   ai: ["AI Tools", "Verified AI access and student offers, ranked for your profile."],
@@ -20,6 +20,7 @@ const copy: Record<DirectoryKind, [string, string]> = {
   research: ["Research", "Undergraduate research programs from universities, agencies, and national laboratories."],
   scholarships: ["Scholarships", "Verified awards and funding opportunities matched to your studies."],
   software: ["Software", "Verified software benefits available through student status."],
+  benefits: ["Benefits", "Verified national and university-specific benefits available through student status."],
   financial: ["Financial", "Verified financial benefits and student-focused resources."],
   local: ["Local", "School-specific and nearby opportunities supported by the current database."],
 };
@@ -38,6 +39,7 @@ export function CategoryDirectory({ kind }: { kind: DirectoryKind }) {
     if (kind === "research") source = filterOpportunities({ types: ["Research"] });
     if (kind === "scholarships") source = filterOpportunities({ types: ["Scholarship"] });
     if (kind === "software") source = filterOpportunities({ types: ["Benefit"] }).filter((item) => item.category === "Software");
+    if (kind === "benefits") source = filterOpportunities({ types: ["Benefit"] });
     if (kind === "financial") source = filterOpportunities({ types: ["Benefit"] }).filter((item) => item.category === "Finance");
     if (kind === "local" && school) source = filterOpportunities({ school: school.slug }).filter((item) => item.school_scope === "School Specific" || item.location.toLowerCase().includes(school.location.split(",")[0].toLowerCase()));
     return recommendationProfile ? rankOpportunities(recommendationProfile, source).map((item) => item.opportunity) : source;
