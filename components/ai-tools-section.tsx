@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { aiOfferLabels, aiOfferTypes, aiToolCategories, aiTools, type AIOfferType, type AIToolCategory } from "@/data/ai-tools";
 import { ArrowIcon, SearchIcon } from "./icons";
-import { ConfidenceBadge } from "./status-badge";
+import { StatusBadge } from "./status-badge";
 import { rankOpportunities, type RecommendationProfile } from "@/data/recommendations";
 
 const offerFilterLabels: Record<(typeof aiOfferTypes)[number], string> = { All: "All access types", ...aiOfferLabels };
@@ -27,7 +27,7 @@ export function AIToolsSection({ profile }: { profile: RecommendationProfile }) 
     </div>
     <div className="border-b-2 border-ink">{visible.map((tool,index)=><article key={tool.slug} className="grid gap-4 border-b border-ink/20 bg-white px-4 py-5 last:border-b-0 lg:grid-cols-[36px_1fr_210px_150px] lg:items-start">
       <span className="hidden pt-1 font-mono text-xs text-ink/30 lg:block">{String(index+1).padStart(2,"0")}</span>
-      <div><div className="flex flex-wrap items-center gap-3"><span className="rule-label text-forest">{tool.category}</span><span className={`rule-label border-l border-ink/20 pl-3 ${tool.verificationStatus==="verified_recently"?"text-trust":"text-amber-700"}`}>{tool.verificationStatus==="verified_recently"?"Verified Recently":"Needs Review"}</span><ConfidenceBadge status={tool.verificationStatus}/></div><h3 className="mt-2 font-editorial text-xl font-bold">{tool.name}</h3><p className="mt-1 text-xs font-bold uppercase tracking-wider text-ink/35">{tool.company}</p><p className="mt-3 text-sm leading-6 text-ink/55">{tool.description}</p><p className="mt-3 text-sm leading-6"><span className="font-bold">Student offer:</span> {tool.studentOffer}</p><p className="mt-1 text-xs leading-5 text-ink/45"><span className="font-bold">Eligibility:</span> {tool.eligibility}</p></div>
+      <div><div className="flex flex-wrap items-center gap-3"><span className="rule-label text-forest">{tool.category}</span><StatusBadge status={tool.verificationStatus}/></div><h3 className="mt-2 font-editorial text-xl font-bold">{tool.name}</h3><p className="mt-1 text-xs font-bold uppercase tracking-wider text-ink/35">{tool.company}</p><p className="mt-3 text-sm leading-6 text-ink/55">{tool.description}</p><p className="mt-3 text-sm leading-6"><span className="font-bold">Student offer:</span> {tool.studentOffer}</p><p className="mt-1 text-xs leading-5 text-ink/45"><span className="font-bold">Eligibility:</span> {tool.eligibility}</p></div>
       <div className="border-t border-ink/15 pt-4 lg:border-l lg:border-t-0 lg:pl-4 lg:pt-0"><p className="rule-label text-ink/35">Access type</p><p className="mt-2 text-sm font-bold text-forest">{aiOfferLabels[tool.offerType]}</p><p className="mt-5 rule-label text-ink/35">Estimated value</p><p className="mt-2 text-sm font-bold">{tool.estimatedAnnualValue===null?"Unknown":new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",maximumFractionDigits:0}).format(tool.estimatedAnnualValue)}</p></div>
       <div className="lg:text-right"><p className="text-xs text-ink/40">Last verified {tool.lastVerifiedAt}</p><a href={tool.officialSourceUrl} target="_blank" rel="noreferrer" className="mt-4 inline-flex min-h-11 items-center gap-2 border-b border-ink pb-1 text-xs font-bold uppercase tracking-wider hover:border-forest hover:text-forest">Official source <ArrowIcon /></a></div>
     </article>)}</div>

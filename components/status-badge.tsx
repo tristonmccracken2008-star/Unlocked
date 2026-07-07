@@ -15,8 +15,8 @@ const confidence: Record<VerificationStatus, { label: "Verified" | "Needs Review
 };
 
 export function StatusBadge({ status }: { status: VerificationStatus }) {
-  const tone = status === "verified_recently" ? "text-trust" : status === "expired" ? "text-red-700" : "text-amber-700";
-  return <span className={`inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest ${tone}`}>{status === "verified_recently" && <CheckIcon className="h-3 w-3" />}{labels[status]}</span>;
+  const tone = status === "verified_recently" ? "border-trust/25 bg-trust/[.06] text-trust" : status === "expired" ? "border-red-700/25 bg-red-700/[.05] text-red-700" : "border-amber-700/25 bg-amber-700/[.05] text-amber-700";
+  return <span className={`inline-flex items-center gap-1.5 border px-2 py-1 text-[9px] font-bold uppercase tracking-[.1em] ${tone}`}>{status === "verified_recently" && <CheckIcon className="h-3 w-3" />}{labels[status]}</span>;
 }
 
 export function ConfidenceBadge({ status }: { status: VerificationStatus }) {

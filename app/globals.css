@@ -4,14 +4,16 @@
 
 :root { color: #10243e; background: #f7f3e8; }
 html { scroll-behavior: smooth; }
-body { min-height: 100vh; overflow-x: hidden; background: #f7f3e8; font-family: Arial, Helvetica, ui-sans-serif, sans-serif; }
+body { min-height: 100vh; overflow-x: hidden; background: #f7f3e8; font-family: "Avenir Next", Avenir, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 16px; line-height: 1.5; text-rendering: optimizeLegibility; }
 button, a, input, select, textarea { transition-duration: 150ms; }
 button, a, input, select, textarea { touch-action: manipulation; }
+button, input, select, textarea { font: inherit; }
 :focus-visible { outline: 2px solid #b78318; outline-offset: 3px; }
 ::selection { background: #f0dfb2; color: #10243e; }
-.font-editorial { font-family: Georgia, "Times New Roman", serif; }
-.rule-label { font-size: .68rem; font-weight: 800; letter-spacing: .15em; text-transform: uppercase; }
+.font-editorial { font-family: Iowan Old Style, Baskerville, Georgia, "Times New Roman", serif; }
+.rule-label { font-size: .67rem; font-weight: 750; letter-spacing: .135em; line-height: 1.4; text-transform: uppercase; }
 .scrollbar-none::-webkit-scrollbar { display: none; }
 .scrollbar-none { scrollbar-width: none; }
 .prose-copy h2 { font-size: 1.25rem; font-weight: 800; letter-spacing: -0.02em; }
 .prose-copy p { margin-top: .65rem; color: rgb(16 36 62 / .62); line-height: 1.75; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { transition-duration: 0.01ms !important; } }
