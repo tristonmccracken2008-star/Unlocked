@@ -5,11 +5,12 @@ import { FormEvent, useEffect, useMemo, useState } from "react";
 import { schools, type School } from "@/data/seed";
 import { findExactSchoolMatches, findSchoolMatches, normalizeSchoolQuery } from "@/data/school-search";
 import { ArrowIcon, SearchIcon } from "./icons";
-import { profileSummary, readStudentProfile, studentProfileStorageKey, writeStudentProfile, type StudentProfile } from "@/data/student-profile";
+import { readStudentProfile, studentProfileStorageKey, writeStudentProfile, type StudentProfile } from "@/data/student-profile";
 import { rankOpportunities, recommendedForYou, type RecommendationProfile } from "@/data/recommendations";
 import { opportunities, opportunityMajors } from "@/data/opportunities";
 import { StudentAdvantageCard } from "./student-advantage-card";
 import { WhatsNewFeed } from "./whats-new-feed";
+import { SaveOpportunityButton } from "./opportunity-activity";
 
 const years = [["Freshman", "First year"], ["Sophomore", "Second year"], ["Junior", "Third year"], ["Senior", "Fourth year"], ["Graduate", "Graduate student"]] as const;
 const goalOptions = ["Get internships", "Save money", "Find research", "Learn AI", "Build coding skills", "Prepare for graduate school", "Prepare for quant finance", "Start a business", "Networking"];
@@ -143,10 +144,8 @@ function StudentDashboard({ profile, onEdit }: { profile: StudentProfile; onEdit
   const school = schools.find((item) => item.slug === profile.schoolSlug);
   if (!school) return null;
   const recommendationProfile: RecommendationProfile = { schoolSlug: school.slug, schoolName: school.name, schoolLocation: school.location, major: profile.major, minor: profile.minor, academicYear: profile.year, interests: profile.interests, careerGoals: profile.careerGoal, clubs: profile.clubs };
-  const ranked = recommendedForYou(recommendationProfile, 4);
-  const today = ranked[0];
-  const recommended = ranked.slice(1, 4);
-  const allRanked = rankOpportunities(recommendationProfile).filter(({opportunity}) => opportunity.verification_status !== "expired");
+  const recommended = recommendedForYou(recommendationProfile, 3);
+  const allRanked = rankOpportunities(recommendationProfile).filter(({opportunity,score}) => opportunity.verification_status !== "expired" && score > 0);
   const dashboardSections = [
     ["Best AI tool", "AI", "/ai"],
     ["Scholarship", "Scholarship", "/scholarships"],
@@ -154,13 +153,14 @@ function StudentDashboard({ profile, onEdit }: { profile: StudentProfile; onEdit
     ["Research", "Research", "/research"],
   ].map(([label,type,href]) => ({ label, href, opportunity: allRanked.find((item) => item.opportunity.type === type)?.opportunity }));
 
-  return <div className="mx-auto max-w-6xl bg-white px-5 py-8 sm:px-8 sm:py-10">
-    <section className="flex flex-col justify-between gap-4 border-b border-ink/15 pb-7 sm:flex-row sm:items-end"><div><p className="rule-label text-forest">Personalized for {school.name}</p><h1 className="mt-2 font-editorial text-4xl font-bold sm:text-5xl">Welcome back.</h1><p className="mt-3 max-w-2xl text-sm leading-6 text-ink/50">Your highest-signal opportunities, ranked for a {profileSummary(profile)}.</p></div><button onClick={onEdit} className="self-start border-b border-ink/30 pb-1 text-xs font-bold uppercase tracking-wider hover:border-forest hover:text-forest sm:self-auto">Edit profile</button></section>
+  const money = new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",maximumFractionDigits:0});
+  const valueLabel = (value:number|null) => value ? `${money.format(value)}+` : "Value not published";
+  const quickActions = [["Find Scholarships","/scholarships"],["Find AI Tools","/ai"],["Find Research","/research"],["Find Internships","/career"]];
+  return <div className="mx-auto max-w-6xl bg-white px-5 py-10 sm:px-8 sm:py-14">
+    <section className="flex flex-col justify-between gap-5 pb-10 sm:flex-row sm:items-end"><div><p className="rule-label text-forest">Your UnlockED</p><h1 className="mt-3 font-editorial text-4xl font-bold tracking-[-.03em] sm:text-5xl">Welcome back.</h1><p className="mt-4 text-lg text-ink/60"><strong className="text-ink">{allRanked.length} opportunities</strong> match your profile today.</p><p className="mt-2 text-sm text-ink/45">{school.name} <span aria-hidden="true">•</span> {profile.major} <span aria-hidden="true">•</span> {profile.year}</p></div><button onClick={onEdit} className="self-start border-b border-ink/25 pb-1 text-xs font-bold uppercase tracking-wider hover:border-forest hover:text-forest sm:self-auto">Edit profile</button></section>
     <StudentAdvantageCard profile={profile} school={school}/>
-    <div className="grid gap-8 border-b border-ink/15 py-8 lg:grid-cols-[1.1fr_1.9fr] lg:gap-10">
-      <section><p className="rule-label text-forest">Today’s Best Opportunity</p>{today&&<Link href={`/opportunities/${today.opportunity.id}`} className="group mt-3 block border-l-2 border-gold pl-5"><h2 className="font-editorial text-2xl font-bold leading-tight group-hover:text-forest">{today.opportunity.title}</h2><p className="mt-2 text-xs font-bold uppercase tracking-wider text-ink/35">{today.opportunity.organization}</p><p className="mt-3 line-clamp-3 text-sm leading-6 text-ink/55">{today.opportunity.description}</p><span className="mt-4 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider">View opportunity <ArrowIcon /></span></Link>}</section>
-      <section><div className="flex items-end justify-between"><p className="rule-label text-forest">Recommended For You</p><Link href="/opportunities" className="text-xs font-bold uppercase tracking-wider">View all</Link></div><div className="mt-3 divide-y divide-ink/15 border-y border-ink/15">{recommended.map(({opportunity})=><Link key={opportunity.id} href={`/opportunities/${opportunity.id}`} className="group grid grid-cols-[1fr_auto] items-center gap-4 py-4"><div><p className="rule-label text-ink/35">{opportunity.type}</p><h3 className="mt-1 font-editorial text-xl font-bold leading-tight group-hover:text-forest">{opportunity.title}</h3><p className="mt-1 text-xs text-ink/40">{opportunity.organization}</p></div><ArrowIcon/></Link>)}</div></section>
-    </div>
+    <section className="py-12" aria-labelledby="dashboard-recommendations"><div className="flex items-end justify-between gap-4"><div><p className="rule-label text-forest">Selected for your profile</p><h2 id="dashboard-recommendations" className="mt-2 font-editorial text-3xl font-bold sm:text-4xl">Recommended For You</h2></div><Link href="/opportunities" className="text-xs font-bold uppercase tracking-wider hover:text-forest">View all</Link></div><div className="mt-7 grid gap-5 lg:grid-cols-3">{recommended.map(({opportunity,reasons})=><article key={opportunity.id} className="flex min-h-72 flex-col bg-white p-6 shadow-[0_12px_35px_rgba(16,36,62,.09)]"><div><p className="rule-label text-forest">{opportunity.type}</p><h3 className="mt-3 font-editorial text-2xl font-bold leading-tight">{opportunity.title}</h3><p className="mt-2 text-xs font-bold uppercase tracking-wider text-ink/35">{opportunity.organization}</p></div><div className="mt-5"><p className="rule-label text-ink/35">Estimated value</p><p className="mt-1 text-sm font-bold">{valueLabel(opportunity.estimated_value)}</p><p className="mt-4 line-clamp-2 text-sm leading-6 text-ink/50">{reasons[0] ? `Recommended because it is a ${reasons[0].toLowerCase()}.` : "Recommended based on your school, major, year, and interests."}</p></div><div className="mt-auto flex items-center gap-3 pt-6"><Link href={`/opportunities/${opportunity.id}`} className="flex min-h-11 flex-1 items-center justify-center gap-2 bg-ink px-4 text-xs font-bold uppercase tracking-wider text-white hover:bg-forest">View details <ArrowIcon/></Link><SaveOpportunityButton opportunityId={opportunity.id} className="border border-ink/20 px-4 hover:border-ink"/></div></article>)}</div></section>
+    <nav aria-label="Quick actions" className="grid gap-px bg-ink/10 sm:grid-cols-2 lg:grid-cols-4">{quickActions.map(([label,href])=><Link key={href} href={href} className="group flex min-h-16 items-center justify-between bg-paper px-4 text-sm font-bold hover:bg-white hover:text-forest">{label}<ArrowIcon className="h-4 w-4 text-ink/35 group-hover:text-forest"/></Link>)}</nav>
     <details className="group border-b border-ink/15 py-5"><summary className="flex cursor-pointer list-none items-center justify-between text-sm font-bold"><span>More from your personalized dashboard</span><span className="text-xl font-normal text-ink/40 group-open:rotate-45">+</span></summary><div className="mt-6 grid gap-8 lg:grid-cols-[1.9fr_1.1fr]"><section><div className="flex items-end justify-between"><p className="rule-label text-forest">Built around your profile</p><Link href="/opportunities" className="text-xs font-bold uppercase tracking-wider">Browse all</Link></div><div className="mt-3 grid border-l border-t border-ink/15 sm:grid-cols-2">{dashboardSections.map(({label,href,opportunity})=><Link key={label} href={opportunity?`/opportunities/${opportunity.id}`:href} className="group/item border-b border-r border-ink/15 px-3 py-3 hover:bg-paper"><p className="rule-label text-ink/35">{label}</p><p className="mt-1 text-sm font-bold leading-tight group-hover/item:text-forest">{opportunity?.title??"Browse verified opportunities"}</p></Link>)}</div></section><section><WhatsNewFeed limit={5} /></section></div></details>
   </div>;
 }

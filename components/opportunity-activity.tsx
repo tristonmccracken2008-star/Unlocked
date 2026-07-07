@@ -28,3 +28,9 @@ export function OpportunityActivityActions({ opportunityId, type, officialSource
     {claimable&&<button type="button" onClick={()=>setActivity(markOpportunityClaimed(opportunityId))} className="flex min-h-11 w-full items-center justify-center border border-white/35 px-4 text-xs font-bold uppercase tracking-wider text-white">{claimed?<><CheckIcon className="h-4 w-4"/> Claimed</>:"Mark as claimed"}</button>}
   </div>;
 }
+
+export function SaveOpportunityButton({ opportunityId, className = "" }: { opportunityId: string; className?: string }) {
+  const [saved,setSaved]=useState(false);
+  useEffect(()=>{const update=()=>setSaved(readStudentActivity().saved.includes(opportunityId));update();window.addEventListener(studentActivityEvent,update);return()=>window.removeEventListener(studentActivityEvent,update)},[opportunityId]);
+  return <button type="button" onClick={()=>{toggleSavedOpportunity(opportunityId);setSaved(readStudentActivity().saved.includes(opportunityId))}} className={`inline-flex min-h-11 items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider ${className}`}>{saved?<><CheckIcon className="h-4 w-4"/> Saved</>:"Save"}</button>;
+}
