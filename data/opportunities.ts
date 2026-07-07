@@ -1,6 +1,6 @@
 import catalogJson from "./db/opportunities.json";
 
-export const opportunityTypes = ["Benefit", "AI", "Career", "Research"] as const;
+export const opportunityTypes = ["Benefit", "AI", "Career", "Research", "Scholarship"] as const;
 export const opportunityCategories = ["All", "Internships", "Freshman Programs", "Hackathons", "Competitions", "Fellowships", "Conferences", "Leadership Programs"] as const;
 export const opportunityMajors = ["All", "Any Major", "Computer Science", "Mathematics", "Engineering", "Data Science", "Physics", "Natural Sciences", "Finance", "Business", "Design", "Social Sciences"] as const;
 export const academicYears = ["All", "First year", "Second year", "Third year", "Fourth year", "Graduate student"] as const;
@@ -32,6 +32,9 @@ export type OpportunityMetadata = {
   researchArea?: string;
   stipendAmount?: number | null;
   semesters?: string[];
+  awardAmountLabel?: string;
+  renewable?: boolean | null;
+  applicationRequirements?: string[];
 };
 
 export type Opportunity = {
@@ -114,10 +117,11 @@ export const getOpportunity = (id: string) => opportunities.find((item) => item.
 export const getOpportunityByLegacySlug = (type: OpportunityType, slug: string) => opportunities.find((item) => item.type === type && item.metadata.legacySlug === slug);
 export const careerOpportunities = filterOpportunities({ types: ["Career"] });
 export const researchOpportunities = filterOpportunities({ types: ["Research"] });
+export const scholarshipOpportunities = filterOpportunities({ types: ["Scholarship"] });
 
 export function deadlineLabel(item: Opportunity) {
   if (item.application_deadline) return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" }).format(new Date(`${item.application_deadline}T00:00:00Z`));
   if (item.metadata.deadlineType === "rolling") return "Rolling";
-  if (item.metadata.deadlineType === "varies") return "Varies by role or site";
+  if (item.metadata.deadlineType === "varies") return item.type === "Scholarship" ? "Deadline varies" : "Varies by role or site";
   return "Not announced";
 }

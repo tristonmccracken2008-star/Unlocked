@@ -2,7 +2,7 @@
 
 Every content item in UnlockED is an `Opportunity`. The canonical catalog is `data/db/opportunities.json`; the TypeScript model, validator, query engine, and helpers live in `data/opportunities.ts`.
 
-The catalog currently contains four types: `Benefit`, `AI`, `Career`, and `Research`. Existing benefit, school, AI, career, and research interfaces are projections over this catalog. They must not introduce separate content records.
+The catalog currently contains five types: `Benefit`, `AI`, `Career`, `Research`, and `Scholarship`. Existing benefit, school, AI, career, research, and scholarship interfaces are projections over this catalog. They must not introduce separate content records.
 
 ## Core model
 
@@ -42,5 +42,6 @@ No new database file, relationship table, card model, or detail route is require
 - `data/ai-tools.ts` maps `AI` opportunities into the current dashboard AI interface.
 - `careerOpportunities` is a `Career` query used by the dashboard.
 - `researchOpportunities` is a `Research` query used by the dashboard.
+- `scholarshipOpportunities` is a `Scholarship` query used by the dashboard.
 
 These are read-only adapters. Never store content in an adapter.

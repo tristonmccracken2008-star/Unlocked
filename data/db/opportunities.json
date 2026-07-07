@@ -7832,6 +7832,1791 @@
       "compensation": "Paid",
       "workMode": "In Person"
     }
+  },
+  {
+    "id": "scholarship--goldwater-scholarship",
+    "title": "Barry Goldwater Scholarship",
+    "type": "Scholarship",
+    "category": "STEM Scholarships",
+    "description": "Merit scholarship supporting undergraduates who intend to pursue research careers in natural sciences, mathematics, or engineering.",
+    "organization": "Barry Goldwater Scholarship and Excellence in Education Foundation",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "Natural Sciences",
+      "Mathematics",
+      "Engineering",
+      "Computer Science"
+    ],
+    "academic_years": [
+      "Second year",
+      "Third year"
+    ],
+    "eligibility": "Eligible sophomores and juniors nominated by their accredited institution under current foundation rules.",
+    "estimated_value": 7500,
+    "application_deadline": null,
+    "recurring": true,
+    "location": "National / online application",
+    "remote": true,
+    "paid": true,
+    "tags": [
+      "Scholarship",
+      "STEM Scholarships",
+      "Natural Sciences",
+      "Mathematics",
+      "Engineering",
+      "Computer Science"
+    ],
+    "official_source": "https://goldwaterscholarship.gov/",
+    "verification_status": "verified_recently",
+    "last_verified": "2026-07-06",
+    "difficulty": "Highly Competitive",
+    "prestige": "Very High",
+    "icon": "scholarship",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "legacySlug": "goldwater-scholarship",
+      "awardAmountLabel": "$7,500",
+      "renewable": true,
+      "applicationRequirements": [
+        "Institutional nomination",
+        "Research-career commitment",
+        "Academic and research materials"
+      ],
+      "deadlineType": "varies",
+      "compensation": "Paid",
+      "workMode": "Remote"
+    }
+  },
+  {
+    "id": "scholarship--truman-scholarship",
+    "title": "Truman Scholarship",
+    "type": "Scholarship",
+    "category": "National Merit Scholarships",
+    "description": "Graduate-study funding and leadership development for undergraduates committed to public service.",
+    "organization": "Harry S. Truman Scholarship Foundation",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "Any Major"
+    ],
+    "academic_years": [
+      "Third year"
+    ],
+    "eligibility": "Eligible college juniors nominated by their institution who meet citizenship and public-service requirements.",
+    "estimated_value": 30000,
+    "application_deadline": null,
+    "recurring": false,
+    "location": "National / online application",
+    "remote": true,
+    "paid": true,
+    "tags": [
+      "Scholarship",
+      "National Merit Scholarships",
+      "Any Major"
+    ],
+    "official_source": "https://www.truman.gov/",
+    "verification_status": "verified_recently",
+    "last_verified": "2026-07-06",
+    "difficulty": "Highly Competitive",
+    "prestige": "Very High",
+    "icon": "scholarship",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "legacySlug": "truman-scholarship",
+      "awardAmountLabel": "$30,000",
+      "renewable": false,
+      "applicationRequirements": [
+        "Institutional nomination",
+        "Public-service record",
+        "Policy proposal and essays",
+        "Interview"
+      ],
+      "deadlineType": "varies",
+      "compensation": "Paid",
+      "workMode": "Remote"
+    }
+  },
+  {
+    "id": "scholarship--dod-smart-scholarship",
+    "title": "SMART Scholarship-for-Service",
+    "type": "Scholarship",
+    "category": "STEM Scholarships",
+    "description": "Tuition, stipend, mentoring, and Department of Defense employment pathway for eligible STEM students.",
+    "organization": "U.S. Department of Defense",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "Computer Science",
+      "Mathematics",
+      "Engineering",
+      "Data Science",
+      "Natural Sciences"
+    ],
+    "academic_years": [
+      "First year",
+      "Second year",
+      "Third year",
+      "Fourth year",
+      "Graduate student"
+    ],
+    "eligibility": "Eligible undergraduate and graduate STEM students meeting citizenship, academic, security, and service-commitment requirements.",
+    "estimated_value": null,
+    "application_deadline": null,
+    "recurring": true,
+    "location": "National / online application",
+    "remote": true,
+    "paid": true,
+    "tags": [
+      "Scholarship",
+      "STEM Scholarships",
+      "Computer Science",
+      "Mathematics",
+      "Engineering",
+      "Data Science",
+      "Natural Sciences"
+    ],
+    "official_source": "https://www.smartscholarship.org/smart",
+    "verification_status": "verified_recently",
+    "last_verified": "2026-07-06",
+    "difficulty": "Highly Competitive",
+    "prestige": "Very High",
+    "icon": "scholarship",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "legacySlug": "dod-smart-scholarship",
+      "awardAmountLabel": "Amount varies",
+      "renewable": true,
+      "applicationRequirements": [
+        "Online application",
+        "Academic records",
+        "STEM discipline eligibility",
+        "Service commitment"
+      ],
+      "deadlineType": "varies",
+      "compensation": "Paid",
+      "workMode": "Remote"
+    }
+  },
+  {
+    "id": "scholarship--noaa-hollings",
+    "title": "NOAA Ernest F. Hollings Undergraduate Scholarship",
+    "type": "Scholarship",
+    "category": "STEM Scholarships",
+    "description": "Academic support and a paid NOAA summer internship for eligible undergraduates in NOAA-related fields.",
+    "organization": "National Oceanic and Atmospheric Administration",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "Natural Sciences",
+      "Engineering",
+      "Mathematics",
+      "Computer Science",
+      "Social Sciences"
+    ],
+    "academic_years": [
+      "Second year"
+    ],
+    "eligibility": "Eligible U.S. citizen sophomores at accredited institutions meeting GPA and NOAA-related major requirements.",
+    "estimated_value": null,
+    "application_deadline": null,
+    "recurring": true,
+    "location": "National / online application",
+    "remote": true,
+    "paid": true,
+    "tags": [
+      "Scholarship",
+      "STEM Scholarships",
+      "Natural Sciences",
+      "Engineering",
+      "Mathematics",
+      "Computer Science",
+      "Social Sciences"
+    ],
+    "official_source": "https://oceanservice.noaa.gov/scholarships/hollings/",
+    "verification_status": "verified_recently",
+    "last_verified": "2026-07-06",
+    "difficulty": "Highly Competitive",
+    "prestige": "Very High",
+    "icon": "scholarship",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "legacySlug": "noaa-hollings",
+      "awardAmountLabel": "Amount varies",
+      "renewable": true,
+      "applicationRequirements": [
+        "Online application",
+        "Transcripts",
+        "NOAA-related academic focus",
+        "Recommendations"
+      ],
+      "deadlineType": "varies",
+      "compensation": "Paid",
+      "workMode": "Remote"
+    }
+  },
+  {
+    "id": "scholarship--nsf-s-stem",
+    "title": "NSF Scholarships in Science, Technology, Engineering, and Mathematics",
+    "type": "Scholarship",
+    "category": "STEM Scholarships",
+    "description": "Need-based STEM scholarships administered through NSF-funded projects at participating colleges and universities.",
+    "organization": "National Science Foundation",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "Computer Science",
+      "Mathematics",
+      "Engineering",
+      "Data Science",
+      "Natural Sciences"
+    ],
+    "academic_years": [
+      "First year",
+      "Second year",
+      "Third year",
+      "Fourth year"
+    ],
+    "eligibility": "Low-income, academically talented STEM students enrolled at institutions with active S-STEM projects; local eligibility applies.",
+    "estimated_value": null,
+    "application_deadline": null,
+    "recurring": true,
+    "location": "National / online application",
+    "remote": true,
+    "paid": true,
+    "tags": [
+      "Scholarship",
+      "STEM Scholarships",
+      "Computer Science",
+      "Mathematics",
+      "Engineering",
+      "Data Science",
+      "Natural Sciences"
+    ],
+    "official_source": "https://www.nsf.gov/funding/opportunities/s-stem-nsf-scholarships-science-technology-engineering-mathematics",
+    "verification_status": "verified_recently",
+    "last_verified": "2026-07-06",
+    "difficulty": "Competitive",
+    "prestige": "High",
+    "icon": "scholarship",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "legacySlug": "nsf-s-stem",
+      "awardAmountLabel": "Amount varies",
+      "renewable": true,
+      "applicationRequirements": [
+        "Enrollment at participating institution",
+        "Demonstrated financial need",
+        "Local project application"
+      ],
+      "deadlineType": "varies",
+      "compensation": "Paid",
+      "workMode": "Remote"
+    }
+  },
+  {
+    "id": "scholarship--astronaut-scholarship",
+    "title": "Astronaut Scholarship",
+    "type": "Scholarship",
+    "category": "STEM Scholarships",
+    "description": "Institution-nominated scholarship and mentoring program for outstanding STEM undergraduates with research potential.",
+    "organization": "Astronaut Scholarship Foundation",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "Natural Sciences",
+      "Mathematics",
+      "Engineering",
+      "Computer Science"
+    ],
+    "academic_years": [
+      "Second year",
+      "Third year"
+    ],
+    "eligibility": "Eligible sophomores and juniors at participating nominating institutions who meet current STEM and citizenship requirements.",
+    "estimated_value": null,
+    "application_deadline": null,
+    "recurring": false,
+    "location": "National / online application",
+    "remote": true,
+    "paid": true,
+    "tags": [
+      "Scholarship",
+      "STEM Scholarships",
+      "Natural Sciences",
+      "Mathematics",
+      "Engineering",
+      "Computer Science"
+    ],
+    "official_source": "https://www.astronautscholarship.org/programs/astronaut-scholarship/",
+    "verification_status": "verified_recently",
+    "last_verified": "2026-07-06",
+    "difficulty": "Highly Competitive",
+    "prestige": "Very High",
+    "icon": "scholarship",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "legacySlug": "astronaut-scholarship",
+      "awardAmountLabel": "Amount varies",
+      "renewable": false,
+      "applicationRequirements": [
+        "Institutional nomination",
+        "STEM research record",
+        "Academic materials"
+      ],
+      "deadlineType": "varies",
+      "compensation": "Paid",
+      "workMode": "Remote"
+    }
+  },
+  {
+    "id": "scholarship--swe-scholarships",
+    "title": "Society of Women Engineers Scholarships",
+    "type": "Scholarship",
+    "category": "Major-Specific Scholarships",
+    "description": "Portfolio of scholarships supporting eligible students preparing for engineering and engineering-technology careers.",
+    "organization": "Society of Women Engineers",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "Engineering",
+      "Computer Science"
+    ],
+    "academic_years": [
+      "First year",
+      "Second year",
+      "Third year",
+      "Fourth year",
+      "Graduate student"
+    ],
+    "eligibility": "Students meeting current SWE gender, degree, accreditation, class-year, and regional requirements for an available award.",
+    "estimated_value": null,
+    "application_deadline": null,
+    "recurring": false,
+    "location": "National / online application",
+    "remote": true,
+    "paid": true,
+    "tags": [
+      "Scholarship",
+      "Major-Specific Scholarships",
+      "Engineering",
+      "Computer Science"
+    ],
+    "official_source": "https://swe.org/scholarships/",
+    "verification_status": "verified_recently",
+    "last_verified": "2026-07-06",
+    "difficulty": "Competitive",
+    "prestige": "High",
+    "icon": "scholarship",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "legacySlug": "swe-scholarships",
+      "awardAmountLabel": "Amount varies",
+      "renewable": null,
+      "applicationRequirements": [
+        "SWE scholarship application",
+        "Academic records",
+        "Award-specific materials"
+      ],
+      "deadlineType": "varies",
+      "compensation": "Paid",
+      "workMode": "Remote"
+    }
+  },
+  {
+    "id": "scholarship--nsbe-scholarships",
+    "title": "NSBE Scholarships",
+    "type": "Scholarship",
+    "category": "Major-Specific Scholarships",
+    "description": "Scholarship opportunities for eligible NSBE members across engineering, computing, and related disciplines.",
+    "organization": "National Society of Black Engineers",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "Engineering",
+      "Computer Science",
+      "Data Science",
+      "Mathematics"
+    ],
+    "academic_years": [
+      "First year",
+      "Second year",
+      "Third year",
+      "Fourth year",
+      "Graduate student"
+    ],
+    "eligibility": "Students meeting NSBE membership and individual sponsor scholarship requirements.",
+    "estimated_value": null,
+    "application_deadline": null,
+    "recurring": false,
+    "location": "National / online application",
+    "remote": true,
+    "paid": true,
+    "tags": [
+      "Scholarship",
+      "Major-Specific Scholarships",
+      "Engineering",
+      "Computer Science",
+      "Data Science",
+      "Mathematics"
+    ],
+    "official_source": "https://nsbe.org/scholarships/",
+    "verification_status": "verified_recently",
+    "last_verified": "2026-07-06",
+    "difficulty": "Competitive",
+    "prestige": "High",
+    "icon": "scholarship",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "legacySlug": "nsbe-scholarships",
+      "awardAmountLabel": "Amount varies",
+      "renewable": null,
+      "applicationRequirements": [
+        "NSBE membership where required",
+        "Scholarship-specific application materials"
+      ],
+      "deadlineType": "varies",
+      "compensation": "Paid",
+      "workMode": "Remote"
+    }
+  },
+  {
+    "id": "scholarship--shpe-scholarships",
+    "title": "SHPE Scholarships",
+    "type": "Scholarship",
+    "category": "Major-Specific Scholarships",
+    "description": "Scholarships supporting eligible SHPE members pursuing STEM degrees.",
+    "organization": "Society of Hispanic Professional Engineers",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "Engineering",
+      "Computer Science",
+      "Data Science",
+      "Mathematics",
+      "Natural Sciences"
+    ],
+    "academic_years": [
+      "First year",
+      "Second year",
+      "Third year",
+      "Fourth year",
+      "Graduate student"
+    ],
+    "eligibility": "Students meeting SHPE membership, academic, degree, and individual award requirements.",
+    "estimated_value": null,
+    "application_deadline": null,
+    "recurring": false,
+    "location": "National / online application",
+    "remote": true,
+    "paid": true,
+    "tags": [
+      "Scholarship",
+      "Major-Specific Scholarships",
+      "Engineering",
+      "Computer Science",
+      "Data Science",
+      "Mathematics",
+      "Natural Sciences"
+    ],
+    "official_source": "https://shpe.org/engage/programs/scholarshpe/",
+    "verification_status": "verified_recently",
+    "last_verified": "2026-07-06",
+    "difficulty": "Competitive",
+    "prestige": "High",
+    "icon": "scholarship",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "legacySlug": "shpe-scholarships",
+      "awardAmountLabel": "Amount varies",
+      "renewable": null,
+      "applicationRequirements": [
+        "SHPE membership where required",
+        "Academic records",
+        "Award-specific essays and documents"
+      ],
+      "deadlineType": "varies",
+      "compensation": "Paid",
+      "workMode": "Remote"
+    }
+  },
+  {
+    "id": "scholarship--afcea-stem-majors",
+    "title": "AFCEA STEM Majors Scholarships",
+    "type": "Scholarship",
+    "category": "STEM Scholarships",
+    "description": "Scholarships for eligible undergraduate and graduate students pursuing qualifying STEM majors.",
+    "organization": "AFCEA Educational Foundation",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "Computer Science",
+      "Engineering",
+      "Mathematics",
+      "Data Science",
+      "Natural Sciences"
+    ],
+    "academic_years": [
+      "Second year",
+      "Third year",
+      "Fourth year",
+      "Graduate student"
+    ],
+    "eligibility": "Students meeting current citizenship, enrollment, GPA, major, and class-standing requirements.",
+    "estimated_value": null,
+    "application_deadline": null,
+    "recurring": false,
+    "location": "National / online application",
+    "remote": true,
+    "paid": true,
+    "tags": [
+      "Scholarship",
+      "STEM Scholarships",
+      "Computer Science",
+      "Engineering",
+      "Mathematics",
+      "Data Science",
+      "Natural Sciences"
+    ],
+    "official_source": "https://www.afcea.org/stem-majors-scholarships",
+    "verification_status": "verified_recently",
+    "last_verified": "2026-07-06",
+    "difficulty": "Competitive",
+    "prestige": "High",
+    "icon": "scholarship",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "legacySlug": "afcea-stem-majors",
+      "awardAmountLabel": "Amount varies",
+      "renewable": null,
+      "applicationRequirements": [
+        "Online application",
+        "Transcript",
+        "Recommendations",
+        "STEM major verification"
+      ],
+      "deadlineType": "varies",
+      "compensation": "Paid",
+      "workMode": "Remote"
+    }
+  },
+  {
+    "id": "scholarship--microsoft-disability-scholarship",
+    "title": "Microsoft Disability Scholarship",
+    "type": "Scholarship",
+    "category": "Major-Specific Scholarships",
+    "description": "Scholarship supporting students with disabilities pursuing technology-related study and careers.",
+    "organization": "Microsoft",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "Computer Science",
+      "Engineering",
+      "Data Science",
+      "Business"
+    ],
+    "academic_years": [
+      "First year"
+    ],
+    "eligibility": "Eligible high school seniors with a disability who plan to attend college and pursue an approved technology field.",
+    "estimated_value": 5000,
+    "application_deadline": null,
+    "recurring": true,
+    "location": "National / online application",
+    "remote": true,
+    "paid": true,
+    "tags": [
+      "Scholarship",
+      "Major-Specific Scholarships",
+      "Computer Science",
+      "Engineering",
+      "Data Science",
+      "Business"
+    ],
+    "official_source": "https://www.microsoft.com/en-us/diversity/programs/microsoftdisabilityscholarship",
+    "verification_status": "verified_recently",
+    "last_verified": "2026-07-06",
+    "difficulty": "Highly Competitive",
+    "prestige": "High",
+    "icon": "scholarship",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "legacySlug": "microsoft-disability-scholarship",
+      "awardAmountLabel": "$5,000",
+      "renewable": true,
+      "applicationRequirements": [
+        "Application",
+        "Academic records",
+        "Disability and technology-career eligibility",
+        "Essays or recommendations"
+      ],
+      "deadlineType": "varies",
+      "compensation": "Paid",
+      "workMode": "Remote"
+    }
+  },
+  {
+    "id": "scholarship--amazon-future-engineer",
+    "title": "Amazon Future Engineer Scholarship",
+    "type": "Scholarship",
+    "category": "First-Year Scholarships",
+    "description": "College scholarship and internship pathway for eligible high school seniors entering computer science or engineering.",
+    "organization": "Amazon Future Engineer",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "Computer Science",
+      "Engineering"
+    ],
+    "academic_years": [
+      "First year"
+    ],
+    "eligibility": "Eligible high school seniors planning an approved computer science or engineering degree who meet current financial and academic criteria.",
+    "estimated_value": 40000,
+    "application_deadline": null,
+    "recurring": true,
+    "location": "National / online application",
+    "remote": true,
+    "paid": true,
+    "tags": [
+      "Scholarship",
+      "First-Year Scholarships",
+      "Computer Science",
+      "Engineering"
+    ],
+    "official_source": "https://www.amazonfutureengineer.com/scholarships",
+    "verification_status": "verified_recently",
+    "last_verified": "2026-07-06",
+    "difficulty": "Highly Competitive",
+    "prestige": "High",
+    "icon": "scholarship",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "legacySlug": "amazon-future-engineer",
+      "awardAmountLabel": "$40,000",
+      "renewable": true,
+      "applicationRequirements": [
+        "Application",
+        "Financial information",
+        "Academic record",
+        "Computer science or engineering intent"
+      ],
+      "deadlineType": "varies",
+      "compensation": "Paid",
+      "workMode": "Remote"
+    }
+  },
+  {
+    "id": "scholarship--dell-scholars",
+    "title": "Dell Scholars Program",
+    "type": "Scholarship",
+    "category": "First-Year Scholarships",
+    "description": "College-completion scholarship and support program for eligible students who participated in approved college-readiness programs.",
+    "organization": "Michael & Susan Dell Foundation",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "Any Major"
+    ],
+    "academic_years": [
+      "First year"
+    ],
+    "eligibility": "Eligible high school seniors in approved college-readiness programs who meet GPA and financial-need requirements.",
+    "estimated_value": 20000,
+    "application_deadline": null,
+    "recurring": true,
+    "location": "National / online application",
+    "remote": true,
+    "paid": true,
+    "tags": [
+      "Scholarship",
+      "First-Year Scholarships",
+      "Any Major"
+    ],
+    "official_source": "https://www.dellscholars.org/students/",
+    "verification_status": "verified_recently",
+    "last_verified": "2026-07-06",
+    "difficulty": "Highly Competitive",
+    "prestige": "High",
+    "icon": "scholarship",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "legacySlug": "dell-scholars",
+      "awardAmountLabel": "$20,000",
+      "renewable": true,
+      "applicationRequirements": [
+        "Application",
+        "Approved readiness-program participation",
+        "Financial need",
+        "Academic record"
+      ],
+      "deadlineType": "varies",
+      "compensation": "Paid",
+      "workMode": "Remote"
+    }
+  },
+  {
+    "id": "scholarship--coca-cola-scholars",
+    "title": "Coca-Cola Scholars Program Scholarship",
+    "type": "Scholarship",
+    "category": "National Merit Scholarships",
+    "description": "Achievement-based scholarship recognizing high school seniors for leadership, service, and impact.",
+    "organization": "Coca-Cola Scholars Foundation",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "Any Major"
+    ],
+    "academic_years": [
+      "First year"
+    ],
+    "eligibility": "Eligible high school seniors meeting current citizenship, enrollment, and family-employment restrictions.",
+    "estimated_value": 20000,
+    "application_deadline": null,
+    "recurring": false,
+    "location": "National / online application",
+    "remote": true,
+    "paid": true,
+    "tags": [
+      "Scholarship",
+      "National Merit Scholarships",
+      "Any Major"
+    ],
+    "official_source": "https://www.coca-colascholarsfoundation.org/apply/",
+    "verification_status": "verified_recently",
+    "last_verified": "2026-07-06",
+    "difficulty": "Highly Competitive",
+    "prestige": "Very High",
+    "icon": "scholarship",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "legacySlug": "coca-cola-scholars",
+      "awardAmountLabel": "$20,000",
+      "renewable": false,
+      "applicationRequirements": [
+        "Online application",
+        "Leadership and service record",
+        "Semifinalist materials if selected"
+      ],
+      "deadlineType": "varies",
+      "compensation": "Paid",
+      "workMode": "Remote"
+    }
+  },
+  {
+    "id": "scholarship--cooke-college-scholarship",
+    "title": "Cooke College Scholarship Program",
+    "type": "Scholarship",
+    "category": "First-Year Scholarships",
+    "description": "Last-dollar scholarship and advising for high-achieving high school seniors with financial need.",
+    "organization": "Jack Kent Cooke Foundation",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "Any Major"
+    ],
+    "academic_years": [
+      "First year"
+    ],
+    "eligibility": "Eligible high school seniors with strong academic achievement and unmet financial need under current foundation rules.",
+    "estimated_value": 55000,
+    "application_deadline": null,
+    "recurring": true,
+    "location": "National / online application",
+    "remote": true,
+    "paid": true,
+    "tags": [
+      "Scholarship",
+      "First-Year Scholarships",
+      "Any Major"
+    ],
+    "official_source": "https://www.jkcf.org/our-scholarships/college-scholarship-program/",
+    "verification_status": "verified_recently",
+    "last_verified": "2026-07-06",
+    "difficulty": "Highly Competitive",
+    "prestige": "Very High",
+    "icon": "scholarship",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "legacySlug": "cooke-college-scholarship",
+      "awardAmountLabel": "$55,000",
+      "renewable": true,
+      "applicationRequirements": [
+        "Common App scholarship application",
+        "Academic records",
+        "Financial information",
+        "Recommendations"
+      ],
+      "deadlineType": "varies",
+      "compensation": "Paid",
+      "workMode": "Remote"
+    }
+  },
+  {
+    "id": "scholarship--gates-scholarship",
+    "title": "The Gates Scholarship",
+    "type": "Scholarship",
+    "category": "First-Year Scholarships",
+    "description": "Last-dollar scholarship for outstanding minority high school seniors from low-income households.",
+    "organization": "The Gates Scholarship",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "Any Major"
+    ],
+    "academic_years": [
+      "First year"
+    ],
+    "eligibility": "Eligible U.S. high school seniors meeting ethnicity, citizenship, Pell eligibility, academic, and leadership requirements.",
+    "estimated_value": null,
+    "application_deadline": null,
+    "recurring": true,
+    "location": "National / online application",
+    "remote": true,
+    "paid": true,
+    "tags": [
+      "Scholarship",
+      "First-Year Scholarships",
+      "Any Major"
+    ],
+    "official_source": "https://www.thegatesscholarship.org/scholarship/",
+    "verification_status": "verified_recently",
+    "last_verified": "2026-07-06",
+    "difficulty": "Highly Competitive",
+    "prestige": "Very High",
+    "icon": "scholarship",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "legacySlug": "gates-scholarship",
+      "awardAmountLabel": "Amount varies",
+      "renewable": true,
+      "applicationRequirements": [
+        "Multi-stage application",
+        "Academic and financial records",
+        "Leadership history",
+        "Finalist materials"
+      ],
+      "deadlineType": "varies",
+      "compensation": "Paid",
+      "workMode": "Remote"
+    }
+  },
+  {
+    "id": "scholarship--elks-most-valuable-student",
+    "title": "Most Valuable Student Scholarship",
+    "type": "Scholarship",
+    "category": "National Merit Scholarships",
+    "description": "National scholarship competition evaluating scholarship, leadership, and financial need.",
+    "organization": "Elks National Foundation",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "Any Major"
+    ],
+    "academic_years": [
+      "First year"
+    ],
+    "eligibility": "Eligible current high school seniors who are U.S. citizens under current competition rules.",
+    "estimated_value": null,
+    "application_deadline": null,
+    "recurring": true,
+    "location": "National / online application",
+    "remote": true,
+    "paid": true,
+    "tags": [
+      "Scholarship",
+      "National Merit Scholarships",
+      "Any Major"
+    ],
+    "official_source": "https://www.elks.org/scholars/scholarships/mvs.cfm",
+    "verification_status": "verified_recently",
+    "last_verified": "2026-07-06",
+    "difficulty": "Highly Competitive",
+    "prestige": "High",
+    "icon": "scholarship",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "legacySlug": "elks-most-valuable-student",
+      "awardAmountLabel": "Amount varies",
+      "renewable": true,
+      "applicationRequirements": [
+        "Online application",
+        "Academic record",
+        "Leadership and service",
+        "Financial information"
+      ],
+      "deadlineType": "varies",
+      "compensation": "Paid",
+      "workMode": "Remote"
+    }
+  },
+  {
+    "id": "scholarship--horatio-alger-national",
+    "title": "Horatio Alger National Scholarship",
+    "type": "Scholarship",
+    "category": "First-Year Scholarships",
+    "description": "Scholarship for high school juniors who demonstrate perseverance, integrity, financial need, and commitment to education.",
+    "organization": "Horatio Alger Association",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "Any Major"
+    ],
+    "academic_years": [
+      "First year"
+    ],
+    "eligibility": "Eligible U.S. high school juniors meeting adversity, financial need, academic, and citizenship criteria.",
+    "estimated_value": null,
+    "application_deadline": null,
+    "recurring": true,
+    "location": "National / online application",
+    "remote": true,
+    "paid": true,
+    "tags": [
+      "Scholarship",
+      "First-Year Scholarships",
+      "Any Major"
+    ],
+    "official_source": "https://scholars.horatioalger.org/about-our-scholarship-programs/national-scholarships/",
+    "verification_status": "verified_recently",
+    "last_verified": "2026-07-06",
+    "difficulty": "Highly Competitive",
+    "prestige": "High",
+    "icon": "scholarship",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "legacySlug": "horatio-alger-national",
+      "awardAmountLabel": "Amount varies",
+      "renewable": true,
+      "applicationRequirements": [
+        "Application",
+        "Adversity narrative",
+        "Financial information",
+        "Academic record"
+      ],
+      "deadlineType": "varies",
+      "compensation": "Paid",
+      "workMode": "Remote"
+    }
+  },
+  {
+    "id": "scholarship--hsf-scholar-program",
+    "title": "HSF Scholar Program",
+    "type": "Scholarship",
+    "category": "National Merit Scholarships",
+    "description": "Scholar support program offering services and possible scholarship awards to eligible students of Hispanic heritage.",
+    "organization": "Hispanic Scholarship Fund",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "Any Major"
+    ],
+    "academic_years": [
+      "First year",
+      "Second year",
+      "Third year",
+      "Fourth year",
+      "Graduate student"
+    ],
+    "eligibility": "Students of Hispanic heritage meeting citizenship, GPA, enrollment, and FAFSA requirements under current rules.",
+    "estimated_value": null,
+    "application_deadline": null,
+    "recurring": false,
+    "location": "National / online application",
+    "remote": true,
+    "paid": true,
+    "tags": [
+      "Scholarship",
+      "National Merit Scholarships",
+      "Any Major"
+    ],
+    "official_source": "https://www.hsf.net/scholarship/",
+    "verification_status": "verified_recently",
+    "last_verified": "2026-07-06",
+    "difficulty": "Highly Competitive",
+    "prestige": "High",
+    "icon": "scholarship",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "legacySlug": "hsf-scholar-program",
+      "awardAmountLabel": "Amount varies",
+      "renewable": null,
+      "applicationRequirements": [
+        "HSF application",
+        "Academic records",
+        "FAFSA where applicable",
+        "Enrollment verification"
+      ],
+      "deadlineType": "varies",
+      "compensation": "Paid",
+      "workMode": "Remote"
+    }
+  },
+  {
+    "id": "scholarship--uncf-scholarships",
+    "title": "UNCF Scholarship Opportunities",
+    "type": "Scholarship",
+    "category": "National Merit Scholarships",
+    "description": "Official portal for multiple scholarships and programs administered by UNCF and partner organizations.",
+    "organization": "UNCF",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "Any Major"
+    ],
+    "academic_years": [
+      "First year",
+      "Second year",
+      "Third year",
+      "Fourth year",
+      "Graduate student"
+    ],
+    "eligibility": "Eligibility varies by scholarship and may include institution, major, demographic, GPA, and financial criteria.",
+    "estimated_value": null,
+    "application_deadline": null,
+    "recurring": false,
+    "location": "National / online application",
+    "remote": true,
+    "paid": true,
+    "tags": [
+      "Scholarship",
+      "National Merit Scholarships",
+      "Any Major"
+    ],
+    "official_source": "https://opportunities.uncf.org/",
+    "verification_status": "verified_recently",
+    "last_verified": "2026-07-06",
+    "difficulty": "Competitive",
+    "prestige": "High",
+    "icon": "scholarship",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "legacySlug": "uncf-scholarships",
+      "awardAmountLabel": "Amount varies",
+      "renewable": null,
+      "applicationRequirements": [
+        "UNCF account",
+        "Opportunity-specific application materials"
+      ],
+      "deadlineType": "varies",
+      "compensation": "Paid",
+      "workMode": "Remote"
+    }
+  },
+  {
+    "id": "scholarship--apia-scholarship",
+    "title": "APIA Scholarship Program",
+    "type": "Scholarship",
+    "category": "National Merit Scholarships",
+    "description": "Scholarships supporting eligible Asian American, Native Hawaiian, and Pacific Islander undergraduate students.",
+    "organization": "APIA Scholars",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "Any Major"
+    ],
+    "academic_years": [
+      "First year",
+      "Second year",
+      "Third year",
+      "Fourth year"
+    ],
+    "eligibility": "Eligible students meeting current ethnicity, citizenship, enrollment, and financial-need requirements.",
+    "estimated_value": null,
+    "application_deadline": null,
+    "recurring": false,
+    "location": "National / online application",
+    "remote": true,
+    "paid": true,
+    "tags": [
+      "Scholarship",
+      "National Merit Scholarships",
+      "Any Major"
+    ],
+    "official_source": "https://apiascholars.org/scholarships/",
+    "verification_status": "verified_recently",
+    "last_verified": "2026-07-06",
+    "difficulty": "Highly Competitive",
+    "prestige": "High",
+    "icon": "scholarship",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "legacySlug": "apia-scholarship",
+      "awardAmountLabel": "Amount varies",
+      "renewable": null,
+      "applicationRequirements": [
+        "Application",
+        "Academic and financial records",
+        "Essays",
+        "Enrollment information"
+      ],
+      "deadlineType": "varies",
+      "compensation": "Paid",
+      "workMode": "Remote"
+    }
+  },
+  {
+    "id": "scholarship--point-flagship-scholarship",
+    "title": "Point Foundation Flagship Scholarship",
+    "type": "Scholarship",
+    "category": "National Merit Scholarships",
+    "description": "Scholarship, mentorship, and leadership support for eligible LGBTQ students.",
+    "organization": "Point Foundation",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "Any Major"
+    ],
+    "academic_years": [
+      "First year",
+      "Second year",
+      "Third year",
+      "Fourth year",
+      "Graduate student"
+    ],
+    "eligibility": "Eligible LGBTQ students meeting current enrollment, academic, leadership, and financial requirements.",
+    "estimated_value": null,
+    "application_deadline": null,
+    "recurring": true,
+    "location": "National / online application",
+    "remote": true,
+    "paid": true,
+    "tags": [
+      "Scholarship",
+      "National Merit Scholarships",
+      "Any Major"
+    ],
+    "official_source": "https://pointfoundation.org/scholarships/flagship",
+    "verification_status": "verified_recently",
+    "last_verified": "2026-07-06",
+    "difficulty": "Highly Competitive",
+    "prestige": "High",
+    "icon": "scholarship",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "legacySlug": "point-flagship-scholarship",
+      "awardAmountLabel": "Amount varies",
+      "renewable": true,
+      "applicationRequirements": [
+        "Application",
+        "Academic record",
+        "Leadership and community involvement",
+        "Interview if selected"
+      ],
+      "deadlineType": "varies",
+      "compensation": "Paid",
+      "workMode": "Remote"
+    }
+  },
+  {
+    "id": "scholarship--gilman-scholarship",
+    "title": "Benjamin A. Gilman International Scholarship",
+    "type": "Scholarship",
+    "category": "Study Abroad Scholarships",
+    "description": "Funding for eligible Pell Grant recipients to study or intern abroad.",
+    "organization": "U.S. Department of State",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "Any Major"
+    ],
+    "academic_years": [
+      "First year",
+      "Second year",
+      "Third year",
+      "Fourth year"
+    ],
+    "eligibility": "U.S. citizen undergraduates receiving a Federal Pell Grant and participating in an eligible international program.",
+    "estimated_value": 5000,
+    "application_deadline": null,
+    "recurring": false,
+    "location": "National / online application",
+    "remote": true,
+    "paid": true,
+    "tags": [
+      "Scholarship",
+      "Study Abroad Scholarships",
+      "Any Major"
+    ],
+    "official_source": "https://www.gilmanscholarship.org/",
+    "verification_status": "verified_recently",
+    "last_verified": "2026-07-06",
+    "difficulty": "Highly Competitive",
+    "prestige": "Very High",
+    "icon": "scholarship",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "legacySlug": "gilman-scholarship",
+      "awardAmountLabel": "$5,000",
+      "renewable": false,
+      "applicationRequirements": [
+        "Online application",
+        "Pell eligibility",
+        "Study-abroad program information",
+        "Essays",
+        "Advisor certification"
+      ],
+      "deadlineType": "varies",
+      "compensation": "Paid",
+      "workMode": "Remote"
+    }
+  },
+  {
+    "id": "scholarship--boren-awards",
+    "title": "Boren Scholarships",
+    "type": "Scholarship",
+    "category": "Study Abroad Scholarships",
+    "description": "Funding for U.S. undergraduates studying languages and regions important to national security, with a federal service requirement.",
+    "organization": "National Security Education Program",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "Any Major"
+    ],
+    "academic_years": [
+      "First year",
+      "Second year",
+      "Third year",
+      "Fourth year"
+    ],
+    "eligibility": "Eligible U.S. undergraduates whose proposed study and language plan meets current program rules.",
+    "estimated_value": null,
+    "application_deadline": null,
+    "recurring": false,
+    "location": "National / online application",
+    "remote": true,
+    "paid": true,
+    "tags": [
+      "Scholarship",
+      "Study Abroad Scholarships",
+      "Any Major"
+    ],
+    "official_source": "https://www.borenawards.org/",
+    "verification_status": "verified_recently",
+    "last_verified": "2026-07-06",
+    "difficulty": "Highly Competitive",
+    "prestige": "Very High",
+    "icon": "scholarship",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "legacySlug": "boren-awards",
+      "awardAmountLabel": "Amount varies",
+      "renewable": false,
+      "applicationRequirements": [
+        "Study plan",
+        "Language and regional focus",
+        "Essays",
+        "Campus review where required",
+        "Federal service agreement"
+      ],
+      "deadlineType": "varies",
+      "compensation": "Paid",
+      "workMode": "Remote"
+    }
+  },
+  {
+    "id": "scholarship--critical-language-scholarship",
+    "title": "Critical Language Scholarship Program",
+    "type": "Scholarship",
+    "category": "Study Abroad Scholarships",
+    "description": "Fully funded intensive summer language and cultural immersion program for eligible U.S. students.",
+    "organization": "U.S. Department of State",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "Any Major"
+    ],
+    "academic_years": [
+      "First year",
+      "Second year",
+      "Third year",
+      "Fourth year",
+      "Graduate student"
+    ],
+    "eligibility": "Eligible U.S. citizen undergraduate and graduate students meeting language-level and program requirements.",
+    "estimated_value": null,
+    "application_deadline": null,
+    "recurring": false,
+    "location": "National / online application",
+    "remote": true,
+    "paid": true,
+    "tags": [
+      "Scholarship",
+      "Study Abroad Scholarships",
+      "Any Major"
+    ],
+    "official_source": "https://clscholarship.org/",
+    "verification_status": "verified_recently",
+    "last_verified": "2026-07-06",
+    "difficulty": "Highly Competitive",
+    "prestige": "Very High",
+    "icon": "scholarship",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "legacySlug": "critical-language-scholarship",
+      "awardAmountLabel": "Amount varies",
+      "renewable": false,
+      "applicationRequirements": [
+        "Online application",
+        "Essays",
+        "Language background where applicable",
+        "Academic information"
+      ],
+      "deadlineType": "varies",
+      "compensation": "Paid",
+      "workMode": "Remote"
+    }
+  },
+  {
+    "id": "scholarship--fund-for-education-abroad",
+    "title": "Fund for Education Abroad Scholarships",
+    "type": "Scholarship",
+    "category": "Study Abroad Scholarships",
+    "description": "Scholarships for U.S. undergraduates underrepresented in study abroad who participate in eligible programs.",
+    "organization": "Fund for Education Abroad",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "Any Major"
+    ],
+    "academic_years": [
+      "First year",
+      "Second year",
+      "Third year",
+      "Fourth year"
+    ],
+    "eligibility": "Eligible U.S. undergraduates enrolled in an approved study-abroad program and meeting current FEA rules.",
+    "estimated_value": null,
+    "application_deadline": null,
+    "recurring": false,
+    "location": "National / online application",
+    "remote": true,
+    "paid": true,
+    "tags": [
+      "Scholarship",
+      "Study Abroad Scholarships",
+      "Any Major"
+    ],
+    "official_source": "https://fundforeducationabroad.org/apply/",
+    "verification_status": "verified_recently",
+    "last_verified": "2026-07-06",
+    "difficulty": "Competitive",
+    "prestige": "High",
+    "icon": "scholarship",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "legacySlug": "fund-for-education-abroad",
+      "awardAmountLabel": "Amount varies",
+      "renewable": false,
+      "applicationRequirements": [
+        "Application",
+        "Study-abroad program information",
+        "Financial information",
+        "Essays"
+      ],
+      "deadlineType": "varies",
+      "compensation": "Paid",
+      "workMode": "Remote"
+    }
+  },
+  {
+    "id": "scholarship--freeman-asia",
+    "title": "Freeman-ASIA",
+    "type": "Scholarship",
+    "category": "Study Abroad Scholarships",
+    "description": "Need-based funding for U.S. undergraduates studying abroad in East or Southeast Asia.",
+    "organization": "Institute of International Education",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "Any Major"
+    ],
+    "academic_years": [
+      "First year",
+      "Second year",
+      "Third year",
+      "Fourth year"
+    ],
+    "eligibility": "Eligible U.S. citizens or permanent residents with demonstrated financial need participating in an approved Asian study program.",
+    "estimated_value": null,
+    "application_deadline": null,
+    "recurring": false,
+    "location": "National / online application",
+    "remote": true,
+    "paid": true,
+    "tags": [
+      "Scholarship",
+      "Study Abroad Scholarships",
+      "Any Major"
+    ],
+    "official_source": "https://www.iie.org/programs/freeman-asia/",
+    "verification_status": "verified_recently",
+    "last_verified": "2026-07-06",
+    "difficulty": "Competitive",
+    "prestige": "High",
+    "icon": "scholarship",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "legacySlug": "freeman-asia",
+      "awardAmountLabel": "Amount varies",
+      "renewable": false,
+      "applicationRequirements": [
+        "Application",
+        "Financial need documentation",
+        "Study-abroad program information",
+        "Service proposal"
+      ],
+      "deadlineType": "varies",
+      "compensation": "Paid",
+      "workMode": "Remote"
+    }
+  },
+  {
+    "id": "scholarship--uchicago-undergraduate-aid",
+    "title": "University of Chicago Undergraduate Scholarships",
+    "type": "Scholarship",
+    "category": "University Scholarships",
+    "description": "University scholarship and grant aid for eligible undergraduate students through UChicago financial aid.",
+    "organization": "University of Chicago",
+    "school_scope": "School Specific",
+    "schools": [
+      "university-of-chicago"
+    ],
+    "majors": [
+      "Any Major"
+    ],
+    "academic_years": [
+      "First year",
+      "Second year",
+      "Third year",
+      "Fourth year"
+    ],
+    "eligibility": "Admitted or enrolled University of Chicago undergraduates meeting institutional aid requirements.",
+    "estimated_value": null,
+    "application_deadline": null,
+    "recurring": true,
+    "location": "Eligible institution",
+    "remote": true,
+    "paid": true,
+    "tags": [
+      "Scholarship",
+      "University Scholarships",
+      "Any Major"
+    ],
+    "official_source": "https://financialaid.uchicago.edu/undergraduate/",
+    "verification_status": "verified_recently",
+    "last_verified": "2026-07-06",
+    "difficulty": "Competitive",
+    "prestige": "Very High",
+    "icon": "scholarship",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "legacySlug": "uchicago-undergraduate-aid",
+      "awardAmountLabel": "Amount varies",
+      "renewable": true,
+      "applicationRequirements": [
+        "University admission",
+        "Financial aid application where required",
+        "Institutional documentation"
+      ],
+      "deadlineType": "varies",
+      "compensation": "Paid",
+      "workMode": "Remote"
+    }
+  },
+  {
+    "id": "scholarship--michigan-lsa-scholarships",
+    "title": "Michigan LSA Scholarships",
+    "type": "Scholarship",
+    "category": "University Scholarships",
+    "description": "Scholarship opportunities administered for eligible LSA students and applicants.",
+    "organization": "University of Michigan College of Literature, Science, and the Arts",
+    "school_scope": "School Specific",
+    "schools": [
+      "university-of-michigan"
+    ],
+    "majors": [
+      "Any Major"
+    ],
+    "academic_years": [
+      "First year",
+      "Second year",
+      "Third year",
+      "Fourth year"
+    ],
+    "eligibility": "Prospective or current University of Michigan LSA students meeting individual scholarship criteria.",
+    "estimated_value": null,
+    "application_deadline": null,
+    "recurring": false,
+    "location": "Eligible institution",
+    "remote": true,
+    "paid": true,
+    "tags": [
+      "Scholarship",
+      "University Scholarships",
+      "Any Major"
+    ],
+    "official_source": "https://lsa.umich.edu/scholarships",
+    "verification_status": "verified_recently",
+    "last_verified": "2026-07-06",
+    "difficulty": "Competitive",
+    "prestige": "High",
+    "icon": "scholarship",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "legacySlug": "michigan-lsa-scholarships",
+      "awardAmountLabel": "Amount varies",
+      "renewable": null,
+      "applicationRequirements": [
+        "LSA scholarship application where required",
+        "Scholarship-specific materials"
+      ],
+      "deadlineType": "varies",
+      "compensation": "Paid",
+      "workMode": "Remote"
+    }
+  },
+  {
+    "id": "scholarship--nyu-scholarships",
+    "title": "NYU Scholarships and Grants",
+    "type": "Scholarship",
+    "category": "University Scholarships",
+    "description": "Institutional scholarship and grant information for eligible NYU students.",
+    "organization": "New York University",
+    "school_scope": "School Specific",
+    "schools": [
+      "new-york-university"
+    ],
+    "majors": [
+      "Any Major"
+    ],
+    "academic_years": [
+      "First year",
+      "Second year",
+      "Third year",
+      "Fourth year"
+    ],
+    "eligibility": "Admitted or enrolled NYU students meeting institutional and individual award requirements.",
+    "estimated_value": null,
+    "application_deadline": null,
+    "recurring": true,
+    "location": "Eligible institution",
+    "remote": true,
+    "paid": true,
+    "tags": [
+      "Scholarship",
+      "University Scholarships",
+      "Any Major"
+    ],
+    "official_source": "https://www.nyu.edu/admissions/financial-aid-and-scholarships/scholarships.html",
+    "verification_status": "verified_recently",
+    "last_verified": "2026-07-06",
+    "difficulty": "Competitive",
+    "prestige": "High",
+    "icon": "scholarship",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "legacySlug": "nyu-scholarships",
+      "awardAmountLabel": "Amount varies",
+      "renewable": true,
+      "applicationRequirements": [
+        "NYU admission",
+        "Financial aid applications where required",
+        "Award-specific documentation"
+      ],
+      "deadlineType": "varies",
+      "compensation": "Paid",
+      "workMode": "Remote"
+    }
+  },
+  {
+    "id": "scholarship--ucla-scholarships",
+    "title": "UCLA Scholarships",
+    "type": "Scholarship",
+    "category": "University Scholarships",
+    "description": "UCLA and external scholarship resources for eligible undergraduate students.",
+    "organization": "University of California, Los Angeles",
+    "school_scope": "School Specific",
+    "schools": [
+      "university-of-california-los-angeles"
+    ],
+    "majors": [
+      "Any Major"
+    ],
+    "academic_years": [
+      "First year",
+      "Second year",
+      "Third year",
+      "Fourth year"
+    ],
+    "eligibility": "Prospective or current UCLA students meeting each scholarship’s requirements.",
+    "estimated_value": null,
+    "application_deadline": null,
+    "recurring": false,
+    "location": "Eligible institution",
+    "remote": true,
+    "paid": true,
+    "tags": [
+      "Scholarship",
+      "University Scholarships",
+      "Any Major"
+    ],
+    "official_source": "https://financialaid.ucla.edu/types-of-aid/scholarships",
+    "verification_status": "verified_recently",
+    "last_verified": "2026-07-06",
+    "difficulty": "Competitive",
+    "prestige": "High",
+    "icon": "scholarship",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "legacySlug": "ucla-scholarships",
+      "awardAmountLabel": "Amount varies",
+      "renewable": null,
+      "applicationRequirements": [
+        "Scholarship-specific application",
+        "UCLA enrollment or admission where required"
+      ],
+      "deadlineType": "varies",
+      "compensation": "Paid",
+      "workMode": "Remote"
+    }
+  },
+  {
+    "id": "scholarship--mit-scholarships-grants",
+    "title": "MIT Scholarships and Grants",
+    "type": "Scholarship",
+    "category": "University Scholarships",
+    "description": "Need-based MIT scholarship and grant aid for eligible undergraduate students.",
+    "organization": "Massachusetts Institute of Technology",
+    "school_scope": "School Specific",
+    "schools": [
+      "massachusetts-institute-of-technology"
+    ],
+    "majors": [
+      "Any Major"
+    ],
+    "academic_years": [
+      "First year",
+      "Second year",
+      "Third year",
+      "Fourth year"
+    ],
+    "eligibility": "Admitted or enrolled MIT undergraduates who complete required financial aid materials.",
+    "estimated_value": null,
+    "application_deadline": null,
+    "recurring": true,
+    "location": "Eligible institution",
+    "remote": true,
+    "paid": true,
+    "tags": [
+      "Scholarship",
+      "University Scholarships",
+      "Any Major"
+    ],
+    "official_source": "https://sfs.mit.edu/undergraduate-students/types-of-aid/mit-scholarships-grants/",
+    "verification_status": "verified_recently",
+    "last_verified": "2026-07-06",
+    "difficulty": "Competitive",
+    "prestige": "Very High",
+    "icon": "scholarship",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "legacySlug": "mit-scholarships-grants",
+      "awardAmountLabel": "Amount varies",
+      "renewable": true,
+      "applicationRequirements": [
+        "MIT admission",
+        "Financial aid application and documentation"
+      ],
+      "deadlineType": "varies",
+      "compensation": "Paid",
+      "workMode": "Remote"
+    }
+  },
+  {
+    "id": "scholarship--harvard-scholarships-grants",
+    "title": "Harvard Scholarships and Grants",
+    "type": "Scholarship",
+    "category": "University Scholarships",
+    "description": "Need-based scholarship and grant aid for eligible Harvard College students.",
+    "organization": "Harvard College",
+    "school_scope": "School Specific",
+    "schools": [
+      "harvard-university"
+    ],
+    "majors": [
+      "Any Major"
+    ],
+    "academic_years": [
+      "First year",
+      "Second year",
+      "Third year",
+      "Fourth year"
+    ],
+    "eligibility": "Admitted or enrolled Harvard College students who complete required financial aid materials.",
+    "estimated_value": null,
+    "application_deadline": null,
+    "recurring": true,
+    "location": "Eligible institution",
+    "remote": true,
+    "paid": true,
+    "tags": [
+      "Scholarship",
+      "University Scholarships",
+      "Any Major"
+    ],
+    "official_source": "https://college.harvard.edu/financial-aid/how-aid-works/types-aid",
+    "verification_status": "verified_recently",
+    "last_verified": "2026-07-06",
+    "difficulty": "Competitive",
+    "prestige": "Very High",
+    "icon": "scholarship",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "legacySlug": "harvard-scholarships-grants",
+      "awardAmountLabel": "Amount varies",
+      "renewable": true,
+      "applicationRequirements": [
+        "Harvard admission",
+        "Financial aid application and documentation"
+      ],
+      "deadlineType": "varies",
+      "compensation": "Paid",
+      "workMode": "Remote"
+    }
   }
 ]
 

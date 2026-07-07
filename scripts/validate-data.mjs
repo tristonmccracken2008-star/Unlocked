@@ -20,7 +20,7 @@ for(const school of schools){if(seenSlugs.has(school.slug))failures.push(`Duplic
 function search(query){const normalized=normalize(query);const exact=schools.filter((school)=>termsBySchool.get(school.slug).some((term)=>term===normalized));return exact.length?exact:schools.filter((school)=>termsBySchool.get(school.slug).some((term)=>term.includes(normalized)))}
 for(const school of schools)for(const term of [school.name,school.domain,school.slug,...school.aliases])if(!search(term).some((result)=>result.slug===school.slug))failures.push(`Search term did not find ${school.slug}: ${term}`);
 
-const ids=new Set();const types=new Set(["Benefit","AI","Career","Research"]);const required=["id","title","type","category","description","organization","school_scope","eligibility","location","official_source","verification_status","last_verified","icon"];
+const ids=new Set();const types=new Set(["Benefit","AI","Career","Research","Scholarship"]);const required=["id","title","type","category","description","organization","school_scope","eligibility","location","official_source","verification_status","last_verified","icon"];
 for(const item of opportunities){
   if(ids.has(item.id))failures.push(`Duplicate opportunity id: ${item.id}`);ids.add(item.id);
   for(const field of required)if(!item[field])failures.push(`Opportunity ${item.id} is missing ${field}`);
@@ -39,12 +39,14 @@ if((byType.Benefit?.length??0)!==36)failures.push("Benefit migration count misma
 if((byType.AI?.length??0)!==32)failures.push("AI migration count mismatch");
 if((byType.Career?.length??0)!==62)failures.push("Career migration count mismatch");
 if((byType.Research?.length??0)!==25)failures.push("Research migration count mismatch");
+if((byType.Scholarship?.length??0)!==33)failures.push("Scholarship migration count mismatch");
 const careerCategories=new Set(["Internships","Freshman Programs","Hackathons","Competitions","Fellowships","Conferences","Leadership Programs"]);
 for(const category of careerCategories)if(!byType.Career?.some((item)=>item.category===category))failures.push(`Career category is empty: ${category}`);
 for(const item of byType.Research??[]){if(!item.metadata?.department)failures.push(`Research opportunity missing department: ${item.id}`);if(!item.metadata?.researchArea)failures.push(`Research opportunity missing area: ${item.id}`);if(!Array.isArray(item.metadata?.semesters)||!item.metadata.semesters.length)failures.push(`Research opportunity missing semesters: ${item.id}`);if(!Object.hasOwn(item.metadata,"professor"))failures.push(`Research opportunity missing professor field: ${item.id}`);if(!Object.hasOwn(item.metadata,"stipendAmount"))failures.push(`Research opportunity missing stipend field: ${item.id}`)}
+for(const item of byType.Scholarship??[]){if(!item.metadata?.awardAmountLabel)failures.push(`Scholarship missing award label: ${item.id}`);if(!Object.hasOwn(item.metadata,"renewable"))failures.push(`Scholarship missing renewable field: ${item.id}`);if(!Array.isArray(item.metadata?.applicationRequirements)||!item.metadata.applicationRequirements.length)failures.push(`Scholarship missing application requirements: ${item.id}`)}
 if(opportunities.some((item)=>item.type==="Benefit"&&item.school_scope==="School Specific"&&item.schools.includes("northeastern-university")))failures.push("Northeastern has unreviewed school-specific benefits");
 
 if(failures.length){console.error(failures.join("\n"));process.exit(1)}
 const searchTermCount=[...termsBySchool.values()].reduce((sum,terms)=>sum+terms.length,0);
 console.log(`Validated ${schools.length} schools and ${searchTermCount} searchable terms.`);
-console.log(`Validated ${opportunities.length} unified opportunities: ${byType.Benefit.length} benefits, ${byType.AI.length} AI tools, ${byType.Career.length} career programs, and ${byType.Research.length} research programs.`);
+console.log(`Validated ${opportunities.length} unified opportunities: ${byType.Benefit.length} benefits, ${byType.AI.length} AI tools, ${byType.Career.length} career programs, ${byType.Research.length} research programs, and ${byType.Scholarship.length} scholarships.`);

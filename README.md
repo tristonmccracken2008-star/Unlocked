@@ -27,6 +27,8 @@ Career opportunities have their own verified catalog and ranking rules. Follow t
 
 Undergraduate research uses the same Opportunity model with research-specific metadata. Follow the [research maintenance guide](./docs/RESEARCH_GUIDE.md) before adding labs, programs, or stipends.
 
+Scholarships use the same Opportunity model with award, renewal, and application metadata. Follow the [scholarship maintenance guide](./docs/SCHOLARSHIPS_GUIDE.md) before adding awards or deadlines.
+
 ## Category and editorial pages
 
 Category pages are generated from the `categories` array at `/categories/[slug]`. Editorial SEO pages live in the `app` directory:
