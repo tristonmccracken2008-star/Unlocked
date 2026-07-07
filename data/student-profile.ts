@@ -7,6 +7,8 @@ export type StudentProfile = {
   year: string;
   careerGoal: string;
   interests: string;
+  goals?: string[];
+  topics?: string[];
   clubs?: string;
 };
 
