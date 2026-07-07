@@ -21,8 +21,9 @@ export function OpportunityActivityActions({ opportunityId, type, officialSource
   const saved = activity.saved.includes(opportunityId);
   const claimed = activity.claimed.includes(opportunityId);
   const claimable = type === "AI" || type === "Benefit";
+  const primaryLabel = type === "Benefit" || type === "AI" ? "Claim on official site" : type === "Scholarship" ? "Apply on official site" : type === "Career" || type === "Research" ? "View application" : "Learn more";
   return <div className="mt-6 space-y-3">
-    <a href={officialSource} target="_blank" rel="noreferrer" className="flex min-h-12 items-center justify-center gap-2 bg-lime px-5 font-bold text-ink">Open official source <ArrowIcon/></a>
+    <a href={officialSource} target="_blank" rel="noreferrer" className="flex min-h-12 items-center justify-center gap-2 bg-ink px-5 text-center font-bold text-white hover:bg-forest">{primaryLabel} <ArrowIcon/></a>
     <button type="button" onClick={()=>setActivity(toggleSavedOpportunity(opportunityId))} className="flex min-h-11 w-full items-center justify-center border border-white/35 px-4 text-xs font-bold uppercase tracking-wider text-white">{saved?<><CheckIcon className="h-4 w-4"/> Saved</>:"Save opportunity"}</button>
     {claimable&&<button type="button" onClick={()=>setActivity(markOpportunityClaimed(opportunityId))} className="flex min-h-11 w-full items-center justify-center border border-white/35 px-4 text-xs font-bold uppercase tracking-wider text-white">{claimed?<><CheckIcon className="h-4 w-4"/> Claimed</>:"Mark as claimed"}</button>}
   </div>;
