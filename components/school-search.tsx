@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useMemo, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { schools, type School } from "@/data/seed";
 import { findExactSchoolMatches, findSchoolMatches, normalizeSchoolQuery } from "@/data/school-search";
@@ -13,7 +14,7 @@ export function SchoolSearch() {
   const normalized = normalizeSchoolQuery(query);
   const exactMatches = useMemo(() => findExactSchoolMatches(schools, query), [query]);
   const exact = exactMatches.length === 1 ? exactMatches[0] : undefined;
-  const suggestions = useMemo(() => findSchoolMatches(schools, query, 8), [query]);
+  const suggestions = useMemo(() => findSchoolMatches(schools, query, 6), [query]);
   const hasSuggestions = suggestions.length > 0;
 
   function choose(school: School) { setShowSuggestions(false); router.push(`/schools/${school.slug}`); }
@@ -39,7 +40,7 @@ export function SchoolSearch() {
         <p className="px-3 py-2 text-xs font-bold uppercase tracking-wider text-ink/35">Choose your school</p>
         {suggestions.map((school) => <button type="button" role="option" aria-selected="false" key={school.slug} onMouseDown={(event) => event.preventDefault()} onClick={() => choose(school)} className="flex w-full items-center gap-3 border-t border-ink/15 px-4 py-3 hover:bg-paper"><span className="grid h-9 w-12 shrink-0 place-items-center border border-ink text-xs font-black">{school.initials}</span><span><span className="block font-bold">{school.name}</span><span className="block text-sm text-ink/45">{school.domain} · {school.location}</span></span></button>)}
       </div>}
-      {showSuggestions && normalized && !hasSuggestions && <div id="school-suggestions" className="absolute z-20 mt-1 w-full border-2 border-ink bg-white px-4 py-4 text-left shadow-[6px_6px_0_#10243e]"><p className="font-bold">No matching school found</p><p className="mt-1 text-sm text-ink/50">Try the full name, abbreviation, nickname, or .edu domain.</p></div>}
+      {showSuggestions && normalized && !hasSuggestions && <div id="school-suggestions" className="absolute z-20 mt-1 w-full border-2 border-ink bg-white px-4 py-3 text-left shadow-[6px_6px_0_#10243e]"><p className="text-sm font-bold">School not found</p><Link href={`/contact?school=${encodeURIComponent(query)}`} className="mt-1 inline-block border-b border-forest text-xs font-bold text-forest">Request this school</Link></div>}
     </div>
   );
 }

@@ -12,7 +12,7 @@ export function StudentSavingsCalculator() {
   const school=schools.find((item)=>item.slug===slug);
   const normalized=normalizeSchoolQuery(query);
   const exactMatches=useMemo(()=>findExactSchoolMatches(schools,query),[query]);
-  const suggestions=useMemo(()=>findSchoolMatches(schools,query,8),[query]);
+  const suggestions=useMemo(()=>findSchoolMatches(schools,query,6),[query]);
   const stats=useMemo(()=>{if(!school)return null;const items=getSchoolBenefits(school).filter((i)=>i.status==="verified_recently");const count=(c:string)=>items.filter((i)=>i.category===c).length;return{total:items.reduce((s,i)=>s+i.annualValue,0),benefits:items.length,ai:count("AI"),software:count("Software"),shopping:count("Shopping"),finance:count("Finance"),excluded:items.filter((i)=>i.annualValue===0).length}},[school]);
 
   function choose(selected:School){setSlug(selected.slug);setQuery(selected.name);setShowSuggestions(false)}

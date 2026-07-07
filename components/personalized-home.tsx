@@ -49,7 +49,7 @@ export function StudentSetup({ onSave, initialProfile, onCancel }: { onSave: (pr
   const [clubs, setClubs] = useState(initialProfile?.clubs ?? "");
   const [showSuggestions, setShowSuggestions] = useState(false);
   const normalized = normalizeSchoolQuery(schoolQuery);
-  const matches = useMemo(() => findSchoolMatches(schools, schoolQuery, 8), [schoolQuery]);
+  const matches = useMemo(() => findSchoolMatches(schools, schoolQuery, 6), [schoolQuery]);
 
   function choose(school: School) {
     setSelectedSchool(school);
