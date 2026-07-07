@@ -8,11 +8,12 @@ import { ArrowIcon, CheckIcon, SearchIcon } from "./icons";
 import { StatusBadge } from "./status-badge";
 import { AIToolsSection } from "./ai-tools-section";
 import { CareerSection } from "./career-section";
+import { ResearchSection } from "./research-section";
 
 type StudentProfile = { schoolSlug: string; year: string; major: string };
 const storageKey = "unlocked-student-profile";
 const years = ["First year", "Second year", "Third year", "Fourth year", "Graduate student", "Other"];
-const comingSoon = ["Free Software", "Scholarships", "Local", "Research"];
+const comingSoon = ["Free Software", "Scholarships", "Local"];
 
 export function PersonalizedHome() {
   const [ready, setReady] = useState(false);
@@ -102,6 +103,8 @@ function StudentDashboard({ profile, onEdit }: { profile: StudentProfile; onEdit
     </section>
 
     <CareerSection major={profile.major} year={profile.year} />
+
+    <ResearchSection school={school} major={profile.major} year={profile.year} />
 
     <AIToolsSection />
 

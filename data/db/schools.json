@@ -149,5 +149,14 @@
     "domain": "asu.edu",
     "location": "Tempe, AZ",
     "initials": "ASU"
+  },
+  {
+    "slug": "johns-hopkins-university",
+    "name": "Johns Hopkins University",
+    "aliases": ["Johns Hopkins", "JHU", "Hopkins"],
+    "domain": "jhu.edu",
+    "location": "Baltimore, MD",
+    "initials": "JHU",
+    "website": "https://www.jhu.edu/"
   }
 ]

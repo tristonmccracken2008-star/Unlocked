@@ -25,6 +25,8 @@ AI tools and benefits share the Opportunity model. Follow the [AI tools catalog 
 
 Career opportunities have their own verified catalog and ranking rules. Follow the [opportunity catalog guide](./docs/OPPORTUNITIES_GUIDE.md) before adding programs or deadlines.
 
+Undergraduate research uses the same Opportunity model with research-specific metadata. Follow the [research maintenance guide](./docs/RESEARCH_GUIDE.md) before adding labs, programs, or stipends.
+
 ## Category and editorial pages
 
 Category pages are generated from the `categories` array at `/categories/[slug]`. Editorial SEO pages live in the `app` directory:

@@ -4247,10 +4247,10 @@
     }
   },
   {
-    "id": "career--nasa-ostem-internships",
+    "id": "research--nasa-ostem-internships",
     "title": "NASA OSTEM Internships",
-    "type": "Career",
-    "category": "Internships",
+    "type": "Research",
+    "category": "Government & National Labs",
     "description": "Internships supporting NASA missions in science, engineering, technology, and business.",
     "organization": "NASA",
     "school_scope": "National",
@@ -4289,14 +4289,23 @@
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "Very High",
-    "icon": "briefcase",
+    "icon": "research",
     "featured": false,
     "hidden_gem": false,
     "metadata": {
       "legacySlug": "nasa-ostem-internships",
       "deadlineType": "varies",
       "compensation": "Paid",
-      "workMode": "Varies"
+      "workMode": "Varies",
+      "professor": null,
+      "department": "Office of STEM Engagement",
+      "researchArea": "NASA mission research and engineering",
+      "stipendAmount": null,
+      "semesters": [
+        "Summer",
+        "Fall",
+        "Spring"
+      ]
     }
   },
   {
@@ -4941,10 +4950,10 @@
     }
   },
   {
-    "id": "career--nsf-reu-sites",
+    "id": "research--nsf-reu-sites",
     "title": "NSF Research Experiences for Undergraduates Sites",
-    "type": "Career",
-    "category": "Undergraduate Research",
+    "type": "Research",
+    "category": "STEM Research",
     "description": "Directory of NSF-funded summer research sites across science and engineering disciplines.",
     "organization": "National Science Foundation",
     "school_scope": "National",
@@ -4982,21 +4991,28 @@
     "last_verified": "2026-07-06",
     "difficulty": "Competitive",
     "prestige": "Very High",
-    "icon": "briefcase",
+    "icon": "research",
     "featured": false,
     "hidden_gem": false,
     "metadata": {
       "legacySlug": "nsf-reu-sites",
       "deadlineType": "varies",
       "compensation": "Paid",
-      "workMode": "In Person"
+      "workMode": "In Person",
+      "professor": null,
+      "department": "National Science Foundation",
+      "researchArea": "NSF-funded research across science and engineering",
+      "stipendAmount": null,
+      "semesters": [
+        "Summer"
+      ]
     }
   },
   {
-    "id": "career--doe-suli",
+    "id": "research--doe-suli",
     "title": "Science Undergraduate Laboratory Internships (SULI)",
-    "type": "Career",
-    "category": "Undergraduate Research",
+    "type": "Research",
+    "category": "Government & National Labs",
     "description": "Research appointments at Department of Energy national laboratories.",
     "organization": "U.S. Department of Energy",
     "school_scope": "National",
@@ -5033,21 +5049,30 @@
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "Very High",
-    "icon": "briefcase",
+    "icon": "research",
     "featured": false,
     "hidden_gem": false,
     "metadata": {
       "legacySlug": "doe-suli",
       "deadlineType": "varies",
       "compensation": "Paid",
-      "workMode": "In Person"
+      "workMode": "In Person",
+      "professor": null,
+      "department": "Department of Energy",
+      "researchArea": "Energy science and national laboratory research",
+      "stipendAmount": null,
+      "semesters": [
+        "Summer",
+        "Fall",
+        "Spring"
+      ]
     }
   },
   {
-    "id": "career--doe-cci",
+    "id": "research--doe-cci",
     "title": "Community College Internships (CCI)",
-    "type": "Career",
-    "category": "Undergraduate Research",
+    "type": "Research",
+    "category": "Government & National Labs",
     "description": "Research and technical projects for community-college students at DOE laboratories.",
     "organization": "U.S. Department of Energy",
     "school_scope": "National",
@@ -5083,21 +5108,30 @@
     "last_verified": "2026-07-06",
     "difficulty": "Competitive",
     "prestige": "High",
-    "icon": "briefcase",
+    "icon": "research",
     "featured": false,
     "hidden_gem": false,
     "metadata": {
       "legacySlug": "doe-cci",
       "deadlineType": "varies",
       "compensation": "Paid",
-      "workMode": "In Person"
+      "workMode": "In Person",
+      "professor": null,
+      "department": "Department of Energy",
+      "researchArea": "Community-college research at national laboratories",
+      "stipendAmount": null,
+      "semesters": [
+        "Summer",
+        "Fall",
+        "Spring"
+      ]
     }
   },
   {
-    "id": "career--nih-summer-internship-program",
+    "id": "research--nih-summer-internship-program",
     "title": "NIH Summer Internship Program",
-    "type": "Career",
-    "category": "Undergraduate Research",
+    "type": "Research",
+    "category": "Biomedical Research",
     "description": "Biomedical research placements in NIH intramural laboratories and research groups.",
     "organization": "National Institutes of Health",
     "school_scope": "National",
@@ -5136,21 +5170,28 @@
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "Very High",
-    "icon": "briefcase",
+    "icon": "research",
     "featured": false,
     "hidden_gem": false,
     "metadata": {
       "legacySlug": "nih-summer-internship-program",
       "deadlineType": "not_announced",
       "compensation": "Paid",
-      "workMode": "In Person"
+      "workMode": "In Person",
+      "professor": null,
+      "department": "NIH Intramural Research Program",
+      "researchArea": "Biomedical and health research",
+      "stipendAmount": null,
+      "semesters": [
+        "Summer"
+      ]
     }
   },
   {
-    "id": "career--nist-surf",
+    "id": "research--nist-surf",
     "title": "NIST Summer Undergraduate Research Fellowship",
-    "type": "Career",
-    "category": "Undergraduate Research",
+    "type": "Research",
+    "category": "Government & National Labs",
     "description": "Summer research with NIST scientists and engineers in measurement science and technology.",
     "organization": "National Institute of Standards and Technology",
     "school_scope": "National",
@@ -5187,21 +5228,28 @@
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "Very High",
-    "icon": "briefcase",
+    "icon": "research",
     "featured": false,
     "hidden_gem": false,
     "metadata": {
       "legacySlug": "nist-surf",
       "deadlineType": "not_announced",
       "compensation": "Paid",
-      "workMode": "In Person"
+      "workMode": "In Person",
+      "professor": null,
+      "department": "National Institute of Standards and Technology",
+      "researchArea": "Measurement science and technology",
+      "stipendAmount": null,
+      "semesters": [
+        "Summer"
+      ]
     }
   },
   {
-    "id": "career--amgen-scholars",
+    "id": "research--amgen-scholars",
     "title": "Amgen Scholars Program",
-    "type": "Career",
-    "category": "Undergraduate Research",
+    "type": "Research",
+    "category": "Biomedical Research",
     "description": "Summer biomedical and biotechnology research at participating host institutions.",
     "organization": "Amgen Foundation",
     "school_scope": "National",
@@ -5236,21 +5284,28 @@
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "Very High",
-    "icon": "briefcase",
+    "icon": "research",
     "featured": false,
     "hidden_gem": false,
     "metadata": {
       "legacySlug": "amgen-scholars",
       "deadlineType": "varies",
       "compensation": "Paid",
-      "workMode": "In Person"
+      "workMode": "In Person",
+      "professor": null,
+      "department": "Participating host departments",
+      "researchArea": "Biomedical and biotechnology research",
+      "stipendAmount": null,
+      "semesters": [
+        "Summer"
+      ]
     }
   },
   {
-    "id": "career--mit-msrp",
+    "id": "research--mit-msrp",
     "title": "MIT Summer Research Program",
-    "type": "Career",
-    "category": "Undergraduate Research",
+    "type": "Research",
+    "category": "STEM Research",
     "description": "Faculty-mentored summer research for eligible visiting undergraduates interested in graduate study.",
     "organization": "MIT",
     "school_scope": "National",
@@ -5287,21 +5342,28 @@
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "Very High",
-    "icon": "briefcase",
+    "icon": "research",
     "featured": false,
     "hidden_gem": false,
     "metadata": {
       "legacySlug": "mit-msrp",
       "deadlineType": "not_announced",
       "compensation": "Paid",
-      "workMode": "In Person"
+      "workMode": "In Person",
+      "professor": null,
+      "department": "MIT Office of Graduate Education",
+      "researchArea": "Faculty-mentored STEM research",
+      "stipendAmount": null,
+      "semesters": [
+        "Summer"
+      ]
     }
   },
   {
-    "id": "career--stanford-surf",
+    "id": "research--stanford-surf",
     "title": "Stanford Summer Undergraduate Research Fellowship",
-    "type": "Career",
-    "category": "Undergraduate Research",
+    "type": "Research",
+    "category": "Engineering Research",
     "description": "Summer research and graduate-school preparation for visiting undergraduates in engineering.",
     "organization": "Stanford Engineering",
     "school_scope": "National",
@@ -5336,21 +5398,28 @@
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "Very High",
-    "icon": "briefcase",
+    "icon": "research",
     "featured": false,
     "hidden_gem": false,
     "metadata": {
       "legacySlug": "stanford-surf",
       "deadlineType": "not_announced",
       "compensation": "Paid",
-      "workMode": "In Person"
+      "workMode": "In Person",
+      "professor": null,
+      "department": "Stanford School of Engineering",
+      "researchArea": "Engineering research",
+      "stipendAmount": null,
+      "semesters": [
+        "Summer"
+      ]
     }
   },
   {
-    "id": "career--caltech-surf",
+    "id": "research--caltech-surf",
     "title": "Caltech Summer Undergraduate Research Fellowships",
-    "type": "Career",
-    "category": "Undergraduate Research",
+    "type": "Research",
+    "category": "STEM Research",
     "description": "Student-designed summer research projects conducted with a Caltech or JPL mentor.",
     "organization": "Caltech",
     "school_scope": "National",
@@ -5388,21 +5457,28 @@
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "Very High",
-    "icon": "briefcase",
+    "icon": "research",
     "featured": false,
     "hidden_gem": false,
     "metadata": {
       "legacySlug": "caltech-surf",
       "deadlineType": "not_announced",
       "compensation": "Paid",
-      "workMode": "In Person"
+      "workMode": "In Person",
+      "professor": null,
+      "department": "Caltech Student-Faculty Programs",
+      "researchArea": "Student-designed science and engineering research",
+      "stipendAmount": null,
+      "semesters": [
+        "Summer"
+      ]
     }
   },
   {
-    "id": "career--cmu-reuse",
+    "id": "research--cmu-reuse",
     "title": "Research Experiences for Undergraduates in Software Engineering",
-    "type": "Career",
-    "category": "Undergraduate Research",
+    "type": "Research",
+    "category": "Computer Science Research",
     "description": "Summer research in software engineering with Carnegie Mellon faculty and research groups.",
     "organization": "Carnegie Mellon University",
     "school_scope": "National",
@@ -5437,21 +5513,28 @@
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "Very High",
-    "icon": "briefcase",
+    "icon": "research",
     "featured": false,
     "hidden_gem": false,
     "metadata": {
       "legacySlug": "cmu-reuse",
       "deadlineType": "not_announced",
       "compensation": "Paid",
-      "workMode": "In Person"
+      "workMode": "In Person",
+      "professor": null,
+      "department": "Software and Societal Systems Department",
+      "researchArea": "Software engineering research",
+      "stipendAmount": null,
+      "semesters": [
+        "Summer"
+      ]
     }
   },
   {
-    "id": "career--berkeley-superb",
+    "id": "research--berkeley-superb",
     "title": "SUPERB Information Technology for Sustainability",
-    "type": "Career",
-    "category": "Undergraduate Research",
+    "type": "Research",
+    "category": "Computer Science Research",
     "description": "Summer undergraduate research in electrical engineering and computer science.",
     "organization": "UC Berkeley EECS",
     "school_scope": "National",
@@ -5486,21 +5569,28 @@
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "Very High",
-    "icon": "briefcase",
+    "icon": "research",
     "featured": false,
     "hidden_gem": false,
     "metadata": {
       "legacySlug": "berkeley-superb",
       "deadlineType": "not_announced",
       "compensation": "Paid",
-      "workMode": "In Person"
+      "workMode": "In Person",
+      "professor": null,
+      "department": "UC Berkeley EECS",
+      "researchArea": "Electrical engineering and computer science",
+      "stipendAmount": null,
+      "semesters": [
+        "Summer"
+      ]
     }
   },
   {
-    "id": "career--dimacs-reu",
+    "id": "research--dimacs-reu",
     "title": "DIMACS REU",
-    "type": "Career",
-    "category": "Undergraduate Research",
+    "type": "Research",
+    "category": "Computer Science Research",
     "description": "Summer research projects in discrete mathematics and theoretical computer science.",
     "organization": "Rutgers University DIMACS",
     "school_scope": "National",
@@ -5535,14 +5625,21 @@
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "High",
-    "icon": "briefcase",
+    "icon": "research",
     "featured": false,
     "hidden_gem": false,
     "metadata": {
       "legacySlug": "dimacs-reu",
       "deadlineType": "not_announced",
       "compensation": "Paid",
-      "workMode": "In Person"
+      "workMode": "In Person",
+      "professor": null,
+      "department": "Rutgers DIMACS",
+      "researchArea": "Discrete mathematics and theoretical computer science",
+      "stipendAmount": null,
+      "semesters": [
+        "Summer"
+      ]
     }
   },
   {
@@ -7013,6 +7110,727 @@
       "deadlineType": "varies",
       "compensation": "Unpaid",
       "workMode": "Remote"
+    }
+  },
+  {
+    "id": "research--uchicago-undergraduate-research",
+    "title": "UChicago Undergraduate Research Opportunities",
+    "type": "Research",
+    "category": "University Research",
+    "description": "University resources connecting undergraduates with faculty-led research, funding, and research-development support.",
+    "organization": "University of Chicago",
+    "school_scope": "School Specific",
+    "schools": [
+      "university-of-chicago"
+    ],
+    "majors": [
+      "Any Major"
+    ],
+    "academic_years": [
+      "First year",
+      "Second year",
+      "Third year",
+      "Fourth year"
+    ],
+    "eligibility": "Current University of Chicago undergraduates; individual projects and funding programs have additional requirements.",
+    "estimated_value": null,
+    "application_deadline": null,
+    "recurring": true,
+    "location": "Chicago, IL",
+    "remote": false,
+    "paid": null,
+    "tags": [
+      "Research",
+      "Interdisciplinary",
+      "Any Major",
+      "Summer",
+      "Fall",
+      "Spring"
+    ],
+    "official_source": "https://ccrf.uchicago.edu/undergraduate-research",
+    "verification_status": "verified_recently",
+    "last_verified": "2026-07-06",
+    "difficulty": "Competitive",
+    "prestige": "Very High",
+    "icon": "research",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "legacySlug": "uchicago-undergraduate-research",
+      "professor": null,
+      "department": "College Center for Research and Fellowships",
+      "researchArea": "Interdisciplinary",
+      "stipendAmount": null,
+      "semesters": [
+        "Summer",
+        "Fall",
+        "Spring"
+      ],
+      "deadlineType": "not_announced",
+      "compensation": "Varies",
+      "workMode": "In Person"
+    }
+  },
+  {
+    "id": "research--uchicago-data-science-summer-lab",
+    "title": "Data Science Institute Summer Lab",
+    "type": "Research",
+    "category": "Computer Science Research",
+    "description": "Summer research program pairing students with mentors on applied data science and computing projects.",
+    "organization": "University of Chicago",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "Computer Science",
+      "Data Science",
+      "Mathematics",
+      "Social Sciences"
+    ],
+    "academic_years": [
+      "First year",
+      "Second year",
+      "Third year",
+      "Fourth year"
+    ],
+    "eligibility": "High school and undergraduate applicants who meet the current program requirements.",
+    "estimated_value": null,
+    "application_deadline": null,
+    "recurring": true,
+    "location": "Chicago, IL",
+    "remote": false,
+    "paid": null,
+    "tags": [
+      "Research",
+      "Data Science and Computing",
+      "Computer Science",
+      "Data Science",
+      "Mathematics",
+      "Social Sciences",
+      "Summer"
+    ],
+    "official_source": "https://datascience.uchicago.edu/education/summerlab/",
+    "verification_status": "verified_recently",
+    "last_verified": "2026-07-06",
+    "difficulty": "Highly Competitive",
+    "prestige": "High",
+    "icon": "research",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "legacySlug": "uchicago-data-science-summer-lab",
+      "professor": null,
+      "department": "Data Science Institute",
+      "researchArea": "Data Science and Computing",
+      "stipendAmount": null,
+      "semesters": [
+        "Summer"
+      ],
+      "deadlineType": "not_announced",
+      "compensation": "Varies",
+      "workMode": "In Person"
+    }
+  },
+  {
+    "id": "research--mit-urop",
+    "title": "MIT Undergraduate Research Opportunities Program",
+    "type": "Research",
+    "category": "University Research",
+    "description": "MIT program supporting undergraduate collaboration with faculty, research staff, and laboratories.",
+    "organization": "Massachusetts Institute of Technology",
+    "school_scope": "School Specific",
+    "schools": [
+      "massachusetts-institute-of-technology"
+    ],
+    "majors": [
+      "Any Major"
+    ],
+    "academic_years": [
+      "First year",
+      "Second year",
+      "Third year",
+      "Fourth year"
+    ],
+    "eligibility": "Current MIT undergraduates; project and funding eligibility varies by UROP position.",
+    "estimated_value": null,
+    "application_deadline": null,
+    "recurring": true,
+    "location": "Cambridge, MA",
+    "remote": null,
+    "paid": null,
+    "tags": [
+      "Research",
+      "Interdisciplinary",
+      "Any Major",
+      "Summer",
+      "Fall",
+      "Spring"
+    ],
+    "official_source": "https://urop.mit.edu/",
+    "verification_status": "verified_recently",
+    "last_verified": "2026-07-06",
+    "difficulty": "Competitive",
+    "prestige": "Very High",
+    "icon": "research",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "legacySlug": "mit-urop",
+      "professor": null,
+      "department": "Undergraduate Research Opportunities Program",
+      "researchArea": "Interdisciplinary",
+      "stipendAmount": null,
+      "semesters": [
+        "Summer",
+        "Fall",
+        "Spring"
+      ],
+      "deadlineType": "not_announced",
+      "compensation": "Varies",
+      "workMode": "Varies"
+    }
+  },
+  {
+    "id": "research--stanford-undergraduate-research",
+    "title": "Stanford Undergraduate Research Opportunities",
+    "type": "Research",
+    "category": "University Research",
+    "description": "Stanford advising, grants, and faculty research opportunities for undergraduate students.",
+    "organization": "Stanford University",
+    "school_scope": "School Specific",
+    "schools": [
+      "stanford-university"
+    ],
+    "majors": [
+      "Any Major"
+    ],
+    "academic_years": [
+      "First year",
+      "Second year",
+      "Third year",
+      "Fourth year"
+    ],
+    "eligibility": "Current Stanford undergraduates; individual grants and projects have specific requirements.",
+    "estimated_value": null,
+    "application_deadline": null,
+    "recurring": true,
+    "location": "Stanford, CA",
+    "remote": null,
+    "paid": null,
+    "tags": [
+      "Research",
+      "Interdisciplinary",
+      "Any Major",
+      "Summer",
+      "Fall",
+      "Spring"
+    ],
+    "official_source": "https://undergradresearch.stanford.edu/",
+    "verification_status": "verified_recently",
+    "last_verified": "2026-07-06",
+    "difficulty": "Competitive",
+    "prestige": "Very High",
+    "icon": "research",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "legacySlug": "stanford-undergraduate-research",
+      "professor": null,
+      "department": "Office of the Vice Provost for Undergraduate Education",
+      "researchArea": "Interdisciplinary",
+      "stipendAmount": null,
+      "semesters": [
+        "Summer",
+        "Fall",
+        "Spring"
+      ],
+      "deadlineType": "not_announced",
+      "compensation": "Varies",
+      "workMode": "Varies"
+    }
+  },
+  {
+    "id": "research--harvard-undergraduate-research",
+    "title": "Harvard Undergraduate Research and Fellowships",
+    "type": "Research",
+    "category": "University Research",
+    "description": "Advising and funding resources for Harvard undergraduate research across disciplines.",
+    "organization": "Harvard University",
+    "school_scope": "School Specific",
+    "schools": [
+      "harvard-university"
+    ],
+    "majors": [
+      "Any Major"
+    ],
+    "academic_years": [
+      "First year",
+      "Second year",
+      "Third year",
+      "Fourth year"
+    ],
+    "eligibility": "Current Harvard undergraduates; eligibility varies by fellowship, grant, and research program.",
+    "estimated_value": null,
+    "application_deadline": null,
+    "recurring": true,
+    "location": "Cambridge, MA",
+    "remote": null,
+    "paid": null,
+    "tags": [
+      "Research",
+      "Interdisciplinary",
+      "Any Major",
+      "Summer",
+      "Fall",
+      "Spring"
+    ],
+    "official_source": "https://uraf.harvard.edu/",
+    "verification_status": "verified_recently",
+    "last_verified": "2026-07-06",
+    "difficulty": "Competitive",
+    "prestige": "Very High",
+    "icon": "research",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "legacySlug": "harvard-undergraduate-research",
+      "professor": null,
+      "department": "Office of Undergraduate Research and Fellowships",
+      "researchArea": "Interdisciplinary",
+      "stipendAmount": null,
+      "semesters": [
+        "Summer",
+        "Fall",
+        "Spring"
+      ],
+      "deadlineType": "not_announced",
+      "compensation": "Varies",
+      "workMode": "Varies"
+    }
+  },
+  {
+    "id": "research--harvard-prise",
+    "title": "Program for Research in Science and Engineering (PRISE)",
+    "type": "Research",
+    "category": "STEM Research",
+    "description": "Residential summer community supporting Harvard undergraduates conducting science and engineering research.",
+    "organization": "Harvard University",
+    "school_scope": "School Specific",
+    "schools": [
+      "harvard-university"
+    ],
+    "majors": [
+      "Natural Sciences",
+      "Engineering",
+      "Computer Science",
+      "Mathematics"
+    ],
+    "academic_years": [
+      "First year",
+      "Second year",
+      "Third year"
+    ],
+    "eligibility": "Harvard undergraduates conducting eligible summer research under the current PRISE requirements.",
+    "estimated_value": null,
+    "application_deadline": null,
+    "recurring": true,
+    "location": "Cambridge, MA",
+    "remote": false,
+    "paid": null,
+    "tags": [
+      "Research",
+      "Science and Engineering",
+      "Natural Sciences",
+      "Engineering",
+      "Computer Science",
+      "Mathematics",
+      "Summer"
+    ],
+    "official_source": "https://uraf.harvard.edu/prise",
+    "verification_status": "verified_recently",
+    "last_verified": "2026-07-06",
+    "difficulty": "Highly Competitive",
+    "prestige": "Very High",
+    "icon": "research",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "legacySlug": "harvard-prise",
+      "professor": null,
+      "department": "Office of Undergraduate Research and Fellowships",
+      "researchArea": "Science and Engineering",
+      "stipendAmount": null,
+      "semesters": [
+        "Summer"
+      ],
+      "deadlineType": "not_announced",
+      "compensation": "Varies",
+      "workMode": "In Person"
+    }
+  },
+  {
+    "id": "research--jhu-undergraduate-research",
+    "title": "Johns Hopkins Undergraduate Research Opportunities",
+    "type": "Research",
+    "category": "University Research",
+    "description": "University-wide undergraduate research advising, programs, funding, and project discovery.",
+    "organization": "Johns Hopkins University",
+    "school_scope": "School Specific",
+    "schools": [
+      "johns-hopkins-university"
+    ],
+    "majors": [
+      "Any Major"
+    ],
+    "academic_years": [
+      "First year",
+      "Second year",
+      "Third year",
+      "Fourth year"
+    ],
+    "eligibility": "Current Johns Hopkins undergraduates; individual projects and programs set additional requirements.",
+    "estimated_value": null,
+    "application_deadline": null,
+    "recurring": true,
+    "location": "Baltimore, MD",
+    "remote": null,
+    "paid": null,
+    "tags": [
+      "Research",
+      "Interdisciplinary",
+      "Any Major",
+      "Summer",
+      "Fall",
+      "Spring"
+    ],
+    "official_source": "https://hour.jhu.edu/",
+    "verification_status": "verified_recently",
+    "last_verified": "2026-07-06",
+    "difficulty": "Competitive",
+    "prestige": "Very High",
+    "icon": "research",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "legacySlug": "jhu-undergraduate-research",
+      "professor": null,
+      "department": "Hopkins Office for Undergraduate Research",
+      "researchArea": "Interdisciplinary",
+      "stipendAmount": null,
+      "semesters": [
+        "Summer",
+        "Fall",
+        "Spring"
+      ],
+      "deadlineType": "not_announced",
+      "compensation": "Varies",
+      "workMode": "Varies"
+    }
+  },
+  {
+    "id": "research--jhu-pura",
+    "title": "Provost Undergraduate Research Awards",
+    "type": "Research",
+    "category": "University Research",
+    "description": "Competitive awards supporting independent undergraduate research and creative projects with faculty mentorship.",
+    "organization": "Johns Hopkins University",
+    "school_scope": "School Specific",
+    "schools": [
+      "johns-hopkins-university"
+    ],
+    "majors": [
+      "Any Major"
+    ],
+    "academic_years": [
+      "First year",
+      "Second year",
+      "Third year",
+      "Fourth year"
+    ],
+    "eligibility": "Johns Hopkins undergraduates meeting the current award and faculty-mentorship requirements.",
+    "estimated_value": null,
+    "application_deadline": null,
+    "recurring": true,
+    "location": "Baltimore, MD",
+    "remote": null,
+    "paid": true,
+    "tags": [
+      "Research",
+      "Interdisciplinary",
+      "Any Major",
+      "Summer",
+      "Fall",
+      "Spring"
+    ],
+    "official_source": "https://research.jhu.edu/hour/internal/pura/",
+    "verification_status": "verified_recently",
+    "last_verified": "2026-07-06",
+    "difficulty": "Highly Competitive",
+    "prestige": "Very High",
+    "icon": "research",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "legacySlug": "jhu-pura",
+      "professor": null,
+      "department": "Hopkins Office for Undergraduate Research",
+      "researchArea": "Interdisciplinary",
+      "stipendAmount": null,
+      "semesters": [
+        "Summer",
+        "Fall",
+        "Spring"
+      ],
+      "deadlineType": "not_announced",
+      "compensation": "Paid",
+      "workMode": "Varies"
+    }
+  },
+  {
+    "id": "research--cmu-undergraduate-research",
+    "title": "Carnegie Mellon Undergraduate Research Office Programs",
+    "type": "Research",
+    "category": "University Research",
+    "description": "Research project discovery, grants, fellowships, and presentation support for Carnegie Mellon undergraduates.",
+    "organization": "Carnegie Mellon University",
+    "school_scope": "School Specific",
+    "schools": [
+      "carnegie-mellon-university"
+    ],
+    "majors": [
+      "Any Major"
+    ],
+    "academic_years": [
+      "First year",
+      "Second year",
+      "Third year",
+      "Fourth year"
+    ],
+    "eligibility": "Current Carnegie Mellon undergraduates; each grant, fellowship, and project has additional criteria.",
+    "estimated_value": null,
+    "application_deadline": null,
+    "recurring": true,
+    "location": "Pittsburgh, PA",
+    "remote": null,
+    "paid": null,
+    "tags": [
+      "Research",
+      "Interdisciplinary",
+      "Any Major",
+      "Summer",
+      "Fall",
+      "Spring"
+    ],
+    "official_source": "https://www.cmu.edu/uro/",
+    "verification_status": "verified_recently",
+    "last_verified": "2026-07-06",
+    "difficulty": "Competitive",
+    "prestige": "Very High",
+    "icon": "research",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "legacySlug": "cmu-undergraduate-research",
+      "professor": null,
+      "department": "Undergraduate Research Office",
+      "researchArea": "Interdisciplinary",
+      "stipendAmount": null,
+      "semesters": [
+        "Summer",
+        "Fall",
+        "Spring"
+      ],
+      "deadlineType": "not_announced",
+      "compensation": "Varies",
+      "workMode": "Varies"
+    }
+  },
+  {
+    "id": "research--fermilab-undergraduate-internships",
+    "title": "Fermilab Undergraduate Internships",
+    "type": "Research",
+    "category": "Government & National Labs",
+    "description": "Undergraduate research and technical internship programs in particle physics, computing, engineering, and laboratory operations.",
+    "organization": "Fermi National Accelerator Laboratory",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "Physics",
+      "Engineering",
+      "Computer Science",
+      "Mathematics"
+    ],
+    "academic_years": [
+      "First year",
+      "Second year",
+      "Third year",
+      "Fourth year"
+    ],
+    "eligibility": "Undergraduates meeting the citizenship, enrollment, GPA, and program-specific requirements of a listed internship.",
+    "estimated_value": null,
+    "application_deadline": null,
+    "recurring": true,
+    "location": "Batavia, IL",
+    "remote": false,
+    "paid": true,
+    "tags": [
+      "Research",
+      "Particle Physics and Computing",
+      "Physics",
+      "Engineering",
+      "Computer Science",
+      "Mathematics",
+      "Summer",
+      "Fall",
+      "Spring"
+    ],
+    "official_source": "https://internships.fnal.gov/",
+    "verification_status": "verified_recently",
+    "last_verified": "2026-07-06",
+    "difficulty": "Highly Competitive",
+    "prestige": "Very High",
+    "icon": "research",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "legacySlug": "fermilab-undergraduate-internships",
+      "professor": null,
+      "department": "Fermilab Education Office",
+      "researchArea": "Particle Physics and Computing",
+      "stipendAmount": null,
+      "semesters": [
+        "Summer",
+        "Fall",
+        "Spring"
+      ],
+      "deadlineType": "not_announced",
+      "compensation": "Paid",
+      "workMode": "In Person"
+    }
+  },
+  {
+    "id": "research--ornl-undergraduate-programs",
+    "title": "ORNL Undergraduate Research Programs",
+    "type": "Research",
+    "category": "Government & National Labs",
+    "description": "Undergraduate research and internship opportunities across energy, computing, materials, biology, and national security.",
+    "organization": "Oak Ridge National Laboratory",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "Natural Sciences",
+      "Engineering",
+      "Computer Science",
+      "Mathematics"
+    ],
+    "academic_years": [
+      "First year",
+      "Second year",
+      "Third year",
+      "Fourth year"
+    ],
+    "eligibility": "Undergraduates meeting the requirements of the specific ORNL or partner program.",
+    "estimated_value": null,
+    "application_deadline": null,
+    "recurring": true,
+    "location": "Oak Ridge, TN",
+    "remote": false,
+    "paid": true,
+    "tags": [
+      "Research",
+      "Energy and Multidisciplinary Science",
+      "Natural Sciences",
+      "Engineering",
+      "Computer Science",
+      "Mathematics",
+      "Summer",
+      "Fall",
+      "Spring"
+    ],
+    "official_source": "https://education.ornl.gov/undergraduate/",
+    "verification_status": "verified_recently",
+    "last_verified": "2026-07-06",
+    "difficulty": "Highly Competitive",
+    "prestige": "Very High",
+    "icon": "research",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "legacySlug": "ornl-undergraduate-programs",
+      "professor": null,
+      "department": "Oak Ridge National Laboratory",
+      "researchArea": "Energy and Multidisciplinary Science",
+      "stipendAmount": null,
+      "semesters": [
+        "Summer",
+        "Fall",
+        "Spring"
+      ],
+      "deadlineType": "not_announced",
+      "compensation": "Paid",
+      "workMode": "In Person"
+    }
+  },
+  {
+    "id": "research--lanl-undergraduate-internships",
+    "title": "Los Alamos Undergraduate Internships",
+    "type": "Research",
+    "category": "Government & National Labs",
+    "description": "Paid undergraduate internships supporting scientific, engineering, computing, and operational work at Los Alamos.",
+    "organization": "Los Alamos National Laboratory",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "Natural Sciences",
+      "Engineering",
+      "Computer Science",
+      "Mathematics"
+    ],
+    "academic_years": [
+      "First year",
+      "Second year",
+      "Third year",
+      "Fourth year"
+    ],
+    "eligibility": "Undergraduates meeting current enrollment, academic, citizenship, and position-specific requirements.",
+    "estimated_value": null,
+    "application_deadline": null,
+    "recurring": true,
+    "location": "Los Alamos, NM",
+    "remote": false,
+    "paid": true,
+    "tags": [
+      "Research",
+      "National Laboratory Research",
+      "Natural Sciences",
+      "Engineering",
+      "Computer Science",
+      "Mathematics",
+      "Summer",
+      "Fall",
+      "Spring"
+    ],
+    "official_source": "https://www.lanl.gov/careers/career-options/student-internships/undergraduate",
+    "verification_status": "verified_recently",
+    "last_verified": "2026-07-06",
+    "difficulty": "Highly Competitive",
+    "prestige": "Very High",
+    "icon": "research",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "legacySlug": "lanl-undergraduate-internships",
+      "professor": null,
+      "department": "Los Alamos National Laboratory",
+      "researchArea": "National Laboratory Research",
+      "stipendAmount": null,
+      "semesters": [
+        "Summer",
+        "Fall",
+        "Spring"
+      ],
+      "deadlineType": "not_announced",
+      "compensation": "Paid",
+      "workMode": "In Person"
     }
   }
 ]

@@ -1,7 +1,7 @@
 import catalogJson from "./db/opportunities.json";
 
-export const opportunityTypes = ["Benefit", "AI", "Career"] as const;
-export const opportunityCategories = ["All", "Internships", "Freshman Programs", "Undergraduate Research", "Hackathons", "Competitions", "Fellowships", "Conferences", "Leadership Programs"] as const;
+export const opportunityTypes = ["Benefit", "AI", "Career", "Research"] as const;
+export const opportunityCategories = ["All", "Internships", "Freshman Programs", "Hackathons", "Competitions", "Fellowships", "Conferences", "Leadership Programs"] as const;
 export const opportunityMajors = ["All", "Any Major", "Computer Science", "Mathematics", "Engineering", "Data Science", "Physics", "Natural Sciences", "Finance", "Business", "Design", "Social Sciences"] as const;
 export const academicYears = ["All", "First year", "Second year", "Third year", "Fourth year", "Graduate student"] as const;
 export type OpportunityType = (typeof opportunityTypes)[number];
@@ -27,6 +27,11 @@ export type OpportunityMetadata = {
   deadlineType?: "fixed" | "rolling" | "varies" | "not_announced";
   compensation?: "Paid" | "Unpaid" | "Varies";
   workMode?: "Remote" | "Hybrid" | "In Person" | "Varies";
+  professor?: string | null;
+  department?: string;
+  researchArea?: string;
+  stipendAmount?: number | null;
+  semesters?: string[];
 };
 
 export type Opportunity = {
@@ -108,6 +113,7 @@ export function filterOpportunities(filters: OpportunityFilters = {}, source = o
 export const getOpportunity = (id: string) => opportunities.find((item) => item.id === id);
 export const getOpportunityByLegacySlug = (type: OpportunityType, slug: string) => opportunities.find((item) => item.type === type && item.metadata.legacySlug === slug);
 export const careerOpportunities = filterOpportunities({ types: ["Career"] });
+export const researchOpportunities = filterOpportunities({ types: ["Research"] });
 
 export function deadlineLabel(item: Opportunity) {
   if (item.application_deadline) return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" }).format(new Date(`${item.application_deadline}T00:00:00Z`));
