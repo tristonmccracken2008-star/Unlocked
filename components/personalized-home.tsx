@@ -2,21 +2,15 @@
 
 import Link from "next/link";
 import { FormEvent, useEffect, useMemo, useState } from "react";
-import { benefits, getSchoolBenefits, schools, type School } from "@/data/seed";
+import { schools, type School } from "@/data/seed";
 import { findExactSchoolMatches, findSchoolMatches, normalizeSchoolQuery } from "@/data/school-search";
-import { ArrowIcon, CheckIcon, SearchIcon } from "./icons";
-import { StatusBadge } from "./status-badge";
-import { AIToolsSection } from "./ai-tools-section";
-import { CareerSection } from "./career-section";
-import { ResearchSection } from "./research-section";
-import { ScholarshipSection } from "./scholarship-section";
-import { RecommendationSection } from "./recommendation-section";
+import { ArrowIcon, SearchIcon } from "./icons";
 import { profileSummary, readStudentProfile, studentProfileStorageKey, writeStudentProfile, type StudentProfile } from "@/data/student-profile";
-import { scoreOpportunity, type RecommendationProfile } from "@/data/recommendations";
-import { getOpportunity } from "@/data/opportunities";
+import { recentlyAddedOpportunities, recommendedForYou, type RecommendationProfile } from "@/data/recommendations";
+import { deadlineLabel } from "@/data/opportunities";
 
 const years = ["First year", "Second year", "Third year", "Fourth year", "Graduate student", "Other"];
-const comingSoon = ["Free Software", "Local"];
+const quickLinks = [["AI", "/ai"], ["Career", "/career"], ["Research", "/research"], ["Scholarships", "/scholarships"], ["Software", "/software"], ["Financial", "/financial"], ["Local", "/local"]];
 
 export function PersonalizedHome() {
   const [ready, setReady] = useState(false);
@@ -103,31 +97,21 @@ function StudentSetup({ onSave, initialProfile, onCancel }: { onSave: (profile: 
 function StudentDashboard({ profile, onEdit }: { profile: StudentProfile; onEdit: () => void }) {
   const school = schools.find((item) => item.slug === profile.schoolSlug);
   if (!school) return null;
-  const schoolBenefits = getSchoolBenefits(school).filter((item) => item.status === "verified_recently");
-  const allVerified = benefits.filter((item) => item.status === "verified_recently").length;
   const recommendationProfile: RecommendationProfile = { schoolSlug: school.slug, schoolName: school.name, schoolLocation: school.location, major: profile.major, minor: profile.minor, academicYear: profile.year, interests: profile.interests, careerGoals: profile.careerGoal, clubs: profile.clubs };
-  const featured = [...schoolBenefits].sort((a,b)=>scoreOpportunity(getOpportunity(b.opportunityId)!,recommendationProfile).score-scoreOpportunity(getOpportunity(a.opportunityId)!,recommendationProfile).score).slice(0, 6);
+  const ranked = recommendedForYou(recommendationProfile, 4);
+  const today = ranked[0];
+  const recommended = ranked.slice(1, 4);
+  const recent = recentlyAddedOpportunities(recommendationProfile, 3);
 
-  return <div className="mx-auto max-w-7xl border-x border-ink/20 bg-paper">
-    <section className="grid border-b-2 border-ink bg-white lg:grid-cols-[1fr_300px]"><div className="px-5 py-10 sm:px-8"><p className="rule-label text-forest">Your UnlockED dashboard</p><h1 className="mt-3 font-editorial text-4xl font-bold sm:text-5xl">Welcome to your student home.</h1><p className="mt-4 text-sm text-ink/55">{school.name} · {profile.year} · {profile.major}{profile.minor?` + ${profile.minor}`:""}</p><p className="mt-4 border-l-2 border-gold pl-3 text-sm font-bold">Recommended because you’re a {profileSummary(profile)}.</p><button onClick={onEdit} className="mt-5 border-b border-ink pb-1 text-xs font-bold uppercase tracking-wider hover:border-forest hover:text-forest">Edit student profile</button></div>
-      <div className="border-t-2 border-ink bg-ink p-7 text-white lg:border-l-2 lg:border-t-0"><p className="rule-label text-white/50">Student Opportunities Unlocked</p><p className="mt-5 font-editorial text-5xl font-bold">{schoolBenefits.length} <span className="text-2xl text-white/45">/ {allVerified}</span></p><div className="mt-5 h-1.5 bg-white/15"><div className="h-full bg-lime" style={{width:`${allVerified ? Math.min(100,schoolBenefits.length/allVerified*100) : 0}%`}}/></div><p className="mt-3 text-xs leading-5 text-white/50">Based only on currently verified benefits in the database.</p></div>
-    </section>
-
-    <RecommendationSection school={school} major={profile.major} minor={profile.minor} year={profile.year} interests={profile.interests} careerGoals={profile.careerGoal} clubs={profile.clubs} />
-
-    <section className="px-5 py-10 sm:px-8"><div className="flex items-end justify-between gap-4 border-b-2 border-ink pb-4"><div><p className="rule-label text-forest">Available now</p><h2 className="mt-2 font-editorial text-3xl font-bold">Benefits</h2></div><Link href={`/schools/${school.slug}`} className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider">View full school index <ArrowIcon /></Link></div>
-      <div className="border-b-2 border-ink">{featured.map((item,index)=><Link href={`/benefits/${item.slug}`} key={item.slug} className="group grid gap-3 border-b border-ink/20 bg-white px-4 py-5 last:border-b-0 sm:grid-cols-[36px_1fr_170px] sm:items-center"><span className="hidden font-mono text-xs text-ink/30 sm:block">{String(index+1).padStart(2,"0")}</span><div><div className="flex flex-wrap items-center gap-3"><span className="rule-label text-forest">{item.category}</span><StatusBadge status={item.status}/></div><h3 className="mt-2 font-editorial text-xl font-bold group-hover:text-forest">{item.name}</h3><p className="mt-1 text-sm text-ink/45">{item.scope === "national" ? "National student benefit" : `${school.name}–specific benefit`}</p></div><div className="sm:text-right"><p className="font-bold text-forest">{item.value}</p><p className="mt-2 inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wider">Details <ArrowIcon /></p></div></Link>)}</div>
-      {featured.length===0&&<div className="border-b-2 border-ink bg-white py-10 text-center"><p className="font-bold">No verified benefits available yet.</p></div>}
-    </section>
-
-    <CareerSection major={`${profile.major} ${profile.minor??""} ${profile.interests} ${profile.careerGoal}`} year={profile.year} />
-
-    <ResearchSection school={school} major={`${profile.major} ${profile.minor??""} ${profile.interests}`} year={profile.year} />
-
-    <ScholarshipSection school={school} major={`${profile.major} ${profile.minor??""} ${profile.interests}`} year={profile.year} />
-
-    <AIToolsSection profile={recommendationProfile} />
-
-    <section className="border-t-2 border-ink bg-white"><div className="grid sm:grid-cols-2 lg:grid-cols-3">{comingSoon.map((title)=><div key={title} className="min-h-40 border-b border-r border-ink/20 p-6"><div className="flex items-center justify-between"><h2 className="font-editorial text-2xl font-bold">{title}</h2><CheckIcon className="h-4 w-4 text-ink/20"/></div><p className="mt-12 rule-label text-ink/35">Coming Soon</p></div>)}</div></section>
+  return <div className="mx-auto max-w-7xl border-x border-ink/20 bg-white px-5 py-6 sm:px-8">
+    <section className="flex flex-col justify-between gap-3 border-b-2 border-ink pb-5 sm:flex-row sm:items-end"><div><p className="rule-label text-forest">Your UnlockED dashboard</p><h1 className="mt-2 font-editorial text-3xl font-bold sm:text-4xl">Welcome back.</h1><p className="mt-2 text-sm text-ink/50">{school.name} · Recommended because you’re a {profileSummary(profile)}.</p></div><button onClick={onEdit} className="self-start border-b border-ink pb-1 text-xs font-bold uppercase tracking-wider hover:text-forest sm:self-auto">Edit profile</button></section>
+    <div className="grid lg:grid-cols-[1.1fr_1.9fr]">
+      <section className="border-b border-ink/20 py-5 lg:border-r lg:pr-6"><p className="rule-label text-forest">Today’s Opportunity</p>{today&&<Link href={`/opportunities/${today.opportunity.id}`} className="group block"><h2 className="mt-3 font-editorial text-2xl font-bold group-hover:text-forest">{today.opportunity.title}</h2><p className="mt-1 text-xs font-bold uppercase tracking-wider text-ink/35">{today.opportunity.organization}</p><p className="mt-3 line-clamp-2 text-sm leading-6 text-ink/55">{today.opportunity.description}</p><span className="mt-3 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider">View opportunity <ArrowIcon /></span></Link>}</section>
+      <section className="border-b border-ink/20 py-5 lg:pl-6"><div className="flex items-end justify-between"><p className="rule-label text-forest">Recommended For You</p><Link href="/opportunities" className="text-xs font-bold uppercase tracking-wider">View all</Link></div><div className="mt-3 grid sm:grid-cols-3">{recommended.map(({opportunity})=><Link key={opportunity.id} href={`/opportunities/${opportunity.id}`} className="group border-t border-ink/15 py-3 sm:border-l sm:border-t-0 sm:px-4 sm:first:border-l-0 sm:first:pl-0"><p className="rule-label text-ink/35">{opportunity.type}</p><h3 className="mt-2 font-editorial text-lg font-bold leading-tight group-hover:text-forest">{opportunity.title}</h3><p className="mt-2 text-xs text-ink/40">{opportunity.organization}</p></Link>)}</div></section>
+    </div>
+    <div className="grid lg:grid-cols-[1.9fr_1.1fr]">
+      <section className="border-b border-ink/20 py-5 lg:border-r lg:pr-6"><p className="rule-label text-forest">Quick Navigation</p><nav className="mt-3 grid grid-cols-2 border-l border-t border-ink/15 sm:grid-cols-4" aria-label="Opportunity sections">{quickLinks.map(([label,href])=><Link key={href} href={href} className="flex items-center justify-between border-b border-r border-ink/15 px-3 py-3 text-sm font-bold hover:bg-paper hover:text-forest">{label}<ArrowIcon /></Link>)}</nav></section>
+      <section className="border-b border-ink/20 py-5 lg:pl-6"><p className="rule-label text-forest">Recent Updates</p><div className="mt-2">{recent.map(({opportunity})=><Link key={opportunity.id} href={`/opportunities/${opportunity.id}`} className="grid grid-cols-[1fr_auto] gap-3 border-b border-ink/15 py-2.5"><div><p className="text-sm font-bold">{opportunity.title}</p><p className="mt-1 text-xs text-ink/40">{opportunity.type} · {opportunity.organization}</p></div><p className="text-xs text-ink/40">{opportunity.application_deadline?deadlineLabel(opportunity):"Updated"}</p></Link>)}</div></section>
+    </div>
   </div>;
 }
