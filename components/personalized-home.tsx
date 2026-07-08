@@ -27,6 +27,7 @@ export function PersonalizedHome() {
   const [justCompleted, setJustCompleted] = useState(false);
   const [session, setSession] = useState<AccountSession | null>(null);
   const [syncError, setSyncError] = useState("");
+  const [guestMode, setGuestMode] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -49,7 +50,7 @@ export function PersonalizedHome() {
         if (active) setReady(true);
       }
     };
-    const onSession = (event: Event) => { const next = (event as CustomEvent<AccountSession>).detail; setSession(next); if (!next.authenticated) { setProfile(null); setEditing(false); setJustCompleted(false); return; } const parsed = readCompletedStudentProfile(); if (parsed && schools.some((school) => school.slug === parsed.schoolSlug)) setProfile(parsed); else setProfile(null); };
+    const onSession = (event: Event) => { const next = (event as CustomEvent<AccountSession>).detail; setSession(next); if (!next.authenticated) { setProfile(null); setEditing(false); setJustCompleted(false); setGuestMode(false); return; } const parsed = readCompletedStudentProfile(); if (parsed && schools.some((school) => school.slug === parsed.schoolSlug)) setProfile(parsed); else setProfile(null); };
     const onSyncError = (event: Event) => setSyncError((event as CustomEvent<string>).detail);
     window.addEventListener(accountSessionEvent, onSession);
     window.addEventListener(accountSyncErrorEvent, onSyncError);
@@ -68,9 +69,61 @@ export function PersonalizedHome() {
   // Wait for auth/account resolution before deciding between public onboarding,
   // a local guest dashboard, or a synced signed-in dashboard.
   if (!ready) return <div className="min-h-[64vh] px-5 py-16 sm:px-8"><div className="mx-auto max-w-5xl"><p className="rule-label text-forest">Find My Opportunities</p><h1 className="mt-3 font-editorial text-4xl font-bold">Your college advantage starts here.</h1><p className="mt-3 text-sm text-ink/45">Checking for synced profile and opportunity progress.</p></div></div>;
-  if (!profile || editing) return <StudentSetup initialProfile={profile} onSave={save} onCancel={profile ? () => setEditing(false) : undefined} />;
+  if (!profile && !guestMode && !session?.authenticated) return <LoggedOutLanding onGuest={() => setGuestMode(true)} />;
+  if (!profile || editing) return <StudentSetup initialProfile={profile} onSave={save} onCancel={profile ? () => setEditing(false) : guestMode ? () => setGuestMode(false) : undefined} />;
   if (justCompleted) return <OnboardingComplete profile={profile} onContinue={() => setJustCompleted(false)} />;
   return <StudentDashboard profile={profile} onEdit={() => setEditing(true)} session={session} syncError={syncError} />;
+}
+
+function LoggedOutLanding({ onGuest }: { onGuest: () => void }) {
+  const discoveries = [
+    ["Scholarships", "Find verified awards with clear eligibility, deadlines, and official sources."],
+    ["AI Tools", "Compare student-accessible AI tools for research, writing, coding, and study."],
+    ["Research", "Discover undergraduate research programs, labs, and funded summer experiences."],
+    ["Internships", "Surface career programs and early opportunities aligned with your goals."],
+    ["Student Benefits", "Claim documented perks, discounts, and free resources tied to student status."],
+    ["Software Discounts", "Build a student toolkit with professional software and education pricing."],
+  ];
+  return <main className="bg-paper">
+    <section className="border-b border-ink/15 px-5 py-16 sm:px-8 sm:py-20">
+      <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-end">
+        <div>
+          <p className="rule-label text-forest">UnlockED student platform</p>
+          <h1 className="mt-5 max-w-4xl font-editorial text-5xl font-bold leading-[1.02] tracking-[-.045em] sm:text-7xl">Your college advantage starts here.</h1>
+          <p className="mt-6 max-w-3xl text-base leading-8 text-ink/55 sm:text-lg">UnlockED helps students discover scholarships, internships, AI tools, research opportunities, student discounts, and hidden benefits personalized to their school, major, and goals.</p>
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+            <a href="/api/auth/google" className="inline-flex min-h-12 items-center justify-center bg-ink px-6 text-sm font-bold uppercase tracking-wider text-white hover:bg-forest">Sign in with Google</a>
+            <button type="button" onClick={onGuest} className="inline-flex min-h-12 items-center justify-center border border-ink/25 bg-white px-6 text-sm font-bold uppercase tracking-wider text-ink hover:border-ink">Continue as Guest</button>
+          </div>
+        </div>
+        <aside className="border-y border-ink/15 bg-white p-6">
+          <p className="rule-label text-forest">Why students use it</p>
+          <dl className="mt-5 space-y-5">
+            <div><dt className="font-editorial text-2xl font-bold">188</dt><dd className="mt-1 text-sm text-ink/45">verified opportunities in the current database</dd></div>
+            <div><dt className="font-editorial text-2xl font-bold">Official</dt><dd className="mt-1 text-sm text-ink/45">sources and last-verified dates on opportunity pages</dd></div>
+            <div><dt className="font-editorial text-2xl font-bold">Personalized</dt><dd className="mt-1 text-sm text-ink/45">recommendations by school, major, year, interests, and goals</dd></div>
+          </dl>
+        </aside>
+      </div>
+    </section>
+    <section className="px-5 py-12 sm:px-8">
+      <div className="mx-auto max-w-6xl">
+        <p className="rule-label text-forest">How it works</p>
+        <div className="mt-5 grid gap-px bg-ink/15 md:grid-cols-3">{["Tell us about yourself.","We build your personalized dashboard.","Discover opportunities worth thousands of dollars."].map((step,index)=><article key={step} className="bg-white p-6"><span className="font-mono text-xs font-bold text-ink/30">{String(index+1).padStart(2,"0")}</span><h2 className="mt-4 font-editorial text-2xl font-bold">{step}</h2></article>)}</div>
+      </div>
+    </section>
+    <section className="px-5 pb-12 sm:px-8">
+      <div className="mx-auto max-w-6xl">
+        <p className="rule-label text-forest">What you'll discover</p>
+        <div className="mt-5 grid gap-px bg-ink/15 sm:grid-cols-2 lg:grid-cols-3">{discoveries.map(([title,description])=><article key={title} className="bg-white p-5"><h2 className="font-editorial text-2xl font-bold">{title}</h2><p className="mt-3 text-sm leading-6 text-ink/50">{description}</p></article>)}</div>
+      </div>
+    </section>
+    <section className="px-5 pb-16 sm:px-8 sm:pb-20">
+      <div className="mx-auto grid max-w-6xl gap-px bg-ink/15 md:grid-cols-3">
+        {["Verified opportunities.","Official sources.","Personalized recommendations."].map((item)=><div key={item} className="bg-paper py-5 text-sm font-bold text-ink/65">{item}</div>)}
+      </div>
+    </section>
+  </main>;
 }
 
 export function StudentSetup({ onSave, initialProfile, onCancel }: { onSave: (profile: StudentProfile) => void; initialProfile: StudentProfile | null; onCancel?: () => void }) {
