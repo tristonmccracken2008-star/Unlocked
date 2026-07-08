@@ -5,6 +5,7 @@ import { studentProfileStorageKey, type StudentProfile } from "./student-profile
 import type { AccountData, AccountSession } from "@/lib/account-types";
 
 export const journeyProgressStorageKey = "unlocked-journey-progress";
+export const accountSessionEvent = "unlocked-account-session-change";
 const accountMigrationKey = (userId: string) => `unlocked-account-migrated:${userId}`;
 
 function readJson<T>(key: string, fallback: T): T {
@@ -39,7 +40,7 @@ function localAccountData(): Partial<AccountData> {
 }
 
 export async function readAccountSession() {
-  const response = await fetch("/api/auth/session", { credentials: "same-origin" });
+  const response = await fetch("/api/auth/session", { credentials: "same-origin", cache: "no-store" });
   if (!response.ok) return { authenticated: false, user: null, data: null } as AccountSession;
   return await response.json() as AccountSession;
 }
@@ -70,5 +71,6 @@ export async function hydrateAccountData() {
   localStorage.setItem(journeyProgressStorageKey, JSON.stringify(merged.journeyProgress ?? {}));
   localStorage.setItem(accountMigrationKey(session.user.id), "true");
   await pushAccountData(merged);
+  window.dispatchEvent(new CustomEvent(accountSessionEvent, { detail: session }));
   return session;
 }

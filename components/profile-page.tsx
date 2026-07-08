@@ -11,10 +11,11 @@ import { StudentSetup } from "./personalized-home";
 export function ProfilePage() {
   const [profile, setProfile] = useState<StudentProfile | null | undefined>(undefined);
   const [session, setSession] = useState<AccountSession | null>(null);
+  const [accountError, setAccountError] = useState("");
   const [saved, setSaved] = useState(false);
   useEffect(() => {
     setProfile(readStudentProfile());
-    hydrateAccountData().then(() => { setProfile(readStudentProfile()); return readAccountSession(); }).then(setSession).catch(() => undefined);
+    hydrateAccountData().then(() => { setProfile(readStudentProfile()); return readAccountSession(); }).then(setSession).catch(() => { setAccountError("Account status could not be loaded."); setSession({ authenticated: false, user: null, data: null }); });
   }, []);
   if (profile === undefined) return <div className="min-h-[60vh]" />;
   return <div>
@@ -23,7 +24,8 @@ export function ProfilePage() {
         <div>
           <p className="rule-label text-forest">UnlockED account</p>
           <h1 className="mt-2 font-editorial text-3xl font-bold">Profile and sync</h1>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-ink/50">{session?.authenticated ? `Signed in as ${session.user?.email}. Your profile, saved opportunities, and tracker progress sync through your account.` : "Continue as a guest or sign in with Google to save your profile and tracker across devices."}</p>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-ink/50">{!session ? "Checking account status…" : session.authenticated ? `Signed in as ${session.user?.name || session.user?.email} (${session.user?.email}). Your profile, saved opportunities, and tracker progress sync through your account.` : "Continue as a guest or sign in with Google to save your profile and tracker across devices."}</p>
+          {accountError && <p className="mt-2 text-xs font-bold text-red-700">{accountError}</p>}
         </div>
         <AccountButton />
       </div>
