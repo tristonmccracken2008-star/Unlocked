@@ -11,6 +11,12 @@ const failures = [];
 
 function normalize(value) { return value.trim().toLowerCase().replace(/^https?:\/\//, "").replace(/^www\./, "").replace(/^.*@/, "").replace(/[/?#].*$/, "").replace(/[.,]/g, "").replace(/[-_\s]+/g, " "); }
 function generatedAliases(school) { const words=school.name.replace(/[^A-Za-z0-9 ]/g," ").split(/\s+/).filter((word)=>word&&!['of','the','at','and'].includes(word.toLowerCase()));const acronym=words.map((word)=>word[0]).join("").toUpperCase();const candidates=[...(school.aliases??[]),school.domain.split(".")[0]];if(acronym.length>=2&&acronym.length<=8)candidates.push(acronym);return[...new Set(candidates.filter(Boolean))] }
+function text(value){return typeof value==="string"&&value.trim().length>0}
+function duplicateKey(item){return normalize(`${item.type} ${item.title} ${item.organization}`)}
+function hasKnownValue(item){return typeof item.estimated_value==="number"||text(item.metadata?.valueLabel)||text(item.metadata?.awardAmountLabel)||text(item.metadata?.studentOffer)}
+function hasHowToClaimOrApply(item){return Boolean(item.metadata?.claimSteps?.length||item.metadata?.applicationRequirements?.length||text(item.metadata?.claimUrl)||text(item.official_source))}
+function hasWhyItMatters(item){return Boolean(item.description?.length>=60&&(item.tags?.length>0||item.majors?.length>0||text(item.category)))}
+function qualityCheck(item){const checks=[["official_source",text(item.official_source)&&item.official_source.startsWith("https://")],["estimated_value_or_unknown",hasKnownValue(item)||item.estimated_value===null],["eligibility",text(item.eligibility)],["category",text(item.category)],["description",text(item.description)&&item.description.length>=40],["why_it_matters_inputs",hasWhyItMatters(item)],["how_to_claim_or_apply",hasHowToClaimOrApply(item)],["verification_status",text(item.verification_status)],["last_verified",/^\d{4}-\d{2}-\d{2}$/.test(item.last_verified??"")]];return{complete:checks.every(([,passed])=>passed),missing:checks.filter(([,passed])=>!passed).map(([field])=>field)}}
 
 const curatedDomains=new Set(curated.map((school)=>school.domain));
 const schools=[...curated,...imported.filter((school)=>!curatedDomains.has(school.domain))].map((school)=>({...school,aliases:generatedAliases(school)}));
@@ -21,8 +27,10 @@ function search(query){const normalized=normalize(query);const exact=schools.fil
 for(const school of schools)for(const term of [school.name,school.domain,school.slug,...school.aliases])if(!search(term).some((result)=>result.slug===school.slug))failures.push(`Search term did not find ${school.slug}: ${term}`);
 
 const ids=new Set();const types=new Set(["Benefit","AI","Career","Research","Scholarship"]);const required=["id","title","type","category","description","organization","school_scope","eligibility","location","official_source","verification_status","last_verified","date_added","icon"];
+const duplicateGroups=new Map();const incomplete=[];
 for(const item of opportunities){
   if(ids.has(item.id))failures.push(`Duplicate opportunity id: ${item.id}`);ids.add(item.id);
+  const key=duplicateKey(item);duplicateGroups.set(key,[...(duplicateGroups.get(key)??[]),item.id]);
   for(const field of required)if(!item[field])failures.push(`Opportunity ${item.id} is missing ${field}`);
   for(const field of ["schools","majors","academic_years","tags"])if(!Array.isArray(item[field]))failures.push(`Opportunity ${item.id} has invalid ${field}`);
   for(const field of ["recurring","featured","hidden_gem"])if(typeof item[field]!=="boolean")failures.push(`Opportunity ${item.id} has invalid ${field}`);
@@ -33,7 +41,9 @@ for(const item of opportunities){
   if(item.school_scope==="School Specific"&&!item.schools.length)failures.push(`School-specific opportunity has no schools: ${item.id}`);
   for(const school of item.schools)if(!schoolIds.has(school))failures.push(`Opportunity ${item.id} references unknown school: ${school}`);
   if(item.application_deadline&&!/^\d{4}-\d{2}-\d{2}$/.test(item.application_deadline))failures.push(`Invalid deadline: ${item.id}`);
+  const quality=qualityCheck(item);if(!quality.complete)incomplete.push(`${item.id}: ${quality.missing.join(", ")}`);
 }
+for(const [key,ids] of duplicateGroups)if(ids.length>1)failures.push(`Duplicate opportunity content: ${key} (${ids.join(", ")})`);
 
 const byType=Object.groupBy(opportunities,(item)=>item.type);
 if((byType.Benefit?.length??0)!==36)failures.push("Benefit migration count mismatch");
@@ -51,3 +61,5 @@ if(failures.length){console.error(failures.join("\n"));process.exit(1)}
 const searchTermCount=[...termsBySchool.values()].reduce((sum,terms)=>sum+terms.length,0);
 console.log(`Validated ${schools.length} schools and ${searchTermCount} searchable terms.`);
 console.log(`Validated ${opportunities.length} unified opportunities: ${byType.Benefit.length} benefits, ${byType.AI.length} AI tools, ${byType.Career.length} career programs, ${byType.Research.length} research programs, and ${byType.Scholarship.length} scholarships.`);
+console.log(`Content complete opportunities: ${opportunities.length-incomplete.length}/${opportunities.length}.`);
+if(incomplete.length)console.warn(`Incomplete opportunities flagged for development review:\n${incomplete.slice(0,20).join("\n")}${incomplete.length>20?`\n...and ${incomplete.length-20} more.`:""}`);

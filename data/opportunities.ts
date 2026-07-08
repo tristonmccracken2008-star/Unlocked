@@ -1,4 +1,5 @@
 import catalogJson from "./db/opportunities.json";
+import { auditOpportunity } from "./opportunity-quality";
 
 export const opportunityTypes = ["Benefit", "AI", "Career", "Research", "Scholarship"] as const;
 export const opportunityCategories = ["All", "Internships", "Freshman Programs", "Hackathons", "Competitions", "Fellowships", "Conferences", "Leadership Programs"] as const;
@@ -68,6 +69,12 @@ export type Opportunity = {
   metadata: OpportunityMetadata;
 };
 
+export type OpportunityWithQuality = Opportunity & {
+  contentComplete: boolean;
+  completenessScore: number;
+  missingContentFields: string[];
+};
+
 export type OpportunityFilters = {
   types?: OpportunityType[];
   major?: string;
@@ -81,7 +88,10 @@ export type OpportunityFilters = {
   query?: string;
 };
 
-export const opportunities = catalogJson as Opportunity[];
+export const opportunities = (catalogJson as Opportunity[]).map((item) => {
+  const quality = auditOpportunity(item);
+  return { ...item, contentComplete: quality.contentComplete, completenessScore: quality.completenessScore, missingContentFields: quality.missingFields };
+}) as OpportunityWithQuality[];
 const seen = new Set<string>();
 for (const item of opportunities) {
   if (seen.has(item.id)) throw new Error(`Duplicate opportunity id: ${item.id}`);
@@ -94,7 +104,7 @@ for (const item of opportunities) {
   if (item.application_deadline && !/^\d{4}-\d{2}-\d{2}$/.test(item.application_deadline)) throw new Error(`Invalid application deadline: ${item.id}`);
 }
 
-export function filterOpportunities(filters: OpportunityFilters = {}, source = opportunities) {
+export function filterOpportunities(filters: OpportunityFilters = {}, source: readonly Opportunity[] = opportunities) {
   const query = filters.query?.trim().toLowerCase();
   const today = new Date().toISOString().slice(0, 10);
   return source.filter((item) => {

@@ -1,4 +1,5 @@
 import { opportunities, type Opportunity, type OpportunityType } from "./opportunities";
+import { auditOpportunity, opportunityDuplicateKey } from "./opportunity-quality";
 
 export type RecommendationProfile = {
   schoolSlug: string;
@@ -16,6 +17,7 @@ export type ScoredOpportunity = {
   opportunity: Opportunity;
   score: number;
   reasons: string[];
+  confidence: "High" | "Medium" | "Low";
 };
 
 const majorSignals: Record<string, string[]> = {
@@ -57,11 +59,19 @@ function locationMatch(item: Opportunity, schoolLocation: string) {
   return normalize(schoolLocation).split(/,|\s+/).filter((part) => part.length > 2).some((part) => opportunityLocation.includes(part));
 }
 
+function confidenceFor(score: number, reasons: string[], item: Opportunity) {
+  const quality = auditOpportunity(item);
+  if (quality.contentComplete && score >= 35 && reasons.length >= 2) return "High";
+  if (quality.completenessScore >= 80 && score >= 20) return "Medium";
+  return "Low";
+}
+
 export function scoreOpportunity(item: Opportunity, profile: RecommendationProfile): ScoredOpportunity {
   let score = 0;
   const reasons: string[] = [];
   const major = normalize(`${profile.major} ${profile.minor ?? ""}`);
   const text = searchableText(item);
+  const quality = auditOpportunity(item);
 
   if (item.school_scope === "School Specific") {
     if (item.schools.includes(profile.schoolSlug)) { score += 34; reasons.push(`${profile.schoolName} opportunity`); }
@@ -92,17 +102,28 @@ export function scoreOpportunity(item: Opportunity, profile: RecommendationProfi
   if (item.remote) { score += 4; reasons.push("Remote option"); }
   if (item.featured) score += 4;
   if (item.hidden_gem) score += 3;
-  if (item.verification_status === "verified_recently") score += 3;
+  if (item.verification_status === "verified_recently") score += 6;
+  if (quality.contentComplete) score += 8;
+  else score -= Math.max(4, quality.missingFields.length * 3);
+  if (item.verification_status === "needs_review" || item.verification_status === "community_submitted") score -= 6;
+  if (item.verification_status === "expired") score -= 100;
 
-  return { opportunity: item, score, reasons: unique(reasons).slice(0, 4) };
+  const finalReasons = unique(reasons).slice(0, 4);
+  return { opportunity: item, score, reasons: finalReasons, confidence: confidenceFor(score, finalReasons, item) };
 }
 
-export function rankOpportunities(profile: RecommendationProfile, source = opportunities) {
-  return source.map((item) => scoreOpportunity(item, profile)).sort((a, b) => b.score - a.score || a.opportunity.title.localeCompare(b.opportunity.title));
+export function rankOpportunities(profile: RecommendationProfile, source: readonly Opportunity[] = opportunities) {
+  const seen = new Set<string>();
+  return source.map((item) => scoreOpportunity(item, profile)).sort((a, b) => b.score - a.score || a.opportunity.title.localeCompare(b.opportunity.title)).filter(({ opportunity }) => {
+    const key = opportunityDuplicateKey(opportunity);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }
 
 export function recommendedForYou(profile: RecommendationProfile, limit = 10) {
-  const ranked = rankOpportunities(profile).filter((item) => item.opportunity.verification_status !== "expired" && item.score > 0);
+  const ranked = rankOpportunities(profile).filter((item) => item.opportunity.verification_status !== "expired" && item.confidence !== "Low" && item.score >= 20);
   const selected: ScoredOpportunity[] = [];
   const typeCounts = new Map<OpportunityType, number>();
   for (const item of ranked) {
