@@ -45,6 +45,22 @@ After sign-in, UnlockED migrates existing guest data into the account:
 - viewed / claimed opportunity progress
 - journey milestone progress
 
-## Storage note
+## Production account data storage
 
-The current implementation uses the same server API boundary that should be kept for production, with a local file-backed store for development. For production-grade cross-device persistence on Vercel, replace the file store in `lib/auth-store.ts` with a persistent database or KV store.
+Signed sessions are stored in secure HTTP-only cookies. Account data is loaded and saved through `/api/account/data`.
+
+For production cross-device sync on Vercel, configure one of these KV-compatible REST stores:
+
+```bash
+KV_REST_API_URL=
+KV_REST_API_TOKEN=
+```
+
+or:
+
+```bash
+UPSTASH_REDIS_REST_URL=
+UPSTASH_REDIS_REST_TOKEN=
+```
+
+When these variables are present, UnlockED stores account data in KV/Upstash Redis. The local `.unlocked-auth-store.json` file is only a development fallback and should not be used as production persistence.

@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { getSession, mergeAccountData, sessionCookieName } from "@/lib/auth-store";
+import { getSession, mergeAccountData, readAccountData, sessionCookieName } from "@/lib/auth-store";
 import type { AccountData } from "@/lib/account-types";
 import { isStudentProfile } from "@/data/student-profile";
 
@@ -14,6 +14,14 @@ function cleanData(value: unknown): Partial<AccountData> {
   const activity = input.activity && typeof input.activity === "object" ? input.activity : undefined;
   const journeyProgress = input.journeyProgress && typeof input.journeyProgress === "object" ? Object.fromEntries(Object.entries(input.journeyProgress).filter(([, item]) => typeof item === "boolean")) : undefined;
   return { profile, activity, journeyProgress };
+}
+
+export async function GET() {
+  const cookieStore = await cookies();
+  const session = await getSession(cookieStore.get(sessionCookieName)?.value);
+  if (!session) return NextResponse.json({ error: "Not authenticated" }, { status: 401, headers: { "Cache-Control": "no-store, max-age=0" } });
+  const data = await readAccountData(session.user.id);
+  return NextResponse.json({ ok: true, data }, { headers: { "Cache-Control": "no-store, max-age=0" } });
 }
 
 export async function PUT(request: Request) {

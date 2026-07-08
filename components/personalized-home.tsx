@@ -6,6 +6,8 @@ import { schools, type School } from "@/data/seed";
 import { findExactSchoolMatches, findSchoolMatches, normalizeSchoolQuery } from "@/data/school-search";
 import { ArrowIcon, SearchIcon } from "./icons";
 import { readStudentProfile, studentProfileStorageKey, writeStudentProfile, type StudentProfile } from "@/data/student-profile";
+import { accountSessionEvent, accountSyncErrorEvent, hydrateAccountData } from "@/data/account-sync";
+import type { AccountSession } from "@/lib/account-types";
 import { rankOpportunities, recommendedForYou, type RecommendationProfile } from "@/data/recommendations";
 import { opportunities, opportunityMajors } from "@/data/opportunities";
 import { StudentAdvantageCard } from "./student-advantage-card";
@@ -23,13 +25,36 @@ export function PersonalizedHome() {
   const [profile, setProfile] = useState<StudentProfile | null>(null);
   const [editing, setEditing] = useState(false);
   const [justCompleted, setJustCompleted] = useState(false);
+  const [session, setSession] = useState<AccountSession | null>(null);
+  const [syncError, setSyncError] = useState("");
 
   useEffect(() => {
-    try {
-      const parsed = readStudentProfile();
-      if (parsed && schools.some((school) => school.slug === parsed.schoolSlug)) setProfile(parsed);
-    } catch { localStorage.removeItem(studentProfileStorageKey); }
-    setReady(true);
+    let active = true;
+    const load = async () => {
+      setSyncError("");
+      try {
+        const nextSession = await hydrateAccountData();
+        if (!active) return;
+        setSession(nextSession);
+        const parsed = readStudentProfile();
+        if (parsed && schools.some((school) => school.slug === parsed.schoolSlug)) setProfile(parsed);
+      } catch {
+        if (!active) return;
+        setSyncError("Account data could not be loaded. Using local guest data for now.");
+        try {
+          const parsed = readStudentProfile();
+          if (parsed && schools.some((school) => school.slug === parsed.schoolSlug)) setProfile(parsed);
+        } catch { localStorage.removeItem(studentProfileStorageKey); }
+      } finally {
+        if (active) setReady(true);
+      }
+    };
+    const onSession = (event: Event) => { const next = (event as CustomEvent<AccountSession>).detail; setSession(next); const parsed = readStudentProfile(); if (parsed && schools.some((school) => school.slug === parsed.schoolSlug)) setProfile(parsed); };
+    const onSyncError = (event: Event) => setSyncError((event as CustomEvent<string>).detail);
+    window.addEventListener(accountSessionEvent, onSession);
+    window.addEventListener(accountSyncErrorEvent, onSyncError);
+    void load();
+    return () => { active = false; window.removeEventListener(accountSessionEvent, onSession); window.removeEventListener(accountSyncErrorEvent, onSyncError); };
   }, []);
 
   function save(next: StudentProfile) {
@@ -42,10 +67,10 @@ export function PersonalizedHome() {
 
   // Render the complete guest dashboard in the initial HTML. Local profile data is
   // applied after hydration, but the homepage must never depend on it to look useful.
-  if (!ready) return <StudentSetup initialProfile={null} onSave={save} />;
+  if (!ready) return <div className="min-h-[64vh] px-5 py-16 sm:px-8"><div className="mx-auto max-w-5xl"><p className="rule-label text-forest">Find My Opportunities</p><h1 className="mt-3 font-editorial text-4xl font-bold">Your college advantage starts here.</h1><p className="mt-3 text-sm text-ink/45">Checking for synced profile and opportunity progress.</p></div></div>;
   if (!profile || editing) return <StudentSetup initialProfile={profile} onSave={save} onCancel={profile ? () => setEditing(false) : undefined} />;
   if (justCompleted) return <OnboardingComplete profile={profile} onContinue={() => setJustCompleted(false)} />;
-  return <StudentDashboard profile={profile} onEdit={() => setEditing(true)} />;
+  return <StudentDashboard profile={profile} onEdit={() => setEditing(true)} session={session} syncError={syncError} />;
 }
 
 export function StudentSetup({ onSave, initialProfile, onCancel }: { onSave: (profile: StudentProfile) => void; initialProfile: StudentProfile | null; onCancel?: () => void }) {
@@ -142,7 +167,7 @@ function OnboardingComplete({ profile, onContinue }: { profile: StudentProfile; 
   </section></main>;
 }
 
-function StudentDashboard({ profile, onEdit }: { profile: StudentProfile; onEdit: () => void }) {
+function StudentDashboard({ profile, onEdit, session, syncError }: { profile: StudentProfile; onEdit: () => void; session: AccountSession | null; syncError: string }) {
   const school = schools.find((item) => item.slug === profile.schoolSlug);
   if (!school) return null;
   const recommendationProfile: RecommendationProfile = { schoolSlug: school.slug, schoolName: school.name, schoolLocation: school.location, major: profile.major, minor: profile.minor, academicYear: profile.year, interests: profile.interests, careerGoals: profile.careerGoal, clubs: profile.clubs };
@@ -168,7 +193,7 @@ function StudentDashboard({ profile, onEdit }: { profile: StudentProfile; onEdit
       : "Your best next step is ready. Start there, then explore the wider match list.";
   const quickActions = [["Find Scholarships","/scholarships"],["Find AI Tools","/ai"],["Find Research","/research"],["Find Internships","/career"]];
   return <div className="mx-auto max-w-6xl bg-white px-5 py-14 sm:px-8 sm:py-20">
-    <section className="pb-20 sm:pb-24">{focus&&<><div className="flex flex-col gap-8 pb-10 sm:pb-12 lg:flex-row lg:items-end lg:justify-between"><div><div className="flex flex-wrap items-center gap-x-5 gap-y-2"><p className="rule-label text-forest">Your dashboard</p><button onClick={onEdit} className="text-xs font-bold uppercase tracking-wider text-ink/35 hover:text-forest">Edit profile</button></div><h1 className="mt-5 font-editorial text-4xl font-bold leading-tight tracking-[-.04em] sm:text-6xl">Welcome back.</h1><p className="mt-4 max-w-2xl text-base leading-7 text-ink/50">{dashboardInsight}</p><p className="mt-4 text-xs font-bold uppercase tracking-wider text-ink/35">{school.name} · {profile.major} · {profile.year}</p></div><dl className="grid grid-cols-2 gap-x-8 border-y border-ink/15 py-4 sm:gap-x-12 lg:min-w-[360px]"><div><dt className="rule-label text-ink/35">Verified matches</dt><dd className="mt-2 font-editorial text-3xl font-bold text-ink">{verifiedMatches.length}</dd></div><div><dt className="rule-label text-ink/35">Documented value</dt><dd className="mt-2 font-editorial text-3xl font-bold text-forest">{documentedValue ? `${money.format(documentedValue)}+` : "Unknown"}</dd></div></dl></div><div className="relative overflow-hidden bg-paper px-6 py-9 shadow-[0_18px_50px_rgba(16,36,62,.07)] sm:px-10 sm:py-12"><span className="absolute inset-y-0 left-0 w-1 bg-gold" aria-hidden="true"/><div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_230px] lg:items-end"><div><p className="rule-label text-forest">Today’s Focus</p><p className="mt-7 text-xs font-bold uppercase tracking-wider text-ink/30">{focus.opportunity.organization}</p><h2 className="mt-3 max-w-4xl font-editorial text-4xl font-bold leading-[1.06] tracking-[-.04em] sm:text-5xl lg:text-6xl">{focus.opportunity.title}</h2><p className="mt-6 max-w-2xl text-base leading-8 text-ink/50">{focus.reasons[0]?`Selected because it is a ${focus.reasons[0].toLowerCase()}.`:"Selected because it closely matches your school, major, year, and interests."}</p></div><div><p className="rule-label text-ink/30">Estimated value</p><p className="mt-2 font-editorial text-3xl font-bold text-forest">{valueLabel(focus.opportunity.estimated_value)}</p><Link href={`/opportunities/${focus.opportunity.id}`} className="mt-7 flex min-h-12 items-center justify-center bg-ink px-5 text-xs font-bold uppercase tracking-wider text-white hover:bg-forest">Explore Opportunity</Link></div></div></div></>}
+    <section className="pb-20 sm:pb-24">{focus&&<><div className="flex flex-col gap-8 pb-10 sm:pb-12 lg:flex-row lg:items-end lg:justify-between"><div><div className="flex flex-wrap items-center gap-x-5 gap-y-2"><p className="rule-label text-forest">Your dashboard</p><button onClick={onEdit} className="text-xs font-bold uppercase tracking-wider text-ink/35 hover:text-forest">Edit profile</button></div><h1 className="mt-5 font-editorial text-4xl font-bold leading-tight tracking-[-.04em] sm:text-6xl">Welcome back.</h1><p className="mt-4 max-w-2xl text-base leading-7 text-ink/50">{dashboardInsight}</p><p className="mt-4 text-xs font-bold uppercase tracking-wider text-ink/35">{school.name} · {profile.major} · {profile.year}</p><p className={`mt-3 text-xs font-bold ${session?.authenticated ? "text-trust" : "text-ink/40"}`}>{session?.authenticated ? "Your dashboard is synced." : "Sign in to save your dashboard across devices."}</p>{syncError&&<p className="mt-2 text-xs font-bold text-red-700">{syncError}</p>}</div><dl className="grid grid-cols-2 gap-x-8 border-y border-ink/15 py-4 sm:gap-x-12 lg:min-w-[360px]"><div><dt className="rule-label text-ink/35">Verified matches</dt><dd className="mt-2 font-editorial text-3xl font-bold text-ink">{verifiedMatches.length}</dd></div><div><dt className="rule-label text-ink/35">Documented value</dt><dd className="mt-2 font-editorial text-3xl font-bold text-forest">{documentedValue ? `${money.format(documentedValue)}+` : "Unknown"}</dd></div></dl></div><div className="relative overflow-hidden bg-paper px-6 py-9 shadow-[0_18px_50px_rgba(16,36,62,.07)] sm:px-10 sm:py-12"><span className="absolute inset-y-0 left-0 w-1 bg-gold" aria-hidden="true"/><div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_230px] lg:items-end"><div><p className="rule-label text-forest">Today’s Focus</p><p className="mt-7 text-xs font-bold uppercase tracking-wider text-ink/30">{focus.opportunity.organization}</p><h2 className="mt-3 max-w-4xl font-editorial text-4xl font-bold leading-[1.06] tracking-[-.04em] sm:text-5xl lg:text-6xl">{focus.opportunity.title}</h2><p className="mt-6 max-w-2xl text-base leading-8 text-ink/50">{focus.reasons[0]?`Selected because it is a ${focus.reasons[0].toLowerCase()}.`:"Selected because it closely matches your school, major, year, and interests."}</p></div><div><p className="rule-label text-ink/30">Estimated value</p><p className="mt-2 font-editorial text-3xl font-bold text-forest">{valueLabel(focus.opportunity.estimated_value)}</p><Link href={`/opportunities/${focus.opportunity.id}`} className="mt-7 flex min-h-12 items-center justify-center bg-ink px-5 text-xs font-bold uppercase tracking-wider text-white hover:bg-forest">Explore Opportunity</Link></div></div></div></>}
     </section>
     <StudentAdvantageCard profile={profile} school={school}/>
     <section className="py-20" aria-labelledby="dashboard-recommendations"><div className="flex items-end justify-between gap-4"><div><p className="rule-label text-forest">Selected for your profile</p><h2 id="dashboard-recommendations" className="mt-3 font-editorial text-3xl font-bold tracking-[-.02em] sm:text-4xl">Recommended For You</h2></div><Link href="/opportunities" className="text-xs font-bold uppercase tracking-wider text-ink/45 hover:text-forest">View all</Link></div><div className="mt-9 grid gap-7 lg:grid-cols-3">{recommended.map(({opportunity,reasons})=><article key={opportunity.id} className="flex min-h-72 flex-col bg-white p-7 shadow-[0_10px_32px_rgba(16,36,62,.06)]"><div><p className="rule-label text-forest">{opportunity.type}</p><h3 className="mt-4 font-editorial text-2xl font-bold leading-tight tracking-[-.015em]">{opportunity.title}</h3><p className="mt-2 text-xs font-bold uppercase tracking-wider text-ink/30">{opportunity.organization}</p></div><div className="mt-6"><p className="rule-label text-ink/30">Estimated value</p><p className="mt-1 text-sm font-bold">{valueLabel(opportunity.estimated_value)}</p><p className="mt-5 line-clamp-2 text-sm leading-7 text-ink/45">{reasons[0] ? `Recommended because it is a ${reasons[0].toLowerCase()}.` : "Recommended based on your school, major, year, and interests."}</p></div><div className="mt-auto flex items-center gap-3 pt-7"><Link href={`/opportunities/${opportunity.id}`} className="flex min-h-11 flex-1 items-center justify-center gap-2 bg-ink px-4 text-xs font-bold uppercase tracking-wider text-white hover:bg-forest">View details <ArrowIcon/></Link><SaveOpportunityButton opportunityId={opportunity.id} className="px-3 text-ink/55 hover:text-forest"/></div></article>)}</div></section>

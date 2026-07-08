@@ -25,6 +25,9 @@ type SignedSessionPayload = {
 
 const emptyData = (): AccountData => ({ profile: null, activity: null, journeyProgress: {}, updatedAt: new Date().toISOString() });
 const emptyStore = (): AuthStore => ({ users: {}, usersByEmail: {}, sessions: {}, accountData: {} });
+const kvUrl = process.env.KV_REST_API_URL ?? process.env.UPSTASH_REDIS_REST_URL;
+const kvToken = process.env.KV_REST_API_TOKEN ?? process.env.UPSTASH_REDIS_REST_TOKEN;
+const hasKv = Boolean(kvUrl && kvToken);
 
 function hash(value: string) {
   const secret = process.env.AUTH_SECRET;
@@ -79,6 +82,51 @@ async function writeStore(store: AuthStore) {
   }
 }
 
+function accountDataKey(userId: string) {
+  return `unlocked:account-data:${hash(userId).slice(0, 24)}`;
+}
+
+async function kvCommand<T>(command: unknown[]): Promise<T | null> {
+  if (!kvUrl || !kvToken) return null;
+  const response = await fetch(kvUrl, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${kvToken}`, "Content-Type": "application/json" },
+    body: JSON.stringify(command),
+    cache: "no-store",
+  });
+  if (!response.ok) throw new Error(`KV command failed: ${response.status}`);
+  const parsed = await response.json() as { result?: T | null };
+  return parsed.result ?? null;
+}
+
+export async function readAccountData(userId: string) {
+  if (hasKv) {
+    const value = await kvCommand<AccountData | string>(["GET", accountDataKey(userId)]).catch((error) => {
+      console.error("[UnlockED auth] KV account read failed", { userId, error });
+      return null;
+    });
+    if (typeof value === "string") {
+      try { return JSON.parse(value) as AccountData; } catch { return emptyData(); }
+    }
+    return value ?? emptyData();
+  }
+  const store = await readStore();
+  return store.accountData[userId] ?? emptyData();
+}
+
+async function writeAccountData(userId: string, data: AccountData) {
+  if (hasKv) {
+    await kvCommand(["SET", accountDataKey(userId), JSON.stringify(data)]).catch((error) => {
+      console.error("[UnlockED auth] KV account write failed", { userId, error });
+      throw error;
+    });
+    return;
+  }
+  const store = await readStore();
+  store.accountData[userId] = data;
+  await writeStore(store);
+}
+
 export function createToken() {
   return crypto.randomBytes(32).toString("base64url");
 }
@@ -91,7 +139,7 @@ export async function upsertUser(input: Omit<AuthUser, "id"> & { googleSub: stri
   const now = new Date().toISOString();
   store.users[id] = { id, email, name: input.name, image: input.image, createdAt: store.users[id]?.createdAt ?? now, updatedAt: now };
   store.usersByEmail[email] = id;
-  store.accountData[id] = store.accountData[id] ?? emptyData();
+  if (!hasKv) store.accountData[id] = store.accountData[id] ?? emptyData();
   await writeStore(store);
   console.info("[UnlockED auth] OAuth user upserted", { userId: id, email });
   return store.users[id];
@@ -113,8 +161,7 @@ export async function getSession(token: string | undefined) {
   if (!token) return null;
   const signed = verifySignedSession(token);
   if (signed) {
-    const store = await readStore();
-    return { user: signed.user, data: store.accountData[signed.user.id] ?? emptyData() };
+    return { user: signed.user, data: await readAccountData(signed.user.id) };
   }
   const store = await readStore();
   const tokenHash = hash(token);
@@ -128,7 +175,7 @@ export async function getSession(token: string | undefined) {
   }
   const user = store.users[session.userId];
   if (!user) return null;
-  return { user, data: store.accountData[user.id] ?? emptyData() };
+  return { user, data: await readAccountData(user.id) };
 }
 
 export async function deleteSession(token: string | undefined) {
@@ -143,8 +190,7 @@ function uniqueStrings(items: unknown) {
 }
 
 export async function mergeAccountData(userId: string, incoming: Partial<AccountData>) {
-  const store = await readStore();
-  const current = store.accountData[userId] ?? emptyData();
+  const current = await readAccountData(userId);
   const currentActivity = current.activity;
   const incomingActivity = incoming.activity;
   const tracked = { ...(currentActivity?.tracked ?? {}) };
@@ -163,7 +209,6 @@ export async function mergeAccountData(userId: string, incoming: Partial<Account
     journeyProgress: { ...(current.journeyProgress ?? {}), ...(incoming.journeyProgress ?? {}) },
     updatedAt: new Date().toISOString(),
   };
-  store.accountData[userId] = next;
-  await writeStore(store);
+  await writeAccountData(userId, next);
   return next;
 }
