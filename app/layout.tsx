@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
+import { AccountSync } from "@/components/account-auth";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://unlocked.education"),
@@ -17,5 +18,5 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en"><body><Header /><main>{children}</main><Footer /></body></html>;
+  return <html lang="en"><body><AccountSync /><Header /><main>{children}</main><Footer /></body></html>;
 }

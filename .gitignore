@@ -4,3 +4,4 @@ node_modules
 npm-debug.log*
 .vercel
 .DS_Store
+.unlocked-auth-store.json

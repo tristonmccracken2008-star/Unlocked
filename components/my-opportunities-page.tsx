@@ -68,7 +68,7 @@ export function MyOpportunitiesPage() {
         <div>
           <p className="rule-label text-forest">Personal opportunity tracker</p>
           <h1 className="mt-3 font-editorial text-4xl font-bold tracking-[-.035em] sm:text-6xl">My Opportunities</h1>
-          <p className="mt-4 max-w-2xl text-base leading-7 text-ink/55">Save opportunities, organize your next steps, and keep application progress in one calm workspace. Everything is stored locally in this browser for now.</p>
+          <p className="mt-4 max-w-2xl text-base leading-7 text-ink/55">Save opportunities, organize your next steps, and keep application progress in one calm workspace. Guest data stays in this browser; signed-in data syncs to your account.</p>
         </div>
         <div className="grid grid-cols-2 gap-px bg-ink/15 sm:grid-cols-4 lg:grid-cols-2">
           <Stat label="Saved" value={stats.saved}/>

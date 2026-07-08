@@ -44,6 +44,9 @@ export function readStudentProfile() {
 
 export function writeStudentProfile(profile: StudentProfile) {
   localStorage.setItem(studentProfileStorageKey, JSON.stringify(profile));
+  if (typeof window !== "undefined") {
+    void fetch("/api/account/data", { method: "PUT", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ profile }) }).catch(() => undefined);
+  }
 }
 
 export function profileSummary(profile: StudentProfile) {

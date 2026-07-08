@@ -4,12 +4,12 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { schools } from "@/data/seed";
 import type { StudentProfile } from "@/data/student-profile";
+import { journeyProgressStorageKey, syncAccountData } from "@/data/account-sync";
 import { rankOpportunities, type RecommendationProfile } from "@/data/recommendations";
 import type { OpportunityType } from "@/data/opportunities";
 import { ArrowIcon, CheckIcon } from "./icons";
 
 type Milestone = { id:string; title:string; description:string; href?:string; signals:string[] };
-const journeyStorageKey="unlocked-journey-progress";
 const undergraduateYears=["First year","Second year","Third year","Fourth year"];
 const journeys:Record<string,Milestone[]>={
   "First year":[
@@ -47,7 +47,7 @@ const phaseTypes:Record<string,OpportunityType[]>={
   "Graduate student":["Research","Career","Scholarship"],
 };
 
-function readProgress(){try{const value=JSON.parse(localStorage.getItem(journeyStorageKey)??"{}");return value&&typeof value==="object"?value as Record<string,boolean>:{} }catch{return{}}}
+function readProgress(){try{const value=JSON.parse(localStorage.getItem(journeyProgressStorageKey)??"{}");return value&&typeof value==="object"?value as Record<string,boolean>:{} }catch{return{}}}
 
 export function MyJourneyCard({profile}:{profile:StudentProfile}){
   const[progress,setProgress]=useState<Record<string,boolean>>({});
@@ -66,7 +66,7 @@ export function MyJourneyCard({profile}:{profile:StudentProfile}){
   }),[context,profile,progress,school,years]);
   const totalMilestones=roadmap.reduce((sum,phase)=>sum+phase.milestones.length,0);
   const completed=roadmap.reduce((sum,phase)=>sum+phase.milestones.filter((item)=>progress[`${phase.year}:${item.id}`]).length,0);
-  function toggle(year:string,item:Milestone){const key=`${year}:${item.id}`;const next={...progress,[key]:!progress[key]};setProgress(next);localStorage.setItem(journeyStorageKey,JSON.stringify(next))}
+  function toggle(year:string,item:Milestone){const key=`${year}:${item.id}`;const next={...progress,[key]:!progress[key]};setProgress(next);localStorage.setItem(journeyProgressStorageKey,JSON.stringify(next));syncAccountData({journeyProgress:next})}
 
   return <section className="mt-10 bg-white py-14 sm:py-20" aria-labelledby="journey-title">
     <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-end"><div><p className="rule-label text-forest">Opportunity roadmap</p><h2 id="journey-title" className="mt-3 font-editorial text-4xl font-bold tracking-[-.03em] sm:text-5xl">Your path through college</h2><p className="mt-4 max-w-2xl text-sm leading-7 text-ink/45">A personalized sequence of milestones and verified opportunities based on your school, major, year, interests, and goals.</p></div><div className="min-w-44"><p className="text-sm font-bold text-ink/50">{completed} of {totalMilestones} milestones complete</p><div className="mt-3 h-1 bg-ink/8" role="progressbar" aria-valuenow={completed} aria-valuemin={0} aria-valuemax={totalMilestones} aria-label="Roadmap milestones completed"><div className="h-full bg-gold transition-[width]" style={{width:`${totalMilestones?completed/totalMilestones*100:0}%`}}/></div></div></div>

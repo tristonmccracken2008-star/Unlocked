@@ -50,6 +50,7 @@ export function readStudentActivity(): StudentActivity {
 function writeStudentActivity(activity: StudentActivity) {
   localStorage.setItem(studentActivityStorageKey, JSON.stringify(activity));
   window.dispatchEvent(new CustomEvent(studentActivityEvent, { detail: activity }));
+  void fetch("/api/account/data", { method: "PUT", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ activity }) }).catch(() => undefined);
 }
 
 export function trackOpportunityView(id: string) {
