@@ -1,5 +1,5 @@
 export type Category = "AI" | "Software" | "Streaming" | "Shopping" | "Finance" | "Travel" | "Campus" | "Other";
-export type VerificationStatus = "verified_recently" | "needs_review" | "expired" | "community_submitted";
+export type VerificationStatus = "verified" | "needs_review" | "expired" | "incomplete" | "community_reported";
 export type BenefitScope = "national" | "school";
 export type VerificationConfidence = "high" | "moderate" | "low";
 

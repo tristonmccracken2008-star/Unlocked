@@ -60,7 +60,7 @@ export function MyJourneyCard({profile}:{profile:StudentProfile}){
     const highlighted=[...milestones].filter((item)=>!progress[`${year}:${item.id}`]).sort((a,b)=>b.signals.filter((signal)=>context.includes(signal)).length-a.signals.filter((signal)=>context.includes(signal)).length)[0]?.id;
     if(!school)return{year,milestones,highlighted,opportunities:[]};
     const recommendationProfile:RecommendationProfile={schoolSlug:school.slug,schoolName:school.name,schoolLocation:school.location,major:profile.major,minor:profile.minor,academicYear:year,interests:profile.interests,careerGoals:profile.careerGoal,clubs:profile.clubs};
-    const ranked=rankOpportunities(recommendationProfile).filter(({opportunity,score})=>score>0&&opportunity.verification_status==="verified_recently"&&(opportunity.academic_years.includes("Any Year")||opportunity.academic_years.includes(year)));
+    const ranked=rankOpportunities(recommendationProfile).filter(({opportunity,score})=>score>0&&opportunity.verification_status==="verified"&&(opportunity.academic_years.includes("Any Year")||opportunity.academic_years.includes(year)));
     const opportunities=phaseTypes[year].map((type)=>ranked.find(({opportunity})=>opportunity.type===type)).filter((item):item is NonNullable<typeof item>=>Boolean(item));
     return{year,milestones,highlighted,opportunities};
   }),[context,profile,progress,school,years]);

@@ -2,21 +2,23 @@ import { CheckIcon } from "./icons";
 import type { VerificationStatus } from "@/data/seed";
 
 const labels: Record<VerificationStatus, string> = {
-  verified_recently: "Verified Recently",
+  verified: "Verified",
   needs_review: "Needs Review",
   expired: "Expired",
-  community_submitted: "Community Submitted",
+  incomplete: "Incomplete",
+  community_reported: "Community Reported",
 };
 const confidence: Record<VerificationStatus, { label: "Verified" | "Needs Review" | "Community Verified"; description: string }> = {
-  verified_recently: { label: "Verified", description: "UnlockED reviewed this listing against an official provider or university source." },
+  verified: { label: "Verified", description: "UnlockED reviewed this listing against an official provider or university source." },
   needs_review: { label: "Needs Review", description: "The listing has an official source, but one or more details require a fresh review." },
   expired: { label: "Needs Review", description: "The documented offer or deadline has expired and should not be treated as currently available." },
-  community_submitted: { label: "Community Verified", description: "Community evidence supports this listing, but official-source review may still be pending." },
+  incomplete: { label: "Needs Review", description: "Required listing information is missing and must be completed before this record can be trusted." },
+  community_reported: { label: "Community Verified", description: "Community evidence supports this listing, but official-source review may still be pending." },
 };
 
 export function StatusBadge({ status }: { status: VerificationStatus }) {
-  const tone = status === "verified_recently" ? "border-trust/25 bg-trust/[.06] text-trust" : status === "expired" ? "border-red-700/25 bg-red-700/[.05] text-red-700" : "border-amber-700/25 bg-amber-700/[.05] text-amber-700";
-  return <span className={`inline-flex items-center gap-1.5 border px-2 py-1 text-[9px] font-bold uppercase tracking-[.1em] ${tone}`}>{status === "verified_recently" && <CheckIcon className="h-3 w-3" />}{labels[status]}</span>;
+  const tone = status === "verified" ? "border-trust/25 bg-trust/[.06] text-trust" : status === "expired" ? "border-red-700/25 bg-red-700/[.05] text-red-700" : "border-amber-700/25 bg-amber-700/[.05] text-amber-700";
+  return <span className={`inline-flex items-center gap-1.5 border px-2 py-1 text-[9px] font-bold uppercase tracking-[.1em] ${tone}`}>{status === "verified" && <CheckIcon className="h-3 w-3" />}{labels[status]}</span>;
 }
 
 export function ConfidenceBadge({ status }: { status: VerificationStatus }) {

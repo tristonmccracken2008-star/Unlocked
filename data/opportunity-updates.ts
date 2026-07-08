@@ -29,7 +29,7 @@ export function getOpportunityUpdates(): OpportunityUpdate[] {
         date: opportunity.last_verified,
         badge: "UPDATED" as const,
         activity:
-          opportunity.verification_status === "verified_recently"
+          opportunity.verification_status === "verified"
             ? ("Newly verified" as const)
             : ("Recently updated" as const),
       };

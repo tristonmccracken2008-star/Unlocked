@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { schools, type School } from "@/data/seed";
 import { findExactSchoolMatches, findSchoolMatches, normalizeSchoolQuery } from "@/data/school-search";
 import { ArrowIcon, SearchIcon } from "./icons";
@@ -14,11 +14,12 @@ import { StudentAdvantageCard } from "./student-advantage-card";
 import { WhatsNewFeed } from "./whats-new-feed";
 import { SaveOpportunityButton } from "./opportunity-activity";
 import { MyJourneyCard } from "./my-journey-card";
+import { trackProductEvent } from "@/data/product-analytics";
 
 const years = [["Freshman", "First year"], ["Sophomore", "Second year"], ["Junior", "Third year"], ["Senior", "Fourth year"], ["Graduate", "Graduate student"]] as const;
 const goalOptions = ["Get internships", "Save money", "Find research", "Learn AI", "Build coding skills", "Prepare for graduate school", "Prepare for quant finance", "Start a business", "Networking"];
 const topicOptions = ["AI", "Finance", "Computer Science", "Math", "Engineering", "Business", "Medicine", "Startups", "Investing", "Robotics", "Economics"];
-const guestPreview = [...opportunities].filter((item)=>item.verification_status==="verified_recently").sort((a,b)=>Number(b.featured)-Number(a.featured)||b.last_verified.localeCompare(a.last_verified)||a.title.localeCompare(b.title)).slice(0,4);
+const guestPreview = [...opportunities].filter((item)=>item.verification_status==="verified").sort((a,b)=>Number(b.featured)-Number(a.featured)||b.last_verified.localeCompare(a.last_verified)||a.title.localeCompare(b.title)).slice(0,4);
 
 export function PersonalizedHome() {
   const [ready, setReady] = useState(false);
@@ -28,6 +29,7 @@ export function PersonalizedHome() {
   const [session, setSession] = useState<AccountSession | null>(null);
   const [syncError, setSyncError] = useState("");
   const [guestMode, setGuestMode] = useState(false);
+  const trackedView = useRef("");
 
   useEffect(() => {
     let active = true;
@@ -58,12 +60,21 @@ export function PersonalizedHome() {
     return () => { active = false; window.removeEventListener(accountSessionEvent, onSession); window.removeEventListener(accountSyncErrorEvent, onSyncError); };
   }, []);
 
+  useEffect(() => {
+    if (!ready) return;
+    const view = profile && !editing && !justCompleted ? "dashboard" : !profile && !guestMode && !session?.authenticated ? "homepage" : "";
+    if (!view || trackedView.current === view) return;
+    trackedView.current = view;
+    trackProductEvent(view === "dashboard" ? "dashboard_visit" : "homepage_visit");
+  }, [editing, guestMode, justCompleted, profile, ready, session?.authenticated]);
+
   function save(next: StudentProfile) {
     const isNewProfile = !profile;
     writeStudentProfile(next);
     setProfile(next);
     setEditing(false);
     setJustCompleted(isNewProfile);
+    if (isNewProfile) trackProductEvent("onboarding_completed", { searchType: "school", searchValue: next.schoolSlug });
   }
 
   // Wait for auth/account resolution before deciding between public onboarding,
@@ -145,6 +156,7 @@ export function StudentSetup({ onSave, initialProfile, onCancel }: { onSave: (pr
     setSelectedSchool(school);
     setSchoolQuery(school.name);
     setShowSuggestions(false);
+    trackProductEvent("search", { searchType: "school", searchValue: school.slug });
   }
 
   function submit(event: FormEvent) {
@@ -152,7 +164,7 @@ export function StudentSetup({ onSave, initialProfile, onCancel }: { onSave: (pr
     const exact = findExactSchoolMatches(schools, schoolQuery);
     const school = selectedSchool ?? (exact.length === 1 ? exact[0] : undefined);
     if (step === 1) { if (!school) { setShowSuggestions(true); return; } setStep(2); return; }
-    if (step === 2) { if (!major.trim()) return; setStep(3); return; }
+    if (step === 2) { if (!major.trim()) return; trackProductEvent("search", { searchType: "major", searchValue: major.trim() }); setStep(3); return; }
     if (step === 3) { if (!year) return; setStep(4); return; }
     if (step === 4) { if (!goals.length) return; setStep(5); return; }
     if (!school || !topics.length) return;
@@ -211,7 +223,7 @@ function OnboardingComplete({ profile, onContinue }: { profile: StudentProfile; 
   const recommendationProfile: RecommendationProfile = { schoolSlug: school.slug, schoolName: school.name, schoolLocation: school.location, major: profile.major, academicYear: profile.year, interests: profile.interests, careerGoals: profile.careerGoal };
   const matches = rankOpportunities(recommendationProfile).filter(({opportunity,score}) => score > 0 && opportunity.verification_status !== "expired");
   const top = matches.slice(0,3);
-  const totalValue = matches.filter(({opportunity}) => opportunity.verification_status === "verified_recently" && typeof opportunity.estimated_value === "number").reduce((sum,{opportunity}) => sum + (opportunity.estimated_value ?? 0),0);
+  const totalValue = matches.filter(({opportunity}) => opportunity.verification_status === "verified" && typeof opportunity.estimated_value === "number").reduce((sum,{opportunity}) => sum + (opportunity.estimated_value ?? 0),0);
   const money = new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",maximumFractionDigits:0});
   return <main className="mx-auto min-h-[72vh] max-w-5xl px-5 py-10 sm:px-8 sm:py-14"><section className="border-y border-ink/20 bg-white px-5 py-9 sm:px-10 sm:py-12"><div className="mx-auto max-w-3xl text-center"><p className="text-2xl" aria-hidden="true">🎉</p><h1 className="mt-3 font-editorial text-4xl font-bold leading-tight sm:text-5xl">Your personalized dashboard is ready.</h1><p className="mx-auto mt-4 max-w-xl text-base leading-7 text-ink/55">We found <strong className="text-ink">{matches.length} opportunities</strong> based on your school, major, year, and goals.</p></div>
     <dl className="mx-auto mt-8 grid max-w-3xl border-y border-ink/15 py-4 sm:grid-cols-2"><div className="px-4 py-2"><dt className="rule-label text-ink/35">Your profile</dt><dd className="mt-2 text-sm font-bold">{school.name} · {profile.major} · {profile.year}</dd><dd className="mt-1 line-clamp-2 text-xs leading-5 text-ink/45">{profile.goals?.join(" · ") || profile.careerGoal}</dd></div><div className="border-t border-ink/15 px-4 py-2 sm:border-l sm:border-t-0"><dt className="rule-label text-ink/35">Documented value available</dt><dd className="mt-2 font-editorial text-3xl font-bold text-forest">{money.format(totalValue)}+</dd><dd className="mt-1 text-xs text-ink/40">Verified matches with known values only.</dd></div></dl>
@@ -228,7 +240,7 @@ function StudentDashboard({ profile, onEdit, session, syncError }: { profile: St
   const focus = rankedRecommendations[0];
   const recommended = rankedRecommendations.slice(1, 4);
   const allRanked = rankOpportunities(recommendationProfile).filter(({opportunity,score}) => opportunity.verification_status !== "expired" && score > 0);
-  const verifiedMatches = allRanked.filter(({opportunity}) => opportunity.verification_status === "verified_recently");
+  const verifiedMatches = allRanked.filter(({opportunity}) => opportunity.verification_status === "verified");
   const documentedValue = verifiedMatches.reduce((sum,{opportunity}) => sum + (opportunity.estimated_value ?? 0), 0);
   const dashboardSections = [
     ["Best AI tool", "AI", "/ai"],

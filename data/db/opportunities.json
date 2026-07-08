@@ -27,7 +27,7 @@
       "National"
     ],
     "official_source": "https://education.github.com/pack",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": null,
     "prestige": null,
@@ -52,7 +52,11 @@
       ],
       "reviewScore": 90
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://education.github.com/pack",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "benefit--notion-education-plus",
@@ -82,7 +86,7 @@
       "National"
     ],
     "official_source": "https://www.notion.com/product/notion-for-education",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": null,
     "prestige": null,
@@ -107,7 +111,11 @@
       ],
       "reviewScore": 90
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.notion.com/product/notion-for-education",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "benefit--figma-for-education",
@@ -137,7 +145,7 @@
       "National"
     ],
     "official_source": "https://www.figma.com/education/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": null,
     "prestige": null,
@@ -162,7 +170,11 @@
       ],
       "reviewScore": 90
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.figma.com/education/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "benefit--jetbrains-student-pack",
@@ -192,7 +204,7 @@
       "National"
     ],
     "official_source": "https://www.jetbrains.com/community/education/#students",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": null,
     "prestige": null,
@@ -217,7 +229,11 @@
       ],
       "reviewScore": 90
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.jetbrains.com/community/education/#students",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "benefit--microsoft-azure-for-students",
@@ -247,7 +263,7 @@
       "National"
     ],
     "official_source": "https://azure.microsoft.com/free/students",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": null,
     "prestige": null,
@@ -272,7 +288,11 @@
       ],
       "reviewScore": 90
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://azure.microsoft.com/free/students",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Documented value or reasonable calculation; confirm the supporting source during review."
   },
   {
     "id": "benefit--autodesk-education",
@@ -302,7 +322,7 @@
       "National"
     ],
     "official_source": "https://www.autodesk.com/education/edu-software/overview",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": null,
     "prestige": null,
@@ -327,7 +347,11 @@
       ],
       "reviewScore": 90
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.autodesk.com/education/edu-software/overview",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "benefit--tableau-for-students",
@@ -357,7 +381,7 @@
       "National"
     ],
     "official_source": "https://www.tableau.com/academic/students",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": null,
     "prestige": null,
@@ -382,7 +406,11 @@
       ],
       "reviewScore": 90
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.tableau.com/academic/students",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "benefit--perplexity-education-pro",
@@ -412,7 +440,7 @@
       "National"
     ],
     "official_source": "https://www.perplexity.ai/students",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": null,
     "prestige": null,
@@ -437,7 +465,11 @@
       ],
       "reviewScore": 90
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.perplexity.ai/students",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "benefit--google-gemini-education",
@@ -467,7 +499,7 @@
       "National"
     ],
     "official_source": "https://gemini.google/students/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": null,
     "prestige": null,
@@ -492,7 +524,11 @@
       ],
       "reviewScore": 90
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://gemini.google/students/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "benefit--wolfram-alpha-student",
@@ -522,7 +558,7 @@
       "National"
     ],
     "official_source": "https://www.wolframalpha.com/pro/pricing/students/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": null,
     "prestige": null,
@@ -547,7 +583,11 @@
       ],
       "reviewScore": 90
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.wolframalpha.com/pro/pricing/students/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "benefit--spotify-premium-student",
@@ -577,7 +617,7 @@
       "National"
     ],
     "official_source": "https://www.spotify.com/us/student/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": null,
     "prestige": null,
@@ -602,7 +642,11 @@
       ],
       "reviewScore": 90
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.spotify.com/us/student/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Documented value or reasonable calculation; confirm the supporting source during review."
   },
   {
     "id": "benefit--youtube-premium-student",
@@ -632,7 +676,7 @@
       "National"
     ],
     "official_source": "https://www.youtube.com/premium/student",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": null,
     "prestige": null,
@@ -657,7 +701,11 @@
       ],
       "reviewScore": 90
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.youtube.com/premium/student",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "benefit--apple-music-student",
@@ -687,7 +735,7 @@
       "National"
     ],
     "official_source": "https://support.apple.com/106008",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": null,
     "prestige": null,
@@ -712,7 +760,11 @@
       ],
       "reviewScore": 90
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://support.apple.com/106008",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "benefit--hulu-student",
@@ -742,7 +794,7 @@
       "National"
     ],
     "official_source": "https://www.hulu.com/student",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": null,
     "prestige": null,
@@ -767,7 +819,11 @@
       ],
       "reviewScore": 90
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.hulu.com/student",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Documented value or reasonable calculation; confirm the supporting source during review."
   },
   {
     "id": "benefit--peacock-student",
@@ -797,7 +853,7 @@
       "National"
     ],
     "official_source": "https://www.peacocktv.com/student",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": null,
     "prestige": null,
@@ -822,7 +878,11 @@
       ],
       "reviewScore": 90
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.peacocktv.com/student",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Documented value or reasonable calculation; confirm the supporting source during review."
   },
   {
     "id": "benefit--amazon-prime-student",
@@ -852,7 +912,7 @@
       "National"
     ],
     "official_source": "https://www.amazon.com/amazonprime",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": null,
     "prestige": null,
@@ -877,7 +937,11 @@
       ],
       "reviewScore": 90
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.amazon.com/amazonprime",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "benefit--apple-education-store",
@@ -907,7 +971,7 @@
       "National"
     ],
     "official_source": "https://www.apple.com/us-edu/store",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": null,
     "prestige": null,
@@ -932,7 +996,11 @@
       ],
       "reviewScore": 90
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.apple.com/us-edu/store",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "benefit--samsung-education-offers",
@@ -962,7 +1030,7 @@
       "National"
     ],
     "official_source": "https://www.samsung.com/us/shop/offer-program/education/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": null,
     "prestige": null,
@@ -987,7 +1055,11 @@
       ],
       "reviewScore": 90
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.samsung.com/us/shop/offer-program/education/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "benefit--lenovo-student-discount",
@@ -1017,7 +1089,7 @@
       "National"
     ],
     "official_source": "https://www.lenovo.com/us/en/d/deals/student-discount/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": null,
     "prestige": null,
@@ -1042,7 +1114,11 @@
       ],
       "reviewScore": 90
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.lenovo.com/us/en/d/deals/student-discount/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "benefit--adobe-student-discount",
@@ -1072,7 +1148,7 @@
       "National"
     ],
     "official_source": "https://www.adobe.com/creativecloud/buy/students.html",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": null,
     "prestige": null,
@@ -1097,7 +1173,11 @@
       ],
       "reviewScore": 90
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.adobe.com/creativecloud/buy/students.html",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "benefit--unidays-student-discounts",
@@ -1127,7 +1207,7 @@
       "National"
     ],
     "official_source": "https://www.myunidays.com/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": null,
     "prestige": null,
@@ -1152,7 +1232,11 @@
       ],
       "reviewScore": 90
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.myunidays.com/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "benefit--ynab-college-student",
@@ -1182,7 +1266,7 @@
       "National"
     ],
     "official_source": "https://www.ynab.com/college",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": null,
     "prestige": null,
@@ -1207,7 +1291,11 @@
       ],
       "reviewScore": 90
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.ynab.com/college",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "benefit--amtrak-student-discount",
@@ -1237,7 +1325,7 @@
       "National"
     ],
     "official_source": "https://www.amtrak.com/student-discounts",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": null,
     "prestige": null,
@@ -1262,7 +1350,11 @@
       ],
       "reviewScore": 90
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.amtrak.com/student-discounts",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "benefit--headspace-student",
@@ -1292,7 +1384,7 @@
       "National"
     ],
     "official_source": "https://www.headspace.com/studentplan",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": null,
     "prestige": null,
@@ -1317,7 +1409,11 @@
       ],
       "reviewScore": 90
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.headspace.com/studentplan",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "benefit--the-economist-student",
@@ -1347,7 +1443,7 @@
       "National"
     ],
     "official_source": "https://subscribenow.economist.com/student",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": null,
     "prestige": null,
@@ -1372,7 +1468,11 @@
       ],
       "reviewScore": 90
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://subscribenow.economist.com/student",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "benefit--microsoft-365-education",
@@ -1402,7 +1502,7 @@
       "National"
     ],
     "official_source": "https://www.microsoft.com/en-us/education/products/office",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": null,
     "prestige": null,
@@ -1427,7 +1527,11 @@
       ],
       "reviewScore": 90
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.microsoft.com/en-us/education/products/office",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "benefit--dell-student-discount",
@@ -1457,7 +1561,7 @@
       "National"
     ],
     "official_source": "https://www.dell.com/en-us/lp/students",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": null,
     "prestige": null,
@@ -1482,7 +1586,11 @@
       ],
       "reviewScore": 90
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.dell.com/en-us/lp/students",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "benefit--hp-education-store",
@@ -1512,7 +1620,7 @@
       "National"
     ],
     "official_source": "https://www.hp.com/us-en/shop/cv/hp-education",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": null,
     "prestige": null,
@@ -1537,7 +1645,11 @@
       ],
       "reviewScore": 90
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.hp.com/us-en/shop/cv/hp-education",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "benefit--uchicago-artspass",
@@ -1569,7 +1681,7 @@
       "School Specific"
     ],
     "official_source": "https://www.studentarts.uchicago.edu/artspass/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": null,
     "prestige": null,
@@ -1593,7 +1705,11 @@
       ],
       "reviewScore": 90
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.studentarts.uchicago.edu/artspass/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "benefit--ucla-bruin-u-pass",
@@ -1625,7 +1741,7 @@
       "School Specific"
     ],
     "official_source": "https://transportation.ucla.edu/getting-to-ucla/public-transit/bruin-u-pass",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": null,
     "prestige": null,
@@ -1650,7 +1766,11 @@
       ],
       "reviewScore": 90
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://transportation.ucla.edu/getting-to-ucla/public-transit/bruin-u-pass",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "benefit--harvard-campus-museums",
@@ -1682,7 +1802,7 @@
       "School Specific"
     ],
     "official_source": "https://osa.gse.harvard.edu/perks",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": null,
     "prestige": null,
@@ -1706,7 +1826,11 @@
       ],
       "reviewScore": 90
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://osa.gse.harvard.edu/perks",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "benefit--stanford-marguerite",
@@ -1738,7 +1862,7 @@
       "School Specific"
     ],
     "official_source": "https://transportation.stanford.edu/getting-stanford/marguerite",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": null,
     "prestige": null,
@@ -1762,7 +1886,11 @@
       ],
       "reviewScore": 90
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://transportation.stanford.edu/getting-stanford/marguerite",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "benefit--mit-arts-access",
@@ -1794,7 +1922,7 @@
       "School Specific"
     ],
     "official_source": "https://arts.mit.edu/opportunities/arts-access/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": null,
     "prestige": null,
@@ -1818,7 +1946,11 @@
       ],
       "reviewScore": 90
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://arts.mit.edu/opportunities/arts-access/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "benefit--columbia-passport-to-museums",
@@ -1850,7 +1982,7 @@
       "School Specific"
     ],
     "official_source": "https://artsinitiative.columbia.edu/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": null,
     "prestige": null,
@@ -1874,7 +2006,11 @@
       ],
       "reviewScore": 90
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://artsinitiative.columbia.edu/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "benefit--penn-transit",
@@ -1906,7 +2042,7 @@
       "School Specific"
     ],
     "official_source": "https://www.business-services.upenn.edu/services",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": null,
     "prestige": null,
@@ -1930,7 +2066,11 @@
       ],
       "reviewScore": 90
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.business-services.upenn.edu/services",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "benefit--penn-state-software-access",
@@ -1962,7 +2102,7 @@
       "School Specific"
     ],
     "official_source": "https://dubois.psu.edu/IT/Free-Stuff",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": null,
     "prestige": null,
@@ -1987,7 +2127,11 @@
       ],
       "reviewScore": 90
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://dubois.psu.edu/IT/Free-Stuff",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "ai--chatgpt",
@@ -2017,7 +2161,7 @@
       "AI Tool"
     ],
     "official_source": "https://openai.com/chatgpt/pricing/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": null,
     "prestige": null,
@@ -2029,7 +2173,11 @@
       "studentOffer": "Standard Free plan; no ongoing student-specific offer verified.",
       "offerType": "free_for_everyone"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://openai.com/chatgpt/pricing/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "ai--claude",
@@ -2059,7 +2207,7 @@
       "AI Tool"
     ],
     "official_source": "https://claude.com/pricing",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": null,
     "prestige": null,
@@ -2071,7 +2219,11 @@
       "studentOffer": "Standard Free plan; no student-specific offer verified.",
       "offerType": "free_for_everyone"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://claude.com/pricing",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "ai--github-copilot",
@@ -2101,7 +2253,7 @@
       "AI Tool"
     ],
     "official_source": "https://docs.github.com/en/copilot/get-started/plans",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": null,
     "prestige": null,
@@ -2113,7 +2265,11 @@
       "studentOffer": "Eligible verified students can access GitHub Copilot Student at no charge.",
       "offerType": "free_with_edu"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://docs.github.com/en/copilot/get-started/plans",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "ai--cursor",
@@ -2143,7 +2299,7 @@
       "AI Tool"
     ],
     "official_source": "https://cursor.com/pricing",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": null,
     "prestige": null,
@@ -2155,7 +2311,11 @@
       "studentOffer": "Standard Hobby access is available; no student-specific offer verified.",
       "offerType": "free_for_everyone"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://cursor.com/pricing",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "ai--perplexity",
@@ -2185,7 +2345,7 @@
       "AI Tool"
     ],
     "official_source": "https://www.perplexity.ai/students",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": null,
     "prestige": null,
@@ -2197,7 +2357,11 @@
       "studentOffer": "Perplexity publishes an education offer for verified university students and educators.",
       "offerType": "student_discount"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.perplexity.ai/students",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "ai--notion-ai",
@@ -2239,7 +2403,11 @@
       "studentOffer": "No separate student-specific Notion AI offer has been verified.",
       "offerType": "no_verified_student_offer"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.notion.com/product/ai",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "ai--gemini",
@@ -2269,7 +2437,7 @@
       "AI Tool"
     ],
     "official_source": "https://gemini.google/students/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": null,
     "prestige": null,
@@ -2281,7 +2449,11 @@
       "studentOffer": "Google publishes a regional AI student plan for eligible college students.",
       "offerType": "student_discount"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://gemini.google/students/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "ai--jetbrains-ai",
@@ -2323,7 +2495,11 @@
       "studentOffer": "No separate student-specific AI offer has been verified.",
       "offerType": "no_verified_student_offer"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.jetbrains.com/ai/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "ai--windsurf",
@@ -2365,7 +2541,11 @@
       "studentOffer": "Standard free access may be available; no student-specific offer verified.",
       "offerType": "free_for_everyone"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://windsurf.com/pricing",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "ai--replit-ai",
@@ -2395,7 +2575,7 @@
       "AI Tool"
     ],
     "official_source": "https://replit.com/pricing",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": null,
     "prestige": null,
@@ -2407,7 +2587,11 @@
       "studentOffer": "Standard Starter access; no student-specific AI offer verified.",
       "offerType": "free_for_everyone"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://replit.com/pricing",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "ai--hugging-face",
@@ -2437,7 +2621,7 @@
       "AI Tool"
     ],
     "official_source": "https://huggingface.co/pricing",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": null,
     "prestige": null,
@@ -2449,7 +2633,11 @@
       "studentOffer": "Standard free account; no student-specific offer verified.",
       "offerType": "free_for_everyone"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://huggingface.co/pricing",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "ai--microsoft-copilot",
@@ -2479,7 +2667,7 @@
       "AI Tool"
     ],
     "official_source": "https://www.microsoft.com/en-us/microsoft-copilot/for-individuals",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": null,
     "prestige": null,
@@ -2491,7 +2679,11 @@
       "studentOffer": "Standard free access; no student-specific consumer offer verified.",
       "offerType": "free_for_everyone"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.microsoft.com/en-us/microsoft-copilot/for-individuals",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "ai--google-colab",
@@ -2521,7 +2713,7 @@
       "AI Tool"
     ],
     "official_source": "https://colab.research.google.com/signup",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": null,
     "prestige": null,
@@ -2533,7 +2725,11 @@
       "studentOffer": "Standard no-cost Colab access; no student-specific offer verified.",
       "offerType": "free_for_everyone"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://colab.research.google.com/signup",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "ai--kaggle",
@@ -2563,7 +2759,7 @@
       "AI Tool"
     ],
     "official_source": "https://www.kaggle.com/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": null,
     "prestige": null,
@@ -2575,7 +2771,11 @@
       "studentOffer": "Standard platform access; no student-specific offer verified.",
       "offerType": "free_for_everyone"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.kaggle.com/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "ai--canva-magic-studio",
@@ -2617,7 +2817,11 @@
       "studentOffer": "Some AI tools are available under standard Canva access; no higher-education student offer verified.",
       "offerType": "free_for_everyone"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.canva.com/ai-assistant/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "ai--adobe-firefly",
@@ -2647,7 +2851,7 @@
       "AI Tool"
     ],
     "official_source": "https://www.adobe.com/products/firefly/plans.html",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": null,
     "prestige": null,
@@ -2659,7 +2863,11 @@
       "studentOffer": "A standard free allocation may be available; no Firefly-specific student offer verified.",
       "offerType": "free_for_everyone"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.adobe.com/products/firefly/plans.html",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "ai--grammarly",
@@ -2689,7 +2897,7 @@
       "AI Tool"
     ],
     "official_source": "https://www.grammarly.com/plans",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": null,
     "prestige": null,
@@ -2701,7 +2909,11 @@
       "studentOffer": "Standard Free plan; no individual student-specific offer verified.",
       "offerType": "free_for_everyone"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.grammarly.com/plans",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "ai--deepl",
@@ -2731,7 +2943,7 @@
       "AI Tool"
     ],
     "official_source": "https://www.deepl.com/en/pro",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": null,
     "prestige": null,
@@ -2743,7 +2955,11 @@
       "studentOffer": "Standard free translation access; no student-specific offer verified.",
       "offerType": "free_for_everyone"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.deepl.com/en/pro",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "ai--otter-ai",
@@ -2773,7 +2989,7 @@
       "AI Tool"
     ],
     "official_source": "https://otter.ai/pricing",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": null,
     "prestige": null,
@@ -2785,7 +3001,11 @@
       "studentOffer": "Standard Basic plan; no student-specific offer verified.",
       "offerType": "free_for_everyone"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://otter.ai/pricing",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "ai--descript",
@@ -2815,7 +3035,7 @@
       "AI Tool"
     ],
     "official_source": "https://www.descript.com/pricing",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": null,
     "prestige": null,
@@ -2827,7 +3047,11 @@
       "studentOffer": "Standard Free plan; no student-specific offer verified.",
       "offerType": "free_for_everyone"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.descript.com/pricing",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "ai--gamma",
@@ -2869,7 +3093,11 @@
       "studentOffer": "Standard Free plan; no student-specific offer verified.",
       "offerType": "free_for_everyone"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://gamma.app/pricing",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "ai--figma-ai",
@@ -2911,7 +3139,11 @@
       "studentOffer": "No separate student-specific Figma AI entitlement has been verified.",
       "offerType": "no_verified_student_offer"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.figma.com/ai/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "ai--le-chat",
@@ -2953,7 +3185,11 @@
       "studentOffer": "General access may be available; no student-specific offer verified.",
       "offerType": "free_for_everyone"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://mistral.ai/products/le-chat",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "ai--poe",
@@ -2983,7 +3219,7 @@
       "AI Tool"
     ],
     "official_source": "https://poe.com/about",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": null,
     "prestige": null,
@@ -2995,7 +3231,11 @@
       "studentOffer": "Standard free access with usage limits; no student-specific offer verified.",
       "offerType": "free_for_everyone"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://poe.com/about",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "ai--phind",
@@ -3037,7 +3277,11 @@
       "studentOffer": "General access may be available; no student-specific offer verified.",
       "offerType": "free_for_everyone"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.phind.com/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "ai--elicit",
@@ -3067,7 +3311,7 @@
       "AI Tool"
     ],
     "official_source": "https://elicit.com/pricing",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": null,
     "prestige": null,
@@ -3079,7 +3323,11 @@
       "studentOffer": "Standard Basic access; no student-specific offer verified.",
       "offerType": "free_for_everyone"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://elicit.com/pricing",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "ai--consensus",
@@ -3121,7 +3369,11 @@
       "studentOffer": "Standard free access may be available; no student-specific offer verified.",
       "offerType": "free_for_everyone"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://consensus.app/pricing/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "ai--notebooklm",
@@ -3151,7 +3403,7 @@
       "AI Tool"
     ],
     "official_source": "https://notebooklm.google/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": null,
     "prestige": null,
@@ -3163,7 +3415,11 @@
       "studentOffer": "Standard access for eligible Google accounts; no student-specific consumer offer verified.",
       "offerType": "free_for_everyone"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://notebooklm.google/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "ai--elevenlabs",
@@ -3193,7 +3449,7 @@
       "AI Tool"
     ],
     "official_source": "https://elevenlabs.io/pricing",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": null,
     "prestige": null,
@@ -3205,7 +3461,11 @@
       "studentOffer": "Standard Free plan; no student-specific offer verified.",
       "offerType": "free_for_everyone"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://elevenlabs.io/pricing",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "ai--runway",
@@ -3235,7 +3495,7 @@
       "AI Tool"
     ],
     "official_source": "https://runwayml.com/pricing",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": null,
     "prestige": null,
@@ -3247,7 +3507,11 @@
       "studentOffer": "Standard Free plan or credits may be available; no student-specific offer verified.",
       "offerType": "free_for_everyone"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://runwayml.com/pricing",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "ai--quillbot",
@@ -3277,7 +3541,7 @@
       "AI Tool"
     ],
     "official_source": "https://quillbot.com/upgrade",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": null,
     "prestige": null,
@@ -3289,7 +3553,11 @@
       "studentOffer": "Standard free tools; no student-specific offer verified.",
       "offerType": "free_for_everyone"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://quillbot.com/upgrade",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "ai--wolfram-alpha",
@@ -3319,7 +3587,7 @@
       "AI Tool"
     ],
     "official_source": "https://www.wolframalpha.com/pro/pricing/students/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": null,
     "prestige": null,
@@ -3331,7 +3599,11 @@
       "studentOffer": "Wolfram publishes student pricing for Wolfram|Alpha Pro.",
       "offerType": "student_discount"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.wolframalpha.com/pro/pricing/students/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "career--google-student-internships",
@@ -3371,7 +3643,7 @@
       "Varies"
     ],
     "official_source": "https://www.google.com/about/careers/applications/students/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "Very High",
@@ -3384,7 +3656,11 @@
       "compensation": "Paid",
       "workMode": "Varies"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.google.com/about/careers/applications/students/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "career--apple-student-internships",
@@ -3424,7 +3700,7 @@
       "Varies"
     ],
     "official_source": "https://www.apple.com/careers/us/students.html",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "Very High",
@@ -3437,7 +3713,11 @@
       "compensation": "Paid",
       "workMode": "Varies"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.apple.com/careers/us/students.html",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "career--nvidia-university-internships",
@@ -3477,7 +3757,7 @@
       "Varies"
     ],
     "official_source": "https://www.nvidia.com/en-us/about-nvidia/careers/university-recruiting/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "Very High",
@@ -3490,7 +3770,11 @@
       "compensation": "Paid",
       "workMode": "Varies"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.nvidia.com/en-us/about-nvidia/careers/university-recruiting/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "career--ibm-internships",
@@ -3530,7 +3814,7 @@
       "Varies"
     ],
     "official_source": "https://www.ibm.com/careers/internships",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Competitive",
     "prestige": "High",
@@ -3543,7 +3827,11 @@
       "compensation": "Paid",
       "workMode": "Varies"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.ibm.com/careers/internships",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "career--bloomberg-internships",
@@ -3583,7 +3871,7 @@
       "Varies"
     ],
     "official_source": "https://www.bloomberg.com/company/careers/early-career/internships/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "High",
@@ -3596,7 +3884,11 @@
       "compensation": "Paid",
       "workMode": "Varies"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.bloomberg.com/company/careers/early-career/internships/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "career--palantir-student-internships",
@@ -3636,7 +3928,7 @@
       "Varies"
     ],
     "official_source": "https://www.palantir.com/careers/students/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "Very High",
@@ -3649,7 +3941,11 @@
       "compensation": "Paid",
       "workMode": "Varies"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.palantir.com/careers/students/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "career--jane-street-internships",
@@ -3689,7 +3985,7 @@
       "In Person"
     ],
     "official_source": "https://www.janestreet.com/join-jane-street/internships/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "Very High",
@@ -3702,7 +3998,11 @@
       "compensation": "Paid",
       "workMode": "In Person"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.janestreet.com/join-jane-street/internships/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "career--citadel-internships",
@@ -3742,7 +4042,7 @@
       "In Person"
     ],
     "official_source": "https://www.citadel.com/careers/students/internships/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "Very High",
@@ -3755,7 +4055,11 @@
       "compensation": "Paid",
       "workMode": "In Person"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.citadel.com/careers/students/internships/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "career--citadel-securities-internships",
@@ -3795,7 +4099,7 @@
       "In Person"
     ],
     "official_source": "https://www.citadelsecurities.com/careers/students/internships/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "Very High",
@@ -3808,7 +4112,11 @@
       "compensation": "Paid",
       "workMode": "In Person"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.citadelsecurities.com/careers/students/internships/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "career--two-sigma-internships",
@@ -3848,7 +4156,7 @@
       "Varies"
     ],
     "official_source": "https://www.twosigma.com/careers/internships/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "Very High",
@@ -3861,7 +4169,11 @@
       "compensation": "Paid",
       "workMode": "Varies"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.twosigma.com/careers/internships/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "career--hrt-student-opportunities",
@@ -3901,7 +4213,7 @@
       "In Person"
     ],
     "official_source": "https://www.hudsonrivertrading.com/student-opportunities/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "Very High",
@@ -3914,7 +4226,11 @@
       "compensation": "Paid",
       "workMode": "In Person"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.hudsonrivertrading.com/student-opportunities/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "career--sig-campus-internships",
@@ -3954,7 +4270,7 @@
       "In Person"
     ],
     "official_source": "https://sig.com/campus-programs/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "High",
@@ -3967,7 +4283,11 @@
       "compensation": "Paid",
       "workMode": "In Person"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://sig.com/campus-programs/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "career--imc-student-internships",
@@ -4007,7 +4327,7 @@
       "In Person"
     ],
     "official_source": "https://www.imc.com/us/careers/students-graduates",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "High",
@@ -4020,7 +4340,11 @@
       "compensation": "Paid",
       "workMode": "In Person"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.imc.com/us/careers/students-graduates",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "career--optiver-student-internships",
@@ -4060,7 +4384,7 @@
       "In Person"
     ],
     "official_source": "https://optiver.com/working-at-optiver/career-opportunities/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "High",
@@ -4073,7 +4397,11 @@
       "compensation": "Paid",
       "workMode": "In Person"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://optiver.com/working-at-optiver/career-opportunities/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "career--drw-internships",
@@ -4113,7 +4441,7 @@
       "In Person"
     ],
     "official_source": "https://www.drw.com/work-at-drw/listings?filterType=Internship",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "High",
@@ -4126,7 +4454,11 @@
       "compensation": "Paid",
       "workMode": "In Person"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.drw.com/work-at-drw/listings?filterType=Internship",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "career--goldman-sachs-summer-analyst",
@@ -4164,7 +4496,7 @@
       "In Person"
     ],
     "official_source": "https://www.goldmansachs.com/careers/students/programs-and-internships",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "Very High",
@@ -4177,7 +4509,11 @@
       "compensation": "Paid",
       "workMode": "In Person"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.goldmansachs.com/careers/students/programs-and-internships",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "career--jpmorgan-software-engineer-summer",
@@ -4215,7 +4551,7 @@
       "In Person"
     ],
     "official_source": "https://careers.jpmorgan.com/us/en/students/programs/software-engineer-summer",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "High",
@@ -4228,7 +4564,11 @@
       "compensation": "Paid",
       "workMode": "In Person"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://careers.jpmorgan.com/us/en/students/programs/software-engineer-summer",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "career--morgan-stanley-summer-analyst",
@@ -4266,7 +4606,7 @@
       "In Person"
     ],
     "official_source": "https://www.morganstanley.com/people-opportunities/students-graduates",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "Very High",
@@ -4279,7 +4619,11 @@
       "compensation": "Paid",
       "workMode": "In Person"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.morganstanley.com/people-opportunities/students-graduates",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "career--blackrock-summer-internship",
@@ -4318,7 +4662,7 @@
       "Varies"
     ],
     "official_source": "https://careers.blackrock.com/students-and-graduates",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "Very High",
@@ -4331,7 +4675,11 @@
       "compensation": "Paid",
       "workMode": "Varies"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://careers.blackrock.com/students-and-graduates",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "research--nasa-ostem-internships",
@@ -4372,7 +4720,7 @@
       "Varies"
     ],
     "official_source": "https://stemgateway.nasa.gov/public/s/explore-opportunities",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "Very High",
@@ -4394,7 +4742,11 @@
         "Spring"
       ]
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://stemgateway.nasa.gov/public/s/explore-opportunities",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "career--amazon-student-internships",
@@ -4434,7 +4786,7 @@
       "Varies"
     ],
     "official_source": "https://www.amazon.jobs/content/en/career-programs/university/internships-for-students",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "High",
@@ -4447,7 +4799,11 @@
       "compensation": "Paid",
       "workMode": "Varies"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.amazon.jobs/content/en/career-programs/university/internships-for-students",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "career--adobe-internships",
@@ -4487,7 +4843,7 @@
       "Varies"
     ],
     "official_source": "https://careers.adobe.com/us/en/interns",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "High",
@@ -4500,7 +4856,11 @@
       "compensation": "Paid",
       "workMode": "Varies"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://careers.adobe.com/us/en/interns",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "career--spacex-internships",
@@ -4540,7 +4900,7 @@
       "In Person"
     ],
     "official_source": "https://www.spacex.com/internships/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "Very High",
@@ -4553,7 +4913,11 @@
       "compensation": "Paid",
       "workMode": "In Person"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.spacex.com/internships/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "career--tesla-internships",
@@ -4593,7 +4957,7 @@
       "In Person"
     ],
     "official_source": "https://www.tesla.com/careers/internships",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "High",
@@ -4606,7 +4970,11 @@
       "compensation": "Paid",
       "workMode": "In Person"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.tesla.com/careers/internships",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "career--datadog-early-careers",
@@ -4644,7 +5012,7 @@
       "Varies"
     ],
     "official_source": "https://careers.datadoghq.com/early-careers/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "High",
@@ -4657,7 +5025,11 @@
       "compensation": "Paid",
       "workMode": "Varies"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://careers.datadoghq.com/early-careers/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "career--google-step",
@@ -4691,7 +5063,7 @@
       "Varies"
     ],
     "official_source": "https://buildyourfuture.withgoogle.com/programs/step",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "Very High",
@@ -4704,7 +5076,11 @@
       "compensation": "Paid",
       "workMode": "Varies"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://buildyourfuture.withgoogle.com/programs/step",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "career--microsoft-explore",
@@ -4738,7 +5114,7 @@
       "Varies"
     ],
     "official_source": "https://careers.microsoft.com/v2/global/en/exploremicrosoft",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "Very High",
@@ -4751,7 +5127,11 @@
       "compensation": "Paid",
       "workMode": "Varies"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://careers.microsoft.com/v2/global/en/exploremicrosoft",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "career--jane-street-fttp",
@@ -4788,7 +5168,7 @@
       "In Person"
     ],
     "official_source": "https://www.janestreet.com/join-jane-street/programs-and-events/fttp/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "Very High",
@@ -4801,7 +5181,11 @@
       "compensation": "Varies",
       "workMode": "In Person"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.janestreet.com/join-jane-street/programs-and-events/fttp/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "career--jane-street-see",
@@ -4837,7 +5221,7 @@
       "In Person"
     ],
     "official_source": "https://www.janestreet.com/join-jane-street/programs-and-events/see/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "Very High",
@@ -4850,7 +5234,11 @@
       "compensation": "Varies",
       "workMode": "In Person"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.janestreet.com/join-jane-street/programs-and-events/see/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "career--jane-street-wise",
@@ -4888,7 +5276,7 @@
       "In Person"
     ],
     "official_source": "https://www.janestreet.com/join-jane-street/programs-and-events/wise/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "Very High",
@@ -4901,7 +5289,11 @@
       "compensation": "Varies",
       "workMode": "In Person"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.janestreet.com/join-jane-street/programs-and-events/wise/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "career--discover-citadel",
@@ -4939,7 +5331,7 @@
       "In Person"
     ],
     "official_source": "https://www.citadel.com/careers/students/discover-citadel/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "Very High",
@@ -4952,7 +5344,11 @@
       "compensation": "Varies",
       "workMode": "In Person"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.citadel.com/careers/students/discover-citadel/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "career--uberstar",
@@ -4986,7 +5382,7 @@
       "Varies"
     ],
     "official_source": "https://www.uber.com/us/en/careers/list/uberstar/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "High",
@@ -4999,7 +5395,11 @@
       "compensation": "Paid",
       "workMode": "Varies"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.uber.com/us/en/careers/list/uberstar/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "career--duolingo-thrive",
@@ -5035,7 +5435,7 @@
       "Varies"
     ],
     "official_source": "https://careers.duolingo.com/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "High",
@@ -5048,7 +5448,11 @@
       "compensation": "Paid",
       "workMode": "Varies"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://careers.duolingo.com/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "research--nsf-reu-sites",
@@ -5088,7 +5492,7 @@
       "In Person"
     ],
     "official_source": "https://www.nsf.gov/funding/initiatives/reu/search",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Competitive",
     "prestige": "Very High",
@@ -5108,7 +5512,11 @@
         "Summer"
       ]
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.nsf.gov/funding/initiatives/reu/search",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "research--doe-suli",
@@ -5147,7 +5555,7 @@
       "In Person"
     ],
     "official_source": "https://science.osti.gov/wdts/suli",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "Very High",
@@ -5169,7 +5577,11 @@
         "Spring"
       ]
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://science.osti.gov/wdts/suli",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "research--doe-cci",
@@ -5207,7 +5619,7 @@
       "In Person"
     ],
     "official_source": "https://science.osti.gov/wdts/cci",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Competitive",
     "prestige": "High",
@@ -5229,7 +5641,11 @@
         "Spring"
       ]
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://science.osti.gov/wdts/cci",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "research--nih-summer-internship-program",
@@ -5270,7 +5686,7 @@
       "In Person"
     ],
     "official_source": "https://www.training.nih.gov/research-training/pb/sip/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "Very High",
@@ -5290,7 +5706,11 @@
         "Summer"
       ]
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.training.nih.gov/research-training/pb/sip/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "research--nist-surf",
@@ -5329,7 +5749,7 @@
       "In Person"
     ],
     "official_source": "https://www.nist.gov/surf",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "Very High",
@@ -5349,7 +5769,11 @@
         "Summer"
       ]
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.nist.gov/surf",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "research--amgen-scholars",
@@ -5386,7 +5810,7 @@
       "In Person"
     ],
     "official_source": "https://amgenscholars.com/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "Very High",
@@ -5406,7 +5830,11 @@
         "Summer"
       ]
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://amgenscholars.com/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "research--mit-msrp",
@@ -5445,7 +5873,7 @@
       "In Person"
     ],
     "official_source": "https://oge.mit.edu/msrp/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "Very High",
@@ -5465,7 +5893,11 @@
         "Summer"
       ]
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://oge.mit.edu/msrp/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "research--stanford-surf",
@@ -5502,7 +5934,7 @@
       "In Person"
     ],
     "official_source": "https://engineering.stanford.edu/students-academics/equity-and-inclusion-initiatives/prospective-graduate-programs/summer",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "Very High",
@@ -5522,7 +5954,11 @@
         "Summer"
       ]
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://engineering.stanford.edu/students-academics/equity-and-inclusion-initiatives/prospective-graduate-programs/summer",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "research--caltech-surf",
@@ -5562,7 +5998,7 @@
       "In Person"
     ],
     "official_source": "https://sfp.caltech.edu/undergraduate-research/programs/surf",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "Very High",
@@ -5582,7 +6018,11 @@
         "Summer"
       ]
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://sfp.caltech.edu/undergraduate-research/programs/surf",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "research--cmu-reuse",
@@ -5619,7 +6059,7 @@
       "In Person"
     ],
     "official_source": "https://www.cmu.edu/scs/isr/reuse/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "Very High",
@@ -5639,7 +6079,11 @@
         "Summer"
       ]
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.cmu.edu/scs/isr/reuse/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "research--berkeley-superb",
@@ -5676,7 +6120,7 @@
       "In Person"
     ],
     "official_source": "https://eecs.berkeley.edu/resources/undergrads/research/superb/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "Very High",
@@ -5696,7 +6140,11 @@
         "Summer"
       ]
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://eecs.berkeley.edu/resources/undergrads/research/superb/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "research--dimacs-reu",
@@ -5733,7 +6181,7 @@
       "In Person"
     ],
     "official_source": "https://reu.dimacs.rutgers.edu/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "High",
@@ -5753,7 +6201,11 @@
         "Summer"
       ]
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://reu.dimacs.rutgers.edu/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "career--hackmit",
@@ -5788,7 +6240,7 @@
       "In Person"
     ],
     "official_source": "https://hackmit.org/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Competitive",
     "prestige": "Very High",
@@ -5801,7 +6253,11 @@
       "compensation": "Unpaid",
       "workMode": "In Person"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://hackmit.org/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "career--pennapps",
@@ -5836,7 +6292,7 @@
       "In Person"
     ],
     "official_source": "https://pennapps.com/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Competitive",
     "prestige": "Very High",
@@ -5849,7 +6305,11 @@
       "compensation": "Unpaid",
       "workMode": "In Person"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://pennapps.com/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "career--treehacks",
@@ -5884,7 +6344,7 @@
       "In Person"
     ],
     "official_source": "https://www.treehacks.com/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Competitive",
     "prestige": "Very High",
@@ -5897,7 +6357,11 @@
       "compensation": "Unpaid",
       "workMode": "In Person"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.treehacks.com/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "career--calhacks",
@@ -5932,7 +6396,7 @@
       "In Person"
     ],
     "official_source": "https://calhacks.io/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Competitive",
     "prestige": "Very High",
@@ -5945,7 +6409,11 @@
       "compensation": "Unpaid",
       "workMode": "In Person"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://calhacks.io/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "career--hack-the-north",
@@ -5980,7 +6448,7 @@
       "In Person"
     ],
     "official_source": "https://hackthenorth.com/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Competitive",
     "prestige": "Very High",
@@ -5993,7 +6461,11 @@
       "compensation": "Unpaid",
       "workMode": "In Person"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://hackthenorth.com/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "career--hackgt",
@@ -6028,7 +6500,7 @@
       "In Person"
     ],
     "official_source": "https://hack.gt/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Competitive",
     "prestige": "High",
@@ -6041,7 +6513,11 @@
       "compensation": "Unpaid",
       "workMode": "In Person"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://hack.gt/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "career--mhacks",
@@ -6076,7 +6552,7 @@
       "In Person"
     ],
     "official_source": "https://mhacks.org/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Competitive",
     "prestige": "High",
@@ -6089,7 +6565,11 @@
       "compensation": "Unpaid",
       "workMode": "In Person"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://mhacks.org/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "career--la-hacks",
@@ -6124,7 +6604,7 @@
       "In Person"
     ],
     "official_source": "https://lahacks.com/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Competitive",
     "prestige": "High",
@@ -6137,7 +6617,11 @@
       "compensation": "Unpaid",
       "workMode": "In Person"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://lahacks.com/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "career--tamuhack",
@@ -6172,7 +6656,7 @@
       "In Person"
     ],
     "official_source": "https://tamuhack.com/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Competitive",
     "prestige": "High",
@@ -6185,7 +6669,11 @@
       "compensation": "Unpaid",
       "workMode": "In Person"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://tamuhack.com/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "career--vandyhacks",
@@ -6220,7 +6708,7 @@
       "In Person"
     ],
     "official_source": "https://vandyhacks.org/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Competitive",
     "prestige": "Established",
@@ -6233,7 +6721,11 @@
       "compensation": "Unpaid",
       "workMode": "In Person"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://vandyhacks.org/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "career--hackharvard",
@@ -6268,7 +6760,7 @@
       "In Person"
     ],
     "official_source": "https://hackharvard.io/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Competitive",
     "prestige": "High",
@@ -6281,7 +6773,11 @@
       "compensation": "Unpaid",
       "workMode": "In Person"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://hackharvard.io/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "career--boilermake",
@@ -6316,7 +6812,7 @@
       "In Person"
     ],
     "official_source": "https://boilermake.org/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Competitive",
     "prestige": "Established",
@@ -6329,7 +6825,11 @@
       "compensation": "Unpaid",
       "workMode": "In Person"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://boilermake.org/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "career--icpc",
@@ -6368,7 +6868,7 @@
       "In Person"
     ],
     "official_source": "https://icpc.global/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "Very High",
@@ -6381,7 +6881,11 @@
       "compensation": "Unpaid",
       "workMode": "In Person"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://icpc.global/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "career--putnam-competition",
@@ -6419,7 +6923,7 @@
       "In Person"
     ],
     "official_source": "https://maa.org/putnam/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "Very High",
@@ -6432,7 +6936,11 @@
       "compensation": "Varies",
       "workMode": "In Person"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://maa.org/putnam/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "career--asa-datafest",
@@ -6472,7 +6980,7 @@
       "In Person"
     ],
     "official_source": "https://ww2.amstat.org/education/datafest/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Competitive",
     "prestige": "High",
@@ -6485,7 +6993,11 @@
       "compensation": "Unpaid",
       "workMode": "In Person"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://ww2.amstat.org/education/datafest/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "career--imagine-cup",
@@ -6526,7 +7038,7 @@
       "Hybrid"
     ],
     "official_source": "https://imaginecup.microsoft.com/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "Very High",
@@ -6539,7 +7051,11 @@
       "compensation": "Varies",
       "workMode": "Hybrid"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://imaginecup.microsoft.com/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "career--hult-prize",
@@ -6574,7 +7090,7 @@
       "Hybrid"
     ],
     "official_source": "https://www.hultprize.org/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "Very High",
@@ -6587,7 +7103,11 @@
       "compensation": "Varies",
       "workMode": "Hybrid"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.hultprize.org/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "career--nasa-space-apps",
@@ -6622,7 +7142,7 @@
       "Hybrid"
     ],
     "official_source": "https://www.spaceappschallenge.org/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Open",
     "prestige": "High",
@@ -6635,7 +7155,11 @@
       "compensation": "Unpaid",
       "workMode": "Hybrid"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.spaceappschallenge.org/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "career--mlh-fellowship",
@@ -6674,7 +7198,7 @@
       "Remote"
     ],
     "official_source": "https://fellowship.mlh.io/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "High",
@@ -6687,7 +7211,11 @@
       "compensation": "Varies",
       "workMode": "Remote"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://fellowship.mlh.io/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "career--kleiner-perkins-fellows",
@@ -6727,7 +7255,7 @@
       "Varies"
     ],
     "official_source": "https://fellows.kleinerperkins.com/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "Very High",
@@ -6740,7 +7268,11 @@
       "compensation": "Paid",
       "workMode": "Varies"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://fellows.kleinerperkins.com/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "career--eight-vc-fellowship",
@@ -6779,7 +7311,7 @@
       "Varies"
     ],
     "official_source": "https://www.8vc.com/fellowship",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "High",
@@ -6792,7 +7324,11 @@
       "compensation": "Paid",
       "workMode": "Varies"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.8vc.com/fellowship",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "career--neo-scholars",
@@ -6832,7 +7368,7 @@
       "Hybrid"
     ],
     "official_source": "https://neo.com/scholars",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "High",
@@ -6845,7 +7381,11 @@
       "compensation": "Varies",
       "workMode": "Hybrid"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://neo.com/scholars",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "career--brooke-owens-fellowship",
@@ -6885,7 +7425,7 @@
       "Varies"
     ],
     "official_source": "https://www.brookeowensfellowship.org/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "Very High",
@@ -6898,7 +7438,11 @@
       "compensation": "Paid",
       "workMode": "Varies"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.brookeowensfellowship.org/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "career--grace-hopper-celebration",
@@ -6937,7 +7481,7 @@
       "Hybrid"
     ],
     "official_source": "https://ghc.anitab.org/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Competitive",
     "prestige": "Very High",
@@ -6950,7 +7494,11 @@
       "compensation": "Unpaid",
       "workMode": "Hybrid"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://ghc.anitab.org/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "career--tapia-conference",
@@ -6989,7 +7537,7 @@
       "In Person"
     ],
     "official_source": "https://tapiaconference.cmd-it.org/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Competitive",
     "prestige": "High",
@@ -7002,7 +7550,11 @@
       "compensation": "Unpaid",
       "workMode": "In Person"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://tapiaconference.cmd-it.org/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "career--sacnas-ndistem",
@@ -7043,7 +7595,7 @@
       "In Person"
     ],
     "official_source": "https://www.sacnas.org/conference/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Competitive",
     "prestige": "High",
@@ -7056,7 +7608,11 @@
       "compensation": "Unpaid",
       "workMode": "In Person"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.sacnas.org/conference/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "career--nsbe-convention",
@@ -7097,7 +7653,7 @@
       "In Person"
     ],
     "official_source": "https://convention.nsbe.org/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Open",
     "prestige": "High",
@@ -7110,7 +7666,11 @@
       "compensation": "Unpaid",
       "workMode": "In Person"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://convention.nsbe.org/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "career--millennium-fellowship",
@@ -7144,7 +7704,7 @@
       "Hybrid"
     ],
     "official_source": "https://www.millenniumfellows.org/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Competitive",
     "prestige": "High",
@@ -7157,7 +7717,11 @@
       "compensation": "Unpaid",
       "workMode": "Hybrid"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.millenniumfellows.org/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "career--github-campus-experts",
@@ -7192,7 +7756,7 @@
       "Remote"
     ],
     "official_source": "https://githubcampus.expert/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Competitive",
     "prestige": "High",
@@ -7205,7 +7769,11 @@
       "compensation": "Unpaid",
       "workMode": "Remote"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://githubcampus.expert/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "career--microsoft-learn-student-ambassadors",
@@ -7240,7 +7808,7 @@
       "Remote"
     ],
     "official_source": "https://mvp.microsoft.com/studentambassadors",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Competitive",
     "prestige": "High",
@@ -7253,7 +7821,11 @@
       "compensation": "Unpaid",
       "workMode": "Remote"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://mvp.microsoft.com/studentambassadors",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "research--uchicago-undergraduate-research",
@@ -7291,7 +7863,7 @@
       "Spring"
     ],
     "official_source": "https://ccrf.uchicago.edu/undergraduate-research",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Competitive",
     "prestige": "Very High",
@@ -7313,7 +7885,11 @@
       "compensation": "Varies",
       "workMode": "In Person"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://ccrf.uchicago.edu/undergraduate-research",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "research--uchicago-data-science-summer-lab",
@@ -7353,7 +7929,7 @@
       "Summer"
     ],
     "official_source": "https://datascience.uchicago.edu/education/summerlab/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "High",
@@ -7373,7 +7949,11 @@
       "compensation": "Varies",
       "workMode": "In Person"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://datascience.uchicago.edu/education/summerlab/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "research--mit-urop",
@@ -7411,7 +7991,7 @@
       "Spring"
     ],
     "official_source": "https://urop.mit.edu/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Competitive",
     "prestige": "Very High",
@@ -7433,7 +8013,11 @@
       "compensation": "Varies",
       "workMode": "Varies"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://urop.mit.edu/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "research--stanford-undergraduate-research",
@@ -7471,7 +8055,7 @@
       "Spring"
     ],
     "official_source": "https://undergradresearch.stanford.edu/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Competitive",
     "prestige": "Very High",
@@ -7493,7 +8077,11 @@
       "compensation": "Varies",
       "workMode": "Varies"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://undergradresearch.stanford.edu/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "research--harvard-undergraduate-research",
@@ -7531,7 +8119,7 @@
       "Spring"
     ],
     "official_source": "https://uraf.harvard.edu/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Competitive",
     "prestige": "Very High",
@@ -7553,7 +8141,11 @@
       "compensation": "Varies",
       "workMode": "Varies"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://uraf.harvard.edu/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "research--harvard-prise",
@@ -7594,7 +8186,7 @@
       "Summer"
     ],
     "official_source": "https://uraf.harvard.edu/prise",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "Very High",
@@ -7614,7 +8206,11 @@
       "compensation": "Varies",
       "workMode": "In Person"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://uraf.harvard.edu/prise",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "research--jhu-undergraduate-research",
@@ -7652,7 +8248,7 @@
       "Spring"
     ],
     "official_source": "https://hour.jhu.edu/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Competitive",
     "prestige": "Very High",
@@ -7674,7 +8270,11 @@
       "compensation": "Varies",
       "workMode": "Varies"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://hour.jhu.edu/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "research--jhu-pura",
@@ -7712,7 +8312,7 @@
       "Spring"
     ],
     "official_source": "https://research.jhu.edu/hour/internal/pura/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "Very High",
@@ -7734,7 +8334,11 @@
       "compensation": "Paid",
       "workMode": "Varies"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://research.jhu.edu/hour/internal/pura/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "research--cmu-undergraduate-research",
@@ -7772,7 +8376,7 @@
       "Spring"
     ],
     "official_source": "https://www.cmu.edu/uro/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Competitive",
     "prestige": "Very High",
@@ -7794,7 +8398,11 @@
       "compensation": "Varies",
       "workMode": "Varies"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.cmu.edu/uro/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "research--fermilab-undergraduate-internships",
@@ -7836,7 +8444,7 @@
       "Spring"
     ],
     "official_source": "https://internships.fnal.gov/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "Very High",
@@ -7858,7 +8466,11 @@
       "compensation": "Paid",
       "workMode": "In Person"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://internships.fnal.gov/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "research--ornl-undergraduate-programs",
@@ -7900,7 +8512,7 @@
       "Spring"
     ],
     "official_source": "https://education.ornl.gov/undergraduate/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "Very High",
@@ -7922,7 +8534,11 @@
       "compensation": "Paid",
       "workMode": "In Person"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://education.ornl.gov/undergraduate/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "research--lanl-undergraduate-internships",
@@ -7964,7 +8580,7 @@
       "Spring"
     ],
     "official_source": "https://www.lanl.gov/careers/career-options/student-internships/undergraduate",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "Very High",
@@ -7986,7 +8602,11 @@
       "compensation": "Paid",
       "workMode": "In Person"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.lanl.gov/careers/career-options/student-internships/undergraduate",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "scholarship--goldwater-scholarship",
@@ -8023,7 +8643,7 @@
       "Computer Science"
     ],
     "official_source": "https://goldwaterscholarship.gov/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "Very High",
@@ -8043,7 +8663,11 @@
       "compensation": "Paid",
       "workMode": "Remote"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://goldwaterscholarship.gov/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Documented value or reasonable calculation; confirm the supporting source during review."
   },
   {
     "id": "scholarship--truman-scholarship",
@@ -8073,7 +8697,7 @@
       "Any Major"
     ],
     "official_source": "https://www.truman.gov/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "Very High",
@@ -8094,7 +8718,11 @@
       "compensation": "Paid",
       "workMode": "Remote"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.truman.gov/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Documented value or reasonable calculation; confirm the supporting source during review."
   },
   {
     "id": "scholarship--dod-smart-scholarship",
@@ -8136,7 +8764,7 @@
       "Natural Sciences"
     ],
     "official_source": "https://www.smartscholarship.org/smart",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "Very High",
@@ -8157,7 +8785,11 @@
       "compensation": "Paid",
       "workMode": "Remote"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.smartscholarship.org/smart",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "scholarship--noaa-hollings",
@@ -8195,7 +8827,7 @@
       "Social Sciences"
     ],
     "official_source": "https://oceanservice.noaa.gov/scholarships/hollings/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "Very High",
@@ -8216,7 +8848,11 @@
       "compensation": "Paid",
       "workMode": "Remote"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://oceanservice.noaa.gov/scholarships/hollings/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "scholarship--nsf-s-stem",
@@ -8257,7 +8893,7 @@
       "Natural Sciences"
     ],
     "official_source": "https://www.nsf.gov/funding/opportunities/s-stem-nsf-scholarships-science-technology-engineering-mathematics",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Competitive",
     "prestige": "High",
@@ -8277,7 +8913,11 @@
       "compensation": "Paid",
       "workMode": "Remote"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.nsf.gov/funding/opportunities/s-stem-nsf-scholarships-science-technology-engineering-mathematics",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "scholarship--astronaut-scholarship",
@@ -8314,7 +8954,7 @@
       "Computer Science"
     ],
     "official_source": "https://www.astronautscholarship.org/programs/astronaut-scholarship/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "Very High",
@@ -8334,7 +8974,11 @@
       "compensation": "Paid",
       "workMode": "Remote"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.astronautscholarship.org/programs/astronaut-scholarship/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "scholarship--swe-scholarships",
@@ -8370,7 +9014,7 @@
       "Computer Science"
     ],
     "official_source": "https://swe.org/scholarships/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Competitive",
     "prestige": "High",
@@ -8390,7 +9034,11 @@
       "compensation": "Paid",
       "workMode": "Remote"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://swe.org/scholarships/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "scholarship--nsbe-scholarships",
@@ -8430,7 +9078,7 @@
       "Mathematics"
     ],
     "official_source": "https://nsbe.org/scholarships/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Competitive",
     "prestige": "High",
@@ -8449,7 +9097,11 @@
       "compensation": "Paid",
       "workMode": "Remote"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://nsbe.org/scholarships/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "scholarship--shpe-scholarships",
@@ -8491,7 +9143,7 @@
       "Natural Sciences"
     ],
     "official_source": "https://shpe.org/engage/programs/scholarshpe/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Competitive",
     "prestige": "High",
@@ -8511,7 +9163,11 @@
       "compensation": "Paid",
       "workMode": "Remote"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://shpe.org/engage/programs/scholarshpe/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "scholarship--afcea-stem-majors",
@@ -8552,7 +9208,7 @@
       "Natural Sciences"
     ],
     "official_source": "https://www.afcea.org/stem-majors-scholarships",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Competitive",
     "prestige": "High",
@@ -8573,7 +9229,11 @@
       "compensation": "Paid",
       "workMode": "Remote"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.afcea.org/stem-majors-scholarships",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "scholarship--microsoft-disability-scholarship",
@@ -8609,7 +9269,7 @@
       "Business"
     ],
     "official_source": "https://www.microsoft.com/en-us/diversity/programs/microsoftdisabilityscholarship",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "High",
@@ -8630,7 +9290,11 @@
       "compensation": "Paid",
       "workMode": "Remote"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.microsoft.com/en-us/diversity/programs/microsoftdisabilityscholarship",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Documented value or reasonable calculation; confirm the supporting source during review."
   },
   {
     "id": "scholarship--amazon-future-engineer",
@@ -8662,7 +9326,7 @@
       "Engineering"
     ],
     "official_source": "https://www.amazonfutureengineer.com/scholarships",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "High",
@@ -8683,7 +9347,11 @@
       "compensation": "Paid",
       "workMode": "Remote"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.amazonfutureengineer.com/scholarships",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Documented value or reasonable calculation; confirm the supporting source during review."
   },
   {
     "id": "scholarship--dell-scholars",
@@ -8713,7 +9381,7 @@
       "Any Major"
     ],
     "official_source": "https://www.dellscholars.org/students/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "High",
@@ -8734,7 +9402,11 @@
       "compensation": "Paid",
       "workMode": "Remote"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.dellscholars.org/students/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Documented value or reasonable calculation; confirm the supporting source during review."
   },
   {
     "id": "scholarship--coca-cola-scholars",
@@ -8764,7 +9436,7 @@
       "Any Major"
     ],
     "official_source": "https://www.coca-colascholarsfoundation.org/apply/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "Very High",
@@ -8784,7 +9456,11 @@
       "compensation": "Paid",
       "workMode": "Remote"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.coca-colascholarsfoundation.org/apply/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Documented value or reasonable calculation; confirm the supporting source during review."
   },
   {
     "id": "scholarship--cooke-college-scholarship",
@@ -8814,7 +9490,7 @@
       "Any Major"
     ],
     "official_source": "https://www.jkcf.org/our-scholarships/college-scholarship-program/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "Very High",
@@ -8835,7 +9511,11 @@
       "compensation": "Paid",
       "workMode": "Remote"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.jkcf.org/our-scholarships/college-scholarship-program/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Documented value or reasonable calculation; confirm the supporting source during review."
   },
   {
     "id": "scholarship--gates-scholarship",
@@ -8865,7 +9545,7 @@
       "Any Major"
     ],
     "official_source": "https://www.thegatesscholarship.org/scholarship/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "Very High",
@@ -8886,7 +9566,11 @@
       "compensation": "Paid",
       "workMode": "Remote"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.thegatesscholarship.org/scholarship/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "scholarship--elks-most-valuable-student",
@@ -8916,7 +9600,7 @@
       "Any Major"
     ],
     "official_source": "https://www.elks.org/scholars/scholarships/mvs.cfm",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "High",
@@ -8937,7 +9621,11 @@
       "compensation": "Paid",
       "workMode": "Remote"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.elks.org/scholars/scholarships/mvs.cfm",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "scholarship--horatio-alger-national",
@@ -8967,7 +9655,7 @@
       "Any Major"
     ],
     "official_source": "https://scholars.horatioalger.org/about-our-scholarship-programs/national-scholarships/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "High",
@@ -8988,7 +9676,11 @@
       "compensation": "Paid",
       "workMode": "Remote"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://scholars.horatioalger.org/about-our-scholarship-programs/national-scholarships/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "scholarship--hsf-scholar-program",
@@ -9022,7 +9714,7 @@
       "Any Major"
     ],
     "official_source": "https://www.hsf.net/scholarship/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "High",
@@ -9043,7 +9735,11 @@
       "compensation": "Paid",
       "workMode": "Remote"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.hsf.net/scholarship/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "scholarship--uncf-scholarships",
@@ -9077,7 +9773,7 @@
       "Any Major"
     ],
     "official_source": "https://opportunities.uncf.org/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Competitive",
     "prestige": "High",
@@ -9096,7 +9792,11 @@
       "compensation": "Paid",
       "workMode": "Remote"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://opportunities.uncf.org/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "scholarship--apia-scholarship",
@@ -9129,7 +9829,7 @@
       "Any Major"
     ],
     "official_source": "https://apiascholars.org/scholarships/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "High",
@@ -9150,7 +9850,11 @@
       "compensation": "Paid",
       "workMode": "Remote"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://apiascholars.org/scholarships/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "scholarship--point-flagship-scholarship",
@@ -9184,7 +9888,7 @@
       "Any Major"
     ],
     "official_source": "https://pointfoundation.org/scholarships/flagship",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "High",
@@ -9205,7 +9909,11 @@
       "compensation": "Paid",
       "workMode": "Remote"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://pointfoundation.org/scholarships/flagship",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "scholarship--gilman-scholarship",
@@ -9238,7 +9946,7 @@
       "Any Major"
     ],
     "official_source": "https://www.gilmanscholarship.org/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "Very High",
@@ -9260,7 +9968,11 @@
       "compensation": "Paid",
       "workMode": "Remote"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.gilmanscholarship.org/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Documented value or reasonable calculation; confirm the supporting source during review."
   },
   {
     "id": "scholarship--boren-awards",
@@ -9293,7 +10005,7 @@
       "Any Major"
     ],
     "official_source": "https://www.borenawards.org/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "Very High",
@@ -9315,7 +10027,11 @@
       "compensation": "Paid",
       "workMode": "Remote"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.borenawards.org/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "scholarship--critical-language-scholarship",
@@ -9349,7 +10065,7 @@
       "Any Major"
     ],
     "official_source": "https://clscholarship.org/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Highly Competitive",
     "prestige": "Very High",
@@ -9370,7 +10086,11 @@
       "compensation": "Paid",
       "workMode": "Remote"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://clscholarship.org/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "scholarship--fund-for-education-abroad",
@@ -9403,7 +10123,7 @@
       "Any Major"
     ],
     "official_source": "https://fundforeducationabroad.org/apply/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Competitive",
     "prestige": "High",
@@ -9424,7 +10144,11 @@
       "compensation": "Paid",
       "workMode": "Remote"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://fundforeducationabroad.org/apply/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "scholarship--freeman-asia",
@@ -9457,7 +10181,7 @@
       "Any Major"
     ],
     "official_source": "https://www.iie.org/programs/freeman-asia/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Competitive",
     "prestige": "High",
@@ -9478,7 +10202,11 @@
       "compensation": "Paid",
       "workMode": "Remote"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.iie.org/programs/freeman-asia/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "scholarship--uchicago-undergraduate-aid",
@@ -9513,7 +10241,7 @@
       "Any Major"
     ],
     "official_source": "https://financialaid.uchicago.edu/undergraduate/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Competitive",
     "prestige": "Very High",
@@ -9533,7 +10261,11 @@
       "compensation": "Paid",
       "workMode": "Remote"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://financialaid.uchicago.edu/undergraduate/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "scholarship--michigan-lsa-scholarships",
@@ -9568,7 +10300,7 @@
       "Any Major"
     ],
     "official_source": "https://lsa.umich.edu/scholarships",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Competitive",
     "prestige": "High",
@@ -9587,7 +10319,11 @@
       "compensation": "Paid",
       "workMode": "Remote"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://lsa.umich.edu/scholarships",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "scholarship--nyu-scholarships",
@@ -9622,7 +10358,7 @@
       "Any Major"
     ],
     "official_source": "https://www.nyu.edu/admissions/financial-aid-and-scholarships/scholarships.html",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Competitive",
     "prestige": "High",
@@ -9642,7 +10378,11 @@
       "compensation": "Paid",
       "workMode": "Remote"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://www.nyu.edu/admissions/financial-aid-and-scholarships/scholarships.html",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "scholarship--ucla-scholarships",
@@ -9677,7 +10417,7 @@
       "Any Major"
     ],
     "official_source": "https://financialaid.ucla.edu/types-of-aid/scholarships",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Competitive",
     "prestige": "High",
@@ -9696,7 +10436,11 @@
       "compensation": "Paid",
       "workMode": "Remote"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://financialaid.ucla.edu/types-of-aid/scholarships",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "scholarship--mit-scholarships-grants",
@@ -9731,7 +10475,7 @@
       "Any Major"
     ],
     "official_source": "https://sfs.mit.edu/undergraduate-students/types-of-aid/mit-scholarships-grants/",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Competitive",
     "prestige": "Very High",
@@ -9750,7 +10494,11 @@
       "compensation": "Paid",
       "workMode": "Remote"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://sfs.mit.edu/undergraduate-students/types-of-aid/mit-scholarships-grants/",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
     "id": "scholarship--harvard-scholarships-grants",
@@ -9785,7 +10533,7 @@
       "Any Major"
     ],
     "official_source": "https://college.harvard.edu/financial-aid/how-aid-works/types-aid",
-    "verification_status": "verified_recently",
+    "verification_status": "verified",
     "last_verified": "2026-07-06",
     "difficulty": "Competitive",
     "prestige": "Very High",
@@ -9804,7 +10552,10 @@
       "compensation": "Paid",
       "workMode": "Remote"
     },
-    "date_added": "2026-07-06"
+    "date_added": "2026-07-06",
+    "official_source_url": "https://college.harvard.edu/financial-aid/how-aid-works/types-aid",
+    "deadline": null,
+    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   }
 ]
-

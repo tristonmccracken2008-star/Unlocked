@@ -33,7 +33,7 @@ function generatedAliases(school: SchoolRecord) {
 }
 
 function confidenceFor(status: VerificationStatus, score: number): VerificationConfidence {
-  if (status === "verified_recently" && score >= 85) return "high";
+  if (status === "verified" && score >= 85) return "high";
   if (status !== "expired" && score >= 65) return "moderate";
   return "low";
 }

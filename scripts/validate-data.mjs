@@ -16,7 +16,7 @@ function duplicateKey(item){return normalize(`${item.type} ${item.title} ${item.
 function hasKnownValue(item){return typeof item.estimated_value==="number"||text(item.metadata?.valueLabel)||text(item.metadata?.awardAmountLabel)||text(item.metadata?.studentOffer)}
 function hasHowToClaimOrApply(item){return Boolean(item.metadata?.claimSteps?.length||item.metadata?.applicationRequirements?.length||text(item.metadata?.claimUrl)||text(item.official_source))}
 function hasWhyItMatters(item){return Boolean(item.description?.length>=60&&(item.tags?.length>0||item.majors?.length>0||text(item.category)))}
-function qualityCheck(item){const checks=[["official_source",text(item.official_source)&&item.official_source.startsWith("https://")],["estimated_value_or_unknown",hasKnownValue(item)||item.estimated_value===null],["eligibility",text(item.eligibility)],["category",text(item.category)],["description",text(item.description)&&item.description.length>=40],["why_it_matters_inputs",hasWhyItMatters(item)],["how_to_claim_or_apply",hasHowToClaimOrApply(item)],["verification_status",text(item.verification_status)],["last_verified",/^\d{4}-\d{2}-\d{2}$/.test(item.last_verified??"")]];return{complete:checks.every(([,passed])=>passed),missing:checks.filter(([,passed])=>!passed).map(([field])=>field)}}
+function qualityCheck(item){const checks=[["official_source",text(item.official_source)&&item.official_source.startsWith("https://")],["official_source_url",text(item.official_source_url)&&item.official_source_url.startsWith("https://")],["estimated_value_or_unknown",hasKnownValue(item)||(item.estimated_value===null&&/unknown|not documented|not published/i.test(item.estimated_value_note??""))],["eligibility",text(item.eligibility)],["category",text(item.category)],["description",text(item.description)&&item.description.length>=40],["why_it_matters_inputs",hasWhyItMatters(item)],["how_to_claim_or_apply",hasHowToClaimOrApply(item)],["verification_status",text(item.verification_status)],["last_verified",/^\d{4}-\d{2}-\d{2}$/.test(item.last_verified??"")],["deadline",item.deadline===null||/^\d{4}-\d{2}-\d{2}$/.test(item.deadline??"")],["reviewer_notes",text(item.reviewer_notes)]];return{complete:checks.every(([,passed])=>passed),missing:checks.filter(([,passed])=>!passed).map(([field])=>field)}}
 
 const curatedDomains=new Set(curated.map((school)=>school.domain));
 const schools=[...curated,...imported.filter((school)=>!curatedDomains.has(school.domain))].map((school)=>({...school,aliases:generatedAliases(school)}));
@@ -26,12 +26,12 @@ for(const school of schools){if(seenSlugs.has(school.slug))failures.push(`Duplic
 function search(query){const normalized=normalize(query);const exact=schools.filter((school)=>termsBySchool.get(school.slug).some((term)=>term===normalized));return exact.length?exact:schools.filter((school)=>termsBySchool.get(school.slug).some((term)=>term.includes(normalized)))}
 for(const school of schools)for(const term of [school.name,school.domain,school.slug,...school.aliases])if(!search(term).some((result)=>result.slug===school.slug))failures.push(`Search term did not find ${school.slug}: ${term}`);
 
-const ids=new Set();const types=new Set(["Benefit","AI","Career","Research","Scholarship"]);const required=["id","title","type","category","description","organization","school_scope","eligibility","location","official_source","verification_status","last_verified","date_added","icon"];
+const ids=new Set();const types=new Set(["Benefit","AI","Career","Research","Scholarship"]);const required=["id","title","type","category","description","organization","school_scope","eligibility","location","official_source","official_source_url","verification_status","last_verified","deadline","reviewer_notes","estimated_value_note","date_added","icon"];
 const duplicateGroups=new Map();const incomplete=[];
 for(const item of opportunities){
   if(ids.has(item.id))failures.push(`Duplicate opportunity id: ${item.id}`);ids.add(item.id);
   const key=duplicateKey(item);duplicateGroups.set(key,[...(duplicateGroups.get(key)??[]),item.id]);
-  for(const field of required)if(!item[field])failures.push(`Opportunity ${item.id} is missing ${field}`);
+  for(const field of required)if(!(field in item)||(field!=="deadline"&&!item[field]))failures.push(`Opportunity ${item.id} is missing ${field}`);
   for(const field of ["schools","majors","academic_years","tags"])if(!Array.isArray(item[field]))failures.push(`Opportunity ${item.id} has invalid ${field}`);
   for(const field of ["recurring","featured","hidden_gem"])if(typeof item[field]!=="boolean")failures.push(`Opportunity ${item.id} has invalid ${field}`);
   if(!types.has(item.type))failures.push(`Invalid opportunity type: ${item.id}`);

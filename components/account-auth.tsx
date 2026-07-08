@@ -3,11 +3,12 @@
 import { useEffect, useState } from "react";
 import { accountSessionEvent, clearLocalDashboardState, hydrateAccountData, readAccountSession } from "@/data/account-sync";
 import type { AccountSession } from "@/lib/account-types";
+import { trackProductEvent } from "@/data/product-analytics";
 
 export function AccountSync() {
   useEffect(() => {
     void hydrateAccountData();
-    if (window.location.search.includes("auth=signed-in")) void hydrateAccountData();
+    if (window.location.search.includes("auth=signed-in")) { trackProductEvent("sign_in"); const url = new URL(window.location.href); url.searchParams.delete("auth"); window.history.replaceState({}, "", `${url.pathname}${url.search}${url.hash}`); void hydrateAccountData(); }
   }, []);
   return null;
 }

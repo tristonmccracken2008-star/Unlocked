@@ -102,10 +102,10 @@ export function scoreOpportunity(item: Opportunity, profile: RecommendationProfi
   if (item.remote) { score += 4; reasons.push("Remote option"); }
   if (item.featured) score += 4;
   if (item.hidden_gem) score += 3;
-  if (item.verification_status === "verified_recently") score += 6;
+  if (item.verification_status === "verified") score += 6;
   if (quality.contentComplete) score += 8;
   else score -= Math.max(4, quality.missingFields.length * 3);
-  if (item.verification_status === "needs_review" || item.verification_status === "community_submitted") score -= 6;
+  if (item.verification_status === "needs_review" || item.verification_status === "community_reported") score -= 6;
   if (item.verification_status === "expired") score -= 100;
 
   const finalReasons = unique(reasons).slice(0, 4);
@@ -138,13 +138,13 @@ export function recommendedForYou(profile: RecommendationProfile, limit = 10) {
 
 export function trendingOpportunities(profile: RecommendationProfile, limit = 5) {
   return rankOpportunities(profile).filter(({ opportunity }) => opportunity.verification_status !== "expired").sort((a, b) => {
-    const trend = (item: ScoredOpportunity) => (item.opportunity.featured ? 12 : 0) + (item.opportunity.prestige === "Very High" ? 8 : item.opportunity.prestige === "High" ? 5 : 0) + (item.opportunity.verification_status === "verified_recently" ? 4 : 0) + item.score * .1;
+    const trend = (item: ScoredOpportunity) => (item.opportunity.featured ? 12 : 0) + (item.opportunity.prestige === "Very High" ? 8 : item.opportunity.prestige === "High" ? 5 : 0) + (item.opportunity.verification_status === "verified" ? 4 : 0) + item.score * .1;
     return trend(b) - trend(a);
   }).slice(0, limit);
 }
 
 export function hiddenGemOpportunities(profile: RecommendationProfile, limit = 5) {
-  return rankOpportunities(profile).filter(({ opportunity, score }) => opportunity.verification_status === "verified_recently" && score > 0 && (opportunity.hidden_gem || (!opportunity.featured && opportunity.prestige !== "Very High"))).slice(0, limit);
+  return rankOpportunities(profile).filter(({ opportunity, score }) => opportunity.verification_status === "verified" && score > 0 && (opportunity.hidden_gem || (!opportunity.featured && opportunity.prestige !== "Very High"))).slice(0, limit);
 }
 
 export function expiringSoonOpportunities(profile: RecommendationProfile, limit = 5, days = 60) {

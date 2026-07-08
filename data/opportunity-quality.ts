@@ -33,6 +33,7 @@ export function opportunityHasWhyItMatters(item: Opportunity) {
 export function auditOpportunity(item: Opportunity): OpportunityQualityCheck {
   const checks: [string, boolean][] = [
     ["official_source", text(item.official_source) && item.official_source.startsWith("https://")],
+    ["official_source_url", text(item.official_source_url) && item.official_source_url.startsWith("https://")],
     ["estimated_value_or_unknown", opportunityHasKnownValue(item) || item.estimated_value === null],
     ["eligibility", text(item.eligibility)],
     ["category", text(item.category)],
@@ -41,6 +42,8 @@ export function auditOpportunity(item: Opportunity): OpportunityQualityCheck {
     ["how_to_claim_or_apply", opportunityHasHowToClaimOrApply(item)],
     ["verification_status", text(item.verification_status)],
     ["last_verified", /^\d{4}-\d{2}-\d{2}$/.test(item.last_verified)],
+    ["deadline", item.deadline === null || /^\d{4}-\d{2}-\d{2}$/.test(item.deadline)],
+    ["reviewer_notes", text(item.reviewer_notes)],
   ];
   const missingFields = checks.filter(([, passed]) => !passed).map(([field]) => field);
   return {

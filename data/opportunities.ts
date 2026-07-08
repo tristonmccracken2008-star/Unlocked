@@ -10,7 +10,7 @@ export type OpportunityCategory = Exclude<(typeof opportunityCategories)[number]
 export type Compensation = "Paid" | "Unpaid" | "Varies";
 export type WorkMode = "Remote" | "Hybrid" | "In Person" | "Varies";
 export type OpportunityScope = "National" | "School Specific";
-export type VerificationStatus = "verified_recently" | "needs_review" | "expired" | "community_submitted";
+export type VerificationStatus = "verified" | "needs_review" | "expired" | "incomplete" | "community_reported";
 export type OpportunityDifficulty = "Open" | "Competitive" | "Highly Competitive" | null;
 export type OpportunityPrestige = "Established" | "High" | "Very High" | null;
 
@@ -58,8 +58,12 @@ export type Opportunity = {
   paid: boolean | null;
   tags: string[];
   official_source: string;
+  official_source_url: string;
   verification_status: VerificationStatus;
   last_verified: string;
+  deadline: string | null;
+  reviewer_notes: string;
+  estimated_value_note: string;
   date_added: string;
   difficulty: OpportunityDifficulty;
   prestige: OpportunityPrestige;
@@ -98,10 +102,14 @@ for (const item of opportunities) {
   seen.add(item.id);
   if (!opportunityTypes.includes(item.type)) throw new Error(`Invalid opportunity type: ${item.id}`);
   if (!item.official_source.startsWith("https://")) throw new Error(`Opportunity source must use HTTPS: ${item.id}`);
+  if (item.official_source_url !== item.official_source) throw new Error(`Opportunity source fields do not match: ${item.id}`);
   if (!/^\d{4}-\d{2}-\d{2}$/.test(item.last_verified)) throw new Error(`Invalid verification date: ${item.id}`);
   if (!/^\d{4}-\d{2}-\d{2}$/.test(item.date_added)) throw new Error(`Invalid date added: ${item.id}`);
   if (item.school_scope === "School Specific" && !item.schools.length) throw new Error(`School-specific opportunity has no school: ${item.id}`);
   if (item.application_deadline && !/^\d{4}-\d{2}-\d{2}$/.test(item.application_deadline)) throw new Error(`Invalid application deadline: ${item.id}`);
+  if (item.deadline !== item.application_deadline) throw new Error(`Opportunity deadline fields do not match: ${item.id}`);
+  if (!item.reviewer_notes.trim()) throw new Error(`Opportunity reviewer notes are required: ${item.id}`);
+  if (item.estimated_value === null && !/unknown|not documented|not published/i.test(item.estimated_value_note)) throw new Error(`Unknown value must be explicit: ${item.id}`);
 }
 
 export function filterOpportunities(filters: OpportunityFilters = {}, source: readonly Opportunity[] = opportunities) {
@@ -136,7 +144,7 @@ export function getRelatedOpportunities(item: Opportunity, limit = 5) {
     const adjacentSoftware = (item.type === "AI" && candidate.type === "Benefit" && candidate.category === "Software") || (item.type === "Benefit" && item.category === "Software" && candidate.type === "AI");
     const score = tokenOverlap * 3 + majorOverlap * 2 + (candidate.category === item.category ? 6 : 0) + (candidate.type === item.type ? 4 : 0) + (candidate.organization === item.organization ? 2 : 0) + (candidate.school_scope === item.school_scope ? 1 : 0) + (adjacentSoftware ? 5 : 0) + (candidate.featured ? 1 : 0);
     return { candidate, score };
-  }).sort((a,b) => b.score - a.score || Number(b.candidate.verification_status === "verified_recently") - Number(a.candidate.verification_status === "verified_recently") || a.candidate.title.localeCompare(b.candidate.title)).slice(0,limit).map(({candidate}) => candidate);
+  }).sort((a,b) => b.score - a.score || Number(b.candidate.verification_status === "verified") - Number(a.candidate.verification_status === "verified") || a.candidate.title.localeCompare(b.candidate.title)).slice(0,limit).map(({candidate}) => candidate);
 }
 export const careerOpportunities = filterOpportunities({ types: ["Career"] });
 export const researchOpportunities = filterOpportunities({ types: ["Research"] });

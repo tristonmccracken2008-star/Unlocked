@@ -1,6 +1,6 @@
 # Deploy UnlockED to Vercel
 
-UnlockED is a static-first Next.js application. It requires Node.js 20.9 or newer and currently has no environment variables, database, authentication service, or paid API dependency.
+UnlockED is a static-first Next.js application with dynamic authentication, account-sync, and anonymous analytics routes. It requires Node.js 20.9 or newer.
 
 ## 1. Verify the project locally
 
@@ -59,9 +59,10 @@ git status
 4. Keep **Framework Preset** set to **Next.js**.
 5. Keep the root directory as `./` because the repository was initialized inside the application directory.
 6. Keep the default install command (`npm install`) and build command (`npm run build`).
-7. Do not add environment variables; none are currently required.
-8. Select **Deploy**.
-9. After deployment, open the generated Vercel URL and test the homepage search, a school page, a benefit page, a category page, and the submit-perk form.
+7. Configure the authentication and KV variables documented in `docs/AUTHENTICATION.md`. Add `ADMIN_EMAILS` as a comma-separated list of accounts allowed to open `/admin/analytics`.
+8. In the Vercel project dashboard, enable Web Analytics and Speed Insights. The application components are already installed in the root layout.
+9. Select **Deploy**.
+10. After deployment, test the public product flow and confirm an authorized account can load `/admin/analytics`.
 
 Every push to `main` will create a new production deployment. Pull requests and non-production branches will receive preview deployments.
 
@@ -88,6 +89,8 @@ Run `npm run build`, commit those changes, and push again.
 - Confirm `/sitemap.xml` uses the production domain.
 - View the page source and verify canonical URLs and UnlockED metadata.
 - Check school search aliases such as `UChicago` and `umich.edu`.
+- Confirm Vercel Web Analytics and Speed Insights receive production traffic.
+- Confirm `/admin/analytics` is denied to accounts not listed in `ADMIN_EMAILS`.
 - Open official source links and report-outdated-information links.
 - Test narrow mobile and desktop layouts.
 - Confirm unknown-value benefits are excluded from savings totals.

@@ -50,4 +50,4 @@ The submit-perk form stores records in browser `localStorage` under `unlocked-su
 4. Keep the default Next.js build command (`npm run build`) and output settings.
 5. Point the production domain to the deployment. If the domain is not `unlocked.education`, update `metadataBase` in `app/layout.tsx` and `base` in `app/sitemap.ts`.
 
-The project requires no environment variables, database, authentication provider, or paid API.
+Production authentication, account sync, and aggregate analytics use the environment variables documented in `docs/AUTHENTICATION.md`. Set `ADMIN_EMAILS` to a comma-separated administrator allowlist for `/admin/analytics`. Vercel Analytics and Speed Insights are mounted in the root layout and should be enabled for the Vercel project.

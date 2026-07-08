@@ -13,7 +13,7 @@ export function StudentSavingsCalculator() {
   const normalized=normalizeSchoolQuery(query);
   const exactMatches=useMemo(()=>findExactSchoolMatches(schools,query),[query]);
   const suggestions=useMemo(()=>findSchoolMatches(schools,query,6),[query]);
-  const stats=useMemo(()=>{if(!school)return null;const items=getSchoolBenefits(school).filter((i)=>i.status==="verified_recently");const count=(c:string)=>items.filter((i)=>i.category===c).length;return{total:items.reduce((s,i)=>s+i.annualValue,0),benefits:items.length,ai:count("AI"),software:count("Software"),shopping:count("Shopping"),finance:count("Finance"),excluded:items.filter((i)=>i.annualValue===0).length}},[school]);
+  const stats=useMemo(()=>{if(!school)return null;const items=getSchoolBenefits(school).filter((i)=>i.status==="verified");const count=(c:string)=>items.filter((i)=>i.category===c).length;return{total:items.reduce((s,i)=>s+i.annualValue,0),benefits:items.length,ai:count("AI"),software:count("Software"),shopping:count("Shopping"),finance:count("Finance"),excluded:items.filter((i)=>i.annualValue===0).length}},[school]);
 
   function choose(selected:School){setSlug(selected.slug);setQuery(selected.name);setShowSuggestions(false)}
   function submit(event:FormEvent){event.preventDefault();if(exactMatches.length===1)return choose(exactMatches[0]);if(suggestions.length===1)return choose(suggestions[0]);setShowSuggestions(true)}

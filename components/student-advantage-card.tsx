@@ -21,7 +21,7 @@ export function StudentAdvantageCard({ profile, school }: { profile: StudentProf
       const schoolEligible=item.school_scope==="National"||item.schools.includes(school.slug);
       const yearEligible=item.academic_years.includes("Any Year")||item.academic_years.includes(profile.year);
       const majorEligible=item.majors.includes("Any Major")||item.majors.some((major)=>study.includes(major.toLowerCase())||major.toLowerCase().includes(profile.major.toLowerCase()));
-      return item.verification_status==="verified_recently"&&schoolEligible&&yearEligible&&majorEligible;
+      return item.verification_status==="verified"&&schoolEligible&&yearEligible&&majorEligible;
     });
     const viewed=new Set(activity.viewed),saved=new Set(activity.saved),claimed=new Set(activity.claimed);
     const typeItems=(type:OpportunityType)=>verified.filter((item)=>item.type===type);

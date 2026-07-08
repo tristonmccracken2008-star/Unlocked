@@ -4,7 +4,7 @@ export const aiToolCategories = ["All", "General Assistant", "Coding", "Research
 export const aiOfferTypes = ["All", "free_for_everyone", "student_discount", "free_with_edu", "university_specific", "no_verified_student_offer"] as const;
 export type AIToolCategory = Exclude<(typeof aiToolCategories)[number], "All">;
 export type AIOfferType = Exclude<(typeof aiOfferTypes)[number], "All">;
-export type AIToolVerificationStatus = "verified_recently" | "needs_review";
+export type AIToolVerificationStatus = "verified" | "needs_review";
 
 export type AITool = {
   slug: string;
@@ -34,7 +34,7 @@ export const aiTools: AITool[] = filterOpportunities({ types: ["AI"] }).map((ite
   lastVerifiedAt: item.last_verified,
   category: item.category as AIToolCategory,
   offerType: item.metadata.offerType as AIOfferType,
-  verificationStatus: item.verification_status === "verified_recently" ? "verified_recently" : "needs_review",
+  verificationStatus: item.verification_status === "verified" ? "verified" : "needs_review",
   estimatedAnnualValue: item.estimated_value,
 }));
 

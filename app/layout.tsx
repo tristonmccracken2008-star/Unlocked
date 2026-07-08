@@ -3,6 +3,9 @@ import "./globals.css";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { AccountSync } from "@/components/account-auth";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
+import { ProductAnalytics } from "@/components/product-analytics";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://unlocked.education"),
@@ -18,5 +21,5 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en"><body><AccountSync /><Header /><main>{children}</main><Footer /></body></html>;
+  return <html lang="en"><body><AccountSync /><ProductAnalytics/><Header /><main>{children}</main><Footer /><Analytics/><SpeedInsights/></body></html>;
 }
