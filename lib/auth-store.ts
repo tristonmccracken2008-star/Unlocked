@@ -16,6 +16,13 @@ type AuthStore = {
   accountData: Record<string, AccountData>;
 };
 
+type SignedSessionPayload = {
+  v: 1;
+  user: AuthUser;
+  exp: string;
+  iat: string;
+};
+
 const emptyData = (): AccountData => ({ profile: null, activity: null, journeyProgress: {}, updatedAt: new Date().toISOString() });
 const emptyStore = (): AuthStore => ({ users: {}, usersByEmail: {}, sessions: {}, accountData: {} });
 
@@ -23,6 +30,31 @@ function hash(value: string) {
   const secret = process.env.AUTH_SECRET;
   if (!secret && process.env.NODE_ENV === "production") throw new Error("AUTH_SECRET is required in production.");
   return crypto.createHmac("sha256", secret ?? "unlocked-development-secret").update(value).digest("hex");
+}
+
+function encode(value: unknown) {
+  return Buffer.from(JSON.stringify(value)).toString("base64url");
+}
+
+function decode<T>(value: string) {
+  return JSON.parse(Buffer.from(value, "base64url").toString("utf8")) as T;
+}
+
+function signPayload(payload: SignedSessionPayload) {
+  const body = encode(payload);
+  return `${body}.${hash(body)}`;
+}
+
+function verifySignedSession(token: string): SignedSessionPayload | null {
+  const [body, signature] = token.split(".");
+  if (!body || !signature || hash(body) !== signature) return null;
+  try {
+    const payload = decode<SignedSessionPayload>(body);
+    if (payload.v !== 1 || !payload.user?.id || !payload.user.email || new Date(payload.exp) <= new Date()) return null;
+    return payload;
+  } catch {
+    return null;
+  }
 }
 
 async function readStore(): Promise<AuthStore> {
@@ -40,7 +72,11 @@ async function readStore(): Promise<AuthStore> {
 }
 
 async function writeStore(store: AuthStore) {
-  await fs.writeFile(storePath, JSON.stringify(store, null, 2));
+  try {
+    await fs.writeFile(storePath, JSON.stringify(store, null, 2));
+  } catch (error) {
+    console.warn("[UnlockED auth] Development file store write failed; signed cookie session will still work.", error);
+  }
 }
 
 export function createToken() {
@@ -57,21 +93,29 @@ export async function upsertUser(input: Omit<AuthUser, "id"> & { googleSub: stri
   store.usersByEmail[email] = id;
   store.accountData[id] = store.accountData[id] ?? emptyData();
   await writeStore(store);
+  console.info("[UnlockED auth] OAuth user upserted", { userId: id, email });
   return store.users[id];
 }
 
-export async function createSession(userId: string) {
+export async function createSession(user: AuthUser) {
   const store = await readStore();
-  const token = createToken();
   const expires = new Date();
   expires.setDate(expires.getDate() + 30);
-  store.sessions[hash(token)] = { tokenHash: hash(token), userId, expiresAt: expires.toISOString(), createdAt: new Date().toISOString() };
+  const payload: SignedSessionPayload = { v: 1, user, exp: expires.toISOString(), iat: new Date().toISOString() };
+  const token = signPayload(payload);
+  store.sessions[hash(token)] = { tokenHash: hash(token), userId: user.id, expiresAt: expires.toISOString(), createdAt: new Date().toISOString() };
   await writeStore(store);
+  console.info("[UnlockED auth] Session created", { userId: user.id, expiresAt: expires.toISOString() });
   return { token, expires };
 }
 
 export async function getSession(token: string | undefined) {
   if (!token) return null;
+  const signed = verifySignedSession(token);
+  if (signed) {
+    const store = await readStore();
+    return { user: signed.user, data: store.accountData[signed.user.id] ?? emptyData() };
+  }
   const store = await readStore();
   const tokenHash = hash(token);
   const session = store.sessions[tokenHash];
