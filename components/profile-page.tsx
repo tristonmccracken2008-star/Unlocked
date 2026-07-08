@@ -24,7 +24,7 @@ export function ProfilePage() {
         <div>
           <p className="rule-label text-forest">UnlockED account</p>
           <h1 className="mt-2 font-editorial text-3xl font-bold">Profile and sync</h1>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-ink/50">{!session ? "Checking account status and loading saved dashboard data…" : session.authenticated ? `Your dashboard is synced. Signed in as ${session.user?.name || session.user?.email} (${session.user?.email}). Profile, saved opportunities, tracker statuses, viewed opportunities, and progress save to your account.` : "Sign in to save your dashboard across devices. Guest mode stores your profile and progress only in this browser."}</p>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-ink/50">{!session ? "Loading your account and saved profile…" : session.authenticated ? `Signed in as ${session.user?.email}. Your profile, saved opportunities, application progress, and activity sync to your account.` : "Your session has ended. Return to the homepage to sign in again."}</p>
           {accountError && <p className="mt-2 text-xs font-bold text-red-700">{accountError}</p>}
         </div>
         <AccountButton />

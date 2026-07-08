@@ -82,12 +82,12 @@ export function clearLocalDashboardState() {
 
 export async function hydrateAccountData() {
   const session = await readAccountSession();
-  if (!session.authenticated || !session.user) return session;
+  if (!session.authenticated || !session.user) { clearLocalDashboardState(); return session; }
   const cloudData = await readCloudAccountData();
   const local = localAccountData();
   const migrated = localStorage.getItem(accountMigrationKey(session.user.id)) === "true";
   const merged: Partial<AccountData> = {
-    profile: migrated ? cloudData?.profile ?? local.profile ?? null : local.profile ?? cloudData?.profile ?? null,
+    profile: cloudData?.profile ?? (!migrated ? local.profile ?? null : null),
     activity: mergeActivity(local.activity ?? null, cloudData?.activity ?? null),
     journeyProgress: migrated ? { ...(local.journeyProgress ?? {}), ...(cloudData?.journeyProgress ?? {}) } : { ...(cloudData?.journeyProgress ?? {}), ...(local.journeyProgress ?? {}) },
     preferences: cloudData?.preferences ?? null,
