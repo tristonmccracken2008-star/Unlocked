@@ -63,4 +63,4 @@ UPSTASH_REDIS_REST_URL=
 UPSTASH_REDIS_REST_TOKEN=
 ```
 
-When these variables are present, UnlockED stores account data in KV/Upstash Redis. The local `.unlocked-auth-store.json` file is only a development fallback and should not be used as production persistence.
+UnlockED stores authenticated account data in KV/Upstash Redis. In production, these variables are required. Local development without KV uses a temporary in-memory store only; it is not used for production persistence.

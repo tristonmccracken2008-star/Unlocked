@@ -1,7 +1,7 @@
 "use client";
 
 import { studentActivityEvent, studentActivityStorageKey, type StudentActivity } from "./student-activity";
-import { studentProfileStorageKey, type StudentProfile } from "./student-profile";
+import { studentProfileCompleteStorageKey, studentProfileStorageKey, type StudentProfile } from "./student-profile";
 import type { AccountData, AccountSession } from "@/lib/account-types";
 
 export const journeyProgressStorageKey = "unlocked-journey-progress";
@@ -33,9 +33,13 @@ function mergeActivity(local: StudentActivity | null, remote: StudentActivity | 
 }
 
 function localAccountData(): Partial<AccountData> {
+  const activity = readJson<StudentActivity | null>(studentActivityStorageKey, null);
+  const tracker = activity?.tracked ?? {};
   return {
     profile: readJson<StudentProfile | null>(studentProfileStorageKey, null),
-    activity: readJson<StudentActivity | null>(studentActivityStorageKey, null),
+    activity,
+    savedOpportunities: [...new Set([...(activity?.saved ?? []), ...Object.keys(tracker)])].map((opportunityId) => ({ opportunityId, savedAt: tracker[opportunityId]?.savedAt ?? new Date().toISOString() })),
+    tracker,
     journeyProgress: readJson<Record<string, boolean>>(journeyProgressStorageKey, {}),
   };
 }
@@ -76,8 +80,14 @@ export async function hydrateAccountData() {
     profile: migrated ? cloudData?.profile ?? local.profile ?? null : local.profile ?? cloudData?.profile ?? null,
     activity: mergeActivity(local.activity ?? null, cloudData?.activity ?? null),
     journeyProgress: migrated ? { ...(local.journeyProgress ?? {}), ...(cloudData?.journeyProgress ?? {}) } : { ...(cloudData?.journeyProgress ?? {}), ...(local.journeyProgress ?? {}) },
+    preferences: cloudData?.preferences ?? null,
   };
-  if (merged.profile) localStorage.setItem(studentProfileStorageKey, JSON.stringify(merged.profile));
+  merged.tracker = merged.activity?.tracked ?? {};
+  merged.savedOpportunities = [...new Set([...(merged.activity?.saved ?? []), ...Object.keys(merged.tracker)])].map((opportunityId) => ({ opportunityId, savedAt: merged.tracker?.[opportunityId]?.savedAt ?? new Date().toISOString() }));
+  if (merged.profile) {
+    localStorage.setItem(studentProfileStorageKey, JSON.stringify(merged.profile));
+    localStorage.setItem(studentProfileCompleteStorageKey, "true");
+  }
   if (merged.activity) {
     localStorage.setItem(studentActivityStorageKey, JSON.stringify(merged.activity));
     window.dispatchEvent(new CustomEvent(studentActivityEvent, { detail: merged.activity }));
@@ -85,7 +95,7 @@ export async function hydrateAccountData() {
   localStorage.setItem(journeyProgressStorageKey, JSON.stringify(merged.journeyProgress ?? {}));
   localStorage.setItem(accountMigrationKey(session.user.id), "true");
   const saved = await pushAccountData(merged);
-  const syncedSession = { ...session, data: saved ?? { profile: merged.profile ?? null, activity: merged.activity ?? null, journeyProgress: merged.journeyProgress ?? {}, updatedAt: new Date().toISOString() } } satisfies AccountSession;
+  const syncedSession = { ...session, data: saved ?? { profile: merged.profile ?? null, activity: merged.activity ?? null, savedOpportunities: merged.savedOpportunities ?? [], tracker: merged.tracker ?? {}, preferences: merged.preferences ?? null, journeyProgress: merged.journeyProgress ?? {}, updatedAt: new Date().toISOString() } } satisfies AccountSession;
   window.dispatchEvent(new CustomEvent(accountSessionEvent, { detail: syncedSession }));
   return syncedSession;
 }

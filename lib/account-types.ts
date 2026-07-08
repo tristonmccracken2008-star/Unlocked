@@ -1,4 +1,5 @@
 import type { StudentActivity } from "@/data/student-activity";
+import type { TrackedOpportunity } from "@/data/student-activity";
 import type { StudentProfile } from "@/data/student-profile";
 
 export type AuthUser = {
@@ -8,10 +9,39 @@ export type AuthUser = {
   image?: string;
 };
 
+export type DatabaseUser = AuthUser & {
+  provider: "google";
+  providerAccountId: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type ProfileRecord = StudentProfile & {
+  updatedAt?: string;
+};
+
+export type SavedOpportunityRecord = {
+  opportunityId: string;
+  savedAt: string;
+};
+
+export type OpportunityTrackerRecord = Record<string, TrackedOpportunity>;
+
+export type UserPreferencesRecord = {
+  preferredTypes?: string[];
+  hiddenDismissedIds?: string[];
+  updatedAt: string;
+};
+
+export type JourneyProgressRecord = Record<string, boolean>;
+
 export type AccountData = {
-  profile: StudentProfile | null;
+  profile: ProfileRecord | null;
   activity: StudentActivity | null;
-  journeyProgress: Record<string, boolean>;
+  savedOpportunities: SavedOpportunityRecord[];
+  tracker: OpportunityTrackerRecord;
+  preferences: UserPreferencesRecord | null;
+  journeyProgress: JourneyProgressRecord;
   updatedAt: string;
 };
 

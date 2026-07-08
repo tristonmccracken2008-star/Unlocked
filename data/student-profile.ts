@@ -1,4 +1,5 @@
 export const studentProfileStorageKey = "unlocked-student-profile";
+export const studentProfileCompleteStorageKey = "unlocked-student-profile-complete";
 
 export type StudentProfile = {
   schoolSlug: string;
@@ -18,12 +19,18 @@ export function isStudentProfile(value: unknown): value is StudentProfile {
   return Boolean(profile.schoolSlug && profile.major && profile.year && profile.careerGoal && profile.interests);
 }
 
+export function isPlaceholderStudentProfile(profile: StudentProfile) {
+  const hasOnboardingSelections = Boolean(profile.goals?.length || profile.topics?.length);
+  const genericLegacyCopy = profile.careerGoal === "Explore career opportunities" && profile.interests.trim().toLowerCase() === profile.major.trim().toLowerCase();
+  return !hasOnboardingSelections && genericLegacyCopy;
+}
+
 export function readStudentProfile() {
   try {
     const saved = localStorage.getItem(studentProfileStorageKey);
     if (!saved) return null;
     const parsed: unknown = JSON.parse(saved);
-    if (isStudentProfile(parsed)) return parsed;
+    if (isStudentProfile(parsed)) return isPlaceholderStudentProfile(parsed) ? null : parsed;
     if (parsed && typeof parsed === "object") {
       const legacy = parsed as Record<string, unknown>;
       if (typeof legacy.schoolSlug === "string" && typeof legacy.major === "string" && typeof legacy.year === "string") {
@@ -34,6 +41,7 @@ export function readStudentProfile() {
           careerGoal: typeof legacy.careerGoals === "string" && legacy.careerGoals ? legacy.careerGoals : "Explore career opportunities",
           interests: typeof legacy.interests === "string" && legacy.interests ? legacy.interests : legacy.major,
         };
+        if (isPlaceholderStudentProfile(migrated)) return null;
         writeStudentProfile(migrated);
         return migrated;
       }
@@ -42,8 +50,23 @@ export function readStudentProfile() {
   } catch { return null; }
 }
 
+export function readCompletedStudentProfile() {
+  const profile = readStudentProfile();
+  if (!profile) return null;
+  if (isPlaceholderStudentProfile(profile)) {
+    localStorage.removeItem(studentProfileStorageKey);
+    localStorage.removeItem(studentProfileCompleteStorageKey);
+    return null;
+  }
+  const markedComplete = localStorage.getItem(studentProfileCompleteStorageKey) === "true";
+  if (markedComplete) return profile;
+  const hasCompletedOnboarding = Boolean(profile.schoolSlug && profile.major && profile.year && profile.careerGoal && profile.interests && (profile.goals?.length || profile.topics?.length));
+  return hasCompletedOnboarding ? profile : null;
+}
+
 export function writeStudentProfile(profile: StudentProfile) {
   localStorage.setItem(studentProfileStorageKey, JSON.stringify(profile));
+  localStorage.setItem(studentProfileCompleteStorageKey, "true");
   if (typeof window !== "undefined") {
     void fetch("/api/account/data", { method: "PUT", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ profile }) }).catch(() => undefined);
   }

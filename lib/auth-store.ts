@@ -1,20 +1,8 @@
 import crypto from "node:crypto";
-import fs from "node:fs/promises";
-import path from "node:path";
-import type { AccountData, AuthUser } from "./account-types";
+import type { AccountData, AuthUser, DatabaseUser } from "./account-types";
 
 export const sessionCookieName = "unlocked_session";
 export const oauthStateCookieName = "unlocked_oauth_state";
-const storePath = path.join(process.cwd(), ".unlocked-auth-store.json");
-
-type StoredSession = { tokenHash: string; userId: string; expiresAt: string; createdAt: string };
-type StoredUser = AuthUser & { createdAt: string; updatedAt: string };
-type AuthStore = {
-  users: Record<string, StoredUser>;
-  usersByEmail: Record<string, string>;
-  sessions: Record<string, StoredSession>;
-  accountData: Record<string, AccountData>;
-};
 
 type SignedSessionPayload = {
   v: 1;
@@ -23,11 +11,18 @@ type SignedSessionPayload = {
   iat: string;
 };
 
-const emptyData = (): AccountData => ({ profile: null, activity: null, journeyProgress: {}, updatedAt: new Date().toISOString() });
-const emptyStore = (): AuthStore => ({ users: {}, usersByEmail: {}, sessions: {}, accountData: {} });
+type StoredValue = DatabaseUser | AccountData | string | null;
+
+const memoryStore = new Map<string, StoredValue>();
 const kvUrl = process.env.KV_REST_API_URL ?? process.env.UPSTASH_REDIS_REST_URL;
 const kvToken = process.env.KV_REST_API_TOKEN ?? process.env.UPSTASH_REDIS_REST_TOKEN;
 const hasKv = Boolean(kvUrl && kvToken);
+
+const emptyData = (): AccountData => ({ profile: null, activity: null, savedOpportunities: [], tracker: {}, preferences: null, journeyProgress: {}, updatedAt: new Date().toISOString() });
+
+function requireProductionStore() {
+  if (!hasKv && process.env.NODE_ENV === "production") throw new Error("A production data store is required. Set KV_REST_API_URL/KV_REST_API_TOKEN or UPSTASH_REDIS_REST_URL/UPSTASH_REDIS_REST_TOKEN.");
+}
 
 function hash(value: string) {
   const secret = process.env.AUTH_SECRET;
@@ -60,26 +55,12 @@ function verifySignedSession(token: string): SignedSessionPayload | null {
   }
 }
 
-async function readStore(): Promise<AuthStore> {
-  try {
-    const parsed = JSON.parse(await fs.readFile(storePath, "utf8")) as Partial<AuthStore>;
-    return {
-      users: parsed.users ?? {},
-      usersByEmail: parsed.usersByEmail ?? {},
-      sessions: parsed.sessions ?? {},
-      accountData: parsed.accountData ?? {},
-    };
-  } catch {
-    return emptyStore();
-  }
+function userKey(userId: string) {
+  return `unlocked:user:${hash(userId).slice(0, 24)}`;
 }
 
-async function writeStore(store: AuthStore) {
-  try {
-    await fs.writeFile(storePath, JSON.stringify(store, null, 2));
-  } catch (error) {
-    console.warn("[UnlockED auth] Development file store write failed; signed cookie session will still work.", error);
-  }
+function emailKey(email: string) {
+  return `unlocked:user-email:${hash(email.toLowerCase()).slice(0, 24)}`;
 }
 
 function accountDataKey(userId: string) {
@@ -87,7 +68,20 @@ function accountDataKey(userId: string) {
 }
 
 async function kvCommand<T>(command: unknown[]): Promise<T | null> {
-  if (!kvUrl || !kvToken) return null;
+  requireProductionStore();
+  if (!kvUrl || !kvToken) {
+    const [op, key, value] = command as [string, string, StoredValue?];
+    if (op === "GET") return (memoryStore.get(key) ?? null) as T | null;
+    if (op === "SET") {
+      memoryStore.set(key, value ?? null);
+      return "OK" as T;
+    }
+    if (op === "DEL") {
+      memoryStore.delete(key);
+      return 1 as T;
+    }
+    throw new Error(`Unsupported development store command: ${op}`);
+  }
   const response = await fetch(kvUrl, {
     method: "POST",
     headers: { Authorization: `Bearer ${kvToken}`, "Content-Type": "application/json" },
@@ -99,60 +93,46 @@ async function kvCommand<T>(command: unknown[]): Promise<T | null> {
   return parsed.result ?? null;
 }
 
-export async function readAccountData(userId: string) {
-  if (hasKv) {
-    const value = await kvCommand<AccountData | string>(["GET", accountDataKey(userId)]).catch((error) => {
-      console.error("[UnlockED auth] KV account read failed", { userId, error });
-      return null;
-    });
-    if (typeof value === "string") {
-      try { return JSON.parse(value) as AccountData; } catch { return emptyData(); }
-    }
-    return value ?? emptyData();
+async function dbGet<T>(key: string): Promise<T | null> {
+  const value = await kvCommand<T | string>(["GET", key]);
+  if (typeof value === "string") {
+    try { return JSON.parse(value) as T; } catch { return value as T; }
   }
-  const store = await readStore();
-  return store.accountData[userId] ?? emptyData();
+  return value as T | null;
+}
+
+async function dbSet(key: string, value: unknown) {
+  await kvCommand(["SET", key, JSON.stringify(value)]);
+}
+
+export async function readAccountData(userId: string) {
+  const data = await dbGet<AccountData>(accountDataKey(userId));
+  return normalizeAccountData(data);
 }
 
 async function writeAccountData(userId: string, data: AccountData) {
-  if (hasKv) {
-    await kvCommand(["SET", accountDataKey(userId), JSON.stringify(data)]).catch((error) => {
-      console.error("[UnlockED auth] KV account write failed", { userId, error });
-      throw error;
-    });
-    return;
-  }
-  const store = await readStore();
-  store.accountData[userId] = data;
-  await writeStore(store);
-}
-
-export function createToken() {
-  return crypto.randomBytes(32).toString("base64url");
+  await dbSet(accountDataKey(userId), data);
 }
 
 export async function upsertUser(input: Omit<AuthUser, "id"> & { googleSub: string }) {
-  const store = await readStore();
   const email = input.email.toLowerCase();
-  const existingId = store.usersByEmail[email];
+  const existingId = await dbGet<string>(emailKey(email));
   const id = existingId ?? `google:${input.googleSub}`;
+  const existing = await dbGet<DatabaseUser>(userKey(id));
   const now = new Date().toISOString();
-  store.users[id] = { id, email, name: input.name, image: input.image, createdAt: store.users[id]?.createdAt ?? now, updatedAt: now };
-  store.usersByEmail[email] = id;
-  if (!hasKv) store.accountData[id] = store.accountData[id] ?? emptyData();
-  await writeStore(store);
+  const user: DatabaseUser = { id, email, name: input.name, image: input.image, provider: "google", providerAccountId: input.googleSub, createdAt: existing?.createdAt ?? now, updatedAt: now };
+  await dbSet(userKey(id), user);
+  await dbSet(emailKey(email), id);
+  if (!existing) await writeAccountData(id, emptyData());
   console.info("[UnlockED auth] OAuth user upserted", { userId: id, email });
-  return store.users[id];
+  return user;
 }
 
 export async function createSession(user: AuthUser) {
-  const store = await readStore();
   const expires = new Date();
   expires.setDate(expires.getDate() + 30);
   const payload: SignedSessionPayload = { v: 1, user, exp: expires.toISOString(), iat: new Date().toISOString() };
   const token = signPayload(payload);
-  store.sessions[hash(token)] = { tokenHash: hash(token), userId: user.id, expiresAt: expires.toISOString(), createdAt: new Date().toISOString() };
-  await writeStore(store);
   console.info("[UnlockED auth] Session created", { userId: user.id, expiresAt: expires.toISOString() });
   return { token, expires };
 }
@@ -160,52 +140,56 @@ export async function createSession(user: AuthUser) {
 export async function getSession(token: string | undefined) {
   if (!token) return null;
   const signed = verifySignedSession(token);
-  if (signed) {
-    return { user: signed.user, data: await readAccountData(signed.user.id) };
-  }
-  const store = await readStore();
-  const tokenHash = hash(token);
-  const session = store.sessions[tokenHash];
-  if (!session || new Date(session.expiresAt) <= new Date()) {
-    if (session) {
-      delete store.sessions[tokenHash];
-      await writeStore(store);
-    }
-    return null;
-  }
-  const user = store.users[session.userId];
-  if (!user) return null;
-  return { user, data: await readAccountData(user.id) };
+  if (!signed) return null;
+  return { user: signed.user, data: await readAccountData(signed.user.id) };
 }
 
-export async function deleteSession(token: string | undefined) {
-  if (!token) return;
-  const store = await readStore();
-  delete store.sessions[hash(token)];
-  await writeStore(store);
+export async function deleteSession(_token: string | undefined) {
+  return;
 }
 
-function uniqueStrings(items: unknown) {
-  return Array.isArray(items) ? [...new Set(items.filter((item): item is string => typeof item === "string"))] : [];
+const uniqueStrings = (items: unknown) => Array.isArray(items) ? [...new Set(items.filter((item): item is string => typeof item === "string"))] : [];
+
+function normalizeAccountData(value: AccountData | null | undefined): AccountData {
+  if (!value) return emptyData();
+  const tracked = value.tracker ?? value.activity?.tracked ?? {};
+  return {
+    profile: value.profile ?? null,
+    activity: value.activity ? {
+      viewed: uniqueStrings(value.activity.viewed),
+      saved: [...new Set([...uniqueStrings(value.activity.saved), ...Object.keys(tracked)])],
+      claimed: uniqueStrings(value.activity.claimed),
+      tracked,
+    } : null,
+    savedOpportunities: value.savedOpportunities?.length ? value.savedOpportunities : uniqueStrings(value.activity?.saved).map((opportunityId) => ({ opportunityId, savedAt: tracked[opportunityId]?.savedAt ?? value.updatedAt })),
+    tracker: tracked,
+    preferences: value.preferences ?? null,
+    journeyProgress: value.journeyProgress ?? {},
+    updatedAt: value.updatedAt ?? new Date().toISOString(),
+  };
 }
 
 export async function mergeAccountData(userId: string, incoming: Partial<AccountData>) {
   const current = await readAccountData(userId);
   const currentActivity = current.activity;
   const incomingActivity = incoming.activity;
-  const tracked = { ...(currentActivity?.tracked ?? {}) };
-  for (const [id, record] of Object.entries(incomingActivity?.tracked ?? {})) {
-    if (!tracked[id] || record.updatedAt > tracked[id].updatedAt) tracked[id] = record;
+  const tracker = { ...(current.tracker ?? {}), ...(currentActivity?.tracked ?? {}) };
+  for (const [id, record] of Object.entries(incoming.tracker ?? incomingActivity?.tracked ?? {})) {
+    if (!tracker[id] || record.updatedAt > tracker[id].updatedAt) tracker[id] = record;
   }
   const activity = incomingActivity || currentActivity ? {
     viewed: [...new Set([...uniqueStrings(currentActivity?.viewed), ...uniqueStrings(incomingActivity?.viewed)])],
-    saved: [...new Set([...uniqueStrings(currentActivity?.saved), ...uniqueStrings(incomingActivity?.saved), ...Object.keys(tracked)])],
+    saved: [...new Set([...uniqueStrings(currentActivity?.saved), ...uniqueStrings(incomingActivity?.saved), ...Object.keys(tracker)])],
     claimed: [...new Set([...uniqueStrings(currentActivity?.claimed), ...uniqueStrings(incomingActivity?.claimed)])],
-    tracked,
+    tracked: tracker,
   } : null;
+  const savedIds = [...new Set([...(current.savedOpportunities ?? []).map((item) => item.opportunityId), ...uniqueStrings(activity?.saved), ...Object.keys(tracker)])];
   const next: AccountData = {
     profile: incoming.profile ?? current.profile ?? null,
     activity,
+    savedOpportunities: savedIds.map((opportunityId) => current.savedOpportunities.find((item) => item.opportunityId === opportunityId) ?? incoming.savedOpportunities?.find((item) => item.opportunityId === opportunityId) ?? { opportunityId, savedAt: tracker[opportunityId]?.savedAt ?? new Date().toISOString() }),
+    tracker,
+    preferences: incoming.preferences ?? current.preferences ?? null,
     journeyProgress: { ...(current.journeyProgress ?? {}), ...(incoming.journeyProgress ?? {}) },
     updatedAt: new Date().toISOString(),
   };
