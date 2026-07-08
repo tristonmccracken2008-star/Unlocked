@@ -8,6 +8,7 @@ export const journeyProgressStorageKey = "unlocked-journey-progress";
 export const accountSessionEvent = "unlocked-account-session-change";
 export const accountSyncErrorEvent = "unlocked-account-sync-error";
 const accountMigrationKey = (userId: string) => `unlocked-account-migrated:${userId}`;
+const accountMigrationPrefix = "unlocked-account-migrated:";
 
 function readJson<T>(key: string, fallback: T): T {
   try {
@@ -68,6 +69,15 @@ export async function pushAccountData(data: Partial<AccountData>) {
 
 export function syncAccountData(data: Partial<AccountData>) {
   void pushAccountData(data).catch((error) => window.dispatchEvent(new CustomEvent(accountSyncErrorEvent, { detail: error instanceof Error ? error.message : "Account sync failed." })));
+}
+
+export function clearLocalDashboardState() {
+  localStorage.removeItem(studentProfileStorageKey);
+  localStorage.removeItem(studentProfileCompleteStorageKey);
+  localStorage.removeItem(studentActivityStorageKey);
+  localStorage.removeItem(journeyProgressStorageKey);
+  for (const key of Object.keys(localStorage)) if (key.startsWith(accountMigrationPrefix)) localStorage.removeItem(key);
+  window.dispatchEvent(new CustomEvent(studentActivityEvent, { detail: { viewed: [], saved: [], claimed: [], tracked: {} } }));
 }
 
 export async function hydrateAccountData() {

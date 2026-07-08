@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { accountSessionEvent, hydrateAccountData, readAccountSession } from "@/data/account-sync";
+import { accountSessionEvent, clearLocalDashboardState, hydrateAccountData, readAccountSession } from "@/data/account-sync";
 import type { AccountSession } from "@/lib/account-types";
 
 export function AccountSync() {
@@ -37,7 +37,9 @@ export function AccountButton({ compact = false }: { compact?: boolean }) {
     if (!response.ok) { setError("Sign out failed"); return; }
     const signedOut = { authenticated: false, user: null, data: null } satisfies AccountSession;
     setSession(signedOut);
+    clearLocalDashboardState();
     window.dispatchEvent(new CustomEvent(accountSessionEvent, { detail: signedOut }));
+    window.location.assign("/");
   }} className="flex items-center gap-2">
     {session.user?.image ? <img src={session.user.image} alt="" className="h-7 w-7 rounded-full" referrerPolicy="no-referrer"/> : <span className="grid h-7 w-7 place-items-center rounded-full bg-ink text-[10px] font-bold text-white">{session.user?.name?.[0] ?? "U"}</span>}
     <span className="flex min-w-0 flex-col"><span className={`${compact ? "max-w-24" : "max-w-44"} truncate text-xs font-bold text-ink/65`}>{label}</span>{!compact&&<span className="text-[11px] font-bold text-trust">Your dashboard is synced.</span>}</span>

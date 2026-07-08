@@ -49,7 +49,7 @@ export function PersonalizedHome() {
         if (active) setReady(true);
       }
     };
-    const onSession = (event: Event) => { const next = (event as CustomEvent<AccountSession>).detail; setSession(next); const parsed = readCompletedStudentProfile(); if (parsed && schools.some((school) => school.slug === parsed.schoolSlug)) setProfile(parsed); else setProfile(null); };
+    const onSession = (event: Event) => { const next = (event as CustomEvent<AccountSession>).detail; setSession(next); if (!next.authenticated) { setProfile(null); setEditing(false); setJustCompleted(false); return; } const parsed = readCompletedStudentProfile(); if (parsed && schools.some((school) => school.slug === parsed.schoolSlug)) setProfile(parsed); else setProfile(null); };
     const onSyncError = (event: Event) => setSyncError((event as CustomEvent<string>).detail);
     window.addEventListener(accountSessionEvent, onSession);
     window.addEventListener(accountSyncErrorEvent, onSyncError);
