@@ -1,17 +1,17 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { filterOpportunities, opportunities, opportunityTypes, type OpportunityType } from "@/data/opportunities";
+import { filterOpportunities, opportunityTypes, type Opportunity, type OpportunityType } from "@/data/opportunities";
 import { schools, type School } from "@/data/seed";
 import { findSchoolMatches, normalizeSchoolQuery } from "@/data/school-search";
 import { OpportunityCard } from "./opportunity-card";
 import { SearchIcon } from "./icons";
 
-export function OpportunityFilter() {
+export function OpportunityFilter({ opportunities }: { opportunities: Opportunity[] }) {
   const [query,setQuery]=useState(""); const [type,setType]=useState<OpportunityType|"All">("All"); const [major,setMajor]=useState("All"); const [school,setSchool]=useState("All"); const [year,setYear]=useState("All"); const [paid,setPaid]=useState("All"); const [remote,setRemote]=useState("All"); const [deadline,setDeadline]=useState("All"); const [featured,setFeatured]=useState(false); const [hiddenGem,setHiddenGem]=useState(false); const [showAll,setShowAll]=useState(false);
   const majors=["All",...new Set(opportunities.flatMap((item)=>item.majors).filter((item)=>item!=="Any Major"))];
   const years=["All",...new Set(opportunities.flatMap((item)=>item.academic_years).filter((item)=>item!=="Any Year"))];
-  const visible=useMemo(()=>filterOpportunities({query,types:type==="All"?undefined:[type],major,school:school==="All"?undefined:school,academicYear:year,paid:paid==="All"?undefined:paid==="Paid",remote:remote==="All"?undefined:remote==="Remote",deadline:deadline==="All"?undefined:deadline as "published"|"upcoming"|"rolling"|"not_announced",featured:featured?true:undefined,hiddenGem:hiddenGem?true:undefined}),[deadline,featured,hiddenGem,major,paid,query,remote,school,type,year]);
+  const visible=useMemo(()=>filterOpportunities({query,types:type==="All"?undefined:[type],major,school:school==="All"?undefined:school,academicYear:year,paid:paid==="All"?undefined:paid==="Paid",remote:remote==="All"?undefined:remote==="Remote",deadline:deadline==="All"?undefined:deadline as "published"|"upcoming"|"rolling"|"not_announced",featured:featured?true:undefined,hiddenGem:hiddenGem?true:undefined},opportunities),[deadline,featured,hiddenGem,major,opportunities,paid,query,remote,school,type,year]);
   const displayed=showAll?visible:visible.slice(0,18);
   return <>
     <div className="border border-ink/20 bg-white"><label className="flex h-14 items-center gap-3 px-4"><SearchIcon className="h-4 w-4 text-ink/40"/><span className="sr-only">Search all opportunities</span><input value={query} onChange={(event)=>setQuery(event.target.value)} placeholder="Search titles, organizations, or skills" className="min-w-0 flex-1 bg-transparent outline-none"/></label><div className="grid border-t border-ink/15 sm:grid-cols-2 lg:grid-cols-4"><Select label="Type" value={type} setValue={(value)=>setType(value as OpportunityType|"All")} options={["All",...opportunityTypes]}/><Select label="Major" value={major} setValue={setMajor} options={majors}/><SchoolFilter value={school} setValue={setSchool}/><Select label="Year" value={year} setValue={setYear} options={years}/><Select label="Paid" value={paid} setValue={setPaid} options={["All","Paid","Unpaid"]}/><Select label="Remote" value={remote} setValue={setRemote} options={["All","Remote","In Person"]}/><Select label="Deadline" value={deadline} setValue={setDeadline} options={["All","published","upcoming","rolling","not_announced"]}/><div className="flex min-h-14 flex-wrap items-center gap-5 border-t border-ink/15 px-4 sm:border-l"><label className="py-3 text-xs font-bold"><input type="checkbox" checked={featured} onChange={(event)=>setFeatured(event.target.checked)} className="mr-2"/>Featured</label><label className="py-3 text-xs font-bold"><input type="checkbox" checked={hiddenGem} onChange={(event)=>setHiddenGem(event.target.checked)} className="mr-2"/>Hidden gems</label></div></div></div>

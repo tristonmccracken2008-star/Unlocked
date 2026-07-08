@@ -16,4 +16,6 @@ button, input, select, textarea { font: inherit; }
 .scrollbar-none { scrollbar-width: none; }
 .prose-copy h2 { font-size: 1.25rem; font-weight: 800; letter-spacing: -0.02em; }
 .prose-copy p { margin-top: .65rem; color: rgb(16 36 62 / .62); line-height: 1.75; }
+.input { min-height: 2.75rem; width: 100%; border: 1px solid rgb(16 36 62 / .2); background: white; padding-inline: .75rem; font-size: .875rem; outline: none; }
+.input:focus { border-color: #225c4d; }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { transition-duration: 0.01ms !important; } }

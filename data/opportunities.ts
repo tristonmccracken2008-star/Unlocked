@@ -135,9 +135,9 @@ export function filterOpportunities(filters: OpportunityFilters = {}, source: re
 
 export const getOpportunity = (id: string) => opportunities.find((item) => item.id === id);
 export const getOpportunityByLegacySlug = (type: OpportunityType, slug: string) => opportunities.find((item) => item.type === type && item.metadata.legacySlug === slug);
-export function getRelatedOpportunities(item: Opportunity, limit = 5) {
+export function getRelatedOpportunities(item: Opportunity, limit = 5, source: readonly Opportunity[] = opportunities) {
   const tokens = new Set(`${item.title} ${item.category} ${item.tags.join(" ")}`.toLowerCase().split(/[^a-z0-9]+/).filter((token) => token.length > 3));
-  return opportunities.filter((candidate) => candidate.id !== item.id && candidate.verification_status !== "expired").map((candidate) => {
+  return source.filter((candidate) => candidate.id !== item.id && candidate.verification_status !== "expired").map((candidate) => {
     const candidateTokens = new Set(`${candidate.title} ${candidate.category} ${candidate.tags.join(" ")}`.toLowerCase().split(/[^a-z0-9]+/).filter((token) => token.length > 3));
     const tokenOverlap = [...tokens].filter((token) => candidateTokens.has(token)).length;
     const majorOverlap = item.majors.filter((major) => major !== "Any Major" && candidate.majors.includes(major)).length;

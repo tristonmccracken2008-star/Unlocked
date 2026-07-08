@@ -2,16 +2,17 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { deadlineLabel, getOpportunity, getRelatedOpportunities, opportunities, type Opportunity } from "@/data/opportunities";
+import { deadlineLabel, getRelatedOpportunities, type Opportunity } from "@/data/opportunities";
 import { schools } from "@/data/seed";
 import { ConfidenceBadge, StatusBadge } from "@/components/status-badge";
 import { OpportunityActivityActions, OpportunityViewTracker } from "@/components/opportunity-activity";
 import { ArrowIcon } from "@/components/icons";
 import { ReportOutdatedButton } from "@/components/report-outdated-button";
 import { maintenanceStatus } from "@/data/opportunity-maintenance";
+import { getManagedOpportunity, listPublishedOpportunities } from "@/lib/content-store";
 
-export function generateStaticParams(){return opportunities.map(({id})=>({id}))}
-export async function generateMetadata({params}:{params:Promise<{id:string}>}):Promise<Metadata>{const item=getOpportunity((await params).id);if(!item)return{title:"Opportunity not found"};const title=`${item.title}: Eligibility, Value & How to Apply`;const description=`A verified guide to ${item.title} from ${item.organization}, including eligibility, value, timeline, official source, and application guidance.`;return{title,description,alternates:{canonical:`/opportunities/${item.id}`},openGraph:{title,description,url:`/opportunities/${item.id}`,type:"article"}}}
+export const dynamic="force-dynamic";
+export async function generateMetadata({params}:{params:Promise<{id:string}>}):Promise<Metadata>{const item=await getManagedOpportunity((await params).id);if(!item)return{title:"Opportunity not found"};const title=`${item.title}: Eligibility, Value & How to Apply`;const description=`A verified guide to ${item.title} from ${item.organization}, including eligibility, value, timeline, official source, and application guidance.`;return{title,description,alternates:{canonical:`/opportunities/${item.id}`},openGraph:{title,description,url:`/opportunities/${item.id}`,type:"article"}}}
 
 const unknown = (label:string) => `Unknown — the official source reviewed by UnlockED does not specify ${label}.`;
 const formatMoney = (value:number) => new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",maximumFractionDigits:0}).format(value);
@@ -37,10 +38,10 @@ function timeRequired(item:Opportunity){if(item.type==="Benefit"||item.type==="A
 function goalPath(item:Opportunity):[string,string]{if(item.school_scope==="School Specific")return["My University","/university"];if(item.type==="Career"||item.type==="Research")return["Build Your Career","/build-career"];if(item.type==="Scholarship"||(item.type==="Benefit"&&["Finance","Shopping","Streaming","Travel"].includes(item.category)))return["Save Money","/save-money"];return["Get Ahead","/get-ahead"]}
 
 export default async function Page({params}:{params:Promise<{id:string}>}){
-  const item=getOpportunity((await params).id);if(!item)notFound();
+  const item=await getManagedOpportunity((await params).id);if(!item)notFound();
   const displayedStatus=maintenanceStatus(item);
   const itemGoal=goalPath(item);
-  const related=getRelatedOpportunities(item,5);
+  const related=getRelatedOpportunities(item,5,await listPublishedOpportunities());
   const schoolNames=item.schools.map((slug)=>schools.find((school)=>school.slug===slug)?.name??slug);
   const requirements=[item.eligibility,...(item.metadata.applicationRequirements??[]),...(item.metadata.eligibilityNotes??[])];
   const gpa=requirements.find((value)=>/\bgpa\b/i.test(value))??unknown("GPA requirements");

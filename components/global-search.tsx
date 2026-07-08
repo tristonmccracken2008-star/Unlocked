@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { opportunities, type Opportunity } from "@/data/opportunities";
+import { opportunities as seedOpportunities, type Opportunity } from "@/data/opportunities";
 import { schools, type School } from "@/data/seed";
 import { SearchIcon } from "./icons";
 import { trackProductEvent } from "@/data/product-analytics";
@@ -20,10 +20,11 @@ function schoolText(school:School){return[school.name,school.domain,school.slug,
 function opportunityText(item:Opportunity){const schoolNames=item.schools.map((slug)=>schools.find((school)=>school.slug===slug)?.name??slug);return[item.title,item.organization,item.description,item.category,item.eligibility,item.location,...item.majors,...item.academic_years,...item.tags,...item.schools,...schoolNames].join(" ")}
 
 export function GlobalSearch(){
-  const[open,setOpen]=useState(false);const[query,setQuery]=useState("");const[active,setActive]=useState(0);const inputRef=useRef<HTMLInputElement>(null);const router=useRouter();
+  const[open,setOpen]=useState(false);const[query,setQuery]=useState("");const[active,setActive]=useState(0);const[opportunities,setOpportunities]=useState<Opportunity[]>(seedOpportunities);const inputRef=useRef<HTMLInputElement>(null);const router=useRouter();
+  useEffect(()=>{fetch("/api/opportunities").then((response)=>response.ok?response.json():Promise.reject()).then((body)=>setOpportunities(body.opportunities)).catch(()=>undefined)},[]);
   useEffect(()=>{const key=(event:KeyboardEvent)=>{if((event.metaKey||event.ctrlKey)&&event.key.toLowerCase()==="k"){event.preventDefault();setOpen(true)}if(event.key==="Escape")setOpen(false)};window.addEventListener("keydown",key);return()=>window.removeEventListener("keydown",key)},[]);
   useEffect(()=>{if(open){requestAnimationFrame(()=>inputRef.current?.focus());document.body.style.overflow="hidden"}else{document.body.style.overflow="";setQuery("");setActive(0)}return()=>{document.body.style.overflow=""}},[open]);
-  const results=useMemo<SearchResult[]>(()=>{if(!query.trim())return[];const schoolResults=schools.map((school)=>({id:`school-${school.slug}`,title:school.name,subtitle:`${school.domain} · ${school.location}`,href:`/schools/${school.slug}`,group:"Universities" as const,score:scoreText(query,schoolText(school))})).filter((item)=>item.score>=0);const opportunityResults=opportunities.filter((item)=>item.verification_status!=="expired").map((item)=>({id:item.id,title:item.title,subtitle:`${item.organization} · ${item.category}`,href:`/opportunities/${item.id}`,group:groupFor(item),score:scoreText(query,opportunityText(item))})).filter((item)=>item.score>=0);const combined=[...schoolResults,...opportunityResults];return groups.flatMap((group)=>combined.filter((item)=>item.group===group).sort((a,b)=>b.score-a.score||a.title.localeCompare(b.title)).slice(0,4))},[query]);
+  const results=useMemo<SearchResult[]>(()=>{if(!query.trim())return[];const schoolResults=schools.map((school)=>({id:`school-${school.slug}`,title:school.name,subtitle:`${school.domain} · ${school.location}`,href:`/schools/${school.slug}`,group:"Universities" as const,score:scoreText(query,schoolText(school))})).filter((item)=>item.score>=0);const opportunityResults=opportunities.filter((item)=>item.verification_status!=="expired").map((item)=>({id:item.id,title:item.title,subtitle:`${item.organization} · ${item.category}`,href:`/opportunities/${item.id}`,group:groupFor(item),score:scoreText(query,opportunityText(item))})).filter((item)=>item.score>=0);const combined=[...schoolResults,...opportunityResults];return groups.flatMap((group)=>combined.filter((item)=>item.group===group).sort((a,b)=>b.score-a.score||a.title.localeCompare(b.title)).slice(0,4))},[opportunities,query]);
   useEffect(()=>setActive(0),[query]);
   function recordSearch(result:SearchResult){trackProductEvent("search",{searchType:result.group==="Universities"?"school":"global",searchValue:result.group==="Universities"?result.id.replace("school-",""):result.group})}
   function go(result:SearchResult){recordSearch(result);setOpen(false);router.push(result.href)}

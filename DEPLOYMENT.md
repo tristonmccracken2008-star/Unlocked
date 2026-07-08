@@ -91,6 +91,7 @@ Run `npm run build`, commit those changes, and push again.
 - Check school search aliases such as `UChicago` and `umich.edu`.
 - Confirm Vercel Web Analytics and Speed Insights receive production traffic.
 - Confirm `/admin/analytics` is denied to accounts not listed in `ADMIN_EMAILS`.
+- Confirm an allowed account can open `/admin/content`, save a test edit, and see that edit on its public opportunity page. CMS storage details are documented in `docs/CONTENT_MANAGEMENT.md`.
 - Open official source links and report-outdated-information links.
 - Test narrow mobile and desktop layouts.
 - Confirm unknown-value benefits are excluded from savings totals.
