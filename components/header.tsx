@@ -3,7 +3,7 @@ import { Logo } from "./logo";
 import { GlobalSearch } from "./global-search";
 
 export function Header() {
-  const destinations = [["Dashboard","/"],["Get Ahead","/get-ahead"],["Build Your Career","/build-career"],["Save Money","/save-money"],["My University","/university"],["Profile","/profile"]];
+  const destinations = [["Dashboard","/"],["Get Ahead","/get-ahead"],["Build Your Career","/build-career"],["Save Money","/save-money"],["My University","/university"],["My Opportunities","/my-opportunities"],["Profile","/profile"]];
   return <header className="border-b border-ink/20 bg-paper">
     <div className="mx-auto grid max-w-7xl gap-x-5 px-5 sm:px-8 md:grid-cols-[auto_minmax(180px,224px)_1fr] md:items-center">
       <Logo className="py-3.5" />

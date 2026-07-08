@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { deadlineLabel, type Opportunity } from "@/data/opportunities";
 import { ArrowIcon } from "./icons";
+import { SaveOpportunityButton } from "./opportunity-activity";
 import { StatusBadge } from "./status-badge";
 
 export function OpportunityCard({ opportunity, reasons }: { opportunity: Opportunity; reasons?: string[] }) {
@@ -9,6 +10,6 @@ export function OpportunityCard({ opportunity, reasons }: { opportunity: Opportu
   return <article className="grid gap-5 border-b border-ink/15 bg-white px-4 py-5 transition-colors hover:bg-paper/50 sm:px-5 md:grid-cols-[minmax(0,1fr)_190px_130px] md:items-center">
     <div className="min-w-0"><div className="flex flex-wrap items-center gap-2.5"><span className="rule-label text-forest">{opportunity.type}</span><span className="rule-label text-ink/40">{opportunity.category}</span><StatusBadge status={opportunity.verification_status}/></div><h3 className="mt-2 font-editorial text-xl font-bold leading-tight"><Link href={`/opportunities/${opportunity.id}`} className="hover:text-forest">{opportunity.title}</Link></h3><p className="mt-1 text-xs font-bold uppercase tracking-[.08em] text-ink/35">{opportunity.organization}</p><p className="mt-2 line-clamp-2 text-sm leading-6 text-ink/55">{opportunity.description}</p>{reasons?.length ? <details className="mt-3 border-l-2 border-gold pl-3"><summary className="cursor-pointer text-xs font-bold text-ink/55">Why this matches your profile</summary><ul className="mt-2 space-y-1 text-xs text-ink/55">{reasons.map((reason)=><li key={reason}>— {reason}</li>)}</ul></details> : null}</div>
     <div className="border-t border-ink/15 pt-4 md:border-l md:border-t-0 md:pl-4 md:pt-0"><p className="rule-label text-ink/35">{secondaryLabel}</p><p className="mt-2 text-sm font-bold text-forest">{secondary}</p><p className="mt-3 text-xs text-ink/40">{opportunity.school_scope} · {opportunity.location}</p><p className="mt-2 text-[11px] text-ink/35">Last verified {opportunity.last_verified}</p></div>
-    <div className="flex items-center gap-4 md:flex-col md:items-end"><Link href={`/opportunities/${opportunity.id}`} className="inline-flex min-h-11 items-center gap-2 text-xs font-bold uppercase tracking-wider hover:text-forest">View details <ArrowIcon /></Link><a href={opportunity.official_source} target="_blank" rel="noreferrer" className="text-xs font-bold text-forest underline decoration-forest/30 underline-offset-4 hover:decoration-forest">Official source</a></div>
+    <div className="flex items-center gap-4 md:flex-col md:items-end"><SaveOpportunityButton opportunityId={opportunity.id} className="border border-ink/15 px-4 text-ink/55 hover:border-forest hover:text-forest"/><Link href={`/opportunities/${opportunity.id}`} className="inline-flex min-h-11 items-center gap-2 text-xs font-bold uppercase tracking-wider hover:text-forest">View details <ArrowIcon /></Link><a href={opportunity.official_source} target="_blank" rel="noreferrer" className="text-xs font-bold text-forest underline decoration-forest/30 underline-offset-4 hover:decoration-forest">Official source</a></div>
   </article>;
 }
