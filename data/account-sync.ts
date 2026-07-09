@@ -3,6 +3,7 @@
 import { studentActivityEvent, studentActivityStorageKey, type StudentActivity } from "./student-activity";
 import { studentProfileCompleteStorageKey, studentProfileStorageKey, type StudentProfile } from "./student-profile";
 import type { AccountData, AccountSession } from "@/lib/account-types";
+import { defaultBillingRecord } from "@/lib/billing";
 
 export const journeyProgressStorageKey = "unlocked-journey-progress";
 export const accountSessionEvent = "unlocked-account-session-change";
@@ -105,7 +106,7 @@ export async function hydrateAccountData() {
   localStorage.setItem(journeyProgressStorageKey, JSON.stringify(merged.journeyProgress ?? {}));
   localStorage.setItem(accountMigrationKey(session.user.id), "true");
   const saved = await pushAccountData(merged);
-  const syncedSession = { ...session, data: saved ?? { profile: merged.profile ?? null, activity: merged.activity ?? null, savedOpportunities: merged.savedOpportunities ?? [], tracker: merged.tracker ?? {}, preferences: merged.preferences ?? null, journeyProgress: merged.journeyProgress ?? {}, updatedAt: new Date().toISOString() } } satisfies AccountSession;
+  const syncedSession = { ...session, data: saved ?? { profile: merged.profile ?? null, billing: cloudData?.billing ?? defaultBillingRecord(), activity: merged.activity ?? null, savedOpportunities: merged.savedOpportunities ?? [], tracker: merged.tracker ?? {}, preferences: merged.preferences ?? null, journeyProgress: merged.journeyProgress ?? {}, updatedAt: new Date().toISOString() } } satisfies AccountSession;
   window.dispatchEvent(new CustomEvent(accountSessionEvent, { detail: syncedSession }));
   return syncedSession;
 }

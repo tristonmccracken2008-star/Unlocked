@@ -1,5 +1,6 @@
 import crypto from "node:crypto";
 import type { AccountData, AuthUser, DatabaseUser } from "./account-types";
+import { defaultBillingRecord, normalizeBillingRecord, type BillingRecord } from "./billing";
 
 export const sessionCookieName = "unlocked_session";
 export const oauthStateCookieName = "unlocked_oauth_state";
@@ -18,7 +19,7 @@ const kvUrl = process.env.KV_REST_API_URL ?? process.env.UPSTASH_REDIS_REST_URL;
 const kvToken = process.env.KV_REST_API_TOKEN ?? process.env.UPSTASH_REDIS_REST_TOKEN;
 const hasKv = Boolean(kvUrl && kvToken);
 
-const emptyData = (): AccountData => ({ profile: null, activity: null, savedOpportunities: [], tracker: {}, preferences: null, journeyProgress: {}, updatedAt: new Date().toISOString() });
+const emptyData = (): AccountData => ({ profile: null, billing: defaultBillingRecord(), activity: null, savedOpportunities: [], tracker: {}, preferences: null, journeyProgress: {}, updatedAt: new Date().toISOString() });
 
 function requireProductionStore() {
   if (!hasKv && process.env.NODE_ENV === "production") throw new Error("A production data store is required. Set KV_REST_API_URL/KV_REST_API_TOKEN or UPSTASH_REDIS_REST_URL/UPSTASH_REDIS_REST_TOKEN.");
@@ -155,6 +156,7 @@ function normalizeAccountData(value: AccountData | null | undefined): AccountDat
   const tracked = value.tracker ?? value.activity?.tracked ?? {};
   return {
     profile: value.profile ?? null,
+    billing: normalizeBillingRecord(value.billing),
     activity: value.activity ? {
       viewed: uniqueStrings(value.activity.viewed),
       saved: [...new Set([...uniqueStrings(value.activity.saved), ...Object.keys(tracked)])],
@@ -186,11 +188,23 @@ export async function mergeAccountData(userId: string, incoming: Partial<Account
   const savedIds = [...new Set([...(current.savedOpportunities ?? []).map((item) => item.opportunityId), ...uniqueStrings(activity?.saved), ...Object.keys(tracker)])];
   const next: AccountData = {
     profile: incoming.profile ?? current.profile ?? null,
+    billing: normalizeBillingRecord(current.billing),
     activity,
     savedOpportunities: savedIds.map((opportunityId) => current.savedOpportunities.find((item) => item.opportunityId === opportunityId) ?? incoming.savedOpportunities?.find((item) => item.opportunityId === opportunityId) ?? { opportunityId, savedAt: tracker[opportunityId]?.savedAt ?? new Date().toISOString() }),
     tracker,
     preferences: incoming.preferences ?? current.preferences ?? null,
     journeyProgress: { ...(current.journeyProgress ?? {}), ...(incoming.journeyProgress ?? {}) },
+    updatedAt: new Date().toISOString(),
+  };
+  await writeAccountData(userId, next);
+  return next;
+}
+
+export async function updateAccountBilling(userId: string, billing: Partial<BillingRecord>) {
+  const current = await readAccountData(userId);
+  const next: AccountData = {
+    ...current,
+    billing: normalizeBillingRecord({ ...current.billing, ...billing, updatedAt: new Date().toISOString() }),
     updatedAt: new Date().toISOString(),
   };
   await writeAccountData(userId, next);

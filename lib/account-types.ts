@@ -1,6 +1,7 @@
 import type { StudentActivity } from "@/data/student-activity";
 import type { TrackedOpportunity } from "@/data/student-activity";
 import type { StudentProfile } from "@/data/student-profile";
+import type { BillingRecord } from "./billing";
 
 export type AuthUser = {
   id: string;
@@ -37,6 +38,7 @@ export type JourneyProgressRecord = Record<string, boolean>;
 
 export type AccountData = {
   profile: ProfileRecord | null;
+  billing: BillingRecord;
   activity: StudentActivity | null;
   savedOpportunities: SavedOpportunityRecord[];
   tracker: OpportunityTrackerRecord;
