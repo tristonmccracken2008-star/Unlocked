@@ -1,5 +1,6 @@
 import type { Opportunity } from "./opportunities";
 import { getMajorPathway, type MajorPathway } from "./major-pathways";
+import { scoreOpportunityIntelligence } from "./opportunity-intelligence";
 import type { School } from "./schemas";
 import type { StudentActivity, TrackedOpportunity } from "./student-activity";
 import { isCompletedStudentProfile, type StudentProfile } from "./student-profile";
@@ -73,7 +74,6 @@ export type AdvisorEngineResult = {
 
 const unique = <T,>(items: T[]) => [...new Set(items.filter(Boolean))];
 const normalize = (value: string) => value.toLowerCase().replace(/[^a-z0-9+#. ]/g, " ").replace(/\s+/g, " ").trim();
-const tokenize = (value: string) => normalize(value).split(" ").filter((token) => token.length > 2);
 
 export function advisorTimelineStage(academicYear: string): AdvisorTimelineStage {
   if (academicYear === "Second year") return "Sophomore";
@@ -223,63 +223,25 @@ export function runAdvisorEngine(profile: AdvisorProfile): AdvisorEngineResult {
   };
 }
 
-function deadlineDays(item: Opportunity) {
-  if (!item.application_deadline) return null;
-  const today = new Date();
-  const deadline = new Date(`${item.application_deadline}T23:59:59Z`);
-  return Math.ceil((deadline.getTime() - today.getTime()) / 86400000);
-}
-
-function majorMatches(profile: AdvisorProfile, item: Opportunity) {
-  const major = normalize(profile.academics.major);
-  return item.majors.includes("Any Major") || item.majors.some((itemMajor) => {
-    const normalized = normalize(itemMajor);
-    return major.includes(normalized) || normalized.includes(major);
-  });
-}
-
-function goalMatches(profile: AdvisorProfile, item: Opportunity) {
-  const text = normalize([item.title, item.description, item.category, item.organization, ...item.tags].join(" "));
-  return unique([...tokenize(profile.goals.careerGoal), ...profile.goals.interests.flatMap(tokenize)]).filter((token) => text.includes(token));
-}
-
 export function explainOpportunityRecommendation(profile: AdvisorProfile, item: Opportunity): AdvisorRecommendation {
-  const days = deadlineDays(item);
-  const matchesMajor = majorMatches(profile, item);
-  const matchesYear = item.academic_years.includes("Any Year") || item.academic_years.includes(profile.academics.academicYear);
-  const matchesSchool = item.school_scope === "National" || item.schools.includes(profile.school.slug);
-  const matchedGoals = goalMatches(profile, item);
-  const categoryPriority = profile.pathway.bestOpportunityCategories.includes(item.category);
-  let score = 28;
-  if (matchesMajor) score += 18;
-  if (matchesYear) score += 14;
-  if (matchesSchool) score += 12;
-  if (matchedGoals.length) score += Math.min(12, matchedGoals.length * 4);
-  if (categoryPriority) score += 10;
-  if (item.verification_status === "verified") score += 8;
-  if (typeof item.estimated_value === "number" && item.estimated_value > 0) score += Math.min(8, Math.ceil(item.estimated_value / 1000));
-  if (days !== null && days >= 0 && days <= 21) score += 8;
-  if (item.difficulty === "Highly Competitive") score -= 4;
-  const confidence = Math.min(98, Math.max(20, score));
-  const priority: AdvisorRecommendationPriority = days !== null && days >= 0 && days <= 14 ? "Critical" : confidence >= 82 ? "High" : confidence >= 60 ? "Recommended" : "Optional";
-  const reasons = [
-    `You are a ${profile.academics.timelineStage.toLowerCase()} ${profile.academics.major} student.`,
-    matchesYear ? `This opportunity accepts ${profile.academics.academicYear.toLowerCase()} students.` : `This opportunity may not explicitly list ${profile.academics.academicYear.toLowerCase()} eligibility.`,
-    matchesMajor ? "Your major matches the listed eligibility." : "Your major is not an explicit match, so review eligibility carefully.",
-    matchesSchool ? item.school_scope === "National" ? "This is a national opportunity." : `This is available at ${profile.school.name}.` : `This does not appear to be available at ${profile.school.name}.`,
-  ];
-  if (matchedGoals[0]) reasons.push(`It aligns with your interest in ${matchedGoals[0]}.`);
-  if (days !== null && days >= 0) reasons.push(`Applications close in ${days} day${days === 1 ? "" : "s"}.`);
-  if (item.estimated_value) reasons.push(`The estimated value is $${item.estimated_value.toLocaleString("en-US")}.`);
-  if (item.difficulty) reasons.push(`Competitiveness is marked ${item.difficulty.toLowerCase()}.`);
+  const scored = scoreOpportunityIntelligence(item, {
+    schoolSlug: profile.school.slug,
+    schoolName: profile.school.name,
+    major: profile.academics.major,
+    academicYear: profile.academics.academicYear,
+    careerGoals: profile.goals.careerGoal,
+    interests: profile.goals.interests,
+    savedOpportunityIds: profile.experience.savedOpportunityIds,
+    viewedOpportunityIds: profile.experience.viewedOpportunityIds,
+  });
   return {
     id: `advisor-opportunity-${item.id}`,
     type: "Opportunity",
     title: item.title,
     description: item.description,
-    priority,
-    confidence,
-    reasons,
+    priority: scored.priority,
+    confidence: scored.confidence,
+    reasons: [`You are a ${profile.academics.timelineStage.toLowerCase()} ${profile.academics.major} student.`, ...scored.reasons],
     categories: [item.category],
   };
 }
