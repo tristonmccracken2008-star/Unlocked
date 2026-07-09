@@ -38,6 +38,7 @@ export type JourneyProgressRecord = Record<string, boolean>;
 
 export type AccountData = {
   profile: ProfileRecord | null;
+  onboardingComplete: boolean;
   billing: BillingRecord;
   activity: StudentActivity | null;
   savedOpportunities: SavedOpportunityRecord[];

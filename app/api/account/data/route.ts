@@ -11,12 +11,13 @@ function cleanData(value: unknown): Partial<AccountData> {
   if (!value || typeof value !== "object") return {};
   const input = value as Partial<AccountData>;
   const profile = input.profile && isStudentProfile(input.profile) ? input.profile : undefined;
+  const onboardingComplete = typeof input.onboardingComplete === "boolean" ? input.onboardingComplete : undefined;
   const activity = input.activity && typeof input.activity === "object" ? input.activity : undefined;
   const savedOpportunities = Array.isArray(input.savedOpportunities) ? input.savedOpportunities.filter((item) => item && typeof item === "object" && typeof item.opportunityId === "string" && typeof item.savedAt === "string") : undefined;
   const tracker = input.tracker && typeof input.tracker === "object" ? Object.fromEntries(Object.entries(input.tracker).filter(([id, item]) => typeof id === "string" && item && typeof item === "object" && typeof item.status === "string" && typeof item.savedAt === "string" && typeof item.updatedAt === "string")) : undefined;
   const preferences = input.preferences && typeof input.preferences === "object" && typeof input.preferences.updatedAt === "string" ? input.preferences : undefined;
   const journeyProgress = input.journeyProgress && typeof input.journeyProgress === "object" ? Object.fromEntries(Object.entries(input.journeyProgress).filter(([, item]) => typeof item === "boolean")) : undefined;
-  return { profile, activity, savedOpportunities, tracker, preferences, journeyProgress };
+  return { profile, onboardingComplete, activity, savedOpportunities, tracker, preferences, journeyProgress };
 }
 
 export async function GET() {

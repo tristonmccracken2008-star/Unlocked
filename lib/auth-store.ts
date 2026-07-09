@@ -1,6 +1,7 @@
 import crypto from "node:crypto";
 import type { AccountData, AuthUser, DatabaseUser } from "./account-types";
 import { defaultBillingRecord, normalizeBillingRecord, type BillingRecord } from "./billing";
+import { isCompletedStudentProfile } from "@/data/student-profile";
 
 export const sessionCookieName = "unlocked_session";
 export const oauthStateCookieName = "unlocked_oauth_state";
@@ -19,7 +20,7 @@ const kvUrl = process.env.KV_REST_API_URL ?? process.env.UPSTASH_REDIS_REST_URL;
 const kvToken = process.env.KV_REST_API_TOKEN ?? process.env.UPSTASH_REDIS_REST_TOKEN;
 const hasKv = Boolean(kvUrl && kvToken);
 
-const emptyData = (): AccountData => ({ profile: null, billing: defaultBillingRecord(), activity: null, savedOpportunities: [], tracker: {}, preferences: null, journeyProgress: {}, updatedAt: new Date().toISOString() });
+const emptyData = (): AccountData => ({ profile: null, onboardingComplete: false, billing: defaultBillingRecord(), activity: null, savedOpportunities: [], tracker: {}, preferences: null, journeyProgress: {}, updatedAt: new Date().toISOString() });
 
 function requireProductionStore() {
   if (!hasKv && process.env.NODE_ENV === "production") throw new Error("A production data store is required. Set KV_REST_API_URL/KV_REST_API_TOKEN or UPSTASH_REDIS_REST_URL/UPSTASH_REDIS_REST_TOKEN.");
@@ -154,8 +155,10 @@ const uniqueStrings = (items: unknown) => Array.isArray(items) ? [...new Set(ite
 function normalizeAccountData(value: AccountData | null | undefined): AccountData {
   if (!value) return emptyData();
   const tracked = value.tracker ?? value.activity?.tracked ?? {};
+  const profile = value.profile ?? null;
   return {
-    profile: value.profile ?? null,
+    profile,
+    onboardingComplete: Boolean(value.onboardingComplete || (profile && isCompletedStudentProfile(profile))),
     billing: normalizeBillingRecord(value.billing),
     activity: value.activity ? {
       viewed: uniqueStrings(value.activity.viewed),
@@ -169,6 +172,10 @@ function normalizeAccountData(value: AccountData | null | undefined): AccountDat
     journeyProgress: value.journeyProgress ?? {},
     updatedAt: value.updatedAt ?? new Date().toISOString(),
   };
+}
+
+export function accountHasCompletedOnboarding(data: AccountData | null | undefined) {
+  return Boolean(data?.onboardingComplete && data.profile && isCompletedStudentProfile(data.profile));
 }
 
 export async function mergeAccountData(userId: string, incoming: Partial<AccountData>) {
@@ -186,8 +193,11 @@ export async function mergeAccountData(userId: string, incoming: Partial<Account
     tracked: tracker,
   } : null;
   const savedIds = [...new Set([...(current.savedOpportunities ?? []).map((item) => item.opportunityId), ...uniqueStrings(activity?.saved), ...Object.keys(tracker)])];
+  const incomingProfile = incoming.profile && isCompletedStudentProfile(incoming.profile) ? incoming.profile : null;
+  const profile = incomingProfile ?? current.profile ?? null;
   const next: AccountData = {
-    profile: incoming.profile ?? current.profile ?? null,
+    profile,
+    onboardingComplete: Boolean(current.onboardingComplete || incoming.onboardingComplete || (profile && isCompletedStudentProfile(profile))),
     billing: normalizeBillingRecord(current.billing),
     activity,
     savedOpportunities: savedIds.map((opportunityId) => current.savedOpportunities.find((item) => item.opportunityId === opportunityId) ?? incoming.savedOpportunities?.find((item) => item.opportunityId === opportunityId) ?? { opportunityId, savedAt: tracker[opportunityId]?.savedAt ?? new Date().toISOString() }),

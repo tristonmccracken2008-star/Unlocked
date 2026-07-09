@@ -98,8 +98,8 @@ export function PersonalizedHome() {
     trackProductEvent(view === "dashboard" ? "dashboard_visit" : view === "homepage" ? "homepage_visit" : "page_visit");
   }, [profile, ready, session?.authenticated]);
 
-  function save(next: StudentProfile) {
-    writeStudentProfile(next);
+  async function save(next: StudentProfile) {
+    await writeStudentProfile(next);
     setProfile(next);
     trackProductEvent("onboarding_completed", { searchType: "school", searchValue: next.schoolSlug });
   }
@@ -147,7 +147,7 @@ function LoggedOutLanding() {
   </main>;
 }
 
-export function StudentProfileForm({ mode, session, initialProfile, onSave, onCancel }: { mode: "onboarding" | "edit"; session: AccountSession | null; initialProfile?: StudentProfile | null; onSave: (profile: StudentProfile) => void; onCancel?: () => void }) {
+export function StudentProfileForm({ mode, session, initialProfile, onSave, onCancel }: { mode: "onboarding" | "edit"; session: AccountSession | null; initialProfile?: StudentProfile | null; onSave: (profile: StudentProfile) => void | Promise<void>; onCancel?: () => void }) {
   const initialSchool = schools.find((item) => item.slug === initialProfile?.schoolSlug) ?? null;
   const nameParts = session?.user?.name?.split(" ").filter(Boolean) ?? [];
   const [firstName, setFirstName] = useState(initialProfile?.firstName ?? nameParts[0] ?? "");
@@ -161,6 +161,7 @@ export function StudentProfileForm({ mode, session, initialProfile, onSave, onCa
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [showMajorSuggestions, setShowMajorSuggestions] = useState(false);
   const [error, setError] = useState("");
+  const [saving, setSaving] = useState(false);
   const normalized = normalizeSchoolQuery(schoolQuery);
   const matches = useMemo(() => findSchoolMatches(schools, schoolQuery, 6), [schoolQuery]);
   const majorMatches = useMemo(() => opportunityMajors.filter((item) => item !== "All" && item !== "Any Major" && item.toLowerCase().includes(major.trim().toLowerCase())).slice(0, 6), [major]);
@@ -176,7 +177,7 @@ export function StudentProfileForm({ mode, session, initialProfile, onSave, onCa
     if (!tokens.includes(value)) update([...tokens, value].join(", "));
   }
 
-  function submit(event: FormEvent) {
+  async function submit(event: FormEvent) {
     event.preventDefault();
     const exact = findExactSchoolMatches(schools, schoolQuery);
     const school = selectedSchool ?? (exact.length === 1 ? exact[0] : undefined);
@@ -187,7 +188,9 @@ export function StudentProfileForm({ mode, session, initialProfile, onSave, onCa
     if (!interests.trim()) { setError("Add at least one interest."); return; }
     if (!careerGoal.trim()) { setError("Add one career goal."); return; }
     setError("");
-    onSave({
+    setSaving(true);
+    try {
+      await onSave({
       ...initialProfile,
       firstName: firstName.trim(),
       lastName: lastName.trim() || undefined,
@@ -199,7 +202,12 @@ export function StudentProfileForm({ mode, session, initialProfile, onSave, onCa
       interests: interests.trim(),
       goals: careerGoal.split(",").map((item) => item.trim()).filter(Boolean),
       topics: interests.split(",").map((item) => item.trim()).filter(Boolean),
-    });
+      });
+    } catch {
+      setError("Your profile could not be saved. Please try again.");
+    } finally {
+      setSaving(false);
+    }
   }
 
   return <main className="px-5 py-10 sm:px-8 sm:py-14">
@@ -233,7 +241,7 @@ export function StudentProfileForm({ mode, session, initialProfile, onSave, onCa
         <TokenField id="profile-goals" label="Career goals" value={careerGoal} setValue={setCareerGoal} suggestions={careerGoalSuggestions} onAdd={addToken} placeholder="Get an internship, join a lab" />
         {error && <p role="alert" className="text-sm font-bold text-red-700">{error}</p>}
         <div className="flex flex-col gap-3 border-t border-ink/15 pt-6 sm:flex-row">
-          <button type="submit" className="inline-flex min-h-12 items-center justify-center bg-forest px-6 text-sm font-bold uppercase tracking-wider text-white hover:bg-ink">{mode === "edit" ? "Save profile" : "Open dashboard"}</button>
+          <button type="submit" disabled={saving} className="inline-flex min-h-12 items-center justify-center bg-forest px-6 text-sm font-bold uppercase tracking-wider text-white hover:bg-ink disabled:opacity-60">{saving ? "Saving..." : mode === "edit" ? "Save profile" : "Open dashboard"}</button>
           {onCancel && <button type="button" onClick={onCancel} className="inline-flex min-h-12 items-center justify-center border border-ink/20 px-6 text-sm font-bold uppercase tracking-wider text-ink/60 hover:border-forest hover:text-forest">Cancel</button>}
         </div>
       </form>

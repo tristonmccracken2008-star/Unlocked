@@ -22,6 +22,12 @@ export function isStudentProfile(value: unknown): value is StudentProfile {
   return Boolean(profile.schoolSlug && profile.major && profile.year && profile.careerGoal && profile.interests);
 }
 
+export function isCompletedStudentProfile(value: unknown): value is StudentProfile {
+  if (!isStudentProfile(value)) return false;
+  const profile = value as StudentProfile;
+  return Boolean(profile.firstName?.trim() && profile.graduationYear?.trim() && !isPlaceholderStudentProfile(profile));
+}
+
 export function isPlaceholderStudentProfile(profile: StudentProfile) {
   const hasOnboardingSelections = Boolean(profile.goals?.length || profile.topics?.length);
   const genericLegacyCopy = profile.careerGoal === "Explore career opportunities" && profile.interests.trim().toLowerCase() === profile.major.trim().toLowerCase();
@@ -62,17 +68,20 @@ export function readCompletedStudentProfile() {
     return null;
   }
   const markedComplete = localStorage.getItem(studentProfileCompleteStorageKey) === "true";
-  if (markedComplete) return profile;
-  const hasCompletedOnboarding = Boolean(profile.schoolSlug && profile.major && profile.year && profile.careerGoal && profile.interests);
-  return hasCompletedOnboarding ? profile : null;
+  if (markedComplete && isCompletedStudentProfile(profile)) return profile;
+  return isCompletedStudentProfile(profile) ? profile : null;
 }
 
-export function writeStudentProfile(profile: StudentProfile) {
+export async function writeStudentProfile(profile: StudentProfile) {
   localStorage.setItem(studentProfileStorageKey, JSON.stringify(profile));
   localStorage.setItem(studentProfileCompleteStorageKey, "true");
   if (typeof window !== "undefined") {
-    void fetch("/api/account/data", { method: "PUT", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ profile }) }).catch(() => undefined);
+    const response = await fetch("/api/account/data", { method: "PUT", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ profile, onboardingComplete: true }) });
+    if (response.status === 401) return null;
+    if (!response.ok) throw new Error("Profile could not be saved.");
+    return await response.json();
   }
+  return null;
 }
 
 export function profileSummary(profile: StudentProfile) {

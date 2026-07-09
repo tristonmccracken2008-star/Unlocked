@@ -5,8 +5,9 @@
   "scripts": {
     "dev": "next dev",
     "validate:data": "node scripts/validate-data.mjs",
+    "check:onboarding": "node scripts/check-onboarding-flow.mjs",
     "check:links": "node scripts/check-internal-links.mjs",
-    "prebuild": "npm run validate:data",
+    "prebuild": "npm run validate:data && npm run check:onboarding",
     "build": "next build",
     "postbuild": "node scripts/verify-homepage-build.mjs",
     "start": "next start",

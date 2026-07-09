@@ -1,7 +1,7 @@
 "use client";
 
 import { studentActivityEvent, studentActivityStorageKey, type StudentActivity } from "./student-activity";
-import { studentProfileCompleteStorageKey, studentProfileStorageKey, type StudentProfile } from "./student-profile";
+import { isCompletedStudentProfile, studentProfileCompleteStorageKey, studentProfileStorageKey, type StudentProfile } from "./student-profile";
 import type { AccountData, AccountSession } from "@/lib/account-types";
 import { defaultBillingRecord } from "@/lib/billing";
 
@@ -89,13 +89,14 @@ export async function hydrateAccountData() {
   const migrated = localStorage.getItem(accountMigrationKey(session.user.id)) === "true";
   const merged: Partial<AccountData> = {
     profile: cloudData?.profile ?? (!migrated ? local.profile ?? null : null),
+    onboardingComplete: Boolean(cloudData?.onboardingComplete || isCompletedStudentProfile(cloudData?.profile) || (!migrated && isCompletedStudentProfile(local.profile))),
     activity: mergeActivity(local.activity ?? null, cloudData?.activity ?? null),
     journeyProgress: migrated ? { ...(local.journeyProgress ?? {}), ...(cloudData?.journeyProgress ?? {}) } : { ...(cloudData?.journeyProgress ?? {}), ...(local.journeyProgress ?? {}) },
     preferences: cloudData?.preferences ?? null,
   };
   merged.tracker = merged.activity?.tracked ?? {};
   merged.savedOpportunities = [...new Set([...(merged.activity?.saved ?? []), ...Object.keys(merged.tracker)])].map((opportunityId) => ({ opportunityId, savedAt: merged.tracker?.[opportunityId]?.savedAt ?? new Date().toISOString() }));
-  if (merged.profile) {
+  if (isCompletedStudentProfile(merged.profile)) {
     localStorage.setItem(studentProfileStorageKey, JSON.stringify(merged.profile));
     localStorage.setItem(studentProfileCompleteStorageKey, "true");
   }
@@ -106,7 +107,7 @@ export async function hydrateAccountData() {
   localStorage.setItem(journeyProgressStorageKey, JSON.stringify(merged.journeyProgress ?? {}));
   localStorage.setItem(accountMigrationKey(session.user.id), "true");
   const saved = await pushAccountData(merged);
-  const syncedSession = { ...session, data: saved ?? { profile: merged.profile ?? null, billing: cloudData?.billing ?? defaultBillingRecord(), activity: merged.activity ?? null, savedOpportunities: merged.savedOpportunities ?? [], tracker: merged.tracker ?? {}, preferences: merged.preferences ?? null, journeyProgress: merged.journeyProgress ?? {}, updatedAt: new Date().toISOString() } } satisfies AccountSession;
+  const syncedSession = { ...session, data: saved ?? { profile: merged.profile ?? null, onboardingComplete: Boolean(merged.onboardingComplete), billing: cloudData?.billing ?? defaultBillingRecord(), activity: merged.activity ?? null, savedOpportunities: merged.savedOpportunities ?? [], tracker: merged.tracker ?? {}, preferences: merged.preferences ?? null, journeyProgress: merged.journeyProgress ?? {}, updatedAt: new Date().toISOString() } } satisfies AccountSession;
   window.dispatchEvent(new CustomEvent(accountSessionEvent, { detail: syncedSession }));
   return syncedSession;
 }
