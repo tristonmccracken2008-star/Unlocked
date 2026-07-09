@@ -32,6 +32,9 @@ export type AdvisorProfile = {
     careerGoal: string;
     interests: string[];
     topics: string[];
+    primaryGoals: string[];
+    preferredOpportunityTypes: string[];
+    weeklyAvailability?: string;
     clubs?: string;
   };
   experience: {
@@ -42,10 +45,11 @@ export type AdvisorProfile = {
     savedCount: number;
     completedCount: number;
     currentExperienceLevel: "Starting" | "Building" | "Active" | "Advanced";
+    statedExperience?: string;
   };
   pathway: MajorPathway;
   future: {
-    advisorInterview?: Record<string, unknown>;
+    advisorInterview?: StudentProfile["advisorInterview"];
     roadmapMilestones?: string[];
     weeklyDigestPreferences?: Record<string, unknown>;
     applicationTracking?: Record<string, unknown>;
@@ -121,6 +125,9 @@ export function createAdvisorProfile(input: { profile: StudentProfile; school: S
       careerGoal: profile.careerGoal,
       interests,
       topics: profile.topics ?? interests,
+      primaryGoals: profile.goals ?? goals,
+      preferredOpportunityTypes: profile.preferredOpportunityTypes ?? profile.advisorInterview?.preferredOpportunityTypes ?? [],
+      weeklyAvailability: profile.weeklyAvailability ?? profile.advisorInterview?.weeklyAvailability,
       clubs: profile.clubs,
     },
     experience: {
@@ -131,9 +138,10 @@ export function createAdvisorProfile(input: { profile: StudentProfile; school: S
       savedCount: activity?.saved?.length ?? 0,
       completedCount: activity?.claimed?.length ?? 0,
       currentExperienceLevel: currentExperienceLevel(activity),
+      statedExperience: profile.currentExperience ?? profile.advisorInterview?.currentExperience,
     },
     pathway: getMajorPathway(profile.major),
-    future: {},
+    future: { advisorInterview: profile.advisorInterview },
   };
 }
 
@@ -149,6 +157,7 @@ function priorityForCategory(stage: AdvisorTimelineStage, category: string, inde
 function confidenceForCategory(profile: AdvisorProfile, category: string, index: number) {
   let score = 52;
   if (profile.pathway.bestOpportunityCategories.includes(category)) score += 18;
+  if (profile.goals.preferredOpportunityTypes.includes(category)) score += 12;
   if (profile.student.completedProfile) score += 10;
   if (profile.goals.interests.some((interest) => normalize(category).includes(normalize(interest)) || normalize(interest).includes(normalize(category)))) score += 8;
   if (profile.experience.currentExperienceLevel !== "Starting") score += 6;
@@ -185,7 +194,7 @@ export function runAdvisorEngine(profile: AdvisorProfile): AdvisorEngineResult {
     Senior: ["Career Resources", "Fellowships", "Internships", "Scholarships"],
     "Recent Graduate": ["Career Resources", "Fellowships", "Certifications", "Internships"],
   };
-  const categoriesThatMatterNow = unique([...profile.pathway.bestOpportunityCategories, ...stageCategories[profile.academics.timelineStage]]).slice(0, 6);
+  const categoriesThatMatterNow = unique([...profile.goals.preferredOpportunityTypes, ...profile.pathway.bestOpportunityCategories, ...stageCategories[profile.academics.timelineStage]]).slice(0, 6);
   const prioritizedOpportunityCategories = categoriesThatMatterNow.map((category, index) => {
     const priority = priorityForCategory(profile.academics.timelineStage, category, index);
     return {

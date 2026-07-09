@@ -10,6 +10,18 @@ export type StudentProfile = {
   year: string;
   careerGoal: string;
   interests: string;
+  currentExperience?: string;
+  weeklyAvailability?: string;
+  preferredOpportunityTypes?: string[];
+  advisorInterview?: {
+    careerGoal?: string;
+    currentExperience?: string;
+    interests?: string[];
+    primaryGoals?: string[];
+    weeklyAvailability?: string;
+    preferredOpportunityTypes?: string[];
+    completedAt?: string;
+  };
   minor?: string;
   goals?: string[];
   topics?: string[];
