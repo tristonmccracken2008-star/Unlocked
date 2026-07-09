@@ -7,10 +7,24 @@ export function proxy(request: NextRequest) {
   const hasSessionCookie = Boolean(request.cookies.get(sessionCookieName)?.value);
   if (hasSessionCookie) return NextResponse.next();
 
-  if (pathname.startsWith("/admin")) return NextResponse.redirect(new URL("/api/auth/google", request.url));
   return NextResponse.redirect(new URL("/", request.url));
 }
 
 export const config = {
-  matcher: ["/profile", "/my-opportunities", "/admin/:path*"],
+  matcher: [
+    "/profile",
+    "/my-opportunities",
+    "/admin/:path*",
+    "/opportunities/:path*",
+    "/benefits/:path*",
+    "/scholarships",
+    "/research",
+    "/career",
+    "/build-career",
+    "/ai",
+    "/student-ai-tools",
+    "/university",
+    "/schools/:path*",
+    "/categories/:path*",
+  ],
 };

@@ -5,12 +5,12 @@ export const contentType = "image/png";
 
 export default function Icon() {
   return new ImageResponse(
-    <div style={{ alignItems: "center", background: "#f5f1e8", color: "#10243e", display: "flex", height: "100%", justifyContent: "center", width: "100%" }}>
-      <svg width="46" height="46" viewBox="0 0 36 36">
-        <path d="M8 6v15c0 6.1 3.8 9 9.7 9S28 27.1 28 21V11" fill="none" stroke="#10243e" strokeWidth="3.2" strokeLinecap="square" />
-        <path d="M24 6h7v7" fill="none" stroke="#9a6617" strokeWidth="3.2" strokeLinecap="square" />
-        <circle cx="18" cy="20" r="2.25" fill="#9a6617" />
-        <path d="M18 22v3" stroke="#9a6617" strokeWidth="2" />
+    <div style={{ alignItems: "center", background: "#f6f0e6", display: "flex", height: "100%", justifyContent: "center", width: "100%" }}>
+      <svg width="48" height="48" viewBox="0 0 40 40">
+        <path d="M9 8h18v19.5C27 33 23.5 36 18 36S9 33 9 27.5V8Z" fill="none" stroke="#1f5f43" strokeWidth="3" strokeLinejoin="round" />
+        <path d="M27 8h7v7" fill="none" stroke="#2b211a" strokeWidth="3" strokeLinecap="square" />
+        <path d="M17 14v13c0 2.1 1.2 3.2 3 3.2s3-1.1 3-3.2V14" fill="none" stroke="#2b211a" strokeWidth="2.6" strokeLinecap="round" />
+        <path d="M27 8 20 15" stroke="#b48a45" strokeWidth="2.4" strokeLinecap="round" />
       </svg>
     </div>,
     size,

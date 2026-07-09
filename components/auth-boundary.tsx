@@ -8,7 +8,7 @@ import type { AccountSession } from "@/lib/account-types";
 
 export function AuthBoundary({children}:{children:React.ReactNode}){
   const pathname=usePathname();const router=useRouter();const[session,setSession]=useState<AccountSession|null>(null);
-  const requiresAuth = pathname === "/profile" || pathname === "/my-opportunities";
+  const requiresAuth = pathname === "/profile" || pathname === "/my-opportunities" || pathname.startsWith("/admin") || pathname.startsWith("/opportunities") || pathname.startsWith("/benefits") || pathname === "/scholarships" || pathname === "/research" || pathname === "/career" || pathname === "/build-career" || pathname === "/ai" || pathname === "/student-ai-tools" || pathname === "/university" || pathname.startsWith("/schools") || pathname.startsWith("/categories");
   const requiresProfile = pathname === "/my-opportunities";
   useEffect(()=>{let active=true;readAccountSession().then((next)=>{if(active)setSession(next)}).catch(()=>{if(active)setSession({authenticated:false,user:null,data:null})});const update=(event:Event)=>setSession((event as CustomEvent<AccountSession>).detail);window.addEventListener(accountSessionEvent,update);return()=>{active=false;window.removeEventListener(accountSessionEvent,update)}},[]);
   useEffect(()=>{if(!requiresAuth||!session)return;if(!session.authenticated){clearLocalDashboardState();router.replace("/");return}const profile=session.data?.profile??readCompletedStudentProfile();if(requiresProfile&&!profile)router.replace("/")},[requiresAuth,requiresProfile,router,session]);

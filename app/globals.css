@@ -2,20 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 
-:root { color: #10243e; background: #f7f3e8; }
+:root { color: #2b211a; background: #f6f0e6; }
 html { scroll-behavior: smooth; }
-body { min-height: 100vh; overflow-x: hidden; background: #f7f3e8; font-family: "Avenir Next", Avenir, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 16px; line-height: 1.5; text-rendering: optimizeLegibility; }
+body { min-height: 100vh; overflow-x: hidden; background: #f6f0e6; font-family: "Avenir Next", Avenir, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 16px; line-height: 1.5; text-rendering: optimizeLegibility; }
 button, a, input, select, textarea { transition-duration: 150ms; }
 button, a, input, select, textarea { touch-action: manipulation; }
 button, input, select, textarea { font: inherit; }
-:focus-visible { outline: 2px solid #b78318; outline-offset: 3px; }
-::selection { background: #f0dfb2; color: #10243e; }
+:focus-visible { outline: 2px solid #1f5f43; outline-offset: 3px; }
+::selection { background: #e7d8bd; color: #2b211a; }
 .font-editorial { font-family: Iowan Old Style, Baskerville, Georgia, "Times New Roman", serif; }
 .rule-label { font-size: .67rem; font-weight: 750; letter-spacing: .135em; line-height: 1.4; text-transform: uppercase; }
 .scrollbar-none::-webkit-scrollbar { display: none; }
 .scrollbar-none { scrollbar-width: none; }
 .prose-copy h2 { font-size: 1.25rem; font-weight: 800; letter-spacing: -0.02em; }
-.prose-copy p { margin-top: .65rem; color: rgb(16 36 62 / .62); line-height: 1.75; }
-.input { min-height: 2.75rem; width: 100%; border: 1px solid rgb(16 36 62 / .2); background: white; padding-inline: .75rem; font-size: .875rem; outline: none; }
-.input:focus { border-color: #225c4d; }
+.prose-copy p { margin-top: .65rem; color: rgb(43 33 26 / .62); line-height: 1.75; }
+.input { min-height: 2.75rem; width: 100%; border: 1px solid rgb(43 33 26 / .2); background: white; padding-inline: .75rem; font-size: .875rem; outline: none; }
+.input:focus { border-color: #1f5f43; }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { transition-duration: 0.01ms !important; } }

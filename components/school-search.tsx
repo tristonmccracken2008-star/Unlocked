@@ -36,11 +36,11 @@ export function SchoolSearch() {
         </label>
         <button className="border-t-2 border-ink bg-ink px-7 py-4 text-xs font-bold uppercase tracking-widest text-white hover:bg-forest sm:border-l-2 sm:border-t-0">Search directory</button>
       </form>
-      {showSuggestions && normalized && hasSuggestions && <div id="school-suggestions" role="listbox" aria-label="School suggestions" className="absolute z-20 mt-1 w-full border-2 border-ink bg-white text-left shadow-[6px_6px_0_#10243e]">
+      {showSuggestions && normalized && hasSuggestions && <div id="school-suggestions" role="listbox" aria-label="School suggestions" className="absolute z-20 mt-1 w-full border-2 border-ink bg-white text-left shadow-[6px_6px_0_#2b211a]">
         <p className="px-3 py-2 text-xs font-bold uppercase tracking-wider text-ink/35">Choose your school</p>
         {suggestions.map((school) => <button type="button" role="option" aria-selected="false" key={school.slug} onMouseDown={(event) => event.preventDefault()} onClick={() => choose(school)} className="flex w-full items-center gap-3 border-t border-ink/15 px-4 py-3 hover:bg-paper"><span className="grid h-9 w-12 shrink-0 place-items-center border border-ink text-xs font-black">{school.initials}</span><span><span className="block font-bold">{school.name}</span><span className="block text-sm text-ink/45">{school.domain} · {school.location}</span></span></button>)}
       </div>}
-      {showSuggestions && normalized && !hasSuggestions && <div id="school-suggestions" className="absolute z-20 mt-1 w-full border-2 border-ink bg-white px-4 py-3 text-left shadow-[6px_6px_0_#10243e]"><p className="text-sm font-bold">School not found</p><Link href={`/contact?school=${encodeURIComponent(query)}`} className="mt-1 inline-block border-b border-forest text-xs font-bold text-forest">Request this school</Link></div>}
+      {showSuggestions && normalized && !hasSuggestions && <div id="school-suggestions" className="absolute z-20 mt-1 w-full border-2 border-ink bg-white px-4 py-3 text-left shadow-[6px_6px_0_#2b211a]"><p className="text-sm font-bold">School not found</p><Link href={`/contact?school=${encodeURIComponent(query)}`} className="mt-1 inline-block border-b border-forest text-xs font-bold text-forest">Request this school</Link></div>}
     </div>
   );
 }
