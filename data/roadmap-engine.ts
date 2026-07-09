@@ -1,4 +1,5 @@
 import type { AdvisorProfile, AdvisorTimelineStage } from "./advisor-engine";
+import { getMilestoneStatus, type StudentProgress } from "./student-progress";
 
 export type RoadmapImportance = "Critical" | "High" | "Recommended" | "Optional";
 export type RoadmapCompletionStatus = "not_started" | "in_progress" | "completed" | "skipped";
@@ -295,19 +296,24 @@ function withStatus(milestone: MilestoneTemplate, completedIds: Set<string>): Ro
   return { ...milestone, completionStatus: completedIds.has(milestone.id) ? "completed" : "not_started" };
 }
 
+function withProgressStatus(milestone: RoadmapMilestone, progress?: StudentProgress): RoadmapMilestone {
+  if (!progress) return milestone;
+  return { ...milestone, completionStatus: getMilestoneStatus(progress, milestone.id) };
+}
+
 export function getCurrentStage(profile: AdvisorProfile) {
   return profile.academics.timelineStage;
 }
 
-export function getRoadmapMilestones(profile: AdvisorProfile) {
+export function getRoadmapMilestones(profile: AdvisorProfile, progress?: StudentProgress) {
   const completedIds = new Set(profile.future.roadmapMilestones ?? []);
   const key = roadmapKey(profile);
   const templates = [...(majorMilestones[key] ?? []), ...generalMilestones];
-  return templates.map((milestone) => withStatus(milestone, completedIds));
+  return templates.map((milestone) => withProgressStatus(withStatus(milestone, completedIds), progress));
 }
 
-export function getCompletedMilestones(profile: AdvisorProfile) {
-  return getRoadmapMilestones(profile).filter((milestone) => milestone.completionStatus === "completed");
+export function getCompletedMilestones(profile: AdvisorProfile, progress?: StudentProgress) {
+  return getRoadmapMilestones(profile, progress).filter((milestone) => milestone.completionStatus === "completed");
 }
 
 function stageRank(stage: AdvisorTimelineStage) {
@@ -318,25 +324,25 @@ function importanceRank(importance: RoadmapImportance) {
   return { Critical: 4, High: 3, Recommended: 2, Optional: 1 }[importance];
 }
 
-export function getUpcomingMilestones(profile: AdvisorProfile) {
+export function getUpcomingMilestones(profile: AdvisorProfile, progress?: StudentProgress) {
   const current = stageRank(getCurrentStage(profile));
-  return getRoadmapMilestones(profile).filter((milestone) => milestone.completionStatus !== "completed" && stageRank(milestone.recommendedYear) >= current - 1).sort((a, b) => {
+  return getRoadmapMilestones(profile, progress).filter((milestone) => !["completed", "skipped"].includes(milestone.completionStatus) && stageRank(milestone.recommendedYear) >= current - 1).sort((a, b) => {
     const stageDelta = Math.abs(stageRank(a.recommendedYear) - current) - Math.abs(stageRank(b.recommendedYear) - current);
     if (stageDelta) return stageDelta;
     return importanceRank(b.importance) - importanceRank(a.importance);
   });
 }
 
-export function getRecommendedMilestone(profile: AdvisorProfile) {
-  const upcoming = getUpcomingMilestones(profile);
-  return upcoming[0] ?? getRoadmapMilestones(profile).find((milestone) => milestone.completionStatus !== "completed") ?? withStatus(generalMilestones[0], new Set());
+export function getRecommendedMilestone(profile: AdvisorProfile, progress?: StudentProgress) {
+  const upcoming = getUpcomingMilestones(profile, progress);
+  return upcoming[0] ?? getRoadmapMilestones(profile, progress).find((milestone) => !["completed", "skipped"].includes(milestone.completionStatus)) ?? withStatus(generalMilestones[0], new Set());
 }
 
-export function getRoadmap(profile: AdvisorProfile): RoadmapResult {
-  const milestones = getRoadmapMilestones(profile);
-  const upcomingMilestones = getUpcomingMilestones(profile);
-  const completedMilestones = getCompletedMilestones(profile);
-  const recommendedMilestone = getRecommendedMilestone(profile);
+export function getRoadmap(profile: AdvisorProfile, progress?: StudentProgress): RoadmapResult {
+  const milestones = getRoadmapMilestones(profile, progress);
+  const upcomingMilestones = getUpcomingMilestones(profile, progress);
+  const completedMilestones = getCompletedMilestones(profile, progress);
+  const recommendedMilestone = getRecommendedMilestone(profile, progress);
   return {
     currentStage: getCurrentStage(profile),
     milestones,

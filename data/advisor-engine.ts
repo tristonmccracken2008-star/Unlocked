@@ -3,6 +3,7 @@ import { getMajorPathway, type MajorPathway } from "./major-pathways";
 import { scoreOpportunityIntelligence } from "./opportunity-intelligence";
 import type { School } from "./schemas";
 import type { StudentActivity, TrackedOpportunity } from "./student-activity";
+import { getActiveApplications, getApplicationsNeedingAttention, getCompletedMilestones as getCompletedProgressMilestones, getUpcomingApplicationDeadlines, inferApplicationsFromActivity, type ApplicationRecord, type MilestoneProgressRecord, type StudentProgress } from "./student-progress";
 import { isCompletedStudentProfile, type StudentProfile } from "./student-profile";
 
 export type AdvisorTimelineStage = "Freshman" | "Sophomore" | "Junior" | "Senior" | "Recent Graduate";
@@ -46,6 +47,13 @@ export type AdvisorProfile = {
     completedCount: number;
     currentExperienceLevel: "Starting" | "Building" | "Active" | "Advanced";
     statedExperience?: string;
+  };
+  progress: {
+    milestoneProgress: Record<string, MilestoneProgressRecord>;
+    activeApplications: ApplicationRecord[];
+    completedMilestones: MilestoneProgressRecord[];
+    upcomingDeadlines: ApplicationRecord[];
+    applicationsNeedingAttention: ApplicationRecord[];
   };
   pathway: MajorPathway;
   future: {
@@ -97,9 +105,10 @@ function currentExperienceLevel(activity?: StudentActivity): AdvisorProfile["exp
   return "Starting";
 }
 
-export function createAdvisorProfile(input: { profile: StudentProfile; school: School; activity?: StudentActivity }): AdvisorProfile {
+export function createAdvisorProfile(input: { profile: StudentProfile; school: School; activity?: StudentActivity; progress?: StudentProgress }): AdvisorProfile {
   const { profile, school, activity } = input;
   const tracked = activity?.tracked ?? {};
+  const progress = inferApplicationsFromActivity(activity, [], input.progress);
   const interests = unique([profile.interests, ...(profile.topics ?? [])].flatMap((item) => item.split(",").map((part) => part.trim())));
   const goals = unique([profile.careerGoal, ...(profile.goals ?? [])].flatMap((item) => item.split(",").map((part) => part.trim())));
   return {
@@ -140,8 +149,15 @@ export function createAdvisorProfile(input: { profile: StudentProfile; school: S
       currentExperienceLevel: currentExperienceLevel(activity),
       statedExperience: profile.currentExperience ?? profile.advisorInterview?.currentExperience,
     },
+    progress: {
+      milestoneProgress: progress.milestones,
+      activeApplications: getActiveApplications(progress),
+      completedMilestones: getCompletedProgressMilestones(progress),
+      upcomingDeadlines: getUpcomingApplicationDeadlines(progress),
+      applicationsNeedingAttention: getApplicationsNeedingAttention(progress),
+    },
     pathway: getMajorPathway(profile.major),
-    future: { advisorInterview: profile.advisorInterview },
+    future: { advisorInterview: profile.advisorInterview, roadmapMilestones: getCompletedProgressMilestones(progress).map((record) => record.milestoneId), applicationTracking: progress.applications },
   };
 }
 
@@ -181,6 +197,7 @@ function categoryReasons(profile: AdvisorProfile, category: string, priority: Ad
   ];
   if (priority === "Critical") reasons.push("Your timeline makes this category time-sensitive right now.");
   if (profile.experience.currentExperienceLevel === "Starting") reasons.push("You have not saved many opportunities yet, so this is a practical starting point.");
+  if (profile.progress.applicationsNeedingAttention.length) reasons.push("You have applications or deadlines that need attention soon.");
   if (profile.goals.careerGoal) reasons.push(`It supports your stated goal: ${profile.goals.careerGoal}.`);
   return reasons;
 }

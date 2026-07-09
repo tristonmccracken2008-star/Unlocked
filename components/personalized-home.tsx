@@ -15,6 +15,7 @@ import { SaveOpportunityButton } from "./opportunity-activity";
 import { trackProductEvent } from "@/data/product-analytics";
 import { createAdvisorProfile, runAdvisorEngine, type AdvisorEngineResult } from "@/data/advisor-engine";
 import { getRoadmap, type RoadmapResult } from "@/data/roadmap-engine";
+import { inferApplicationsFromActivity, readStudentProgress, studentProgressEvent, type StudentProgress } from "@/data/student-progress";
 
 const graduationYears = Array.from({ length: 9 }, (_, index) => String(new Date().getFullYear() + index));
 const interestSuggestions = ["Scholarships", "Research", "Internships", "AI", "Software", "Startups", "Finance", "Medicine", "Engineering"];
@@ -406,11 +407,18 @@ function TokenField({ id, label, value, setValue, suggestions, onAdd, placeholde
 
 function StudentDashboard({ profile, session, syncError }: { profile: StudentProfile; session: AccountSession | null; syncError: string }) {
   const [activity, setActivity] = useState<StudentActivity>({ viewed: [], saved: [], claimed: [], tracked: {} });
+  const [progress, setProgress] = useState<StudentProgress>({ milestones: {}, applications: {} });
   useEffect(() => {
     const update = () => setActivity(readStudentActivity());
     update();
     window.addEventListener(studentActivityEvent, update);
     return () => window.removeEventListener(studentActivityEvent, update);
+  }, []);
+  useEffect(() => {
+    const update = () => setProgress(readStudentProgress());
+    update();
+    window.addEventListener(studentProgressEvent, update);
+    return () => window.removeEventListener(studentProgressEvent, update);
   }, []);
 
   const school = schools.find((item) => item.slug === profile.schoolSlug);
@@ -423,9 +431,11 @@ function StudentDashboard({ profile, session, syncError }: { profile: StudentPro
   const saved = Object.keys(activity.tracked ?? {}).map((id) => opportunities.find((item) => item.id === id)).filter((item): item is NonNullable<typeof item> => Boolean(item)).slice(0, 3);
   const recent = activity.viewed.map((id) => opportunities.find((item) => item.id === id)).filter((item): item is NonNullable<typeof item> => Boolean(item)).slice(-4).reverse();
   const firstName = displayName(profile, session);
-  const advisorProfile = createAdvisorProfile({ profile, school, activity });
+  const inferredProgress = inferApplicationsFromActivity(activity, opportunities, progress);
+  const advisorProfile = createAdvisorProfile({ profile, school, activity, progress: inferredProgress });
   const advisorInsight = runAdvisorEngine(advisorProfile);
-  const roadmap = getRoadmap(advisorProfile);
+  const roadmap = getRoadmap(advisorProfile, inferredProgress);
+  const nextAction = advisorProfile.progress.applicationsNeedingAttention[0]?.nextAction ?? `Finish ${roadmap.recommendedMilestone.title.toLowerCase()} before ${roadmap.recommendedMilestone.recommendedBefore[0] ?? "your next application window"}.`;
 
   return <main className="bg-white px-5 py-12 sm:px-8 sm:py-16">
     <div className="mx-auto max-w-6xl">
@@ -458,7 +468,7 @@ function StudentDashboard({ profile, session, syncError }: { profile: StudentPro
 
       <AdvisorInsightSection insight={advisorInsight} />
 
-      <RoadmapSection roadmap={roadmap} />
+      <RoadmapSection roadmap={roadmap} nextAction={nextAction} />
 
       <Section title="Recommended for you" href="/opportunities">
         {nextRecommended.length ? <div className="divide-y divide-ink/10">{nextRecommended.map(({ opportunity, reasons }) => <OpportunityRow key={opportunity.id} opportunity={opportunity} detail={reasons[0] ?? opportunity.organization} />)}</div> : <EmptyState title="No extra recommendations yet" text="Your best match is shown above. More matches will appear as the catalog grows." />}
@@ -499,12 +509,14 @@ function AdvisorInsightSection({ insight }: { insight: AdvisorEngineResult }) {
   </section>;
 }
 
-function RoadmapSection({ roadmap }: { roadmap: RoadmapResult }) {
+function RoadmapSection({ roadmap, nextAction }: { roadmap: RoadmapResult; nextAction: string }) {
   const milestone = roadmap.recommendedMilestone;
   return <section className="border-b border-ink/10 py-10">
     <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_220px] lg:items-end">
       <div>
         <p className="rule-label text-forest">Your Roadmap</p>
+        <p className="mt-3 text-xs font-bold uppercase tracking-wider text-ink/35">Next action</p>
+        <p className="mt-2 max-w-2xl text-sm leading-7 text-ink/55">{nextAction}</p>
         <p className="mt-3 text-xs font-bold uppercase tracking-wider text-ink/35">Next milestone</p>
         <h2 className="mt-2 max-w-3xl font-editorial text-3xl font-bold leading-tight tracking-[-.025em]">{milestone.title}.</h2>
         <p className="mt-4 max-w-2xl text-sm leading-7 text-ink/55"><span className="font-bold text-ink/70">Why?</span> {milestone.description} Most students in your stage complete this before {milestone.recommendedBefore[0] ?? "the next major application window"}.</p>
