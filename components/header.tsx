@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Logo } from "./logo";
-import { GlobalSearch } from "./global-search";
 import { AccountButton } from "./account-auth";
 import { accountSessionEvent, readAccountSession } from "@/data/account-sync";
 import type { AccountSession } from "@/lib/account-types";
@@ -11,7 +10,7 @@ import type { AccountSession } from "@/lib/account-types";
 export function Header() {
   const[session,setSession]=useState<AccountSession|null>(null);
   useEffect(()=>{let active=true;readAccountSession().then((next)=>{if(active)setSession(next)}).catch(()=>{if(active)setSession({authenticated:false,user:null,data:null})});const update=(event:Event)=>setSession((event as CustomEvent<AccountSession>).detail);window.addEventListener(accountSessionEvent,update);return()=>{active=false;window.removeEventListener(accountSessionEvent,update)}},[]);
-  const destinations=[["Dashboard","/"],["Opportunities","/opportunities"],["Benefits","/benefits"],["Scholarships","/scholarships"],["Research","/research"],["Career","/career"],["AI Tools","/ai"],["Profile","/profile"]];
-  if(!session?.authenticated)return <header className="border-b border-ink/10 bg-paper"><div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 sm:px-8"><Logo className="py-3.5"/><div className="py-3.5"><AccountButton compact/></div></div></header>;
-  return <header className="border-b border-ink/15 bg-paper"><div className="mx-auto grid max-w-7xl grid-cols-[1fr_auto] gap-x-5 px-5 sm:px-8 md:grid-cols-[auto_minmax(180px,224px)_1fr_auto] md:items-center"><Logo className="py-3.5"/><div className="justify-self-end py-3.5 md:hidden"><AccountButton compact/></div><div className="col-span-2 pb-3 md:col-span-1 md:py-2"><GlobalSearch/></div><nav aria-label="Primary navigation" className="scrollbar-none col-span-2 -mx-5 flex overflow-x-auto border-t border-ink/10 px-5 text-[11px] font-bold uppercase tracking-[.08em] sm:-mx-8 sm:px-8 md:col-span-1 md:mx-0 md:justify-end md:border-t-0 md:px-0">{destinations.map(([label,href])=><Link key={href} href={href} className="flex min-h-11 shrink-0 items-center border-b-2 border-transparent px-3 text-ink/65 hover:border-forest hover:text-ink md:min-h-14 md:px-2 lg:px-3">{label}</Link>)}</nav><div className="hidden md:block"><AccountButton compact/></div></div></header>;
+  const destinations=[["Discover","/opportunities"],["Saved","/my-opportunities"],["Profile","/profile"]];
+  if(!session?.authenticated)return <header className="border-b border-ink/10 bg-paper/95 backdrop-blur"><div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 sm:px-8"><Logo className="py-4"/><div className="py-4"><AccountButton compact/></div></div></header>;
+  return <header className="border-b border-ink/10 bg-paper/95 backdrop-blur"><div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-x-6 gap-y-2 px-5 py-3 sm:px-8"><Logo/><nav aria-label="Primary navigation" className="order-3 flex w-full gap-1 text-sm font-bold text-ink/55 sm:order-none sm:w-auto">{destinations.map(([label,href])=><Link key={href} href={href} className="rounded-full px-4 py-2 hover:bg-white hover:text-forest">{label}</Link>)}</nav><AccountButton compact/></div></header>;
 }

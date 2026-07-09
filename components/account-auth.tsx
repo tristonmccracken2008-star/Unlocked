@@ -29,7 +29,7 @@ export function AccountButton({ compact = false }: { compact?: boolean }) {
     return () => { active = false; window.removeEventListener(accountSessionEvent, onSession); window.removeEventListener("focus", refresh); };
   }, []);
   if (!session) return <span className="inline-flex min-h-10 items-center px-3 text-[11px] font-bold uppercase tracking-wider text-ink/35">Checking account</span>;
-  if (!session.authenticated) return <span className="inline-flex flex-col items-start gap-1"><a href="/api/auth/google" className="inline-flex min-h-10 shrink-0 items-center justify-center bg-forest px-4 text-[11px] font-bold uppercase tracking-wider text-white hover:bg-ink">Sign in</a>{!compact && <span className="text-[11px] font-bold text-ink/35">Save your dashboard across devices.</span>}{error && <span className="text-[10px] font-bold text-red-700">{error}</span>}</span>;
+  if (!session.authenticated) return <span className="inline-flex flex-col items-start gap-1"><a href="/api/auth/google" className="inline-flex min-h-10 shrink-0 items-center justify-center rounded-full bg-forest px-5 text-sm font-bold text-white hover:bg-ink">Sign in</a>{!compact && <span className="text-[11px] font-bold text-ink/35">Save your dashboard across devices.</span>}{error && <span className="text-[10px] font-bold text-red-700">{error}</span>}</span>;
   const label = session.user?.name || session.user?.email || "Signed in";
   return <form action="/api/auth/logout" method="post" onSubmit={async (event) => {
     event.preventDefault();
@@ -44,7 +44,7 @@ export function AccountButton({ compact = false }: { compact?: boolean }) {
   }} className="flex items-center gap-2">
     {session.user?.image ? <img src={session.user.image} alt="" className="h-7 w-7 rounded-full" referrerPolicy="no-referrer"/> : <span className="grid h-7 w-7 place-items-center rounded-full bg-ink text-[10px] font-bold text-white">{session.user?.name?.[0] ?? "U"}</span>}
     <span className="flex min-w-0 flex-col"><span className={`${compact ? "max-w-24" : "max-w-44"} truncate text-xs font-bold text-ink/65`}>{label}</span>{!compact&&<span className="text-[11px] font-bold text-trust">Your dashboard is synced.</span>}</span>
-    <button type="submit" className="text-[11px] font-bold uppercase tracking-wider text-ink/40 hover:text-forest">Sign out</button>
+    <button type="submit" className="rounded-full px-2 py-1 text-xs font-bold text-ink/40 hover:bg-white hover:text-forest">Sign out</button>
     {error && <span className="sr-only">{error}</span>}
   </form>;
 }

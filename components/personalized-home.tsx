@@ -111,7 +111,7 @@ export function PersonalizedHome() {
 }
 
 function WorkspaceLoading() {
-  return <main className="min-h-[64vh] px-5 py-16 sm:px-8"><div className="mx-auto max-w-5xl"><p className="rule-label text-forest">UnlockED</p><h1 className="mt-3 font-editorial text-4xl font-bold">Preparing your workspace.</h1><p className="mt-3 text-sm text-ink/45">Checking your account and saved profile.</p></div></main>;
+  return <main className="min-h-[64vh] px-5 py-20 sm:px-8"><div className="mx-auto max-w-5xl"><p className="rule-label text-forest">UnlockED</p><h1 className="mt-4 font-editorial text-5xl font-bold tracking-[-.04em]">Preparing your workspace.</h1><p className="mt-4 text-sm text-ink/45">Checking your account and saved profile.</p></div></main>;
 }
 
 function LoggedOutLanding() {
@@ -128,20 +128,33 @@ function LoggedOutLanding() {
     }
   }, []);
   return <main className="bg-paper">
-    <section className="px-5 py-16 sm:px-8 sm:py-24">
-      <div className="mx-auto max-w-6xl">
-        <div className="max-w-4xl">
-          <p className="rule-label text-forest">Student opportunities, organized</p>
-          <h1 className="mt-5 font-editorial text-5xl font-bold leading-[1.03] text-ink sm:text-7xl">Find the opportunities college usually leaves scattered.</h1>
-          <p className="mt-7 max-w-2xl text-lg leading-8 text-ink/60">UnlockED helps students discover scholarships, research, internships, tools, benefits, competitions, and career resources they would otherwise miss.</p>
-          <p className="mt-4 max-w-2xl text-sm leading-7 text-ink/50">Sign in once. Tell us what you study. Start with the opportunities that fit.</p>
-          {authIssue && <div role="alert" className="mt-6 max-w-2xl border border-red-700/20 bg-white px-4 py-3 text-sm font-bold leading-6 text-red-700">{authIssue}</div>}
+    <section className="px-5 py-20 sm:px-8 sm:py-28">
+      <div className="mx-auto grid max-w-7xl gap-14 lg:grid-cols-[minmax(0,1fr)_420px] lg:items-end">
+        <div className="max-w-5xl">
+          <p className="rule-label text-forest">College opportunities, finally in one place</p>
+          <h1 className="mt-6 max-w-5xl font-editorial text-6xl font-bold leading-[.96] tracking-[-.055em] text-ink sm:text-8xl">Find what college forgot to tell you about.</h1>
+          <p className="mt-8 max-w-2xl text-lg leading-8 text-ink/60">UnlockED turns scattered scholarships, research, internships, AI tools, student benefits, and career resources into a quiet dashboard built around you.</p>
+          <p className="mt-5 max-w-xl text-sm leading-7 text-ink/45">Sign in with Google, complete one short profile, and start with the opportunities most likely to matter.</p>
+          {authIssue && <div role="alert" className="mt-7 max-w-2xl rounded-2xl border border-red-700/20 bg-white px-5 py-4 text-sm font-bold leading-6 text-red-700">{authIssue}</div>}
         </div>
-        <div className="mt-16 grid gap-8 border-y border-ink/15 py-8 md:grid-cols-3">
-          <section><p className="rule-label text-forest">Less searching</p><p className="mt-3 text-sm leading-7 text-ink/55">Scholarships, research, benefits, internships, and tools in one quiet place.</p></section>
-          <section><p className="rule-label text-forest">Better matches</p><p className="mt-3 text-sm leading-7 text-ink/55">Recommendations are ranked around your school, major, graduation year, and goals.</p></section>
-          <section><p className="rule-label text-forest">Clear next step</p><p className="mt-3 text-sm leading-7 text-ink/55">Every listing points back to the official source, deadline, and application path.</p></section>
+        <div className="rounded-[2rem] bg-white/75 p-4 shadow-soft ring-1 ring-ink/8">
+          <div className="rounded-[1.4rem] bg-paper p-5">
+            <div className="flex items-center justify-between border-b border-ink/10 pb-4"><p className="rule-label text-forest">Today</p><span className="text-xs font-bold text-ink/35">Verified</span></div>
+            <div className="py-6">
+              <p className="text-xs font-bold uppercase tracking-wider text-ink/35">Best match</p>
+              <h2 className="mt-3 font-editorial text-3xl font-bold leading-tight">A scholarship, internship, or tool you would have missed.</h2>
+              <p className="mt-4 text-sm leading-6 text-ink/50">Ranked by your school, major, year, and goals. Always linked back to the official source.</p>
+            </div>
+            <div className="grid gap-2 border-t border-ink/10 pt-4 text-sm">
+              {["Recommended for you","Saved opportunities","Upcoming deadlines"].map((item)=><div key={item} className="flex items-center justify-between rounded-full bg-white px-4 py-3"><span className="font-bold">{item}</span><span className="text-forest">→</span></div>)}
+            </div>
+          </div>
         </div>
+      </div>
+      <div className="mx-auto mt-16 grid max-w-7xl gap-8 border-t border-ink/10 pt-10 md:grid-cols-3">
+        <section><p className="rule-label text-forest">Simple</p><p className="mt-3 text-sm leading-7 text-ink/55">One dashboard. One best next step. No noisy checklist.</p></section>
+        <section><p className="rule-label text-forest">Personal</p><p className="mt-3 text-sm leading-7 text-ink/55">Recommendations follow your school, major, graduation year, and goals.</p></section>
+        <section><p className="rule-label text-forest">Sourced</p><p className="mt-3 text-sm leading-7 text-ink/55">Listings point to official sources with verification context.</p></section>
       </div>
     </section>
   </main>;
@@ -277,31 +290,31 @@ function StudentDashboard({ profile, session, syncError }: { profile: StudentPro
   const recent = activity.viewed.map((id) => opportunities.find((item) => item.id === id)).filter((item): item is NonNullable<typeof item> => Boolean(item)).slice(-4).reverse();
   const firstName = displayName(profile, session);
 
-  return <main className="bg-white px-5 py-10 sm:px-8 sm:py-14">
+  return <main className="bg-white px-5 py-12 sm:px-8 sm:py-16">
     <div className="mx-auto max-w-6xl">
-      <section className="pb-10">
+      <section className="pb-14">
         <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="rule-label text-forest">Dashboard</p>
-            <h1 className="mt-3 font-editorial text-4xl font-bold tracking-[-.035em] sm:text-6xl">{greeting()}, {firstName}.</h1>
+            <h1 className="mt-4 font-editorial text-5xl font-bold tracking-[-.055em] sm:text-7xl">{greeting()}, {firstName}.</h1>
             <p className="mt-4 max-w-2xl text-sm leading-7 text-ink/50">{school.name} · {profile.major}{profile.graduationYear ? ` · Class of ${profile.graduationYear}` : ""}</p>
             {syncError && <p className="mt-3 text-sm font-bold text-red-700">{syncError}</p>}
           </div>
-          <Link href="/profile" className="text-xs font-bold uppercase tracking-wider text-ink/45 hover:text-forest">Edit profile</Link>
+          <Link href="/profile" className="rounded-full border border-ink/10 px-4 py-2 text-sm font-bold text-ink/50 hover:border-forest/30 hover:text-forest">Edit profile</Link>
         </div>
       </section>
 
-      <section className="border-y border-ink/15 py-8">
+      <section className="rounded-[2rem] bg-paper px-5 py-7 sm:px-8 sm:py-9">
         <p className="rule-label text-forest">Today’s best opportunity</p>
         {best ? <div className="mt-5 grid gap-6 lg:grid-cols-[minmax(0,1fr)_220px] lg:items-end">
           <div>
             <p className="text-xs font-bold uppercase tracking-wider text-ink/35">{best.opportunity.organization}</p>
-            <h2 className="mt-2 max-w-4xl font-editorial text-4xl font-bold leading-tight sm:text-5xl">{best.opportunity.title}</h2>
+            <h2 className="mt-3 max-w-4xl font-editorial text-4xl font-bold leading-tight tracking-[-.035em] sm:text-5xl">{best.opportunity.title}</h2>
             <p className="mt-4 max-w-2xl text-sm leading-7 text-ink/55">{best.reasons[0] ?? "A strong match for your profile."}</p>
           </div>
           <div className="flex flex-col gap-3">
-            <Link href={`/opportunities/${best.opportunity.id}`} className="inline-flex min-h-12 items-center justify-center bg-forest px-5 text-xs font-bold uppercase tracking-wider text-white hover:bg-ink">View opportunity</Link>
-            <SaveOpportunityButton opportunityId={best.opportunity.id} className="border border-ink/20 px-5 text-ink/60 hover:border-forest hover:text-forest"/>
+            <Link href={`/opportunities/${best.opportunity.id}`} className="inline-flex min-h-12 items-center justify-center rounded-full bg-forest px-5 text-sm font-bold text-white hover:bg-ink">View opportunity</Link>
+            <SaveOpportunityButton opportunityId={best.opportunity.id} className="rounded-full border border-ink/15 px-5 text-ink/60 hover:border-forest hover:text-forest"/>
           </div>
         </div> : <EmptyState title="No recommendation yet" text="Your profile is saved. Check back after the catalog refreshes, or browse the full directory." actionHref="/opportunities" actionLabel="Browse opportunities" />}
       </section>
@@ -310,7 +323,7 @@ function StudentDashboard({ profile, session, syncError }: { profile: StudentPro
         {nextRecommended.length ? <div className="divide-y divide-ink/10">{nextRecommended.map(({ opportunity, reasons }) => <OpportunityRow key={opportunity.id} opportunity={opportunity} detail={reasons[0] ?? opportunity.organization} />)}</div> : <EmptyState title="No extra recommendations yet" text="Your best match is shown above. More matches will appear as the catalog grows." />}
       </Section>
 
-      <div className="grid gap-12 border-t border-ink/15 pt-10 lg:grid-cols-2">
+      <div className="grid gap-12 border-t border-ink/10 pt-10 lg:grid-cols-2">
         <Section title="Saved opportunities" href="/my-opportunities">
           {saved.length ? <div className="divide-y divide-ink/10">{saved.map((item) => <OpportunityRow key={item.id} opportunity={item} detail={deadlineLabel(item)} />)}</div> : <EmptyState title="Nothing saved yet" text="Save an opportunity when you want to come back to it." />}
         </Section>
@@ -327,11 +340,11 @@ function StudentDashboard({ profile, session, syncError }: { profile: StudentPro
 }
 
 function Section({ title, href, children }: { title: string; href?: string; children: React.ReactNode }) {
-  return <section className="py-10"><div className="mb-5 flex items-end justify-between gap-4"><h2 className="font-editorial text-3xl font-bold">{title}</h2>{href && <Link href={href} className="text-xs font-bold uppercase tracking-wider text-ink/45 hover:text-forest">View all</Link>}</div>{children}</section>;
+  return <section className="py-10"><div className="mb-5 flex items-end justify-between gap-4"><h2 className="font-editorial text-3xl font-bold tracking-[-.025em]">{title}</h2>{href && <Link href={href} className="text-sm font-bold text-ink/45 hover:text-forest">View all</Link>}</div>{children}</section>;
 }
 
 function OpportunityRow({ opportunity, detail }: { opportunity: Opportunity; detail: string }) {
-  return <Link href={`/opportunities/${opportunity.id}`} className="group grid gap-2 py-4 sm:grid-cols-[1fr_auto] sm:items-center">
+  return <Link href={`/opportunities/${opportunity.id}`} className="group grid gap-2 rounded-2xl px-1 py-4 sm:grid-cols-[1fr_auto] sm:items-center">
     <div className="min-w-0">
       <p className="rule-label text-forest">{opportunity.type}</p>
       <h3 className="mt-1 font-editorial text-xl font-bold group-hover:text-forest">{opportunity.title}</h3>
@@ -342,5 +355,5 @@ function OpportunityRow({ opportunity, detail }: { opportunity: Opportunity; det
 }
 
 function EmptyState({ title, text, actionHref, actionLabel }: { title: string; text: string; actionHref?: string; actionLabel?: string }) {
-  return <div className="py-6"><p className="font-editorial text-2xl font-bold">{title}</p><p className="mt-2 max-w-md text-sm leading-6 text-ink/45">{text}</p>{actionHref && actionLabel && <Link href={actionHref} className="mt-5 inline-flex min-h-11 items-center justify-center bg-ink px-5 text-xs font-bold uppercase tracking-wider text-white hover:bg-forest">{actionLabel}</Link>}</div>;
+  return <div className="py-6"><p className="font-editorial text-2xl font-bold">{title}</p><p className="mt-2 max-w-md text-sm leading-6 text-ink/45">{text}</p>{actionHref && actionLabel && <Link href={actionHref} className="mt-5 inline-flex min-h-11 items-center justify-center rounded-full bg-ink px-5 text-sm font-bold text-white hover:bg-forest">{actionLabel}</Link>}</div>;
 }
