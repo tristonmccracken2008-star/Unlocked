@@ -3796,6 +3796,306 @@
     "website": "https://ucumberlands.edu",
     "unitId": "156541",
     "sourceUrl": "https://collegescorecard.ed.gov/data/"
+  },
+  {
+    "slug": "miami-dade-college",
+    "name": "Miami Dade College",
+    "aliases": [
+      "MDC"
+    ],
+    "domain": "mdc.edu",
+    "location": "Miami, FL",
+    "initials": "MDC",
+    "website": "https://mdc.edu",
+    "sourceUrl": "https://mdc.edu"
+  },
+  {
+    "slug": "northern-virginia-community-college",
+    "name": "Northern Virginia Community College",
+    "aliases": [
+      "NOVA",
+      "NVCC"
+    ],
+    "domain": "nvcc.edu",
+    "location": "Annandale, VA",
+    "initials": "NOVA",
+    "website": "https://nvcc.edu",
+    "sourceUrl": "https://nvcc.edu"
+  },
+  {
+    "slug": "houston-community-college",
+    "name": "Houston Community College",
+    "aliases": [
+      "HCC"
+    ],
+    "domain": "hccs.edu",
+    "location": "Houston, TX",
+    "initials": "HCC",
+    "website": "https://hccs.edu",
+    "sourceUrl": "https://hccs.edu"
+  },
+  {
+    "slug": "dallas-college",
+    "name": "Dallas College",
+    "aliases": [
+      "DCCCD"
+    ],
+    "domain": "dallascollege.edu",
+    "location": "Dallas, TX",
+    "initials": "DCCCD",
+    "website": "https://dallascollege.edu",
+    "sourceUrl": "https://dallascollege.edu"
+  },
+  {
+    "slug": "valencia-college",
+    "name": "Valencia College",
+    "aliases": [
+      "Valencia"
+    ],
+    "domain": "valenciacollege.edu",
+    "location": "Orlando, FL",
+    "initials": "Valencia",
+    "website": "https://valenciacollege.edu",
+    "sourceUrl": "https://valenciacollege.edu"
+  },
+  {
+    "slug": "austin-community-college",
+    "name": "Austin Community College",
+    "aliases": [
+      "ACC"
+    ],
+    "domain": "austincc.edu",
+    "location": "Austin, TX",
+    "initials": "ACC",
+    "website": "https://austincc.edu",
+    "sourceUrl": "https://austincc.edu"
+  },
+  {
+    "slug": "santa-monica-college",
+    "name": "Santa Monica College",
+    "aliases": [
+      "SMC"
+    ],
+    "domain": "smc.edu",
+    "location": "Santa Monica, CA",
+    "initials": "SMC",
+    "website": "https://smc.edu",
+    "sourceUrl": "https://smc.edu"
+  },
+  {
+    "slug": "de-anza-college",
+    "name": "De Anza College",
+    "aliases": [
+      "De Anza"
+    ],
+    "domain": "deanza.edu",
+    "location": "Cupertino, CA",
+    "initials": "De Anza",
+    "website": "https://deanza.edu",
+    "sourceUrl": "https://deanza.edu"
+  },
+  {
+    "slug": "lone-star-college",
+    "name": "Lone Star College",
+    "aliases": [
+      "LSC"
+    ],
+    "domain": "lonestar.edu",
+    "location": "The Woodlands, TX",
+    "initials": "LSC",
+    "website": "https://lonestar.edu",
+    "sourceUrl": "https://lonestar.edu"
+  },
+  {
+    "slug": "maricopa-community-colleges",
+    "name": "Maricopa Community Colleges",
+    "aliases": [
+      "Maricopa"
+    ],
+    "domain": "maricopa.edu",
+    "location": "Tempe, AZ",
+    "initials": "Maricopa",
+    "website": "https://maricopa.edu",
+    "sourceUrl": "https://maricopa.edu"
+  },
+  {
+    "slug": "spelman-college",
+    "name": "Spelman College",
+    "aliases": [
+      "Spelman"
+    ],
+    "domain": "spelman.edu",
+    "location": "Atlanta, GA",
+    "initials": "Spelman",
+    "website": "https://spelman.edu",
+    "sourceUrl": "https://spelman.edu"
+  },
+  {
+    "slug": "morehouse-college",
+    "name": "Morehouse College",
+    "aliases": [
+      "Morehouse"
+    ],
+    "domain": "morehouse.edu",
+    "location": "Atlanta, GA",
+    "initials": "Morehouse",
+    "website": "https://morehouse.edu",
+    "sourceUrl": "https://morehouse.edu"
+  },
+  {
+    "slug": "hampton-university",
+    "name": "Hampton University",
+    "aliases": [
+      "Hampton"
+    ],
+    "domain": "hamptonu.edu",
+    "location": "Hampton, VA",
+    "initials": "Hampton",
+    "website": "https://hamptonu.edu",
+    "sourceUrl": "https://hamptonu.edu"
+  },
+  {
+    "slug": "tuskegee-university",
+    "name": "Tuskegee University",
+    "aliases": [
+      "Tuskegee"
+    ],
+    "domain": "tuskegee.edu",
+    "location": "Tuskegee, AL",
+    "initials": "Tuskegee",
+    "website": "https://tuskegee.edu",
+    "sourceUrl": "https://tuskegee.edu"
+  },
+  {
+    "slug": "clark-atlanta-university",
+    "name": "Clark Atlanta University",
+    "aliases": [
+      "CAU"
+    ],
+    "domain": "cau.edu",
+    "location": "Atlanta, GA",
+    "initials": "CAU",
+    "website": "https://cau.edu",
+    "sourceUrl": "https://cau.edu"
+  },
+  {
+    "slug": "xavier-university-of-louisiana",
+    "name": "Xavier University of Louisiana",
+    "aliases": [
+      "XULA"
+    ],
+    "domain": "xula.edu",
+    "location": "New Orleans, LA",
+    "initials": "XULA",
+    "website": "https://xula.edu",
+    "sourceUrl": "https://xula.edu"
+  },
+  {
+    "slug": "williams-college",
+    "name": "Williams College",
+    "aliases": [
+      "Williams"
+    ],
+    "domain": "williams.edu",
+    "location": "Williamstown, MA",
+    "initials": "Williams",
+    "website": "https://williams.edu",
+    "sourceUrl": "https://williams.edu"
+  },
+  {
+    "slug": "amherst-college",
+    "name": "Amherst College",
+    "aliases": [
+      "Amherst"
+    ],
+    "domain": "amherst.edu",
+    "location": "Amherst, MA",
+    "initials": "Amherst",
+    "website": "https://amherst.edu",
+    "sourceUrl": "https://amherst.edu"
+  },
+  {
+    "slug": "swarthmore-college",
+    "name": "Swarthmore College",
+    "aliases": [
+      "Swarthmore"
+    ],
+    "domain": "swarthmore.edu",
+    "location": "Swarthmore, PA",
+    "initials": "Swarthmore",
+    "website": "https://swarthmore.edu",
+    "sourceUrl": "https://swarthmore.edu"
+  },
+  {
+    "slug": "pomona-college",
+    "name": "Pomona College",
+    "aliases": [
+      "Pomona"
+    ],
+    "domain": "pomona.edu",
+    "location": "Claremont, CA",
+    "initials": "Pomona",
+    "website": "https://pomona.edu",
+    "sourceUrl": "https://pomona.edu"
+  },
+  {
+    "slug": "wellesley-college",
+    "name": "Wellesley College",
+    "aliases": [
+      "Wellesley"
+    ],
+    "domain": "wellesley.edu",
+    "location": "Wellesley, MA",
+    "initials": "Wellesley",
+    "website": "https://wellesley.edu",
+    "sourceUrl": "https://wellesley.edu"
+  },
+  {
+    "slug": "bowdoin-college",
+    "name": "Bowdoin College",
+    "aliases": [
+      "Bowdoin"
+    ],
+    "domain": "bowdoin.edu",
+    "location": "Brunswick, ME",
+    "initials": "Bowdoin",
+    "website": "https://bowdoin.edu",
+    "sourceUrl": "https://bowdoin.edu"
+  },
+  {
+    "slug": "carleton-college",
+    "name": "Carleton College",
+    "aliases": [
+      "Carleton"
+    ],
+    "domain": "carleton.edu",
+    "location": "Northfield, MN",
+    "initials": "Carleton",
+    "website": "https://carleton.edu",
+    "sourceUrl": "https://carleton.edu"
+  },
+  {
+    "slug": "middlebury-college",
+    "name": "Middlebury College",
+    "aliases": [
+      "Middlebury"
+    ],
+    "domain": "middlebury.edu",
+    "location": "Middlebury, VT",
+    "initials": "Middlebury",
+    "website": "https://middlebury.edu",
+    "sourceUrl": "https://middlebury.edu"
+  },
+  {
+    "slug": "davidson-college",
+    "name": "Davidson College",
+    "aliases": [
+      "Davidson"
+    ],
+    "domain": "davidson.edu",
+    "location": "Davidson, NC",
+    "initials": "Davidson",
+    "website": "https://davidson.edu",
+    "sourceUrl": "https://davidson.edu"
   }
 ]
-

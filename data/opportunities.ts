@@ -2,8 +2,8 @@ import catalogJson from "./db/opportunities.json";
 import { auditOpportunity } from "./opportunity-quality";
 
 export const opportunityTypes = ["Benefit", "AI", "Career", "Research", "Scholarship"] as const;
-export const opportunityCategories = ["All", "Internships", "Freshman Programs", "Hackathons", "Competitions", "Fellowships", "Conferences", "Leadership Programs", "Career Resources"] as const;
-export const opportunityMajors = ["All", "Any Major", "Computer Science", "Mathematics", "Engineering", "Data Science", "Physics", "Natural Sciences", "Finance", "Business", "Design", "Social Sciences"] as const;
+export const opportunityCategories = ["All", "Internships", "Freshman Programs", "Hackathons", "Competitions", "Fellowships", "Conferences", "Leadership Programs", "Career Resources", "Campus Jobs", "Co-ops", "Student Organizations", "Certifications", "Grants", "Study Abroad"] as const;
+export const opportunityMajors = ["All", "Any Major", "Accounting", "Actuarial Science", "Aerospace Engineering", "Analytics", "Anthropology", "Applied Mathematics", "Architecture", "Astronomy", "Biology", "Biomedical Engineering", "Business", "Chemical Engineering", "Chemistry", "Civil Engineering", "Communications", "Computer Engineering", "Computer Science", "Criminal Justice", "Cybersecurity", "Data Science", "Design", "Earth Science", "Economics", "Education", "Electrical Engineering", "Engineering", "English", "Entrepreneurship", "Environmental Engineering", "Environmental Science", "Fashion Design", "Finance", "Fine Arts", "Game Design", "Geology", "Graphic Design", "History", "Hospitality Management", "Human Resources", "Human-Computer Interaction", "Industrial Design", "Industrial Engineering", "Information Systems", "Information Technology", "Interior Design", "International Relations", "Journalism", "Kinesiology", "Languages", "Linguistics", "Machine Learning", "Management", "Marine Science", "Marketing", "Materials Science", "Mathematics", "Mechanical Engineering", "Music", "Natural Sciences", "Neuroscience", "Nuclear Engineering", "Nursing", "Operations Management", "Philosophy", "Physics", "Political Science", "Pre-med", "Psychology", "Public Health", "Public Policy", "Religious Studies", "Social Sciences", "Social Work", "Sociology", "Software Engineering", "Statistics", "Supply Chain Management", "Theatre", "Urban Studies", "User Experience Design"] as const;
 export const academicYears = ["All", "First year", "Second year", "Third year", "Fourth year", "Graduate student"] as const;
 export type OpportunityType = (typeof opportunityTypes)[number];
 export type OpportunityCategory = Exclude<(typeof opportunityCategories)[number], "All">;
@@ -81,16 +81,40 @@ export type OpportunityWithQuality = Opportunity & {
 
 export type OpportunityFilters = {
   types?: OpportunityType[];
+  category?: string;
   major?: string;
   school?: string;
   academicYear?: string;
   paid?: boolean | null;
   remote?: boolean | null;
   deadline?: "published" | "upcoming" | "rolling" | "not_announced";
+  difficulty?: Exclude<OpportunityDifficulty, null> | "All";
+  freshmanFriendly?: boolean;
   featured?: boolean;
   hiddenGem?: boolean;
   query?: string;
 };
+
+const majorFamilies: Record<string, string[]> = {
+  Engineering: ["Aerospace Engineering", "Biomedical Engineering", "Chemical Engineering", "Civil Engineering", "Computer Engineering", "Electrical Engineering", "Environmental Engineering", "Industrial Engineering", "Materials Science", "Mechanical Engineering", "Nuclear Engineering", "Software Engineering"],
+  "Computer Science": ["Software Engineering", "Cybersecurity", "Information Systems", "Information Technology", "Game Design", "Human-Computer Interaction", "Data Science", "Machine Learning"],
+  "Data Science": ["Statistics", "Analytics", "Information Systems", "Machine Learning", "Mathematics"],
+  Mathematics: ["Applied Mathematics", "Statistics", "Actuarial Science", "Data Science"],
+  "Natural Sciences": ["Biology", "Chemistry", "Physics", "Environmental Science", "Neuroscience", "Geology", "Earth Science", "Marine Science", "Pre-med", "Nursing", "Public Health", "Kinesiology"],
+  Business: ["Accounting", "Economics", "Finance", "Marketing", "Management", "Entrepreneurship", "Operations Management", "Supply Chain Management", "Hospitality Management", "Human Resources"],
+  Design: ["Architecture", "Fine Arts", "Graphic Design", "Industrial Design", "Interior Design", "Fashion Design", "User Experience Design"],
+  "Social Sciences": ["Psychology", "Political Science", "Sociology", "Anthropology", "International Relations", "Public Policy", "Criminal Justice", "Social Work", "Urban Studies", "Education", "Communications", "Journalism", "English", "History", "Philosophy", "Religious Studies", "Languages", "Linguistics", "Music", "Theatre", "Fine Arts"],
+};
+
+function majorMatchesFilter(itemMajors: string[], selectedMajor: string) {
+  if (selectedMajor === "All") return true;
+  if (itemMajors.includes("Any Major") || itemMajors.includes(selectedMajor)) return true;
+  const selected = selectedMajor.toLowerCase();
+  return itemMajors.some((major) => {
+    const family = majorFamilies[major] ?? [];
+    return family.includes(selectedMajor) || major.toLowerCase().includes(selected) || selected.includes(major.toLowerCase());
+  });
+}
 
 export const opportunities = (catalogJson as Opportunity[]).map((item) => {
   const quality = auditOpportunity(item);
@@ -117,7 +141,8 @@ export function filterOpportunities(filters: OpportunityFilters = {}, source: re
   const today = new Date().toISOString().slice(0, 10);
   return source.filter((item) => {
     if (filters.types?.length && !filters.types.includes(item.type)) return false;
-    if (filters.major && filters.major !== "All" && !item.majors.includes("Any Major") && !item.majors.includes(filters.major)) return false;
+    if (filters.category && filters.category !== "All" && item.category !== filters.category) return false;
+    if (filters.major && !majorMatchesFilter(item.majors, filters.major)) return false;
     if (filters.school && item.school_scope === "School Specific" && !item.schools.includes(filters.school)) return false;
     if (filters.academicYear && filters.academicYear !== "All" && !item.academic_years.includes("Any Year") && !item.academic_years.includes(filters.academicYear)) return false;
     if (filters.paid !== undefined && filters.paid !== null && item.paid !== filters.paid) return false;
@@ -126,6 +151,8 @@ export function filterOpportunities(filters: OpportunityFilters = {}, source: re
     if (filters.deadline === "upcoming" && (!item.application_deadline || item.application_deadline < today)) return false;
     if (filters.deadline === "rolling" && !["rolling", "varies"].includes(item.metadata.deadlineType ?? "")) return false;
     if (filters.deadline === "not_announced" && item.application_deadline) return false;
+    if (filters.difficulty && filters.difficulty !== "All" && item.difficulty !== filters.difficulty) return false;
+    if (filters.freshmanFriendly && !item.academic_years.includes("Any Year") && !item.academic_years.includes("First year") && item.category !== "Freshman Programs") return false;
     if (filters.featured !== undefined && item.featured !== filters.featured) return false;
     if (filters.hiddenGem !== undefined && item.hidden_gem !== filters.hiddenGem) return false;
     if (query && !`${item.title} ${item.organization} ${item.description} ${item.category} ${item.tags.join(" ")}`.toLowerCase().includes(query)) return false;

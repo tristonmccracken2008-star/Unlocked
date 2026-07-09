@@ -1,4 +1,4 @@
-import { opportunities, type Opportunity, type OpportunityType } from "./opportunities";
+import { opportunities, type Opportunity, type OpportunityType, type OpportunityWithQuality } from "./opportunities";
 import { auditOpportunity, opportunityDuplicateKey } from "./opportunity-quality";
 
 export type RecommendationProfile = {
@@ -11,6 +11,8 @@ export type RecommendationProfile = {
   interests?: string;
   careerGoals?: string;
   clubs?: string;
+  savedOpportunityIds?: string[];
+  viewedOpportunityIds?: string[];
 };
 
 export type ScoredOpportunity = {
@@ -21,14 +23,32 @@ export type ScoredOpportunity = {
 };
 
 const majorSignals: Record<string, string[]> = {
-  "computer science": ["computer science", "software", "coding", "developer", "ai", "technology"],
-  mathematics: ["mathematics", "math", "quantitative", "data", "research"],
-  engineering: ["engineering", "technology", "hardware", "software", "research"],
-  business: ["business", "finance", "leadership", "marketing", "management"],
+  accounting: ["accounting", "audit", "tax", "finance", "business"],
+  architecture: ["architecture", "design", "built environment", "studio"],
+  biology: ["biology", "life sciences", "research", "health", "lab"],
+  chemistry: ["chemistry", "lab", "research", "materials", "science"],
+  communications: ["communications", "media", "marketing", "journalism"],
+  "computer science": ["computer science", "software", "coding", "developer", "ai", "technology", "cybersecurity"],
+  cybersecurity: ["cybersecurity", "security", "network", "technology", "software"],
+  economics: ["economics", "policy", "finance", "data", "research"],
+  education: ["education", "teaching", "youth", "school", "community"],
+  english: ["english", "writing", "editing", "communications", "research"],
+  mathematics: ["mathematics", "math", "quantitative", "data", "research", "statistics"],
+  engineering: ["engineering", "technology", "hardware", "software", "research", "manufacturing"],
+  business: ["business", "finance", "leadership", "marketing", "management", "entrepreneurship"],
   finance: ["finance", "business", "investment", "quantitative", "banking"],
-  "data science": ["data science", "data", "analytics", "ai", "research"],
-  physics: ["physics", "science", "research", "engineering", "quantitative"],
-  design: ["design", "product", "creative", "technology"],
+  "fine arts": ["fine arts", "arts", "creative", "design", "portfolio"],
+  history: ["history", "archives", "research", "writing", "humanities"],
+  journalism: ["journalism", "media", "writing", "communications", "news"],
+  marketing: ["marketing", "communications", "brand", "business", "media"],
+  "data science": ["data science", "data", "analytics", "ai", "research", "statistics"],
+  nursing: ["nursing", "clinical", "health", "patient", "medicine"],
+  "pre-med": ["medicine", "health", "clinical", "research", "biology", "chemistry"],
+  physics: ["physics", "science", "research", "engineering", "quantitative", "astronomy"],
+  "political science": ["policy", "government", "law", "public service", "international relations"],
+  psychology: ["psychology", "behavioral", "health", "research", "social science"],
+  statistics: ["statistics", "data", "analytics", "quantitative", "research"],
+  design: ["design", "product", "creative", "technology", "portfolio"],
 };
 
 const typeSignals: Record<OpportunityType, string[]> = {
@@ -42,10 +62,11 @@ const typeSignals: Record<OpportunityType, string[]> = {
 const normalize = (value: string) => value.toLowerCase().replace(/[^a-z0-9+#. ]/g, " ").replace(/\s+/g, " ").trim();
 const unique = <T,>(values: T[]) => [...new Set(values)];
 const words = (value: string) => normalize(value).split(" ").filter((term) => term.length > 2);
+const isOpportunityWithQuality = (value: OpportunityWithQuality | undefined): value is OpportunityWithQuality => Boolean(value);
 
 function profileSignals(profile: RecommendationProfile) {
   const major = normalize(`${profile.major} ${profile.minor ?? ""}`);
-  const derived = Object.entries(majorSignals).flatMap(([key, signals]) => major.includes(key) || key.includes(major) ? signals : []);
+  const derived = Object.entries(majorSignals).flatMap(([key, signals]) => major.includes(key) || key.includes(major) || signals.some((signal) => major.includes(signal)) ? signals : []);
   const explicit = [...words(profile.interests ?? ""), ...words(profile.careerGoals ?? ""), ...words(profile.clubs ?? "")];
   return unique([...derived, ...explicit]);
 }
@@ -72,6 +93,7 @@ export function scoreOpportunity(item: Opportunity, profile: RecommendationProfi
   const major = normalize(`${profile.major} ${profile.minor ?? ""}`);
   const text = searchableText(item);
   const quality = auditOpportunity(item);
+  const interacted = [...(profile.savedOpportunityIds ?? []), ...(profile.viewedOpportunityIds ?? [])].map((id) => opportunities.find((candidate) => candidate.id === id)).filter(isOpportunityWithQuality);
 
   if (item.school_scope === "School Specific") {
     if (item.schools.includes(profile.schoolSlug)) { score += 34; reasons.push(`${profile.schoolName} opportunity`); }
@@ -100,6 +122,8 @@ export function scoreOpportunity(item: Opportunity, profile: RecommendationProfi
 
   if (locationMatch(item, profile.schoolLocation)) { score += 7; reasons.push("Near your school"); }
   if (item.remote) { score += 4; reasons.push("Remote option"); }
+  const interactionMatches = interacted.filter((candidate) => candidate.id !== item.id && (candidate.type === item.type || candidate.category === item.category || candidate.tags.some((tag) => item.tags.includes(tag))));
+  if (interactionMatches.length) { score += Math.min(12, interactionMatches.length * 3); reasons.push("Similar to opportunities you opened or saved"); }
   if (item.featured) score += 4;
   if (item.hidden_gem) score += 3;
   if (item.verification_status === "verified") score += 6;

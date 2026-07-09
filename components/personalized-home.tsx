@@ -40,8 +40,8 @@ function greeting() {
   return "Good evening";
 }
 
-function recommendationProfile(profile: StudentProfile, school: School): RecommendationProfile {
-  return { schoolSlug: school.slug, schoolName: school.name, schoolLocation: school.location, major: profile.major, minor: profile.minor, academicYear: profile.year, interests: profile.interests, careerGoals: profile.careerGoal, clubs: profile.clubs };
+function recommendationProfile(profile: StudentProfile, school: School, activity?: StudentActivity): RecommendationProfile {
+  return { schoolSlug: school.slug, schoolName: school.name, schoolLocation: school.location, major: profile.major, minor: profile.minor, academicYear: profile.year, interests: profile.interests, careerGoals: profile.careerGoal, clubs: profile.clubs, savedOpportunityIds: activity?.saved, viewedOpportunityIds: activity?.viewed };
 }
 
 export function PersonalizedHome() {
@@ -281,7 +281,7 @@ function StudentDashboard({ profile, session, syncError }: { profile: StudentPro
 
   const school = schools.find((item) => item.slug === profile.schoolSlug);
   if (!school) return null;
-  const input = recommendationProfile(profile, school);
+  const input = recommendationProfile(profile, school, activity);
   const recommended = recommendedForYou(input, 4);
   const best = recommended[0];
   const nextRecommended = recommended.slice(1, 4);
