@@ -2,7 +2,7 @@ import catalogJson from "./db/opportunities.json";
 import { auditOpportunity } from "./opportunity-quality";
 
 export const opportunityTypes = ["Benefit", "AI", "Career", "Research", "Scholarship"] as const;
-export const opportunityCategories = ["All", "Internships", "Freshman Programs", "Hackathons", "Competitions", "Fellowships", "Conferences", "Leadership Programs"] as const;
+export const opportunityCategories = ["All", "Internships", "Freshman Programs", "Hackathons", "Competitions", "Fellowships", "Conferences", "Leadership Programs", "Career Resources"] as const;
 export const opportunityMajors = ["All", "Any Major", "Computer Science", "Mathematics", "Engineering", "Data Science", "Physics", "Natural Sciences", "Finance", "Business", "Design", "Social Sciences"] as const;
 export const academicYears = ["All", "First year", "Second year", "Third year", "Fourth year", "Graduate student"] as const;
 export type OpportunityType = (typeof opportunityTypes)[number];
