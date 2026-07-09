@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
   const expectedState = cookieStore.get(oauthStateCookieName)?.value;
   if (!code || !state || !expectedState || state !== expectedState) {
     console.warn("[UnlockED auth] OAuth callback rejected because state/code was invalid", { hasCode: Boolean(code), hasState: Boolean(state), hasExpectedState: Boolean(expectedState) });
-    return NextResponse.redirect(`${appUrl()}/profile?auth=failed`);
+    return NextResponse.redirect(new URL("/?auth=failed", request.url));
   }
   try {
     const googleUser = await exchangeGoogleCode(code);
@@ -25,6 +25,6 @@ export async function GET(request: NextRequest) {
     return response;
   } catch (error) {
     console.error("[UnlockED auth] OAuth callback failed", error);
-    return NextResponse.redirect(`${appUrl()}/profile?auth=failed`);
+    return NextResponse.redirect(new URL("/?auth=failed", request.url));
   }
 }

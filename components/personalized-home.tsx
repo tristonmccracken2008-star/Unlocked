@@ -80,6 +80,18 @@ export function PersonalizedHome() {
 }
 
 function LoggedOutLanding() {
+  const [authIssue, setAuthIssue] = useState("");
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const auth = params.get("auth");
+    if (auth === "unavailable") setAuthIssue("Google sign-in is temporarily unavailable. You can still browse opportunities, or contact UnlockED if you need help.");
+    if (auth === "failed") setAuthIssue("Sign-in could not be completed. Please try again or contact UnlockED if the issue continues.");
+    if (auth === "unavailable" || auth === "failed") {
+      params.delete("auth");
+      const query = params.toString();
+      window.history.replaceState({}, "", `${window.location.pathname}${query ? `?${query}` : ""}${window.location.hash}`);
+    }
+  }, []);
   const discoveries = [
     ["Scholarships", "Find verified awards with clear eligibility, deadlines, and official sources."],
     ["AI Tools", "Compare student-accessible AI tools for research, writing, coding, and study."],
@@ -96,6 +108,7 @@ function LoggedOutLanding() {
           <h1 className="mt-5 max-w-4xl font-editorial text-5xl font-bold leading-[1.02] tracking-[-.045em] sm:text-7xl">Your college advantage starts here.</h1>
           <p className="mt-6 max-w-3xl text-base leading-8 text-ink/55 sm:text-lg">UnlockED brings scholarships, internships, research, student software, and verified discounts into one place—then sorts them around your school, major, and goals.</p>
           <p className="mt-4 max-w-2xl text-sm leading-7 text-ink/45">Our mission is simple: help students find useful opportunities early enough to act on them, with clear eligibility and a link to the official source.</p>
+          {authIssue && <div role="alert" className="mt-6 max-w-2xl border border-red-700/20 bg-white px-4 py-3 text-sm font-bold leading-6 text-red-700">{authIssue}</div>}
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <a href="/api/auth/google" className="inline-flex min-h-12 items-center justify-center bg-ink px-6 text-sm font-bold uppercase tracking-wider text-white hover:bg-forest">Sign in with Google</a>
           </div>
