@@ -33,6 +33,17 @@ GOOGLE_CLIENT_SECRET=
 NEXT_PUBLIC_APP_URL=
 ```
 
+Optional Stripe billing infrastructure uses:
+
+```bash
+STRIPE_SECRET_KEY=
+STRIPE_WEBHOOK_SECRET=
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=
+STRIPE_PRO_PRICE_ID=
+```
+
+See `docs/STRIPE_BILLING_SETUP.md` for checkout, portal, and webhook setup.
+
 ## Database models
 
 The application models authenticated data as:
@@ -44,6 +55,8 @@ The application models authenticated data as:
 - `UserPreferencesRecord`
 - `JourneyProgressRecord`
 - `AccountData`
+
+`AccountData` includes a `billing` record for the Free and Pro account tiers. Free users retain access to the normal product.
 
 These types live in `lib/account-types.ts`.
 

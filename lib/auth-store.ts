@@ -69,6 +69,10 @@ function accountDataKey(userId: string) {
   return `unlocked:account-data:${hash(userId).slice(0, 24)}`;
 }
 
+function stripeCustomerKey(customerId: string) {
+  return `unlocked:stripe-customer:${hash(customerId).slice(0, 24)}`;
+}
+
 async function kvCommand<T>(command: unknown[]): Promise<T | null> {
   requireProductionStore();
   if (!kvUrl || !kvToken) {
@@ -218,5 +222,10 @@ export async function updateAccountBilling(userId: string, billing: Partial<Bill
     updatedAt: new Date().toISOString(),
   };
   await writeAccountData(userId, next);
+  if (next.billing.stripeCustomerId) await dbSet(stripeCustomerKey(next.billing.stripeCustomerId), userId);
   return next;
+}
+
+export async function findUserIdByStripeCustomerId(customerId: string) {
+  return await dbGet<string>(stripeCustomerKey(customerId));
 }
