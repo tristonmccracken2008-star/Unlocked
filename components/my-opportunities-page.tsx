@@ -13,8 +13,8 @@ const money = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD
 function valueLabel(item: Opportunity) {
   if (item.estimated_value) return `${money.format(item.estimated_value)}+`;
   if (item.type === "Scholarship") return item.metadata.awardAmountLabel ?? "Amount varies";
-  if (item.type === "Benefit") return item.metadata.valueLabel ?? "Value unknown";
-  return "Value unknown";
+  if (item.type === "Benefit") return item.metadata.valueLabel ?? "See official source";
+  return "See official source";
 }
 
 function matchesFilter(item: Opportunity, filter: TrackerFilter) {

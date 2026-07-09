@@ -30,18 +30,6 @@ export function ProfilePage() {
         <AccountButton />
       </div>
     </section>
-    <section className="px-5 pt-6 sm:px-8">
-      <div className="mx-auto max-w-5xl border-b border-ink/15 pb-6">
-        <p className="rule-label text-forest">Billing</p>
-        <div className="mt-3 grid gap-3 bg-white p-5 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
-          <div>
-            <h2 className="font-editorial text-2xl font-bold">UnlockED Pro coming soon.</h2>
-            <p className="mt-2 text-sm text-ink/45">Current plan: {session?.data?.billing?.tier === "pro" ? "Pro" : "Free"}</p>
-          </div>
-          <p className="text-xs font-bold uppercase tracking-wider text-ink/35">{session?.data?.billing?.status === "active" ? "Active" : "No paid subscription"}</p>
-        </div>
-      </div>
-    </section>
     <StudentProfileForm mode="edit" session={session} initialProfile={profile} onSave={(next)=>{writeStudentProfile(next);setProfile(next);setSaved(true)}}/>
     {saved&&<div role="status" className="fixed bottom-5 left-5 right-5 z-40 border-2 border-ink bg-white px-5 py-3 text-sm font-bold shadow-[4px_4px_0_#2b211a] sm:left-auto">Profile saved. <Link href="/" className="ml-2 border-b border-forest text-forest">Return to dashboard</Link></div>}
   </div>;
