@@ -2,12 +2,15 @@ export const studentProfileStorageKey = "unlocked-student-profile";
 export const studentProfileCompleteStorageKey = "unlocked-student-profile-complete";
 
 export type StudentProfile = {
+  firstName?: string;
+  lastName?: string;
   schoolSlug: string;
   major: string;
-  minor?: string;
+  graduationYear?: string;
   year: string;
   careerGoal: string;
   interests: string;
+  minor?: string;
   goals?: string[];
   topics?: string[];
   clubs?: string;
@@ -60,7 +63,7 @@ export function readCompletedStudentProfile() {
   }
   const markedComplete = localStorage.getItem(studentProfileCompleteStorageKey) === "true";
   if (markedComplete) return profile;
-  const hasCompletedOnboarding = Boolean(profile.schoolSlug && profile.major && profile.year && profile.careerGoal && profile.interests && (profile.goals?.length || profile.topics?.length));
+  const hasCompletedOnboarding = Boolean(profile.schoolSlug && profile.major && profile.year && profile.careerGoal && profile.interests);
   return hasCompletedOnboarding ? profile : null;
 }
 
@@ -74,7 +77,7 @@ export function writeStudentProfile(profile: StudentProfile) {
 
 export function profileSummary(profile: StudentProfile) {
   const study = profile.minor ? `${profile.major} + ${profile.minor}` : profile.major;
-  const year = profile.year === "First year" ? "freshman" : profile.year === "Second year" ? "sophomore" : profile.year === "Third year" ? "junior" : profile.year === "Fourth year" ? "senior" : profile.year.toLowerCase();
+  const year = profile.graduationYear ? `class of ${profile.graduationYear}` : profile.year === "First year" ? "freshman" : profile.year === "Second year" ? "sophomore" : profile.year === "Third year" ? "junior" : profile.year === "Fourth year" ? "senior" : profile.year.toLowerCase();
   const interest = profile.interests.split(",")[0]?.trim();
   return `${study} ${year}${interest ? ` interested in ${interest}` : ""}`;
 }
