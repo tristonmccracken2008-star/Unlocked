@@ -13,6 +13,7 @@ import { deadlineLabel, opportunities, opportunityMajors, type Opportunity } fro
 import { readStudentActivity, studentActivityEvent, type StudentActivity } from "@/data/student-activity";
 import { SaveOpportunityButton } from "./opportunity-activity";
 import { trackProductEvent } from "@/data/product-analytics";
+import { getAdvisorInsight, type AdvisorInsight } from "@/data/major-pathways";
 
 const graduationYears = Array.from({ length: 9 }, (_, index) => String(new Date().getFullYear() + index));
 const interestSuggestions = ["Scholarships", "Research", "Internships", "AI", "Software", "Startups", "Finance", "Medicine", "Engineering"];
@@ -289,6 +290,7 @@ function StudentDashboard({ profile, session, syncError }: { profile: StudentPro
   const saved = Object.keys(activity.tracked ?? {}).map((id) => opportunities.find((item) => item.id === id)).filter((item): item is NonNullable<typeof item> => Boolean(item)).slice(0, 3);
   const recent = activity.viewed.map((id) => opportunities.find((item) => item.id === id)).filter((item): item is NonNullable<typeof item> => Boolean(item)).slice(-4).reverse();
   const firstName = displayName(profile, session);
+  const advisorInsight = getAdvisorInsight(profile);
 
   return <main className="bg-white px-5 py-12 sm:px-8 sm:py-16">
     <div className="mx-auto max-w-6xl">
@@ -319,6 +321,8 @@ function StudentDashboard({ profile, session, syncError }: { profile: StudentPro
         </div> : <EmptyState title="No recommendation yet" text="Your profile is saved. Check back after the catalog refreshes, or browse the full directory." actionHref="/opportunities" actionLabel="Browse opportunities" />}
       </section>
 
+      <AdvisorInsightSection insight={advisorInsight} />
+
       <Section title="Recommended for you" href="/opportunities">
         {nextRecommended.length ? <div className="divide-y divide-ink/10">{nextRecommended.map(({ opportunity, reasons }) => <OpportunityRow key={opportunity.id} opportunity={opportunity} detail={reasons[0] ?? opportunity.organization} />)}</div> : <EmptyState title="No extra recommendations yet" text="Your best match is shown above. More matches will appear as the catalog grows." />}
       </Section>
@@ -337,6 +341,24 @@ function StudentDashboard({ profile, session, syncError }: { profile: StudentPro
       </Section>
     </div>
   </main>;
+}
+
+function AdvisorInsightSection({ insight }: { insight: AdvisorInsight }) {
+  return <section className="border-b border-ink/10 py-10">
+    <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start">
+      <div>
+        <p className="rule-label text-forest">Advisor Insight</p>
+        <h2 className="mt-3 max-w-3xl font-editorial text-3xl font-bold leading-tight tracking-[-.025em]">Your top priority right now is to {insight.priority}.</h2>
+        <p className="mt-4 max-w-2xl text-sm leading-7 text-ink/55"><span className="font-bold text-ink/70">Why this matters:</span> {insight.whyThisMatters}</p>
+      </div>
+      <div className="rounded-[1.5rem] bg-paper px-5 py-5">
+        <p className="rule-label text-ink/35">Best next searches</p>
+        <div className="mt-3 flex flex-wrap gap-2">{insight.bestOpportunityCategories.map((category) => <span key={category} className="rounded-full bg-white px-3 py-1.5 text-xs font-bold text-ink/55">{category}</span>)}</div>
+        <p className="mt-5 text-xs font-bold uppercase tracking-wider text-ink/35">Skills to build</p>
+        <p className="mt-2 text-sm leading-6 text-ink/55">{insight.keySkillsToBuild.join(", ")}</p>
+      </div>
+    </div>
+  </section>;
 }
 
 function Section({ title, href, children }: { title: string; href?: string; children: React.ReactNode }) {
