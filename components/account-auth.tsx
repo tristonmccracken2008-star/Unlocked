@@ -28,8 +28,8 @@ export function AccountButton({ compact = false }: { compact?: boolean }) {
     window.addEventListener("focus", refresh);
     return () => { active = false; window.removeEventListener(accountSessionEvent, onSession); window.removeEventListener("focus", refresh); };
   }, []);
-  if (!session) return <span className="inline-flex min-h-10 items-center px-3 text-[11px] font-bold uppercase tracking-wider text-ink/35">Loading account</span>;
-  if (!session.authenticated) return <span className="inline-flex flex-col items-start gap-1"><a href="/api/auth/google" className="inline-flex min-h-10 shrink-0 items-center justify-center bg-forest px-4 text-[11px] font-bold uppercase tracking-wider text-white hover:bg-ink">Sign in with Google</a>{!compact && <span className="text-[11px] font-bold text-ink/35">Sign in to save your dashboard across devices.</span>}{error && <span className="text-[10px] font-bold text-red-700">{error}</span>}</span>;
+  if (!session) return <span className="inline-flex min-h-10 items-center px-3 text-[11px] font-bold uppercase tracking-wider text-ink/35">Checking account</span>;
+  if (!session.authenticated) return <span className="inline-flex flex-col items-start gap-1"><a href="/api/auth/google" className="inline-flex min-h-10 shrink-0 items-center justify-center bg-forest px-4 text-[11px] font-bold uppercase tracking-wider text-white hover:bg-ink">Sign in</a>{!compact && <span className="text-[11px] font-bold text-ink/35">Save your dashboard across devices.</span>}{error && <span className="text-[10px] font-bold text-red-700">{error}</span>}</span>;
   const label = session.user?.name || session.user?.email || "Signed in";
   return <form action="/api/auth/logout" method="post" onSubmit={async (event) => {
     event.preventDefault();

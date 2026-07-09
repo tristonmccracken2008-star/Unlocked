@@ -72,7 +72,7 @@ export function PersonalizedHome() {
   }
 
   // Resolve authentication before choosing the landing, onboarding, or dashboard state.
-  if (!ready) return <div className="min-h-[64vh] px-5 py-16 sm:px-8"><div className="mx-auto max-w-5xl"><p className="rule-label text-forest">Find My Opportunities</p><h1 className="mt-3 font-editorial text-4xl font-bold">Your college advantage starts here.</h1><p className="mt-3 text-sm text-ink/45">Checking for synced profile and opportunity progress.</p></div></div>;
+  if (!ready) return <div className="min-h-[64vh] px-5 py-16 sm:px-8"><div className="mx-auto max-w-5xl"><p className="rule-label text-forest">UnlockED</p><h1 className="mt-3 font-editorial text-4xl font-bold">Preparing your workspace.</h1><p className="mt-3 text-sm text-ink/45">Checking your account and saved profile.</p></div></div>;
   if (!session?.authenticated) return <LoggedOutLanding />;
   if (!profile || editing) return <StudentSetup initialProfile={profile} onSave={save} onCancel={profile ? () => setEditing(false) : undefined} />;
   if (justCompleted) return <OnboardingComplete profile={profile} onContinue={() => setJustCompleted(false)} />;
@@ -84,8 +84,8 @@ function LoggedOutLanding() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const auth = params.get("auth");
-    if (auth === "unavailable") setAuthIssue("Google sign-in is temporarily unavailable. You can still browse opportunities, or contact UnlockED if you need help.");
-    if (auth === "failed") setAuthIssue("Sign-in could not be completed. Please try again or contact UnlockED if the issue continues.");
+    if (auth === "unavailable") setAuthIssue("Google sign-in is temporarily unavailable. Please try again in a moment.");
+    if (auth === "failed") setAuthIssue("Sign-in could not be completed. Please try again.");
     if (auth === "unavailable" || auth === "failed") {
       params.delete("auth");
       const query = params.toString();
@@ -99,11 +99,8 @@ function LoggedOutLanding() {
           <p className="rule-label text-forest">Student opportunities, organized</p>
           <h1 className="mt-5 font-editorial text-5xl font-bold leading-[1.03] text-ink sm:text-7xl">Find the opportunities college usually leaves scattered.</h1>
           <p className="mt-7 max-w-2xl text-lg leading-8 text-ink/60">UnlockED helps students discover scholarships, research, internships, tools, benefits, competitions, and career resources they would otherwise miss.</p>
-          <p className="mt-4 max-w-2xl text-sm leading-7 text-ink/50">After you sign in, UnlockED ranks verified opportunities around your school, major, year, interests, and goals, with official sources and review details kept close to every recommendation.</p>
+          <p className="mt-4 max-w-2xl text-sm leading-7 text-ink/50">Sign in to get a private dashboard ranked around your school, major, year, interests, and goals. Each recommendation keeps the official source and review details close by.</p>
           {authIssue && <div role="alert" className="mt-6 max-w-2xl border border-red-700/20 bg-white px-4 py-3 text-sm font-bold leading-6 text-red-700">{authIssue}</div>}
-          <div className="mt-9">
-            <a href="/api/auth/google" className="inline-flex min-h-12 items-center justify-center bg-forest px-6 text-sm font-bold uppercase tracking-wider text-white hover:bg-ink">Sign in with Google</a>
-          </div>
         </div>
         <div className="mt-16 grid gap-8 border-y border-ink/15 py-8 md:grid-cols-3">
           <section>
