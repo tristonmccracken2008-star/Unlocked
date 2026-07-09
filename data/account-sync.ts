@@ -82,7 +82,7 @@ export function clearLocalDashboardState() {
 
 export async function hydrateAccountData() {
   const session = await readAccountSession();
-  if (!session.authenticated || !session.user) { clearLocalDashboardState(); return session; }
+  if (!session.authenticated || !session.user) return session;
   const cloudData = await readCloudAccountData();
   const local = localAccountData();
   const migrated = localStorage.getItem(accountMigrationKey(session.user.id)) === "true";

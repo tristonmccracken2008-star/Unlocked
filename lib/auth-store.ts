@@ -124,7 +124,7 @@ export async function upsertUser(input: Omit<AuthUser, "id"> & { googleSub: stri
   await dbSet(userKey(id), user);
   await dbSet(emailKey(email), id);
   if (!existing) await writeAccountData(id, emptyData());
-  console.info("[UnlockED auth] OAuth user upserted", { userId: id, email });
+  console.info("[UnlockED auth] OAuth user upserted");
   return user;
 }
 
@@ -133,7 +133,7 @@ export async function createSession(user: AuthUser) {
   expires.setDate(expires.getDate() + 30);
   const payload: SignedSessionPayload = { v: 1, user, exp: expires.toISOString(), iat: new Date().toISOString() };
   const token = signPayload(payload);
-  console.info("[UnlockED auth] Session created", { userId: user.id, expiresAt: expires.toISOString() });
+  console.info("[UnlockED auth] Session created", { expiresAt: expires.toISOString() });
   return { token, expires };
 }
 

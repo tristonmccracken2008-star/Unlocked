@@ -37,11 +37,11 @@ export function PersonalizedHome() {
         if (!active) return;
         setSession(nextSession);
         if (nextSession.authenticated) { const parsed = readCompletedStudentProfile(); if (parsed && schools.some((school) => school.slug === parsed.schoolSlug)) setProfile(parsed); else setProfile(null); }
-        else { clearLocalDashboardState(); setProfile(null); }
+        else setProfile(null);
       } catch {
         if (!active) return;
         setSyncError("We could not verify your account. Please sign in again.");
-        clearLocalDashboardState();setSession({authenticated:false,user:null,data:null});setProfile(null);
+        setSession({authenticated:false,user:null,data:null});setProfile(null);
       } finally {
         if (active) setReady(true);
       }
@@ -104,8 +104,8 @@ function LoggedOutLanding() {
           <p className="rule-label text-forest">Why students use it</p>
           <dl className="mt-5 space-y-5">
             <div><dt className="font-editorial text-2xl font-bold">Checked</dt><dd className="mt-1 text-sm text-ink/45">Every published listing includes a verification status and review date.</dd></div>
-            <div><dt className="font-editorial text-2xl font-bold">Official</dt><dd className="mt-1 text-sm text-ink/45">sources and last-verified dates on opportunity pages</dd></div>
-            <div><dt className="font-editorial text-2xl font-bold">Personalized</dt><dd className="mt-1 text-sm text-ink/45">recommendations by school, major, year, interests, and goals</dd></div>
+            <div><dt className="font-editorial text-2xl font-bold">Official</dt><dd className="mt-1 text-sm text-ink/45">Every opportunity page links to the provider source and shows the last verified date.</dd></div>
+            <div><dt className="font-editorial text-2xl font-bold">Personalized</dt><dd className="mt-1 text-sm text-ink/45">Recommendations are ranked by school, major, year, interests, and goals.</dd></div>
           </dl>
         </aside>
       </div>

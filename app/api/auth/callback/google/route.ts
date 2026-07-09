@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
   try {
     const googleUser = await exchangeGoogleCode(code);
     const user = await upsertUser({ googleSub: googleUser.sub, email: googleUser.email, name: googleUser.name, image: googleUser.picture });
-    console.info("[UnlockED auth] OAuth callback succeeded", { userId: user.id, email: user.email });
+    console.info("[UnlockED auth] OAuth callback succeeded");
     const session = await createSession(user);
     const response = NextResponse.redirect(`${appUrl()}/profile?auth=signed-in`);
     response.cookies.delete(oauthStateCookieName);

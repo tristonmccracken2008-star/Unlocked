@@ -9,7 +9,7 @@
     "build": "next build",
     "postbuild": "node scripts/verify-homepage-build.mjs",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "tsc --noEmit --pretty false"
   },
   "dependencies": {
     "@vercel/analytics": "^2.0.1",
