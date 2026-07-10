@@ -55,6 +55,7 @@ export function PersonalizedHome() {
   const [profile, setProfile] = useState<StudentProfile | null>(null);
   const [session, setSession] = useState<AccountSession | null>(null);
   const [syncError, setSyncError] = useState("");
+  const [authIssue, setAuthIssue] = useState("");
   const trackedView = useRef("");
 
   useEffect(() => {
@@ -97,6 +98,17 @@ export function PersonalizedHome() {
   }, []);
 
   useEffect(() => {
+    if (!ready || !session) return;
+    const url = new URL(window.location.href);
+    const auth = url.searchParams.get("auth");
+    if (!auth) return;
+    if (!session.authenticated && auth === "failed") setAuthIssue("Sign-in could not be completed. Please try again.");
+    else if (!session.authenticated && auth === "unavailable") setAuthIssue("Google sign-in is temporarily unavailable. Please try again in a moment.");
+    url.searchParams.delete("auth");
+    window.history.replaceState({}, "", `${url.pathname}${url.search}${url.hash}`);
+  }, [ready, session]);
+
+  useEffect(() => {
     if (!ready) return;
     const view = profile ? "dashboard" : !session?.authenticated ? "homepage" : "onboarding";
     if (trackedView.current === view) return;
@@ -111,7 +123,7 @@ export function PersonalizedHome() {
   }
 
   if (!ready) return <WorkspaceLoading />;
-  if (!session?.authenticated) return <LoggedOutLanding />;
+  if (!session?.authenticated) return <LoggedOutLanding authIssue={authIssue} />;
   if (!profile) return <AdvisorInterview session={session} onSave={save} />;
   return <StudentDashboard profile={profile} session={session} syncError={syncError} />;
 }
@@ -120,19 +132,7 @@ function WorkspaceLoading() {
   return <main className="min-h-[64vh] px-5 py-20 sm:px-8"><div className="mx-auto max-w-5xl"><p className="rule-label text-forest">UnlockED</p><h1 className="mt-4 font-editorial text-5xl font-bold tracking-[-.04em]">Preparing your workspace.</h1><p className="mt-4 text-sm text-ink/45">Checking your account and saved profile.</p></div></main>;
 }
 
-function LoggedOutLanding() {
-  const [authIssue, setAuthIssue] = useState("");
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const auth = params.get("auth");
-    if (auth === "unavailable") setAuthIssue("Google sign-in is temporarily unavailable. Please try again in a moment.");
-    if (auth === "failed") setAuthIssue("Sign-in could not be completed. Please try again.");
-    if (auth === "unavailable" || auth === "failed") {
-      params.delete("auth");
-      const query = params.toString();
-      window.history.replaceState({}, "", `${window.location.pathname}${query ? `?${query}` : ""}${window.location.hash}`);
-    }
-  }, []);
+function LoggedOutLanding({ authIssue }: { authIssue: string }) {
   return <main className="bg-paper">
     <section className="px-5 py-20 sm:px-8 sm:py-28">
       <div className="mx-auto grid max-w-7xl gap-14 lg:grid-cols-[minmax(0,1fr)_420px] lg:items-end">

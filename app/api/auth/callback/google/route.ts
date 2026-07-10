@@ -7,10 +7,12 @@ export async function GET(request: NextRequest) {
   const url = new URL(request.url);
   const code = url.searchParams.get("code");
   const state = url.searchParams.get("state");
+  const providerError = url.searchParams.get("error");
+  const providerErrorDescription = url.searchParams.get("error_description");
   const cookieStore = await cookies();
   const expectedState = cookieStore.get(oauthStateCookieName)?.value;
   if (!code || !state || !expectedState || state !== expectedState) {
-    console.warn("[UnlockED auth] OAuth callback rejected because state/code was invalid", { hasCode: Boolean(code), hasState: Boolean(state), hasExpectedState: Boolean(expectedState) });
+    console.warn("[UnlockED auth] OAuth callback rejected because state/code was invalid", { hasCode: Boolean(code), hasState: Boolean(state), hasExpectedState: Boolean(expectedState), providerError, providerErrorDescription });
     return NextResponse.redirect(new URL("/?auth=failed", request.url));
   }
   try {
