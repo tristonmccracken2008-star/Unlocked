@@ -5,6 +5,7 @@ import type { Opportunity } from "@/data/opportunities";
 import type { StudentProfile } from "@/data/student-profile";
 import { careerReadinessFrameworks, dependencyGraph, recruitingCalendars } from "./config";
 import { coachingForOpportunityClassification, coachingForSignal } from "./knowledge";
+import { normalizedAdvisorProfileHash } from "./profile-version";
 import { advisorEngineVersion, advisorSourceSnapshotVersion, type AdvisorAction, type AdvisorCareerId, type AdvisorFeedbackRecord, type AdvisorOpportunity, type AdvisorOutput, type DeadlineUrgency, type EligibilityResult, type NormalizedAdvisorProfile, type RankedAdvisorOpportunity, type RawAdvisorProfile, type ReadinessResult, type RecommendationAuditRecord, type SemesterPlanItem } from "./types";
 
 const stageMap: Record<string, NormalizedAdvisorProfile["academicStage"]> = {
@@ -60,6 +61,7 @@ const careerAliases: Record<string, AdvisorCareerId> = {
   "finance": "career.quantitative-trader",
   "marketing analytics": "career.general-exploration",
   "clinical psychology": "career.general-exploration",
+  research: "career.general-exploration",
   "graduate school": "career.general-exploration",
   "engineering internship": "career.general-exploration",
   "explore careers": "career.general-exploration",
@@ -415,11 +417,15 @@ export function deterministicHash(payload: unknown) {
   return crypto.createHash("sha256").update(stableStringify(payload)).digest("hex");
 }
 
+function selectedMajorFramework(student: NormalizedAdvisorProfile) {
+  return student.majorIds[0] ?? (student.normalization.unresolvedMajors[0] ? `unresolved:${student.normalization.unresolvedMajors[0].toLowerCase()}` : "major.general");
+}
+
 function createAuditRecord(student: NormalizedAdvisorProfile, careerId: AdvisorCareerId, output: Omit<AdvisorOutput, "auditRecord" | "recommendationId">, generatedAt: string): RecommendationAuditRecord {
-  const inputHash = deterministicHash(student);
+  const inputHash = output.profileHash;
   const outputHash = deterministicHash(output);
   const recommendationId = crypto.createHash("sha256").update(`${student.studentId}|${careerId}|${generatedAt}|${outputHash}`).digest("hex").slice(0, 20);
-  return { recommendationId, studentId: student.studentId, careerId, engineVersion: advisorEngineVersion, generatedAt, inputHash, outputHash, confidence: output.confidence, topActionIds: output.highestRoiActions.slice(0, 3).map((action) => action.actionId), sourceSnapshotVersion: advisorSourceSnapshotVersion };
+  return { recommendationId, studentId: student.studentId, careerId, engineVersion: advisorEngineVersion, generatedAt, profileHash: output.profileHash, profileVersion: output.profileVersion, selectedCareerFramework: careerId, selectedMajorFramework: output.selectedMajorFramework, inputHash, outputHash, confidence: output.confidence, topActionIds: output.highestRoiActions.slice(0, 3).map((action) => action.actionId), sourceSnapshotVersion: advisorSourceSnapshotVersion };
 }
 
 export function adaptUnlockEdOpportunities(source: readonly Opportunity[] = opportunities): AdvisorOpportunity[] {
@@ -454,6 +460,8 @@ export function adaptUnlockEdOpportunities(source: readonly Opportunity[] = oppo
 
 export function generateAdvisorOutput(student: NormalizedAdvisorProfile, careerId: AdvisorCareerId, feedbackRecords: AdvisorFeedbackRecord[] = [], advisorOpportunities: AdvisorOpportunity[] = adaptUnlockEdOpportunities()): AdvisorOutput {
   const readiness = scoreReadiness(student, careerId);
+  const profileHash = normalizedAdvisorProfileHash(student);
+  const majorFramework = selectedMajorFramework(student);
   const baseActions = rankActions(readiness, student, 8);
   const highestRoiActions = adaptActionScores(baseActions, summarizeFeedback(feedbackRecords)).slice(0, 5);
   const semesterPlan = buildSemesterPlan(student, highestRoiActions, 5);
@@ -465,6 +473,12 @@ export function generateAdvisorOutput(student: NormalizedAdvisorProfile, careerI
   const generatedAt = new Date().toISOString();
   const partial = {
     careerId,
+    profileHash,
+    profileVersion: student.normalization.sourceVersion,
+    recommendationVersion: advisorEngineVersion,
+    generatedAt,
+    selectedCareerFramework: careerId,
+    selectedMajorFramework: majorFramework,
     overallReadiness: readiness.overallScore,
     dimensionScores: readiness.dimensionScores,
     highestRoiActions,

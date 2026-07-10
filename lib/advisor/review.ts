@@ -48,6 +48,12 @@ export function getAdvisorReviewCases() {
       rawProfile: fixture.rawProfile,
       normalizedProfile,
       careerId,
+      currentProfileHash: output.profileHash,
+      recommendationProfileHash: output.auditRecord.profileHash,
+      selectedMajorModule: output.selectedMajorFramework,
+      selectedCareerModule: output.selectedCareerFramework,
+      recommendationGeneratedAt: output.generatedAt,
+      fallbackUsed: output.selectedCareerFramework === "career.general-exploration" || output.selectedMajorFramework.startsWith("unresolved:"),
       rulesFired: readiness.gaps.map((gap) => ({
         signal: gap.signal,
         dimension: gap.dimension,

@@ -37,6 +37,8 @@ export default async function AdvisorReviewPage() {
           </div>
           <div className="mt-5 grid gap-4 lg:grid-cols-3">
             <ReviewBlock title="Normalized profile" value={item.normalizedProfile} />
+            <ReviewBlock title="Profile hash" value={{ currentProfileHash: item.currentProfileHash, recommendationProfileHash: item.recommendationProfileHash }} />
+            <ReviewBlock title="Selected modules" value={{ major: item.selectedMajorModule, career: item.selectedCareerModule, fallbackUsed: item.fallbackUsed, generatedAt: item.recommendationGeneratedAt }} />
             <ReviewBlock title="Rules fired" value={item.rulesFired} />
             <ReviewBlock title="Candidates" value={item.recommendationCandidates} />
             <ReviewBlock title="Alternatives" value={item.alternatives} />

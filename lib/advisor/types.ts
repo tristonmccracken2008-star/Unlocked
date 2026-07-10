@@ -193,6 +193,10 @@ export type RecommendationAuditRecord = {
   careerId: AdvisorCareerId;
   engineVersion: string;
   generatedAt: string;
+  profileHash: string;
+  profileVersion: string;
+  selectedCareerFramework: AdvisorCareerId;
+  selectedMajorFramework: string;
   inputHash: string;
   outputHash: string;
   confidence: number;
@@ -202,6 +206,12 @@ export type RecommendationAuditRecord = {
 
 export type AdvisorOutput = {
   careerId: AdvisorCareerId;
+  profileHash: string;
+  profileVersion: string;
+  recommendationVersion: string;
+  generatedAt: string;
+  selectedCareerFramework: AdvisorCareerId;
+  selectedMajorFramework: string;
   overallReadiness: number;
   dimensionScores: Record<string, number>;
   highestRoiActions: AdvisorAction[];

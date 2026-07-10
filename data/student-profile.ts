@@ -1,5 +1,6 @@
 export const studentProfileStorageKey = "unlocked-student-profile";
 export const studentProfileCompleteStorageKey = "unlocked-student-profile-complete";
+export const advisorProfileUpdatedMessageKey = "unlocked-advisor-profile-updated-message";
 
 export type StudentProfile = {
   firstName?: string;
@@ -84,9 +85,36 @@ export function readCompletedStudentProfile() {
   return isCompletedStudentProfile(profile) ? profile : null;
 }
 
+function advisorFingerprint(profile: StudentProfile | null | undefined) {
+  if (!profile) return "";
+  return JSON.stringify({
+    major: profile.major?.trim().toLowerCase() ?? "",
+    careerGoal: profile.careerGoal?.trim().toLowerCase() ?? "",
+    year: profile.year?.trim().toLowerCase() ?? "",
+    graduationYear: profile.graduationYear ?? "",
+    interests: profile.interests?.trim().toLowerCase() ?? "",
+    currentExperience: profile.currentExperience?.trim().toLowerCase() ?? "",
+    weeklyAvailability: profile.weeklyAvailability ?? "",
+    preferredOpportunityTypes: [...(profile.preferredOpportunityTypes ?? [])].sort(),
+    goals: [...(profile.goals ?? [])].sort(),
+    topics: [...(profile.topics ?? [])].sort(),
+    advisorInterview: profile.advisorInterview ? {
+      careerGoal: profile.advisorInterview.careerGoal ?? "",
+      currentExperience: profile.advisorInterview.currentExperience ?? "",
+      interests: [...(profile.advisorInterview.interests ?? [])].sort(),
+      primaryGoals: [...(profile.advisorInterview.primaryGoals ?? [])].sort(),
+      weeklyAvailability: profile.advisorInterview.weeklyAvailability ?? "",
+      preferredOpportunityTypes: [...(profile.advisorInterview.preferredOpportunityTypes ?? [])].sort(),
+    } : null,
+  });
+}
+
 export async function writeStudentProfile(profile: StudentProfile) {
+  const previous = readCompletedStudentProfile();
+  const changedForAdvisor = Boolean(previous && advisorFingerprint(previous) !== advisorFingerprint(profile));
   localStorage.setItem(studentProfileStorageKey, JSON.stringify(profile));
   localStorage.setItem(studentProfileCompleteStorageKey, "true");
+  if (changedForAdvisor) localStorage.setItem(advisorProfileUpdatedMessageKey, profile.careerGoal ? `Your plan was updated for your interest in ${profile.careerGoal}.` : "Your plan was updated based on your new profile.");
   if (typeof window !== "undefined") {
     const response = await fetch("/api/account/data", { method: "PUT", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ profile, onboardingComplete: true }) });
     if (response.status === 401) return null;

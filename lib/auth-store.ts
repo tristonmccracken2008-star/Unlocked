@@ -3,6 +3,7 @@ import type { AccountData, AuthUser, DatabaseUser } from "./account-types";
 import type { AdvisorAccountData } from "./advisor/types";
 import { defaultBillingRecord, normalizeBillingRecord, type BillingRecord } from "./billing";
 import { isCompletedStudentProfile } from "@/data/student-profile";
+import { meaningfulAdvisorProfileChanged } from "./advisor/profile-version";
 
 export const sessionCookieName = "unlocked_session";
 export const oauthStateCookieName = "unlocked_oauth_state";
@@ -213,6 +214,7 @@ export async function mergeAccountData(userId: string, incoming: Partial<Account
   const savedIds = [...new Set([...(current.savedOpportunities ?? []).map((item) => item.opportunityId), ...uniqueStrings(activity?.saved), ...Object.keys(tracker)])];
   const incomingProfile = incoming.profile && isCompletedStudentProfile(incoming.profile) ? incoming.profile : null;
   const profile = incomingProfile ?? current.profile ?? null;
+  const profileChangedForAdvisor = Boolean(incomingProfile && meaningfulAdvisorProfileChanged(current.profile, incomingProfile));
   const next: AccountData = {
     profile,
     onboardingComplete: Boolean(current.onboardingComplete || incoming.onboardingComplete || (profile && isCompletedStudentProfile(profile))),
@@ -222,7 +224,7 @@ export async function mergeAccountData(userId: string, incoming: Partial<Account
     tracker,
     preferences: incoming.preferences ?? current.preferences ?? null,
     journeyProgress: { ...(current.journeyProgress ?? {}), ...(incoming.journeyProgress ?? {}) },
-    advisor: normalizeAdvisorData(incoming.advisor ?? current.advisor),
+    advisor: profileChangedForAdvisor ? null : normalizeAdvisorData(incoming.advisor ?? current.advisor),
     updatedAt: new Date().toISOString(),
   };
   await writeAccountData(userId, next);

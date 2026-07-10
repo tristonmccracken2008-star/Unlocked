@@ -302,5 +302,30 @@
       "hasRelevantExperience": false
     },
     "completedFeedback": []
+  },
+  {
+    "id": "biology-research",
+    "label": "Biology student interested in research",
+    "rawProfile": {
+      "studentId": "fixture-biology-research",
+      "firstName": "Amara",
+      "schoolSlug": "university-of-washington",
+      "year": "Second year",
+      "majors": ["Biology"],
+      "major": "Biology",
+      "graduationYear": "2028",
+      "careerGoal": "Research",
+      "careerGoals": ["Research", "Graduate School"],
+      "interests": "Genetics, public health, lab research",
+      "currentExperience": "Strong biology coursework, no lab role yet, interested in faculty research",
+      "hoursPerWeek": 5,
+      "scienceFoundation": 60,
+      "statisticsSkill": 35,
+      "researchExperience": false,
+      "hasClinicalExperience": false,
+      "hasServiceExperience": true,
+      "reflectionQuality": 25
+    },
+    "completedFeedback": []
   }
 ]

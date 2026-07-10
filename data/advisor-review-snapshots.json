@@ -166,5 +166,19 @@
     "opportunityRecommendationType": "low-time campus resources and saved opportunities for later",
     "recommendationChain": ["Small weekly action", "Visible evidence", "Resume or project update", "Applications when time increases"],
     "alternatives": ["One-hour resume draft", "Tiny bug fix project", "Campus resource appointment"]
+  },
+  {
+    "profileId": "biology-research",
+    "primaryRecommendation": "Join or create one biology inquiry experience tied to a real research question.",
+    "whyRecommended": "The student has biology coursework and research interest but no lab or inquiry role yet.",
+    "whyBeforeAlternatives": "Research evidence is more relevant than clinical exposure when the stated path is graduate or lab research.",
+    "prerequisites": ["Research question", "Faculty or lab shortlist", "Small contribution request"],
+    "estimatedEffort": "3-5 hours per week",
+    "evidenceProduced": "Lab role, literature review, poster draft, or research summary.",
+    "whatItUnlocks": ["Faculty feedback", "Graduate-school exploration", "Research applications"],
+    "confidenceExplanation": "Moderate confidence because the profile clearly names biology research but UnlockED uses a conservative research framework.",
+    "opportunityRecommendationType": "biology research roles, fellowships, campus labs, and research programs",
+    "recommendationChain": ["Research question", "Inquiry role", "Evidence artifact", "Graduate or research opportunity"],
+    "alternatives": ["Faculty lab outreach", "Course-to-research sample", "Summer research program shortlist"]
   }
 ]

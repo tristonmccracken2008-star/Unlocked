@@ -5,7 +5,7 @@ import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { schools, type School } from "@/data/seed";
 import { findExactSchoolMatches, findSchoolMatches, normalizeSchoolQuery } from "@/data/school-search";
 import { ArrowIcon, SearchIcon } from "./icons";
-import { readCompletedStudentProfile, writeStudentProfile, type StudentProfile } from "@/data/student-profile";
+import { advisorProfileUpdatedMessageKey, readCompletedStudentProfile, writeStudentProfile, type StudentProfile } from "@/data/student-profile";
 import { accountSessionEvent, accountSyncErrorEvent, clearLocalDashboardState, hydrateAccountData } from "@/data/account-sync";
 import type { AccountSession } from "@/lib/account-types";
 import { expiringSoonOpportunities, recommendedForYou, type RecommendationProfile } from "@/data/recommendations";
@@ -414,6 +414,13 @@ function StudentDashboard({ profile, session, syncError }: { profile: StudentPro
   const [advisorBrain, setAdvisorBrain] = useState<AdvisorOutput | null>(null);
   const [advisorBrainStatus, setAdvisorBrainStatus] = useState("Loading advisor.");
   const [advisorFeedbackStatus, setAdvisorFeedbackStatus] = useState("");
+  const [profileUpdateMessage, setProfileUpdateMessage] = useState("");
+  useEffect(() => {
+    const message = localStorage.getItem(advisorProfileUpdatedMessageKey);
+    if (!message) return;
+    setProfileUpdateMessage(message);
+    localStorage.removeItem(advisorProfileUpdatedMessageKey);
+  }, []);
   useEffect(() => {
     const update = () => setActivity(readStudentActivity());
     update();
@@ -499,6 +506,7 @@ function StudentDashboard({ profile, session, syncError }: { profile: StudentPro
             <h1 className="mt-4 font-editorial text-5xl font-bold tracking-[-.055em] sm:text-7xl">{greeting()}, {firstName}.</h1>
             <p className="mt-4 max-w-2xl text-sm leading-7 text-ink/50">{school.name} · {profile.major}{profile.graduationYear ? ` · Class of ${profile.graduationYear}` : ""}</p>
             {syncError && <p className="mt-3 text-sm font-bold text-red-700">{syncError}</p>}
+            {profileUpdateMessage && <p role="status" className="mt-3 inline-flex rounded-full bg-paper px-4 py-2 text-xs font-bold text-forest">{profileUpdateMessage}</p>}
           </div>
           <Link href="/profile" className="rounded-full border border-ink/10 px-4 py-2 text-sm font-bold text-ink/50 hover:border-forest/30 hover:text-forest">Edit profile</Link>
         </div>
@@ -547,37 +555,46 @@ function StudentDashboard({ profile, session, syncError }: { profile: StudentPro
 
 function AdvisorBrainSection({ advisor, status, feedbackStatus, onFeedback }: { advisor: AdvisorOutput | null; status: string; feedbackStatus: string; onFeedback: (actionId: string, feedbackType: FeedbackType, signal?: string) => void | Promise<void> }) {
   const primary = advisor?.highestRoiActions[0];
-  const [activePanel, setActivePanel] = useState<string | null>(null);
+  const [openPanel, setOpenPanel] = useState<"start" | "learn" | "options" | "plan" | "opportunities" | null>(null);
   const stage = advisor ? readinessStage(advisor) : null;
+  const limitedGuidance = Boolean(advisor && (advisor.selectedCareerFramework === "career.general-exploration" || advisor.selectedMajorFramework.startsWith("unresolved:")));
   return <section className="border-b border-ink/10 py-10">
-    <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_280px] lg:items-start">
-      <div>
-        <p className="rule-label text-forest">Advisor Brain</p>
-        {primary ? <AdvisorActionCard action={primary} label="Your current focus" activePanel={activePanel} setActivePanel={setActivePanel} onFeedback={onFeedback} /> : <p className="mt-4 text-sm leading-7 text-ink/50">{status}</p>}
+    <div>
+      <p className="rule-label text-forest">Advisor</p>
+      {primary && advisor ? <article className="mt-4 rounded-[1.5rem] bg-paper px-5 py-6 sm:px-7">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+          <div className="max-w-3xl">
+            <p className="text-xs font-bold uppercase tracking-wider text-ink/35">Your next step · {stage?.label}</p>
+            <h2 className="mt-3 font-editorial text-3xl font-bold leading-tight tracking-[-.025em] sm:text-4xl">{primary.coaching.recommendation}</h2>
+            <p className="mt-4 max-w-2xl text-sm leading-7 text-ink/55">{primary.coaching.whyThisApplies}</p>
+            {limitedGuidance && <p className="mt-3 max-w-2xl text-xs font-bold leading-5 text-ink/40">UnlockED does not yet have enough reviewed guidance for this path to recommend a highly specific specialist plan. You can complete more profile details, explore relevant opportunities manually, or choose another supported career path.</p>}
+            <p className="mt-3 text-xs font-bold uppercase tracking-wider text-ink/35">{primary.coaching.estimatedTime} · {primary.coaching.impactLabel}</p>
+          </div>
+          <button type="button" onClick={() => setOpenPanel(openPanel === "start" ? null : "start")} className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-full bg-forest px-5 text-sm font-bold text-white hover:bg-ink">Start</button>
+        </div>
+        <div className="mt-5 flex flex-wrap gap-2">
+          <AdvisorPanelButton label="Learn More ⓘ" selected={openPanel === "learn"} onClick={() => setOpenPanel(openPanel === "learn" ? null : "learn")} />
+          <AdvisorPanelButton label="Show other options" selected={openPanel === "options"} onClick={() => setOpenPanel(openPanel === "options" ? null : "options")} />
+          <AdvisorPanelButton label="View your plan" selected={openPanel === "plan"} onClick={() => setOpenPanel(openPanel === "plan" ? null : "plan")} />
+          <AdvisorPanelButton label="Explore matching opportunities" selected={openPanel === "opportunities"} onClick={() => setOpenPanel(openPanel === "opportunities" ? null : "opportunities")} />
+        </div>
+        {openPanel === "start" && <AdvisorPanelBlock title="How to start"><ul className="space-y-2">{primary.coaching.completionChecklist.map((item) => <li key={item}>{item}</li>)}</ul><p className="mt-3"><span className="font-bold">Evidence:</span> {primary.coaching.evidenceProduced}</p><button type="button" onClick={() => void onFeedback(primary.actionId, "completed", primary.signal)} className="mt-3 text-xs font-bold text-forest hover:text-ink">Mark completed</button></AdvisorPanelBlock>}
+        {openPanel === "learn" && <AdvisorPanelBlock title="Why this recommendation"><div className="grid gap-4 md:grid-cols-3"><InfoItem label="What this is" value={primary.coaching.informationDrawer.whatIsThis} /><InfoItem label="Why it applies" value={primary.coaching.whyThisApplies} /><InfoItem label="Knowledge sources" value={primary.coaching.supportingKnowledgeSourceIds.join(", ")} /></div><div className="mt-4"><FeedbackControls onSelect={(type) => void onFeedback(primary.actionId, type, primary.signal)} /></div></AdvisorPanelBlock>}
+        {openPanel === "options" && <AdvisorPanelBlock title="Other reasonable paths"><RecommendationPanel value={primary.coaching.alternatives.slice(0, 3)} /></AdvisorPanelBlock>}
+        {openPanel === "plan" && <AdvisorPanelBlock title="Your plan"><div className="grid gap-5 lg:grid-cols-2"><div><p className="text-xs font-bold uppercase tracking-wider text-ink/35">This semester</p><ul className="mt-3 space-y-2">{advisor.semesterPlan.slice(0, 5).map((item) => <li key={item.actionId}><span className="font-bold">{item.sequence}. {item.title}</span><span className="block text-ink/45">{item.weeklyHours} hr/week · {item.successEvidence}</span></li>)}</ul></div><div><p className="text-xs font-bold uppercase tracking-wider text-ink/35">Recommendation chain</p><RecommendationPanel value={advisor.dependencySequence} /></div></div><p className="mt-4 text-[11px] font-bold uppercase tracking-wider text-ink/30">Planning estimate: {advisor.overallReadiness}/100. Not a prediction of hiring, admission, funding, or selection.</p></AdvisorPanelBlock>}
+        {openPanel === "opportunities" && <AdvisorPanelBlock title="Matching opportunities"><div className="divide-y divide-ink/10">{advisor.matchedOpportunities.slice(0, 3).map((item) => <div key={item.opportunityId} className="flex flex-col gap-2 py-3 sm:flex-row sm:items-center sm:justify-between"><div><p className="font-bold text-ink/75">{item.title}</p><p className="text-xs text-ink/45">{item.classification} · {item.deadlineUrgency.reason}</p></div><Link href={`/opportunities/${item.opportunityId}`} className="text-xs font-bold text-forest hover:text-ink">View</Link></div>)}</div></AdvisorPanelBlock>}
         {feedbackStatus && <p className="mt-3 text-xs font-bold text-ink/40">{feedbackStatus}</p>}
-      </div>
-      {advisor && <div className="rounded-[1.5rem] bg-paper px-5 py-5">
-        <p className="rule-label text-ink/35">Current stage</p>
-        <p className="mt-3 font-editorial text-3xl font-bold tracking-[-.03em]">{stage?.label}</p>
-        <p className="mt-3 text-sm leading-6 text-ink/55">{stage?.description}</p>
-        <p className="mt-4 text-[11px] font-bold uppercase tracking-wider text-ink/35">Planning estimate: {advisor.overallReadiness}/100. Not a prediction of hiring, admission, funding, or selection.</p>
-        <div className="mt-5 space-y-3">{Object.entries(advisor.dimensionScores).slice(0, 3).map(([dimension, score]) => <div key={dimension} className="flex items-center justify-between gap-3 text-sm"><span className="capitalize text-ink/50">{dimension.replaceAll("_", " ")}</span><span className="font-bold text-ink/70">{stageLabel(score)}</span></div>)}</div>
-      </div>}
+      </article> : <p className="mt-4 text-sm leading-7 text-ink/50">{status}</p>}
     </div>
-    {advisor && <div className="mt-8 grid gap-8 lg:grid-cols-2">
-      <div>
-        <p className="text-xs font-bold uppercase tracking-wider text-ink/35">This semester</p>
-        <div className="mt-3 space-y-3">{advisor.semesterPlan.slice(0, 5).map((item) => {
-          const action = advisor.highestRoiActions.find((candidate) => candidate.actionId === item.actionId);
-          return action ? <AdvisorActionCard key={item.actionId} action={action} label={`${item.sequence}. ${item.weeklyHours} hr/week`} compact activePanel={activePanel} setActivePanel={setActivePanel} onFeedback={onFeedback} /> : null;
-        })}</div>
-      </div>
-      <div>
-        <p className="text-xs font-bold uppercase tracking-wider text-ink/35">Recommended opportunities</p>
-        <div className="mt-3 space-y-3">{advisor.matchedOpportunities.slice(0, 3).map((item) => <AdvisorOpportunityCard key={item.opportunityId} opportunity={item} activePanel={activePanel} setActivePanel={setActivePanel} />)}</div>
-      </div>
-    </div>}
   </section>;
+}
+
+function AdvisorPanelButton({ label, selected, onClick }: { label: string; selected: boolean; onClick: () => void }) {
+  return <button type="button" onClick={onClick} className={`rounded-full border px-3 py-1.5 text-xs font-bold ${selected ? "border-forest bg-white text-forest" : "border-ink/15 text-ink/55 hover:border-forest hover:text-forest"}`}>{label}</button>;
+}
+
+function AdvisorPanelBlock({ title, children }: { title: string; children: React.ReactNode }) {
+  return <div className="mt-5 border-t border-ink/10 pt-5 text-sm leading-6 text-ink/55"><p className="mb-3 text-xs font-bold uppercase tracking-wider text-ink/35">{title}</p>{children}</div>;
 }
 
 function AdvisorActionCard({ action, label, compact = false, activePanel, setActivePanel, onFeedback }: { action: AdvisorAction; label: string; compact?: boolean; activePanel: string | null; setActivePanel: (value: string | null) => void; onFeedback: (actionId: string, feedbackType: FeedbackType, signal?: string) => void | Promise<void> }) {
