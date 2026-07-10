@@ -58,7 +58,7 @@ export function cleanFeedback(input: unknown, userId: string): AdvisorFeedbackRe
   if (!input || typeof input !== "object") return null;
   const body = input as Partial<AdvisorFeedbackRecord>;
   if (!body.recommendationId || !body.actionId || !body.feedbackType) return null;
-  if (!["helpful", "not-relevant", "already-completed", "too-expensive", "too-time-consuming", "completed", "dismissed"].includes(body.feedbackType)) return null;
+  if (!["helpful", "not-relevant", "already-completed", "too-expensive", "too-time-consuming", "completed", "dismissed", "dont-enjoy-this", "prefer-research", "prefer-industry", "not-interested"].includes(body.feedbackType)) return null;
   return {
     recommendationId: body.recommendationId,
     studentId: userId,

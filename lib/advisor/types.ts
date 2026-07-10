@@ -4,9 +4,9 @@ import type { StudentProfile } from "@/data/student-profile";
 export const advisorEngineVersion = "advisor-brain-v0.4";
 export const advisorSourceSnapshotVersion = "advisor-brain-v0.4:2026-07-10";
 
-export type AdvisorCareerId = "career.quantitative-trader" | "career.software-engineer" | "career.physician";
+export type AdvisorCareerId = "career.quantitative-trader" | "career.software-engineer" | "career.physician" | "career.general-exploration";
 export type AdvisorAcademicStage = "incoming-first-year" | "first-year" | "second-year" | "third-year" | "fourth-year" | "recent-graduate";
-export type FeedbackType = "helpful" | "not-relevant" | "already-completed" | "too-expensive" | "too-time-consuming" | "completed" | "dismissed";
+export type FeedbackType = "helpful" | "not-relevant" | "already-completed" | "too-expensive" | "too-time-consuming" | "completed" | "dismissed" | "dont-enjoy-this" | "prefer-research" | "prefer-industry" | "not-interested";
 
 export type RawAdvisorProfile = Partial<StudentProfile> & {
   studentId?: string;
@@ -66,6 +66,7 @@ export type AdvisorAction = {
   weeklyHoursSuggested: number;
   priorityScore: number;
   reason: string;
+  coaching: RecommendationCoaching;
   suppressed?: boolean;
   adaptationReason?: string;
 };
@@ -121,6 +122,56 @@ export type RankedAdvisorOpportunity = {
   deadlineUrgency: DeadlineUrgency;
   sourceConfidence: "high" | "medium" | "low";
   explanation: string[];
+  coaching: RecommendationCoaching;
+};
+
+export type RecommendationCoaching = {
+  title: string;
+  recommendation: string;
+  simpleExplanation: string;
+  learnMore: string;
+  whyThisApplies: string;
+  whyThis: string;
+  whyNow: string;
+  whyRankedAboveAlternatives: string;
+  whyBeforeOthers: string;
+  notRankedFirst: string;
+  prerequisites: string[];
+  estimatedTime: string;
+  difficulty: "Low" | "Moderate" | "High";
+  skillsDeveloped: string[];
+  evidenceProduced: string;
+  firstStep: string;
+  completionChecklist: string[];
+  supportingKnowledgeSourceIds: string[];
+  impactLabel: "Foundational" | "High impact" | "Helpful" | "Optional";
+  alternativePaths: string[];
+  alternatives: {
+    title: string;
+    whyChoose: string;
+    advantages: string;
+    tradeoffs: string;
+    bestFit: string;
+    timeCommitment: string;
+    unlocks: string;
+  }[];
+  whatHappensNext: string;
+  howDoIStart: string[];
+  successEvidence: string;
+  informationDrawer: {
+    whatIsThis: string;
+    whyItMatters: string;
+    whoBenefitsMost: string;
+    skillsDeveloped: string[];
+    difficulty: "Low" | "Moderate" | "High";
+    typicalTimeCommitment: string;
+    commonMisconceptions: string[];
+    examples: string[];
+    relatedCareers: string[];
+    relatedOpportunities: string[];
+  };
+  unlockChain: string[];
+  trustBasis: ("Employer expectations" | "Academic guidance" | "Prerequisite relationships" | "Recruiting norms" | "Verified opportunity source" | "Incomplete profile evidence")[];
 };
 
 export type DependencySequenceItem = string;

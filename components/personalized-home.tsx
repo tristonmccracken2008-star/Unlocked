@@ -18,7 +18,7 @@ import { getRoadmap } from "@/data/roadmap-engine";
 import { inferApplicationsFromActivity, readStudentProgress, studentProgressEvent, type StudentProgress } from "@/data/student-progress";
 import { getMilestoneForAdvisor, type Milestone } from "@/data/milestone-engine";
 import { buildAdvisorTimeline } from "@/data/advisor-timeline";
-import type { AdvisorOutput, FeedbackType } from "@/lib/advisor/types";
+import type { AdvisorAction, AdvisorOutput, FeedbackType, RankedAdvisorOpportunity, RecommendationCoaching } from "@/lib/advisor/types";
 
 const graduationYears = Array.from({ length: 9 }, (_, index) => String(new Date().getFullYear() + index));
 const interestSuggestions = ["Scholarships", "Research", "Internships", "AI", "Software", "Startups", "Finance", "Medicine", "Engineering"];
@@ -547,43 +547,139 @@ function StudentDashboard({ profile, session, syncError }: { profile: StudentPro
 
 function AdvisorBrainSection({ advisor, status, feedbackStatus, onFeedback }: { advisor: AdvisorOutput | null; status: string; feedbackStatus: string; onFeedback: (actionId: string, feedbackType: FeedbackType, signal?: string) => void | Promise<void> }) {
   const primary = advisor?.highestRoiActions[0];
+  const [activePanel, setActivePanel] = useState<string | null>(null);
+  const stage = advisor ? readinessStage(advisor) : null;
   return <section className="border-b border-ink/10 py-10">
     <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_280px] lg:items-start">
       <div>
         <p className="rule-label text-forest">Advisor Brain</p>
-        {primary ? <>
-          <h2 className="mt-3 max-w-3xl font-editorial text-3xl font-bold leading-tight tracking-[-.025em]">Your current focus is to {primary.title.toLowerCase()}</h2>
-          <p className="mt-4 max-w-2xl text-sm leading-7 text-ink/55"><span className="font-bold text-ink/70">Why it matters:</span> {primary.reason}</p>
-          <p className="mt-3 max-w-2xl text-sm leading-7 text-ink/55"><span className="font-bold text-ink/70">Success evidence:</span> {advisor.semesterPlan.find((item) => item.actionId === primary.actionId)?.successEvidence ?? "Inspectable completion evidence."}</p>
-          <div className="mt-5 flex flex-wrap gap-2">
-            {(["helpful", "not-relevant", "already-completed", "too-expensive", "too-time-consuming"] as FeedbackType[]).map((type) => <button key={type} type="button" onClick={() => void onFeedback(primary.actionId, type, primary.signal)} className="rounded-full border border-ink/15 px-3 py-1.5 text-xs font-bold text-ink/55 hover:border-forest hover:text-forest">{type.replaceAll("-", " ")}</button>)}
-          </div>
-          {feedbackStatus && <p className="mt-3 text-xs font-bold text-ink/40">{feedbackStatus}</p>}
-        </> : <p className="mt-4 text-sm leading-7 text-ink/50">{status}</p>}
+        {primary ? <AdvisorActionCard action={primary} label="Your current focus" activePanel={activePanel} setActivePanel={setActivePanel} onFeedback={onFeedback} /> : <p className="mt-4 text-sm leading-7 text-ink/50">{status}</p>}
+        {feedbackStatus && <p className="mt-3 text-xs font-bold text-ink/40">{feedbackStatus}</p>}
       </div>
       {advisor && <div className="rounded-[1.5rem] bg-paper px-5 py-5">
-        <p className="rule-label text-ink/35">Career readiness</p>
-        <p className="mt-3 font-editorial text-5xl font-bold tracking-[-.04em]">{advisor.overallReadiness}</p>
-        <p className="mt-2 text-xs font-bold uppercase tracking-wider text-ink/35">Not a hiring probability</p>
-        <div className="mt-5 space-y-3">{Object.entries(advisor.dimensionScores).slice(0, 3).map(([dimension, score]) => <div key={dimension} className="flex items-center justify-between gap-3 text-sm"><span className="capitalize text-ink/50">{dimension.replaceAll("_", " ")}</span><span className="font-bold text-ink/70">{score}</span></div>)}</div>
+        <p className="rule-label text-ink/35">Current stage</p>
+        <p className="mt-3 font-editorial text-3xl font-bold tracking-[-.03em]">{stage?.label}</p>
+        <p className="mt-3 text-sm leading-6 text-ink/55">{stage?.description}</p>
+        <p className="mt-4 text-[11px] font-bold uppercase tracking-wider text-ink/35">Planning estimate: {advisor.overallReadiness}/100. Not a prediction of hiring, admission, funding, or selection.</p>
+        <div className="mt-5 space-y-3">{Object.entries(advisor.dimensionScores).slice(0, 3).map(([dimension, score]) => <div key={dimension} className="flex items-center justify-between gap-3 text-sm"><span className="capitalize text-ink/50">{dimension.replaceAll("_", " ")}</span><span className="font-bold text-ink/70">{stageLabel(score)}</span></div>)}</div>
       </div>}
     </div>
     {advisor && <div className="mt-8 grid gap-8 lg:grid-cols-2">
       <div>
         <p className="text-xs font-bold uppercase tracking-wider text-ink/35">This semester</p>
-        <div className="mt-3 divide-y divide-ink/10">{advisor.semesterPlan.slice(0, 5).map((item) => <div key={item.actionId} className="py-3">
-          <div className="flex gap-3"><span className="font-mono text-xs text-ink/30">{item.sequence}</span><div><p className="text-sm font-bold">{item.title}</p><p className="mt-1 text-xs leading-5 text-ink/45">{item.weeklyHours} hr/week · {item.successEvidence}</p><button type="button" onClick={() => void onFeedback(item.actionId, "completed")} className="mt-2 text-xs font-bold text-forest hover:text-ink">Mark completed</button></div></div>
-        </div>)}</div>
+        <div className="mt-3 space-y-3">{advisor.semesterPlan.slice(0, 5).map((item) => {
+          const action = advisor.highestRoiActions.find((candidate) => candidate.actionId === item.actionId);
+          return action ? <AdvisorActionCard key={item.actionId} action={action} label={`${item.sequence}. ${item.weeklyHours} hr/week`} compact activePanel={activePanel} setActivePanel={setActivePanel} onFeedback={onFeedback} /> : null;
+        })}</div>
       </div>
       <div>
         <p className="text-xs font-bold uppercase tracking-wider text-ink/35">Recommended opportunities</p>
-        <div className="mt-3 divide-y divide-ink/10">{advisor.matchedOpportunities.slice(0, 3).map((item) => <Link key={item.opportunityId} href={`/opportunities/${item.opportunityId}`} className="block py-3">
-          <p className="text-sm font-bold hover:text-forest">{item.title}</p>
-          <p className="mt-1 text-xs leading-5 text-ink/45">{item.classification} · {item.eligibility.reasons[0]} · {item.deadlineUrgency.label} urgency · {item.sourceConfidence} source confidence</p>
-        </Link>)}</div>
+        <div className="mt-3 space-y-3">{advisor.matchedOpportunities.slice(0, 3).map((item) => <AdvisorOpportunityCard key={item.opportunityId} opportunity={item} activePanel={activePanel} setActivePanel={setActivePanel} />)}</div>
       </div>
     </div>}
   </section>;
+}
+
+function AdvisorActionCard({ action, label, compact = false, activePanel, setActivePanel, onFeedback }: { action: AdvisorAction; label: string; compact?: boolean; activePanel: string | null; setActivePanel: (value: string | null) => void; onFeedback: (actionId: string, feedbackType: FeedbackType, signal?: string) => void | Promise<void> }) {
+  return <RecommendationCardShell id={action.actionId} label={label} title={action.coaching.recommendation} meta={`${action.coaching.estimatedTime} · ${action.coaching.impactLabel}`} coaching={action.coaching} activePanel={activePanel} setActivePanel={setActivePanel} compact={compact} primaryAction={<button type="button" onClick={() => setActivePanel(`${action.actionId}:start`)} className="rounded-full bg-forest px-4 py-2 text-xs font-bold text-white hover:bg-ink">Start</button>} feedback={<FeedbackControls onSelect={(type) => void onFeedback(action.actionId, type, action.signal)} />} completionAction={<button type="button" onClick={() => void onFeedback(action.actionId, "completed", action.signal)} className="text-xs font-bold text-forest hover:text-ink">Mark completed</button>} />;
+}
+
+function AdvisorOpportunityCard({ opportunity, activePanel, setActivePanel }: { opportunity: RankedAdvisorOpportunity; activePanel: string | null; setActivePanel: (value: string | null) => void }) {
+  return <RecommendationCardShell id={`opportunity-${opportunity.opportunityId}`} label={`${opportunity.classification} opportunity`} title={opportunity.coaching.recommendation} meta={`${opportunity.deadlineUrgency.label} urgency · ${opportunity.sourceConfidence} source confidence`} coaching={opportunity.coaching} activePanel={activePanel} setActivePanel={setActivePanel} compact primaryAction={<Link href={`/opportunities/${opportunity.opportunityId}`} className="rounded-full bg-forest px-4 py-2 text-xs font-bold text-white hover:bg-ink">View</Link>} feedback={null} completionAction={null} />;
+}
+
+function RecommendationCardShell({ id, label, title, meta, coaching, activePanel, setActivePanel, compact = false, primaryAction, feedback, completionAction }: { id: string; label: string; title: string; meta: string; coaching: RecommendationCoaching; activePanel: string | null; setActivePanel: (value: string | null) => void; compact?: boolean; primaryAction: React.ReactNode; feedback: React.ReactNode; completionAction: React.ReactNode }) {
+  type PanelValue = RecommendationCoaching["informationDrawer"] | RecommendationCoaching["alternatives"] | string[] | string;
+  const panels: { key: string; text: string; value: PanelValue }[] = [
+    { key: "info", text: "ⓘ", value: coaching.informationDrawer },
+    { key: "why", text: "Why This?", value: [coaching.whyThis, coaching.whyNow, coaching.whyBeforeOthers, coaching.notRankedFirst] },
+    { key: "alternatives", text: "Alternative Paths", value: coaching.alternatives },
+    { key: "next", text: "What Happens Next", value: coaching.whatHappensNext },
+    { key: "start", text: "How Do I Start?", value: coaching.howDoIStart },
+    { key: "unlocks", text: "What This Unlocks", value: coaching.unlockChain },
+  ];
+  const current = panels.find((panel) => activePanel === `${id}:${panel.key}`);
+  return <article className={`${compact ? "rounded-2xl bg-paper/70 px-4 py-4" : "rounded-[1.5rem] bg-paper px-5 py-5"} transition-colors`}>
+    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+      <div className="min-w-0">
+        <p className="rule-label text-forest">{label}</p>
+        <h3 className={`${compact ? "mt-1 text-base" : "mt-2 font-editorial text-2xl tracking-[-.02em]"} font-bold leading-tight`}>{title}</h3>
+        <p className="mt-2 text-xs font-bold uppercase tracking-wider text-ink/35">{meta}</p>
+      </div>
+      <div className="shrink-0">{primaryAction}</div>
+    </div>
+    <p className="mt-3 text-sm leading-6 text-ink/55"><span className="font-bold text-ink/70">Why this applies:</span> {coaching.whyThisApplies}</p>
+    <div className="mt-3 flex flex-wrap gap-2">{coaching.trustBasis.map((item) => <span key={item} className="rounded-full bg-white px-2.5 py-1 text-[11px] font-bold text-ink/40">{item}</span>)}</div>
+    <div className="mt-4 flex flex-wrap gap-2">{panels.map(({ key, text }) => {
+      const panelId = `${id}:${key}`;
+      const selected = activePanel === panelId;
+      return <button key={key} type="button" aria-label={key === "info" ? "Learn more" : String(text)} onClick={() => setActivePanel(selected ? null : panelId)} className={`rounded-full border px-3 py-1.5 text-xs font-bold ${selected ? "border-forest bg-white text-forest" : "border-ink/15 text-ink/55 hover:border-forest hover:text-forest"}`}>{text}</button>;
+    })}</div>
+    {current && <div className="mt-4 border-t border-ink/10 pt-4 text-sm leading-6 text-ink/55">
+      <RecommendationPanel value={current.value} />
+    </div>}
+    <div className="mt-4 border-t border-ink/10 pt-4">
+      <p className="text-xs font-bold uppercase tracking-wider text-ink/35">Completion checklist</p>
+      <ul className="mt-2 space-y-1 text-xs leading-5 text-ink/50">{coaching.completionChecklist.map((item) => <li key={item}>{item}</li>)}</ul>
+      <p className="mt-2 text-xs leading-5 text-ink/45"><span className="font-bold">First step:</span> {coaching.firstStep}</p>
+      <p className="mt-1 text-xs leading-5 text-ink/45"><span className="font-bold">Evidence:</span> {coaching.evidenceProduced}</p>
+      {completionAction && <div className="mt-2">{completionAction}</div>}
+    </div>
+    {feedback && <div className="mt-4 border-t border-ink/10 pt-4">{feedback}</div>}
+  </article>;
+}
+
+function FeedbackControls({ onSelect }: { onSelect: (type: FeedbackType) => void }) {
+  return <div className="flex flex-wrap gap-2">
+    {(["already-completed", "dont-enjoy-this", "prefer-research", "prefer-industry", "too-time-consuming", "too-expensive", "not-interested"] as FeedbackType[]).map((type) => <button key={type} type="button" onClick={() => onSelect(type)} className="rounded-full border border-ink/15 px-3 py-1.5 text-xs font-bold text-ink/55 hover:border-forest hover:text-forest">{type.replaceAll("-", " ")}</button>)}
+  </div>;
+}
+
+function RecommendationPanel({ value }: { value: RecommendationCoaching["informationDrawer"] | RecommendationCoaching["alternatives"] | string[] | string }) {
+  if (typeof value === "string") return <p>{value}</p>;
+  if (Array.isArray(value) && value.length && typeof value[0] === "object") return <div className="grid gap-3">{(value as RecommendationCoaching["alternatives"]).map((item, index) => <div key={item.title} className="rounded-2xl bg-white px-4 py-3">
+    <p className="text-xs font-bold uppercase tracking-wider text-forest">Alternative {index + 1}</p>
+    <p className="mt-1 font-bold text-ink/75">{item.title}</p>
+    <p className="mt-2 text-xs leading-5"><span className="font-bold">Why choose it:</span> {item.whyChoose}</p>
+    <p className="mt-1 text-xs leading-5"><span className="font-bold">Advantages:</span> {item.advantages}</p>
+    <p className="mt-1 text-xs leading-5"><span className="font-bold">Tradeoffs:</span> {item.tradeoffs}</p>
+    <p className="mt-1 text-xs leading-5"><span className="font-bold">Best fit:</span> {item.bestFit}</p>
+    <p className="mt-1 text-xs leading-5"><span className="font-bold">Time:</span> {item.timeCommitment}</p>
+    <p className="mt-1 text-xs leading-5"><span className="font-bold">Unlocks:</span> {item.unlocks}</p>
+  </div>)}</div>;
+  if (Array.isArray(value)) return <div className="flex flex-wrap items-center gap-2">{(value as string[]).map((item, index) => <span key={`${item}-${index}`} className="inline-flex items-center gap-2 text-xs font-bold text-ink/50">{index > 0 && <span className="text-forest">→</span>}{item}</span>)}</div>;
+  return <div className="grid gap-4 md:grid-cols-2">
+    <InfoItem label="What is this?" value={value.whatIsThis} />
+    <InfoItem label="Why does it matter?" value={value.whyItMatters} />
+    <InfoItem label="Who benefits most?" value={value.whoBenefitsMost} />
+    <InfoItem label="Time commitment" value={value.typicalTimeCommitment} />
+    <InfoItem label="Difficulty" value={value.difficulty} />
+    <InfoItem label="Skills developed" value={value.skillsDeveloped.join(", ")} />
+    <InfoItem label="Common misconceptions" value={value.commonMisconceptions.join(" ")} />
+    <InfoItem label="Examples" value={value.examples.join(", ")} />
+    <InfoItem label="Related careers" value={value.relatedCareers.join(", ")} />
+    <InfoItem label="Related opportunities" value={value.relatedOpportunities.join(", ")} />
+  </div>;
+}
+
+function InfoItem({ label, value }: { label: string; value: string }) {
+  return <div><p className="text-xs font-bold uppercase tracking-wider text-ink/35">{label}</p><p className="mt-1 text-xs leading-5 text-ink/55">{value}</p></div>;
+}
+
+function readinessStage(advisor: AdvisorOutput) {
+  const score = advisor.overallReadiness;
+  if (score >= 82) return { label: "Application Season", description: "Your profile has enough evidence to focus on verified applications and interview preparation." };
+  if (score >= 68) return { label: "Interview Preparation", description: "Your next work should turn existing evidence into stronger applications and interview stories." };
+  if (score >= 54) return { label: "Internship Preparation", description: "You are building the proof needed for internships, research, or selective campus roles." };
+  if (score >= 38) return { label: "Skill Development", description: "Your advisor is prioritizing concrete skills and visible artifacts before heavier applications." };
+  return { label: "Foundation Building", description: "Your current recommendations focus on prerequisites and early evidence." };
+}
+
+function stageLabel(score: number) {
+  if (score >= 80) return "Strong";
+  if (score >= 60) return "Developing";
+  if (score >= 40) return "Early";
+  return "Needs evidence";
 }
 
 function AdvisorInsightSection({ insight }: { insight: AdvisorEngineResult }) {

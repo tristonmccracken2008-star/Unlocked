@@ -4,6 +4,7 @@ import { opportunities } from "@/data/opportunities";
 import type { Opportunity } from "@/data/opportunities";
 import type { StudentProfile } from "@/data/student-profile";
 import { careerReadinessFrameworks, dependencyGraph, recruitingCalendars } from "./config";
+import { coachingForOpportunityClassification, coachingForSignal } from "./knowledge";
 import { advisorEngineVersion, advisorSourceSnapshotVersion, type AdvisorAction, type AdvisorCareerId, type AdvisorFeedbackRecord, type AdvisorOpportunity, type AdvisorOutput, type DeadlineUrgency, type EligibilityResult, type NormalizedAdvisorProfile, type RankedAdvisorOpportunity, type RawAdvisorProfile, type ReadinessResult, type RecommendationAuditRecord, type SemesterPlanItem } from "./types";
 
 const stageMap: Record<string, NormalizedAdvisorProfile["academicStage"]> = {
@@ -55,6 +56,14 @@ const careerAliases: Record<string, AdvisorCareerId> = {
   doctor: "career.physician",
   medicine: "career.physician",
   "pre-med": "career.physician",
+  "investment banking": "career.quantitative-trader",
+  "finance": "career.quantitative-trader",
+  "marketing analytics": "career.general-exploration",
+  "clinical psychology": "career.general-exploration",
+  "graduate school": "career.general-exploration",
+  "engineering internship": "career.general-exploration",
+  "explore careers": "career.general-exploration",
+  undecided: "career.general-exploration",
 };
 
 const actionTemplates: Record<string, [string, number, number]> = {
@@ -243,6 +252,7 @@ export function rankActions(readiness: ReadinessResult, student: NormalizedAdvis
       weeklyHoursSuggested: Math.min(effort, Math.max(1, Math.round(weeklyHours))),
       priorityScore,
       reason: `This is currently below the target for ${gap.dimension.replaceAll("_", " ")} and is estimated to add about ${gap.estimatedReadinessGain} readiness points.`,
+      coaching: coachingForSignal(gap.signal),
     };
   }).sort((a, b) => b.priorityScore - a.priorityScore).slice(0, maximumActions);
 }
@@ -330,13 +340,13 @@ export function rankVerifiedOpportunities(student: NormalizedAdvisorProfile, car
     const developmentValue = Math.min(1, unmet / Math.max(1, Object.keys(development).length));
     const score = Math.round((qualification * 0.5 + developmentValue * 0.2 + urgency.score * 0.15 + sourceScore * 0.15) * 100);
     const classification: RankedAdvisorOpportunity["classification"] = qualification >= 0.8 ? "target" : qualification >= 0.6 ? "stretch" : "developmental";
-    return [{ opportunityId: opportunity.opportunityId, title: opportunity.title, score, classification, eligibility, deadlineUrgency: urgency, sourceConfidence: opportunity.sourceConfidence, explanation: [`Qualification fit: ${Math.round(qualification * 100)}%.`, `Development value: ${Math.round(developmentValue * 100)}%.`, urgency.reason, `Source confidence: ${opportunity.sourceConfidence}.`] }];
+    return [{ opportunityId: opportunity.opportunityId, title: opportunity.title, score, classification, eligibility, deadlineUrgency: urgency, sourceConfidence: opportunity.sourceConfidence, explanation: [`Qualification fit: ${Math.round(qualification * 100)}%.`, `Development value: ${Math.round(developmentValue * 100)}%.`, urgency.reason, `Source confidence: ${opportunity.sourceConfidence}.`], coaching: coachingForOpportunityClassification(classification) }];
   }).sort((a, b) => b.score - a.score);
 }
 
 export function summarizeFeedback(records: AdvisorFeedbackRecord[]) {
   const summary: Record<string, { positive: number; negative: number; completed: number; reasons: string[] }> = {};
-  const negative = new Set(["not-helpful", "not-relevant", "too-expensive", "too-time-consuming", "dismissed"]);
+  const negative = new Set(["not-helpful", "not-relevant", "too-expensive", "too-time-consuming", "dismissed", "dont-enjoy-this", "prefer-research", "prefer-industry", "not-interested"]);
   const positive = new Set(["helpful", "completed", "already-completed"]);
   for (const record of records) {
     const current = summary[record.actionId] ?? { positive: 0, negative: 0, completed: 0, reasons: [] };
@@ -370,7 +380,7 @@ export function buildPreferenceConstraints(records: AdvisorFeedbackRecord[]) {
   return {
     avoidHighCostActions: records.some((record) => record.feedbackType === "too-expensive"),
     avoidHighTimeActions: records.some((record) => record.feedbackType === "too-time-consuming"),
-    dismissedSignals: [...new Set(records.filter((record) => record.feedbackType === "not-relevant" || record.feedbackType === "dismissed").map((record) => record.signal).filter((item): item is string => Boolean(item)))].sort(),
+    dismissedSignals: [...new Set(records.filter((record) => record.feedbackType === "not-relevant" || record.feedbackType === "dismissed" || record.feedbackType === "dont-enjoy-this" || record.feedbackType === "prefer-research" || record.feedbackType === "prefer-industry" || record.feedbackType === "not-interested").map((record) => record.signal).filter((item): item is string => Boolean(item)))].sort(),
   };
 }
 
@@ -450,7 +460,7 @@ export function generateAdvisorOutput(student: NormalizedAdvisorProfile, careerI
   const matchedOpportunities = rankVerifiedOpportunities(student, careerId, advisorOpportunities).slice(0, 5);
   const urgencyScore = { critical: 1, high: 0.8, medium: 0.55, low: 0.3 };
   const careerCalendar = [...(recruitingCalendars[careerId]?.[student.academicStage] ?? [])].map((item) => ({ ...item, urgencyScore: urgencyScore[item.urgency] })).sort((a, b) => b.urgencyScore - a.urgencyScore);
-  const target = { "career.quantitative-trader": "milestone.quant-internship-ready", "career.software-engineer": "milestone.swe-internship-ready", "career.physician": "milestone.medical-application-ready" }[careerId];
+  const target = { "career.quantitative-trader": "milestone.quant-internship-ready", "career.software-engineer": "milestone.swe-internship-ready", "career.physician": "milestone.medical-application-ready", "career.general-exploration": "milestone.exploration-ready" }[careerId];
   const dependencySequence = recommendedDependencySequence(target, new Set(student.completedDependencyNodes ?? []));
   const generatedAt = new Date().toISOString();
   const partial = {
@@ -478,5 +488,5 @@ export function generateAdvisorOutput(student: NormalizedAdvisorProfile, careerI
 }
 
 export function chooseCareerId(profile: NormalizedAdvisorProfile): AdvisorCareerId {
-  return (profile.careerGoals.find((goal): goal is AdvisorCareerId => goal in careerReadinessFrameworks) ?? (profile.majorIds.includes("major.biology") ? "career.physician" : profile.majorIds.includes("major.computer-science") ? "career.software-engineer" : "career.quantitative-trader"));
+  return (profile.careerGoals.find((goal): goal is AdvisorCareerId => goal in careerReadinessFrameworks) ?? (profile.majorIds.includes("major.biology") ? "career.physician" : profile.majorIds.includes("major.computer-science") ? "career.software-engineer" : "career.general-exploration"));
 }

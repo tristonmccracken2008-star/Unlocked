@@ -72,6 +72,25 @@ export const careerReadinessFrameworks: Record<AdvisorCareerId, {
       reflection_quality: { target: 60, dimension: "communication_and_fit" },
     },
   },
+  "career.general-exploration": {
+    displayName: "General Exploration",
+    dimensions: {
+      direction_and_fit: 0.25,
+      visible_evidence: 0.25,
+      experience: 0.2,
+      academic_foundation: 0.15,
+      communication_and_reflection: 0.15,
+    },
+    requirements: {
+      career_fit_explored: { target: 1, dimension: "direction_and_fit" },
+      finished_projects: { target: 1, dimension: "visible_evidence" },
+      relevant_experience: { target: 1, dimension: "experience" },
+      research_or_inquiry: { target: 1, dimension: "experience" },
+      statistics: { target: 45, dimension: "academic_foundation" },
+      resume_ready: { target: 1, dimension: "communication_and_reflection" },
+      reflection_quality: { target: 50, dimension: "communication_and_reflection" },
+    },
+  },
 };
 
 export const dependencyGraph = {
@@ -92,6 +111,7 @@ export const dependencyGraph = {
     { id: "milestone.quant-internship-ready", type: "milestone", displayName: "Quant Internship Ready" },
     { id: "milestone.swe-internship-ready", type: "milestone", displayName: "Software Internship Ready" },
     { id: "milestone.medical-application-ready", type: "milestone", displayName: "Medical School Application Ready" },
+    { id: "milestone.exploration-ready", type: "milestone", displayName: "Exploration Ready" },
   ],
   edges: [
     { from: "skill.probability", to: "skill.quant-project", relationship: "supports", weight: 0.9 },
@@ -109,6 +129,9 @@ export const dependencyGraph = {
     { from: "skill.clinical-exposure", to: "milestone.medical-application-ready", relationship: "contributes", weight: 0.95 },
     { from: "skill.service", to: "milestone.medical-application-ready", relationship: "contributes", weight: 0.8 },
     { from: "skill.research", to: "milestone.medical-application-ready", relationship: "contributes", weight: 0.5 },
+    { from: "skill.resume-ready", to: "milestone.exploration-ready", relationship: "contributes", weight: 0.7 },
+    { from: "skill.finished-project", to: "milestone.exploration-ready", relationship: "contributes", weight: 0.7 },
+    { from: "skill.research", to: "milestone.exploration-ready", relationship: "contributes", weight: 0.6 },
   ],
 };
 
@@ -167,6 +190,28 @@ export const recruitingCalendars: Record<string, Record<string, { term: string; 
     "fourth-year": [
       { term: "fourth-year-fall", action: "Interview or use a purposeful gap year to close readiness gaps.", urgency: "high" },
       { term: "fourth-year-spring", action: "Evaluate offers, finances, and transition readiness.", urgency: "high" },
+    ],
+  },
+  "career.general-exploration": {
+    "incoming-first-year": [
+      { term: "first-year-fall", action: "Test two interests through low-risk campus roles, short projects, or advisor conversations.", urgency: "medium" },
+      { term: "first-year-spring", action: "Choose one direction to build visible evidence before sophomore recruiting.", urgency: "medium" },
+    ],
+    "first-year": [
+      { term: "first-year-fall", action: "Use clubs, office hours, and small projects to compare possible paths.", urgency: "medium" },
+      { term: "first-year-spring", action: "Turn the strongest interest into one visible artifact or role.", urgency: "medium" },
+    ],
+    "second-year": [
+      { term: "second-year-fall", action: "Narrow exploration into two target paths and build one concrete evidence piece.", urgency: "high" },
+      { term: "second-year-spring", action: "Apply to campus, research, internship, or project roles that test the leading path.", urgency: "medium" },
+    ],
+    "third-year": [
+      { term: "third-year-fall", action: "Convert the strongest direction into applications and advisor-reviewed materials.", urgency: "high" },
+      { term: "third-year-spring", action: "Use feedback from applications to refine the path or choose a backup route.", urgency: "medium" },
+    ],
+    "fourth-year": [
+      { term: "fourth-year-fall", action: "Focus on verified applications and a simple backup plan.", urgency: "critical" },
+      { term: "fourth-year-spring", action: "Compare offers, graduate options, or gap-year plans against fit and cost.", urgency: "high" },
     ],
   },
 };

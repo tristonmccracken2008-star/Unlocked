@@ -6,7 +6,7 @@
     "dev": "next dev",
     "validate:data": "node scripts/validate-data.mjs",
     "check:onboarding": "node scripts/check-onboarding-flow.mjs",
-    "check:advisor": "node scripts/check-advisor-brain.mjs",
+    "check:advisor": "node scripts/check-advisor-brain.mjs && node scripts/check-advisor-quality.mjs",
     "check:links": "node scripts/check-internal-links.mjs",
     "prebuild": "npm run validate:data && npm run check:onboarding && npm run check:advisor",
     "build": "next build",
