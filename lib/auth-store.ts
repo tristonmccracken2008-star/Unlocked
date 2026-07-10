@@ -1,5 +1,6 @@
 import crypto from "node:crypto";
 import type { AccountData, AuthUser, DatabaseUser } from "./account-types";
+import type { AdvisorAccountData } from "./advisor/types";
 import { defaultBillingRecord, normalizeBillingRecord, type BillingRecord } from "./billing";
 import { isCompletedStudentProfile } from "@/data/student-profile";
 
@@ -20,7 +21,7 @@ const kvUrl = process.env.KV_REST_API_URL ?? process.env.UPSTASH_REDIS_REST_URL;
 const kvToken = process.env.KV_REST_API_TOKEN ?? process.env.UPSTASH_REDIS_REST_TOKEN;
 const hasKv = Boolean(kvUrl && kvToken);
 
-const emptyData = (): AccountData => ({ profile: null, onboardingComplete: false, billing: defaultBillingRecord(), activity: null, savedOpportunities: [], tracker: {}, preferences: null, journeyProgress: {}, updatedAt: new Date().toISOString() });
+const emptyData = (): AccountData => ({ profile: null, onboardingComplete: false, billing: defaultBillingRecord(), activity: null, savedOpportunities: [], tracker: {}, preferences: null, journeyProgress: {}, advisor: null, updatedAt: new Date().toISOString() });
 
 function requireProductionStore() {
   if (!hasKv && process.env.NODE_ENV === "production") throw new Error("A production data store is required. Set KV_REST_API_URL/KV_REST_API_TOKEN or UPSTASH_REDIS_REST_URL/UPSTASH_REDIS_REST_TOKEN.");
@@ -156,6 +157,18 @@ export async function deleteSession(_token: string | undefined) {
 
 const uniqueStrings = (items: unknown) => Array.isArray(items) ? [...new Set(items.filter((item): item is string => typeof item === "string"))] : [];
 
+function normalizeAdvisorData(value: AdvisorAccountData | null | undefined): AdvisorAccountData | null {
+  if (!value) return null;
+  return {
+    normalizedProfiles: Array.isArray(value.normalizedProfiles) ? value.normalizedProfiles.slice(-20) : [],
+    recommendationSnapshots: Array.isArray(value.recommendationSnapshots) ? value.recommendationSnapshots.slice(-20) : [],
+    auditRecords: Array.isArray(value.auditRecords) ? value.auditRecords.slice(-50) : [],
+    feedbackRecords: Array.isArray(value.feedbackRecords) ? value.feedbackRecords.slice(-100) : [],
+    completedActionEvidence: Array.isArray(value.completedActionEvidence) ? value.completedActionEvidence.slice(-100) : [],
+    updatedAt: value.updatedAt ?? new Date().toISOString(),
+  };
+}
+
 function normalizeAccountData(value: AccountData | null | undefined): AccountData {
   if (!value) return emptyData();
   const tracked = value.tracker ?? value.activity?.tracked ?? {};
@@ -174,6 +187,7 @@ function normalizeAccountData(value: AccountData | null | undefined): AccountDat
     tracker: tracked,
     preferences: value.preferences ?? null,
     journeyProgress: value.journeyProgress ?? {},
+    advisor: normalizeAdvisorData(value.advisor),
     updatedAt: value.updatedAt ?? new Date().toISOString(),
   };
 }
@@ -208,6 +222,7 @@ export async function mergeAccountData(userId: string, incoming: Partial<Account
     tracker,
     preferences: incoming.preferences ?? current.preferences ?? null,
     journeyProgress: { ...(current.journeyProgress ?? {}), ...(incoming.journeyProgress ?? {}) },
+    advisor: normalizeAdvisorData(incoming.advisor ?? current.advisor),
     updatedAt: new Date().toISOString(),
   };
   await writeAccountData(userId, next);

@@ -18,6 +18,7 @@ import { getRoadmap } from "@/data/roadmap-engine";
 import { inferApplicationsFromActivity, readStudentProgress, studentProgressEvent, type StudentProgress } from "@/data/student-progress";
 import { getMilestoneForAdvisor, type Milestone } from "@/data/milestone-engine";
 import { buildAdvisorTimeline } from "@/data/advisor-timeline";
+import type { AdvisorOutput, FeedbackType } from "@/lib/advisor/types";
 
 const graduationYears = Array.from({ length: 9 }, (_, index) => String(new Date().getFullYear() + index));
 const interestSuggestions = ["Scholarships", "Research", "Internships", "AI", "Software", "Startups", "Finance", "Medicine", "Engineering"];
@@ -410,6 +411,9 @@ function TokenField({ id, label, value, setValue, suggestions, onAdd, placeholde
 function StudentDashboard({ profile, session, syncError }: { profile: StudentProfile; session: AccountSession | null; syncError: string }) {
   const [activity, setActivity] = useState<StudentActivity>({ viewed: [], saved: [], claimed: [], tracked: {} });
   const [progress, setProgress] = useState<StudentProgress>({ milestones: {}, applications: {} });
+  const [advisorBrain, setAdvisorBrain] = useState<AdvisorOutput | null>(null);
+  const [advisorBrainStatus, setAdvisorBrainStatus] = useState("Loading advisor.");
+  const [advisorFeedbackStatus, setAdvisorFeedbackStatus] = useState("");
   useEffect(() => {
     const update = () => setActivity(readStudentActivity());
     update();
@@ -422,6 +426,50 @@ function StudentDashboard({ profile, session, syncError }: { profile: StudentPro
     window.addEventListener(studentProgressEvent, update);
     return () => window.removeEventListener(studentProgressEvent, update);
   }, []);
+  useEffect(() => {
+    let active = true;
+    const loadAdvisor = async () => {
+      setAdvisorBrainStatus("Loading advisor.");
+      try {
+        const response = await fetch("/api/advisor/recommend", { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify({}) });
+        if (!active) return;
+        if (!response.ok) {
+          setAdvisorBrainStatus("Advisor is unavailable right now.");
+          return;
+        }
+        const parsed = await response.json() as { recommendation?: AdvisorOutput };
+        setAdvisorBrain(parsed.recommendation ?? null);
+        setAdvisorBrainStatus(parsed.recommendation ? "" : "Advisor is still learning from your profile.");
+      } catch {
+        if (active) setAdvisorBrainStatus("Advisor is unavailable right now.");
+      }
+    };
+    void loadAdvisor();
+    return () => { active = false; };
+  }, []);
+
+  async function sendAdvisorFeedback(actionId: string, feedbackType: FeedbackType, signal?: string) {
+    if (!advisorBrain) return;
+    setAdvisorFeedbackStatus("Saving feedback.");
+    try {
+      const response = await fetch("/api/advisor/feedback", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ recommendationId: advisorBrain.recommendationId, actionId, signal, feedbackType }),
+      });
+      setAdvisorFeedbackStatus(response.ok ? "Feedback saved." : "Feedback could not be saved.");
+      if (response.ok) {
+        const refresh = await fetch("/api/advisor/recommend", { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify({}) });
+        if (refresh.ok) {
+          const parsed = await refresh.json() as { recommendation?: AdvisorOutput };
+          setAdvisorBrain(parsed.recommendation ?? advisorBrain);
+        }
+      }
+    } catch {
+      setAdvisorFeedbackStatus("Feedback could not be saved.");
+    }
+  }
 
   const school = schools.find((item) => item.slug === profile.schoolSlug);
   if (!school) return null;
@@ -471,6 +519,8 @@ function StudentDashboard({ profile, session, syncError }: { profile: StudentPro
         </div> : <EmptyState title="No recommendation yet" text="Your profile is saved. Check back after the catalog refreshes, or browse the full directory." actionHref="/opportunities" actionLabel="Browse opportunities" />}
       </section>
 
+      <AdvisorBrainSection advisor={advisorBrain} status={advisorBrainStatus} feedbackStatus={advisorFeedbackStatus} onFeedback={sendAdvisorFeedback} />
+
       <AdvisorInsightSection insight={advisorInsight} />
 
       <RoadmapSection milestone={nextMilestone} nextAction={nextAction} todayFocus={todayFocus?.title} />
@@ -493,6 +543,47 @@ function StudentDashboard({ profile, session, syncError }: { profile: StudentPro
       </Section>
     </div>
   </main>;
+}
+
+function AdvisorBrainSection({ advisor, status, feedbackStatus, onFeedback }: { advisor: AdvisorOutput | null; status: string; feedbackStatus: string; onFeedback: (actionId: string, feedbackType: FeedbackType, signal?: string) => void | Promise<void> }) {
+  const primary = advisor?.highestRoiActions[0];
+  return <section className="border-b border-ink/10 py-10">
+    <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_280px] lg:items-start">
+      <div>
+        <p className="rule-label text-forest">Advisor Brain</p>
+        {primary ? <>
+          <h2 className="mt-3 max-w-3xl font-editorial text-3xl font-bold leading-tight tracking-[-.025em]">Your current focus is to {primary.title.toLowerCase()}</h2>
+          <p className="mt-4 max-w-2xl text-sm leading-7 text-ink/55"><span className="font-bold text-ink/70">Why it matters:</span> {primary.reason}</p>
+          <p className="mt-3 max-w-2xl text-sm leading-7 text-ink/55"><span className="font-bold text-ink/70">Success evidence:</span> {advisor.semesterPlan.find((item) => item.actionId === primary.actionId)?.successEvidence ?? "Inspectable completion evidence."}</p>
+          <div className="mt-5 flex flex-wrap gap-2">
+            {(["helpful", "not-relevant", "already-completed", "too-expensive", "too-time-consuming"] as FeedbackType[]).map((type) => <button key={type} type="button" onClick={() => void onFeedback(primary.actionId, type, primary.signal)} className="rounded-full border border-ink/15 px-3 py-1.5 text-xs font-bold text-ink/55 hover:border-forest hover:text-forest">{type.replaceAll("-", " ")}</button>)}
+          </div>
+          {feedbackStatus && <p className="mt-3 text-xs font-bold text-ink/40">{feedbackStatus}</p>}
+        </> : <p className="mt-4 text-sm leading-7 text-ink/50">{status}</p>}
+      </div>
+      {advisor && <div className="rounded-[1.5rem] bg-paper px-5 py-5">
+        <p className="rule-label text-ink/35">Career readiness</p>
+        <p className="mt-3 font-editorial text-5xl font-bold tracking-[-.04em]">{advisor.overallReadiness}</p>
+        <p className="mt-2 text-xs font-bold uppercase tracking-wider text-ink/35">Not a hiring probability</p>
+        <div className="mt-5 space-y-3">{Object.entries(advisor.dimensionScores).slice(0, 3).map(([dimension, score]) => <div key={dimension} className="flex items-center justify-between gap-3 text-sm"><span className="capitalize text-ink/50">{dimension.replaceAll("_", " ")}</span><span className="font-bold text-ink/70">{score}</span></div>)}</div>
+      </div>}
+    </div>
+    {advisor && <div className="mt-8 grid gap-8 lg:grid-cols-2">
+      <div>
+        <p className="text-xs font-bold uppercase tracking-wider text-ink/35">This semester</p>
+        <div className="mt-3 divide-y divide-ink/10">{advisor.semesterPlan.slice(0, 5).map((item) => <div key={item.actionId} className="py-3">
+          <div className="flex gap-3"><span className="font-mono text-xs text-ink/30">{item.sequence}</span><div><p className="text-sm font-bold">{item.title}</p><p className="mt-1 text-xs leading-5 text-ink/45">{item.weeklyHours} hr/week · {item.successEvidence}</p><button type="button" onClick={() => void onFeedback(item.actionId, "completed")} className="mt-2 text-xs font-bold text-forest hover:text-ink">Mark completed</button></div></div>
+        </div>)}</div>
+      </div>
+      <div>
+        <p className="text-xs font-bold uppercase tracking-wider text-ink/35">Recommended opportunities</p>
+        <div className="mt-3 divide-y divide-ink/10">{advisor.matchedOpportunities.slice(0, 3).map((item) => <Link key={item.opportunityId} href={`/opportunities/${item.opportunityId}`} className="block py-3">
+          <p className="text-sm font-bold hover:text-forest">{item.title}</p>
+          <p className="mt-1 text-xs leading-5 text-ink/45">{item.classification} · {item.eligibility.reasons[0]} · {item.deadlineUrgency.label} urgency · {item.sourceConfidence} source confidence</p>
+        </Link>)}</div>
+      </div>
+    </div>}
+  </section>;
 }
 
 function AdvisorInsightSection({ insight }: { insight: AdvisorEngineResult }) {

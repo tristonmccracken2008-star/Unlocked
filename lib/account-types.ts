@@ -1,6 +1,7 @@
 import type { StudentActivity } from "@/data/student-activity";
 import type { TrackedOpportunity } from "@/data/student-activity";
 import type { StudentProfile } from "@/data/student-profile";
+import type { AdvisorAccountData } from "./advisor/types";
 import type { BillingRecord } from "./billing";
 
 export type AuthUser = {
@@ -45,6 +46,7 @@ export type AccountData = {
   tracker: OpportunityTrackerRecord;
   preferences: UserPreferencesRecord | null;
   journeyProgress: JourneyProgressRecord;
+  advisor: AdvisorAccountData | null;
   updatedAt: string;
 };
 
