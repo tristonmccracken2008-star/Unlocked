@@ -14,8 +14,10 @@ import { readStudentActivity, studentActivityEvent, type StudentActivity } from 
 import { SaveOpportunityButton } from "./opportunity-activity";
 import { trackProductEvent } from "@/data/product-analytics";
 import { createAdvisorProfile, runAdvisorEngine, type AdvisorEngineResult } from "@/data/advisor-engine";
-import { getRoadmap, type RoadmapResult } from "@/data/roadmap-engine";
+import { getRoadmap } from "@/data/roadmap-engine";
 import { inferApplicationsFromActivity, readStudentProgress, studentProgressEvent, type StudentProgress } from "@/data/student-progress";
+import { getMilestoneForAdvisor, type Milestone } from "@/data/milestone-engine";
+import { buildAdvisorTimeline } from "@/data/advisor-timeline";
 
 const graduationYears = Array.from({ length: 9 }, (_, index) => String(new Date().getFullYear() + index));
 const interestSuggestions = ["Scholarships", "Research", "Internships", "AI", "Software", "Startups", "Finance", "Medicine", "Engineering"];
@@ -435,7 +437,10 @@ function StudentDashboard({ profile, session, syncError }: { profile: StudentPro
   const advisorProfile = createAdvisorProfile({ profile, school, activity, progress: inferredProgress });
   const advisorInsight = runAdvisorEngine(advisorProfile);
   const roadmap = getRoadmap(advisorProfile, inferredProgress);
-  const nextAction = advisorProfile.progress.applicationsNeedingAttention[0]?.nextAction ?? `Finish ${roadmap.recommendedMilestone.title.toLowerCase()} before ${roadmap.recommendedMilestone.recommendedBefore[0] ?? "your next application window"}.`;
+  const nextMilestone = getMilestoneForAdvisor(advisorProfile, roadmap.recommendedMilestone, inferredProgress);
+  const advisorTimeline = buildAdvisorTimeline({ advisorProfile, opportunities, progress: inferredProgress });
+  const todayFocus = advisorTimeline.items.find((item) => item.period === "Today's Focus");
+  const nextAction = advisorProfile.progress.applicationsNeedingAttention[0]?.nextAction ?? `Finish ${nextMilestone.title.toLowerCase()} before ${nextMilestone.requiredBefore[0] ?? "your next application window"}.`;
 
   return <main className="bg-white px-5 py-12 sm:px-8 sm:py-16">
     <div className="mx-auto max-w-6xl">
@@ -468,7 +473,7 @@ function StudentDashboard({ profile, session, syncError }: { profile: StudentPro
 
       <AdvisorInsightSection insight={advisorInsight} />
 
-      <RoadmapSection roadmap={roadmap} nextAction={nextAction} />
+      <RoadmapSection milestone={nextMilestone} nextAction={nextAction} todayFocus={todayFocus?.title} />
 
       <Section title="Recommended for you" href="/opportunities">
         {nextRecommended.length ? <div className="divide-y divide-ink/10">{nextRecommended.map(({ opportunity, reasons }) => <OpportunityRow key={opportunity.id} opportunity={opportunity} detail={reasons[0] ?? opportunity.organization} />)}</div> : <EmptyState title="No extra recommendations yet" text="Your best match is shown above. More matches will appear as the catalog grows." />}
@@ -509,17 +514,20 @@ function AdvisorInsightSection({ insight }: { insight: AdvisorEngineResult }) {
   </section>;
 }
 
-function RoadmapSection({ roadmap, nextAction }: { roadmap: RoadmapResult; nextAction: string }) {
-  const milestone = roadmap.recommendedMilestone;
+function RoadmapSection({ milestone, nextAction, todayFocus }: { milestone: Milestone; nextAction: string; todayFocus?: string }) {
   return <section className="border-b border-ink/10 py-10">
     <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_220px] lg:items-end">
       <div>
         <p className="rule-label text-forest">Your Roadmap</p>
+        {todayFocus && <>
+          <p className="mt-3 text-xs font-bold uppercase tracking-wider text-ink/35">Today&apos;s focus</p>
+          <p className="mt-2 max-w-2xl text-sm leading-7 text-ink/55">{todayFocus}</p>
+        </>}
         <p className="mt-3 text-xs font-bold uppercase tracking-wider text-ink/35">Next action</p>
         <p className="mt-2 max-w-2xl text-sm leading-7 text-ink/55">{nextAction}</p>
         <p className="mt-3 text-xs font-bold uppercase tracking-wider text-ink/35">Next milestone</p>
         <h2 className="mt-2 max-w-3xl font-editorial text-3xl font-bold leading-tight tracking-[-.025em]">{milestone.title}.</h2>
-        <p className="mt-4 max-w-2xl text-sm leading-7 text-ink/55"><span className="font-bold text-ink/70">Why?</span> {milestone.description} Most students in your stage complete this before {milestone.recommendedBefore[0] ?? "the next major application window"}.</p>
+        <p className="mt-4 max-w-2xl text-sm leading-7 text-ink/55"><span className="font-bold text-ink/70">Why?</span> {milestone.description} Most students in your stage complete this before {milestone.requiredBefore[0] ?? "the next major application window"}.</p>
       </div>
       <Link href="/opportunities" className="inline-flex min-h-12 items-center justify-center rounded-full border border-ink/15 px-5 text-sm font-bold text-ink/60 hover:border-forest hover:text-forest">Learn More</Link>
     </div>

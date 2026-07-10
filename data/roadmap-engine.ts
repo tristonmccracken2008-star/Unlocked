@@ -4,12 +4,14 @@ import { getMilestoneStatus, type StudentProgress } from "./student-progress";
 export type RoadmapImportance = "Critical" | "High" | "Recommended" | "Optional";
 export type RoadmapCompletionStatus = "not_started" | "in_progress" | "completed" | "skipped";
 export type RoadmapSemester = "Fall" | "Spring" | "Summer" | "Anytime";
+export type RoadmapMilestoneCategory = "Academic" | "Career" | "Research" | "Funding" | "Leadership" | "Skill Building" | "Exploration";
 
 export type RoadmapMilestone = {
   id: string;
   major: string;
   title: string;
   description: string;
+  category: RoadmapMilestoneCategory;
   recommendedYear: AdvisorTimelineStage;
   recommendedSemester: RoadmapSemester;
   importance: RoadmapImportance;
@@ -17,9 +19,13 @@ export type RoadmapMilestone = {
   estimatedCompletionTime: string;
   relatedOpportunityCategories: string[];
   requiredSkills: string[];
+  requiredBefore: string[];
+  unlocks: string[];
   recommendedBefore: string[];
   recommendedAfter: string[];
   completionStatus: RoadmapCompletionStatus;
+  completionState: RoadmapCompletionStatus;
+  completionDate?: string;
 };
 
 export type RoadmapResult = {
@@ -31,10 +37,21 @@ export type RoadmapResult = {
   opportunityPriorities: string[];
 };
 
-type MilestoneTemplate = Omit<RoadmapMilestone, "completionStatus">;
+type MilestoneTemplate = Omit<RoadmapMilestone, "category" | "requiredBefore" | "unlocks" | "completionStatus" | "completionState" | "completionDate"> & Partial<Pick<RoadmapMilestone, "category" | "requiredBefore" | "unlocks">>;
 
 const normalize = (value: string) => value.toLowerCase().replace(/[^a-z0-9+#. ]/g, " ").replace(/\s+/g, " ").trim();
 const unique = <T,>(items: T[]) => [...new Set(items.filter(Boolean))];
+
+function inferMilestoneCategory(milestone: Pick<MilestoneTemplate, "title" | "relatedOpportunityCategories" | "requiredSkills">): RoadmapMilestoneCategory {
+  const text = normalize([milestone.title, ...milestone.relatedOpportunityCategories, ...milestone.requiredSkills].join(" "));
+  if (/scholarship|funding|grant/.test(text)) return "Funding";
+  if (/research|lab|faculty/.test(text)) return "Research";
+  if (/leadership|club|organization|mentor/.test(text)) return "Leadership";
+  if (/resume|career|internship|interview|network/.test(text)) return "Career";
+  if (/excel|python|skill|project|technical|portfolio/.test(text)) return "Skill Building";
+  if (/course|advisor|academic/.test(text)) return "Academic";
+  return "Exploration";
+}
 
 const generalMilestones: MilestoneTemplate[] = [
   {
@@ -293,12 +310,21 @@ function roadmapKey(profile: AdvisorProfile) {
 }
 
 function withStatus(milestone: MilestoneTemplate, completedIds: Set<string>): RoadmapMilestone {
-  return { ...milestone, completionStatus: completedIds.has(milestone.id) ? "completed" : "not_started" };
+  const completionStatus = completedIds.has(milestone.id) ? "completed" : "not_started";
+  return {
+    ...milestone,
+    category: milestone.category ?? inferMilestoneCategory(milestone),
+    requiredBefore: milestone.requiredBefore ?? milestone.recommendedBefore,
+    unlocks: milestone.unlocks ?? milestone.recommendedAfter,
+    completionStatus,
+    completionState: completionStatus,
+  };
 }
 
 function withProgressStatus(milestone: RoadmapMilestone, progress?: StudentProgress): RoadmapMilestone {
   if (!progress) return milestone;
-  return { ...milestone, completionStatus: getMilestoneStatus(progress, milestone.id) };
+  const completionStatus = getMilestoneStatus(progress, milestone.id);
+  return { ...milestone, completionStatus, completionState: completionStatus, completionDate: progress.milestones[milestone.id]?.completedDate };
 }
 
 export function getCurrentStage(profile: AdvisorProfile) {
