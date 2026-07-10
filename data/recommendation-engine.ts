@@ -1,4 +1,5 @@
 import type { AdvisorProfile } from "./advisor-engine";
+import { advisorRuleKnowledgeReference, mergeKnowledgeReferences, milestoneKnowledgeReferences, opportunityKnowledgeReferences, type KnowledgeReferences } from "./knowledge-references";
 import { getMilestoneOpportunityConnections, toMilestone, type Milestone } from "./milestone-engine";
 import { getOpportunityIntelligence, scoreOpportunityIntelligence, type OpportunityPriority, type OpportunityScore, type OpportunityStudentContext } from "./opportunity-intelligence";
 import { opportunities as catalogOpportunities, type Opportunity } from "./opportunities";
@@ -30,6 +31,7 @@ export type RecommendationV1 = {
   relatedMilestoneId?: string;
   categories: string[];
   score: number;
+  knowledgeReferences: KnowledgeReferences;
 };
 
 export type RecommendationEngineResult = {
@@ -167,6 +169,10 @@ function rankMilestone(profile: AdvisorProfile, milestone: RoadmapMilestone, pro
     relatedMilestoneId: milestone.id,
     categories: unique([structured.category, ...structured.relatedOpportunityCategories]),
     score,
+    knowledgeReferences: mergeKnowledgeReferences(
+      milestoneKnowledgeReferences(milestone),
+      advisorRuleKnowledgeReference("milestone_recommendation_v1"),
+    ),
   };
 }
 
@@ -212,6 +218,10 @@ function toOpportunityRecommendation(profile: AdvisorProfile, ranked: RankedOppo
     relatedOpportunityId: opportunity.id,
     categories: unique([opportunity.category, opportunity.type]),
     score: ranked.finalScore,
+    knowledgeReferences: mergeKnowledgeReferences(
+      opportunityKnowledgeReferences(opportunity),
+      advisorRuleKnowledgeReference("opportunity_recommendation_v1"),
+    ),
   };
 }
 

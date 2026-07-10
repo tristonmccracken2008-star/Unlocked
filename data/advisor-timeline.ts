@@ -1,4 +1,5 @@
 import type { AdvisorProfile } from "./advisor-engine";
+import { advisorRuleKnowledgeReference, mergeKnowledgeReferences, milestoneKnowledgeReferences, opportunityKnowledgeReferences, type KnowledgeReferences } from "./knowledge-references";
 import { runRecommendationEngineV1, type RecommendationV1 } from "./recommendation-engine";
 import { opportunities as catalogOpportunities, type Opportunity } from "./opportunities";
 import { getRoadmap, type RoadmapMilestone } from "./roadmap-engine";
@@ -23,6 +24,7 @@ export type AdvisorTimelineItem = {
     category: string;
     deadline: string | null;
   }[];
+  knowledgeReferences: KnowledgeReferences;
 };
 
 export type AdvisorTimelineResult = {
@@ -113,6 +115,7 @@ export function buildAdvisorTimeline(input: AdvisorTimelineInput): AdvisorTimeli
     const recommendation = period === "Today's Focus" ? recommendationResult.recommendations[0] : opportunityRecommendations[index - 1] ?? recommendationResult.recommendations[index];
     const matchedOpportunities = opportunitiesForMilestone(milestone, opportunityRecommendations, opportunities);
     const linkedOpportunities = matchedOpportunities.length ? matchedOpportunities : fallbackOpportunities(opportunityRecommendations.slice(index), opportunities);
+    const linkedOpportunityReferences = linkedOpportunities.map((linked) => opportunities.find((opportunity) => opportunity.id === linked.id)).filter((opportunity): opportunity is Opportunity => Boolean(opportunity)).map(opportunityKnowledgeReferences);
     return {
       period,
       title: timelineTitle(period, milestone, recommendation),
@@ -121,6 +124,12 @@ export function buildAdvisorTimeline(input: AdvisorTimelineInput): AdvisorTimeli
       nextAction: timelineNextAction(period, milestone, recommendation),
       milestone: milestone ? { id: milestone.id, title: milestone.title, category: milestone.category } : undefined,
       opportunities: linkedOpportunities,
+      knowledgeReferences: mergeKnowledgeReferences(
+        recommendation?.knowledgeReferences,
+        milestone ? milestoneKnowledgeReferences(milestone) : undefined,
+        ...linkedOpportunityReferences,
+        advisorRuleKnowledgeReference(`advisor_timeline_${period.toLowerCase().replace(/[^a-z0-9]+/g, "_")}`),
+      ),
     };
   });
 

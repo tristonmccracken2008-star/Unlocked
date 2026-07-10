@@ -1,6 +1,7 @@
 import { runAdvisorEngine } from "./advisor-engine";
 import type { AdvisorProfile } from "./advisor-engine";
 import { buildAdvisorTimeline } from "./advisor-timeline";
+import { advisorRuleKnowledgeReference, mergeKnowledgeReferences, milestoneKnowledgeReferences, opportunityKnowledgeReferences, type KnowledgeReferences } from "./knowledge-references";
 import { getDeadlineDays, scoreOpportunityIntelligence } from "./opportunity-intelligence";
 import { getOpportunityUpdates } from "./opportunity-updates";
 import { opportunities as catalogOpportunities, type Opportunity } from "./opportunities";
@@ -15,6 +16,7 @@ export type WeeklyDigestOpportunity = {
   category: string;
   deadline: string | null;
   reason: string;
+  knowledgeReferences: KnowledgeReferences;
 };
 
 export type WeeklyAdvisorDigest = {
@@ -36,6 +38,7 @@ export type WeeklyAdvisorDigest = {
     nextAction: string;
   };
   topRecommendation: RecommendationV1 | null;
+  knowledgeReferences: KnowledgeReferences;
 };
 
 export type WeeklyAdvisorDigestInput = {
@@ -77,6 +80,7 @@ function digestOpportunity(opportunity: Opportunity, reason: string): WeeklyDige
     category: opportunity.category,
     deadline: opportunity.application_deadline,
     reason,
+    knowledgeReferences: opportunityKnowledgeReferences(opportunity),
   };
 }
 
@@ -135,5 +139,11 @@ export function buildWeeklyAdvisorDigest(input: WeeklyAdvisorDigestInput): Weekl
       nextAction: today?.nextAction ?? `Start this before ${milestone.recommendedBefore[0] ?? "your next application window"}.`,
     },
     topRecommendation,
+    knowledgeReferences: mergeKnowledgeReferences(
+      topRecommendation?.knowledgeReferences,
+      milestoneKnowledgeReferences(milestone),
+      today?.knowledgeReferences,
+      advisorRuleKnowledgeReference("weekly_advisor_digest_v1"),
+    ),
   };
 }
