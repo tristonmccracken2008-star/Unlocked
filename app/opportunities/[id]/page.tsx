@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import Link from "next/link";
+import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import { deadlineLabel, getRelatedOpportunities, type Opportunity } from "@/data/opportunities";
 import { schools } from "@/data/seed";
@@ -10,6 +11,11 @@ import { ArrowIcon } from "@/components/icons";
 import { ReportOutdatedButton } from "@/components/report-outdated-button";
 import { maintenanceStatus } from "@/data/opportunity-maintenance";
 import { getManagedOpportunity, listPublishedOpportunities } from "@/lib/content-store";
+import { createAdvisorProfile } from "@/data/advisor-engine";
+import { explainOpportunityWithAdvisorBrain, type OpportunityAdvisorExplanation } from "@/data/advisor-brain";
+import { inferApplicationsFromActivity, normalizeStudentProgress } from "@/data/student-progress";
+import { getSession, sessionCookieName } from "@/lib/auth-store";
+import type { StudentActivity } from "@/data/student-activity";
 
 export const dynamic="force-dynamic";
 export async function generateMetadata({params}:{params:Promise<{id:string}>}):Promise<Metadata>{const item=await getManagedOpportunity((await params).id);if(!item)return{title:"Opportunity not found"};const title=`${item.title}: Eligibility, Value & How to Apply`;const description=`A verified guide to ${item.title} from ${item.organization}, including eligibility, value, timeline, official source, and application guidance.`;return{title,description,alternates:{canonical:`/opportunities/${item.id}`},openGraph:{title,description,url:`/opportunities/${item.id}`,type:"article"}}}
@@ -37,11 +43,38 @@ function bestFor(item:Opportunity){const majors=item.majors.includes("Any Major"
 function timeRequired(item:Opportunity){if(item.type==="Benefit"||item.type==="AI")return item.metadata.claimSteps?.length?`${item.metadata.claimSteps.length} account and verification steps; elapsed time is not published.`:"Not published by the provider.";if(item.metadata.applicationRequirements?.length)return`Varies; ${item.metadata.applicationRequirements.length} documented application requirement${item.metadata.applicationRequirements.length===1?"":"s"}.`;return"Not published by the official source reviewed."}
 function goalPath(item:Opportunity):[string,string]{if(item.school_scope==="School Specific")return["My University","/university"];if(item.type==="Career"||item.type==="Research")return["Build Your Career","/build-career"];if(item.type==="Scholarship"||(item.type==="Benefit"&&["Finance","Shopping","Streaming","Travel"].includes(item.category)))return["Save Money","/save-money"];return["Get Ahead","/get-ahead"]}
 
+async function personalizedExplanation(item: Opportunity, catalog: readonly Opportunity[]): Promise<OpportunityAdvisorExplanation | null> {
+  const cookieStore = await cookies();
+  const session = await getSession(cookieStore.get(sessionCookieName)?.value);
+  const profile = session?.data.profile;
+  if (!profile || !session.data.onboardingComplete) return null;
+  const school = schools.find((candidate) => candidate.slug === profile.schoolSlug);
+  if (!school) return null;
+  const activity: StudentActivity = session.data.activity ?? {
+    viewed: [],
+    saved: session.data.savedOpportunities.map((record) => record.opportunityId),
+    claimed: [],
+    tracked: session.data.tracker,
+  };
+  const progress = inferApplicationsFromActivity(activity, catalog, normalizeStudentProgress({
+    milestones: Object.fromEntries(Object.entries(session.data.journeyProgress ?? {}).map(([milestoneId, completed]) => [milestoneId, {
+      milestoneId,
+      status: completed ? "completed" : "not_started",
+      source: "inferred",
+      updatedAt: session.data.updatedAt,
+    }])),
+  }));
+  const advisorProfile = createAdvisorProfile({ profile, school, activity, progress });
+  return explainOpportunityWithAdvisorBrain({ advisorProfile, opportunity: item, progress });
+}
+
 export default async function Page({params}:{params:Promise<{id:string}>}){
   const item=await getManagedOpportunity((await params).id);if(!item)notFound();
+  const catalog=await listPublishedOpportunities();
   const displayedStatus=maintenanceStatus(item);
   const itemGoal=goalPath(item);
-  const related=getRelatedOpportunities(item,5,await listPublishedOpportunities());
+  const related=getRelatedOpportunities(item,5,catalog);
+  const advisorExplanation=await personalizedExplanation(item,catalog);
   const schoolNames=item.schools.map((slug)=>schools.find((school)=>school.slug===slug)?.name??slug);
   const requirements=[item.eligibility,...(item.metadata.applicationRequirements??[]),...(item.metadata.eligibilityNotes??[])];
   const gpa=requirements.find((value)=>/\bgpa\b/i.test(value))??unknown("GPA requirements");
@@ -70,6 +103,8 @@ export default async function Page({params}:{params:Promise<{id:string}>}){
 
       <section aria-labelledby="why-this-matters" className="rounded-[2rem] bg-paper px-5 py-6 sm:px-7"><p className="rule-label text-forest">Student impact</p><h2 id="why-this-matters" className="mt-2 font-editorial text-3xl font-bold tracking-[-.025em]">Why this matters</h2><div className="mt-4 space-y-2">{whyThisMatters(item).map((sentence)=><p key={sentence} className="text-sm leading-6 text-ink/65">{sentence}</p>)}</div></section>
 
+      {advisorExplanation && <OpportunityAdvisorBrainSection explanation={advisorExplanation} />}
+
       <GuideSection eyebrow="Eligibility" title="Who can apply or claim"><p className="leading-7 text-ink/65">{item.eligibility}</p><dl className="mt-6 grid gap-3 sm:grid-cols-2"><Detail label="Eligible schools" value={item.school_scope==="National"?"National opportunity; no school list restriction is recorded. Provider restrictions may still apply.":schoolNames.join(", ")||unknown("eligible schools")}/><Detail label="Eligible majors" value={item.majors.join(", ")}/><Detail label="Academic years" value={item.academic_years.join(", ")}/><Detail label="GPA requirements" value={gpa}/><Detail label="Citizenship / location" value={citizenship}/><Detail label="Prerequisites" value={prerequisites}/></dl></GuideSection>
 
       <GuideSection eyebrow="How to claim or apply" title="A clear path to the official process"><ol className="mt-2 divide-y divide-ink/10 rounded-[1.5rem] bg-white">{applicationSteps(item).map((step,index)=><li key={`${index}-${step}`} className="grid grid-cols-[36px_1fr] gap-4 p-4 sm:p-5"><span className="font-mono text-xs font-bold text-forest">{String(index+1).padStart(2,"0")}</span><p className="text-sm leading-6 text-ink/65">{step}</p></li>)}</ol><p className="mt-4 text-xs leading-5 text-ink/40">Application processes can change. The official provider page controls current requirements and submission steps.</p></GuideSection>
@@ -90,3 +125,41 @@ export default async function Page({params}:{params:Promise<{id:string}>}){
 
 function GuideSection({eyebrow,title,children}:{eyebrow:string;title:string;children:ReactNode}){return <section><p className="rule-label text-forest">{eyebrow}</p><h2 className="mt-2 font-editorial text-3xl font-bold tracking-[-.025em]">{title}</h2><div className="mt-5">{children}</div></section>}
 function Detail({label,value}:{label:string;value:string}){return <div className="rounded-2xl bg-white p-4 ring-1 ring-ink/8"><dt className="rule-label text-ink/35">{label}</dt><dd className="mt-2 text-sm leading-6 text-ink/65">{value}</dd></div>}
+
+function OpportunityAdvisorBrainSection({ explanation }: { explanation: OpportunityAdvisorExplanation }) {
+  return <section aria-labelledby="advisor-fit" className="rounded-[2rem] bg-white px-5 py-6 ring-1 ring-ink/8 sm:px-7">
+    <p className="rule-label text-forest">Advisor Brain</p>
+    <h2 id="advisor-fit" className="mt-2 font-editorial text-3xl font-bold tracking-[-.025em]">Why this is recommended for you</h2>
+    <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,1fr)_260px]">
+      <div>
+        <ul className="space-y-2 text-sm leading-6 text-ink/65">{explanation.whyRecommended.map((reason)=><li key={reason}>{reason}</li>)}</ul>
+        <details className="mt-5 border-t border-ink/10 pt-4">
+          <summary className="cursor-pointer text-sm font-bold text-forest">Evidence, impact, and tradeoffs</summary>
+          <dl className="mt-4 grid gap-3 sm:grid-cols-2">
+            <Detail label="Skills gained" value={explanation.skillsGained.join(", ")}/>
+            <Detail label="Competencies strengthened" value={explanation.competenciesStrengthened.join(", ")}/>
+            <Detail label="Evidence generated" value={explanation.evidenceGenerated.join(" ")}/>
+            <Detail label="Resume impact" value={explanation.resumeImpact}/>
+            <Detail label="Interview value" value={explanation.interviewValue}/>
+            <Detail label="Estimated ROI" value={explanation.estimatedRoi}/>
+          </dl>
+          <div className="mt-4 grid gap-4 text-xs leading-5 text-ink/50 md:grid-cols-3">
+            <ExplainList title="Evidence used" values={explanation.evidenceUsed}/>
+            <ExplainList title="Expected impact" values={[explanation.expectedImpact]}/>
+            <ExplainList title="Tradeoffs" values={explanation.tradeoffs}/>
+          </div>
+        </details>
+      </div>
+      <aside className="rounded-[1.5rem] bg-paper p-5">
+        <p className="rule-label text-ink/35">Confidence</p>
+        <p className="mt-2 font-editorial text-5xl font-bold tracking-[-.04em]">{explanation.confidence}%</p>
+        <p className="mt-4 text-xs font-bold uppercase tracking-wider text-ink/35">Estimated time</p>
+        <p className="mt-2 text-sm leading-6 text-ink/55">{explanation.estimatedCompletionTime}</p>
+      </aside>
+    </div>
+  </section>;
+}
+
+function ExplainList({ title, values }: { title: string; values: string[] }) {
+  return <div><p className="font-bold uppercase tracking-wider text-ink/35">{title}</p><ul className="mt-2 space-y-1">{values.map((value)=><li key={value}>{value}</li>)}</ul></div>;
+}

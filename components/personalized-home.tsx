@@ -8,17 +8,15 @@ import { ArrowIcon, SearchIcon } from "./icons";
 import { advisorProfileUpdatedMessageKey, readCompletedStudentProfile, writeStudentProfile, type StudentProfile } from "@/data/student-profile";
 import { accountSessionEvent, accountSyncErrorEvent, clearLocalDashboardState, hydrateAccountData } from "@/data/account-sync";
 import type { AccountSession } from "@/lib/account-types";
-import { expiringSoonOpportunities, recommendedForYou, type RecommendationProfile } from "@/data/recommendations";
+import { expiringSoonOpportunities, type RecommendationProfile } from "@/data/recommendations";
 import { deadlineLabel, opportunities, opportunityMajors, type Opportunity } from "@/data/opportunities";
 import { readStudentActivity, studentActivityEvent, type StudentActivity } from "@/data/student-activity";
-import { SaveOpportunityButton } from "./opportunity-activity";
 import { trackProductEvent } from "@/data/product-analytics";
-import { createAdvisorProfile, runAdvisorEngine, type AdvisorEngineResult } from "@/data/advisor-engine";
-import { getRoadmap } from "@/data/roadmap-engine";
+import { createAdvisorProfile } from "@/data/advisor-engine";
 import { inferApplicationsFromActivity, readStudentProgress, studentProgressEvent, type StudentProgress } from "@/data/student-progress";
-import { getMilestoneForAdvisor, type Milestone } from "@/data/milestone-engine";
-import { buildAdvisorTimeline } from "@/data/advisor-timeline";
 import type { AdvisorAction, AdvisorOutput, FeedbackType, RankedAdvisorOpportunity, RecommendationCoaching } from "@/lib/advisor/types";
+import { buildAdvisorBrain, type AdvisorBrainDashboard } from "@/data/advisor-brain";
+import type { RecommendationV1 } from "@/data/recommendation-engine";
 
 const graduationYears = Array.from({ length: 9 }, (_, index) => String(new Date().getFullYear() + index));
 const interestSuggestions = ["Scholarships", "Research", "Internships", "AI", "Software", "Startups", "Finance", "Medicine", "Engineering"];
@@ -481,21 +479,14 @@ function StudentDashboard({ profile, session, syncError }: { profile: StudentPro
   const school = schools.find((item) => item.slug === profile.schoolSlug);
   if (!school) return null;
   const input = recommendationProfile(profile, school, activity);
-  const recommended = recommendedForYou(input, 4);
-  const best = recommended[0];
-  const nextRecommended = recommended.slice(1, 4);
   const deadlines = expiringSoonOpportunities(input, 4, 90);
   const saved = Object.keys(activity.tracked ?? {}).map((id) => opportunities.find((item) => item.id === id)).filter((item): item is NonNullable<typeof item> => Boolean(item)).slice(0, 3);
   const recent = activity.viewed.map((id) => opportunities.find((item) => item.id === id)).filter((item): item is NonNullable<typeof item> => Boolean(item)).slice(-4).reverse();
   const firstName = displayName(profile, session);
   const inferredProgress = inferApplicationsFromActivity(activity, opportunities, progress);
   const advisorProfile = createAdvisorProfile({ profile, school, activity, progress: inferredProgress });
-  const advisorInsight = runAdvisorEngine(advisorProfile);
-  const roadmap = getRoadmap(advisorProfile, inferredProgress);
-  const nextMilestone = getMilestoneForAdvisor(advisorProfile, roadmap.recommendedMilestone, inferredProgress);
-  const advisorTimeline = buildAdvisorTimeline({ advisorProfile, opportunities, progress: inferredProgress });
-  const todayFocus = advisorTimeline.items.find((item) => item.period === "Today's Focus");
-  const nextAction = advisorProfile.progress.applicationsNeedingAttention[0]?.nextAction ?? `Finish ${nextMilestone.title.toLowerCase()} before ${nextMilestone.requiredBefore[0] ?? "your next application window"}.`;
+  const advisorUx = buildAdvisorBrain({ advisorProfile, opportunities, progress: inferredProgress });
+  const nextRecommended = advisorUx.recommendations.slice(1, 4);
 
   return <main className="bg-white px-5 py-12 sm:px-8 sm:py-16">
     <div className="mx-auto max-w-6xl">
@@ -512,29 +503,12 @@ function StudentDashboard({ profile, session, syncError }: { profile: StudentPro
         </div>
       </section>
 
-      <section className="rounded-[2rem] bg-paper px-5 py-7 sm:px-8 sm:py-9">
-        <p className="rule-label text-forest">Today’s best opportunity</p>
-        {best ? <div className="mt-5 grid gap-6 lg:grid-cols-[minmax(0,1fr)_220px] lg:items-end">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-wider text-ink/35">{best.opportunity.organization}</p>
-            <h2 className="mt-3 max-w-4xl font-editorial text-4xl font-bold leading-tight tracking-[-.035em] sm:text-5xl">{best.opportunity.title}</h2>
-            <p className="mt-4 max-w-2xl text-sm leading-7 text-ink/55">{best.reasons[0] ?? "A strong match for your profile."}</p>
-          </div>
-          <div className="flex flex-col gap-3">
-            <Link href={`/opportunities/${best.opportunity.id}`} className="inline-flex min-h-12 items-center justify-center rounded-full bg-forest px-5 text-sm font-bold text-white hover:bg-ink">View opportunity</Link>
-            <SaveOpportunityButton opportunityId={best.opportunity.id} className="rounded-full border border-ink/15 px-5 text-ink/60 hover:border-forest hover:text-forest"/>
-          </div>
-        </div> : <EmptyState title="No recommendation yet" text="Your profile is saved. Check back after the catalog refreshes, or browse the full directory." actionHref="/opportunities" actionLabel="Browse opportunities" />}
-      </section>
+      <DashboardAdvisorBrainCards brain={advisorUx} />
 
       <AdvisorBrainSection advisor={advisorBrain} status={advisorBrainStatus} feedbackStatus={advisorFeedbackStatus} onFeedback={sendAdvisorFeedback} />
 
-      <AdvisorInsightSection insight={advisorInsight} />
-
-      <RoadmapSection milestone={nextMilestone} nextAction={nextAction} todayFocus={todayFocus?.title} />
-
       <Section title="Recommended for you" href="/opportunities">
-        {nextRecommended.length ? <div className="divide-y divide-ink/10">{nextRecommended.map(({ opportunity, reasons }) => <OpportunityRow key={opportunity.id} opportunity={opportunity} detail={reasons[0] ?? opportunity.organization} />)}</div> : <EmptyState title="No extra recommendations yet" text="Your best match is shown above. More matches will appear as the catalog grows." />}
+        {nextRecommended.length ? <div className="divide-y divide-ink/10">{nextRecommended.map((recommendation) => <AdvisorRecommendationRow key={recommendation.id} recommendation={recommendation} />)}</div> : <EmptyState title="No extra recommendations yet" text="Your highest-impact action is shown above. More matches will appear as the catalog grows." />}
       </Section>
 
       <div className="grid gap-12 border-t border-ink/10 pt-10 lg:grid-cols-2">
@@ -551,6 +525,71 @@ function StudentDashboard({ profile, session, syncError }: { profile: StudentPro
       </Section>
     </div>
   </main>;
+}
+
+function DashboardAdvisorBrainCards({ brain }: { brain: AdvisorBrainDashboard }) {
+  const action = brain.highestImpactAction;
+  const gap = brain.biggestCareerGap;
+  return <section className="rounded-[2rem] bg-paper px-5 py-7 sm:px-8 sm:py-9">
+    <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
+      <article>
+        <p className="rule-label text-forest">Today’s Highest-Impact Action</p>
+        {action ? <>
+          <h2 className="mt-3 max-w-4xl font-editorial text-4xl font-bold leading-tight tracking-[-.035em] sm:text-5xl">{action.title}</h2>
+          <p className="mt-4 max-w-2xl text-sm leading-7 text-ink/55">{action.nextAction}</p>
+          <dl className="mt-5 grid gap-3 sm:grid-cols-3">
+            <MiniMetric label="Time" value={action.estimatedCompletionTime} />
+            <MiniMetric label="Impact" value={action.expectedImpact} />
+            <MiniMetric label="Confidence" value={`${action.confidence}%`} />
+          </dl>
+          <details className="mt-5 border-t border-ink/10 pt-5">
+            <summary className="cursor-pointer text-sm font-bold text-forest">Why this?</summary>
+            <ExplainabilityBlock why={action.whyRecommended} evidence={action.evidenceUsed} tradeoffs={action.tradeoffs} />
+          </details>
+        </> : <EmptyState title="No advisor action yet" text="Your profile is saved. Advisor actions appear after UnlockED can match your profile to roadmap and opportunity data." actionHref="/opportunities" actionLabel="Browse opportunities" />}
+      </article>
+
+      <aside className="space-y-6">
+        <article className="rounded-[1.5rem] bg-white px-5 py-5">
+          <p className="rule-label text-forest">Biggest Career Gap</p>
+          <h3 className="mt-2 font-editorial text-2xl font-bold tracking-[-.02em]">{gap.title}</h3>
+          <p className="mt-3 text-sm leading-6 text-ink/55">{gap.whyItMatters}</p>
+          <p className="mt-3 text-sm leading-6 text-ink/65"><span className="font-bold">Close it:</span> {gap.howToClose}</p>
+          <p className="mt-3 text-xs font-bold uppercase tracking-wider text-ink/35">Confidence {gap.confidence}% · {gap.estimatedCompletionTime}</p>
+          <details className="mt-4 border-t border-ink/10 pt-4">
+            <summary className="cursor-pointer text-xs font-bold uppercase tracking-wider text-forest">Evidence used</summary>
+            <ExplainabilityBlock why={gap.whyRecommended} evidence={gap.evidenceUsed} tradeoffs={gap.tradeoffs} />
+          </details>
+        </article>
+        <article className="rounded-[1.5rem] bg-white px-5 py-5">
+          <p className="rule-label text-forest">Career Readiness Score</p>
+          <div className="mt-4 space-y-3">
+            {brain.readinessScores.map((score) => <details key={score.category} className="group">
+              <summary className="grid cursor-pointer grid-cols-[112px_1fr_42px] items-center gap-3 text-sm font-bold">
+                <span>{score.category}</span>
+                <span className="h-1.5 overflow-hidden rounded-full bg-paper"><span className="block h-full rounded-full bg-forest" style={{ width: `${score.score}%` }} /></span>
+                <span className="text-right text-ink/45">{score.score}</span>
+              </summary>
+              <p className="mt-2 text-xs leading-5 text-ink/50">{score.explanation}</p>
+              <p className="mt-1 text-xs leading-5 text-ink/40">{score.factors.join(" · ")} · Confidence {score.confidence}</p>
+            </details>)}
+          </div>
+        </article>
+      </aside>
+    </div>
+  </section>;
+}
+
+function MiniMetric({ label, value }: { label: string; value: string }) {
+  return <div className="rounded-2xl bg-white p-4"><dt className="rule-label text-ink/35">{label}</dt><dd className="mt-2 text-sm font-bold leading-5 text-ink/65">{value}</dd></div>;
+}
+
+function ExplainabilityBlock({ why, evidence, tradeoffs }: { why: string[]; evidence: string[]; tradeoffs: string[] }) {
+  return <div className="mt-3 grid gap-4 text-xs leading-5 text-ink/55 md:grid-cols-3">
+    <div><p className="font-bold uppercase tracking-wider text-ink/35">Why</p><ul className="mt-2 space-y-1">{why.map((item) => <li key={item}>{item}</li>)}</ul></div>
+    <div><p className="font-bold uppercase tracking-wider text-ink/35">Evidence</p><ul className="mt-2 space-y-1">{evidence.map((item) => <li key={item}>{item}</li>)}</ul></div>
+    <div><p className="font-bold uppercase tracking-wider text-ink/35">Tradeoffs</p><ul className="mt-2 space-y-1">{tradeoffs.map((item) => <li key={item}>{item}</li>)}</ul></div>
+  </div>;
 }
 
 function AdvisorBrainSection({ advisor, status, feedbackStatus, onFeedback }: { advisor: AdvisorOutput | null; status: string; feedbackStatus: string; onFeedback: (actionId: string, feedbackType: FeedbackType, signal?: string) => void | Promise<void> }) {
@@ -699,45 +738,6 @@ function stageLabel(score: number) {
   return "Needs evidence";
 }
 
-function AdvisorInsightSection({ insight }: { insight: AdvisorEngineResult }) {
-  const topRecommendation = insight.recommendations[0];
-  return <section className="border-b border-ink/10 py-10">
-    <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start">
-      <div>
-        <p className="rule-label text-forest">Advisor Insight</p>
-        <h2 className="mt-3 max-w-3xl font-editorial text-3xl font-bold leading-tight tracking-[-.025em]">Your top priority right now is to {insight.focus}.</h2>
-        <p className="mt-4 max-w-2xl text-sm leading-7 text-ink/55"><span className="font-bold text-ink/70">Why this matters:</span> {topRecommendation.reasons.slice(0, 2).join(" ")}</p>
-      </div>
-      <div className="rounded-[1.5rem] bg-paper px-5 py-5">
-        <p className="rule-label text-ink/35">Best next searches</p>
-        <div className="mt-3 flex flex-wrap gap-2">{insight.categoriesThatMatterNow.slice(0, 3).map((category) => <span key={category} className="rounded-full bg-white px-3 py-1.5 text-xs font-bold text-ink/55">{category}</span>)}</div>
-        <p className="mt-5 text-xs font-bold uppercase tracking-wider text-ink/35">Skills to build</p>
-        <p className="mt-2 text-sm leading-6 text-ink/55">{insight.profile.pathway.keySkillsToBuild.slice(0, 3).join(", ")}</p>
-      </div>
-    </div>
-  </section>;
-}
-
-function RoadmapSection({ milestone, nextAction, todayFocus }: { milestone: Milestone; nextAction: string; todayFocus?: string }) {
-  return <section className="border-b border-ink/10 py-10">
-    <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_220px] lg:items-end">
-      <div>
-        <p className="rule-label text-forest">Your Roadmap</p>
-        {todayFocus && <>
-          <p className="mt-3 text-xs font-bold uppercase tracking-wider text-ink/35">Today&apos;s focus</p>
-          <p className="mt-2 max-w-2xl text-sm leading-7 text-ink/55">{todayFocus}</p>
-        </>}
-        <p className="mt-3 text-xs font-bold uppercase tracking-wider text-ink/35">Next action</p>
-        <p className="mt-2 max-w-2xl text-sm leading-7 text-ink/55">{nextAction}</p>
-        <p className="mt-3 text-xs font-bold uppercase tracking-wider text-ink/35">Next milestone</p>
-        <h2 className="mt-2 max-w-3xl font-editorial text-3xl font-bold leading-tight tracking-[-.025em]">{milestone.title}.</h2>
-        <p className="mt-4 max-w-2xl text-sm leading-7 text-ink/55"><span className="font-bold text-ink/70">Why?</span> {milestone.description} Most students in your stage complete this before {milestone.requiredBefore[0] ?? "the next major application window"}.</p>
-      </div>
-      <Link href="/opportunities" className="inline-flex min-h-12 items-center justify-center rounded-full border border-ink/15 px-5 text-sm font-bold text-ink/60 hover:border-forest hover:text-forest">Learn More</Link>
-    </div>
-  </section>;
-}
-
 function Section({ title, href, children }: { title: string; href?: string; children: React.ReactNode }) {
   return <section className="py-10"><div className="mb-5 flex items-end justify-between gap-4"><h2 className="font-editorial text-3xl font-bold tracking-[-.025em]">{title}</h2>{href && <Link href={href} className="text-sm font-bold text-ink/45 hover:text-forest">View all</Link>}</div>{children}</section>;
 }
@@ -751,6 +751,31 @@ function OpportunityRow({ opportunity, detail }: { opportunity: Opportunity; det
     </div>
     <ArrowIcon className="h-4 w-4 text-ink/30 group-hover:text-forest"/>
   </Link>;
+}
+
+function AdvisorRecommendationRow({ recommendation }: { recommendation: RecommendationV1 }) {
+  const href = recommendation.relatedOpportunityId ? `/opportunities/${recommendation.relatedOpportunityId}` : "/opportunities";
+  return <article className="group rounded-2xl px-1 py-4">
+    <div className="grid gap-3 sm:grid-cols-[1fr_auto] sm:items-start">
+      <div className="min-w-0">
+        <p className="rule-label text-forest">{recommendation.priority} · {recommendation.kind}</p>
+        <h3 className="mt-1 font-editorial text-xl font-bold group-hover:text-forest">{recommendation.title}</h3>
+        <p className="mt-2 max-w-2xl text-sm leading-6 text-ink/55">{recommendation.reason}</p>
+        <details className="mt-3">
+          <summary className="cursor-pointer text-xs font-bold uppercase tracking-wider text-forest">Why this?</summary>
+          <div className="mt-3 grid gap-3 text-xs leading-5 text-ink/50 md:grid-cols-3">
+            <div><p className="font-bold uppercase tracking-wider text-ink/35">Evidence used</p><ul className="mt-2 space-y-1">{recommendation.reasons.slice(0, 3).map((item)=><li key={item}>{item}</li>)}</ul></div>
+            <div><p className="font-bold uppercase tracking-wider text-ink/35">Expected impact</p><p className="mt-2">{recommendation.nextAction}</p></div>
+            <div><p className="font-bold uppercase tracking-wider text-ink/35">Tradeoffs</p><p className="mt-2">{recommendation.estimatedValueLabel === "Unknown" ? "Value is unknown; confirm details on the official source." : `Estimated value: ${recommendation.estimatedValueLabel}.`} Selection and deadlines are controlled by the provider.</p></div>
+          </div>
+        </details>
+      </div>
+      <div className="flex items-center gap-4 sm:flex-col sm:items-end">
+        <p className="text-xs font-bold uppercase tracking-wider text-ink/35">{recommendation.confidence}% confidence</p>
+        <Link href={href} className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-forest hover:text-ink">Open <ArrowIcon/></Link>
+      </div>
+    </div>
+  </article>;
 }
 
 function EmptyState({ title, text, actionHref, actionLabel }: { title: string; text: string; actionHref?: string; actionLabel?: string }) {
