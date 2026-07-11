@@ -5,7 +5,7 @@ import type { ReactElement } from "react";
 import { memo, useEffect, useMemo, useState } from "react";
 import { deadlineLabel, type Opportunity } from "@/data/opportunities";
 import { opportunityTrackerStatuses, persistStudentActivity, readStudentActivity, removeTrackedOpportunity, replaceStudentActivity, studentActivityEvent, updateOpportunityStatus, type OpportunityTrackerStatus, type StudentActivity } from "@/data/student-activity";
-import { ArrowIcon, BookmarkIcon, CheckCircleIcon, CheckIcon, HeartIcon, ListIcon, MoreIcon, MoveIcon, PenLineIcon, SendIcon, TargetIcon, TrophyIcon, XCircleIcon } from "./icons";
+import { ArrowIcon, BookmarkIcon, CheckCircleIcon, CheckIcon, HeartIcon, MoreIcon, MoveIcon, PenLineIcon, SendIcon, TargetIcon, TrophyIcon, XCircleIcon } from "./icons";
 import { trackProductEvent } from "@/data/product-analytics";
 
 const filters = ["All", "Scholarships", "AI Tools", "Research", "Internships", "Benefits", "Software"] as const;
@@ -163,18 +163,13 @@ export function MyOpportunitiesPage() {
           <p className="mt-5 inline-flex min-h-10 items-center gap-2 rounded-full bg-white/70 px-4 text-sm font-bold text-forest shadow-[0_10px_30px_rgba(43,33,26,.05)] ring-1 ring-ink/8"><CheckIcon className="h-4 w-4"/> All changes save automatically</p>
         </div>
         <div className="grid overflow-hidden rounded-[1.4rem] bg-white/90 shadow-[0_22px_70px_rgba(43,33,26,.08)] ring-1 ring-ink/8 sm:grid-cols-4">
-          {summaryStatuses.map((status) => <SummaryCard key={status} label={statusSummary(status)} value={statusCounts[status]} status={status} onClick={() => changeFilter("All")} />)}
+          {summaryStatuses.map((status) => <SummaryCard key={status} label={statusSummary(status)} value={statusCounts[status]} status={status} />)}
         </div>
       </header>
 
-      <div className="mt-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between" aria-label="Filter saved opportunities">
+      <div className="mt-6" aria-label="Filter saved opportunities">
         <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-none">
           {filters.map((item) => <button key={item} type="button" onClick={() => changeFilter(item)} className={`inline-flex min-h-12 shrink-0 items-center gap-3 rounded-xl border px-5 text-sm font-bold shadow-[0_8px_24px_rgba(43,33,26,.04)] transition duration-200 focus:outline-none focus:ring-2 focus:ring-forest/40 ${filter === item ? "border-forest bg-forest text-white shadow-[0_16px_34px_rgba(31,95,67,.18)]" : "border-ink/10 bg-white/82 text-ink hover:-translate-y-0.5 hover:border-forest/25 hover:text-forest motion-reduce:hover:translate-y-0"}`}>{item}<span className={`rounded-md px-2 py-1 text-xs ${filter === item ? "bg-white/18 text-white" : "bg-forest/8 text-forest"}`}>{counts[item]}</span></button>)}
-        </div>
-        <div className="hidden items-center gap-2 text-xs font-bold text-ink/45 md:flex">
-          <span>Sort: Recent</span>
-          <span className="grid h-10 w-10 place-items-center rounded-xl border border-forest/30 bg-white text-forest"><BookmarkIcon className="h-4 w-4"/></span>
-          <span className="grid h-10 w-10 place-items-center rounded-xl border border-ink/10 bg-white text-ink/45"><ListIcon className="h-4 w-4"/></span>
         </div>
       </div>
 
@@ -195,13 +190,12 @@ export function MyOpportunitiesPage() {
   </section>;
 }
 
-function SummaryCard({ label, value, status, onClick }: { label: string; value: number; status: OpportunityTrackerStatus; onClick: () => void }) {
+function SummaryCard({ label, value, status }: { label: string; value: number; status: OpportunityTrackerStatus }) {
   const { Icon, soft, accent } = statusMeta[status];
-  return <button type="button" onClick={onClick} className="group flex min-h-32 flex-col items-start justify-between border-ink/8 p-5 text-left transition duration-200 hover:bg-paper/70 focus:outline-none focus:ring-2 focus:ring-forest/30 sm:border-r sm:last:border-r-0">
+  return <section className="flex min-h-32 flex-col items-start justify-center gap-5 border-ink/8 p-5 text-left sm:border-r sm:last:border-r-0">
     <span className="flex w-full items-center justify-between gap-4"><span className="text-xs font-black text-ink/70">{label}</span><span className={`grid h-9 w-9 place-items-center rounded-full ${soft} ${accent}`}><Icon className="h-[18px] w-[18px]"/></span></span>
     <span className="font-editorial text-5xl font-bold leading-none text-forest">{value}</span>
-    <span className="flex items-center gap-2 text-sm font-bold text-ink group-hover:text-forest">View all <ArrowIcon className="h-3.5 w-3.5 transition group-hover:translate-x-0.5 motion-reduce:group-hover:translate-x-0"/></span>
-  </button>;
+  </section>;
 }
 
 function Lane({ status, items, openMenu, setOpenMenu, moveOpportunity, remove, draggingId, setDraggingId }: { status: OpportunityTrackerStatus; items: BoardItem[]; openMenu: string | null; setOpenMenu: (id: string | null) => void; moveOpportunity: (opportunity: Opportunity, status: OpportunityTrackerStatus, source: "menu" | "drag") => void; remove: (opportunity: Opportunity) => void; draggingId: string | null; setDraggingId: (id: string | null) => void }) {
