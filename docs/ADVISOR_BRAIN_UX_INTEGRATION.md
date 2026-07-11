@@ -83,18 +83,16 @@ Signed-out users and incomplete profiles do not receive fake personalization.
 
 ## Profile Integration
 
-`components/profile-page.tsx` adds an Advisor Brain tab beside the existing Edit Profile tab.
+`components/profile-page.tsx` adds a Career Profile tab beside the existing Edit Profile tab.
 
-The tab displays:
+The primary tab displays:
 
-- Student Digital Twin summary
-- Evidence inventory
-- Competency coverage
-- Skill graph
-- Current bottlenecks
-- Confidence levels
-- Career trajectory
-- Interview Intelligence
+- current direction
+- strongest areas
+- top growth areas
+- one recommended next step
+
+Detailed evidence, confidence, competency coverage, skill graph, career trajectory, and interview-readiness details remain available behind the “How this was calculated” disclosure.
 
 The existing edit form and profile persistence path are unchanged.
 

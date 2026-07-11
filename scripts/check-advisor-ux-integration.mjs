@@ -79,19 +79,18 @@ for (const label of [
 assert.ok(opportunityPage.includes("explainOpportunityWithAdvisorBrain"), "Opportunity pages must use Advisor Brain explanations.");
 
 for (const label of [
-  "Advisor Brain",
-  "Student Digital Twin",
-  "Evidence inventory",
-  "Competency coverage",
-  "Skill graph",
-  "Current bottlenecks",
-  "Confidence levels",
-  "Career trajectory",
-  "Interview Intelligence",
-  "STAR quality",
+  "Career Profile",
+  "Current direction",
+  "Strongest areas",
+  "Top growth areas",
+  "Recommended next step",
+  "How this was calculated",
 ]) {
-  assert.ok(profile.includes(label), `Profile Advisor Brain tab must render ${label}.`);
+  assert.ok(profile.includes(label), `Profile Career Profile tab must render ${label}.`);
 }
 assert.ok(profile.includes("buildAdvisorBrain"), "Profile tab must use Advisor Brain output.");
+assert.ok(!profile.includes("Student Digital Twin"), "Profile primary copy must not expose Student Digital Twin terminology.");
+assert.ok(!profile.includes("Evidence inventory"), "Profile primary copy must not expose evidence inventory terminology.");
+assert.ok(!profile.includes("Confidence levels"), "Profile primary copy must not expose repeated confidence labels.");
 
 console.log("Advisor UX integration checks passed.");
