@@ -1,51 +1,315 @@
 "use client";
 
+import type { ReactElement, ReactNode } from "react";
 import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
-import { filterOpportunities, opportunityTypes, type Opportunity, type OpportunityDifficulty, type OpportunityType } from "@/data/opportunities";
+import { deadlineLabel, filterOpportunities, opportunityTypes, type Opportunity, type OpportunityDifficulty, type OpportunityType } from "@/data/opportunities";
 import { schools, type School } from "@/data/seed";
 import { findSchoolMatches, normalizeSchoolQuery } from "@/data/school-search";
+import { opportunityTrackerStatuses, readStudentActivity, studentActivityEvent, type OpportunityTrackerStatus, type StudentActivity } from "@/data/student-activity";
+import { ArrowIcon, BookmarkIcon, CheckCircleIcon, HeartIcon, PenLineIcon, SearchIcon, SendIcon, TargetIcon, TrophyIcon, XCircleIcon } from "./icons";
 import { OpportunityCard } from "./opportunity-card";
-import { SearchIcon } from "./icons";
 import { trackProductEvent } from "@/data/product-analytics";
+
+type SortMode = "Relevant" | "Newest" | "Deadline" | "Alphabetical";
+type FilterState = {
+  query: string;
+  type: OpportunityType | "All";
+  category: string;
+  major: string;
+  school: string;
+  paid: string;
+  remote: string;
+  difficulty: Exclude<OpportunityDifficulty, null> | "All";
+  freshmanFriendly: boolean;
+  deadline: string;
+  sort: SortMode;
+};
+type IconComponent = (props: { className?: string }) => ReactElement;
+
+const storageKey = "unlocked-discover-filters";
+const defaultFilters: FilterState = { query: "", type: "All", category: "All", major: "All", school: "All", paid: "All", remote: "All", difficulty: "All", freshmanFriendly: false, deadline: "All", sort: "Relevant" };
+const summaryStatuses: OpportunityTrackerStatus[] = ["Submitted", "Interview", "Accepted", "Completed"];
+const statusMeta: Record<OpportunityTrackerStatus, { Icon: IconComponent; accent: string; soft: string }> = {
+  Saved: { Icon: BookmarkIcon, accent: "text-forest", soft: "bg-forest/8" },
+  Interested: { Icon: HeartIcon, accent: "text-rose-700", soft: "bg-rose-50" },
+  Applying: { Icon: PenLineIcon, accent: "text-amber-700", soft: "bg-amber-50" },
+  Submitted: { Icon: SendIcon, accent: "text-blue-700", soft: "bg-blue-50" },
+  Interview: { Icon: TargetIcon, accent: "text-violet-700", soft: "bg-violet-50" },
+  Accepted: { Icon: CheckCircleIcon, accent: "text-emerald-700", soft: "bg-emerald-50" },
+  Rejected: { Icon: XCircleIcon, accent: "text-red-700", soft: "bg-red-50" },
+  Completed: { Icon: TrophyIcon, accent: "text-forest", soft: "bg-forest/8" },
+};
+const quickFilters: { label: string; type?: OpportunityType; category?: string }[] = [
+  { label: "All" },
+  { label: "Scholarships", type: "Scholarship" },
+  { label: "Internships", type: "Career", category: "Internships" },
+  { label: "AI Tools", type: "AI" },
+  { label: "Research", type: "Research" },
+  { label: "Benefits", type: "Benefit" },
+  { label: "Software", category: "Software" },
+  { label: "Career", type: "Career" },
+];
+
+function readStoredFilters(): FilterState {
+  if (typeof window === "undefined") return defaultFilters;
+  try {
+    const parsed = JSON.parse(sessionStorage.getItem(storageKey) ?? "null") as Partial<FilterState> | null;
+    return { ...defaultFilters, ...parsed };
+  } catch {
+    return defaultFilters;
+  }
+}
+
+function statusSummary(status: OpportunityTrackerStatus) {
+  if (status === "Interview") return "Interviewing";
+  return status;
+}
+
+function valueLabel(item: Opportunity) {
+  if (item.estimated_value) return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(item.estimated_value);
+  if (item.type === "Scholarship") return item.metadata.awardAmountLabel ?? "Amount varies";
+  if (item.type === "Benefit") return item.metadata.valueLabel ?? "Student benefit";
+  if (item.metadata.compensation === "Paid") return "Paid";
+  if (item.remote) return "Remote";
+  return item.metadata.studentOffer ?? "See details";
+}
+
+function sortOpportunities(items: Opportunity[], sort: SortMode) {
+  const next = [...items];
+  if (sort === "Newest") return next.sort((a, b) => b.date_added.localeCompare(a.date_added) || a.title.localeCompare(b.title));
+  if (sort === "Deadline") return next.sort((a, b) => (a.application_deadline ?? "9999-12-31").localeCompare(b.application_deadline ?? "9999-12-31") || a.title.localeCompare(b.title));
+  if (sort === "Alphabetical") return next.sort((a, b) => a.title.localeCompare(b.title));
+  return next;
+}
 
 export function OpportunityFilter({ opportunities: initialOpportunities = [] }: { opportunities?: Opportunity[] }) {
   const [opportunities, setOpportunities] = useState<Opportunity[]>(initialOpportunities);
   const [loaded, setLoaded] = useState(initialOpportunities.length > 0);
-  const [query,setQuery]=useState(""); const [type,setType]=useState<OpportunityType|"All">("All"); const [category,setCategory]=useState("All"); const [major,setMajor]=useState("All"); const [school,setSchool]=useState("All"); const [paid,setPaid]=useState("All"); const [remote,setRemote]=useState("All"); const [difficulty,setDifficulty]=useState<Exclude<OpportunityDifficulty,null>|"All">("All"); const [freshmanFriendly,setFreshmanFriendly]=useState(false); const [deadline,setDeadline]=useState("All"); const [visibleCount,setVisibleCount]=useState(18);
+  const [filters, setFilters] = useState<FilterState>(defaultFilters);
+  const [visibleCount, setVisibleCount] = useState(16);
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+  const [activity, setActivity] = useState<StudentActivity>({ viewed: [], saved: [], claimed: [], tracked: {} });
+  const hydrated = useRef(false);
   const trackedFilters = useRef(false);
-  const deferredQuery = useDeferredValue(query);
-  const majors=useMemo(()=>["All",...new Set(opportunities.flatMap((item)=>item.majors).filter((item)=>item!=="Any Major"))],[opportunities]);
-  const categories=useMemo(()=>["All",...new Set(opportunities.map((item)=>item.category).sort())],[opportunities]);
-  useEffect(()=>{let active=true;if(loaded)return;fetch("/api/opportunities").then((response)=>response.ok?response.json():Promise.reject()).then((body)=>{if(active){setOpportunities(body.opportunities);setLoaded(true)}}).catch(()=>{if(active)setLoaded(true)});return()=>{active=false}},[loaded]);
-  useEffect(()=>{const params=new URLSearchParams(window.location.search);const nextQuery=params.get("query");const nextCategory=params.get("category");const nextType=params.get("type");if(nextQuery)setQuery(nextQuery);if(nextCategory&&categories.includes(nextCategory))setCategory(nextCategory);if(nextType&&opportunityTypes.includes(nextType as OpportunityType))setType(nextType as OpportunityType)},[categories]);
-  useEffect(()=>trackProductEvent("discover_opened"),[]);
-  const visible=useMemo(()=>filterOpportunities({query:deferredQuery,types:type==="All"?undefined:[type],category,major,school:school==="All"?undefined:school,paid:paid==="All"?undefined:paid==="Paid",remote:remote==="All"?undefined:remote==="Remote",difficulty,freshmanFriendly,deadline:deadline==="All"?undefined:deadline as "published"|"upcoming"|"rolling"|"not_announced"},opportunities),[category,deadline,difficulty,freshmanFriendly,major,opportunities,paid,deferredQuery,remote,school,type]);
-  useEffect(()=>setVisibleCount(18),[category,deadline,difficulty,freshmanFriendly,major,paid,query,remote,school,type]);
-  useEffect(()=>{if(query.trim().length<2)return;const timer=window.setTimeout(()=>trackProductEvent("search_performed",{searchType:"opportunity",searchValue:query.trim()}),500);return()=>window.clearTimeout(timer)},[query]);
-  useEffect(()=>{if(!trackedFilters.current){trackedFilters.current=true;return}trackProductEvent("filter_applied",{filterName:"discover",filterValue:JSON.stringify({type,category,major,school,paid,remote,difficulty,freshmanFriendly,deadline})})},[category,deadline,difficulty,freshmanFriendly,major,paid,remote,school,type]);
-  const displayed=visible.slice(0,visibleCount);
-  const activeFilters=[type,category,major,school,deadline,paid,remote,difficulty].filter((item)=>item!=="All").length+(freshmanFriendly?1:0);
+  const deferredQuery = useDeferredValue(filters.query);
+
+  const majors = useMemo(() => ["All", ...new Set(opportunities.flatMap((item) => item.majors).filter((item) => item !== "Any Major"))], [opportunities]);
+  const categories = useMemo(() => ["All", ...new Set(opportunities.map((item) => item.category).sort())], [opportunities]);
+  const typeCounts = useMemo(() => Object.fromEntries(quickFilters.map((item) => [item.label, item.label === "All" ? opportunities.length : opportunities.filter((opportunity) => (!item.type || opportunity.type === item.type) && (!item.category || opportunity.category === item.category)).length])) as Record<string, number>, [opportunities]);
+
+  useEffect(() => {
+    setFilters((current) => ({ ...current, ...readStoredFilters() }));
+    hydrated.current = true;
+    const update = () => setActivity(readStudentActivity());
+    update();
+    window.addEventListener(studentActivityEvent, update);
+    return () => window.removeEventListener(studentActivityEvent, update);
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+    if (loaded) return;
+    fetch("/api/opportunities").then((response) => response.ok ? response.json() : Promise.reject()).then((body) => {
+      if (active) { setOpportunities(body.opportunities); setLoaded(true); }
+    }).catch(() => { if (active) setLoaded(true); });
+    return () => { active = false; };
+  }, [loaded]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const nextQuery = params.get("query");
+    const nextCategory = params.get("category");
+    const nextType = params.get("type");
+    setFilters((current) => ({
+      ...current,
+      ...(nextQuery ? { query: nextQuery } : {}),
+      ...(nextCategory && categories.includes(nextCategory) ? { category: nextCategory } : {}),
+      ...(nextType && opportunityTypes.includes(nextType as OpportunityType) ? { type: nextType as OpportunityType } : {}),
+    }));
+  }, [categories]);
+
+  useEffect(() => trackProductEvent("discover_opened"), []);
+  useEffect(() => {
+    if (!hydrated.current) return;
+    sessionStorage.setItem(storageKey, JSON.stringify(filters));
+  }, [filters]);
+
+  const visible = useMemo(() => {
+    const filtered = filterOpportunities({
+      query: deferredQuery,
+      types: filters.type === "All" ? undefined : [filters.type],
+      category: filters.category,
+      major: filters.major,
+      school: filters.school === "All" ? undefined : filters.school,
+      paid: filters.paid === "All" ? undefined : filters.paid === "Paid",
+      remote: filters.remote === "All" ? undefined : filters.remote === "Remote",
+      difficulty: filters.difficulty,
+      freshmanFriendly: filters.freshmanFriendly,
+      deadline: filters.deadline === "All" ? undefined : filters.deadline as "published" | "upcoming" | "rolling" | "not_announced",
+    }, opportunities);
+    return sortOpportunities(filtered, filters.sort);
+  }, [deferredQuery, filters, opportunities]);
+
+  useEffect(() => setVisibleCount(16), [filters]);
+  useEffect(() => {
+    if (filters.query.trim().length < 2) return;
+    const timer = window.setTimeout(() => trackProductEvent("search_performed", { searchType: "opportunity", searchValue: filters.query.trim() }), 500);
+    return () => window.clearTimeout(timer);
+  }, [filters.query]);
+  useEffect(() => {
+    if (!trackedFilters.current) { trackedFilters.current = true; return; }
+    trackProductEvent("filter_applied", { filterName: "discover", filterValue: JSON.stringify(filters) });
+  }, [filters]);
+
+  const displayed = visible.slice(0, visibleCount);
+  const activeFilters = [filters.type, filters.category, filters.major, filters.school, filters.deadline, filters.paid, filters.remote, filters.difficulty].filter((item) => item !== "All").length + (filters.freshmanFriendly ? 1 : 0) + (filters.query.trim() ? 1 : 0);
+  const statusCounts = useMemo(() => Object.fromEntries(opportunityTrackerStatuses.map((status) => [status, Object.values(activity.tracked ?? {}).filter((record) => record.status === status).length])) as Record<OpportunityTrackerStatus, number>, [activity.tracked]);
+
+  function update(partial: Partial<FilterState>) {
+    setFilters((current) => ({ ...current, ...partial }));
+  }
+
+  function clearFilters() {
+    setFilters(defaultFilters);
+    setMobileFiltersOpen(false);
+  }
+
+  function applyQuickFilter(item: (typeof quickFilters)[number]) {
+    update({ type: item.type ?? "All", category: item.category ?? "All" });
+  }
+
   return <>
-    <div className="rounded-[2rem] bg-paper p-3 sm:p-4">
-      <label className="flex min-h-16 items-center gap-3 rounded-full bg-white px-5 shadow-soft"><SearchIcon className="h-4 w-4 text-forest"/><span className="sr-only">Search all opportunities</span><input value={query} onChange={(event)=>setQuery(event.target.value)} placeholder="Search scholarships, internships, research..." className="min-w-0 flex-1 bg-transparent text-base outline-none placeholder:text-ink/35"/></label>
-      <div className="mt-3 flex flex-wrap gap-2">
-        {opportunityTypes.slice(0,4).map((option)=><button key={option} type="button" onClick={()=>setType(type===option?"All":option)} className={`rounded-full px-4 py-2 text-xs font-bold ${type===option?"bg-forest text-white":"bg-white text-ink/50 hover:text-forest"}`}>{option}</button>)}
+    <header className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_660px] lg:items-center">
+      <div>
+        <p className="rule-label text-forest">Discover opportunities</p>
+        <h1 className="mt-4 max-w-4xl font-editorial text-5xl font-bold leading-[.98] tracking-[-.055em] text-ink sm:text-7xl">Find the right opportunity.</h1>
+        <p className="mt-5 max-w-2xl text-base leading-7 text-ink/58">Search thousands of scholarships, internships, research programs, AI tools, and student benefits.</p>
       </div>
-      <details className="mt-4 border-t border-ink/10 pt-4">
-        <summary className="cursor-pointer text-sm font-bold text-ink/50 hover:text-forest">Advanced filters{activeFilters?` · ${activeFilters} active`:""}</summary>
-        <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4"><Select label="Type" value={type} setValue={(value)=>setType(value as OpportunityType|"All")} options={["All",...opportunityTypes]}/><Select label="Category" value={category} setValue={setCategory} options={categories}/><SchoolFilter value={school} setValue={setSchool}/><Select label="Major" value={major} setValue={setMajor} options={majors}/><Select label="Deadline" value={deadline} setValue={setDeadline} options={["All","published","upcoming","rolling","not_announced"]}/><Select label="Value" value={paid} setValue={setPaid} options={["All","Paid","Unpaid"]}/><Select label="Format" value={remote} setValue={setRemote} options={["All","Remote","In Person"]}/><Select label="Difficulty" value={difficulty} setValue={(value)=>setDifficulty(value as Exclude<OpportunityDifficulty,null>|"All")} options={["All","Open","Competitive","Highly Competitive"]}/><label className="flex h-14 items-center gap-3 rounded-2xl bg-white px-4 text-sm font-bold text-ink/55"><input type="checkbox" checked={freshmanFriendly} onChange={(event)=>setFreshmanFriendly(event.target.checked)}/> Freshman-friendly</label></div>
-      </details>
+      <div className="grid overflow-hidden rounded-[1.4rem] bg-white/90 shadow-[0_22px_70px_rgba(43,33,26,.08)] ring-1 ring-ink/8 sm:grid-cols-4">
+        {summaryStatuses.map((status) => <SummaryCard key={status} label={statusSummary(status)} value={statusCounts[status]} status={status} />)}
+      </div>
+    </header>
+
+    <section className="mt-8 max-w-5xl rounded-[2rem] bg-white/42 p-3 shadow-[0_18px_60px_rgba(43,33,26,.05)] ring-1 ring-ink/6 sm:p-4" aria-label="Search opportunities">
+      <label className="flex min-h-16 items-center gap-4 rounded-full bg-white px-5 shadow-[0_14px_38px_rgba(43,33,26,.075)] ring-1 ring-ink/7 focus-within:ring-2 focus-within:ring-forest/30">
+        <SearchIcon className="h-5 w-5 text-forest" />
+        <span className="sr-only">Search all opportunities</span>
+        <input value={filters.query} onChange={(event) => update({ query: event.target.value })} placeholder="Search scholarships, internships, research, benefits..." className="min-w-0 flex-1 bg-transparent text-base font-semibold outline-none placeholder:font-normal placeholder:text-ink/35" />
+      </label>
+      <div className="mt-3 flex gap-2 overflow-x-auto pb-1 scrollbar-none">
+        {quickFilters.map((item) => {
+          const active = filters.type === (item.type ?? "All") && filters.category === (item.category ?? "All");
+          return <button key={item.label} type="button" onClick={() => applyQuickFilter(item)} className={`inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full px-4 text-sm font-bold transition duration-200 focus:outline-none focus:ring-2 focus:ring-forest/35 ${active ? "bg-forest text-white shadow-[0_12px_28px_rgba(31,95,67,.18)]" : "bg-white text-ink/58 hover:text-forest"}`}>{item.label}<span className={`rounded-md px-1.5 py-0.5 text-[11px] ${active ? "bg-white/18" : "bg-forest/8 text-forest"}`}>{typeCounts[item.label] ?? 0}</span></button>;
+        })}
+      </div>
+    </section>
+
+    <div className="mt-8 grid gap-8 lg:grid-cols-[280px_minmax(0,1fr)]">
+      <aside className="hidden lg:block">
+        <FilterPanel filters={filters} update={update} clearFilters={clearFilters} activeFilters={activeFilters} categories={categories} majors={majors} />
+      </aside>
+
+      <main>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="rule-label text-forest">Recommended for you</p>
+            <h2 className="mt-2 font-editorial text-3xl font-bold tracking-[-.025em]">Top opportunities</h2>
+            <p className="mt-1 text-sm text-ink/50">Personalized by search, filters, and real opportunity ranking.</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <button type="button" onClick={() => setMobileFiltersOpen(true)} className="inline-flex min-h-11 items-center justify-center rounded-full border border-ink/12 bg-white px-4 text-sm font-bold text-ink/60 shadow-[0_10px_26px_rgba(43,33,26,.045)] lg:hidden">Filters{activeFilters ? ` · ${activeFilters}` : ""}</button>
+            <label className="flex min-h-11 items-center gap-3 rounded-full border border-ink/12 bg-white px-4 text-sm font-bold text-ink/55 shadow-[0_10px_26px_rgba(43,33,26,.045)]">
+              <span>Sort by</span>
+              <select value={filters.sort} onChange={(event) => update({ sort: event.target.value as SortMode })} className="bg-transparent text-forest outline-none">
+                {(["Relevant", "Newest", "Deadline", "Alphabetical"] as const).map((option) => <option key={option} value={option}>{option === "Relevant" ? "Most relevant" : option}</option>)}
+              </select>
+            </label>
+          </div>
+        </div>
+
+        {!loaded ? <ResultSkeleton /> : visible.length ? <>
+          <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+            {displayed.map((item) => <OpportunityCard key={item.id} opportunity={item} />)}
+          </div>
+          {visible.length > displayed.length && <div className="py-7 text-center"><button onClick={() => setVisibleCount((count) => Math.min(count + 16, visible.length))} className="min-h-12 rounded-full border border-ink/15 bg-white px-6 text-sm font-bold text-forest shadow-[0_10px_26px_rgba(43,33,26,.045)] hover:border-forest">Show more opportunities <ArrowIcon className="inline h-3.5 w-3.5" /></button></div>}
+        </> : <EmptyResults clearFilters={clearFilters} />}
+      </main>
     </div>
-    <div className="mt-12 flex items-end justify-between gap-4 border-b border-ink/10 pb-5"><div><p className="rule-label text-forest">Results</p><h2 className="mt-2 font-editorial text-3xl font-bold tracking-[-.025em]">Best matches</h2></div><p className="shrink-0 text-sm font-bold text-ink/45">{loaded ? `${visible.length} results` : "Loading"}</p></div>{!loaded?<ResultSkeleton/>:<><div className="divide-y divide-ink/10">{displayed.map((item)=><OpportunityCard key={item.id} opportunity={item}/>)}</div>{visible.length>displayed.length&&<div className="border-t border-ink/10 bg-white py-7 text-center"><button onClick={()=>setVisibleCount((count)=>Math.min(count+18,visible.length))} className="min-h-11 rounded-full border border-ink/15 px-6 text-sm font-bold text-ink/65 hover:border-forest hover:text-forest">Show more</button></div>}{!visible.length&&<div className="rounded-[2rem] bg-paper px-6 py-12 text-center"><p className="font-editorial text-2xl font-bold">No verified matches yet</p><p className="mt-2 text-sm text-ink/45">Try one broader search or remove a filter.</p></div>}</>}
+
+    {mobileFiltersOpen && <div className="fixed inset-0 z-50 bg-ink/35 px-4 py-6 lg:hidden" role="dialog" aria-modal="true" aria-label="Filters">
+      <div className="ml-auto flex max-h-full max-w-md flex-col overflow-hidden rounded-[2rem] bg-paper shadow-[0_30px_90px_rgba(43,33,26,.25)]">
+        <div className="flex items-center justify-between border-b border-ink/10 px-5 py-4"><p className="font-bold">Filters</p><button type="button" onClick={() => setMobileFiltersOpen(false)} className="rounded-full px-3 py-2 text-sm font-bold text-ink/50 hover:bg-white">Close</button></div>
+        <div className="overflow-y-auto p-4"><FilterPanel filters={filters} update={update} clearFilters={clearFilters} activeFilters={activeFilters} categories={categories} majors={majors} /></div>
+      </div>
+    </div>}
   </>;
 }
 
-function ResultSkeleton(){return <div className="divide-y divide-ink/10" aria-label="Loading opportunities">{Array.from({length:6},(_,index)=><div key={index} className="grid gap-4 py-6 sm:grid-cols-[1fr_160px]"><div><div className="h-3 w-28 rounded-full bg-paper"/><div className="mt-3 h-7 max-w-lg rounded-full bg-paper"/><div className="mt-3 h-4 max-w-2xl rounded-full bg-paper"/></div><div className="h-10 rounded-full bg-paper"/></div>)}</div>}
-
-function SchoolFilter({value,setValue}:{value:string;setValue:(value:string)=>void}){
-  const selected=schools.find((item)=>item.slug===value);const[query,setQuery]=useState(selected?.name??"");const[open,setOpen]=useState(false);const matches=useMemo(()=>findSchoolMatches(schools,query,6),[query]);const normalized=normalizeSchoolQuery(query);
-  function choose(item:School){setValue(item.slug);setQuery(item.name);setOpen(false)}
-  return <div className="relative rounded-2xl bg-white px-4"><label className="flex h-14 items-center justify-between gap-3"><span className="rule-label text-ink/40">School</span><input value={query} onFocus={()=>setOpen(true)} onChange={(event)=>{setQuery(event.target.value);setValue("All");setOpen(true)}} placeholder="All schools" className="min-w-0 max-w-[68%] bg-transparent text-right text-sm font-bold outline-none placeholder:text-ink/35"/></label>{open&&normalized&&<div className="absolute left-0 right-0 z-30 mt-1 overflow-hidden rounded-2xl border border-ink/10 bg-white shadow-soft">{matches.length?matches.map((item)=><button key={item.slug} type="button" onMouseDown={(event)=>event.preventDefault()} onClick={()=>choose(item)} className="block w-full border-b border-ink/10 px-4 py-3 text-left text-sm font-bold last:border-b-0 hover:bg-paper">{item.name}<span className="block text-[11px] font-normal text-ink/40">{item.domain}</span></button>):<p className="px-4 py-3 text-xs text-ink/50">School not found</p>}</div>}</div>
+function SummaryCard({ label, value, status }: { label: string; value: number; status: OpportunityTrackerStatus }) {
+  const { Icon, soft, accent } = statusMeta[status];
+  return <section className="flex min-h-32 flex-col items-start justify-center gap-5 border-ink/8 p-5 text-left sm:border-r sm:last:border-r-0">
+    <span className="flex w-full items-center justify-between gap-4"><span className="text-xs font-black text-ink/70">{label}</span><span className={`grid h-9 w-9 place-items-center rounded-full ${soft} ${accent}`}><Icon className="h-[18px] w-[18px]" /></span></span>
+    <span className="font-editorial text-5xl font-bold leading-none text-forest">{value}</span>
+  </section>;
 }
 
-function Select({label,value,setValue,options}:{label:string;value:string;setValue:(value:string)=>void;options:readonly string[]}){const allLabels:Record<string,string>={Type:"All types",Category:"All categories",Major:"All majors",Value:"Any value",Deadline:"Any deadline",Format:"Any format",Difficulty:"Any difficulty"};return <label className="flex h-14 items-center justify-between gap-3 rounded-2xl bg-white px-4"><span className="rule-label text-ink/40">{label}</span><select value={value} onChange={(event)=>setValue(event.target.value)} className="min-w-0 max-w-[68%] bg-transparent text-sm font-bold outline-none">{options.map((option)=><option key={option} value={option}>{option==="All"?allLabels[label]:option.replaceAll("_"," ")}</option>)}</select></label>}
+function FilterPanel({ filters, update, clearFilters, activeFilters, categories, majors }: { filters: FilterState; update: (partial: Partial<FilterState>) => void; clearFilters: () => void; activeFilters: number; categories: string[]; majors: string[] }) {
+  return <section className="rounded-[1.75rem] bg-white/58 p-5 shadow-[0_18px_60px_rgba(43,33,26,.045)] ring-1 ring-ink/6">
+    <div className="flex items-center justify-between gap-3 border-b border-ink/10 pb-4"><p className="rule-label text-ink/45">Filters</p><button type="button" onClick={clearFilters} className="text-xs font-black text-forest hover:text-ink">{activeFilters ? "Clear all" : "Reset"}</button></div>
+    <div className="mt-5 space-y-5">
+      <FilterGroup title="Category">
+        <Select label="Type" value={filters.type} setValue={(value) => update({ type: value as OpportunityType | "All" })} options={["All", ...opportunityTypes]} />
+        <Select label="Category" value={filters.category} setValue={(value) => update({ category: value })} options={categories} />
+      </FilterGroup>
+      <FilterGroup title="Fit">
+        <SchoolFilter value={filters.school} setValue={(value) => update({ school: value })} />
+        <Select label="Major" value={filters.major} setValue={(value) => update({ major: value })} options={majors} />
+        <label className="flex min-h-11 items-center gap-3 rounded-xl bg-paper/70 px-3 text-sm font-bold text-ink/60"><input type="checkbox" checked={filters.freshmanFriendly} onChange={(event) => update({ freshmanFriendly: event.target.checked })} className="h-4 w-4 accent-forest" /> Freshman-friendly</label>
+      </FilterGroup>
+      <FilterGroup title="Details">
+        <Select label="Deadline" value={filters.deadline} setValue={(value) => update({ deadline: value })} options={["All", "published", "upcoming", "rolling", "not_announced"]} />
+        <Select label="Value" value={filters.paid} setValue={(value) => update({ paid: value })} options={["All", "Paid", "Unpaid"]} />
+        <Select label="Format" value={filters.remote} setValue={(value) => update({ remote: value })} options={["All", "Remote", "In Person"]} />
+        <Select label="Difficulty" value={filters.difficulty} setValue={(value) => update({ difficulty: value as Exclude<OpportunityDifficulty, null> | "All" })} options={["All", "Open", "Competitive", "Highly Competitive"]} />
+      </FilterGroup>
+    </div>
+  </section>;
+}
+
+function FilterGroup({ title, children }: { title: string; children: ReactNode }) {
+  return <details open className="group">
+    <summary className="flex cursor-pointer list-none items-center justify-between text-sm font-black text-ink"><span>{title}</span><span className="text-ink/35 transition group-open:rotate-180">⌄</span></summary>
+    <div className="mt-3 space-y-2">{children}</div>
+  </details>;
+}
+
+function ResultSkeleton() {
+  return <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4" aria-label="Loading opportunities">{Array.from({ length: 8 }, (_, index) => <div key={index} className="h-72 rounded-[1.5rem] bg-white/70 p-5 shadow-[0_16px_42px_rgba(43,33,26,.045)] ring-1 ring-ink/6"><div className="h-3 w-24 rounded-full bg-paper" /><div className="mt-5 h-8 rounded-full bg-paper" /><div className="mt-3 h-4 w-2/3 rounded-full bg-paper" /><div className="mt-6 h-16 rounded-2xl bg-paper" /><div className="mt-8 h-11 rounded-full bg-paper" /></div>)}</div>;
+}
+
+function EmptyResults({ clearFilters }: { clearFilters: () => void }) {
+  return <div className="mt-6 rounded-[2rem] bg-white/70 px-6 py-14 text-center shadow-[0_18px_60px_rgba(43,33,26,.045)] ring-1 ring-ink/6">
+    <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-forest/8 text-forest"><SearchIcon className="h-6 w-6" /></div>
+    <p className="mt-5 font-editorial text-3xl font-bold">No opportunities matched your filters.</p>
+    <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-ink/50">Try a broader search, remove one filter, or browse everything available in UnlockED.</p>
+    <button type="button" onClick={clearFilters} className="mt-7 min-h-12 rounded-full bg-forest px-6 text-sm font-bold text-white hover:bg-ink">Browse all opportunities</button>
+  </div>;
+}
+
+function SchoolFilter({ value, setValue }: { value: string; setValue: (value: string) => void }) {
+  const selected = schools.find((item) => item.slug === value);
+  const [query, setQuery] = useState(selected?.name ?? "");
+  const [open, setOpen] = useState(false);
+  const matches = useMemo(() => findSchoolMatches(schools, query, 6), [query]);
+  const normalized = normalizeSchoolQuery(query);
+  function choose(item: School) { setValue(item.slug); setQuery(item.name); setOpen(false); }
+  return <div className="relative rounded-xl bg-paper/70 px-3">
+    <label className="flex min-h-11 items-center justify-between gap-3"><span className="text-sm font-bold text-ink/45">School</span><input value={query} onFocus={() => setOpen(true)} onChange={(event) => { setQuery(event.target.value); setValue("All"); setOpen(true); }} placeholder="All schools" className="min-w-0 max-w-[62%] bg-transparent text-right text-sm font-bold outline-none placeholder:text-ink/35" /></label>
+    {open && normalized && <div className="absolute left-0 right-0 z-30 mt-1 overflow-hidden rounded-2xl border border-ink/10 bg-white shadow-soft">{matches.length ? matches.map((item) => <button key={item.slug} type="button" onMouseDown={(event) => event.preventDefault()} onClick={() => choose(item)} className="block w-full border-b border-ink/10 px-4 py-3 text-left text-sm font-bold last:border-b-0 hover:bg-paper">{item.name}<span className="block text-[11px] font-normal text-ink/40">{item.domain}</span></button>) : <p className="px-4 py-3 text-xs text-ink/50">School not found</p>}</div>}
+  </div>;
+}
+
+function Select({ label, value, setValue, options }: { label: string; value: string; setValue: (value: string) => void; options: readonly string[] }) {
+  const allLabels: Record<string, string> = { Type: "All types", Category: "All categories", Major: "All majors", Value: "Any value", Deadline: "Any deadline", Format: "Any format", Difficulty: "Any difficulty" };
+  return <label className="flex min-h-11 items-center justify-between gap-3 rounded-xl bg-paper/70 px-3"><span className="text-sm font-bold text-ink/45">{label}</span><select value={value} onChange={(event) => setValue(event.target.value)} className="min-w-0 max-w-[62%] bg-transparent text-right text-sm font-bold capitalize outline-none">{options.map((option) => <option key={option} value={option}>{option === "All" ? allLabels[label] : option.replaceAll("_", " ")}</option>)}</select></label>;
+}
