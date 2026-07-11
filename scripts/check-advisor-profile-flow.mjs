@@ -24,11 +24,11 @@ assert.match(profileVersion, /preferredOpportunityTypes/, "Profile hash must inc
 assert.match(profileData, /advisorProfileUpdatedMessageKey/, "Profile saves must set a one-time plan-updated acknowledgement.");
 assert.match(dashboard, /localStorage\.removeItem\(advisorProfileUpdatedMessageKey\)/, "Dashboard must consume the profile-change acknowledgement once.");
 
-assert.match(dashboard, /Your next step/, "Advisor dashboard must focus on one next step.");
-assert.match(dashboard, /Learn More ⓘ/, "Advisor dashboard must use progressive disclosure for details.");
-assert.match(dashboard, /Show other options/, "Advisor dashboard must hide alternatives initially.");
-assert.match(dashboard, /View your plan/, "Advisor dashboard must hide plan details initially.");
-assert.match(dashboard, /Explore matching opportunities/, "Advisor dashboard must hide opportunity matches initially.");
+assert.match(dashboard, /Today’s Mission/, "Advisor dashboard must focus on one next step.");
+assert.match(dashboard, /Why this mission\?/, "Advisor dashboard must use progressive disclosure for details.");
+assert.match(dashboard, /View readiness and career gap/, "Advisor dashboard must hide readiness details initially.");
+assert.match(dashboard, /Saved opportunities and deadlines/, "Advisor dashboard must hide secondary work initially.");
+assert.match(dashboard, /Start here/, "Advisor dashboard must expose one primary action.");
 assert.doesNotMatch(dashboard, /Object\.entries\(advisor\.dimensionScores\)/, "Readiness breakdown should not render as an initial dashboard block.");
 
 const byId = Object.fromEntries(snapshots.map((item) => [item.profileId, item]));

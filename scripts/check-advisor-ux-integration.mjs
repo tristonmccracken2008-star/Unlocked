@@ -21,17 +21,17 @@ for (const symbol of [
 }
 
 for (const label of [
-  "Today’s Highest-Impact Action",
-  "Biggest Career Gap",
-  "Career Readiness Score",
-  "Why this?",
-  "Evidence used",
-  "Tradeoffs",
+  "Today’s Mission",
+  "Start here",
+  "Why this mission?",
+  "View readiness and career gap",
+  "Saved opportunities and deadlines",
 ]) {
   assert.ok(dashboard.includes(label), `Dashboard must render ${label}.`);
 }
 assert.ok(dashboard.includes("buildAdvisorBrain"), "Dashboard must consume the Advisor Brain API instead of duplicating scoring logic.");
 assert.ok(!dashboard.includes("Today’s best opportunity"), "Dashboard should not keep the old generic best-opportunity hero.");
+assert.ok(!dashboard.includes("AdvisorBrainSection"), "Dashboard should not render the duplicate advisor recommendation panel.");
 
 for (const label of [
   "Why this is recommended for you",

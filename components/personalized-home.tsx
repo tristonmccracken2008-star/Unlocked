@@ -14,7 +14,6 @@ import { readStudentActivity, studentActivityEvent, type StudentActivity } from 
 import { trackProductEvent } from "@/data/product-analytics";
 import { createAdvisorProfile } from "@/data/advisor-engine";
 import { inferApplicationsFromActivity, readStudentProgress, studentProgressEvent, type StudentProgress } from "@/data/student-progress";
-import type { AdvisorAction, AdvisorOutput, FeedbackType, RankedAdvisorOpportunity, RecommendationCoaching } from "@/lib/advisor/types";
 import { buildAdvisorBrain, type AdvisorBrainDashboard } from "@/data/advisor-brain";
 import type { RecommendationV1 } from "@/data/recommendation-engine";
 
@@ -409,9 +408,6 @@ function TokenField({ id, label, value, setValue, suggestions, onAdd, placeholde
 function StudentDashboard({ profile, session, syncError }: { profile: StudentProfile; session: AccountSession | null; syncError: string }) {
   const [activity, setActivity] = useState<StudentActivity>({ viewed: [], saved: [], claimed: [], tracked: {} });
   const [progress, setProgress] = useState<StudentProgress>({ milestones: {}, applications: {} });
-  const [advisorBrain, setAdvisorBrain] = useState<AdvisorOutput | null>(null);
-  const [advisorBrainStatus, setAdvisorBrainStatus] = useState("Loading advisor.");
-  const [advisorFeedbackStatus, setAdvisorFeedbackStatus] = useState("");
   const [profileUpdateMessage, setProfileUpdateMessage] = useState("");
   useEffect(() => {
     const message = localStorage.getItem(advisorProfileUpdatedMessageKey);
@@ -431,62 +427,16 @@ function StudentDashboard({ profile, session, syncError }: { profile: StudentPro
     window.addEventListener(studentProgressEvent, update);
     return () => window.removeEventListener(studentProgressEvent, update);
   }, []);
-  useEffect(() => {
-    let active = true;
-    const loadAdvisor = async () => {
-      setAdvisorBrainStatus("Loading advisor.");
-      try {
-        const response = await fetch("/api/advisor/recommend", { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify({}) });
-        if (!active) return;
-        if (!response.ok) {
-          setAdvisorBrainStatus("Advisor is unavailable right now.");
-          return;
-        }
-        const parsed = await response.json() as { recommendation?: AdvisorOutput };
-        setAdvisorBrain(parsed.recommendation ?? null);
-        setAdvisorBrainStatus(parsed.recommendation ? "" : "Advisor is still learning from your profile.");
-      } catch {
-        if (active) setAdvisorBrainStatus("Advisor is unavailable right now.");
-      }
-    };
-    void loadAdvisor();
-    return () => { active = false; };
-  }, []);
-
-  async function sendAdvisorFeedback(actionId: string, feedbackType: FeedbackType, signal?: string) {
-    if (!advisorBrain) return;
-    setAdvisorFeedbackStatus("Saving feedback.");
-    try {
-      const response = await fetch("/api/advisor/feedback", {
-        method: "POST",
-        credentials: "same-origin",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ recommendationId: advisorBrain.recommendationId, actionId, signal, feedbackType }),
-      });
-      setAdvisorFeedbackStatus(response.ok ? "Feedback saved." : "Feedback could not be saved.");
-      if (response.ok) {
-        const refresh = await fetch("/api/advisor/recommend", { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify({}) });
-        if (refresh.ok) {
-          const parsed = await refresh.json() as { recommendation?: AdvisorOutput };
-          setAdvisorBrain(parsed.recommendation ?? advisorBrain);
-        }
-      }
-    } catch {
-      setAdvisorFeedbackStatus("Feedback could not be saved.");
-    }
-  }
-
   const school = schools.find((item) => item.slug === profile.schoolSlug);
   if (!school) return null;
   const input = recommendationProfile(profile, school, activity);
   const deadlines = expiringSoonOpportunities(input, 4, 90);
   const saved = Object.keys(activity.tracked ?? {}).map((id) => opportunities.find((item) => item.id === id)).filter((item): item is NonNullable<typeof item> => Boolean(item)).slice(0, 3);
-  const recent = activity.viewed.map((id) => opportunities.find((item) => item.id === id)).filter((item): item is NonNullable<typeof item> => Boolean(item)).slice(-4).reverse();
   const firstName = displayName(profile, session);
   const inferredProgress = inferApplicationsFromActivity(activity, opportunities, progress);
   const advisorProfile = createAdvisorProfile({ profile, school, activity, progress: inferredProgress });
   const advisorUx = buildAdvisorBrain({ advisorProfile, opportunities, progress: inferredProgress });
-  const nextRecommended = advisorUx.recommendations.slice(1, 4);
+  const nextRecommended = advisorUx.recommendations.slice(1, 3);
 
   return <main className="bg-white px-5 py-12 sm:px-8 sm:py-16">
     <div className="mx-auto max-w-6xl">
@@ -503,243 +453,88 @@ function StudentDashboard({ profile, session, syncError }: { profile: StudentPro
         </div>
       </section>
 
-      <DashboardAdvisorBrainCards brain={advisorUx} />
+      <DashboardMission brain={advisorUx} />
 
-      <AdvisorBrainSection advisor={advisorBrain} status={advisorBrainStatus} feedbackStatus={advisorFeedbackStatus} onFeedback={sendAdvisorFeedback} />
-
-      <Section title="Recommended for you" href="/opportunities">
-        {nextRecommended.length ? <div className="divide-y divide-ink/10">{nextRecommended.map((recommendation) => <AdvisorRecommendationRow key={recommendation.id} recommendation={recommendation} />)}</div> : <EmptyState title="No extra recommendations yet" text="Your highest-impact action is shown above. More matches will appear as the catalog grows." />}
-      </Section>
-
-      <div className="grid gap-12 border-t border-ink/10 pt-10 lg:grid-cols-2">
-        <Section title="Saved opportunities" href="/my-opportunities">
-          {saved.length ? <div className="divide-y divide-ink/10">{saved.map((item) => <OpportunityRow key={item.id} opportunity={item} detail={deadlineLabel(item)} />)}</div> : <EmptyState title="Nothing saved yet" text="Save an opportunity when you want to come back to it." />}
-        </Section>
-        <Section title="Upcoming deadlines">
-          {deadlines.length ? <div className="divide-y divide-ink/10">{deadlines.map(({ opportunity }) => <OpportunityRow key={opportunity.id} opportunity={opportunity} detail={deadlineLabel(opportunity)} />)}</div> : <EmptyState title="No deadlines soon" text="You have no matched deadlines in the next 90 days." />}
-        </Section>
-      </div>
-
-      <Section title="Recent activity">
-        {recent.length ? <div className="divide-y divide-ink/10">{recent.map((item) => <OpportunityRow key={item.id} opportunity={item} detail={item.organization} />)}</div> : <EmptyState title={`Nice work, ${firstName}.`} text="Open an opportunity and it will appear here." />}
-      </Section>
+      <DashboardSecondary recommendations={nextRecommended} saved={saved} deadlines={deadlines.map(({ opportunity }) => opportunity)} />
     </div>
   </main>;
 }
 
-function DashboardAdvisorBrainCards({ brain }: { brain: AdvisorBrainDashboard }) {
+function DashboardMission({ brain }: { brain: AdvisorBrainDashboard }) {
   const action = brain.highestImpactAction;
   const gap = brain.biggestCareerGap;
-  return <section className="rounded-[2rem] bg-paper px-5 py-7 sm:px-8 sm:py-9">
-    <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
-      <article>
-        <p className="rule-label text-forest">Today’s Highest-Impact Action</p>
+  const primary = brain.recommendations[0];
+  const primaryHref = primary?.relatedOpportunityId ? `/opportunities/${primary.relatedOpportunityId}` : "/opportunities";
+  return <section className="rounded-[2rem] bg-paper px-5 py-8 sm:px-10 sm:py-12">
+    <div className="mx-auto max-w-4xl">
+      <p className="rule-label text-forest">Today’s Mission</p>
+      <article className="mt-4">
         {action ? <>
-          <h2 className="mt-3 max-w-4xl font-editorial text-4xl font-bold leading-tight tracking-[-.035em] sm:text-5xl">{action.title}</h2>
-          <p className="mt-4 max-w-2xl text-sm leading-7 text-ink/55">{action.nextAction}</p>
-          <dl className="mt-5 grid gap-3 sm:grid-cols-3">
-            <MiniMetric label="Time" value={action.estimatedCompletionTime} />
-            <MiniMetric label="Impact" value={action.expectedImpact} />
-            <MiniMetric label="Confidence" value={`${action.confidence}%`} />
-          </dl>
-          <details className="mt-5 border-t border-ink/10 pt-5">
-            <summary className="cursor-pointer text-sm font-bold text-forest">Why this?</summary>
-            <ExplainabilityBlock why={action.whyRecommended} evidence={action.evidenceUsed} tradeoffs={action.tradeoffs} />
+          <h2 className="max-w-4xl font-editorial text-5xl font-bold leading-[.98] tracking-[-.045em] sm:text-7xl">{action.title}</h2>
+          <p className="mt-6 max-w-2xl text-base leading-8 text-ink/60">{action.nextAction}</p>
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <Link href={primaryHref} className="inline-flex min-h-12 items-center justify-center rounded-full bg-forest px-6 text-sm font-bold text-white transition hover:bg-ink">Start here</Link>
+            <span className="text-sm font-bold text-ink/40">{action.estimatedCompletionTime} · {action.expectedImpact}</span>
+          </div>
+          <details className="mt-8 border-t border-ink/10 pt-5">
+            <summary className="cursor-pointer text-sm font-bold text-forest">Why this mission?</summary>
+            <div className="mt-4 max-w-3xl space-y-3 text-sm leading-7 text-ink/55">
+              {action.whyRecommended.slice(0, 3).map((item) => <p key={item}>{item}</p>)}
+              <p><span className="font-bold text-ink/70">Expected impact:</span> {action.expectedImpact}</p>
+              <p><span className="font-bold text-ink/70">Confidence:</span> {action.confidence}% based on {action.evidenceUsed.slice(0, 2).join(" and ")}.</p>
+            </div>
           </details>
         </> : <EmptyState title="No advisor action yet" text="Your profile is saved. Advisor actions appear after UnlockED can match your profile to roadmap and opportunity data." actionHref="/opportunities" actionLabel="Browse opportunities" />}
       </article>
 
-      <aside className="space-y-6">
-        <article className="rounded-[1.5rem] bg-white px-5 py-5">
-          <p className="rule-label text-forest">Biggest Career Gap</p>
-          <h3 className="mt-2 font-editorial text-2xl font-bold tracking-[-.02em]">{gap.title}</h3>
-          <p className="mt-3 text-sm leading-6 text-ink/55">{gap.whyItMatters}</p>
-          <p className="mt-3 text-sm leading-6 text-ink/65"><span className="font-bold">Close it:</span> {gap.howToClose}</p>
-          <p className="mt-3 text-xs font-bold uppercase tracking-wider text-ink/35">Confidence {gap.confidence}% · {gap.estimatedCompletionTime}</p>
-          <details className="mt-4 border-t border-ink/10 pt-4">
-            <summary className="cursor-pointer text-xs font-bold uppercase tracking-wider text-forest">Evidence used</summary>
-            <ExplainabilityBlock why={gap.whyRecommended} evidence={gap.evidenceUsed} tradeoffs={gap.tradeoffs} />
-          </details>
-        </article>
-        <article className="rounded-[1.5rem] bg-white px-5 py-5">
-          <p className="rule-label text-forest">Career Readiness Score</p>
-          <div className="mt-4 space-y-3">
-            {brain.readinessScores.map((score) => <details key={score.category} className="group">
-              <summary className="grid cursor-pointer grid-cols-[112px_1fr_42px] items-center gap-3 text-sm font-bold">
-                <span>{score.category}</span>
-                <span className="h-1.5 overflow-hidden rounded-full bg-paper"><span className="block h-full rounded-full bg-forest" style={{ width: `${score.score}%` }} /></span>
-                <span className="text-right text-ink/45">{score.score}</span>
-              </summary>
-              <p className="mt-2 text-xs leading-5 text-ink/50">{score.explanation}</p>
-              <p className="mt-1 text-xs leading-5 text-ink/40">{score.factors.join(" · ")} · Confidence {score.confidence}</p>
-            </details>)}
-          </div>
-        </article>
-      </aside>
+      <details className="mt-10 border-t border-ink/10 pt-6">
+        <summary className="cursor-pointer text-sm font-bold text-ink/50 hover:text-forest">View readiness and career gap</summary>
+        <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+          <section>
+            <p className="rule-label text-forest">Career Readiness</p>
+            <div className="mt-4 space-y-3">
+              {brain.readinessScores.map((score) => <details key={score.category}>
+                <summary className="grid cursor-pointer grid-cols-[112px_1fr_42px] items-center gap-3 text-sm font-bold">
+                  <span>{score.category}</span>
+                  <span className="h-1.5 overflow-hidden rounded-full bg-white"><span className="block h-full rounded-full bg-forest" style={{ width: `${score.score}%` }} /></span>
+                  <span className="text-right text-ink/45">{score.score}</span>
+                </summary>
+                <p className="mt-2 text-xs leading-5 text-ink/50">{score.explanation}</p>
+              </details>)}
+            </div>
+          </section>
+          <section className="rounded-[1.5rem] bg-white px-5 py-5">
+            <p className="rule-label text-forest">Biggest Gap</p>
+            <h3 className="mt-2 font-editorial text-2xl font-bold tracking-[-.02em]">{gap.title}</h3>
+            <p className="mt-3 text-sm leading-6 text-ink/55">{gap.whyItMatters}</p>
+            <p className="mt-3 text-sm leading-6 text-ink/65"><span className="font-bold">Close it:</span> {gap.howToClose}</p>
+          </section>
+        </div>
+      </details>
     </div>
   </section>;
 }
 
-function MiniMetric({ label, value }: { label: string; value: string }) {
-  return <div className="rounded-2xl bg-white p-4"><dt className="rule-label text-ink/35">{label}</dt><dd className="mt-2 text-sm font-bold leading-5 text-ink/65">{value}</dd></div>;
-}
 
-function ExplainabilityBlock({ why, evidence, tradeoffs }: { why: string[]; evidence: string[]; tradeoffs: string[] }) {
-  return <div className="mt-3 grid gap-4 text-xs leading-5 text-ink/55 md:grid-cols-3">
-    <div><p className="font-bold uppercase tracking-wider text-ink/35">Why</p><ul className="mt-2 space-y-1">{why.map((item) => <li key={item}>{item}</li>)}</ul></div>
-    <div><p className="font-bold uppercase tracking-wider text-ink/35">Evidence</p><ul className="mt-2 space-y-1">{evidence.map((item) => <li key={item}>{item}</li>)}</ul></div>
-    <div><p className="font-bold uppercase tracking-wider text-ink/35">Tradeoffs</p><ul className="mt-2 space-y-1">{tradeoffs.map((item) => <li key={item}>{item}</li>)}</ul></div>
-  </div>;
-}
-
-function AdvisorBrainSection({ advisor, status, feedbackStatus, onFeedback }: { advisor: AdvisorOutput | null; status: string; feedbackStatus: string; onFeedback: (actionId: string, feedbackType: FeedbackType, signal?: string) => void | Promise<void> }) {
-  const primary = advisor?.highestRoiActions[0];
-  const [openPanel, setOpenPanel] = useState<"start" | "learn" | "options" | "plan" | "opportunities" | null>(null);
-  const stage = advisor ? readinessStage(advisor) : null;
-  const limitedGuidance = Boolean(advisor && (advisor.selectedCareerFramework === "career.general-exploration" || advisor.selectedMajorFramework.startsWith("unresolved:")));
-  return <section className="border-b border-ink/10 py-10">
-    <div>
-      <p className="rule-label text-forest">Advisor</p>
-      {primary && advisor ? <article className="mt-4 rounded-[1.5rem] bg-paper px-5 py-6 sm:px-7">
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
-          <div className="max-w-3xl">
-            <p className="text-xs font-bold uppercase tracking-wider text-ink/35">Your next step · {stage?.label}</p>
-            <h2 className="mt-3 font-editorial text-3xl font-bold leading-tight tracking-[-.025em] sm:text-4xl">{primary.coaching.recommendation}</h2>
-            <p className="mt-4 max-w-2xl text-sm leading-7 text-ink/55">{primary.coaching.whyThisApplies}</p>
-            {limitedGuidance && <p className="mt-3 max-w-2xl text-xs font-bold leading-5 text-ink/40">UnlockED does not yet have enough reviewed guidance for this path to recommend a highly specific specialist plan. You can complete more profile details, explore relevant opportunities manually, or choose another supported career path.</p>}
-            <p className="mt-3 text-xs font-bold uppercase tracking-wider text-ink/35">{primary.coaching.estimatedTime} · {primary.coaching.impactLabel}</p>
-          </div>
-          <button type="button" onClick={() => setOpenPanel(openPanel === "start" ? null : "start")} className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-full bg-forest px-5 text-sm font-bold text-white hover:bg-ink">Start</button>
-        </div>
-        <div className="mt-5 flex flex-wrap gap-2">
-          <AdvisorPanelButton label="Learn More ⓘ" selected={openPanel === "learn"} onClick={() => setOpenPanel(openPanel === "learn" ? null : "learn")} />
-          <AdvisorPanelButton label="Show other options" selected={openPanel === "options"} onClick={() => setOpenPanel(openPanel === "options" ? null : "options")} />
-          <AdvisorPanelButton label="View your plan" selected={openPanel === "plan"} onClick={() => setOpenPanel(openPanel === "plan" ? null : "plan")} />
-          <AdvisorPanelButton label="Explore matching opportunities" selected={openPanel === "opportunities"} onClick={() => setOpenPanel(openPanel === "opportunities" ? null : "opportunities")} />
-        </div>
-        {openPanel === "start" && <AdvisorPanelBlock title="How to start"><ul className="space-y-2">{primary.coaching.completionChecklist.map((item) => <li key={item}>{item}</li>)}</ul><p className="mt-3"><span className="font-bold">Evidence:</span> {primary.coaching.evidenceProduced}</p><button type="button" onClick={() => void onFeedback(primary.actionId, "completed", primary.signal)} className="mt-3 text-xs font-bold text-forest hover:text-ink">Mark completed</button></AdvisorPanelBlock>}
-        {openPanel === "learn" && <AdvisorPanelBlock title="Why this recommendation"><div className="grid gap-4 md:grid-cols-3"><InfoItem label="What this is" value={primary.coaching.informationDrawer.whatIsThis} /><InfoItem label="Why it applies" value={primary.coaching.whyThisApplies} /><InfoItem label="Knowledge sources" value={primary.coaching.supportingKnowledgeSourceIds.join(", ")} /></div><div className="mt-4"><FeedbackControls onSelect={(type) => void onFeedback(primary.actionId, type, primary.signal)} /></div></AdvisorPanelBlock>}
-        {openPanel === "options" && <AdvisorPanelBlock title="Other reasonable paths"><RecommendationPanel value={primary.coaching.alternatives.slice(0, 3)} /></AdvisorPanelBlock>}
-        {openPanel === "plan" && <AdvisorPanelBlock title="Your plan"><div className="grid gap-5 lg:grid-cols-2"><div><p className="text-xs font-bold uppercase tracking-wider text-ink/35">This semester</p><ul className="mt-3 space-y-2">{advisor.semesterPlan.slice(0, 5).map((item) => <li key={item.actionId}><span className="font-bold">{item.sequence}. {item.title}</span><span className="block text-ink/45">{item.weeklyHours} hr/week · {item.successEvidence}</span></li>)}</ul></div><div><p className="text-xs font-bold uppercase tracking-wider text-ink/35">Recommendation chain</p><RecommendationPanel value={advisor.dependencySequence} /></div></div><p className="mt-4 text-[11px] font-bold uppercase tracking-wider text-ink/30">Planning estimate: {advisor.overallReadiness}/100. Not a prediction of hiring, admission, funding, or selection.</p></AdvisorPanelBlock>}
-        {openPanel === "opportunities" && <AdvisorPanelBlock title="Matching opportunities"><div className="divide-y divide-ink/10">{advisor.matchedOpportunities.slice(0, 3).map((item) => <div key={item.opportunityId} className="flex flex-col gap-2 py-3 sm:flex-row sm:items-center sm:justify-between"><div><p className="font-bold text-ink/75">{item.title}</p><p className="text-xs text-ink/45">{item.classification} · {item.deadlineUrgency.reason}</p></div><Link href={`/opportunities/${item.opportunityId}`} className="text-xs font-bold text-forest hover:text-ink">View</Link></div>)}</div></AdvisorPanelBlock>}
-        {feedbackStatus && <p className="mt-3 text-xs font-bold text-ink/40">{feedbackStatus}</p>}
-      </article> : <p className="mt-4 text-sm leading-7 text-ink/50">{status}</p>}
-    </div>
-  </section>;
-}
-
-function AdvisorPanelButton({ label, selected, onClick }: { label: string; selected: boolean; onClick: () => void }) {
-  return <button type="button" onClick={onClick} className={`rounded-full border px-3 py-1.5 text-xs font-bold ${selected ? "border-forest bg-white text-forest" : "border-ink/15 text-ink/55 hover:border-forest hover:text-forest"}`}>{label}</button>;
-}
-
-function AdvisorPanelBlock({ title, children }: { title: string; children: React.ReactNode }) {
-  return <div className="mt-5 border-t border-ink/10 pt-5 text-sm leading-6 text-ink/55"><p className="mb-3 text-xs font-bold uppercase tracking-wider text-ink/35">{title}</p>{children}</div>;
-}
-
-function AdvisorActionCard({ action, label, compact = false, activePanel, setActivePanel, onFeedback }: { action: AdvisorAction; label: string; compact?: boolean; activePanel: string | null; setActivePanel: (value: string | null) => void; onFeedback: (actionId: string, feedbackType: FeedbackType, signal?: string) => void | Promise<void> }) {
-  return <RecommendationCardShell id={action.actionId} label={label} title={action.coaching.recommendation} meta={`${action.coaching.estimatedTime} · ${action.coaching.impactLabel}`} coaching={action.coaching} activePanel={activePanel} setActivePanel={setActivePanel} compact={compact} primaryAction={<button type="button" onClick={() => setActivePanel(`${action.actionId}:start`)} className="rounded-full bg-forest px-4 py-2 text-xs font-bold text-white hover:bg-ink">Start</button>} feedback={<FeedbackControls onSelect={(type) => void onFeedback(action.actionId, type, action.signal)} />} completionAction={<button type="button" onClick={() => void onFeedback(action.actionId, "completed", action.signal)} className="text-xs font-bold text-forest hover:text-ink">Mark completed</button>} />;
-}
-
-function AdvisorOpportunityCard({ opportunity, activePanel, setActivePanel }: { opportunity: RankedAdvisorOpportunity; activePanel: string | null; setActivePanel: (value: string | null) => void }) {
-  return <RecommendationCardShell id={`opportunity-${opportunity.opportunityId}`} label={`${opportunity.classification} opportunity`} title={opportunity.coaching.recommendation} meta={`${opportunity.deadlineUrgency.label} urgency · ${opportunity.sourceConfidence} source confidence`} coaching={opportunity.coaching} activePanel={activePanel} setActivePanel={setActivePanel} compact primaryAction={<Link href={`/opportunities/${opportunity.opportunityId}`} className="rounded-full bg-forest px-4 py-2 text-xs font-bold text-white hover:bg-ink">View</Link>} feedback={null} completionAction={null} />;
-}
-
-function RecommendationCardShell({ id, label, title, meta, coaching, activePanel, setActivePanel, compact = false, primaryAction, feedback, completionAction }: { id: string; label: string; title: string; meta: string; coaching: RecommendationCoaching; activePanel: string | null; setActivePanel: (value: string | null) => void; compact?: boolean; primaryAction: React.ReactNode; feedback: React.ReactNode; completionAction: React.ReactNode }) {
-  type PanelValue = RecommendationCoaching["informationDrawer"] | RecommendationCoaching["alternatives"] | string[] | string;
-  const panels: { key: string; text: string; value: PanelValue }[] = [
-    { key: "info", text: "ⓘ", value: coaching.informationDrawer },
-    { key: "why", text: "Why This?", value: [coaching.whyThis, coaching.whyNow, coaching.whyBeforeOthers, coaching.notRankedFirst] },
-    { key: "alternatives", text: "Alternative Paths", value: coaching.alternatives },
-    { key: "next", text: "What Happens Next", value: coaching.whatHappensNext },
-    { key: "start", text: "How Do I Start?", value: coaching.howDoIStart },
-    { key: "unlocks", text: "What This Unlocks", value: coaching.unlockChain },
-  ];
-  const current = panels.find((panel) => activePanel === `${id}:${panel.key}`);
-  return <article className={`${compact ? "rounded-2xl bg-paper/70 px-4 py-4" : "rounded-[1.5rem] bg-paper px-5 py-5"} transition-colors`}>
-    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-      <div className="min-w-0">
-        <p className="rule-label text-forest">{label}</p>
-        <h3 className={`${compact ? "mt-1 text-base" : "mt-2 font-editorial text-2xl tracking-[-.02em]"} font-bold leading-tight`}>{title}</h3>
-        <p className="mt-2 text-xs font-bold uppercase tracking-wider text-ink/35">{meta}</p>
+function DashboardSecondary({ recommendations, saved, deadlines }: { recommendations: RecommendationV1[]; saved: Opportunity[]; deadlines: Opportunity[] }) {
+  return <section className="py-10">
+    {recommendations.length ? <div className="divide-y divide-ink/10 border-t border-ink/10">
+      {recommendations.map((recommendation) => <AdvisorRecommendationRow key={recommendation.id} recommendation={recommendation} />)}
+    </div> : null}
+    <details className="mt-6 border-t border-ink/10 pt-6">
+      <summary className="cursor-pointer text-sm font-bold text-ink/45 hover:text-forest">Saved opportunities and deadlines</summary>
+      <div className="mt-5 grid gap-8 lg:grid-cols-2">
+        <section>
+          <div className="mb-2 flex items-center justify-between gap-4"><h2 className="font-editorial text-2xl font-bold tracking-[-.02em]">Saved</h2><Link href="/my-opportunities" className="text-xs font-bold text-forest">View all</Link></div>
+          {saved.length ? <div className="divide-y divide-ink/10">{saved.map((item) => <OpportunityRow key={item.id} opportunity={item} detail={deadlineLabel(item)} />)}</div> : <EmptyState title="Nothing saved yet" text="Save an opportunity when it is worth revisiting." />}
+        </section>
+        <section>
+          <h2 className="mb-2 font-editorial text-2xl font-bold tracking-[-.02em]">Deadlines</h2>
+          {deadlines.length ? <div className="divide-y divide-ink/10">{deadlines.map((item) => <OpportunityRow key={item.id} opportunity={item} detail={deadlineLabel(item)} />)}</div> : <EmptyState title="No deadlines soon" text="No matched deadlines are due in the next 90 days." />}
+        </section>
       </div>
-      <div className="shrink-0">{primaryAction}</div>
-    </div>
-    <p className="mt-3 text-sm leading-6 text-ink/55"><span className="font-bold text-ink/70">Why this applies:</span> {coaching.whyThisApplies}</p>
-    <div className="mt-3 flex flex-wrap gap-2">{coaching.trustBasis.map((item) => <span key={item} className="rounded-full bg-white px-2.5 py-1 text-[11px] font-bold text-ink/40">{item}</span>)}</div>
-    <div className="mt-4 flex flex-wrap gap-2">{panels.map(({ key, text }) => {
-      const panelId = `${id}:${key}`;
-      const selected = activePanel === panelId;
-      return <button key={key} type="button" aria-label={key === "info" ? "Learn more" : String(text)} onClick={() => setActivePanel(selected ? null : panelId)} className={`rounded-full border px-3 py-1.5 text-xs font-bold ${selected ? "border-forest bg-white text-forest" : "border-ink/15 text-ink/55 hover:border-forest hover:text-forest"}`}>{text}</button>;
-    })}</div>
-    {current && <div className="mt-4 border-t border-ink/10 pt-4 text-sm leading-6 text-ink/55">
-      <RecommendationPanel value={current.value} />
-    </div>}
-    <div className="mt-4 border-t border-ink/10 pt-4">
-      <p className="text-xs font-bold uppercase tracking-wider text-ink/35">Completion checklist</p>
-      <ul className="mt-2 space-y-1 text-xs leading-5 text-ink/50">{coaching.completionChecklist.map((item) => <li key={item}>{item}</li>)}</ul>
-      <p className="mt-2 text-xs leading-5 text-ink/45"><span className="font-bold">First step:</span> {coaching.firstStep}</p>
-      <p className="mt-1 text-xs leading-5 text-ink/45"><span className="font-bold">Evidence:</span> {coaching.evidenceProduced}</p>
-      {completionAction && <div className="mt-2">{completionAction}</div>}
-    </div>
-    {feedback && <div className="mt-4 border-t border-ink/10 pt-4">{feedback}</div>}
-  </article>;
-}
-
-function FeedbackControls({ onSelect }: { onSelect: (type: FeedbackType) => void }) {
-  return <div className="flex flex-wrap gap-2">
-    {(["already-completed", "dont-enjoy-this", "prefer-research", "prefer-industry", "too-time-consuming", "too-expensive", "not-interested"] as FeedbackType[]).map((type) => <button key={type} type="button" onClick={() => onSelect(type)} className="rounded-full border border-ink/15 px-3 py-1.5 text-xs font-bold text-ink/55 hover:border-forest hover:text-forest">{type.replaceAll("-", " ")}</button>)}
-  </div>;
-}
-
-function RecommendationPanel({ value }: { value: RecommendationCoaching["informationDrawer"] | RecommendationCoaching["alternatives"] | string[] | string }) {
-  if (typeof value === "string") return <p>{value}</p>;
-  if (Array.isArray(value) && value.length && typeof value[0] === "object") return <div className="grid gap-3">{(value as RecommendationCoaching["alternatives"]).map((item, index) => <div key={item.title} className="rounded-2xl bg-white px-4 py-3">
-    <p className="text-xs font-bold uppercase tracking-wider text-forest">Alternative {index + 1}</p>
-    <p className="mt-1 font-bold text-ink/75">{item.title}</p>
-    <p className="mt-2 text-xs leading-5"><span className="font-bold">Why choose it:</span> {item.whyChoose}</p>
-    <p className="mt-1 text-xs leading-5"><span className="font-bold">Advantages:</span> {item.advantages}</p>
-    <p className="mt-1 text-xs leading-5"><span className="font-bold">Tradeoffs:</span> {item.tradeoffs}</p>
-    <p className="mt-1 text-xs leading-5"><span className="font-bold">Best fit:</span> {item.bestFit}</p>
-    <p className="mt-1 text-xs leading-5"><span className="font-bold">Time:</span> {item.timeCommitment}</p>
-    <p className="mt-1 text-xs leading-5"><span className="font-bold">Unlocks:</span> {item.unlocks}</p>
-  </div>)}</div>;
-  if (Array.isArray(value)) return <div className="flex flex-wrap items-center gap-2">{(value as string[]).map((item, index) => <span key={`${item}-${index}`} className="inline-flex items-center gap-2 text-xs font-bold text-ink/50">{index > 0 && <span className="text-forest">→</span>}{item}</span>)}</div>;
-  return <div className="grid gap-4 md:grid-cols-2">
-    <InfoItem label="What is this?" value={value.whatIsThis} />
-    <InfoItem label="Why does it matter?" value={value.whyItMatters} />
-    <InfoItem label="Who benefits most?" value={value.whoBenefitsMost} />
-    <InfoItem label="Time commitment" value={value.typicalTimeCommitment} />
-    <InfoItem label="Difficulty" value={value.difficulty} />
-    <InfoItem label="Skills developed" value={value.skillsDeveloped.join(", ")} />
-    <InfoItem label="Common misconceptions" value={value.commonMisconceptions.join(" ")} />
-    <InfoItem label="Examples" value={value.examples.join(", ")} />
-    <InfoItem label="Related careers" value={value.relatedCareers.join(", ")} />
-    <InfoItem label="Related opportunities" value={value.relatedOpportunities.join(", ")} />
-  </div>;
-}
-
-function InfoItem({ label, value }: { label: string; value: string }) {
-  return <div><p className="text-xs font-bold uppercase tracking-wider text-ink/35">{label}</p><p className="mt-1 text-xs leading-5 text-ink/55">{value}</p></div>;
-}
-
-function readinessStage(advisor: AdvisorOutput) {
-  const score = advisor.overallReadiness;
-  if (score >= 82) return { label: "Application Season", description: "Your profile has enough evidence to focus on verified applications and interview preparation." };
-  if (score >= 68) return { label: "Interview Preparation", description: "Your next work should turn existing evidence into stronger applications and interview stories." };
-  if (score >= 54) return { label: "Internship Preparation", description: "You are building the proof needed for internships, research, or selective campus roles." };
-  if (score >= 38) return { label: "Skill Development", description: "Your advisor is prioritizing concrete skills and visible artifacts before heavier applications." };
-  return { label: "Foundation Building", description: "Your current recommendations focus on prerequisites and early evidence." };
-}
-
-function stageLabel(score: number) {
-  if (score >= 80) return "Strong";
-  if (score >= 60) return "Developing";
-  if (score >= 40) return "Early";
-  return "Needs evidence";
-}
-
-function Section({ title, href, children }: { title: string; href?: string; children: React.ReactNode }) {
-  return <section className="py-10"><div className="mb-5 flex items-end justify-between gap-4"><h2 className="font-editorial text-3xl font-bold tracking-[-.025em]">{title}</h2>{href && <Link href={href} className="text-sm font-bold text-ink/45 hover:text-forest">View all</Link>}</div>{children}</section>;
+    </details>
+  </section>;
 }
 
 function OpportunityRow({ opportunity, detail }: { opportunity: Opportunity; detail: string }) {

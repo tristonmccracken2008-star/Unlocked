@@ -65,13 +65,15 @@ Output:
 
 `components/personalized-home.tsx` uses `buildAdvisorBrain` after the existing account/profile/activity hydration completes.
 
-The dashboard now shows:
+The dashboard now leads with one surface:
 
-- Today’s Highest-Impact Action
-- Biggest Career Gap
-- Career Readiness Score
+- Today’s Mission
+- one Start button
+- a short reason, time estimate, expected impact, and confidence
+- readiness and career-gap details behind disclosure
+- saved opportunities and deadlines behind disclosure
 
-The existing progressive-disclosure Advisor recommendation card still uses the current `/api/advisor/recommend` route and remains backwards compatible.
+The dashboard no longer renders the duplicate `/api/advisor/recommend` coaching card. The route and API remain available for existing integrations, but the primary dashboard experience is driven by `buildAdvisorBrain`.
 
 ## Opportunity Integration
 
