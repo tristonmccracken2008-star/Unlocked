@@ -32,10 +32,10 @@ for (const symbol of [
 
 for (const label of [
   "Journey",
-  "Progress so far",
-  "Timeline",
+  "Journey progress",
+  "Journey timeline",
   "Active opportunities",
-  "UnlockED Journey Recap",
+  "Journey recap",
   "Share recap",
 ]) {
   assert.ok(journeyDashboard.includes(label), `Dashboard must render ${label}.`);

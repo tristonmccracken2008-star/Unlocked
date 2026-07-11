@@ -26,8 +26,8 @@ assert.match(profileData, /advisorProfileUpdatedMessageKey/, "Profile saves must
 assert.match(journeyDashboard, /localStorage\.removeItem\(advisorProfileUpdatedMessageKey\)/, "Dashboard must consume the profile-change acknowledgement once.");
 
 assert.match(dashboard, /Journey/, "Private home must be the student's Journey.");
-assert.match(journeyDashboard, /Progress so far/, "Journey must summarize actual saved and application progress.");
-assert.match(journeyDashboard, /Timeline/, "Journey must expose a real activity timeline.");
+assert.match(journeyDashboard, /Journey progress/, "Journey must summarize actual saved and application progress.");
+assert.match(journeyDashboard, /Journey timeline/, "Journey must expose a real activity timeline.");
 assert.match(journeyDashboard, /Active opportunities/, "Journey must connect saved opportunities to progress.");
 assert.match(journeyDashboard, /Share recap/, "Journey must support a shareable progress recap.");
 assert.doesNotMatch(dashboard, /Today’s Mission/, "Journey should not keep the old coaching-dashboard copy.");
