@@ -6,6 +6,7 @@ const engine = readFileSync("lib/advisor/engine.ts", "utf8");
 const authStore = readFileSync("lib/auth-store.ts", "utf8");
 const profileVersion = readFileSync("lib/advisor/profile-version.ts", "utf8");
 const dashboard = readFileSync("components/personalized-home.tsx", "utf8");
+const journeyDashboard = readFileSync("components/student-journey-dashboard.tsx", "utf8");
 const profileData = readFileSync("data/student-profile.ts", "utf8");
 const packageJson = JSON.parse(readFileSync("package.json", "utf8"));
 const snapshots = JSON.parse(readFileSync("data/advisor-review-snapshots.json", "utf8"));
@@ -22,13 +23,13 @@ assert.match(profileVersion, /weeklyAvailability/, "Profile hash must include we
 assert.match(profileVersion, /currentExperience/, "Profile hash must include current experience.");
 assert.match(profileVersion, /preferredOpportunityTypes/, "Profile hash must include preferred path/opportunity type.");
 assert.match(profileData, /advisorProfileUpdatedMessageKey/, "Profile saves must set a one-time plan-updated acknowledgement.");
-assert.match(dashboard, /localStorage\.removeItem\(advisorProfileUpdatedMessageKey\)/, "Dashboard must consume the profile-change acknowledgement once.");
+assert.match(journeyDashboard, /localStorage\.removeItem\(advisorProfileUpdatedMessageKey\)/, "Dashboard must consume the profile-change acknowledgement once.");
 
 assert.match(dashboard, /Journey/, "Private home must be the student's Journey.");
-assert.match(dashboard, /Progress so far/, "Journey must summarize actual saved and application progress.");
-assert.match(dashboard, /Timeline/, "Journey must expose a real activity timeline.");
-assert.match(dashboard, /Active opportunities/, "Journey must connect saved opportunities to progress.");
-assert.match(dashboard, /Share recap/, "Journey must support a shareable progress recap.");
+assert.match(journeyDashboard, /Progress so far/, "Journey must summarize actual saved and application progress.");
+assert.match(journeyDashboard, /Timeline/, "Journey must expose a real activity timeline.");
+assert.match(journeyDashboard, /Active opportunities/, "Journey must connect saved opportunities to progress.");
+assert.match(journeyDashboard, /Share recap/, "Journey must support a shareable progress recap.");
 assert.doesNotMatch(dashboard, /Today’s Mission/, "Journey should not keep the old coaching-dashboard copy.");
 assert.doesNotMatch(dashboard, /Object\.entries\(advisor\.dimensionScores\)/, "Readiness breakdown should not render as an initial dashboard block.");
 

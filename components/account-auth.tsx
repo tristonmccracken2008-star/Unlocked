@@ -7,8 +7,9 @@ import { trackProductEvent } from "@/data/product-analytics";
 
 export function AccountSync() {
   useEffect(() => {
+    const signedIn = window.location.search.includes("auth=signed-in");
+    if (signedIn) { trackProductEvent("sign_in"); const url = new URL(window.location.href); url.searchParams.delete("auth"); window.history.replaceState({}, "", `${url.pathname}${url.search}${url.hash}`); }
     void hydrateAccountData();
-    if (window.location.search.includes("auth=signed-in")) { trackProductEvent("sign_in"); const url = new URL(window.location.href); url.searchParams.delete("auth"); window.history.replaceState({}, "", `${url.pathname}${url.search}${url.hash}`); void hydrateAccountData(); }
   }, []);
   return null;
 }

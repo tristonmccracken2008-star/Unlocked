@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { hydrateAccountData, readAccountSession } from "@/data/account-sync";
+import { hydrateAccountData } from "@/data/account-sync";
 import { createAdvisorProfile } from "@/data/advisor-engine";
 import { buildAdvisorBrain, type AdvisorBrainDashboard } from "@/data/advisor-brain";
 import { deadlineLabel, opportunities } from "@/data/opportunities";
@@ -59,7 +59,7 @@ export function AdvisorPage() {
     let active = true;
     async function load() {
       setLoading(true);
-      const session = await hydrateAccountData().then(readAccountSession);
+      const session = await hydrateAccountData();
       if (!active) return;
       const profile = session.data?.profile;
       if (!session.authenticated || !profile) {

@@ -10,6 +10,11 @@ export const accountSessionEvent = "unlocked-account-session-change";
 export const accountSyncErrorEvent = "unlocked-account-sync-error";
 const accountMigrationKey = (userId: string) => `unlocked-account-migrated:${userId}`;
 const accountMigrationPrefix = "unlocked-account-migrated:";
+let sessionCache: AccountSession | null = null;
+let sessionCacheAt = 0;
+let sessionRequest: Promise<AccountSession> | null = null;
+let hydrateRequest: Promise<AccountSession> | null = null;
+const sessionCacheMs = 5000;
 
 function readJson<T>(key: string, fallback: T): T {
   try {
@@ -46,10 +51,25 @@ function localAccountData(): Partial<AccountData> {
   };
 }
 
-export async function readAccountSession() {
+export async function readAccountSession(force = false) {
+  if (!force && sessionCache && Date.now() - sessionCacheAt < sessionCacheMs) return sessionCache;
+  if (!force && sessionRequest) return sessionRequest;
+  sessionRequest = fetch("/api/auth/session", { credentials: "same-origin", cache: "no-store" }).then(async (response) => {
+    const session = response.ok ? await response.json() as AccountSession : { authenticated: false, user: null, data: null } as AccountSession;
+    sessionCache = session;
+    sessionCacheAt = Date.now();
+    return session;
+  }).finally(() => { sessionRequest = null; });
+  return sessionRequest;
+}
+
+async function readAccountSessionUncached() {
   const response = await fetch("/api/auth/session", { credentials: "same-origin", cache: "no-store" });
   if (!response.ok) return { authenticated: false, user: null, data: null } as AccountSession;
-  return await response.json() as AccountSession;
+  const session = await response.json() as AccountSession;
+  sessionCache = session;
+  sessionCacheAt = Date.now();
+  return session;
 }
 
 export async function readCloudAccountData() {
@@ -72,6 +92,24 @@ export function syncAccountData(data: Partial<AccountData>) {
   void pushAccountData(data).catch((error) => window.dispatchEvent(new CustomEvent(accountSyncErrorEvent, { detail: error instanceof Error ? error.message : "Account sync failed." })));
 }
 
+function sameAccountData(left: Partial<AccountData>, right: Partial<AccountData> | null | undefined) {
+  return JSON.stringify({
+    profile: left.profile ?? null,
+    onboardingComplete: Boolean(left.onboardingComplete),
+    activity: left.activity ?? null,
+    journeyProgress: left.journeyProgress ?? {},
+    preferences: left.preferences ?? null,
+    advisor: left.advisor ?? null,
+  }) === JSON.stringify({
+    profile: right?.profile ?? null,
+    onboardingComplete: Boolean(right?.onboardingComplete),
+    activity: right?.activity ?? null,
+    journeyProgress: right?.journeyProgress ?? {},
+    preferences: right?.preferences ?? null,
+    advisor: right?.advisor ?? null,
+  });
+}
+
 export function clearLocalDashboardState() {
   localStorage.removeItem(studentProfileStorageKey);
   localStorage.removeItem(studentProfileCompleteStorageKey);
@@ -82,9 +120,15 @@ export function clearLocalDashboardState() {
 }
 
 export async function hydrateAccountData() {
-  const session = await readAccountSession();
+  if (hydrateRequest) return hydrateRequest;
+  hydrateRequest = hydrateAccountDataInner().finally(() => { hydrateRequest = null; });
+  return hydrateRequest;
+}
+
+async function hydrateAccountDataInner() {
+  const session = await readAccountSessionUncached();
   if (!session.authenticated || !session.user) return session;
-  const cloudData = await readCloudAccountData();
+  const cloudData = session.data;
   const local = localAccountData();
   const migrated = localStorage.getItem(accountMigrationKey(session.user.id)) === "true";
   const merged: Partial<AccountData> = {
@@ -107,8 +151,10 @@ export async function hydrateAccountData() {
   }
   localStorage.setItem(journeyProgressStorageKey, JSON.stringify(merged.journeyProgress ?? {}));
   localStorage.setItem(accountMigrationKey(session.user.id), "true");
-  const saved = await pushAccountData(merged);
+  const saved = !migrated || !sameAccountData(merged, cloudData) ? await pushAccountData(merged) : cloudData;
   const syncedSession = { ...session, data: saved ?? { profile: merged.profile ?? null, onboardingComplete: Boolean(merged.onboardingComplete), billing: cloudData?.billing ?? defaultBillingRecord(), activity: merged.activity ?? null, savedOpportunities: merged.savedOpportunities ?? [], tracker: merged.tracker ?? {}, preferences: merged.preferences ?? null, journeyProgress: merged.journeyProgress ?? {}, advisor: merged.advisor ?? null, updatedAt: new Date().toISOString() } } satisfies AccountSession;
+  sessionCache = syncedSession;
+  sessionCacheAt = Date.now();
   window.dispatchEvent(new CustomEvent(accountSessionEvent, { detail: syncedSession }));
   return syncedSession;
 }

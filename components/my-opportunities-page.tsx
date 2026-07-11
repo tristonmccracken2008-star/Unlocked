@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { deadlineLabel, opportunities, type Opportunity } from "@/data/opportunities";
+import { deadlineLabel, type Opportunity } from "@/data/opportunities";
 import { opportunityTrackerStatuses, readStudentActivity, removeTrackedOpportunity, studentActivityEvent, updateOpportunityStatus, type OpportunityTrackerStatus, type StudentActivity } from "@/data/student-activity";
 import { ArrowIcon } from "./icons";
 import { trackProductEvent } from "@/data/product-analytics";
@@ -41,6 +41,7 @@ function statusSummary(status: OpportunityTrackerStatus) {
 
 export function MyOpportunitiesPage() {
   const [activity, setActivity] = useState<StudentActivity>({ viewed: [], saved: [], claimed: [], tracked: {} });
+  const [opportunitiesById, setOpportunitiesById] = useState<Record<string, Opportunity>>({});
   const [filter, setFilter] = useState<TrackerFilter>("All");
 
   useEffect(() => {
@@ -50,13 +51,23 @@ export function MyOpportunitiesPage() {
     return () => window.removeEventListener(studentActivityEvent, update);
   }, []);
 
+  useEffect(() => {
+    const ids = Object.keys(activity.tracked ?? {});
+    if (!ids.length) { setOpportunitiesById({}); return; }
+    let active = true;
+    fetch(`/api/opportunities?ids=${encodeURIComponent(ids.join(","))}`).then((response) => response.ok ? response.json() : Promise.reject()).then((body: { opportunities: Opportunity[] }) => {
+      if (active) setOpportunitiesById(Object.fromEntries(body.opportunities.map((item) => [item.id, item])));
+    }).catch(() => undefined);
+    return () => { active = false; };
+  }, [activity.tracked]);
+
   const savedItems = useMemo(() => {
     const tracked = activity.tracked ?? {};
     return Object.values(tracked).map((record) => {
-      const opportunity = opportunities.find((item) => item.id === record.id);
+      const opportunity = opportunitiesById[record.id];
       return opportunity ? { opportunity, record } : null;
     }).filter((item): item is NonNullable<typeof item> => Boolean(item)).filter(({ opportunity }) => matchesFilter(opportunity, filter)).sort((a, b) => b.record.updatedAt.localeCompare(a.record.updatedAt) || a.opportunity.title.localeCompare(b.opportunity.title));
-  }, [activity, filter]);
+  }, [activity, filter, opportunitiesById]);
 
   const stats = useMemo(() => {
     const records = Object.values(activity.tracked ?? {});

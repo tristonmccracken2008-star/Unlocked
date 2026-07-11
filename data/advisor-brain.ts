@@ -104,6 +104,8 @@ const priorityImpact: Record<RecommendationV1["priority"], string> = {
   Recommended: "Useful impact because it strengthens a relevant area without adding unnecessary pressure.",
   Optional: "Good exploratory value, but it should come after higher-fit work.",
 };
+const brainCache = new Map<string, AdvisorBrainDashboard>();
+const maxBrainCacheEntries = 20;
 
 function clamp(value: number) {
   return Math.max(0, Math.min(100, Math.round(value)));
@@ -216,6 +218,14 @@ export function buildAdvisorBrain(input: {
   progress?: StudentProgress;
   opportunities?: readonly Opportunity[];
 }): AdvisorBrainDashboard {
+  const cacheKey = JSON.stringify({
+    profile: input.advisorProfile,
+    progress: input.progress ?? null,
+    opportunityCount: input.opportunities?.length ?? 0,
+    opportunityVersion: input.opportunities?.slice(0, 3).map((item) => `${item.id}:${item.last_verified}`).join("|") ?? "default",
+  });
+  const cached = brainCache.get(cacheKey);
+  if (cached) return cached;
   const recommendationResult = runRecommendationEngineV1({
     advisorProfile: input.advisorProfile,
     progress: input.progress,
@@ -226,7 +236,7 @@ export function buildAdvisorBrain(input: {
   const evidenceInventory = buildEvidenceInventory({ advisorProfile: input.advisorProfile, progress: input.progress, recommendations });
   const twin = buildStudentDigitalTwin({ advisorProfile: input.advisorProfile, progress: input.progress, recommendations });
   const interview = runInterviewIntelligence({ advisorProfile: input.advisorProfile, progress: input.progress, recommendations });
-  return {
+  const result = {
     generatedAt: new Date().toISOString(),
     highestImpactAction: recommendations[0] ? toAction(recommendations[0], evidenceInventory) : null,
     biggestCareerGap: biggestGap(evidenceInventory, recommendations),
@@ -236,6 +246,9 @@ export function buildAdvisorBrain(input: {
     interview,
     recommendations,
   };
+  brainCache.set(cacheKey, result);
+  if (brainCache.size > maxBrainCacheEntries) brainCache.delete(brainCache.keys().next().value);
+  return result;
 }
 
 function studentContext(profile: AdvisorProfile): OpportunityStudentContext {

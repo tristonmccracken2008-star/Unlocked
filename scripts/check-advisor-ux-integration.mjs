@@ -5,11 +5,13 @@ const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), "utf
 
 const advisorBrain = read("data/advisor-brain.ts");
 const dashboard = read("components/personalized-home.tsx");
+const journeyDashboard = read("components/student-journey-dashboard.tsx");
 const header = read("components/header.tsx");
 const advisorPage = read("components/advisor-page.tsx");
 const advisorRoute = read("app/advisor/page.tsx");
 const advisorAccess = read("lib/advisor-access.ts");
 const profile = read("components/profile-page.tsx");
+const profileCareerTab = read("components/profile-career-tab.tsx");
 const opportunityPage = read("app/opportunities/[id]/page.tsx");
 const opportunityFilter = read("components/opportunity-filter.tsx");
 const journey = read("data/journey.ts");
@@ -36,11 +38,11 @@ for (const label of [
   "UnlockED Journey Recap",
   "Share recap",
 ]) {
-  assert.ok(dashboard.includes(label), `Dashboard must render ${label}.`);
+  assert.ok(journeyDashboard.includes(label), `Dashboard must render ${label}.`);
 }
-assert.ok(dashboard.includes("buildAdvisorBrain"), "Dashboard must consume the Advisor Brain API instead of duplicating scoring logic.");
-assert.ok(dashboard.includes("buildJourneyMilestones"), "Journey must derive timeline milestones from real student activity.");
-assert.ok(dashboard.includes("buildJourneyRecap"), "Journey must derive recap values from real student activity.");
+assert.ok(journeyDashboard.includes("buildAdvisorBrain"), "Dashboard must consume the Advisor Brain API instead of duplicating scoring logic.");
+assert.ok(journeyDashboard.includes("buildJourneyMilestones"), "Journey must derive timeline milestones from real student activity.");
+assert.ok(journeyDashboard.includes("buildJourneyRecap"), "Journey must derive recap values from real student activity.");
 assert.ok(!dashboard.includes("Today’s best opportunity"), "Dashboard should not keep the old generic best-opportunity hero.");
 assert.ok(!dashboard.includes("AdvisorBrainSection"), "Dashboard should not render the duplicate advisor recommendation panel.");
 assert.ok(!dashboard.includes("Today’s Mission"), "Journey should not keep the old mission dashboard framing.");
@@ -96,12 +98,13 @@ for (const label of [
   "Recommended next step",
   "How this was calculated",
 ]) {
-  assert.ok(profile.includes(label), `Profile Career Profile tab must render ${label}.`);
+  assert.ok(profileCareerTab.includes(label), `Profile Career Profile tab must render ${label}.`);
 }
-assert.ok(profile.includes("buildAdvisorBrain"), "Profile tab must use Advisor Brain output.");
-assert.ok(!profile.includes("Student Digital Twin"), "Profile primary copy must not expose Student Digital Twin terminology.");
-assert.ok(!profile.includes("Evidence inventory"), "Profile primary copy must not expose evidence inventory terminology.");
-assert.ok(!profile.includes("Confidence levels"), "Profile primary copy must not expose repeated confidence labels.");
+assert.ok(profileCareerTab.includes("buildAdvisorBrain"), "Profile tab must use Advisor Brain output.");
+assert.ok(profile.includes("dynamic(() => import(\"./profile-career-tab\")"), "Career Profile tab should stay split from the initial profile bundle.");
+assert.ok(!profileCareerTab.includes("Student Digital Twin"), "Profile primary copy must not expose Student Digital Twin terminology.");
+assert.ok(!profileCareerTab.includes("Evidence inventory"), "Profile primary copy must not expose evidence inventory terminology.");
+assert.ok(!profileCareerTab.includes("Confidence levels"), "Profile primary copy must not expose repeated confidence labels.");
 
 for (const symbol of ["buildJourneyMilestones", "buildJourneyRecap"]) {
   assert.ok(journey.includes(symbol), `Journey data module must include ${symbol}.`);
