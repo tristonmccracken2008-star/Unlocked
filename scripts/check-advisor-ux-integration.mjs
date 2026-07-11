@@ -15,6 +15,7 @@ const profileCareerTab = read("components/profile-career-tab.tsx");
 const opportunityPage = read("app/opportunities/[id]/page.tsx");
 const opportunityFilter = read("components/opportunity-filter.tsx");
 const journey = read("data/journey.ts");
+const recommendationService = read("data/recommendation-service.ts");
 const activity = read("data/student-activity.ts");
 const analytics = read("lib/analytics-types.ts");
 
@@ -40,7 +41,8 @@ for (const label of [
 ]) {
   assert.ok(journeyDashboard.includes(label), `Dashboard must render ${label}.`);
 }
-assert.ok(journeyDashboard.includes("buildAdvisorBrain"), "Dashboard must consume the Advisor Brain API instead of duplicating scoring logic.");
+assert.ok(journeyDashboard.includes("buildRecommendationService"), "Dashboard must consume the canonical recommendation service.");
+assert.ok(recommendationService.includes("buildAdvisorBrain"), "Recommendation service must consume the Advisor Brain API instead of duplicating scoring logic.");
 assert.ok(journeyDashboard.includes("buildJourneyMilestones"), "Journey must derive timeline milestones from real student activity.");
 assert.ok(journeyDashboard.includes("buildJourneyRecap"), "Journey must derive recap values from real student activity.");
 assert.ok(!dashboard.includes("Today’s best opportunity"), "Dashboard should not keep the old generic best-opportunity hero.");
@@ -56,20 +58,21 @@ assert.ok(header.includes("Mobile navigation"), "Authenticated mobile users must
 
 for (const label of [
   "Opportunities selected around you.",
-  "Why it fits",
-  "Evidence and confidence",
-  "Alternatives",
+  "Your profile at a glance",
+  "Top recommendation",
+  "Recommended for you",
+  "Why these recommendations?",
   "Track this",
-  "Find matching opportunities",
 ]) {
   assert.ok(advisorPage.includes(label), `Advisor page must render ${label}.`);
 }
 assert.ok(!advisorPage.includes("What to do next."), "For You should not expose broad advisor dashboard framing.");
 assert.ok(advisorRoute.includes("getSession"), "Advisor route must remain protected by server-side auth.");
-assert.ok(advisorPage.includes("buildAdvisorBrain"), "Advisor page must consume Advisor Brain.");
-assert.ok(advisorPage.includes("markMilestoneCompleted"), "Advisor completion must update milestone progress through existing helpers.");
+assert.ok(advisorPage.includes("buildRecommendationService"), "Advisor page must consume the canonical recommendation service.");
+assert.ok(recommendationService.includes("buildAdvisorBrain"), "Recommendation service must consume Advisor Brain.");
+assert.ok(recommendationService.includes("recommendationMatchLabel"), "Recommendation service must own qualitative match labels.");
 assert.ok(advisorPage.includes("updateApplicationStatus"), "Advisor completion must update opportunity progress through existing helpers.");
-assert.ok(advisorPage.includes("URLSearchParams"), "Advisor-to-Opportunity flow must produce filtered opportunity URLs.");
+assert.ok(recommendationService.includes("URLSearchParams"), "Advisor-to-Opportunity flow must produce filtered opportunity URLs.");
 assert.ok(opportunityFilter.includes("window.location.search"), "Opportunity search must read Advisor handoff filters.");
 assert.ok(opportunityFilter.includes("discover_opened"), "Discover must emit an open event.");
 

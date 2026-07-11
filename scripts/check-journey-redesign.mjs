@@ -5,6 +5,7 @@ const read = (path) => readFileSync(path, "utf8");
 
 const dashboard = read("components/student-journey-dashboard.tsx");
 const journey = read("data/journey.ts");
+const recommendationService = read("data/recommendation-service.ts");
 const analytics = read("lib/analytics-types.ts");
 const pkg = read("package.json");
 
@@ -25,11 +26,10 @@ for (const label of [
 for (const symbol of [
   "buildJourneyMilestones",
   "buildJourneyRecap",
-  "buildAdvisorBrain",
+  "buildRecommendationService",
   "journeyActiveStatuses",
   "futureMilestones",
   "recapHeadline",
-  "recommendationLabel",
 ]) {
   assert.ok(dashboard.includes(symbol) || journey.includes(symbol), `Journey redesign must use ${symbol}.`);
 }
@@ -51,6 +51,7 @@ for (const event of [
 
 assert.ok(journey.includes("journeyAppliedStatuses"), "Journey counts must use canonical applied status definitions.");
 assert.ok(journey.includes("journeyActiveStatuses"), "Journey active lists must use canonical active status definitions.");
+assert.ok(recommendationService.includes("recommendationMatchLabel"), "Journey recommendations must use the canonical qualitative label service.");
 assert.ok(dashboard.includes("No opportunity names included by default"), "Recap sharing must default to private, count-only content.");
 assert.ok(!dashboard.includes("% confidence"), "Journey recommendations must not expose numeric confidence labels.");
 assert.doesNotMatch(dashboard, /\bXP\b|streak|loot|percentile/i, "Journey must not add fake gamification.");

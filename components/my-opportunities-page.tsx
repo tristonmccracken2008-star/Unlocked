@@ -6,6 +6,7 @@ import { memo, useEffect, useMemo, useState } from "react";
 import { deadlineLabel, type Opportunity } from "@/data/opportunities";
 import { opportunityTrackerStatuses, persistStudentActivity, readStudentActivity, removeTrackedOpportunity, replaceStudentActivity, studentActivityEvent, updateOpportunityStatus, type OpportunityTrackerStatus, type StudentActivity } from "@/data/student-activity";
 import { ArrowIcon, BookmarkIcon, CheckCircleIcon, CheckIcon, HeartIcon, MoreIcon, MoveIcon, PenLineIcon, SendIcon, TargetIcon, TrophyIcon, XCircleIcon } from "./icons";
+import { OrganizationLogo } from "./organization-logo";
 import { trackProductEvent } from "@/data/product-analytics";
 
 const filters = ["All", "Scholarships", "AI Tools", "Research", "Internships", "Benefits", "Software"] as const;
@@ -224,9 +225,9 @@ const TrackedCard = memo(function TrackedCard({ opportunity, status, open, setOp
   return <article data-opportunity-id={opportunity.id} data-opportunity-title={opportunity.title} draggable onDragStart={(event) => { window.__unlockedDraggedOpportunity = opportunity; event.dataTransfer.setData("text/plain", opportunity.id); event.dataTransfer.effectAllowed = "move"; setDraggingId(opportunity.id); trackProductEvent("opportunity_drag_started", { opportunityId: opportunity.id, status }); }} onDragEnd={() => { setDraggingId(null); window.__unlockedDraggedOpportunity = undefined; }} className="group rounded-[1.35rem] bg-white/95 p-5 shadow-[0_16px_42px_rgba(43,33,26,.075)] ring-1 ring-ink/7 transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_22px_55px_rgba(43,33,26,.12)] focus-within:ring-2 focus-within:ring-forest/30 motion-reduce:transition-none motion-reduce:hover:translate-y-0">
     <div className="flex items-start justify-between gap-3">
       <div className="min-w-0">
-        <p className="text-[10px] font-black uppercase tracking-[.16em] text-forest">{opportunity.type}</p>
-        <h3 className="mt-3 font-editorial text-xl font-bold leading-[1.08] tracking-[-.02em]"><Link href={`/opportunities/${opportunity.id}`} className="rounded-sm hover:text-forest focus:outline-none focus:ring-2 focus:ring-forest/30">{opportunity.title}</Link></h3>
-        <p className="mt-2 truncate text-xs font-bold text-ink/42">{opportunity.organization}</p>
+        <div className="flex items-start gap-3"><OrganizationLogo opportunity={opportunity} size="sm"/><div className="min-w-0"><p className="text-[10px] font-black uppercase tracking-[.16em] text-forest">{opportunity.type}</p>
+        <h3 className="mt-2 font-editorial text-xl font-bold leading-[1.08] tracking-[-.02em]"><Link href={`/opportunities/${opportunity.id}`} className="rounded-sm hover:text-forest focus:outline-none focus:ring-2 focus:ring-forest/30">{opportunity.title}</Link></h3>
+        <p className="mt-2 truncate text-xs font-bold text-ink/42">{opportunity.organization}</p></div></div>
       </div>
       <div className="flex items-center gap-1 text-forest"><span aria-label={statusSummary(status)} title={statusSummary(status)} className={`grid h-8 w-8 place-items-center rounded-full ${soft} ${accent}`}><Icon className="h-4 w-4"/></span><button type="button" onClick={() => remove(opportunity)} className="grid h-9 w-9 place-items-center rounded-full text-ink/35 hover:bg-paper hover:text-ink focus:outline-none focus:ring-2 focus:ring-forest/30" aria-label={`Remove ${opportunity.title}`}><MoreIcon className="h-4 w-4"/></button></div>
     </div>

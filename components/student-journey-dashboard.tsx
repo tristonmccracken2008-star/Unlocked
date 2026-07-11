@@ -8,12 +8,11 @@ import type { AccountSession } from "@/lib/account-types";
 import { deadlineLabel, opportunities, type Opportunity } from "@/data/opportunities";
 import { readStudentActivity, studentActivityEvent, type StudentActivity, type OpportunityTrackerStatus, type TrackedOpportunity } from "@/data/student-activity";
 import { trackProductEvent } from "@/data/product-analytics";
-import { createAdvisorProfile } from "@/data/advisor-engine";
 import { inferApplicationsFromActivity, readStudentProgress, studentProgressEvent, type StudentProgress } from "@/data/student-progress";
-import { buildAdvisorBrain } from "@/data/advisor-brain";
-import type { RecommendationV1 } from "@/data/recommendation-engine";
+import { buildRecommendationService, type RecommendationViewModel } from "@/data/recommendation-service";
 import { buildJourneyMilestones, buildJourneyRecap, journeyActiveStatuses, type JourneyMilestone, type JourneyRecap } from "@/data/journey";
 import { ArrowIcon, BookmarkIcon, CheckCircleIcon, PenLineIcon, SendIcon, TargetIcon, TrophyIcon } from "./icons";
+import { OrganizationLogo } from "./organization-logo";
 
 type TimelineItem = JourneyMilestone | { id: string; title: string; description: string; category: JourneyMilestone["category"]; future: true; href?: string };
 type IconComponent = (props: { className?: string }) => React.ReactElement;
@@ -59,13 +58,6 @@ function profileTags(profile: StudentProfile) {
 
 function compactDate(value: string) {
   return new Intl.DateTimeFormat("en-US", { month: "short", day: "2-digit", timeZone: "UTC" }).format(new Date(value));
-}
-
-function recommendationLabel(recommendation: RecommendationV1) {
-  if (recommendation.priority === "Critical" || recommendation.confidence >= 82) return "Strong match";
-  if (recommendation.priority === "High" || recommendation.confidence >= 68) return "Good match";
-  if (recommendation.confidence >= 48) return "Worth reviewing";
-  return "Limited confidence";
 }
 
 function recapHeadline(firstName: string, recap: JourneyRecap) {
@@ -119,9 +111,8 @@ export function StudentDashboard({ profile, session, syncError }: { profile: Stu
   if (!school) return null;
   const firstName = displayName(profile, session);
   const inferredProgress = inferApplicationsFromActivity(activity, opportunities, progress);
-  const advisorProfile = createAdvisorProfile({ profile, school, activity, progress: inferredProgress });
-  const advisorUx = buildAdvisorBrain({ advisorProfile, opportunities, progress: inferredProgress });
-  const recommendations = advisorUx.recommendations.filter((item) => item.relatedOpportunityId).slice(0, 2);
+  const recommendationService = buildRecommendationService({ profile, school, activity, progress: inferredProgress, source: opportunities });
+  const recommendations = recommendationService.recommendations.slice(0, 2);
   const milestones = buildJourneyMilestones({ profile, activity, progress: inferredProgress, opportunities });
   const recap = buildJourneyRecap({ activity, milestones, opportunities });
   const activeOpportunities = useMemo(() => Object.values(activity.tracked ?? {}).filter((record) => activeStatusSet.has(record.status)).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)).map((record) => {
@@ -218,32 +209,36 @@ function ActiveOpportunities({ items }: { items: ActiveOpportunity[] }) {
 
 function ActiveOpportunityRow({ opportunity, status }: { opportunity: Opportunity; status: OpportunityTrackerStatus }) {
   return <Link href={`/opportunities/${opportunity.id}`} onClick={() => trackProductEvent("journey_active_opportunity_opened", { opportunityId: opportunity.id, status })} className="group grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 rounded-2xl border border-ink/7 bg-white/62 px-4 py-4 hover:border-forest/25">
-    <span className="min-w-0"><span className="rule-label text-forest">{opportunity.type}</span><span className="mt-1 block font-editorial text-lg font-bold leading-tight group-hover:text-forest">{opportunity.title}</span><span className="mt-1 block text-xs text-ink/45">{opportunity.organization} · {deadlineLabel(opportunity)}</span></span>
+    <span className="flex min-w-0 items-center gap-3"><OrganizationLogo opportunity={opportunity} size="sm"/><span className="min-w-0"><span className="rule-label text-forest">{opportunity.type}</span><span className="mt-1 block font-editorial text-lg font-bold leading-tight group-hover:text-forest">{opportunity.title}</span><span className="mt-1 block text-xs text-ink/45">{opportunity.organization} · {deadlineLabel(opportunity)}</span></span></span>
     <span className="flex items-center gap-3"><span className="rounded-full bg-forest/10 px-3 py-1 text-xs font-black text-forest">{statusCopy[status]}</span><ArrowIcon className="h-4 w-4 text-ink/30 group-hover:text-forest" /></span>
   </Link>;
 }
 
-function NextToReview({ recommendations }: { recommendations: RecommendationV1[] }) {
+function NextToReview({ recommendations }: { recommendations: RecommendationViewModel[] }) {
   return <section className="rounded-[1.5rem] bg-white/86 p-5 shadow-[0_14px_42px_rgba(43,33,26,.055)] ring-1 ring-ink/7">
     <div className="flex items-center justify-between gap-4"><h2 className="font-editorial text-2xl font-bold">Next to review</h2><Link href="/advisor" className="text-sm font-black text-forest hover:text-ink">Open For You</Link></div>
-    {recommendations.length ? <div className="mt-4 divide-y divide-ink/10">{recommendations.map((recommendation) => <AdvisorRecommendationRow key={recommendation.id} recommendation={recommendation} />)}</div> : <EmptyState title="No recommendation ready yet" text="As you save and review opportunities, UnlockED will surface the next best matches here." actionHref="/opportunities" actionLabel="Browse Discover" />}
+    {recommendations.length ? <div className="mt-4 divide-y divide-ink/10">{recommendations.map((recommendation) => <AdvisorRecommendationRow key={recommendation.recommendation.id} recommendation={recommendation} />)}</div> : <EmptyState title="No recommendation ready yet" text="As you save and review opportunities, UnlockED will surface the next best matches here." actionHref="/opportunities" actionLabel="Browse Discover" />}
   </section>;
 }
 
-function AdvisorRecommendationRow({ recommendation }: { recommendation: RecommendationV1 }) {
-  const href = recommendation.relatedOpportunityId ? `/opportunities/${recommendation.relatedOpportunityId}` : "/advisor";
+function AdvisorRecommendationRow({ recommendation: view }: { recommendation: RecommendationViewModel }) {
+  const { recommendation } = view;
+  const opportunity = view.opportunity;
   return <article className="py-5">
     <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
-      <div>
+      <div className="flex gap-3">
+        {opportunity && <OrganizationLogo opportunity={opportunity} size="sm"/>}
+        <div className="min-w-0">
         <p className="rule-label text-forest">{recommendation.priority} · {recommendation.kind}</p>
         <h3 className="mt-2 font-editorial text-xl font-bold leading-tight">{recommendation.title}</h3>
         <p className="mt-2 text-sm leading-6 text-ink/55">{recommendation.reason}</p>
         <details className="mt-3" onToggle={(event) => { if ((event.currentTarget as HTMLDetailsElement).open) trackProductEvent("journey_recommendation_reason_expanded", { recommendationId: recommendation.id }); }}>
           <summary className="cursor-pointer text-xs font-black text-forest">Why this is a great match</summary>
-          <ul className="mt-3 space-y-1 text-xs leading-5 text-ink/55">{recommendation.reasons.slice(0, 4).map((reason) => <li key={reason}>{reason}</li>)}</ul>
+          <ul className="mt-3 space-y-1 text-xs leading-5 text-ink/55">{view.reasons.map((reason) => <li key={reason}>{reason}</li>)}</ul>
         </details>
+        </div>
       </div>
-      <div className="flex items-center gap-3 sm:flex-col sm:items-end"><span className="text-sm font-black text-forest">{recommendationLabel(recommendation)}</span><Link href={href} onClick={() => trackProductEvent("journey_recommendation_opened", { recommendationId: recommendation.id, opportunityId: recommendation.relatedOpportunityId })} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-forest px-5 text-sm font-bold text-white hover:bg-ink">Open <ArrowIcon /></Link></div>
+      <div className="flex items-center gap-3 sm:flex-col sm:items-end"><span className="text-sm font-black text-forest">{view.label}</span><Link href={view.href} onClick={() => trackProductEvent("journey_recommendation_opened", { recommendationId: recommendation.id, opportunityId: recommendation.relatedOpportunityId })} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-forest px-5 text-sm font-bold text-white hover:bg-ink">Open <ArrowIcon /></Link></div>
     </div>
   </article>;
 }
