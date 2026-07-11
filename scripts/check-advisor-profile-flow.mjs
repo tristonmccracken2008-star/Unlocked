@@ -28,7 +28,7 @@ assert.match(dashboard, /Today’s Mission/, "Advisor dashboard must focus on on
 assert.match(dashboard, /Why this mission\?/, "Advisor dashboard must use progressive disclosure for details.");
 assert.match(dashboard, /View readiness and career gap/, "Advisor dashboard must hide readiness details initially.");
 assert.match(dashboard, /Saved opportunities and deadlines/, "Advisor dashboard must hide secondary work initially.");
-assert.match(dashboard, /Start here/, "Advisor dashboard must expose one primary action.");
+assert.match(dashboard, /Open Advisor/, "Advisor dashboard must expose one primary action.");
 assert.doesNotMatch(dashboard, /Object\.entries\(advisor\.dimensionScores\)/, "Readiness breakdown should not render as an initial dashboard block.");
 
 const byId = Object.fromEntries(snapshots.map((item) => [item.profileId, item]));

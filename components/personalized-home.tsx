@@ -463,8 +463,6 @@ function StudentDashboard({ profile, session, syncError }: { profile: StudentPro
 function DashboardMission({ brain }: { brain: AdvisorBrainDashboard }) {
   const action = brain.highestImpactAction;
   const gap = brain.biggestCareerGap;
-  const primary = brain.recommendations[0];
-  const primaryHref = primary?.relatedOpportunityId ? `/opportunities/${primary.relatedOpportunityId}` : "/opportunities";
   return <section className="rounded-[2rem] bg-paper px-5 py-8 sm:px-10 sm:py-12">
     <div className="mx-auto max-w-4xl">
       <p className="rule-label text-forest">Today’s Mission</p>
@@ -473,7 +471,7 @@ function DashboardMission({ brain }: { brain: AdvisorBrainDashboard }) {
           <h2 className="max-w-4xl font-editorial text-5xl font-bold leading-[.98] tracking-[-.045em] sm:text-7xl">{action.title}</h2>
           <p className="mt-6 max-w-2xl text-base leading-8 text-ink/60">{action.nextAction}</p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
-            <Link href={primaryHref} className="inline-flex min-h-12 items-center justify-center rounded-full bg-forest px-6 text-sm font-bold text-white transition hover:bg-ink">Start here</Link>
+            <Link href="/advisor" className="inline-flex min-h-12 items-center justify-center rounded-full bg-forest px-6 text-sm font-bold text-white transition hover:bg-ink">Open Advisor</Link>
             <span className="text-sm font-bold text-ink/40">{action.estimatedCompletionTime} · {action.expectedImpact}</span>
           </div>
           <details className="mt-8 border-t border-ink/10 pt-5">

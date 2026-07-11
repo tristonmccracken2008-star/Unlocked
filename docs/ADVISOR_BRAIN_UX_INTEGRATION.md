@@ -68,7 +68,7 @@ Output:
 The dashboard now leads with one surface:
 
 - Today’s Mission
-- one Start button
+- one Open Advisor button
 - a short reason, time estimate, expected impact, and confidence
 - readiness and career-gap details behind disclosure
 - saved opportunities and deadlines behind disclosure
