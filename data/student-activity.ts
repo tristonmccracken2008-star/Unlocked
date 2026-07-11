@@ -1,5 +1,6 @@
 export const studentActivityStorageKey = "unlocked-student-activity";
 export const studentActivityEvent = "unlocked-student-activity-change";
+export const studentActivitySyncFailedEvent = "unlocked-student-activity-sync-failed";
 
 export const opportunityTrackerStatuses = ["Saved", "Interested", "Applying", "Submitted", "Interview", "Accepted", "Rejected", "Completed"] as const;
 export type OpportunityTrackerStatus = (typeof opportunityTrackerStatuses)[number];
@@ -47,10 +48,22 @@ export function readStudentActivity(): StudentActivity {
   } catch { return emptyActivity(); }
 }
 
-function writeStudentActivity(activity: StudentActivity) {
+export function replaceStudentActivity(activity: StudentActivity) {
   localStorage.setItem(studentActivityStorageKey, JSON.stringify(activity));
   window.dispatchEvent(new CustomEvent(studentActivityEvent, { detail: activity }));
-  void fetch("/api/account/data", { method: "PUT", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ activity }) }).catch(() => undefined);
+}
+
+export async function persistStudentActivity(activity: StudentActivity) {
+  const response = await fetch("/api/account/data", { method: "PUT", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ activity }) });
+  if (response.status === 401) return null;
+  if (!response.ok) throw new Error("Activity could not be saved.");
+  return await response.json();
+}
+
+function writeStudentActivity(activity: StudentActivity, persist = true) {
+  replaceStudentActivity(activity);
+  if (!persist) return;
+  void persistStudentActivity(activity).catch((error) => window.dispatchEvent(new CustomEvent(studentActivitySyncFailedEvent, { detail: { activity, error: error instanceof Error ? error.message : "Activity sync failed." } })));
 }
 
 export function trackOpportunityView(id: string) {
@@ -73,18 +86,18 @@ export function toggleSavedOpportunity(id: string) {
   writeStudentActivity(activity); return activity;
 }
 
-export function saveOpportunity(id: string, status: OpportunityTrackerStatus = "Saved") {
+export function saveOpportunity(id: string, status: OpportunityTrackerStatus = "Saved", persist = true) {
   const activity = readStudentActivity();
   const tracked = activity.tracked ?? {};
   const existing = tracked[id];
   tracked[id] = { id, status, savedAt: existing?.savedAt ?? new Date().toISOString(), updatedAt: new Date().toISOString() };
   activity.tracked = tracked;
   activity.saved = [...new Set([...activity.saved, id])];
-  writeStudentActivity(activity); return activity;
+  writeStudentActivity(activity, persist); return activity;
 }
 
-export function updateOpportunityStatus(id: string, status: OpportunityTrackerStatus) {
-  return saveOpportunity(id, status);
+export function updateOpportunityStatus(id: string, status: OpportunityTrackerStatus, persist = true) {
+  return saveOpportunity(id, status, persist);
 }
 
 export function removeTrackedOpportunity(id: string) {

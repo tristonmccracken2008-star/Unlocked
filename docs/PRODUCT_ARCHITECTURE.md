@@ -71,6 +71,32 @@ If a student has no activity, Journey shows empty states that explain the next u
 
 Journey recap is generated only from actual saved/tracked opportunity records. Share text includes counts and the latest real milestone when one exists. It does not include GPA, private notes, raw evidence, or unverified inferred achievements.
 
+## Journey Board
+
+`/my-opportunities` is the Journey Board: a focused opportunity tracker for moving saved opportunities through real statuses.
+
+It preserves the existing status model:
+
+- Saved
+- Interested
+- Applying
+- Submitted
+- Interview
+- Accepted
+- Rejected
+- Completed
+
+Each card has one primary status action, "Move to...", which opens an accessible menu. Desktop users may also drag a card between lanes; the menu remains the keyboard and mobile-safe alternative.
+
+Status changes are optimistic:
+
+1. The card moves locally immediately.
+2. Counts update immediately.
+3. The activity record is persisted through the existing account data API.
+4. If persistence fails, the previous activity snapshot is restored and a visible error toast is shown.
+
+Milestone panels are shown only for real tracked activity, such as first submission, first interview, first acceptance, first completed opportunity, five applications tracked, or ten opportunities tracked. Journey Board does not add XP, streaks, fake scores, or unverifiable progress.
+
 ## Analytics Events
 
 The product event vocabulary includes:
@@ -80,12 +106,20 @@ The product event vocabulary includes:
 - `filter_applied`
 - `opportunity_view`
 - `opportunity_saved`
+- `journey_board_opened`
+- `opportunity_status_menu_opened`
+- `opportunity_status_changed`
+- `opportunity_drag_started`
+- `opportunity_drag_completed`
+- `opportunity_drag_failed`
 - `status_changed`
 - `application_recorded`
 - `for_you_opened`
 - `recommendation_viewed`
 - `recommendation_clicked`
 - `journey_opened`
+- `journey_filter_changed`
+- `milestone_unlocked`
 - `recap_viewed`
 - `share_card_generated`
 - `share_initiated`
