@@ -108,7 +108,7 @@ function AdvisorBrainProfileTab({ profile, session }: { profile: StudentProfile 
             <p className="rule-label text-forest">Recommended next step</p>
             <h2 className="mt-3 font-editorial text-3xl font-bold leading-tight tracking-[-.025em]">{nextStep?.title ?? "Keep building your profile."}</h2>
             <p className="mt-4 max-w-2xl text-sm leading-7 text-ink/60">{nextStep?.nextAction ?? "Save opportunities and update your interests so UnlockED can make better recommendations."}</p>
-            <Link href="/advisor" className="mt-6 inline-flex min-h-12 items-center justify-center rounded-full bg-forest px-6 text-sm font-bold text-white hover:bg-ink">Open Advisor</Link>
+            <Link href="/advisor" className="mt-6 inline-flex min-h-12 items-center justify-center rounded-full bg-forest px-6 text-sm font-bold text-white hover:bg-ink">Open For You</Link>
           </div>
           <aside className="rounded-[1.5rem] bg-paper p-5">
             <p className="rule-label text-forest">Current direction</p>

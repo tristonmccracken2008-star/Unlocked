@@ -61,19 +61,32 @@ Output:
 - `estimatedCompletionTime`
 - `knowledgeReferences`
 
-## Dashboard Integration
+## For You Integration
 
-`components/personalized-home.tsx` uses `buildAdvisorBrain` after the existing account/profile/activity hydration completes.
+`components/advisor-page.tsx` uses `buildAdvisorBrain` after the existing account/profile/activity hydration completes.
 
-The dashboard now leads with one surface:
+For You now leads with one opportunity-focused surface:
 
-- Today’s Mission
-- one Open Advisor button
-- a short reason, time estimate, expected impact, and confidence
-- readiness and career-gap details behind disclosure
-- saved opportunities and deadlines behind disclosure
+- one best-fit recommendation from the UnlockED opportunity database or roadmap-linked opportunity context;
+- one primary action into the matching opportunity or Discover filters;
+- why it fits;
+- evidence and confidence behind disclosure;
+- alternatives behind disclosure.
 
-The dashboard no longer renders the duplicate `/api/advisor/recommend` coaching card. The route and API remain available for existing integrations, but the primary dashboard experience is driven by `buildAdvisorBrain`.
+React components do not rank or generate recommendations. They render the structured Advisor Brain output.
+
+## Journey Integration
+
+`components/personalized-home.tsx` is now the private Journey surface.
+
+Journey uses:
+
+- `buildJourneyMilestones`
+- `buildJourneyRecap`
+- existing saved/tracked activity records
+- existing progress records where available
+
+Journey does not fabricate streaks, points, goals, or achievements. If there is no real activity yet, it renders clear empty states and points the student back to Discover.
 
 ## Opportunity Integration
 

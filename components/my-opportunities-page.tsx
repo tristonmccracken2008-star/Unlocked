@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { deadlineLabel, opportunities, type Opportunity } from "@/data/opportunities";
 import { opportunityTrackerStatuses, readStudentActivity, removeTrackedOpportunity, studentActivityEvent, updateOpportunityStatus, type OpportunityTrackerStatus, type StudentActivity } from "@/data/student-activity";
 import { ArrowIcon } from "./icons";
+import { trackProductEvent } from "@/data/product-analytics";
 
 const filters = ["All", "Scholarships", "AI Tools", "Research", "Internships", "Benefits", "Software"] as const;
 type TrackerFilter = (typeof filters)[number];
@@ -29,7 +30,12 @@ function matchesFilter(item: Opportunity, filter: TrackerFilter) {
 
 function statusSummary(status: OpportunityTrackerStatus) {
   if (status === "Saved") return "Saved";
-  if (["Interested", "Applying", "Interview", "Accepted"].includes(status)) return "In Progress";
+  if (status === "Interested") return "Planning to apply";
+  if (["Applying", "Submitted"].includes(status)) return "Applied";
+  if (status === "Interview") return "Interviewing";
+  if (status === "Accepted") return "Accepted";
+  if (status === "Rejected") return "Rejected";
+  if (status === "Completed") return "Completed";
   return status;
 }
 
@@ -56,8 +62,8 @@ export function MyOpportunitiesPage() {
     const records = Object.values(activity.tracked ?? {});
     return {
       saved: records.filter((item) => item.status === "Saved").length,
-      inProgress: records.filter((item) => ["Interested", "Applying", "Interview", "Accepted"].includes(item.status)).length,
-      submitted: records.filter((item) => item.status === "Submitted").length,
+      inProgress: records.filter((item) => ["Interested", "Applying", "Submitted", "Interview"].includes(item.status)).length,
+      submitted: records.filter((item) => ["Submitted", "Interview", "Accepted", "Rejected", "Completed"].includes(item.status)).length,
       completed: records.filter((item) => item.status === "Completed").length,
     };
   }, [activity]);
@@ -129,7 +135,7 @@ function TrackedCard({ opportunity, status }: { opportunity: Opportunity; status
     <div className="mt-4 border-t border-ink/10 pt-3">
       <p className="rule-label text-ink/30">Move to</p>
       <div className="mt-2 flex flex-wrap gap-1.5">
-        {nextStatuses.map((item) => <button key={item} type="button" onClick={() => updateOpportunityStatus(opportunity.id, item)} className="min-h-8 border border-ink/15 px-2.5 text-[10px] font-bold uppercase tracking-wider text-ink/50 hover:border-forest hover:text-forest">{item}</button>)}
+        {nextStatuses.map((item) => <button key={item} type="button" onClick={() => { updateOpportunityStatus(opportunity.id, item); trackProductEvent("status_changed", { opportunityId: opportunity.id, status: item }); if (["Applying", "Submitted", "Interview", "Accepted", "Rejected", "Completed"].includes(item)) trackProductEvent("application_recorded", { opportunityId: opportunity.id, status: item }); }} className="min-h-8 border border-ink/15 px-2.5 text-[10px] font-bold uppercase tracking-wider text-ink/50 hover:border-forest hover:text-forest">{item}</button>)}
       </div>
     </div>
   </article>;

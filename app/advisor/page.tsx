@@ -6,8 +6,8 @@ import { getSession, sessionCookieName } from "@/lib/auth-store";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
-  title: "Advisor",
-  description: "A focused UnlockED advisor view that explains what to do next and why.",
+  title: "For You",
+  description: "Personalized UnlockED opportunity recommendations selected around your profile and activity.",
   alternates: { canonical: "/advisor" },
   robots: { index: false, follow: false },
 };

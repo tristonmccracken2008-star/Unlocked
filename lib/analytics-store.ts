@@ -27,7 +27,7 @@ const safe = (value: string | undefined) => value?.trim().slice(0, 120);
 export async function recordAnalyticsEvent(name: AnalyticsEventName, visitorId: string, properties: AnalyticsEventProperties = {}) {
   const date = today();
   await command(["PFADD", `analytics:users:${date}`, anonymousHash(visitorId)]);
-  if (["homepage_visit","onboarding_completed","dashboard_visit"].includes(name)) await command(["HINCRBY", `analytics:funnel:${date}`, name, 1]);
+  if (["homepage_visit","onboarding_completed","dashboard_visit","journey_opened"].includes(name)) await command(["HINCRBY", `analytics:funnel:${date}`, name === "journey_opened" ? "dashboard_visit" : name, 1]);
   if (name === "opportunity_view" && safe(properties.opportunityId)) await command(["ZINCRBY", "analytics:opportunity-views", 1, safe(properties.opportunityId)!]);
   if (name === "opportunity_saved" && safe(properties.opportunityId)) await command(["ZINCRBY", "analytics:opportunity-saves", 1, safe(properties.opportunityId)!]);
   if (name === "search" && safe(properties.searchValue) && properties.searchType) await command(["ZINCRBY", `analytics:searches:${properties.searchType}`, 1, safe(properties.searchValue)!]);

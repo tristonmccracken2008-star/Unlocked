@@ -12,6 +12,7 @@ const benefitSlugs = opportunities.filter((item) => item.type === "Benefit" && i
 const staticRoutes = new Set([
   "/",
   "/about",
+  "/advisor",
   "/ai",
   "/benefits",
   "/best-edu-email-perks",
@@ -39,6 +40,7 @@ const staticRoutes = new Set([
   "/terms",
   "/university",
   "/updates",
+  "/admin/advisor",
   "/admin/analytics",
   "/admin/content",
   "/admin/review",

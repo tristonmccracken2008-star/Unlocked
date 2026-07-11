@@ -1,71 +1,96 @@
 # UnlockED Product Architecture
 
-UnlockED is organized around three primary authenticated sections.
+UnlockED's authenticated experience is organized around three simple sections:
+
+- **Discover** answers: "What opportunities can I find?"
+- **For You** answers: "Which opportunities fit me best right now?"
+- **Journey** answers: "What have I already done, and what is active?"
+
+Profile remains secondary account navigation. Billing, onboarding, authentication, profile persistence, opportunity search, saves, tracking, and Advisor Brain infrastructure stay behind these surfaces.
 
 ## Primary Navigation
 
-- **Home** answers: “What should I pay attention to right now?”
-- **Opportunities** answers: “What opportunities exist?”
-- **Advisor** answers: “What should I do?”
+The signed-in header exposes only:
 
-Profile remains secondary account navigation. Saved opportunities remain available through Home and the existing saved-opportunities route.
+- Discover (`/opportunities`)
+- For You (`/advisor`)
+- Journey (`/`)
 
-## Home
+Profile stays available as account-level navigation. Mobile signed-in users receive the same three primary destinations in a compact bottom navigation.
 
-Home is a command center, not an analytics dashboard.
+Logged-out users still see only the UnlockED brand and Google sign-in.
 
-It shows:
+## Discover
 
-- one primary mission;
-- why the mission matters;
-- estimated effort and expected impact;
-- one primary action: Open Advisor;
-- secondary saved/deadline context behind disclosure.
+Discover is the opportunity database.
 
-Home uses `buildAdvisorBrain` but does not duplicate recommendation logic.
+It preserves the existing search, browse, filters, saved opportunities, and opportunity detail behavior. Categories such as scholarships, research, internships, benefits, AI tools, and career resources live inside search/filter controls rather than top-level navigation.
 
-## Opportunities
+Advisor handoffs open Discover through URL parameters such as `query`, `category`, or `type`. `OpportunityFilter` reads those parameters on load and applies them to the existing filter state.
 
-Opportunities preserves the existing search, browse, saved, tracking, and opportunity database behavior.
+## For You
 
-The visible hierarchy is:
+For You is the Advisor Brain's opportunity-ranking surface.
 
-1. Search
-2. Quick category chips
-3. Advanced filters on demand
-4. Results
+It does not invent broad life advice or hardcode recommendations in React components. It consumes `buildAdvisorBrain` and displays one high-priority recommendation from structured profile, activity, progress, and opportunity data.
 
-Advisor can open Opportunities with query parameters such as `query`, `category`, or `type`. `OpportunityFilter` reads those parameters on load and applies them to the existing filter state.
+For You shows:
 
-## Advisor
+- one primary recommendation;
+- why it fits;
+- evidence and confidence behind disclosure;
+- alternatives behind disclosure;
+- a direct link into Discover or the opportunity detail page.
 
-Advisor is the premium coaching surface.
-
-It uses existing infrastructure:
-
-- Advisor Brain
-- Student Digital Twin
-- Evidence Inventory
-- Recommendation Engine
-- Interview Intelligence
-- Student Progress
-
-Advisor shows one highest-priority recommendation with:
-
-- why it matters now;
-- evidence used;
-- confidence;
-- expected benefit;
-- estimated effort;
-- direct next action;
-- alternatives behind disclosure.
-
-Completion uses existing progress helpers:
+Completion and tracking use the existing helpers:
 
 - milestone recommendations call `markMilestoneCompleted`;
 - opportunity recommendations call `updateApplicationStatus`.
 
-Completion confirms what changed before revealing the next recommendation.
+## Journey
+
+Journey is the private student home.
+
+It is not a generic dashboard and it does not fabricate motivation metrics. Journey only displays real persisted or locally hydrated data:
+
+- completed profile milestone;
+- saved opportunities;
+- tracked applications;
+- submitted/interview/accepted/rejected/completed statuses;
+- recent milestones derived from student activity;
+- a recap generated from those same records.
+
+Journey data is produced by `data/journey.ts`:
+
+- `buildJourneyMilestones`
+- `buildJourneyRecap`
+
+If a student has no activity, Journey shows empty states that explain the next useful action instead of fake stats.
+
+## Recap and Sharing
+
+Journey recap is generated only from actual saved/tracked opportunity records. Share text includes counts and the latest real milestone when one exists. It does not include GPA, private notes, raw evidence, or unverified inferred achievements.
+
+## Analytics Events
+
+The product event vocabulary includes:
+
+- `discover_opened`
+- `search_performed`
+- `filter_applied`
+- `opportunity_view`
+- `opportunity_saved`
+- `status_changed`
+- `application_recorded`
+- `for_you_opened`
+- `recommendation_viewed`
+- `recommendation_clicked`
+- `journey_opened`
+- `recap_viewed`
+- `share_card_generated`
+- `share_initiated`
+
+`journey_opened` is stored in the existing dashboard funnel bucket for analytics compatibility.
 
 ## Free and Pro Boundary
 
@@ -76,18 +101,36 @@ Completion confirms what changed before revealing the next recommendation.
 - `pro`
 - `unavailable`
 
-Current behavior keeps Advisor available as a tasteful preview for authenticated students with a completed profile. The type boundary allows future Stripe/Pro enforcement without changing the Advisor UI contract.
+The normal product remains available to Free users. Current UI does not aggressively advertise Pro or lock the core experience.
 
-## Performance Notes
+## Preserved Infrastructure
 
-The dashboard no longer fetches the duplicate `/api/advisor/recommend` panel on initial load. Home computes the mission from local hydrated profile/activity/progress state and keeps secondary information collapsed.
+This product layer must not rewrite:
 
-Opportunities keeps the existing client filter infrastructure but avoids rendering the full advanced filter grid until requested.
+- Google OAuth
+- session cookies
+- onboarding persistence
+- profile persistence
+- billing or Stripe
+- opportunity data/search/filtering
+- saved opportunities
+- tracking records
+- Advisor Brain internals
+- Student Digital Twin
+- Evidence Inventory
+- Interview Intelligence
 
 ## Tests
 
 The architecture is covered by:
 
-- `npm run check:advisor-ux`
-- `npm run check:profile-flow`
-- existing onboarding, auth, advisor, interview, data validation, and production build checks.
+```bash
+npm run check:advisor-ux
+npm run check:profile-flow
+npm run check:onboarding
+npm run check:auth
+npm run check:advisor
+npm run check:interview
+npm run validate:data
+npm run build
+```

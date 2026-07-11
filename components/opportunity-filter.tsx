@@ -1,19 +1,24 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { filterOpportunities, opportunityTypes, type Opportunity, type OpportunityDifficulty, type OpportunityType } from "@/data/opportunities";
 import { schools, type School } from "@/data/seed";
 import { findSchoolMatches, normalizeSchoolQuery } from "@/data/school-search";
 import { OpportunityCard } from "./opportunity-card";
 import { SearchIcon } from "./icons";
+import { trackProductEvent } from "@/data/product-analytics";
 
 export function OpportunityFilter({ opportunities }: { opportunities: Opportunity[] }) {
   const [query,setQuery]=useState(""); const [type,setType]=useState<OpportunityType|"All">("All"); const [category,setCategory]=useState("All"); const [major,setMajor]=useState("All"); const [school,setSchool]=useState("All"); const [paid,setPaid]=useState("All"); const [remote,setRemote]=useState("All"); const [difficulty,setDifficulty]=useState<Exclude<OpportunityDifficulty,null>|"All">("All"); const [freshmanFriendly,setFreshmanFriendly]=useState(false); const [deadline,setDeadline]=useState("All"); const [visibleCount,setVisibleCount]=useState(18);
+  const trackedFilters = useRef(false);
   const majors=["All",...new Set(opportunities.flatMap((item)=>item.majors).filter((item)=>item!=="Any Major"))];
   const categories=["All",...new Set(opportunities.map((item)=>item.category).sort())];
   useEffect(()=>{const params=new URLSearchParams(window.location.search);const nextQuery=params.get("query");const nextCategory=params.get("category");const nextType=params.get("type");if(nextQuery)setQuery(nextQuery);if(nextCategory&&categories.includes(nextCategory))setCategory(nextCategory);if(nextType&&opportunityTypes.includes(nextType as OpportunityType))setType(nextType as OpportunityType)},[]);
+  useEffect(()=>trackProductEvent("discover_opened"),[]);
   const visible=useMemo(()=>filterOpportunities({query,types:type==="All"?undefined:[type],category,major,school:school==="All"?undefined:school,paid:paid==="All"?undefined:paid==="Paid",remote:remote==="All"?undefined:remote==="Remote",difficulty,freshmanFriendly,deadline:deadline==="All"?undefined:deadline as "published"|"upcoming"|"rolling"|"not_announced"},opportunities),[category,deadline,difficulty,freshmanFriendly,major,opportunities,paid,query,remote,school,type]);
   useEffect(()=>setVisibleCount(18),[category,deadline,difficulty,freshmanFriendly,major,paid,query,remote,school,type]);
+  useEffect(()=>{if(query.trim().length<2)return;const timer=window.setTimeout(()=>trackProductEvent("search_performed",{searchType:"opportunity",searchValue:query.trim()}),500);return()=>window.clearTimeout(timer)},[query]);
+  useEffect(()=>{if(!trackedFilters.current){trackedFilters.current=true;return}trackProductEvent("filter_applied",{filterName:"discover",filterValue:JSON.stringify({type,category,major,school,paid,remote,difficulty,freshmanFriendly,deadline})})},[category,deadline,difficulty,freshmanFriendly,major,paid,remote,school,type]);
   const displayed=visible.slice(0,visibleCount);
   const activeFilters=[type,category,major,school,deadline,paid,remote,difficulty].filter((item)=>item!=="All").length+(freshmanFriendly?1:0);
   return <>

@@ -1,7 +1,7 @@
 export const studentActivityStorageKey = "unlocked-student-activity";
 export const studentActivityEvent = "unlocked-student-activity-change";
 
-export const opportunityTrackerStatuses = ["Saved", "Interested", "Applying", "Submitted", "Interview", "Accepted", "Completed"] as const;
+export const opportunityTrackerStatuses = ["Saved", "Interested", "Applying", "Submitted", "Interview", "Accepted", "Rejected", "Completed"] as const;
 export type OpportunityTrackerStatus = (typeof opportunityTrackerStatuses)[number];
 
 export type TrackedOpportunity = {
