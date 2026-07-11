@@ -5,3 +5,4 @@ npm-debug.log*
 .vercel
 .DS_Store
 .unlocked-auth-store.json
+tsconfig.tsbuildinfo
