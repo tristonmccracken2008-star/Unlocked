@@ -1,7 +1,7 @@
 "use client";
 
 import { studentActivityEvent, studentActivityStorageKey, type StudentActivity } from "./student-activity";
-import { isCompletedStudentProfile, studentProfileCompleteStorageKey, studentProfileStorageKey, type StudentProfile } from "./student-profile";
+import { isCompletedStudentProfile, normalizeStudentProfile, studentProfileCompleteStorageKey, studentProfileStorageKey, type StudentProfile } from "./student-profile";
 import type { AccountData, AccountSession } from "@/lib/account-types";
 import { defaultBillingRecord } from "@/lib/billing";
 
@@ -142,6 +142,7 @@ async function hydrateAccountDataInner() {
   merged.tracker = merged.activity?.tracked ?? {};
   merged.savedOpportunities = [...new Set([...(merged.activity?.saved ?? []), ...Object.keys(merged.tracker)])].map((opportunityId) => ({ opportunityId, savedAt: merged.tracker?.[opportunityId]?.savedAt ?? new Date().toISOString() }));
   if (isCompletedStudentProfile(merged.profile)) {
+    merged.profile = normalizeStudentProfile(merged.profile);
     localStorage.setItem(studentProfileStorageKey, JSON.stringify(merged.profile));
     localStorage.setItem(studentProfileCompleteStorageKey, "true");
   }

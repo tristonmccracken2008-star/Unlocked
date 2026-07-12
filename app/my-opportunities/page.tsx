@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
-import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
 import { MyOpportunitiesPage } from "@/components/my-opportunities-page";
-import { getSession, sessionCookieName } from "@/lib/auth-store";
+import { requireCompletedOnboarding } from "@/lib/onboarding";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
@@ -13,8 +11,6 @@ export const metadata: Metadata = {
 };
 
 export default async function Page() {
-  const cookieStore = await cookies();
-  const session = await getSession(cookieStore.get(sessionCookieName)?.value);
-  if (!session?.data.profile) redirect("/");
+  await requireCompletedOnboarding();
   return <MyOpportunitiesPage />;
 }

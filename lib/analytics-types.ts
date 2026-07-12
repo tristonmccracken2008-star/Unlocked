@@ -39,7 +39,13 @@ export const analyticsEvents = [
   "share_initiated",
   "share_completed",
   "sign_in",
+  "onboarding_started",
+  "onboarding_step_viewed",
+  "onboarding_step_completed",
+  "onboarding_back_clicked",
+  "onboarding_validation_failed",
   "onboarding_completed",
+  "onboarding_save_failed",
   "report_outdated",
 ] as const;
 export type AnalyticsEventName = (typeof analyticsEvents)[number];
@@ -54,5 +60,9 @@ export type AnalyticsEventProperties = {
   filterName?: string;
   filterValue?: string;
   milestoneTitle?: string;
+  stepId?: string;
+  stepIndex?: string;
+  stepCount?: string;
+  reason?: string;
 };
 export type AnalyticsSummary = { dailyUsers: number; weeklyUsers: number; mostViewed: [string, number][]; searchedSchools: [string, number][]; searchedMajors: [string, number][]; mostSaved: [string, number][]; funnel: { homepage: number; onboarding: number; dashboard: number } };

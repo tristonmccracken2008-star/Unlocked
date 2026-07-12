@@ -7,6 +7,7 @@ import { schools, type School } from "@/data/seed";
 import { findExactSchoolMatches, findSchoolMatches, normalizeSchoolQuery } from "@/data/school-search";
 import { SearchIcon } from "./icons";
 import { readCompletedStudentProfile, writeStudentProfile, type StudentProfile } from "@/data/student-profile";
+import { currentPriorityOptions, normalizedOpportunityInterests, opportunityInterestOptions, priorityToOpportunityType } from "@/data/profile-options";
 import { accountSessionEvent, accountSyncErrorEvent, clearLocalDashboardState, hydrateAccountData } from "@/data/account-sync";
 import type { AccountSession } from "@/lib/account-types";
 import { trackProductEvent } from "@/data/product-analytics";
@@ -98,16 +99,17 @@ export function PersonalizedHome() {
     trackProductEvent(view === "dashboard" ? "journey_opened" : view === "homepage" ? "homepage_visit" : "page_visit");
   }, [profile, ready, session?.authenticated]);
 
-  async function save(next: StudentProfile) {
-    await writeStudentProfile(next);
-    setProfile(next);
-    trackProductEvent("onboarding_completed", { searchType: "school", searchValue: next.schoolSlug });
-  }
-
   if (!ready) return <WorkspaceLoading />;
   if (!session?.authenticated) return <LoggedOutLanding authIssue={authIssue} />;
-  if (!profile) return <AdvisorInterview session={session} onSave={save} />;
+  if (!profile) return <OnboardingRedirect />;
   return <StudentDashboard profile={profile} session={session} syncError={syncError} />;
+}
+
+function OnboardingRedirect() {
+  useEffect(() => {
+    window.location.replace("/onboarding");
+  }, []);
+  return <main className="min-h-[64vh] px-5 py-20 sm:px-8"><div className="mx-auto max-w-5xl"><p className="rule-label text-forest">UnlockED</p><h1 className="mt-4 font-editorial text-5xl font-bold tracking-[-.04em]">Opening onboarding.</h1><p className="mt-4 text-sm text-ink/45">Your session is ready. Finish your profile to continue.</p></div></main>;
 }
 
 function WorkspaceLoading() {
@@ -291,13 +293,20 @@ export function StudentProfileForm({ mode, session, initialProfile, onSave, onCa
   const [graduationYear, setGraduationYear] = useState(initialProfile?.graduationYear ?? "");
   const [interests, setInterests] = useState(initialProfile?.interests ?? "");
   const [careerGoal, setCareerGoal] = useState(initialProfile?.careerGoal ?? "");
+  const [minorStatus, setMinorStatus] = useState<"declared" | "none">(initialProfile?.minorStatus ?? (initialProfile?.minor ? "declared" : "none"));
+  const [minor, setMinor] = useState(initialProfile?.minor ?? "");
+  const [gpaStatus, setGpaStatus] = useState<"reported" | "none_yet" | "nonstandard">(initialProfile?.gpaStatus ?? "none_yet");
+  const [gpa, setGpa] = useState(typeof initialProfile?.gpa === "number" ? String(initialProfile.gpa) : "");
+  const [currentPriority, setCurrentPriority] = useState(initialProfile?.currentPriority ?? currentPriorityOptions[4]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [showMajorSuggestions, setShowMajorSuggestions] = useState(false);
+  const [showMinorSuggestions, setShowMinorSuggestions] = useState(false);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
   const normalized = normalizeSchoolQuery(schoolQuery);
   const matches = useMemo(() => findSchoolMatches(schools, schoolQuery, 6), [schoolQuery]);
   const majorMatches = useMemo(() => opportunityMajors.filter((item) => item !== "All" && item !== "Any Major" && item.toLowerCase().includes(major.trim().toLowerCase())).slice(0, 6), [major]);
+  const minorMatches = useMemo(() => opportunityMajors.filter((item) => item !== "All" && item !== "Any Major" && item.toLowerCase().includes(minor.trim().toLowerCase())).slice(0, 6), [minor]);
 
   function chooseSchool(school: School) {
     setSelectedSchool(school);
@@ -318,10 +327,18 @@ export function StudentProfileForm({ mode, session, initialProfile, onSave, onCa
     if (!school) { setError("Choose your school from the suggestions."); setShowSuggestions(true); return; }
     if (!major.trim()) { setError("Add your major."); return; }
     if (!graduationYear) { setError("Choose your graduation year."); return; }
+    if (minorStatus === "declared" && !minor.trim()) { setError("Choose your minor or select no minor."); return; }
+    if (gpaStatus === "reported") {
+      const numericGpa = Number(gpa);
+      if (!Number.isFinite(numericGpa) || numericGpa < 0 || numericGpa > 4) { setError("Enter a GPA from 0.00 to 4.00."); return; }
+    }
     if (!interests.trim()) { setError("Add at least one interest."); return; }
     if (!careerGoal.trim()) { setError("Add one career goal."); return; }
+    if (!currentPriority) { setError("Choose your current priority."); return; }
     setError("");
     setSaving(true);
+    const interestTokens = interests.split(",").map((item) => item.trim()).filter(Boolean);
+    const preferredOpportunityTypes = normalizedOpportunityInterests([...(initialProfile?.preferredOpportunityTypes ?? []), ...interestTokens, priorityToOpportunityType(currentPriority)].filter(Boolean));
     try {
       await onSave({
       ...initialProfile,
@@ -331,10 +348,25 @@ export function StudentProfileForm({ mode, session, initialProfile, onSave, onCa
       major: major.trim(),
       graduationYear,
       year: academicYearFromGraduationYear(graduationYear),
+      minorStatus,
+      minor: minorStatus === "declared" ? minor.trim() : undefined,
+      gpaStatus,
+      gpa: gpaStatus === "reported" ? Number(Number(gpa).toFixed(2)) : undefined,
+      gpaScale: gpaStatus === "reported" ? "4.0" : undefined,
       careerGoal: careerGoal.trim(),
       interests: interests.trim(),
+      preferredOpportunityTypes,
+      currentPriority,
       goals: careerGoal.split(",").map((item) => item.trim()).filter(Boolean),
-      topics: interests.split(",").map((item) => item.trim()).filter(Boolean),
+      topics: interestTokens,
+      advisorInterview: {
+        ...(initialProfile?.advisorInterview ?? {}),
+        careerGoal: careerGoal.trim(),
+        interests: interestTokens,
+        primaryGoals: [currentPriority],
+        preferredOpportunityTypes,
+        completedAt: initialProfile?.advisorInterview?.completedAt ?? initialProfile?.onboardingCompletedAt,
+      },
       });
     } catch {
       setError("Your profile could not be saved. Please try again.");
@@ -370,8 +402,29 @@ export function StudentProfileForm({ mode, session, initialProfile, onSave, onCa
           </div>
           <label className="block"><span className="mb-2 block text-sm font-bold">Graduation year</span><select value={graduationYear} onChange={(event) => setGraduationYear(event.target.value)} className="min-h-12 w-full border border-ink/20 bg-white px-4 outline-none focus:border-forest"><option value="">Choose year</option>{graduationYears.map((year) => <option key={year} value={year}>{year}</option>)}</select></label>
         </div>
+        <div className="grid gap-4 sm:grid-cols-[1fr_1fr]">
+          <div>
+            <label className="mb-2 block text-sm font-bold">Minor</label>
+            <div className="grid gap-2">
+              <button type="button" onClick={() => { setMinorStatus("none"); setMinor(""); }} className={`min-h-11 border px-4 text-left text-sm font-bold ${minorStatus === "none" ? "border-forest bg-forest text-white" : "border-ink/20 bg-white text-ink/60 hover:border-forest hover:text-forest"}`}>No minor</button>
+              <button type="button" onClick={() => setMinorStatus("declared")} className={`min-h-11 border px-4 text-left text-sm font-bold ${minorStatus === "declared" ? "border-forest bg-forest text-white" : "border-ink/20 bg-white text-ink/60 hover:border-forest hover:text-forest"}`}>I have a minor</button>
+            </div>
+            {minorStatus === "declared" && <div className="relative mt-3"><input value={minor} onFocus={() => setShowMinorSuggestions(true)} onChange={(event) => { setMinor(event.target.value); setShowMinorSuggestions(true); }} placeholder="Search for your minor" autoComplete="off" className="min-h-12 w-full border border-ink/20 bg-white px-4 outline-none focus:border-forest"/>{showMinorSuggestions && minorMatches.length > 0 && <div className="absolute z-20 mt-1 w-full border border-ink/20 bg-white shadow-soft">{minorMatches.map((item) => <button key={item} type="button" onMouseDown={(event) => event.preventDefault()} onClick={() => { setMinor(item); setShowMinorSuggestions(false); }} className="block w-full border-b border-ink/10 px-4 py-3 text-left text-sm font-bold last:border-b-0 hover:bg-paper">{item}</button>)}</div>}</div>}
+          </div>
+          <div>
+            <label className="mb-2 block text-sm font-bold">GPA</label>
+            <select value={gpaStatus} onChange={(event) => setGpaStatus(event.target.value as "reported" | "none_yet" | "nonstandard")} className="min-h-12 w-full border border-ink/20 bg-white px-4 outline-none focus:border-forest">
+              <option value="none_yet">I do not have a college GPA yet</option>
+              <option value="reported">Enter my GPA</option>
+              <option value="nonstandard">My school does not use a standard GPA</option>
+            </select>
+            {gpaStatus === "reported" && <input inputMode="decimal" value={gpa} onChange={(event) => setGpa(event.target.value.replace(/[^0-9.]/g, ""))} placeholder="Example: 3.75" className="mt-3 min-h-12 w-full border border-ink/20 bg-white px-4 outline-none focus:border-forest"/>}
+          </div>
+        </div>
         <TokenField id="profile-interests" label="Interests" value={interests} setValue={setInterests} suggestions={interestSuggestions} onAdd={addToken} placeholder="AI, research, scholarships" />
         <TokenField id="profile-goals" label="Career goals" value={careerGoal} setValue={setCareerGoal} suggestions={careerGoalSuggestions} onAdd={addToken} placeholder="Get an internship, join a lab" />
+        <label className="block"><span className="mb-2 block text-sm font-bold">Current priority</span><select value={currentPriority} onChange={(event) => setCurrentPriority(event.target.value)} className="min-h-12 w-full border border-ink/20 bg-white px-4 outline-none focus:border-forest">{currentPriorityOptions.map((option) => <option key={option} value={option}>{option}</option>)}</select></label>
+        <div><p className="mb-2 text-sm font-bold">Opportunity interests</p><div className="flex flex-wrap gap-2">{opportunityInterestOptions.map((item) => <button key={item} type="button" onClick={() => addToken(item, interests, setInterests)} className="border border-ink/15 px-3 py-1.5 text-xs font-bold text-ink/55 hover:border-forest hover:text-forest">{item}</button>)}</div></div>
         {error && <p role="alert" className="text-sm font-bold text-red-700">{error}</p>}
         <div className="flex flex-col gap-3 border-t border-ink/15 pt-6 sm:flex-row">
           <button type="submit" disabled={saving} className="inline-flex min-h-12 items-center justify-center bg-forest px-6 text-sm font-bold uppercase tracking-wider text-white hover:bg-ink disabled:opacity-60">{saving ? "Saving..." : mode === "edit" ? "Save profile" : "Open dashboard"}</button>

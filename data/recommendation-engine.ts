@@ -90,8 +90,8 @@ function studentContext(profile: AdvisorProfile): OpportunityStudentContext {
     schoolName: profile.school.name,
     major: profile.academics.major,
     academicYear: profile.academics.academicYear,
-    careerGoals: unique([profile.goals.careerGoal, ...profile.goals.primaryGoals]).join(", "),
-    interests: unique([...profile.goals.interests, ...profile.goals.topics]),
+    careerGoals: unique([profile.goals.careerGoal, profile.goals.currentPriority ?? "", ...profile.goals.primaryGoals]).join(", "),
+    interests: unique([...profile.goals.interests, ...profile.goals.topics, profile.goals.currentPriority ?? ""]),
     savedOpportunityIds: profile.experience.savedOpportunityIds,
     viewedOpportunityIds: profile.experience.viewedOpportunityIds,
   };
@@ -144,7 +144,19 @@ function opportunityReasons(profile: AdvisorProfile, ranked: RankedOpportunity) 
     ...ranked.milestoneReasons,
     ranked.roadmapBoost > 0 ? `Fits your roadmap priority: ${intelligence.category}.` : "",
     ranked.progressBoost > 0 ? "Matches an opportunity you already saved or started." : "",
+    profile.goals.currentPriority && normalizePriority(profile.goals.currentPriority, ranked.opportunity) ? `Matches your current priority: ${profile.goals.currentPriority}.` : "",
   ]).slice(0, 6);
+}
+
+function normalizePriority(priority: string, opportunity: Opportunity) {
+  const value = priority.toLowerCase();
+  const target = `${opportunity.type} ${opportunity.category} ${opportunity.tags.join(" ")}`.toLowerCase();
+  if (value.includes("internship")) return target.includes("internship");
+  if (value.includes("research")) return target.includes("research");
+  if (value.includes("scholarship")) return target.includes("scholarship");
+  if (value.includes("benefit")) return target.includes("benefit") || target.includes("software") || target.includes("ai");
+  if (value.includes("application")) return target.includes("career") || target.includes("internship") || target.includes("fellowship");
+  return false;
 }
 
 function rankMilestone(profile: AdvisorProfile, milestone: RoadmapMilestone, progress?: StudentProgress): RecommendationV1 {

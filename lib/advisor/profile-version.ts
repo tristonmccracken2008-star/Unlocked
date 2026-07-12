@@ -16,7 +16,12 @@ export function advisorProfileFingerprint(profile: StudentProfile | null | undef
   if (!profile) return null;
   return {
     major: profile.major?.trim().toLowerCase() ?? "",
+    minor: profile.minor?.trim().toLowerCase() ?? "",
+    minorStatus: profile.minorStatus ?? "",
+    gpaStatus: profile.gpaStatus ?? "",
+    gpa: profile.gpa ?? "",
     careerGoal: profile.careerGoal?.trim().toLowerCase() ?? "",
+    currentPriority: profile.currentPriority?.trim().toLowerCase() ?? "",
     year: profile.year?.trim().toLowerCase() ?? "",
     graduationYear: profile.graduationYear ?? "",
     interests: profile.interests?.trim().toLowerCase() ?? "",

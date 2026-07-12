@@ -16,6 +16,7 @@ import { createAdvisorProfile } from "@/data/advisor-engine";
 import { explainOpportunityWithAdvisorBrain, type OpportunityAdvisorExplanation } from "@/data/advisor-brain";
 import { inferApplicationsFromActivity, normalizeStudentProgress } from "@/data/student-progress";
 import { getSession, sessionCookieName } from "@/lib/auth-store";
+import { requireCompletedOnboarding } from "@/lib/onboarding";
 import type { StudentActivity } from "@/data/student-activity";
 
 export const dynamic="force-dynamic";
@@ -70,6 +71,7 @@ async function personalizedExplanation(item: Opportunity, catalog: readonly Oppo
 }
 
 export default async function Page({params}:{params:Promise<{id:string}>}){
+  await requireCompletedOnboarding();
   const item=await getManagedOpportunity((await params).id);if(!item)notFound();
   const catalog=await listPublishedOpportunities();
   const displayedStatus=maintenanceStatus(item);

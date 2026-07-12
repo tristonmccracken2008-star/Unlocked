@@ -67,7 +67,7 @@ for (const label of [
   assert.ok(advisorPage.includes(label), `Advisor page must render ${label}.`);
 }
 assert.ok(!advisorPage.includes("What to do next."), "For You should not expose broad advisor dashboard framing.");
-assert.ok(advisorRoute.includes("getSession"), "Advisor route must remain protected by server-side auth.");
+assert.ok(advisorRoute.includes("requireCompletedOnboarding"), "Advisor route must remain protected by server-side auth.");
 assert.ok(advisorPage.includes("buildRecommendationService"), "Advisor page must consume the canonical recommendation service.");
 assert.ok(recommendationService.includes("buildAdvisorBrain"), "Recommendation service must consume Advisor Brain.");
 assert.ok(recommendationService.includes("recommendationMatchLabel"), "Recommendation service must own qualitative match labels.");

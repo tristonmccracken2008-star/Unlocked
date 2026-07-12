@@ -28,9 +28,12 @@ export type AdvisorProfile = {
     graduationYear?: string;
     academicYear: string;
     timelineStage: AdvisorTimelineStage;
+    gpaStatus?: StudentProfile["gpaStatus"];
+    gpa?: number;
   };
   goals: {
     careerGoal: string;
+    currentPriority?: string;
     interests: string[];
     topics: string[];
     primaryGoals: string[];
@@ -129,12 +132,15 @@ export function createAdvisorProfile(input: { profile: StudentProfile; school: S
       graduationYear: profile.graduationYear,
       academicYear: profile.year,
       timelineStage: advisorTimelineStage(profile.year),
+      gpaStatus: profile.gpaStatus,
+      gpa: profile.gpa,
     },
     goals: {
       careerGoal: profile.careerGoal,
+      currentPriority: profile.currentPriority,
       interests,
       topics: profile.topics ?? interests,
-      primaryGoals: profile.goals ?? goals,
+      primaryGoals: unique([...(profile.goals ?? goals), profile.currentPriority ?? ""]),
       preferredOpportunityTypes: profile.preferredOpportunityTypes ?? profile.advisorInterview?.preferredOpportunityTypes ?? [],
       weeklyAvailability: profile.weeklyAvailability ?? profile.advisorInterview?.weeklyAvailability,
       clubs: profile.clubs,
@@ -199,6 +205,7 @@ function categoryReasons(profile: AdvisorProfile, category: string, priority: Ad
   if (profile.experience.currentExperienceLevel === "Starting") reasons.push("You have not saved many opportunities yet, so this is a practical starting point.");
   if (profile.progress.applicationsNeedingAttention.length) reasons.push("You have applications or deadlines that need attention soon.");
   if (profile.goals.careerGoal) reasons.push(`It supports your stated goal: ${profile.goals.careerGoal}.`);
+  if (profile.goals.currentPriority && normalize(profile.goals.currentPriority).includes(normalize(category))) reasons.push(`It aligns with your current priority: ${profile.goals.currentPriority}.`);
   return reasons;
 }
 
@@ -255,8 +262,8 @@ export function explainOpportunityRecommendation(profile: AdvisorProfile, item: 
     schoolName: profile.school.name,
     major: profile.academics.major,
     academicYear: profile.academics.academicYear,
-    careerGoals: profile.goals.careerGoal,
-    interests: profile.goals.interests,
+      careerGoals: profile.goals.careerGoal,
+      interests: unique([...profile.goals.interests, profile.goals.currentPriority ?? ""]),
     savedOpportunityIds: profile.experience.savedOpportunityIds,
     viewedOpportunityIds: profile.experience.viewedOpportunityIds,
   });

@@ -2,7 +2,7 @@ import crypto from "node:crypto";
 import type { AccountData, AuthUser, DatabaseUser } from "./account-types";
 import type { AdvisorAccountData } from "./advisor/types";
 import { defaultBillingRecord, normalizeBillingRecord, type BillingRecord } from "./billing";
-import { isCompletedStudentProfile } from "@/data/student-profile";
+import { isCompletedStudentProfile, normalizeStudentProfile } from "@/data/student-profile";
 import { meaningfulAdvisorProfileChanged } from "./advisor/profile-version";
 
 export const sessionCookieName = "unlocked_session";
@@ -173,7 +173,7 @@ function normalizeAdvisorData(value: AdvisorAccountData | null | undefined): Adv
 function normalizeAccountData(value: AccountData | null | undefined): AccountData {
   if (!value) return emptyData();
   const tracked = value.tracker ?? value.activity?.tracked ?? {};
-  const profile = value.profile ?? null;
+  const profile = value.profile && isCompletedStudentProfile(value.profile) ? normalizeStudentProfile(value.profile) : value.profile ?? null;
   return {
     profile,
     onboardingComplete: Boolean(value.onboardingComplete || (profile && isCompletedStudentProfile(profile))),
@@ -212,7 +212,7 @@ export async function mergeAccountData(userId: string, incoming: Partial<Account
     tracked: tracker,
   } : null;
   const savedIds = [...new Set([...(current.savedOpportunities ?? []).map((item) => item.opportunityId), ...uniqueStrings(activity?.saved), ...Object.keys(tracker)])];
-  const incomingProfile = incoming.profile && isCompletedStudentProfile(incoming.profile) ? incoming.profile : null;
+  const incomingProfile = incoming.profile && isCompletedStudentProfile(incoming.profile) ? normalizeStudentProfile(incoming.profile) : null;
   const profile = incomingProfile ?? current.profile ?? null;
   const profileChangedForAdvisor = Boolean(incomingProfile && meaningfulAdvisorProfileChanged(current.profile, incomingProfile));
   const next: AccountData = {
