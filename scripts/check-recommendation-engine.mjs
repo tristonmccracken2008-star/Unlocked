@@ -66,6 +66,12 @@ assert.ok(engine.includes("diversityAdjustedOpportunityRecommendations"), "Recom
 assert.ok(engine.includes("organizationPenalty") && engine.includes("categoryPenalty") && engine.includes("typePenalty"), "Diversity must balance organization, category, and type.");
 assert.ok(engine.includes("shouldExcludeOpportunity") && engine.includes("trackerRecord"), "Engine must suppress opportunities already in Journey.");
 assert.ok(engine.includes("contextWithLearning"), "Engine must learn category signals from saved/completed activity.");
+assert.ok(engine.includes("qualityGateFailures") && engine.includes("minimumPositiveSignals"), "Engine must filter weak recommendations with quality gates.");
+assert.ok(engine.includes("buildRecommendationDiagnosticReport"), "Engine must expose internal recommendation diagnostics.");
+assert.ok(engine.includes("RecommendationReviewRecord"), "Engine diagnostics must produce review records.");
+assert.ok(engine.includes("performance") && engine.includes("elapsedMs"), "Recommendation diagnostics must include performance timing.");
+assert.ok(intelligence.includes("signals: OpportunityRankingSignal[]"), "Opportunity scores must include ranking signals.");
+assert.ok(intelligence.includes("positiveSignalCount"), "Opportunity scores must count meaningful positive signals.");
 assert.ok(service.includes("labelForRecommendationScore(recommendation.score)"), "Recommendation labels must use score thresholds, not confidence percentages.");
 
 for (const surface of [
@@ -96,6 +102,9 @@ for (const phrase of [
   "Recommendation Labels",
   "Diversity",
   "Cache and Refresh",
+  "Internal Diagnostics",
+  "Quality Gates",
+  "Performance",
 ]) {
   assert.ok(docs.includes(phrase), `Recommendation documentation must explain ${phrase}.`);
 }

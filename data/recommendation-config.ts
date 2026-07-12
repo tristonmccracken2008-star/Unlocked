@@ -46,6 +46,10 @@ export const recommendationConfig = {
     maxSameCategoryBeforePenalty: 2,
     maxSameTypeBeforePenalty: 3,
   },
+  qualityGates: {
+    minimumPositiveSignals: 2,
+    minimumRecommendationScore: 34,
+  },
 } as const;
 
 export function labelForRecommendationScore(score: number): RecommendationMatchLabel {

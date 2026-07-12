@@ -4,7 +4,7 @@ import { getMilestoneOpportunityConnections, toMilestone, type Milestone } from 
 import { getOpportunityIntelligence, scoreOpportunityIntelligence, type OpportunityPriority, type OpportunityScore, type OpportunityStudentContext } from "./opportunity-intelligence";
 import { opportunities as catalogOpportunities, type Opportunity } from "./opportunities";
 import { getRoadmap, type RoadmapImportance, type RoadmapMilestone } from "./roadmap-engine";
-import { recommendationConfig } from "./recommendation-config";
+import { labelForRecommendationScore, recommendationConfig } from "./recommendation-config";
 import type { ApplicationRecord, StudentProgress } from "./student-progress";
 
 export type RecommendationKind = "Opportunity" | "Milestone" | "Next Action";
@@ -54,6 +54,33 @@ type RankedOpportunity = {
   roadmapBoost: number;
   progressBoost: number;
   finalScore: number;
+};
+
+export type RecommendationReviewRecord = {
+  opportunityId: string;
+  title: string;
+  organization: string;
+  finalRank: number | null;
+  overallMatch: ReturnType<typeof labelForRecommendationScore>;
+  finalScore: number;
+  signals: OpportunityScore["signals"];
+  reasons: string[];
+  filteredOut: boolean;
+  filterReasons: string[];
+};
+
+export type RecommendationDiagnosticReport = {
+  generatedAt: string;
+  topRecommendation: RecommendationReviewRecord | null;
+  finalRankingOrder: RecommendationReviewRecord[];
+  filteredRecommendations: RecommendationReviewRecord[];
+  competingOpportunities: RecommendationReviewRecord[];
+  performance: {
+    opportunityCount: number;
+    rankedCount: number;
+    recommendedCount: number;
+    elapsedMs: number;
+  };
 };
 
 const priorityWeight: Record<OpportunityPriority, number> = {
@@ -229,6 +256,19 @@ function rankOpportunity(profile: AdvisorProfile, opportunity: Opportunity, cont
   return { opportunity, score, milestoneReasons, roadmapBoost, progressBoost: savedBoost + activeApplicationBoost, finalScore };
 }
 
+function qualityGateFailures(ranked: RankedOpportunity) {
+  const failures: string[] = [];
+  const { opportunity, score, finalScore } = ranked;
+  if (!score.breakdown.schoolEligible) failures.push("Not eligible for the student's school.");
+  if (!score.breakdown.matchingYears.length && opportunity.academic_years.length && !opportunity.academic_years.includes("Any Year")) failures.push("Does not match the student's class year.");
+  if (score.breakdown.gpaEligible === false) failures.push("Student GPA is below the listed GPA requirement.");
+  if (score.breakdown.deadlineDays !== null && score.breakdown.deadlineDays < 0) failures.push("Deadline has passed.");
+  if (score.positiveSignalCount < recommendationConfig.qualityGates.minimumPositiveSignals) failures.push("Fewer than two meaningful positive recommendation signals.");
+  if (finalScore < recommendationConfig.qualityGates.minimumRecommendationScore) failures.push("Final recommendation score is below the quality gate.");
+  if (!score.reasons.some((reason) => /matches|accepts|available|deadline|verified|gpa|supports|open to/i.test(reason))) failures.push("Missing factual explanation reasons.");
+  return failures;
+}
+
 function toOpportunityRecommendation(profile: AdvisorProfile, ranked: RankedOpportunity): RecommendationV1 {
   const opportunity = ranked.opportunity;
   const application = progressForOpportunity(profile, opportunity.id);
@@ -266,6 +306,18 @@ function shouldExcludeOpportunity(profile: AdvisorProfile, opportunity: Opportun
   return Boolean(application && terminalApplicationStatuses.has(application.status));
 }
 
+function rankAllOpportunities(input: RecommendationEngineInput) {
+  const { advisorProfile: profile, progress } = input;
+  const source = input.opportunities ?? catalogOpportunities;
+  const roadmap = getRoadmap(profile, progress);
+  const activeMilestones = roadmap.upcomingMilestones.slice(0, 4).map((milestone) => toMilestone(milestone, progress));
+  const context = contextWithLearning(studentContext(profile), source);
+  const prefiltered = source.filter((opportunity) => !shouldExcludeOpportunity(profile, opportunity));
+  return prefiltered
+    .map((opportunity) => rankOpportunity(profile, opportunity, context, activeMilestones, roadmap.opportunityPriorities))
+    .sort((a, b) => b.finalScore - a.finalScore || priorityWeight[b.score.priority] - priorityWeight[a.score.priority] || a.opportunity.title.localeCompare(b.opportunity.title));
+}
+
 function diversityAdjustedOpportunityRecommendations(profile: AdvisorProfile, ranked: RankedOpportunity[], limit: number) {
   const config = recommendationConfig.diversity;
   const selected: RankedOpportunity[] = [];
@@ -300,16 +352,49 @@ function diversityAdjustedOpportunityRecommendations(profile: AdvisorProfile, ra
 }
 
 export function rankOpportunityRecommendations(input: RecommendationEngineInput): RecommendationV1[] {
-  const { advisorProfile: profile, progress } = input;
-  const source = input.opportunities ?? catalogOpportunities;
-  const roadmap = getRoadmap(profile, progress);
-  const activeMilestones = roadmap.upcomingMilestones.slice(0, 4).map((milestone) => toMilestone(milestone, progress));
-  const context = contextWithLearning(studentContext(profile), source);
-  const ranked = source
-    .filter((opportunity) => !shouldExcludeOpportunity(profile, opportunity))
-    .map((opportunity) => rankOpportunity(profile, opportunity, context, activeMilestones, roadmap.opportunityPriorities))
-    .sort((a, b) => b.finalScore - a.finalScore || priorityWeight[b.score.priority] - priorityWeight[a.score.priority] || a.opportunity.title.localeCompare(b.opportunity.title))
-  return diversityAdjustedOpportunityRecommendations(profile, ranked, input.limit ?? 24);
+  const ranked = rankAllOpportunities(input).filter((item) => qualityGateFailures(item).length === 0);
+  return diversityAdjustedOpportunityRecommendations(input.advisorProfile, ranked, input.limit ?? 24);
+}
+
+function reviewRecord(ranked: RankedOpportunity, finalRank: number | null): RecommendationReviewRecord {
+  const failures = qualityGateFailures(ranked);
+  return {
+    opportunityId: ranked.opportunity.id,
+    title: ranked.opportunity.title,
+    organization: ranked.opportunity.organization,
+    finalRank,
+    overallMatch: labelForRecommendationScore(ranked.finalScore),
+    finalScore: ranked.finalScore,
+    signals: ranked.score.signals,
+    reasons: ranked.score.reasons,
+    filteredOut: failures.length > 0,
+    filterReasons: failures,
+  };
+}
+
+export function buildRecommendationDiagnosticReport(input: RecommendationEngineInput): RecommendationDiagnosticReport {
+  const started = typeof performance !== "undefined" ? performance.now() : Date.now();
+  const allRanked = rankAllOpportunities(input);
+  const eligibleRanked = allRanked.filter((item) => qualityGateFailures(item).length === 0);
+  const diversified = diversityAdjustedOpportunityRecommendations(input.advisorProfile, eligibleRanked, input.limit ?? 8);
+  const finalIds = new Map(diversified.map((item, index) => [item.relatedOpportunityId, index + 1]));
+  const finalRankingOrder = eligibleRanked.filter((item) => finalIds.has(item.opportunity.id)).sort((a, b) => (finalIds.get(a.opportunity.id) ?? 999) - (finalIds.get(b.opportunity.id) ?? 999)).map((item) => reviewRecord(item, finalIds.get(item.opportunity.id) ?? null));
+  const filteredRecommendations = allRanked.filter((item) => qualityGateFailures(item).length > 0).slice(0, 20).map((item) => reviewRecord(item, null));
+  const competingOpportunities = eligibleRanked.filter((item) => !finalIds.has(item.opportunity.id)).slice(0, 10).map((item) => reviewRecord(item, null));
+  const elapsedMs = Math.round((typeof performance !== "undefined" ? performance.now() : Date.now()) - started);
+  return {
+    generatedAt: new Date().toISOString(),
+    topRecommendation: finalRankingOrder[0] ?? null,
+    finalRankingOrder,
+    filteredRecommendations,
+    competingOpportunities,
+    performance: {
+      opportunityCount: input.opportunities?.length ?? catalogOpportunities.length,
+      rankedCount: allRanked.length,
+      recommendedCount: finalRankingOrder.length,
+      elapsedMs,
+    },
+  };
 }
 
 export function rankMilestoneRecommendations(input: RecommendationEngineInput): RecommendationV1[] {

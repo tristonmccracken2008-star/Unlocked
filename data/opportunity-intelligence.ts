@@ -74,8 +74,16 @@ export type OpportunityScore = {
   priority: OpportunityPriority;
   difficulty: OpportunityCompetitiveness;
   confidence: number;
+  signals: OpportunityRankingSignal[];
+  positiveSignalCount: number;
   reasons: string[];
   breakdown: OpportunityMatchBreakdown;
+};
+
+export type OpportunityRankingSignal = {
+  label: string;
+  impact: "positive" | "negative" | "neutral";
+  weight: number;
 };
 
 const normalize = (value: string) => value.toLowerCase().replace(/[^a-z0-9+#. ]/g, " ").replace(/\s+/g, " ").trim();
@@ -282,6 +290,10 @@ export function getOpportunityPriority(item: Opportunity, context: OpportunitySt
 
 export function scoreOpportunityIntelligence(item: Opportunity, context: OpportunityStudentContext): OpportunityScore {
   const weights = recommendationConfig.weights;
+  const signals: OpportunityRankingSignal[] = [];
+  const addSignal = (label: string, impact: OpportunityRankingSignal["impact"], weight: number) => {
+    if (weight !== 0) signals.push({ label, impact, weight });
+  };
   const matchingMajors = getMatchingMajors(item, context);
   const matchingMinor = getMatchingMinor(item, context);
   const matchingCareerGoals = getMatchingCareerGoals(item, context);
@@ -294,31 +306,104 @@ export function scoreOpportunityIntelligence(item: Opportunity, context: Opportu
   const meetsGpa = gpaEligible(item, context);
   const intelligence = getOpportunityIntelligence(item);
   let score = 0;
-  if (schoolEligible) score += item.school_scope === "School Specific" ? weights.schoolEligibleSpecific : weights.schoolEligibleNational;
-  else score += weights.wrongSchoolPenalty;
-  if (matchingMajors.length) score += matchingMajors.includes("Any Major") ? weights.majorAny : weights.majorExact;
-  if (matchingMinor.length) score += weights.minorExact;
-  if (matchingCareerGoals.length) score += Math.min(weights.careerGoalMax, matchingCareerGoals.length * weights.careerGoalPerSignal);
-  if (matchingInterests.length) score += Math.min(weights.interestMax, matchingInterests.length * weights.interestPerSignal);
-  if (matchingCurrentPriority) score += weights.currentPriority;
-  if (matchingYears.length) score += matchingYears.includes("Any Year") ? weights.classYearAny : weights.classYearExact;
-  else if (context.academicYear && !item.academic_years.includes("Any Year")) score += weights.wrongClassYearPenalty;
-  if (requirement !== null && meetsGpa === true) score += weights.gpaMeetsRequirement;
-  if (requirement !== null && context.gpaStatus === "none_yet") score += weights.noGpaKnownRequirementPenalty;
-  if (deadlineDays !== null && deadlineDays >= 0 && deadlineDays <= 14) score += weights.deadlineCritical;
-  else if (deadlineDays !== null && deadlineDays >= 0 && deadlineDays <= 45) score += weights.deadlineSoon;
-  else if (deadlineDays !== null && deadlineDays < 0) score += weights.deadlinePassedPenalty;
-  score += Math.round(intelligence.qualityScore * weights.qualityMultiplier);
-  if (item.verification_status === "verified") score += weights.verified;
-  if (item.verification_status === "needs_review") score += weights.needsReview;
-  if (item.estimated_value && item.estimated_value >= 1000) score += weights.highValue;
-  if (item.difficulty === "Open") score += weights.openDifficulty;
-  if (item.difficulty === "Highly Competitive") score += weights.highlyCompetitivePenalty;
-  if (context.savedCategories?.includes(item.category)) score += weights.savedSimilarCategory;
-  if (context.completedCategories?.includes(item.category)) score += weights.completedSimilarCategory;
-  if (context.viewedOpportunityIds?.includes(item.id)) score += weights.viewedPenalty;
-  if (context.activeOpportunityIds?.includes(item.id)) score += weights.activeTrackedPenalty;
-  if (item.verification_status === "expired") score = -100;
+  const schoolWeight = schoolEligible ? item.school_scope === "School Specific" ? weights.schoolEligibleSpecific : weights.schoolEligibleNational : weights.wrongSchoolPenalty;
+  score += schoolWeight;
+  addSignal(schoolEligible ? item.school_scope === "School Specific" ? "School-specific eligibility matches" : "Available nationally" : "Not eligible for this school", schoolEligible ? "positive" : "negative", schoolWeight);
+  if (matchingMajors.length) {
+    const weight = matchingMajors.includes("Any Major") ? weights.majorAny : weights.majorExact;
+    score += weight;
+    addSignal(matchingMajors.includes("Any Major") ? "Open to any major" : `Major matches ${matchingMajors[0]}`, "positive", weight);
+  }
+  if (matchingMinor.length) {
+    score += weights.minorExact;
+    addSignal(`Minor connects with ${matchingMinor[0]}`, "positive", weights.minorExact);
+  }
+  if (matchingCareerGoals.length) {
+    const weight = Math.min(weights.careerGoalMax, matchingCareerGoals.length * weights.careerGoalPerSignal);
+    score += weight;
+    addSignal(`Career goal matches ${matchingCareerGoals.slice(0, 2).join(", ")}`, "positive", weight);
+  }
+  if (matchingInterests.length) {
+    const weight = Math.min(weights.interestMax, matchingInterests.length * weights.interestPerSignal);
+    score += weight;
+    addSignal(`Interest matches ${matchingInterests.slice(0, 2).join(", ")}`, "positive", weight);
+  }
+  if (matchingCurrentPriority) {
+    score += weights.currentPriority;
+    addSignal(`Current priority matches ${context.currentPriority}`, "positive", weights.currentPriority);
+  }
+  if (matchingYears.length) {
+    const weight = matchingYears.includes("Any Year") ? weights.classYearAny : weights.classYearExact;
+    score += weight;
+    addSignal(matchingYears.includes("Any Year") ? "Open to any class year" : `Class year matches ${matchingYears[0]}`, "positive", weight);
+  } else if (context.academicYear && !item.academic_years.includes("Any Year")) {
+    score += weights.wrongClassYearPenalty;
+    addSignal(`Does not list ${context.academicYear} eligibility`, "negative", weights.wrongClassYearPenalty);
+  }
+  if (requirement !== null && meetsGpa === true) {
+    score += weights.gpaMeetsRequirement;
+    addSignal(`GPA meets listed ${requirement.toFixed(1)} requirement`, "positive", weights.gpaMeetsRequirement);
+  }
+  if (requirement !== null && meetsGpa === false) {
+    addSignal(`GPA is below listed ${requirement.toFixed(1)} requirement`, "negative", weights.wrongClassYearPenalty);
+  }
+  if (requirement !== null && context.gpaStatus === "none_yet") {
+    score += weights.noGpaKnownRequirementPenalty;
+    addSignal(`GPA requirement ${requirement.toFixed(1)} needs future confirmation`, "negative", weights.noGpaKnownRequirementPenalty);
+  }
+  if (deadlineDays !== null && deadlineDays >= 0 && deadlineDays <= 14) {
+    score += weights.deadlineCritical;
+    addSignal(`Deadline in ${deadlineDays} days`, "positive", weights.deadlineCritical);
+  } else if (deadlineDays !== null && deadlineDays >= 0 && deadlineDays <= 45) {
+    score += weights.deadlineSoon;
+    addSignal(`Deadline in ${deadlineDays} days`, "positive", weights.deadlineSoon);
+  } else if (deadlineDays !== null && deadlineDays < 0) {
+    score += weights.deadlinePassedPenalty;
+    addSignal("Deadline has passed", "negative", weights.deadlinePassedPenalty);
+  }
+  const qualityWeight = Math.round(intelligence.qualityScore * weights.qualityMultiplier);
+  score += qualityWeight;
+  addSignal(`Opportunity quality score ${intelligence.qualityScore}`, qualityWeight >= 10 ? "positive" : "neutral", qualityWeight);
+  if (item.verification_status === "verified") {
+    score += weights.verified;
+    addSignal("Verified from official source", "positive", weights.verified);
+  }
+  if (item.verification_status === "needs_review") {
+    score += weights.needsReview;
+    addSignal("Needs review but not expired", "neutral", weights.needsReview);
+  }
+  if (item.estimated_value && item.estimated_value >= 1000) {
+    score += weights.highValue;
+    addSignal("High documented value", "positive", weights.highValue);
+  }
+  if (item.difficulty === "Open") {
+    score += weights.openDifficulty;
+    addSignal("Open application difficulty", "positive", weights.openDifficulty);
+  }
+  if (item.difficulty === "Highly Competitive") {
+    score += weights.highlyCompetitivePenalty;
+    addSignal("Highly competitive", "negative", weights.highlyCompetitivePenalty);
+  }
+  if (context.savedCategories?.includes(item.category)) {
+    score += weights.savedSimilarCategory;
+    addSignal(`Similar to saved ${item.category} opportunities`, "positive", weights.savedSimilarCategory);
+  }
+  if (context.completedCategories?.includes(item.category)) {
+    score += weights.completedSimilarCategory;
+    addSignal(`Similar to completed ${item.category} opportunities`, "positive", weights.completedSimilarCategory);
+  }
+  if (context.viewedOpportunityIds?.includes(item.id)) {
+    score += weights.viewedPenalty;
+    addSignal("Already opened recently", "negative", weights.viewedPenalty);
+  }
+  if (context.activeOpportunityIds?.includes(item.id)) {
+    score += weights.activeTrackedPenalty;
+    addSignal("Already active in Journey", "negative", weights.activeTrackedPenalty);
+  }
+  if (item.verification_status === "expired") {
+    score = -100;
+    addSignal("Expired verification status", "negative", -100);
+  }
   const normalizedScore = Math.max(0, Math.min(100, score));
   const priority: OpportunityPriority = deadlineDays !== null && deadlineDays >= 0 && deadlineDays <= 10 && normalizedScore >= 55 ? "Critical" : normalizedScore >= 78 ? "High" : normalizedScore >= 50 ? "Recommended" : "Optional";
   return {
@@ -327,6 +412,8 @@ export function scoreOpportunityIntelligence(item: Opportunity, context: Opportu
     priority,
     difficulty: intelligence.competitiveness,
     confidence: Math.max(20, Math.min(98, normalizedScore + Math.round(intelligence.qualityScore * 0.12))),
+    signals,
+    positiveSignalCount: signals.filter((signal) => signal.impact === "positive" && signal.weight >= 8).length,
     reasons: getRecommendationReasons(item, context),
     breakdown: { matchingMajors, matchingMinor, matchingCareerGoals, matchingInterests, matchingCurrentPriority, matchingYears, schoolEligible, gpaRequirement: requirement, gpaEligible: meetsGpa, deadlineDays },
   };
