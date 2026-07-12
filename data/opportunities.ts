@@ -1,4 +1,5 @@
 import catalogJson from "./db/opportunities.json";
+import { canonicalOpportunity } from "./opportunity-enrichment";
 import { auditOpportunity } from "./opportunity-quality";
 
 export const opportunityTypes = ["Benefit", "AI", "Career", "Research", "Scholarship"] as const;
@@ -77,6 +78,7 @@ export type OpportunityWithQuality = Opportunity & {
   contentComplete: boolean;
   completenessScore: number;
   missingContentFields: string[];
+  canonical: ReturnType<typeof canonicalOpportunity>;
 };
 
 export type OpportunityFilters = {
@@ -118,7 +120,7 @@ function majorMatchesFilter(itemMajors: string[], selectedMajor: string) {
 
 export const opportunities = (catalogJson as Opportunity[]).map((item) => {
   const quality = auditOpportunity(item);
-  return { ...item, contentComplete: quality.contentComplete, completenessScore: quality.completenessScore, missingContentFields: quality.missingFields };
+  return { ...item, canonical: canonicalOpportunity(item), contentComplete: quality.contentComplete, completenessScore: quality.completenessScore, missingContentFields: quality.missingFields };
 }) as OpportunityWithQuality[];
 const seen = new Set<string>();
 for (const item of opportunities) {
@@ -155,7 +157,7 @@ export function filterOpportunities(filters: OpportunityFilters = {}, source: re
     if (filters.freshmanFriendly && !item.academic_years.includes("Any Year") && !item.academic_years.includes("First year") && item.category !== "Freshman Programs") return false;
     if (filters.featured !== undefined && item.featured !== filters.featured) return false;
     if (filters.hiddenGem !== undefined && item.hidden_gem !== filters.hiddenGem) return false;
-    if (query && !`${item.title} ${item.organization} ${item.description} ${item.category} ${item.tags.join(" ")}`.toLowerCase().includes(query)) return false;
+    if (query && !`${item.title} ${item.organization} ${item.description} ${item.category} ${item.tags.join(" ")} ${canonicalOpportunity(item).searchText}`.toLowerCase().includes(query)) return false;
     return true;
   });
 }

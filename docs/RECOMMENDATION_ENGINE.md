@@ -7,6 +7,7 @@ UnlockED recommendations come from one canonical path:
 Primary modules:
 
 - `data/recommendation-config.ts`: tunable weights, label thresholds, and diversity penalties.
+- `data/opportunity-enrichment.ts`: canonical schema derivation, organization normalization, structured eligibility, rich tags, duplicate keys, and data quality scores.
 - `data/opportunity-intelligence.ts`: opportunity metadata normalization, eligibility matching, scoring inputs, and explanation reasons.
 - `data/recommendation-engine.ts`: ranking, exclusion rules, roadmap connections, deterministic diversity, and `RecommendationV1` output.
 - `data/recommendation-service.ts`: product-facing view models consumed by For You, Journey, and Discover.
@@ -96,6 +97,8 @@ Quality signals include:
 - deadline or documented rolling/varies state
 - documented value or explicit unknown value
 - non-expired verification status
+- normalized organization metadata
+- enriched tags and career fields
 
 The quality score contributes to ranking but does not override eligibility.
 

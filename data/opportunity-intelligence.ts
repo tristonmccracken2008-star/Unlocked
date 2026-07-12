@@ -1,4 +1,5 @@
 import type { Opportunity, OpportunityDifficulty, OpportunityType, VerificationStatus } from "./opportunities";
+import { canonicalOpportunity, dataQualityScore } from "./opportunity-enrichment";
 import { recommendationConfig } from "./recommendation-config";
 
 export type OpportunityWorkMode = "Remote" | "Hybrid" | "In Person" | "Varies" | "Unknown";
@@ -115,7 +116,8 @@ const skillSignals: Record<string, string[]> = {
 };
 
 function searchableText(item: Opportunity) {
-  return normalize([item.title, item.organization, item.category, item.description, item.eligibility, item.location, ...item.majors, ...item.tags, item.metadata.department ?? "", item.metadata.researchArea ?? ""].join(" "));
+  const canonical = canonicalOpportunity(item);
+  return normalize([item.title, item.organization, item.category, canonical.category, canonical.subcategory, item.description, item.eligibility, item.location, ...item.majors, ...item.tags, ...canonical.tags, ...canonical.careerFields, item.metadata.department ?? "", item.metadata.researchArea ?? ""].join(" "));
 }
 
 function inferSubcategory(item: Opportunity) {
@@ -123,6 +125,8 @@ function inferSubcategory(item: Opportunity) {
 }
 
 function inferCareerPaths(item: Opportunity) {
+  const canonical = canonicalOpportunity(item);
+  if (canonical.careerFields.length) return canonical.careerFields;
   const text = searchableText(item);
   const inferred = Object.entries(careerPathSignals).filter(([, terms]) => terms.some((term) => text.includes(normalize(term)))).map(([path]) => path);
   if (item.type === "Scholarship") inferred.push("Funding");
@@ -167,6 +171,7 @@ function estimatedApplicationTime(item: Opportunity): OpportunityIntelligence["e
 }
 
 function qualityScore(item: Opportunity) {
+  const enriched = dataQualityScore(item);
   let score = 40;
   if (item.verification_status === "verified") score += 25;
   if (item.verification_status === "needs_review") score += 10;
@@ -176,17 +181,18 @@ function qualityScore(item: Opportunity) {
   if (item.application_deadline || ["rolling", "varies"].includes(item.metadata.deadlineType ?? "")) score += 5;
   if (item.estimated_value !== null || /unknown|not documented|not published/i.test(item.estimated_value_note)) score += 4;
   if (item.verification_status === "expired") score = 0;
-  return Math.min(100, score);
+  return Math.max(enriched, Math.min(100, score));
 }
 
 export function getOpportunityIntelligence(item: Opportunity): OpportunityIntelligence {
+  const canonical = canonicalOpportunity(item);
   const requiredSkills = inferSkills(item);
   return {
     id: item.id,
     title: item.title,
     organization: item.organization,
-    category: item.category,
-    subcategory: inferSubcategory(item),
+    category: canonical.category,
+    subcategory: canonical.subcategory || inferSubcategory(item),
     opportunityType: item.type,
     officialSource: item.official_source_url,
     deadline: item.application_deadline,
@@ -195,8 +201,8 @@ export function getOpportunityIntelligence(item: Opportunity): OpportunityIntell
     estimatedApplicationTime: estimatedApplicationTime(item),
     eligibility: item.eligibility,
     classYears: item.academic_years,
-    supportedMajors: item.majors,
-    careerPaths: inferCareerPaths(item),
+    supportedMajors: canonical.eligibility.preferredMajors.length ? canonical.eligibility.preferredMajors : item.majors,
+    careerPaths: canonical.careerFields.length ? canonical.careerFields : inferCareerPaths(item),
     requiredSkills,
     preferredSkills: unique([...requiredSkills, ...item.tags.filter((tag) => tag.length <= 28)]).slice(0, 8),
     location: item.location,
@@ -204,7 +210,7 @@ export function getOpportunityIntelligence(item: Opportunity): OpportunityIntell
     payStatus: payStatus(item),
     estimatedValue: item.estimated_value,
     competitiveness: getOpportunityDifficulty(item),
-    tags: item.tags,
+    tags: canonical.tags,
     verificationStatus: item.verification_status,
     qualityScore: qualityScore(item),
   };
@@ -271,6 +277,8 @@ function isSchoolEligible(item: Opportunity, context: OpportunityStudentContext)
 }
 
 function gpaRequirement(item: Opportunity) {
+  const enriched = canonicalOpportunity(item).eligibility.minimumGPA;
+  if (enriched !== null) return enriched;
   const text = `${item.eligibility} ${(item.metadata.applicationRequirements ?? []).join(" ")} ${(item.metadata.eligibilityNotes ?? []).join(" ")}`;
   const matches = [...text.matchAll(/(?:minimum|required|requires?|at least)?\s*(?:gpa)?\s*([2-4](?:\.\d{1,2})?)\s*(?:gpa)?/gi)].map((match) => Number(match[1])).filter((value) => Number.isFinite(value) && value >= 2 && value <= 4);
   return matches.length ? Math.max(...matches) : null;
