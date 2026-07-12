@@ -35,6 +35,7 @@ for (const domain of curatedDomains) {
 
 const curatedLogoUrls = [...resolverSource.matchAll(/logoUrl: "([^"]+)"/g)].map((match) => match[1]);
 for (const url of curatedLogoUrls) {
+  if (url.startsWith("/logos/org/")) continue;
   const host = hostname(url);
   if (!url.startsWith("https://")) failures.push(`Curated logo URL must be HTTPS: ${url}`);
   if (host !== "logo.clearbit.com" && !curatedDomains.some((domain) => host === domain || host.endsWith(`.${domain}`))) failures.push(`Curated logo URL host is not approved: ${url}`);

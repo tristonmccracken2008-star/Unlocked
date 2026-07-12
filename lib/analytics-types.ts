@@ -17,6 +17,7 @@ export const analyticsEvents = [
   "search_performed",
   "filter_applied",
   "opportunity_view",
+  "opportunity_added_to_journey",
   "opportunity_saved",
   "status_changed",
   "opportunity_status_menu_opened",

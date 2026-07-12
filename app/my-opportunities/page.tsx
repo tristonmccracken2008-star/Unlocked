@@ -7,7 +7,7 @@ import { getSession, sessionCookieName } from "@/lib/auth-store";
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "My Opportunities",
-  description: "Track saved student opportunities, application progress, deadlines, and completed benefits in UnlockED.",
+  description: "Manage Journey opportunities, application progress, deadlines, and completed benefits in UnlockED.",
   alternates: { canonical: "/my-opportunities" },
   robots: { index: false, follow: false },
 };

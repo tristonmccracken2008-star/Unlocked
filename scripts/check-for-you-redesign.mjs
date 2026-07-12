@@ -12,7 +12,8 @@ for (const label of [
   "Opportunities selected around you.",
   "Your profile at a glance",
   "Top recommendation",
-  "Open opportunity",
+  "Open Opportunity",
+  "AddToJourneyButton",
   "Recommended for you",
   "Why these recommendations?",
   "Your activity at a glance",
@@ -32,6 +33,7 @@ assert.ok(advisor.includes("buildRecommendationService"), "For You must consume 
 assert.ok(journey.includes("buildRecommendationService"), "Journey must consume the canonical recommendation service.");
 assert.doesNotMatch(advisor, /% confidence|Evidence and confidence|Alternatives/, "For You primary UI must not expose old confidence/debug framing.");
 assert.doesNotMatch(advisor, /markMilestoneCompleted/, "For You should not use separate milestone completion logic for opportunity recommendations.");
+assert.doesNotMatch(advisor, /Track this|Tracked as active interest|updateApplicationStatus/, "For You must use Add to Journey instead of Track/status terminology.");
 assert.ok(pkg.includes("check:for-you"), "Package scripts must include the For You redesign check.");
 
 console.log("For You redesign checks passed.");

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { Opportunity } from "@/data/opportunities";
 import { resolveOrganizationLogo } from "@/data/organization-logos";
 
@@ -13,6 +13,8 @@ const sizes = {
 export function OrganizationLogo({ opportunity, size = "md", className = "" }: { opportunity: Opportunity; size?: keyof typeof sizes; className?: string }) {
   const logo = useMemo(() => resolveOrganizationLogo(opportunity), [opportunity]);
   const [failed, setFailed] = useState(false);
+  const imageSrc = logo.kind === "image" ? logo.src : "";
+  useEffect(() => setFailed(false), [imageSrc]);
   const frame = `${sizes[size]} grid shrink-0 place-items-center overflow-hidden bg-paper text-center font-black text-forest ring-1 ring-ink/8 ${className}`;
   if (logo.kind === "image" && !failed) {
     return <span className={frame} title={logo.verified ? "Verified organization logo" : "Organization logo"}>

@@ -20,6 +20,25 @@ for (const symbol of ["persistStudentActivity", "replaceStudentActivity", "moveO
   assert.ok(board.includes(symbol) || activity.includes(symbol), `Journey Board must include ${symbol}.`);
 }
 
+for (const token of [
+  "data-journey-board-scroll",
+  "overflow-x-auto",
+  "grid-flow-col",
+  "auto-cols-[minmax(16rem,17.5rem)]",
+  "data-journey-lane",
+  "data-journey-card",
+  "grid-cols-[2.25rem_minmax(0,1fr)_auto]",
+  "line-clamp-2",
+  "line-clamp-1",
+  "min-w-0",
+]) {
+  assert.ok(board.includes(token), `Journey Board layout must prevent compact card overlap: ${token}.`);
+}
+
+assert.doesNotMatch(board, /grid-cols-8/, "Journey Board must not crush all eight lanes into one viewport grid.");
+assert.doesNotMatch(board, /<dt className="text-ink\/46">Value<\/dt>/, "Journey Board cards must not render dense value metadata.");
+assert.doesNotMatch(board, /See official source/, "Journey Board cards must not show verbose source/value placeholder text.");
+
 for (const event of ["journey_board_opened", "opportunity_status_menu_opened", "opportunity_status_changed", "opportunity_drag_started", "opportunity_drag_completed", "opportunity_drag_failed", "milestone_unlocked", "journey_filter_changed"]) {
   assert.ok(analytics.includes(`"${event}"`), `Analytics must include ${event}.`);
   assert.ok(board.includes(`"${event}"`) || event === "opportunity_drag_failed", `Journey Board must track ${event}.`);

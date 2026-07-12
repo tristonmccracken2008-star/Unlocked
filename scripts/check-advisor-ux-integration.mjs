@@ -62,7 +62,7 @@ for (const label of [
   "Top recommendation",
   "Recommended for you",
   "Why these recommendations?",
-  "Track this",
+  "AddToJourneyButton",
 ]) {
   assert.ok(advisorPage.includes(label), `Advisor page must render ${label}.`);
 }
@@ -71,7 +71,7 @@ assert.ok(advisorRoute.includes("getSession"), "Advisor route must remain protec
 assert.ok(advisorPage.includes("buildRecommendationService"), "Advisor page must consume the canonical recommendation service.");
 assert.ok(recommendationService.includes("buildAdvisorBrain"), "Recommendation service must consume Advisor Brain.");
 assert.ok(recommendationService.includes("recommendationMatchLabel"), "Recommendation service must own qualitative match labels.");
-assert.ok(advisorPage.includes("updateApplicationStatus"), "Advisor completion must update opportunity progress through existing helpers.");
+assert.ok(advisorPage.includes("AddToJourneyButton"), "For You must use the same Add to Journey action as Discover.");
 assert.ok(recommendationService.includes("URLSearchParams"), "Advisor-to-Opportunity flow must produce filtered opportunity URLs.");
 assert.ok(opportunityFilter.includes("window.location.search"), "Opportunity search must read Advisor handoff filters.");
 assert.ok(opportunityFilter.includes("discover_opened"), "Discover must emit an open event.");
@@ -120,7 +120,7 @@ for (const event of [
   "discover_opened",
   "search_performed",
   "filter_applied",
-  "status_changed",
+  "opportunity_added_to_journey",
   "application_recorded",
   "for_you_opened",
   "recommendation_viewed",

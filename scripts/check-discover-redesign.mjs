@@ -28,9 +28,10 @@ for (const label of ["Category", "Fit", "Details", "Freshman-friendly", "Remote"
   assert.ok(filter.includes(label), `Discover sidebar must include ${label}.`);
 }
 
-for (const token of ["SaveOpportunityButton", "Official source", "Open", "StatusBadge", "line-clamp-3"]) {
+for (const token of ["AddToJourneyButton", "Open Opportunity", "StatusBadge", "line-clamp-3"]) {
   assert.ok(card.includes(token) || card.includes(token.replace("Official source", "Source")), `Opportunity cards must include ${token}.`);
 }
+assert.doesNotMatch(card, /SaveOpportunityButton|>Save<|Save opportunity|Track this|Official source/, "Discover cards must use only Open Opportunity and Add to Journey actions.");
 
 assert.ok(page.includes("OpportunityFilter"), "Discover page must render the redesigned filter experience.");
 assert.ok(pkg.includes("check:discover"), "Package scripts must include the Discover regression check.");

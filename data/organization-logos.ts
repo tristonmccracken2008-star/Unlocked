@@ -3,6 +3,7 @@ import type { Opportunity } from "./opportunities";
 export type OrganizationIdentity = {
   displayName: string;
   normalizedName: string;
+  matchedAlias?: string;
   domain?: string;
   logoUrl?: string;
   logoSource?: "curated" | "source" | "domain-provider" | "generated-fallback";
@@ -24,23 +25,24 @@ type OrganizationRegistryEntry = {
 
 const approvedLogoHosts = new Set(["logo.clearbit.com"]);
 export const organizationLogoRegistry: OrganizationRegistryEntry[] = [
-  { displayName: "GitHub", aliases: ["github", "github education", "github student developer pack"], domain: "github.com", logoVerified: true },
-  { displayName: "OpenAI", aliases: ["openai", "chatgpt"], domain: "openai.com", logoVerified: true },
-  { displayName: "University of Chicago", aliases: ["university of chicago", "uchicago", "uchicago undergraduate scholarships"], domain: "uchicago.edu", logoVerified: true },
+  { displayName: "GitHub", aliases: ["github", "github education", "github student developer pack"], domain: "github.com", logoUrl: "/logos/org/github.svg", logoVerified: true },
+  { displayName: "OpenAI", aliases: ["openai", "chatgpt"], domain: "openai.com", logoUrl: "/logos/org/openai.svg", logoVerified: true },
+  { displayName: "University of Chicago", aliases: ["university of chicago", "uchicago", "uchicago undergraduate scholarships"], domain: "uchicago.edu", logoUrl: "/logos/org/uchicago.svg", logoVerified: true },
   { displayName: "MIT", aliases: ["mit", "massachusetts institute of technology"], domain: "mit.edu", logoVerified: true },
-  { displayName: "Apple", aliases: ["apple", "apple inc", "apple careers"], domain: "apple.com", logoVerified: true },
-  { displayName: "Adobe", aliases: ["adobe", "adobe careers"], domain: "adobe.com", logoVerified: true },
-  { displayName: "Amazon", aliases: ["amazon", "amazon future engineer"], domain: "amazon.com", logoVerified: true },
-  { displayName: "Google", aliases: ["google", "google careers"], domain: "google.com", logoVerified: true },
-  { displayName: "Microsoft", aliases: ["microsoft", "microsoft azure", "azure for students"], domain: "microsoft.com", logoVerified: true },
+  { displayName: "Apple", aliases: ["apple", "apple inc", "apple careers", "apple music"], domain: "apple.com", logoUrl: "/logos/org/apple.svg", logoVerified: true },
+  { displayName: "Adobe", aliases: ["adobe", "adobe careers"], domain: "adobe.com", logoUrl: "/logos/org/adobe.svg", logoVerified: true },
+  { displayName: "Amazon", aliases: ["amazon", "amazon future engineer"], domain: "amazon.com", logoUrl: "/logos/org/amazon.svg", logoVerified: true },
+  { displayName: "Google", aliases: ["google", "google careers"], domain: "google.com", logoUrl: "/logos/org/google.svg", logoVerified: true },
+  { displayName: "Microsoft", aliases: ["microsoft", "microsoft azure", "azure for students"], domain: "microsoft.com", logoUrl: "/logos/org/microsoft.svg", logoVerified: true },
+  { displayName: "Meta", aliases: ["meta", "facebook"], domain: "meta.com", logoUrl: "/logos/org/meta.svg", logoVerified: true },
   { displayName: "Notion", aliases: ["notion", "notion labs"], domain: "notion.com", logoVerified: true },
   { displayName: "Figma", aliases: ["figma"], domain: "figma.com", logoVerified: true },
   { displayName: "JetBrains", aliases: ["jetbrains"], domain: "jetbrains.com", logoVerified: true },
   { displayName: "NASA", aliases: ["nasa"], domain: "nasa.gov", logoVerified: true },
-  { displayName: "Jane Street", aliases: ["jane street"], domain: "janestreet.com", logoVerified: true },
-  { displayName: "AFCEA", aliases: ["afcea"], domain: "afcea.org", logoVerified: true },
+  { displayName: "Jane Street", aliases: ["jane street"], domain: "janestreet.com", logoUrl: "/logos/org/jane-street.svg", logoVerified: true },
+  { displayName: "AFCEA", aliases: ["afcea", "afcea educational foundation"], domain: "afcea.org", logoUrl: "/logos/org/afcea.svg", logoVerified: true },
   { displayName: "ASA", aliases: ["asa", "american statistical association"], domain: "amstat.org", logoVerified: true },
-  { displayName: "8VC", aliases: ["8vc"], domain: "8vc.com", logoVerified: true },
+  { displayName: "8VC", aliases: ["8vc"], domain: "8vc.com", logoUrl: "/logos/org/8vc.svg", logoVerified: true },
   { displayName: "Coca-Cola", aliases: ["coca-cola", "coca cola", "coca-cola foundation"], domain: "coca-cola.com", logoVerified: true },
   { displayName: "QuestBridge", aliases: ["questbridge"], domain: "questbridge.org", logoVerified: true },
   { displayName: "UNiDAYS", aliases: ["unidays"], domain: "myunidays.com", logoVerified: true },
@@ -101,7 +103,7 @@ export function organizationIdentity(opportunity: Opportunity): OrganizationIden
   const normalizedName = normalizeOrganizationName(displayName);
   const entry = registry.get(normalizedName);
   const sourceDomain = hostname(opportunity.official_source);
-  if (entry) return { displayName: entry.displayName, normalizedName, domain: entry.domain, logoUrl: entry.logoUrl, logoSource: entry.logoUrl ? "curated" : "domain-provider", logoVerified: entry.logoVerified };
+  if (entry) return { displayName: entry.displayName, normalizedName, matchedAlias: normalizedName, domain: entry.domain, logoUrl: entry.logoUrl, logoSource: entry.logoUrl ? "curated" : "domain-provider", logoVerified: entry.logoVerified };
   return { displayName, normalizedName, domain: sourceDomain || undefined, logoSource: sourceDomain ? "domain-provider" : "generated-fallback", logoVerified: false };
 }
 

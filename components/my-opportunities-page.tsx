@@ -16,8 +16,6 @@ type Milestone = { title: string; why: string; date: string; opportunityTitle?: 
 type BoardItem = { opportunity: Opportunity; record: NonNullable<StudentActivity["tracked"]>[string] };
 type IconComponent = (props: { className?: string }) => ReactElement;
 
-const money = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
-
 const statusMeta: Record<OpportunityTrackerStatus, { Icon: IconComponent; description: string; accent: string; soft: string; border: string }> = {
   Saved: { Icon: BookmarkIcon, description: "Ready when you are.", accent: "text-forest", soft: "bg-forest/8", border: "border-forest" },
   Interested: { Icon: HeartIcon, description: "Worth a closer look.", accent: "text-rose-700", soft: "bg-rose-50", border: "border-rose-300" },
@@ -31,11 +29,8 @@ const statusMeta: Record<OpportunityTrackerStatus, { Icon: IconComponent; descri
 
 const summaryStatuses: OpportunityTrackerStatus[] = ["Submitted", "Interview", "Accepted", "Completed"];
 
-function valueLabel(item: Opportunity) {
-  if (item.estimated_value) return `${money.format(item.estimated_value)}+`;
-  if (item.type === "Scholarship") return item.metadata.awardAmountLabel ?? "Amount varies";
-  if (item.type === "Benefit") return item.metadata.valueLabel ?? "See official source";
-  return "See official source";
+function timingLabel(item: Opportunity) {
+  return item.application_deadline ? deadlineLabel(item) : item.metadata.deadlineType === "rolling" ? "Rolling deadline" : deadlineLabel(item);
 }
 
 function matchesFilter(item: Opportunity, filter: TrackerFilter) {
@@ -160,7 +155,7 @@ export function MyOpportunitiesPage() {
         <div>
           <p className="rule-label text-forest">Personal opportunity tracker</p>
           <h1 className="mt-3 font-editorial text-5xl font-bold leading-[.94] tracking-[-.05em] text-forest sm:text-7xl">Journey Board</h1>
-          <p className="mt-4 max-w-2xl text-base leading-7 text-ink/58">Track opportunities, move them through your pipeline, and keep every next step in one calm place.</p>
+          <p className="mt-4 max-w-2xl text-base leading-7 text-ink/58">Manage opportunities, move them through your pipeline, and keep every next step in one calm place.</p>
           <p className="mt-5 inline-flex min-h-10 items-center gap-2 rounded-full bg-white/70 px-4 text-sm font-bold text-forest shadow-[0_10px_30px_rgba(43,33,26,.05)] ring-1 ring-ink/8"><CheckIcon className="h-4 w-4"/> All changes save automatically</p>
         </div>
         <div className="grid overflow-hidden rounded-[1.4rem] bg-white/90 shadow-[0_22px_70px_rgba(43,33,26,.08)] ring-1 ring-ink/8 sm:grid-cols-4">
@@ -174,8 +169,8 @@ export function MyOpportunitiesPage() {
         </div>
       </div>
 
-      {allItems.length ? <div className="mt-7 overflow-x-auto pb-6">
-        <div className="grid min-w-[1680px] grid-cols-8 gap-5">
+      {allItems.length ? <div className="mt-7 overflow-x-auto pb-6 [scrollbar-gutter:stable]" data-journey-board-scroll>
+        <div className="grid grid-flow-col auto-cols-[minmax(16rem,17.5rem)] gap-5" data-journey-board-lanes>
           {opportunityTrackerStatuses.map((status) => <Lane key={status} status={status} items={byStatus[status]} openMenu={openMenu} setOpenMenu={setOpenMenu} moveOpportunity={moveOpportunity} remove={remove} draggingId={draggingId} setDraggingId={setDraggingId} />)}
         </div>
         <StatusLegend />
@@ -202,7 +197,7 @@ function SummaryCard({ label, value, status }: { label: string; value: number; s
 function Lane({ status, items, openMenu, setOpenMenu, moveOpportunity, remove, draggingId, setDraggingId }: { status: OpportunityTrackerStatus; items: BoardItem[]; openMenu: string | null; setOpenMenu: (id: string | null) => void; moveOpportunity: (opportunity: Opportunity, status: OpportunityTrackerStatus, source: "menu" | "drag") => void; remove: (opportunity: Opportunity) => void; draggingId: string | null; setDraggingId: (id: string | null) => void }) {
   const activeDrop = Boolean(draggingId);
   const { Icon, accent, border, soft } = statusMeta[status];
-  return <section className="min-w-0" onDragOver={(event) => { if (draggingId) event.preventDefault(); }} onDrop={(event) => { event.preventDefault(); const id = event.dataTransfer.getData("text/plain"); setDraggingId(null); const opportunity = window.__unlockedDraggedOpportunity; window.__unlockedDraggedOpportunity = undefined; if (!id || items.some(({ opportunity: item }) => item.id === id)) return; if (opportunity?.id) void moveOpportunity(opportunity, status, "drag"); else trackProductEvent("opportunity_drag_failed", { opportunityId: id, status }); }}>
+  return <section className="min-w-0" data-journey-lane onDragOver={(event) => { if (draggingId) event.preventDefault(); }} onDrop={(event) => { event.preventDefault(); const id = event.dataTransfer.getData("text/plain"); setDraggingId(null); const opportunity = window.__unlockedDraggedOpportunity; window.__unlockedDraggedOpportunity = undefined; if (!id || items.some(({ opportunity: item }) => item.id === id)) return; if (opportunity?.id) void moveOpportunity(opportunity, status, "drag"); else trackProductEvent("opportunity_drag_failed", { opportunityId: id, status }); }}>
     <div className={`mb-3 rounded-t-2xl border-b-2 bg-white/55 px-4 py-4 shadow-[0_8px_24px_rgba(43,33,26,.035)] ${items.length ? border : "border-ink/10"}`}>
       <div className="flex items-center justify-between gap-3">
         <h2 className="flex items-center gap-2 text-base font-black text-ink"><span className={`grid h-8 w-8 place-items-center rounded-full ${soft} ${accent}`} aria-hidden><Icon className="h-[18px] w-[18px]"/></span>{statusSummary(status)}</h2>
@@ -222,22 +217,22 @@ declare global {
 const TrackedCard = memo(function TrackedCard({ opportunity, status, open, setOpen, moveOpportunity, remove, setDraggingId }: { opportunity: Opportunity; status: OpportunityTrackerStatus; open: boolean; setOpen: (open: boolean) => void; moveOpportunity: (opportunity: Opportunity, status: OpportunityTrackerStatus, source: "menu" | "drag") => void; remove: (opportunity: Opportunity) => void; setDraggingId: (id: string | null) => void }) {
   const nextStatuses = opportunityTrackerStatuses.filter((item) => item !== status);
   const { Icon, accent, soft } = statusMeta[status];
-  return <article data-opportunity-id={opportunity.id} data-opportunity-title={opportunity.title} draggable onDragStart={(event) => { window.__unlockedDraggedOpportunity = opportunity; event.dataTransfer.setData("text/plain", opportunity.id); event.dataTransfer.effectAllowed = "move"; setDraggingId(opportunity.id); trackProductEvent("opportunity_drag_started", { opportunityId: opportunity.id, status }); }} onDragEnd={() => { setDraggingId(null); window.__unlockedDraggedOpportunity = undefined; }} className="group rounded-[1.35rem] bg-white/95 p-5 shadow-[0_16px_42px_rgba(43,33,26,.075)] ring-1 ring-ink/7 transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_22px_55px_rgba(43,33,26,.12)] focus-within:ring-2 focus-within:ring-forest/30 motion-reduce:transition-none motion-reduce:hover:translate-y-0">
-    <div className="flex items-start justify-between gap-3">
+  return <article data-opportunity-id={opportunity.id} data-opportunity-title={opportunity.title} data-journey-card draggable onDragStart={(event) => { window.__unlockedDraggedOpportunity = opportunity; event.dataTransfer.setData("text/plain", opportunity.id); event.dataTransfer.effectAllowed = "move"; setDraggingId(opportunity.id); trackProductEvent("opportunity_drag_started", { opportunityId: opportunity.id, status }); }} onDragEnd={() => { setDraggingId(null); window.__unlockedDraggedOpportunity = undefined; }} className="group min-h-[13.75rem] rounded-[1.25rem] bg-white/95 p-4 shadow-[0_14px_36px_rgba(43,33,26,.075)] ring-1 ring-ink/7 transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_20px_48px_rgba(43,33,26,.11)] focus-within:ring-2 focus-within:ring-forest/30 motion-reduce:transition-none motion-reduce:hover:translate-y-0">
+    <div className="grid grid-cols-[2.25rem_minmax(0,1fr)_auto] items-start gap-3">
+      <OrganizationLogo opportunity={opportunity} size="sm"/>
       <div className="min-w-0">
-        <div className="flex items-start gap-3"><OrganizationLogo opportunity={opportunity} size="sm"/><div className="min-w-0"><p className="text-[10px] font-black uppercase tracking-[.16em] text-forest">{opportunity.type}</p>
-        <h3 className="mt-2 font-editorial text-xl font-bold leading-[1.08] tracking-[-.02em]"><Link href={`/opportunities/${opportunity.id}`} className="rounded-sm hover:text-forest focus:outline-none focus:ring-2 focus:ring-forest/30">{opportunity.title}</Link></h3>
-        <p className="mt-2 truncate text-xs font-bold text-ink/42">{opportunity.organization}</p></div></div>
+        <p className="truncate text-[10px] font-black uppercase tracking-[.14em] text-forest">{opportunity.type}</p>
+        <h3 className="mt-1.5 font-editorial text-lg font-bold leading-[1.08] tracking-[-.015em]"><Link href={`/opportunities/${opportunity.id}`} className="line-clamp-2 rounded-sm hover:text-forest focus:outline-none focus:ring-2 focus:ring-forest/30">{opportunity.title}</Link></h3>
+        <p className="mt-2 line-clamp-1 text-xs font-bold text-ink/42">{opportunity.organization}</p>
       </div>
-      <div className="flex items-center gap-1 text-forest"><span aria-label={statusSummary(status)} title={statusSummary(status)} className={`grid h-8 w-8 place-items-center rounded-full ${soft} ${accent}`}><Icon className="h-4 w-4"/></span><button type="button" onClick={() => remove(opportunity)} className="grid h-9 w-9 place-items-center rounded-full text-ink/35 hover:bg-paper hover:text-ink focus:outline-none focus:ring-2 focus:ring-forest/30" aria-label={`Remove ${opportunity.title}`}><MoreIcon className="h-4 w-4"/></button></div>
+      <button type="button" onClick={() => remove(opportunity)} className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-ink/35 hover:bg-paper hover:text-ink focus:outline-none focus:ring-2 focus:ring-forest/30" aria-label={`Remove ${opportunity.title}`}><MoreIcon className="h-4 w-4"/></button>
     </div>
-    <dl className="mt-6 space-y-3 text-sm">
-      <div className="flex justify-between gap-3"><dt className="text-ink/46">Value</dt><dd className="text-right font-black">{valueLabel(opportunity)}</dd></div>
-      <div className="flex justify-between gap-3"><dt className="text-ink/46">Deadline</dt><dd className="text-right font-black">{deadlineLabel(opportunity)}</dd></div>
-      <div className="flex justify-between gap-3"><dt className="text-ink/46">Status</dt><dd className={`text-right font-black ${accent}`}>{statusSummary(status)}</dd></div>
+    <dl className="mt-4 space-y-2 text-xs">
+      <div className="grid grid-cols-[4.5rem_minmax(0,1fr)] gap-3"><dt className="text-ink/46">Timing</dt><dd className="min-w-0 truncate text-right font-black">{timingLabel(opportunity)}</dd></div>
+      <div className="grid grid-cols-[4.5rem_minmax(0,1fr)] gap-3"><dt className="text-ink/46">Status</dt><dd className={`min-w-0 truncate text-right font-black ${accent}`}>{statusSummary(status)}</dd></div>
     </dl>
-    <div className="relative mt-5">
-      <button type="button" aria-haspopup="menu" aria-expanded={open} onClick={() => { setOpen(!open); if (!open) trackProductEvent("opportunity_status_menu_opened", { opportunityId: opportunity.id, status }); }} className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-forest/40 bg-white px-4 text-sm font-black text-forest shadow-[0_8px_22px_rgba(43,33,26,.045)] transition duration-200 hover:border-forest hover:bg-forest hover:text-white hover:shadow-[0_14px_30px_rgba(31,95,67,.16)] focus:outline-none focus:ring-2 focus:ring-forest/35"><MoveIcon/> Move to... <span aria-hidden className={`transition duration-200 ${open ? "rotate-180" : ""}`}>⌄</span></button>
+    <div className="relative mt-4">
+      <button type="button" aria-haspopup="menu" aria-expanded={open} onClick={() => { setOpen(!open); if (!open) trackProductEvent("opportunity_status_menu_opened", { opportunityId: opportunity.id, status }); }} className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-forest/35 bg-white px-3 text-sm font-black text-forest shadow-[0_8px_22px_rgba(43,33,26,.045)] transition duration-200 hover:border-forest hover:bg-forest hover:text-white hover:shadow-[0_14px_30px_rgba(31,95,67,.16)] focus:outline-none focus:ring-2 focus:ring-forest/35"><MoveIcon/> Move to... <span aria-hidden className={`transition duration-200 ${open ? "rotate-180" : ""}`}>⌄</span></button>
       {open && <div role="menu" className="absolute left-0 right-0 z-30 mt-2 overflow-hidden rounded-2xl border border-ink/10 bg-white/95 p-2 shadow-[0_24px_70px_rgba(43,33,26,.2)] backdrop-blur">
         <p className="px-3 pb-2 pt-1 text-[11px] font-black uppercase tracking-[.14em] text-ink/35">Move to</p>
         {nextStatuses.map((item) => {

@@ -7,13 +7,14 @@ import { deadlineLabel, opportunities } from "@/data/opportunities";
 import { buildRecommendationService, type RecommendationServiceResult, type RecommendationViewModel } from "@/data/recommendation-service";
 import { schools, type School } from "@/data/seed";
 import { readStudentActivity, type StudentActivity } from "@/data/student-activity";
-import { inferApplicationsFromActivity, readStudentProgress, updateApplicationStatus, writeStudentProgress, type StudentProgress } from "@/data/student-progress";
+import { inferApplicationsFromActivity, readStudentProgress, type StudentProgress } from "@/data/student-progress";
 import type { StudentProfile } from "@/data/student-profile";
 import type { AccountSession } from "@/lib/account-types";
 import { getAdvisorAccessState, type AdvisorAccessState } from "@/lib/advisor-access";
 import { trackProductEvent } from "@/data/product-analytics";
 import { ArrowIcon, BookmarkIcon, CheckCircleIcon, SearchIcon, SendIcon, TargetIcon } from "./icons";
 import { OrganizationLogo } from "./organization-logo";
+import { AddToJourneyButton } from "./opportunity-activity";
 
 type AdvisorState = {
   profile: StudentProfile;
@@ -51,7 +52,6 @@ function buildState(profile: StudentProfile, activity: StudentActivity, progress
 export function AdvisorPage() {
   const [state, setState] = useState<AdvisorState | null>(null);
   const [loading, setLoading] = useState(true);
-  const [completionMessage, setCompletionMessage] = useState("");
   const trackedRecommendation = useRef("");
 
   useEffect(() => {
@@ -84,25 +84,13 @@ export function AdvisorPage() {
     trackProductEvent("recommendation_viewed", { recommendationId: top.recommendation.id, section: "for-you" });
   }, [top]);
 
-  function trackRecommendation(view: RecommendationViewModel) {
-    if (!state || !view.recommendation.relatedOpportunityId) return;
-    const stored = writeStudentProgress(updateApplicationStatus(state.progress, view.recommendation.relatedOpportunityId, "interested", {
-      nextAction: "Review the official source and decide whether to apply.",
-      source: "manual",
-    }));
-    const rebuilt = buildState(state.profile, state.activity, stored, state.session);
-    if (rebuilt) setState(rebuilt);
-    trackProductEvent("status_changed", { recommendationId: view.recommendation.id, opportunityId: view.recommendation.relatedOpportunityId, status: "interested" });
-    setCompletionMessage("Tracked as active interest. UnlockED will use this when prioritizing future recommendations.");
-  }
-
   if (loading) return <main className="min-h-[70vh] bg-paper px-5 py-16 sm:px-8"><section className="mx-auto max-w-6xl"><p className="rule-label text-forest">For You</p><div className="mt-6 h-16 max-w-2xl rounded-2xl bg-white/70" /><div className="mt-10 h-52 rounded-[2rem] bg-white/70" /></section></main>;
   if (!state || !top) return <main className="min-h-[70vh] bg-paper px-5 py-16 sm:px-8"><section className="mx-auto max-w-4xl"><p className="rule-label text-forest">For You</p><h1 className="mt-4 font-editorial text-5xl font-bold tracking-[-.045em]">Complete your profile first.</h1><p className="mt-4 max-w-2xl text-sm leading-7 text-ink/55">UnlockED needs your school, major, year, goals, and activity before it can recommend fitting opportunities.</p><Link href="/profile" className="mt-8 inline-flex min-h-12 items-center justify-center rounded-full bg-forest px-6 text-sm font-bold text-white hover:bg-ink">Open profile</Link></section></main>;
 
   return <main className="bg-[radial-gradient(circle_at_top_left,rgba(231,216,189,.45),transparent_34rem),#f6f0e6] px-5 py-10 sm:px-8 sm:py-14">
     <section className="mx-auto max-w-[112rem] space-y-10">
       <Hero state={state} firstName={firstName} />
-      <TopRecommendation view={top} onTrack={() => trackRecommendation(top)} completionMessage={completionMessage} />
+      <TopRecommendation view={top} />
       <RecommendedGrid recommendations={recommended.slice(1, 5)} />
       <WhyRecommendations state={state} />
       <ActivityGlance activity={state.activity} />
@@ -137,15 +125,14 @@ function ProfileSummary({ state }: { state: AdvisorState }) {
   </aside>;
 }
 
-function TopRecommendation({ view, onTrack, completionMessage }: { view: RecommendationViewModel; onTrack: () => void; completionMessage: string }) {
+function TopRecommendation({ view }: { view: RecommendationViewModel }) {
   const opportunity = view.opportunity;
   return <article className="rounded-[2rem] bg-white/48 p-6 shadow-[0_18px_60px_rgba(43,33,26,.045)] ring-1 ring-ink/6 sm:p-8">
     <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_220px_250px] lg:items-center">
       <div>{opportunity && <OrganizationLogo opportunity={opportunity} size="lg" className="mb-5 bg-white/70"/>}<p className="rule-label text-forest">Top recommendation · {view.recommendation.priority} priority</p><h2 className="mt-4 font-editorial text-4xl font-bold leading-tight tracking-[-.035em]">{opportunity?.title ?? view.recommendation.title}</h2><p className="mt-4 max-w-2xl text-sm leading-7 text-ink/62">{opportunity?.description ?? view.recommendation.description}</p>{view.chips.length ? <div className="mt-5 flex flex-wrap gap-2">{view.chips.map((chip) => <span key={chip} className="rounded-full bg-white px-3 py-1.5 text-xs font-bold text-ink/70">{chip}</span>)}</div> : null}</div>
       <dl className="grid gap-5 border-ink/10 text-sm lg:border-l lg:pl-8"><div><dt className="text-ink/40">Deadline</dt><dd className="mt-1 font-black">{opportunity ? deadlineLabel(opportunity) : "Not announced"}</dd></div><div><dt className="text-ink/40">Est. effort</dt><dd className="mt-1 font-black">{view.recommendation.estimatedValueLabel === "Unknown" ? "Medium" : view.recommendation.estimatedValueLabel}</dd></div><div><dt className="text-ink/40">Match</dt><dd className="mt-1 font-black text-forest">{view.label}</dd></div></dl>
-      <div className="flex flex-col gap-3"><Link href={view.href} onClick={() => trackProductEvent("recommendation_clicked", { recommendationId: view.recommendation.id, opportunityId: view.recommendation.relatedOpportunityId, section: "for-you" })} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-forest px-6 text-sm font-bold text-white shadow-[0_16px_34px_rgba(31,95,67,.18)] hover:bg-ink">Open opportunity <ArrowIcon /></Link><button type="button" onClick={onTrack} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-forest/35 bg-white px-6 text-sm font-bold text-forest hover:border-forest"><BookmarkIcon className="h-4 w-4" /> Track this</button></div>
+      <div className="flex flex-col gap-3"><Link href={view.href} onClick={() => trackProductEvent("recommendation_clicked", { recommendationId: view.recommendation.id, opportunityId: view.recommendation.relatedOpportunityId, section: "for-you" })} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-forest px-6 text-sm font-bold text-white shadow-[0_16px_34px_rgba(31,95,67,.18)] hover:bg-ink">Open Opportunity <ArrowIcon /></Link>{view.recommendation.relatedOpportunityId ? <AddToJourneyButton opportunityId={view.recommendation.relatedOpportunityId} className="rounded-full border border-forest/35 bg-white px-6 text-forest hover:border-forest" /> : null}</div>
     </div>
-    {completionMessage && <p role="status" className="mt-5 rounded-2xl bg-white px-4 py-3 text-sm font-bold text-forest">{completionMessage}</p>}
   </article>;
 }
 
@@ -165,7 +152,7 @@ function RecommendationCard({ view }: { view: RecommendationViewModel }) {
     <div className="mt-4 flex-1"><p className="line-clamp-4 text-sm leading-6 text-ink/60">{opportunity?.description ?? view.recommendation.description}</p></div>
     <div className="mt-5 flex flex-wrap gap-2">{view.chips.slice(0, 2).map((chip) => <span key={chip} className="rounded-full bg-paper px-3 py-1 text-xs font-bold text-ink/65">{chip}</span>)}</div>
     <div className="mt-5 grid grid-cols-2 gap-3 border-t border-ink/8 pt-4 text-xs"><div><p className="text-ink/40">Deadline</p><p className="mt-1 font-black">{opportunity ? deadlineLabel(opportunity) : "Not announced"}</p></div><div className="text-right"><p className="text-ink/40">{view.label}</p><span className="mt-2 inline-block h-2 w-2 rounded-full bg-forest" /></div></div>
-    <Link href={view.href} onClick={() => trackProductEvent("recommendation_clicked", { recommendationId: view.recommendation.id, opportunityId: view.recommendation.relatedOpportunityId, section: "for-you-card" })} className="mt-5 inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-ink/15 text-sm font-bold text-ink hover:border-forest hover:text-forest">View details <ArrowIcon /></Link>
+    <div className="mt-5 grid gap-3"><Link href={view.href} onClick={() => trackProductEvent("recommendation_clicked", { recommendationId: view.recommendation.id, opportunityId: view.recommendation.relatedOpportunityId, section: "for-you-card" })} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-forest text-sm font-bold text-white hover:bg-ink">Open Opportunity <ArrowIcon /></Link>{view.recommendation.relatedOpportunityId ? <AddToJourneyButton opportunityId={view.recommendation.relatedOpportunityId} className="rounded-full border border-ink/15 text-ink hover:border-forest hover:text-forest" /> : null}</div>
   </article>;
 }
 
@@ -183,7 +170,7 @@ function ActivityGlance({ activity }: { activity: StudentActivity }) {
   const interviews = records.filter((item) => item.status === "Interview").length;
   return <section>
     <h2 className="font-editorial text-3xl font-bold tracking-[-.025em]">Your activity at a glance</h2>
-    <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4"><ActivityCard label="Saved" value={saved} Icon={BookmarkIcon} text="Keep exploring" /><ActivityCard label="Applied" value={applied} Icon={SendIcon} text="Take the next step" /><ActivityCard label="Interviews" value={interviews} Icon={TargetIcon} text="You’ve got this" /><div className="rounded-[1.35rem] bg-forest/8 p-6 ring-1 ring-forest/10"><h3 className="font-editorial text-2xl font-bold text-forest">Stay consistent</h3><p className="mt-3 text-sm leading-6 text-ink/60">Your recommendations improve as you save, review, and track opportunities that fit.</p><Link href="/opportunities" className="mt-5 inline-flex min-h-11 items-center rounded-full bg-forest px-5 text-sm font-bold text-white">Explore more</Link></div></div>
+    <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4"><ActivityCard label="Saved" value={saved} Icon={BookmarkIcon} text="Keep exploring" /><ActivityCard label="Applied" value={applied} Icon={SendIcon} text="Take the next step" /><ActivityCard label="Interviews" value={interviews} Icon={TargetIcon} text="You’ve got this" /><div className="rounded-[1.35rem] bg-forest/8 p-6 ring-1 ring-forest/10"><h3 className="font-editorial text-2xl font-bold text-forest">Stay consistent</h3><p className="mt-3 text-sm leading-6 text-ink/60">Your recommendations improve as you add fitting opportunities to your Journey.</p><Link href="/opportunities" className="mt-5 inline-flex min-h-11 items-center rounded-full bg-forest px-5 text-sm font-bold text-white">Explore more</Link></div></div>
   </section>;
 }
 

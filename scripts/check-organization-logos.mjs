@@ -10,6 +10,7 @@ const advisor = read("components/advisor-page.tsx");
 const journey = read("components/student-journey-dashboard.tsx");
 const tracker = read("components/my-opportunities-page.tsx");
 const detail = read("app/opportunities/[id]/page.tsx");
+const config = read("next.config.mjs");
 const pkg = read("package.json");
 
 for (const symbol of [
@@ -34,9 +35,30 @@ for (const organization of [
   "Amazon",
   "Google",
   "Microsoft",
+  "Meta",
+  "Jane Street",
+  "8VC",
+  "AFCEA",
   "Notion",
 ]) {
   assert.ok(resolver.toLowerCase().includes(organization.toLowerCase()), `Logo registry must include ${organization}.`);
+}
+
+for (const asset of [
+  "/logos/org/amazon.svg",
+  "/logos/org/adobe.svg",
+  "/logos/org/apple.svg",
+  "/logos/org/openai.svg",
+  "/logos/org/github.svg",
+  "/logos/org/uchicago.svg",
+  "/logos/org/google.svg",
+  "/logos/org/microsoft.svg",
+  "/logos/org/meta.svg",
+  "/logos/org/jane-street.svg",
+  "/logos/org/8vc.svg",
+  "/logos/org/afcea.svg",
+]) {
+  assert.ok(resolver.includes(asset), `Known organization must use curated local asset: ${asset}.`);
 }
 
 for (const token of [
@@ -53,9 +75,11 @@ for (const token of [
 
 assert.doesNotMatch(resolver, /opportunity\.title/, "Organization logos must not be inferred from arbitrary opportunity title text.");
 
-for (const token of ["resolveOrganizationLogo", "alt=", "loading=\"lazy\"", "decoding=\"async\"", "onError", "width=", "height=", "aria-label"]) {
+for (const token of ["resolveOrganizationLogo", "alt=", "loading=\"lazy\"", "decoding=\"async\"", "onError", "setFailed(false)", "width=", "height=", "aria-label"]) {
   assert.ok(component.includes(token), `OrganizationLogo component must include ${token}.`);
 }
+
+assert.ok(config.includes("logo.clearbit.com"), "Next image configuration must permit the remote domain-provider host.");
 
 for (const [path, source] of [
   ["components/opportunity-card.tsx", opportunityCard],

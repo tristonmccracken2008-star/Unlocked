@@ -72,20 +72,6 @@ export function trackOpportunityView(id: string) {
   activity.viewed.push(id); writeStudentActivity(activity); return activity;
 }
 
-export function toggleSavedOpportunity(id: string) {
-  const activity = readStudentActivity();
-  const tracked = activity.tracked ?? {};
-  if (activity.saved.includes(id)) {
-    activity.saved = activity.saved.filter((item) => item !== id);
-    delete tracked[id];
-  } else {
-    activity.saved = [...activity.saved, id];
-    tracked[id] = { id, status: "Saved", savedAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
-  }
-  activity.tracked = tracked;
-  writeStudentActivity(activity); return activity;
-}
-
 export function saveOpportunity(id: string, status: OpportunityTrackerStatus = "Saved", persist = true) {
   const activity = readStudentActivity();
   const tracked = activity.tracked ?? {};
@@ -106,16 +92,5 @@ export function removeTrackedOpportunity(id: string) {
   delete tracked[id];
   activity.tracked = tracked;
   activity.saved = activity.saved.filter((item) => item !== id);
-  writeStudentActivity(activity); return activity;
-}
-
-export function markOpportunityClaimed(id: string) {
-  const activity = readStudentActivity();
-  if (!activity.claimed.includes(id)) activity.claimed.push(id);
-  if (!activity.viewed.includes(id)) activity.viewed.push(id);
-  const tracked = activity.tracked ?? {};
-  tracked[id] = { id, status: "Completed", savedAt: tracked[id]?.savedAt ?? new Date().toISOString(), updatedAt: new Date().toISOString() };
-  activity.tracked = tracked;
-  activity.saved = [...new Set([...activity.saved, id])];
   writeStudentActivity(activity); return activity;
 }
