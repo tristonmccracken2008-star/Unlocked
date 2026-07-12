@@ -9,6 +9,9 @@ import { opportunityTrackerStatuses, readStudentActivity, studentActivityEvent, 
 import { ArrowIcon, BookmarkIcon, CheckCircleIcon, HeartIcon, PenLineIcon, SearchIcon, SendIcon, TargetIcon, TrophyIcon, XCircleIcon } from "./icons";
 import { OpportunityCard } from "./opportunity-card";
 import { trackProductEvent } from "@/data/product-analytics";
+import { hydrateAccountData } from "@/data/account-sync";
+import { buildRecommendationService } from "@/data/recommendation-service";
+import { inferApplicationsFromActivity, readStudentProgress } from "@/data/student-progress";
 
 type SortMode = "Relevant" | "Newest" | "Deadline" | "Alphabetical";
 type FilterState = {
@@ -74,8 +77,9 @@ function valueLabel(item: Opportunity) {
   return item.metadata.studentOffer ?? "See details";
 }
 
-function sortOpportunities(items: Opportunity[], sort: SortMode) {
+function sortOpportunities(items: Opportunity[], sort: SortMode, recommendationOrder?: Map<string, number>) {
   const next = [...items];
+  if (sort === "Relevant" && recommendationOrder?.size) return next.sort((a, b) => (recommendationOrder.get(a.id) ?? 99999) - (recommendationOrder.get(b.id) ?? 99999) || a.title.localeCompare(b.title));
   if (sort === "Newest") return next.sort((a, b) => b.date_added.localeCompare(a.date_added) || a.title.localeCompare(b.title));
   if (sort === "Deadline") return next.sort((a, b) => (a.application_deadline ?? "9999-12-31").localeCompare(b.application_deadline ?? "9999-12-31") || a.title.localeCompare(b.title));
   if (sort === "Alphabetical") return next.sort((a, b) => a.title.localeCompare(b.title));
@@ -89,6 +93,7 @@ export function OpportunityFilter({ opportunities: initialOpportunities = [] }: 
   const [visibleCount, setVisibleCount] = useState(16);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const [activity, setActivity] = useState<StudentActivity>({ viewed: [], saved: [], claimed: [], tracked: {} });
+  const [recommendationOrder, setRecommendationOrder] = useState<Map<string, number>>(new Map());
   const hydrated = useRef(false);
   const trackedFilters = useRef(false);
   const deferredQuery = useDeferredValue(filters.query);
@@ -128,6 +133,22 @@ export function OpportunityFilter({ opportunities: initialOpportunities = [] }: 
     }));
   }, [categories]);
 
+  useEffect(() => {
+    if (!loaded || !opportunities.length) return;
+    let active = true;
+    hydrateAccountData().then((session) => {
+      const profile = session.data?.profile;
+      const school = profile ? schools.find((item) => item.slug === profile.schoolSlug) : null;
+      if (!active || !profile || !school) return;
+      const inferredProgress = inferApplicationsFromActivity(activity, opportunities, readStudentProgress());
+      const service = buildRecommendationService({ profile, school, activity, progress: inferredProgress, source: opportunities });
+      const entries: [string, number][] = service.recommendations.flatMap((view, index) => view.recommendation.relatedOpportunityId ? [[view.recommendation.relatedOpportunityId, index] as [string, number]] : []);
+      setRecommendationOrder(new Map(entries));
+      trackProductEvent("recommendation_refresh", { section: "discover" });
+    }).catch(() => undefined);
+    return () => { active = false; };
+  }, [activity, loaded, opportunities]);
+
   useEffect(() => trackProductEvent("discover_opened"), []);
   useEffect(() => {
     if (!hydrated.current) return;
@@ -147,8 +168,8 @@ export function OpportunityFilter({ opportunities: initialOpportunities = [] }: 
       freshmanFriendly: filters.freshmanFriendly,
       deadline: filters.deadline === "All" ? undefined : filters.deadline as "published" | "upcoming" | "rolling" | "not_announced",
     }, opportunities);
-    return sortOpportunities(filtered, filters.sort);
-  }, [deferredQuery, filters, opportunities]);
+    return sortOpportunities(filtered, filters.sort, recommendationOrder);
+  }, [deferredQuery, filters, opportunities, recommendationOrder]);
 
   useEffect(() => setVisibleCount(16), [filters]);
   useEffect(() => {

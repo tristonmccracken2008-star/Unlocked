@@ -1,4 +1,5 @@
 import type { Opportunity, OpportunityDifficulty, OpportunityType, VerificationStatus } from "./opportunities";
+import { recommendationConfig } from "./recommendation-config";
 
 export type OpportunityWorkMode = "Remote" | "Hybrid" | "In Person" | "Varies" | "Unknown";
 export type OpportunityPayStatus = "Paid" | "Unpaid" | "Varies" | "Unknown";
@@ -9,11 +10,21 @@ export type OpportunityStudentContext = {
   schoolSlug?: string;
   schoolName?: string;
   major?: string;
+  minor?: string;
   academicYear?: string;
   careerGoals?: string;
+  currentPriority?: string;
   interests?: string[];
+  gpaStatus?: "reported" | "none_yet" | "nonstandard";
+  gpa?: number;
   savedOpportunityIds?: string[];
   viewedOpportunityIds?: string[];
+  activeOpportunityIds?: string[];
+  completedOpportunityIds?: string[];
+  rejectedOpportunityIds?: string[];
+  acceptedOpportunityIds?: string[];
+  savedCategories?: string[];
+  completedCategories?: string[];
 };
 
 export type OpportunityIntelligence = {
@@ -46,9 +57,14 @@ export type OpportunityIntelligence = {
 
 export type OpportunityMatchBreakdown = {
   matchingMajors: string[];
+  matchingMinor: string[];
   matchingCareerGoals: string[];
+  matchingInterests: string[];
+  matchingCurrentPriority: boolean;
   matchingYears: string[];
   schoolEligible: boolean;
+  gpaRequirement: number | null;
+  gpaEligible: boolean | null;
   deadlineDays: number | null;
 };
 
@@ -196,10 +212,38 @@ export function getMatchingMajors(item: Opportunity, context: OpportunityStudent
   });
 }
 
+export function getMatchingMinor(item: Opportunity, context: OpportunityStudentContext) {
+  if (!context.minor) return [];
+  const minor = normalize(context.minor);
+  if (item.majors.includes("Any Major")) return [];
+  return item.majors.filter((itemMajor) => {
+    const candidate = normalize(itemMajor);
+    return minor.includes(candidate) || candidate.includes(minor);
+  });
+}
+
 export function getMatchingCareerGoals(item: Opportunity, context: OpportunityStudentContext) {
   const text = searchableText(item);
-  const terms = unique([...(context.interests ?? []).flatMap(tokens), ...tokens(context.careerGoals ?? "")]);
+  const terms = unique(tokens(context.careerGoals ?? ""));
   return terms.filter((term) => text.includes(term)).slice(0, 8);
+}
+
+export function getMatchingInterests(item: Opportunity, context: OpportunityStudentContext) {
+  const text = searchableText(item);
+  const terms = unique((context.interests ?? []).flatMap(tokens));
+  return terms.filter((term) => text.includes(term)).slice(0, 8);
+}
+
+function currentPriorityMatches(item: Opportunity, priority?: string) {
+  if (!priority) return false;
+  const value = normalize(priority);
+  const text = searchableText(item);
+  if (value.includes("internship")) return text.includes("internship") || item.category === "Internships";
+  if (value.includes("research")) return item.type === "Research" || text.includes("research") || text.includes("lab");
+  if (value.includes("scholarship")) return item.type === "Scholarship" || text.includes("scholarship") || text.includes("award");
+  if (value.includes("benefit")) return item.type === "Benefit" || item.type === "AI" || text.includes("benefit") || text.includes("software");
+  if (value.includes("application")) return item.type === "Career" || text.includes("resume") || text.includes("career") || text.includes("fellowship");
+  return false;
 }
 
 export function getMatchingYears(item: Opportunity, context: OpportunityStudentContext) {
@@ -218,31 +262,62 @@ function isSchoolEligible(item: Opportunity, context: OpportunityStudentContext)
   return item.school_scope === "National" || Boolean(context.schoolSlug && item.schools.includes(context.schoolSlug));
 }
 
+function gpaRequirement(item: Opportunity) {
+  const text = `${item.eligibility} ${(item.metadata.applicationRequirements ?? []).join(" ")} ${(item.metadata.eligibilityNotes ?? []).join(" ")}`;
+  const matches = [...text.matchAll(/(?:minimum|required|requires?|at least)?\s*(?:gpa)?\s*([2-4](?:\.\d{1,2})?)\s*(?:gpa)?/gi)].map((match) => Number(match[1])).filter((value) => Number.isFinite(value) && value >= 2 && value <= 4);
+  return matches.length ? Math.max(...matches) : null;
+}
+
+function gpaEligible(item: Opportunity, context: OpportunityStudentContext) {
+  const requirement = gpaRequirement(item);
+  if (requirement === null) return null;
+  if (context.gpaStatus !== "reported" || typeof context.gpa !== "number") return null;
+  return context.gpa >= requirement;
+}
+
 export function getOpportunityPriority(item: Opportunity, context: OpportunityStudentContext): OpportunityPriority {
   const score = scoreOpportunityIntelligence(item, context);
   return score.priority;
 }
 
 export function scoreOpportunityIntelligence(item: Opportunity, context: OpportunityStudentContext): OpportunityScore {
+  const weights = recommendationConfig.weights;
   const matchingMajors = getMatchingMajors(item, context);
+  const matchingMinor = getMatchingMinor(item, context);
   const matchingCareerGoals = getMatchingCareerGoals(item, context);
+  const matchingInterests = getMatchingInterests(item, context);
+  const matchingCurrentPriority = currentPriorityMatches(item, context.currentPriority);
   const matchingYears = getMatchingYears(item, context);
   const schoolEligible = isSchoolEligible(item, context);
   const deadlineDays = getDeadlineDays(item);
+  const requirement = gpaRequirement(item);
+  const meetsGpa = gpaEligible(item, context);
   const intelligence = getOpportunityIntelligence(item);
   let score = 0;
-  if (schoolEligible) score += item.school_scope === "School Specific" ? 18 : 10;
-  else score -= 40;
-  if (matchingMajors.length) score += matchingMajors.includes("Any Major") ? 8 : 22;
-  if (matchingCareerGoals.length) score += Math.min(18, matchingCareerGoals.length * 4);
-  if (matchingYears.length) score += matchingYears.includes("Any Year") ? 8 : 18;
-  if (deadlineDays !== null && deadlineDays >= 0 && deadlineDays <= 14) score += 18;
-  else if (deadlineDays !== null && deadlineDays >= 0 && deadlineDays <= 45) score += 10;
-  else if (deadlineDays !== null && deadlineDays < 0) score -= 35;
-  score += Math.round(intelligence.qualityScore * 0.18);
-  if (item.estimated_value && item.estimated_value >= 1000) score += 8;
-  if (item.difficulty === "Open") score += 5;
-  if (item.difficulty === "Highly Competitive") score -= 4;
+  if (schoolEligible) score += item.school_scope === "School Specific" ? weights.schoolEligibleSpecific : weights.schoolEligibleNational;
+  else score += weights.wrongSchoolPenalty;
+  if (matchingMajors.length) score += matchingMajors.includes("Any Major") ? weights.majorAny : weights.majorExact;
+  if (matchingMinor.length) score += weights.minorExact;
+  if (matchingCareerGoals.length) score += Math.min(weights.careerGoalMax, matchingCareerGoals.length * weights.careerGoalPerSignal);
+  if (matchingInterests.length) score += Math.min(weights.interestMax, matchingInterests.length * weights.interestPerSignal);
+  if (matchingCurrentPriority) score += weights.currentPriority;
+  if (matchingYears.length) score += matchingYears.includes("Any Year") ? weights.classYearAny : weights.classYearExact;
+  else if (context.academicYear && !item.academic_years.includes("Any Year")) score += weights.wrongClassYearPenalty;
+  if (requirement !== null && meetsGpa === true) score += weights.gpaMeetsRequirement;
+  if (requirement !== null && context.gpaStatus === "none_yet") score += weights.noGpaKnownRequirementPenalty;
+  if (deadlineDays !== null && deadlineDays >= 0 && deadlineDays <= 14) score += weights.deadlineCritical;
+  else if (deadlineDays !== null && deadlineDays >= 0 && deadlineDays <= 45) score += weights.deadlineSoon;
+  else if (deadlineDays !== null && deadlineDays < 0) score += weights.deadlinePassedPenalty;
+  score += Math.round(intelligence.qualityScore * weights.qualityMultiplier);
+  if (item.verification_status === "verified") score += weights.verified;
+  if (item.verification_status === "needs_review") score += weights.needsReview;
+  if (item.estimated_value && item.estimated_value >= 1000) score += weights.highValue;
+  if (item.difficulty === "Open") score += weights.openDifficulty;
+  if (item.difficulty === "Highly Competitive") score += weights.highlyCompetitivePenalty;
+  if (context.savedCategories?.includes(item.category)) score += weights.savedSimilarCategory;
+  if (context.completedCategories?.includes(item.category)) score += weights.completedSimilarCategory;
+  if (context.viewedOpportunityIds?.includes(item.id)) score += weights.viewedPenalty;
+  if (context.activeOpportunityIds?.includes(item.id)) score += weights.activeTrackedPenalty;
   if (item.verification_status === "expired") score = -100;
   const normalizedScore = Math.max(0, Math.min(100, score));
   const priority: OpportunityPriority = deadlineDays !== null && deadlineDays >= 0 && deadlineDays <= 10 && normalizedScore >= 55 ? "Critical" : normalizedScore >= 78 ? "High" : normalizedScore >= 50 ? "Recommended" : "Optional";
@@ -253,21 +328,31 @@ export function scoreOpportunityIntelligence(item: Opportunity, context: Opportu
     difficulty: intelligence.competitiveness,
     confidence: Math.max(20, Math.min(98, normalizedScore + Math.round(intelligence.qualityScore * 0.12))),
     reasons: getRecommendationReasons(item, context),
-    breakdown: { matchingMajors, matchingCareerGoals, matchingYears, schoolEligible, deadlineDays },
+    breakdown: { matchingMajors, matchingMinor, matchingCareerGoals, matchingInterests, matchingCurrentPriority, matchingYears, schoolEligible, gpaRequirement: requirement, gpaEligible: meetsGpa, deadlineDays },
   };
 }
 
 export function getRecommendationReasons(item: Opportunity, context: OpportunityStudentContext) {
   const matchingMajors = getMatchingMajors(item, context);
+  const matchingMinor = getMatchingMinor(item, context);
   const matchingCareerGoals = getMatchingCareerGoals(item, context);
+  const matchingInterests = getMatchingInterests(item, context);
+  const matchingCurrentPriority = currentPriorityMatches(item, context.currentPriority);
   const matchingYears = getMatchingYears(item, context);
   const schoolEligible = isSchoolEligible(item, context);
   const deadlineDays = getDeadlineDays(item);
+  const requirement = gpaRequirement(item);
+  const meetsGpa = gpaEligible(item, context);
   const reasons: string[] = [];
   if (matchingMajors.length) reasons.push(matchingMajors.includes("Any Major") ? "Open to students in any major." : `Matches your major: ${matchingMajors[0]}.`);
-  if (matchingCareerGoals.length) reasons.push(`Matches your career goal or interests: ${matchingCareerGoals.slice(0, 2).join(", ")}.`);
+  if (matchingMinor.length) reasons.push(`Connects with your minor: ${matchingMinor[0]}.`);
+  if (matchingCareerGoals.length) reasons.push(`Matches your career goal: ${matchingCareerGoals.slice(0, 2).join(", ")}.`);
+  if (matchingInterests.length) reasons.push(`Matches your opportunity interests: ${matchingInterests.slice(0, 2).join(", ")}.`);
+  if (matchingCurrentPriority && context.currentPriority) reasons.push(`Supports your current priority: ${context.currentPriority}.`);
   if (matchingYears.length) reasons.push(matchingYears.includes("Any Year") ? "Accepts students in any class year." : `Accepts ${matchingYears[0].toLowerCase()} students.`);
   if (schoolEligible) reasons.push(item.school_scope === "National" ? "Available nationally." : `Available at ${context.schoolName ?? "your school"}.`);
+  if (requirement !== null && meetsGpa === true) reasons.push(`Your GPA meets the listed ${requirement.toFixed(1)} requirement.`);
+  if (requirement !== null && context.gpaStatus === "none_yet") reasons.push(`This lists a ${requirement.toFixed(1)} GPA requirement, so confirm eligibility once you have a college GPA.`);
   if (deadlineDays !== null && deadlineDays >= 0) reasons.push(`Deadline is in ${deadlineDays} day${deadlineDays === 1 ? "" : "s"}.`);
   if (item.verification_status === "verified") reasons.push("Verified from an official source.");
   if (!reasons.length) reasons.push("Included for review because it is in the opportunity catalog, but profile-specific matches are limited.");

@@ -6,7 +6,7 @@
     "dev": "next dev",
     "validate:data": "node scripts/validate-data.mjs",
     "check:onboarding": "node scripts/check-onboarding-flow.mjs",
-    "check:advisor": "node scripts/check-advisor-brain.mjs && node scripts/check-advisor-quality.mjs",
+    "check:advisor": "node scripts/check-advisor-brain.mjs && node scripts/check-advisor-quality.mjs && node scripts/check-recommendation-engine.mjs",
     "check:auth": "node scripts/check-auth-query.mjs",
     "check:profile-flow": "node scripts/check-advisor-profile-flow.mjs",
     "check:interview": "node scripts/check-interview-intelligence.mjs",

@@ -1,31 +1,93 @@
-# Recommendation Engine
+# Recommendation Engine 1.0
 
-UnlockED ranks every record in `data/db/opportunities.json` against the student profile saved in the browser. Recommendations are never maintained as a separate hand-picked list.
+UnlockED recommendations come from one canonical path:
 
-## Profile signals
+`StudentProfile + School + StudentActivity + StudentProgress + Opportunities -> buildRecommendationService() -> RecommendationV1[]`
 
-The scorer in `data/recommendations.ts` uses school, major, academic year, optional interests, optional career goals, the school's location, opportunity tags, and opportunity type. School-specific records that do not belong to the selected school receive a strong penalty. Exact school, major, and year matches receive the largest positive weights.
+Primary modules:
 
-The final top ten uses a three-item-per-type cap. This prevents one dense catalog type from crowding every other relevant opportunity out of the dashboard.
+- `data/recommendation-config.ts`: tunable weights, label thresholds, and diversity penalties.
+- `data/opportunity-intelligence.ts`: opportunity metadata normalization, eligibility matching, scoring inputs, and explanation reasons.
+- `data/recommendation-engine.ts`: ranking, exclusion rules, roadmap connections, deterministic diversity, and `RecommendationV1` output.
+- `data/recommendation-service.ts`: product-facing view models consumed by For You, Journey, and Discover.
 
-## Dashboard collections
+No recommendation surface should independently rank opportunities.
 
-- **Recommended For You:** the ten highest relevant scores with type diversity.
-- **Trending Opportunities:** a deterministic blend of catalog `featured`, prestige, verification, and profile relevance signals. This is editorial trending, not behavioral analytics.
-- **Hidden Gems:** verified, relevant opportunities that are explicitly marked `hidden_gem` or are strong non-featured records without `Very High` prestige.
-- **Expiring Soon:** real application deadlines from today through the next 60 days. The section stays empty when no valid deadline qualifies.
-- **Recently Added:** newest `date_added` values, with relevance used to break ties.
+## Signal Weights
 
-## Adding data
+Weights are centralized in `recommendationConfig`.
 
-Every opportunity must include an ISO `date_added` value (`YYYY-MM-DD`). Add or edit the opportunity normally, then run `npm run validate:data` and `npm run build`. The opportunity becomes eligible for every recommendation collection automatically. Do not add opportunity IDs to the recommendation code.
+- School eligibility: school-specific matches are stronger than national availability. Wrong-school exclusive opportunities receive a hard negative score.
+- Major alignment: major matches are a primary positive signal. `Any Major` receives a smaller boost.
+- Minor alignment: minor matches receive a moderate boost for interdisciplinary fit.
+- Graduation year eligibility: matching class year is strong. Wrong class year receives a hard penalty.
+- Career goals: career-goal text and opportunity metadata are strongly weighted.
+- Opportunity interests: selected interests bias categories and tags without excluding other strong matches.
+- Current priority: current priority receives a temporary boost. It biases ranking but is not a hard filter.
+- GPA handling: GPA is used only when an opportunity appears to publish a GPA requirement. No-GPA-yet is not broadly penalized.
+- Deadline timing: near deadlines are boosted. Passed deadlines are suppressed.
+- Verification and quality: verified, complete, official-source opportunities rank higher.
+- Activity learning: saved and completed categories receive small boosts; already active Journey records are suppressed from For You.
 
-## Changing weights
+## Recommendation Labels
 
-Weights are centralized in `scoreOpportunity`. Keep school and eligibility constraints stronger than soft text matches. When changing weights, test technical, business, humanities, first-year, and upper-year profiles to ensure one catalog type does not dominate.
+UnlockED does not show raw confidence percentages in product cards. Labels come from deterministic score thresholds:
 
-## Advisor and Interview Intelligence integration
+- `Excellent Match`: score >= 86
+- `Strong Match`: score >= 72
+- `Good Match`: score >= 56
+- `Worth Reviewing`: score >= 38
+- `Limited Match`: below 38
 
-The Advisor systems use `data/recommendation-engine.ts` as structured input rather than a separate hand-written recommendation list. Internal Interview Intelligence consumes `RecommendationV1` records, Student Progress, the Evidence Inventory, and the Student Digital Twin to decide which interview stories and practice actions are currently supported by evidence.
+## Explanation Rules
 
-This integration is deterministic. It does not call an AI API and it does not produce interview advice from free-form generation. See `docs/INTERVIEW_INTELLIGENCE.md` for the architecture and test command.
+Every explanation bullet must map to a real scoring signal:
+
+- major or minor match
+- career-goal match
+- opportunity-interest match
+- current-priority match
+- class-year eligibility
+- school eligibility
+- GPA requirement handling
+- deadline proximity
+- official-source verification
+
+The engine does not fabricate reasons for unavailable data.
+
+## Diversity
+
+After base scoring, the engine applies deterministic diversity penalties so the ranked list does not become five similar items in a row.
+
+The diversity pass balances:
+
+- organization
+- category
+- opportunity type
+
+Diversity can lower an otherwise strong duplicate, but it does not introduce randomness.
+
+## Cache and Refresh
+
+Recommendations regenerate when inputs change:
+
+- profile fields, including onboarding answers
+- current priority
+- saved/Journey activity
+- completed or rejected opportunities
+- viewed opportunities
+- opportunity database contents
+
+Advisor profile fingerprints include minor, GPA status/value, current priority, goals, interests, and preferred opportunity types so cached Advisor Brain snapshots invalidate when meaningful recommendation inputs change.
+
+## Product Surfaces
+
+- For You consumes `buildRecommendationService()` for the full recommendation page.
+- Journey uses the same service for “Next to review.”
+- Discover uses the same service to order “Relevant” results when a completed profile is available, while search and filters still narrow the browsed result set.
+
+This preserves the product model:
+
+- Discover: browse manually.
+- For You: UnlockED already found the best matches.
+- Journey: manage active progress.

@@ -4,6 +4,7 @@ import { getMilestoneOpportunityConnections, toMilestone, type Milestone } from 
 import { getOpportunityIntelligence, scoreOpportunityIntelligence, type OpportunityPriority, type OpportunityScore, type OpportunityStudentContext } from "./opportunity-intelligence";
 import { opportunities as catalogOpportunities, type Opportunity } from "./opportunities";
 import { getRoadmap, type RoadmapImportance, type RoadmapMilestone } from "./roadmap-engine";
+import { recommendationConfig } from "./recommendation-config";
 import type { ApplicationRecord, StudentProgress } from "./student-progress";
 
 export type RecommendationKind = "Opportunity" | "Milestone" | "Next Action";
@@ -85,15 +86,33 @@ function recommendationPriority(score: number, fallback: OpportunityPriority): O
 }
 
 function studentContext(profile: AdvisorProfile): OpportunityStudentContext {
+  const trackedRecords = Object.values(profile.experience.tracked);
   return {
     schoolSlug: profile.school.slug,
     schoolName: profile.school.name,
     major: profile.academics.major,
+    minor: profile.academics.minor,
     academicYear: profile.academics.academicYear,
     careerGoals: unique([profile.goals.careerGoal, profile.goals.currentPriority ?? "", ...profile.goals.primaryGoals]).join(", "),
     interests: unique([...profile.goals.interests, ...profile.goals.topics, profile.goals.currentPriority ?? ""]),
+    currentPriority: profile.goals.currentPriority,
+    gpaStatus: profile.academics.gpaStatus,
+    gpa: profile.academics.gpa,
     savedOpportunityIds: profile.experience.savedOpportunityIds,
     viewedOpportunityIds: profile.experience.viewedOpportunityIds,
+    activeOpportunityIds: trackedRecords.filter((record) => !["Rejected", "Completed"].includes(record.status)).map((record) => record.id),
+    completedOpportunityIds: trackedRecords.filter((record) => record.status === "Completed").map((record) => record.id),
+    rejectedOpportunityIds: trackedRecords.filter((record) => record.status === "Rejected").map((record) => record.id),
+    acceptedOpportunityIds: trackedRecords.filter((record) => record.status === "Accepted").map((record) => record.id),
+  };
+}
+
+function contextWithLearning(context: OpportunityStudentContext, source: readonly Opportunity[]) {
+  const categoryFor = (id: string) => source.find((item) => item.id === id)?.category;
+  return {
+    ...context,
+    savedCategories: unique((context.savedOpportunityIds ?? []).map(categoryFor).filter((item): item is string => Boolean(item))),
+    completedCategories: unique((context.completedOpportunityIds ?? []).map(categoryFor).filter((item): item is string => Boolean(item))),
   };
 }
 
@@ -239,9 +258,45 @@ function toOpportunityRecommendation(profile: AdvisorProfile, ranked: RankedOppo
 
 function shouldExcludeOpportunity(profile: AdvisorProfile, opportunity: Opportunity) {
   if (opportunity.verification_status === "expired") return true;
+  if (!opportunity.organization.trim() || !opportunity.eligibility.trim() || !opportunity.official_source_url.startsWith("https://")) return true;
   if (profile.experience.claimedOpportunityIds.includes(opportunity.id)) return true;
+  const trackerRecord = profile.experience.tracked[opportunity.id];
+  if (trackerRecord && ["Saved", "Interested", "Applying", "Submitted", "Interview", "Accepted", "Rejected", "Completed"].includes(trackerRecord.status)) return true;
   const application = progressForOpportunity(profile, opportunity.id);
   return Boolean(application && terminalApplicationStatuses.has(application.status));
+}
+
+function diversityAdjustedOpportunityRecommendations(profile: AdvisorProfile, ranked: RankedOpportunity[], limit: number) {
+  const config = recommendationConfig.diversity;
+  const selected: RankedOpportunity[] = [];
+  const remaining = [...ranked];
+  const organizationCounts = new Map<string, number>();
+  const categoryCounts = new Map<string, number>();
+  const typeCounts = new Map<string, number>();
+  while (selected.length < limit && remaining.length) {
+    let bestIndex = 0;
+    let bestScore = -Infinity;
+    for (let index = 0; index < remaining.length; index += 1) {
+      const candidate = remaining[index];
+      const orgCount = organizationCounts.get(candidate.opportunity.organization) ?? 0;
+      const categoryCount = categoryCounts.get(candidate.opportunity.category) ?? 0;
+      const typeCount = typeCounts.get(candidate.opportunity.type) ?? 0;
+      let adjusted = candidate.finalScore;
+      if (orgCount >= config.maxSameOrganizationBeforePenalty) adjusted -= config.organizationPenalty * orgCount;
+      if (categoryCount >= config.maxSameCategoryBeforePenalty) adjusted -= config.categoryPenalty * categoryCount;
+      if (typeCount >= config.maxSameTypeBeforePenalty) adjusted -= config.typePenalty * typeCount;
+      if (adjusted > bestScore || (adjusted === bestScore && candidate.opportunity.title.localeCompare(remaining[bestIndex].opportunity.title) < 0)) {
+        bestScore = adjusted;
+        bestIndex = index;
+      }
+    }
+    const [next] = remaining.splice(bestIndex, 1);
+    selected.push(next);
+    organizationCounts.set(next.opportunity.organization, (organizationCounts.get(next.opportunity.organization) ?? 0) + 1);
+    categoryCounts.set(next.opportunity.category, (categoryCounts.get(next.opportunity.category) ?? 0) + 1);
+    typeCounts.set(next.opportunity.type, (typeCounts.get(next.opportunity.type) ?? 0) + 1);
+  }
+  return selected.map((item) => toOpportunityRecommendation(profile, item));
 }
 
 export function rankOpportunityRecommendations(input: RecommendationEngineInput): RecommendationV1[] {
@@ -249,12 +304,12 @@ export function rankOpportunityRecommendations(input: RecommendationEngineInput)
   const source = input.opportunities ?? catalogOpportunities;
   const roadmap = getRoadmap(profile, progress);
   const activeMilestones = roadmap.upcomingMilestones.slice(0, 4).map((milestone) => toMilestone(milestone, progress));
-  const context = studentContext(profile);
-  return source
+  const context = contextWithLearning(studentContext(profile), source);
+  const ranked = source
     .filter((opportunity) => !shouldExcludeOpportunity(profile, opportunity))
     .map((opportunity) => rankOpportunity(profile, opportunity, context, activeMilestones, roadmap.opportunityPriorities))
     .sort((a, b) => b.finalScore - a.finalScore || priorityWeight[b.score.priority] - priorityWeight[a.score.priority] || a.opportunity.title.localeCompare(b.opportunity.title))
-    .map((ranked) => toOpportunityRecommendation(profile, ranked));
+  return diversityAdjustedOpportunityRecommendations(profile, ranked, input.limit ?? 24);
 }
 
 export function rankMilestoneRecommendations(input: RecommendationEngineInput): RecommendationV1[] {

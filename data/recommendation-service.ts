@@ -2,6 +2,7 @@ import { buildAdvisorBrain, type AdvisorBrainDashboard } from "./advisor-brain";
 import { createAdvisorProfile } from "./advisor-engine";
 import { opportunities, type Opportunity } from "./opportunities";
 import type { RecommendationV1 } from "./recommendation-engine";
+import { labelForRecommendationScore } from "./recommendation-config";
 import type { School } from "./seed";
 import type { StudentActivity } from "./student-activity";
 import type { StudentProfile } from "./student-profile";
@@ -30,11 +31,7 @@ export type RecommendationServiceResult = {
 };
 
 export function recommendationMatchLabel(recommendation: RecommendationV1): RecommendationMatchLabel {
-  if (recommendation.confidence >= 90) return "Excellent Match";
-  if (recommendation.confidence >= 78) return "Strong Match";
-  if (recommendation.confidence >= 62) return "Good Match";
-  if (recommendation.confidence >= 42) return "Worth Reviewing";
-  return "Limited Match";
+  return labelForRecommendationScore(recommendation.score);
 }
 
 function recommendationHref(recommendation: RecommendationV1) {
