@@ -37,6 +37,10 @@ const categoryIcons: Record<JourneyMilestone["category"], IconComponent> = {
   Interview: TargetIcon,
   Accepted: CheckCircleIcon,
   Completed: TrophyIcon,
+  Research: TargetIcon,
+  Scholarship: BookmarkIcon,
+  Internship: SendIcon,
+  Benefit: CheckCircleIcon,
 };
 
 function displayName(profile: StudentProfile, session: AccountSession | null) {
@@ -114,12 +118,13 @@ export function StudentDashboard({ profile, session, syncError }: { profile: Stu
   const recommendationService = buildRecommendationService({ profile, school, activity, progress: inferredProgress, source: opportunities });
   const recommendations = recommendationService.recommendations.slice(0, 2);
   const milestones = buildJourneyMilestones({ profile, activity, progress: inferredProgress, opportunities });
+  const completedMilestones = milestones.filter((item) => item.completed);
   const recap = buildJourneyRecap({ activity, milestones, opportunities });
   const activeOpportunities = useMemo(() => Object.values(activity.tracked ?? {}).filter((record) => activeStatusSet.has(record.status)).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)).map((record) => {
     const opportunity = opportunities.find((item) => item.id === record.id);
     return opportunity ? { record, opportunity } : null;
   }).filter((item): item is ActiveOpportunity => Boolean(item)).slice(0, 4), [activity.tracked]);
-  const timeline = [...milestones.slice().sort((a, b) => a.date.localeCompare(b.date)), ...futureMilestones(recap)].slice(0, 6);
+  const timeline = [...completedMilestones.slice().sort((a, b) => (a.completedAt ?? "").localeCompare(b.completedAt ?? "")), ...futureMilestones(recap)].slice(0, 6);
 
   return <main className="bg-[radial-gradient(circle_at_top_left,rgba(231,216,189,.45),transparent_34rem),#f6f0e6] px-5 py-10 sm:px-8 sm:py-14">
     <div className="mx-auto max-w-[112rem] space-y-8">
@@ -133,7 +138,7 @@ export function StudentDashboard({ profile, session, syncError }: { profile: Stu
         </div>
       </div>
       <div className="grid gap-6 lg:grid-cols-[minmax(0,.88fr)_minmax(0,1.12fr)]">
-        <MilestoneProgress milestones={milestones} recap={recap} />
+        <MilestoneProgress milestones={completedMilestones} recap={recap} />
         <JourneyRecapCard firstName={firstName} schoolName={school.name} recap={recap} />
       </div>
       <ClosingNote />
