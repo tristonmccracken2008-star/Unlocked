@@ -2,9 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 
-:root { color: #2b211a; background: #f6f0e6; }
+:root { color: #2b211a; background: #f6f0e6; color-scheme: light; }
+[data-theme="midnight"] { color: #f6f0e6; background: #16120f; color-scheme: dark; }
+[data-theme="forest"] { color: #f6f0e6; background: #062f22; color-scheme: dark; }
 html { scroll-behavior: smooth; }
 body { min-height: 100vh; overflow-x: hidden; background: #f6f0e6; font-family: "Avenir Next", Avenir, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 16px; line-height: 1.5; text-rendering: optimizeLegibility; }
+[data-theme="midnight"] body { background: #16120f; color: #f6f0e6; }
+[data-theme="forest"] body { background: #062f22; color: #f6f0e6; }
+[data-theme="midnight"] .bg-paper, [data-theme="midnight"] .bg-\[\#f6f0e6\] { background-color: #16120f !important; }
+[data-theme="forest"] .bg-paper, [data-theme="forest"] .bg-\[\#f6f0e6\] { background-color: #062f22 !important; }
+[data-theme="midnight"] .text-ink, [data-theme="forest"] .text-ink { color: #f6f0e6 !important; }
+[data-theme="midnight"] .bg-white, [data-theme="midnight"] .bg-white\/86, [data-theme="midnight"] .bg-white\/88, [data-theme="midnight"] .bg-white\/92, [data-theme="midnight"] .bg-white\/82, [data-theme="midnight"] .bg-white\/78, [data-theme="midnight"] .bg-white\/72, [data-theme="midnight"] .bg-white\/62, [data-theme="midnight"] .bg-white\/48 { background-color: rgb(37 31 27 / .9) !important; }
+[data-theme="forest"] .bg-white, [data-theme="forest"] .bg-white\/86, [data-theme="forest"] .bg-white\/88, [data-theme="forest"] .bg-white\/92, [data-theme="forest"] .bg-white\/82, [data-theme="forest"] .bg-white\/78, [data-theme="forest"] .bg-white\/72, [data-theme="forest"] .bg-white\/62, [data-theme="forest"] .bg-white\/48 { background-color: rgb(8 64 45 / .9) !important; }
+[data-theme="midnight"] .text-ink\/58, [data-theme="midnight"] .text-ink\/55, [data-theme="midnight"] .text-ink\/50, [data-theme="midnight"] .text-ink\/45, [data-theme="forest"] .text-ink\/58, [data-theme="forest"] .text-ink\/55, [data-theme="forest"] .text-ink\/50, [data-theme="forest"] .text-ink\/45 { color: rgb(246 240 230 / .66) !important; }
 button, a, input, select, textarea { transition-duration: 150ms; }
 button, a, input, select, textarea { touch-action: manipulation; }
 button, input, select, textarea { font: inherit; }

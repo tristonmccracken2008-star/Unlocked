@@ -1,16 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { hydrateAccountData } from "@/data/account-sync";
-import { deadlineLabel, opportunities } from "@/data/opportunities";
-import { buildRecommendationService, type RecommendationServiceResult, type RecommendationViewModel } from "@/data/recommendation-service";
-import { schools, type School } from "@/data/seed";
-import { readStudentActivity, type StudentActivity } from "@/data/student-activity";
-import { inferApplicationsFromActivity, readStudentProgress, type StudentProgress } from "@/data/student-progress";
+import { useEffect, useRef, useState } from "react";
+import { deadlineLabel } from "@/data/opportunities";
+import type { RecommendationViewModel } from "@/data/recommendation-service";
+import type { School } from "@/data/seed";
+import type { StudentActivity } from "@/data/student-activity";
 import type { StudentProfile } from "@/data/student-profile";
 import type { AccountSession } from "@/lib/account-types";
-import { getAdvisorAccessState, type AdvisorAccessState } from "@/lib/advisor-access";
+import type { AdvisorAccessState } from "@/lib/advisor-access";
+import type { Entitlements } from "@/lib/entitlements";
 import { trackProductEvent } from "@/data/product-analytics";
 import { ArrowIcon, BookmarkIcon, CheckCircleIcon, SearchIcon, SendIcon, TargetIcon } from "./icons";
 import { OrganizationLogo } from "./organization-logo";
@@ -20,10 +19,11 @@ type AdvisorState = {
   profile: StudentProfile;
   school: School;
   activity: StudentActivity;
-  progress: StudentProgress;
-  session: AccountSession;
-  service: RecommendationServiceResult;
+  session: AccountSession | null;
   access: AdvisorAccessState;
+  entitlements: Entitlements | null;
+  recommendations: RecommendationViewModel[];
+  totalMatches: number;
 };
 
 function displayFirstName(profile: StudentProfile, session: AccountSession | null) {
@@ -32,21 +32,6 @@ function displayFirstName(profile: StudentProfile, session: AccountSession | nul
 
 function profileInterests(profile: StudentProfile) {
   return [...new Set([...(profile.advisorInterview?.interests ?? []), ...profile.interests.split(",").map((item) => item.trim()).filter(Boolean)])].slice(0, 3);
-}
-
-function buildState(profile: StudentProfile, activity: StudentActivity, progress: StudentProgress, session: AccountSession): AdvisorState | null {
-  const school = schools.find((item) => item.slug === profile.schoolSlug);
-  if (!school) return null;
-  const inferredProgress = inferApplicationsFromActivity(activity, opportunities, progress);
-  return {
-    profile,
-    school,
-    activity,
-    progress: inferredProgress,
-    session,
-    service: buildRecommendationService({ profile, school, activity, progress: inferredProgress, source: opportunities }),
-    access: getAdvisorAccessState({ authenticated: session.authenticated, profileComplete: Boolean(session.data?.onboardingComplete), billing: session.data?.billing }),
-  };
 }
 
 export function AdvisorPage() {
@@ -58,23 +43,23 @@ export function AdvisorPage() {
     let active = true;
     async function load() {
       setLoading(true);
-      const session = await hydrateAccountData();
+      const response = await fetch("/api/advisor/for-you", { credentials: "same-origin", cache: "no-store" });
       if (!active) return;
-      const profile = session.data?.profile;
-      if (!session.authenticated || !profile) {
+      if (!response.ok) {
         setState(null);
         setLoading(false);
         return;
       }
-      setState(buildState(profile, session.data?.activity ?? readStudentActivity(), readStudentProgress(), session));
+      const payload = await response.json() as AdvisorState;
+      setState(payload);
       setLoading(false);
     }
     void load();
     return () => { active = false; };
   }, []);
 
-  const top = state?.service.topRecommendation ?? null;
-  const recommended = state?.service.recommendations.slice(0, 5) ?? [];
+  const top = state?.recommendations[0] ?? null;
+  const recommended = state?.recommendations.slice(0, 5) ?? [];
   const firstName = state ? displayFirstName(state.profile, state.session) : "there";
 
   useEffect(() => {
@@ -92,6 +77,7 @@ export function AdvisorPage() {
       <Hero state={state} firstName={firstName} />
       <TopRecommendation view={top} />
       <RecommendedGrid recommendations={recommended.slice(1, 5)} />
+      {state.access === "preview" ? <ForYouUpgradeGate totalMatches={state.totalMatches} shown={state.recommendations.length} /> : null}
       <WhyRecommendations state={state} />
       <ActivityGlance activity={state.activity} />
       <FooterNote />
@@ -141,6 +127,21 @@ function RecommendedGrid({ recommendations }: { recommendations: RecommendationV
     <div className="mb-5 flex items-end justify-between gap-4"><h2 className="font-editorial text-3xl font-bold tracking-[-.025em]">Recommended for you</h2><span className="hidden rounded-full border border-ink/10 bg-white px-4 py-2 text-sm font-bold text-ink/55 sm:inline-flex">Most relevant</span></div>
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{recommendations.map((view) => <RecommendationCard key={view.recommendation.id} view={view} />)}</div>
     <Link href="/opportunities" className="mt-4 flex min-h-12 items-center justify-center gap-2 rounded-full border border-ink/10 bg-white text-sm font-bold text-ink hover:border-forest hover:text-forest">View more opportunities <ArrowIcon /></Link>
+  </section>;
+}
+
+function ForYouUpgradeGate({ totalMatches, shown }: { totalMatches: number; shown: number }) {
+  useEffect(() => { trackProductEvent("pro_gate_viewed", { section: "for-you" }); }, []);
+  if (totalMatches <= shown) return null;
+  return <section className="rounded-[1.5rem] bg-forest p-6 text-white shadow-[0_20px_60px_rgba(31,95,67,.18)] sm:p-8">
+    <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+      <div>
+        <p className="rule-label text-white/70">UnlockED Pro</p>
+        <h2 className="mt-3 font-editorial text-3xl font-bold tracking-[-.03em]">Unlock your full personalized feed</h2>
+        <p className="mt-3 max-w-2xl text-sm leading-7 text-white/72">We found {totalMatches} opportunities aligned with your profile. Free shows the first {shown}; Pro unlocks the full feed and deeper recommendation explanations.</p>
+      </div>
+      <Link href="/pricing" onClick={() => trackProductEvent("pro_upgrade_clicked", { section: "for-you" })} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-white px-6 text-sm font-bold text-forest hover:bg-paper">View Pro <ArrowIcon /></Link>
+    </div>
   </section>;
 }
 

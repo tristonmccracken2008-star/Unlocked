@@ -1,6 +1,6 @@
 import crypto from "node:crypto";
 import type { AuthUser } from "./account-types";
-import type { BillingStatus } from "./billing";
+import { normalizeProPlanId, proPricing, type BillingInterval, type BillingStatus, type ProPlanId } from "./billing";
 
 const stripeApiBase = "https://api.stripe.com/v1";
 
@@ -10,17 +10,19 @@ export function stripeConfig() {
     webhookSecret: process.env.STRIPE_WEBHOOK_SECRET,
     publishableKey: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
     proPriceId: process.env.STRIPE_PRO_PRICE_ID,
+    proMonthlyPriceId: process.env.STRIPE_PRO_MONTHLY_PRICE_ID ?? process.env.STRIPE_PRO_PRICE_ID,
+    proAnnualPriceId: process.env.STRIPE_PRO_ANNUAL_PRICE_ID,
   };
 }
 
 export function stripeBillingConfigured() {
   const config = stripeConfig();
-  return Boolean(config.secretKey && config.webhookSecret && config.publishableKey && config.proPriceId);
+  return Boolean(config.secretKey && config.webhookSecret && config.publishableKey && config.proMonthlyPriceId && config.proAnnualPriceId);
 }
 
 export function stripeCheckoutConfigured() {
   const config = stripeConfig();
-  return Boolean(config.secretKey && config.proPriceId);
+  return Boolean(config.secretKey && config.proMonthlyPriceId && config.proAnnualPriceId);
 }
 
 export function stripePortalConfigured() {
@@ -53,21 +55,47 @@ async function stripeRequest<T>(path: string, params: URLSearchParams) {
   return parsed as T;
 }
 
+async function stripeGet<T>(path: string) {
+  const secretKey = stripeConfig().secretKey;
+  if (!secretKey) throw new Error("Stripe is not configured.");
+  const response = await fetch(`${stripeApiBase}${path}`, { headers: { Authorization: `Bearer ${secretKey}` }, cache: "no-store" });
+  const parsed = await response.json().catch(() => null) as T | { error?: { message?: string } } | null;
+  if (!response.ok) {
+    const message = parsed && typeof parsed === "object" && "error" in parsed ? parsed.error?.message : undefined;
+    throw new Error(message ?? `Stripe request failed: ${response.status}`);
+  }
+  return parsed as T;
+}
+
 export type StripeCheckoutSession = { id: string; url?: string | null; customer?: string | null; subscription?: string | null };
 export type StripePortalSession = { id: string; url: string };
 
-export async function createProCheckoutSession(user: AuthUser, stripeCustomerId?: string) {
-  const priceId = stripeConfig().proPriceId;
-  if (!priceId) throw new Error("STRIPE_PRO_PRICE_ID is not configured.");
+export function priceIdForPlan(planId: ProPlanId) {
+  const config = stripeConfig();
+  return planId === "pro_monthly" ? config.proMonthlyPriceId : config.proAnnualPriceId;
+}
+
+export function intervalForPriceId(priceId: string | undefined | null): BillingInterval {
+  const config = stripeConfig();
+  if (priceId && priceId === config.proMonthlyPriceId) return "month";
+  if (priceId && priceId === config.proAnnualPriceId) return "year";
+  return null;
+}
+
+export async function createProCheckoutSession(user: AuthUser, planId: ProPlanId, stripeCustomerId?: string) {
+  const priceId = priceIdForPlan(planId);
+  if (!priceId) throw new Error(`Stripe price is not configured for ${planId}.`);
   const params = new URLSearchParams({
     mode: "subscription",
-    success_url: `${appUrl()}/profile?billing=success`,
-    cancel_url: `${appUrl()}/profile?billing=canceled`,
+    success_url: `${appUrl()}/billing/success?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${appUrl()}/billing/cancel`,
     client_reference_id: user.id,
     "line_items[0][price]": priceId,
     "line_items[0][quantity]": "1",
     "metadata[userId]": user.id,
+    "metadata[planId]": planId,
     "subscription_data[metadata][userId]": user.id,
+    "subscription_data[metadata][planId]": planId,
     allow_promotion_codes: "true",
   });
   if (stripeCustomerId) params.set("customer", stripeCustomerId);
@@ -80,6 +108,14 @@ export async function createCustomerPortalSession(stripeCustomerId: string) {
     customer: stripeCustomerId,
     return_url: `${appUrl()}/profile?billing=returned`,
   }));
+}
+
+export async function retrieveCheckoutSession(sessionId: string) {
+  return await stripeGet<StripeCheckoutSession & { metadata?: Record<string, string | undefined>; payment_status?: string | null }>(`/checkout/sessions/${encodeURIComponent(sessionId)}`);
+}
+
+export async function retrieveSubscription(subscriptionId: string) {
+  return await stripeGet<StripeSubscription>(`/subscriptions/${encodeURIComponent(subscriptionId)}`);
 }
 
 export function verifyStripeWebhookPayload(payload: string, signature: string | null) {
@@ -102,27 +138,52 @@ export function verifyStripeWebhookPayload(payload: string, signature: string | 
 
 export type StripeEvent = {
   id: string;
-  type: "checkout.session.completed" | "customer.subscription.updated" | "customer.subscription.deleted" | string;
-  data: { object: StripeCheckoutSession | StripeSubscription };
+  type: "checkout.session.completed" | "customer.subscription.created" | "customer.subscription.updated" | "customer.subscription.deleted" | "invoice.paid" | "invoice.payment_failed" | string;
+  data: { object: StripeCheckoutSession | StripeSubscription | StripeInvoice };
 };
 
 export type StripeSubscription = {
   id: string;
   customer?: string | null;
   status?: string;
+  cancel_at_period_end?: boolean;
+  current_period_start?: number | null;
   current_period_end?: number | null;
   metadata?: Record<string, string | undefined>;
   items?: { data?: Array<{ price?: { id?: string } }> };
 };
 
+export type StripeInvoice = {
+  id: string;
+  customer?: string | null;
+  subscription?: string | null;
+  status?: string | null;
+  metadata?: Record<string, string | undefined>;
+};
+
 export function billingStatusFromStripe(status: string | undefined, deleted = false): BillingStatus {
   if (deleted) return "canceled";
-  if (status === "active" || status === "trialing") return "active";
-  if (status === "past_due" || status === "unpaid") return "past_due";
-  if (status === "canceled" || status === "incomplete_expired") return "canceled";
-  return "inactive";
+  if (status === "trialing") return "trialing";
+  if (status === "active") return "active";
+  if (status === "past_due") return "past_due";
+  if (status === "unpaid") return "unpaid";
+  if (status === "incomplete") return "incomplete";
+  if (status === "incomplete_expired") return "incomplete_expired";
+  if (status === "paused") return "paused";
+  if (status === "canceled") return "canceled";
+  return "free";
 }
 
-export function periodEndFromStripe(value: number | null | undefined) {
+export function timestampFromStripe(value: number | null | undefined) {
   return typeof value === "number" ? new Date(value * 1000).toISOString() : undefined;
+}
+
+export const periodEndFromStripe = timestampFromStripe;
+
+export function planIdFromRequest(value: unknown) {
+  return normalizeProPlanId(value);
+}
+
+export function pricingForPlan(planId: ProPlanId) {
+  return proPricing[planId];
 }

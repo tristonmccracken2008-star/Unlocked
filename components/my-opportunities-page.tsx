@@ -10,6 +10,7 @@ import { buildCollegeJourneySummary, type CollegeJourneySummary, type JourneyTim
 import { schools } from "@/data/seed";
 import { readCompletedStudentProfile, type StudentProfile } from "@/data/student-profile";
 import type { AccountSession } from "@/lib/account-types";
+import { isProUser } from "@/lib/billing";
 import { ArrowIcon, BookmarkIcon, CheckCircleIcon, CheckIcon, HeartIcon, MoreIcon, MoveIcon, PenLineIcon, SendIcon, SparkIcon, TargetIcon, TrophyIcon, XCircleIcon } from "./icons";
 import { OrganizationLogo } from "./organization-logo";
 import { trackProductEvent } from "@/data/product-analytics";
@@ -285,6 +286,8 @@ function JourneyCardModal({ baseSummary, profile, activity, session, opportuniti
   const [options, setOptions] = useState<ShareOptions>({ format: "story", theme: "forest", showSchool: true, showMajor: true, showMilestones: true, showOpportunityNames: false, range: "all" });
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
+  const pro = isProUser(session?.data?.billing);
+  const premiumThemeSelected = options.theme !== "forest" && !pro;
   const summary = useMemo(() => options.range === "all" ? baseSummary : buildCollegeJourneySummary({ profile, activity, opportunities: Object.values(opportunitiesById), range: options.range }), [activity, baseSummary, opportunitiesById, options.range, profile]);
   const svg = useMemo(() => journeyCardSvg({ summary, profile, session, options, opportunitiesById }), [opportunitiesById, options, profile, session, summary]);
   const previewUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
@@ -319,6 +322,7 @@ function JourneyCardModal({ baseSummary, profile, activity, session, opportuniti
     setBusy(true);
     setMessage("");
     try {
+      if (premiumThemeSelected) throw new Error("Premium Journey Card themes require UnlockED Pro.");
       const blob = await imageBlob();
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
@@ -340,6 +344,7 @@ function JourneyCardModal({ baseSummary, profile, activity, session, opportuniti
     setMessage("");
     trackProductEvent("journey_card_share_started", { filterValue: options.format });
     try {
+      if (premiumThemeSelected) throw new Error("Premium Journey Card themes require UnlockED Pro.");
       const blob = await imageBlob();
       const file = new File([blob], `unlocked-college-journey-${options.format}.png`, { type: "image/png" });
       if (navigator.canShare?.({ files: [file] })) {
@@ -382,7 +387,10 @@ function JourneyCardModal({ baseSummary, profile, activity, session, opportuniti
           </div>
         </div>
         <ControlGroup label="Format">{(["story", "square"] as ShareFormat[]).map((format) => <button key={format} type="button" onClick={() => { setOptions((current) => ({ ...current, format })); trackProductEvent("journey_card_format_changed", { filterValue: format }); }} className={`min-h-10 rounded-full px-4 text-sm font-bold capitalize ${options.format === format ? "bg-forest text-white" : "bg-white text-ink/60 ring-1 ring-ink/10"}`}>{format === "story" ? "Story 9:16" : "Square"}</button>)}</ControlGroup>
-        <ControlGroup label="Theme">{(Object.keys(shareThemes) as ShareTheme[]).map((theme) => <button key={theme} type="button" onClick={() => { setOptions((current) => ({ ...current, theme })); trackProductEvent("journey_card_theme_changed", { filterValue: theme }); }} className={`inline-flex min-h-10 items-center gap-2 rounded-full px-4 text-sm font-bold ${options.theme === theme ? "bg-forest text-white" : "bg-white text-ink/60 ring-1 ring-ink/10"}`}><span className="h-3 w-3 rounded-full" style={{ background: shareThemes[theme].background }} />{shareThemes[theme].name}</button>)}</ControlGroup>
+        <ControlGroup label="Theme">{(Object.keys(shareThemes) as ShareTheme[]).map((theme) => {
+          const premium = theme !== "forest";
+          return <button key={theme} type="button" onClick={() => { setOptions((current) => ({ ...current, theme })); trackProductEvent(premium ? "premium_theme_previewed" : "journey_card_theme_changed", { filterValue: theme }); if (premium && !pro) setMessage("Premium themes can be previewed, but export requires Pro."); else trackProductEvent("premium_journey_theme_selected", { filterValue: theme }); }} className={`inline-flex min-h-10 items-center gap-2 rounded-full px-4 text-sm font-bold ${options.theme === theme ? "bg-forest text-white" : "bg-white text-ink/60 ring-1 ring-ink/10"}`}><span className="h-3 w-3 rounded-full" style={{ background: shareThemes[theme].background }} />{shareThemes[theme].name}{premium ? " · Pro" : ""}</button>;
+        })}</ControlGroup>
         <ControlGroup label="Range">{(["all", "semester", "academicYear"] as JourneyTimeRange[]).map((range) => <button key={range} type="button" onClick={() => setOptions((current) => ({ ...current, range }))} className={`min-h-10 rounded-full px-4 text-sm font-bold ${options.range === range ? "bg-forest text-white" : "bg-white text-ink/60 ring-1 ring-ink/10"}`}>{range === "all" ? "All time" : range === "semester" ? "This semester" : "Academic year"}</button>)}</ControlGroup>
         <div className="rounded-[1.35rem] bg-white/78 p-4 text-sm leading-6 text-ink/56 ring-1 ring-ink/8">
           <p className="font-black text-ink">Real data only</p>
@@ -391,6 +399,7 @@ function JourneyCardModal({ baseSummary, profile, activity, session, opportuniti
         <div className="space-y-3">
           <button type="button" disabled={busy} onClick={share} className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-forest px-5 text-sm font-bold text-white hover:bg-ink disabled:opacity-55">Share Card <ArrowIcon /></button>
           <button type="button" disabled={busy} onClick={download} className="inline-flex min-h-12 w-full items-center justify-center rounded-full border border-forest/35 bg-white px-5 text-sm font-bold text-forest hover:border-forest disabled:opacity-55">Download PNG</button>
+          {premiumThemeSelected && <Link href="/pricing" onClick={() => trackProductEvent("premium_theme_upgrade_clicked", { filterValue: options.theme })} className="inline-flex min-h-11 w-full items-center justify-center rounded-full border border-ink/15 px-5 text-sm font-bold text-ink/60 hover:border-forest hover:text-forest">Unlock premium themes</Link>}
         </div>
         <p role="status" className="min-h-6 text-sm font-bold text-forest">{message}</p>
       </aside>

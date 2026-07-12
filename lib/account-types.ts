@@ -32,6 +32,7 @@ export type OpportunityTrackerRecord = Record<string, TrackedOpportunity>;
 export type UserPreferencesRecord = {
   preferredTypes?: string[];
   hiddenDismissedIds?: string[];
+  appearance?: "light" | "midnight" | "forest";
   updatedAt: string;
 };
 

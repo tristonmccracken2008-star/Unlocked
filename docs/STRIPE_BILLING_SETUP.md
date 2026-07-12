@@ -1,97 +1,107 @@
 # Stripe Billing Setup
 
-UnlockED keeps the free product available to every signed-in student. Stripe billing is infrastructure for a future Pro plan and does not gate the core experience.
+UnlockED uses Stripe Checkout, Stripe Billing, Stripe Customer Portal, and webhooks. Card data is collected only by Stripe.
 
-## Required environment variables
-
-Set these in local development and production:
+## Required Environment Variables
 
 ```bash
-STRIPE_SECRET_KEY=
-STRIPE_WEBHOOK_SECRET=
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=
-STRIPE_PRO_PRICE_ID=
+STRIPE_SECRET_KEY=sk_test_...
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+STRIPE_PRO_MONTHLY_PRICE_ID=price_...
+STRIPE_PRO_ANNUAL_PRICE_ID=price_...
+NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
 
-Production also requires the normal UnlockED auth and data-store variables:
+`STRIPE_PRO_PRICE_ID` remains accepted only as a legacy fallback for monthly pricing. New deployments should use the monthly and annual variables.
 
-```bash
-AUTH_SECRET=
-GOOGLE_CLIENT_ID=
-GOOGLE_CLIENT_SECRET=
-NEXT_PUBLIC_APP_URL=
-KV_REST_API_URL=
-KV_REST_API_TOKEN=
-```
+Never mix test-mode price IDs with live-mode keys.
 
-or the Upstash equivalents:
+## Stripe Dashboard
 
-```bash
-UPSTASH_REDIS_REST_URL=
-UPSTASH_REDIS_REST_TOKEN=
-```
+1. Create product: `UnlockED Pro`.
+2. Add recurring monthly price: intended public copy `$4.99/month`.
+3. Add recurring annual price: intended public copy `$39.99/year`.
+4. Copy the monthly and annual Price IDs into the matching environment variables.
+5. Enable Customer Portal features for payment method updates, invoice viewing, cancellation, and plan changes if desired.
+6. Configure tax collection in Stripe if required for launch. UnlockED does not claim tax is enabled automatically.
 
-## Stripe dashboard steps
+## Webhook
 
-1. Create a Stripe account or open the Stripe dashboard.
-2. Create a Product named `UnlockED Pro`.
-3. Create a recurring Price for that product.
-4. Copy the Price ID into `STRIPE_PRO_PRICE_ID`.
-5. Copy your secret key into `STRIPE_SECRET_KEY`.
-6. Copy your publishable key into `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`.
-7. Create a webhook endpoint pointing to:
+Create a webhook endpoint:
 
 ```text
-https://your-domain.com/api/billing/webhook
+https://YOUR_DOMAIN/api/billing/webhook
 ```
 
-8. Subscribe the webhook endpoint to:
+Subscribe to:
 
-```text
-checkout.session.completed
-customer.subscription.updated
-customer.subscription.deleted
-```
+- `checkout.session.completed`
+- `customer.subscription.created`
+- `customer.subscription.updated`
+- `customer.subscription.deleted`
+- `invoice.paid`
+- `invoice.payment_failed`
 
-9. Copy the webhook signing secret into `STRIPE_WEBHOOK_SECRET`.
+Paste the signing secret into `STRIPE_WEBHOOK_SECRET`.
 
-## Local webhook testing
+## Subscription Data
 
-Use the Stripe CLI:
-
-```bash
-stripe listen --forward-to localhost:3000/api/billing/webhook
-```
-
-Copy the displayed webhook signing secret into `STRIPE_WEBHOOK_SECRET` for local development.
-
-## App routes
-
-- `POST /api/billing/checkout` creates a Stripe Checkout subscription session for Pro.
-- `POST /api/billing/portal` creates a Stripe customer portal session.
-- `POST /api/billing/webhook` verifies Stripe signatures and updates account billing state.
-- `GET /api/billing/config` tells the Profile page whether billing buttons should be shown.
-
-## Account data
-
-Billing status is stored inside `AccountData.billing`:
+Billing state is stored inside `AccountData.billing`:
 
 - `tier`: `free` or `pro`
-- `status`: `inactive`, `active`, `past_due`, or `canceled`
+- `status`: `free`, `trialing`, `active`, `past_due`, `unpaid`, `incomplete`, `incomplete_expired`, `canceled`, or `paused`
 - `stripeCustomerId`
 - `stripeSubscriptionId`
 - `stripePriceId`
+- `billingInterval`: `month`, `year`, or `null`
+- `currentPeriodStart`
 - `currentPeriodEnd`
+- `cancelAtPeriodEnd`
 
-Webhook events update this record through `updateAccountBilling()` in `lib/auth-store.ts`.
+Stripe webhooks are the source of truth for Pro access. Checkout success pages do not grant access by themselves.
 
-## Feature gates
+## Entitlement Policy
 
-Use the helpers in `lib/billing.ts`:
+Pro access is granted for:
 
-```ts
-isProUser(account.data.billing)
-canAccessProFeature(account.data.billing, "advancedFilters")
-```
+- `trialing`
+- `active`
+- `past_due` during Stripe retry/grace
+- `canceled` only while `cancelAtPeriodEnd` is true and `currentPeriodEnd` is still in the future
 
-Current Pro features are placeholders and disabled by default. Do not lock the normal UnlockED dashboard, Discover page, saved opportunities, or profile editing behind payment.
+No Pro access:
+
+- `free`
+- `unpaid`
+- `incomplete`
+- `incomplete_expired`
+- expired `canceled`
+- `paused`
+
+## Test Mode Checklist
+
+1. Set all Stripe test-mode environment variables.
+2. Run `stripe listen --forward-to localhost:3000/api/billing/webhook`.
+3. Copy the CLI webhook secret into `STRIPE_WEBHOOK_SECRET`.
+4. Start the app.
+5. Sign in and complete onboarding.
+6. Open `/pricing`.
+7. Choose Monthly or Annual Pro.
+8. Complete Checkout with a Stripe test card.
+9. Confirm webhook delivery updates Profile billing.
+10. Confirm For You unlocks the full feed.
+11. Open Customer Portal from Profile.
+12. Schedule cancellation and verify Pro remains active through the period end.
+13. Simulate failed payment and verify `past_due` messaging.
+
+## Live Launch Checklist
+
+- Replace test keys with live keys.
+- Replace test price IDs with live price IDs.
+- Configure the live webhook endpoint.
+- Configure Customer Portal cancellation and invoice settings.
+- Confirm tax settings operationally.
+- Confirm Terms, Privacy, and cancellation language are public.
+- Run `npm run check:billing`.
+- Run `npm run build`.

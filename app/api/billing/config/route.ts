@@ -12,7 +12,7 @@ export async function GET() {
     portalConfigured,
     webhookConfigured: stripeBillingConfigured(),
     developmentWarning: process.env.NODE_ENV !== "production" && !stripeBillingConfigured()
-      ? "Stripe billing is not fully configured. Set STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY, and STRIPE_PRO_PRICE_ID."
+      ? "Stripe billing is not fully configured. Set STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY, STRIPE_PRO_MONTHLY_PRICE_ID, STRIPE_PRO_ANNUAL_PRICE_ID, and NEXT_PUBLIC_APP_URL."
       : "",
   }, { headers: { "Cache-Control": "no-store, max-age=0" } });
 }

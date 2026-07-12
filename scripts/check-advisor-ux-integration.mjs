@@ -8,6 +8,7 @@ const dashboard = read("components/personalized-home.tsx");
 const journeyDashboard = read("components/student-journey-dashboard.tsx");
 const header = read("components/header.tsx");
 const advisorPage = read("components/advisor-page.tsx");
+const forYouApi = read("app/api/advisor/for-you/route.ts");
 const advisorRoute = read("app/advisor/page.tsx");
 const advisorAccess = read("lib/advisor-access.ts");
 const profile = read("components/profile-page.tsx");
@@ -68,7 +69,8 @@ for (const label of [
 }
 assert.ok(!advisorPage.includes("What to do next."), "For You should not expose broad advisor dashboard framing.");
 assert.ok(advisorRoute.includes("requireCompletedOnboarding"), "Advisor route must remain protected by server-side auth.");
-assert.ok(advisorPage.includes("buildRecommendationService"), "Advisor page must consume the canonical recommendation service.");
+assert.ok(advisorPage.includes("/api/advisor/for-you"), "Advisor page must consume the server-gated recommendation API.");
+assert.ok(forYouApi.includes("buildRecommendationService"), "Advisor API must consume the canonical recommendation service.");
 assert.ok(recommendationService.includes("buildAdvisorBrain"), "Recommendation service must consume Advisor Brain.");
 assert.ok(recommendationService.includes("recommendationMatchLabel"), "Recommendation service must own qualitative match labels.");
 assert.ok(advisorPage.includes("AddToJourneyButton"), "For You must use the same Add to Journey action as Discover.");

@@ -8,6 +8,7 @@ const intelligence = read("data/opportunity-intelligence.ts");
 const service = read("data/recommendation-service.ts");
 const config = read("data/recommendation-config.ts");
 const advisor = read("components/advisor-page.tsx");
+const forYouApi = read("app/api/advisor/for-you/route.ts");
 const journey = read("components/student-journey-dashboard.tsx");
 const discover = read("components/opportunity-filter.tsx");
 const analytics = read("lib/analytics-types.ts");
@@ -75,7 +76,7 @@ assert.ok(intelligence.includes("positiveSignalCount"), "Opportunity scores must
 assert.ok(service.includes("labelForRecommendationScore(recommendation.score)"), "Recommendation labels must use score thresholds, not confidence percentages.");
 
 for (const surface of [
-  [advisor, "buildRecommendationService", "For You"],
+  [forYouApi, "buildRecommendationService", "For You API"],
   [journey, "buildRecommendationService", "Journey"],
   [discover, "buildRecommendationService", "Discover"],
 ]) {
