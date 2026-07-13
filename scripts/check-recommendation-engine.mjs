@@ -74,7 +74,9 @@ assert.ok(engine.includes("RecommendationReviewRecord"), "Engine diagnostics mus
 assert.ok(engine.includes("performance") && engine.includes("elapsedMs"), "Recommendation diagnostics must include performance timing.");
 assert.ok(intelligence.includes("signals: OpportunityRankingSignal[]"), "Opportunity scores must include ranking signals.");
 assert.ok(intelligence.includes("positiveSignalCount"), "Opportunity scores must count meaningful positive signals.");
-assert.ok(service.includes("labelForRecommendationScore(recommendation.score)"), "Recommendation labels must use score thresholds, not confidence percentages.");
+assert.ok(service.includes('recommendation.tier === "excellent"') && service.includes('recommendation.tier === "explore"'), "Recommendation labels must use the selected recommendation tier.");
+assert.ok(engine.includes("ranked.finalScore >= recommendationConfig.thresholds.excellent"), "Recommendation tiers must derive from structured ranking thresholds, not confidence percentages.");
+assert.ok(!service.includes("recommendation.confidence >="), "Product match labels must not derive from confidence percentages.");
 
 assert.ok(forYouApi.includes("resolveForYouState"), "For You API must consume the snapshot-backed recommendation resolver.");
 assert.ok(forYouSnapshot.includes("buildRecommendationService"), "For You snapshot generation must consume the canonical recommendation service.");

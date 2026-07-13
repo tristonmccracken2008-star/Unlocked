@@ -1,4 +1,5 @@
 import { getDeadlineDays, getMatchingMajors, getMatchingMinor, gpaRequirement, isSchoolEligible, type OpportunityStudentContext } from "./opportunity-intelligence";
+import { normalizeOpportunityEligibility, opportunityEligibilityText, opportunityHasSchoolLikeHost, type CanonicalOpportunityEligibility } from "./opportunity-eligibility-model";
 import type { Opportunity, OpportunityEligibilityRules } from "./opportunities";
 
 export type EligibilityCheckKey =
@@ -20,6 +21,7 @@ export type EligibilityCheckKey =
   | "financial_need"
   | "merit_status"
   | "demographic_eligibility"
+  | "critical_metadata"
   | "application_cycle"
   | "availability";
 
@@ -36,9 +38,12 @@ export type OpportunityEligibilityEvaluation = {
   confidence: number;
   checks: EligibilityProof[];
   failures: string[];
+  actionable: boolean;
+  canonical: CanonicalOpportunityEligibility;
 };
 
 const normalize = (value: string) => value.toLowerCase().replace(/&/g, " and ").replace(/[^a-z0-9+#.]+/g, " ").replace(/\s+/g, " ").trim();
+const eligibilityEvaluationCache = new WeakMap<OpportunityStudentContext, WeakMap<Opportunity, OpportunityEligibilityEvaluation>>();
 
 export function rawEligibilityText(opportunity: Opportunity) {
   return [
@@ -51,7 +56,7 @@ export function rawEligibilityText(opportunity: Opportunity) {
 }
 
 function eligibilityText(opportunity: Opportunity) {
-  return normalize(rawEligibilityText(opportunity));
+  return opportunityEligibilityText(opportunity);
 }
 
 export function hasUnknownEligibilityLanguage(opportunity: Opportunity) {
@@ -81,8 +86,7 @@ function rules(opportunity: Opportunity): OpportunityEligibilityRules {
 }
 
 function isSchoolLikeHost(opportunity: Opportunity) {
-  const text = normalize(`${opportunity.organization} ${opportunity.title}`);
-  return /\b(university|college|institute of technology|school of|state university|community college)\b/.test(text);
+  return opportunityHasSchoolLikeHost(opportunity);
 }
 
 function hasExternalStudentProof(opportunity: Opportunity) {
@@ -104,16 +108,29 @@ function hasInternalOnlyLanguage(opportunity: Opportunity) {
 
 function institutionTypeCheck(opportunity: Opportunity, context: OpportunityStudentContext) {
   const text = eligibilityText(opportunity);
+  const canonical = normalizeOpportunityEligibility(opportunity);
   const configured = rules(opportunity).institutionTypes;
-  const highSchoolOnly = /\b(high school|middle school|k 12|secondary school) students?\b/.test(text) && !/\b(college|university|undergraduate) students?\b/.test(text);
+  const highSchoolOnly = canonical.highSchoolSeniorOnly || canonical.educationLevels.length === 1 && canonical.educationLevels[0] === "high_school" || /\b(high school|middle school|k 12|secondary school) (?:students?|seniors?|juniors?|graduates?)\b/.test(text) && !/\b(college|university|undergraduate) students?\b/.test(text);
   const communityOnly = configured?.length === 1 && configured[0] === "community_college" || /\b(current )?community college students?\b/.test(text) || /\btwo year college students?\b/.test(text);
   const fourYearOnly = /\b(four|4)[ -]year (college|university|institution)\b/.test(text) || /\bbachelor s degree program\b/.test(text);
   const liberalArtsOnly = configured?.length === 1 && configured[0] === "liberal_arts_college";
-  const applicable = Boolean(configured?.length || highSchoolOnly || communityOnly || fourYearOnly || liberalArtsOnly);
-  if (highSchoolOnly) return proof("institution_type", true, false, "Opportunity is limited to non-college students.", "Eligibility text limits participation to secondary-school students.");
+  const applicable = Boolean(canonical.institutionTypes.length || configured?.length || highSchoolOnly || communityOnly || fourYearOnly || liberalArtsOnly);
+  if (highSchoolOnly) return proof("institution_type", true, context.institutionType === "high_school", context.institutionType === "high_school" ? "Student is a high-school student." : "Opportunity is limited to non-college students.", "Eligibility text limits participation to secondary-school students.");
   if (!applicable) return proof("institution_type", false, true, "No institution-type restriction is listed.", "No institution-type restriction found in verified eligibility fields.");
   if (!context.institutionType || context.institutionType === "unknown") return proof("institution_type", true, false, "Student institution type is not known.", "The opportunity has an institution-type requirement.");
-  if (configured?.length) return proof("institution_type", true, configured.includes(context.institutionType), configured.includes(context.institutionType) ? "Student institution type is explicitly eligible." : "Student institution type is not listed as eligible.", `Eligible institution types: ${configured.join(", ")}.`);
+  if (canonical.institutionTypes.length) {
+    const studentTypes = context.institutionType === "college"
+      ? ["four_year_college"]
+      : context.institutionType === "university" && context.degreeLevel === "graduate"
+        ? ["university", "graduate_school"]
+        : [context.institutionType];
+    const proven = studentTypes.some((type) => canonical.institutionTypes.includes(type as never));
+    return proof("institution_type", true, proven, proven ? "Student institution type is explicitly eligible." : "Student institution type is not listed as eligible.", `Eligible institution types: ${canonical.institutionTypes.join(", ")}.`);
+  }
+  if (configured?.length) {
+    const proven = context.institutionType !== "high_school" && configured.includes(context.institutionType);
+    return proof("institution_type", true, proven, proven ? "Student institution type is explicitly eligible." : "Student institution type is not listed as eligible.", `Eligible institution types: ${configured.join(", ")}.`);
+  }
   if (communityOnly) return proof("institution_type", true, context.institutionType === "community_college", context.institutionType === "community_college" ? "Community-college requirement is satisfied." : "Opportunity is limited to community-college students.", "Eligibility text states a community-college restriction.");
   if (fourYearOnly) return proof("institution_type", true, ["college", "university", "liberal_arts_college"].includes(context.institutionType), "Student must attend a four-year institution.", "Eligibility text states a four-year institution requirement.");
   return proof("institution_type", true, context.institutionType === "liberal_arts_college", "Student must attend a liberal-arts college.", "Structured eligibility limits institution type.");
@@ -121,13 +138,24 @@ function institutionTypeCheck(opportunity: Opportunity, context: OpportunityStud
 
 function enrollmentCheck(opportunity: Opportunity, context: OpportunityStudentContext) {
   const text = eligibilityText(opportunity);
+  const canonical = normalizeOpportunityEligibility(opportunity);
   const configured = rules(opportunity).enrollmentStatuses;
   const requiresCurrentEnrollment = /\b(current student|currently enrolled|actively enrolled|matriculated|degree seeking|degree-seeking)\b/.test(text);
   const allowsIncoming = /\b(incoming|prospective|admitted) students?\b/.test(text);
   const allowsRecentGraduate = /\brecent graduates?\b/.test(text);
-  const applicable = Boolean(configured?.length || requiresCurrentEnrollment || allowsIncoming || allowsRecentGraduate);
+  const applicable = Boolean(configured?.length || canonical.enrollmentStatuses.length || requiresCurrentEnrollment || allowsIncoming || allowsRecentGraduate);
   if (!applicable) return proof("enrollment_status", false, true, "No separate enrollment restriction is listed.", "No enrollment-status restriction found.");
   if (!context.enrollmentStatus || context.enrollmentStatus === "unknown") return proof("enrollment_status", true, false, "Student enrollment status is not known.", "The opportunity has an enrollment requirement.");
+  if (canonical.enrollmentStatuses.length) {
+    const proven = canonical.enrollmentStatuses.some((value) => value === "currently_enrolled"
+      ? context.enrollmentStatus === "enrolled"
+      : value === "prospective"
+        ? context.enrollmentStatus === "incoming"
+        : value === "graduated"
+          ? context.enrollmentStatus === "recent_graduate"
+          : context.transferStatus === "community_college_student" || context.transferStatus === "transfer_applicant");
+    return proof("enrollment_status", true, proven, proven ? "Student enrollment status satisfies the requirement." : "Student enrollment status does not satisfy the requirement.", `Eligible enrollment statuses: ${canonical.enrollmentStatuses.join(", ")}.`);
+  }
   const allowed = configured?.length
     ? configured
     : [requiresCurrentEnrollment ? "enrolled" : "", allowsIncoming ? "incoming" : "", allowsRecentGraduate ? "recent_graduate" : ""].filter(Boolean);
@@ -136,31 +164,45 @@ function enrollmentCheck(opportunity: Opportunity, context: OpportunityStudentCo
 }
 
 function schoolRestrictionCheck(opportunity: Opportunity, context: OpportunityStudentContext) {
-  const proven = isSchoolEligible(opportunity, context);
-  return proof("school_restrictions", opportunity.school_scope === "School Specific", proven, proven ? "School restriction is satisfied." : "Student is not eligible for this opportunity's school restriction.", opportunity.school_scope === "School Specific" ? `Eligible schools: ${opportunity.schools.join(", ")}.` : "Opportunity is recorded as national.");
+  const canonical = normalizeOpportunityEligibility(opportunity);
+  const applicable = opportunity.school_scope === "School Specific" || canonical.specificSchoolIds.length > 0;
+  const proven = applicable ? Boolean(context.schoolSlug && canonical.specificSchoolIds.includes(context.schoolSlug)) : isSchoolEligible(opportunity, context);
+  return proof("school_restrictions", applicable, proven, proven ? "School restriction is satisfied." : "Student is not eligible for this opportunity's school restriction.", applicable ? `Eligible schools: ${canonical.specificSchoolIds.join(", ")}.` : "Opportunity is recorded as national.");
 }
 
 function hostInstitutionCheck(opportunity: Opportunity, context: OpportunityStudentContext) {
+  const canonical = normalizeOpportunityEligibility(opportunity);
   if (opportunity.school_scope === "School Specific") return proof("host_institution", true, isSchoolEligible(opportunity, context), isSchoolEligible(opportunity, context) ? "Student attends the host institution." : "Student does not attend the host institution.", `Host-school list: ${opportunity.schools.join(", ")}.`);
   if (!isSchoolLikeHost(opportunity)) return proof("host_institution", false, true, "No host-institution restriction is apparent.", "Provider is not identified as a college or university host.");
-  if (hasInternalOnlyLanguage(opportunity)) return proof("host_institution", true, false, "Host-institution eligibility is not proven for external students.", "Eligibility language appears limited to the host institution.");
+  if (canonical.hostSchoolId && context.schoolSlug === canonical.hostSchoolId) return proof("host_institution", true, true, "Student attends the host institution.", `Host school: ${canonical.hostSchoolId}.`);
+  if (canonical.acceptsExternalStudents === true) return proof("host_institution", true, true, "External student eligibility is explicitly stated.", "Canonical eligibility confirms external-student access.");
+  if (canonical.acceptsExternalStudents === false || hasInternalOnlyLanguage(opportunity)) return proof("host_institution", true, false, "Host-institution eligibility is not proven for external students.", "Eligibility language appears limited to the host institution.");
   const proven = hasExternalStudentProof(opportunity);
   return proof("host_institution", true, proven, proven ? "External student eligibility is explicitly stated." : "External-student eligibility is not positively proven for this host institution.", proven ? "Verified eligibility states broad or external student access." : "No external-student statement was found.");
 }
 
 function classYearCheck(opportunity: Opportunity, context: OpportunityStudentContext) {
+  const classYears = normalizeOpportunityEligibility(opportunity).classYears;
   if (!context.academicYear) return proof("class_year", true, false, "Student class year is not known.", "Class year is required for recommendation eligibility.");
-  const proven = opportunity.academic_years.includes("Any Year") || opportunity.academic_years.includes(context.academicYear);
-  return proof("class_year", true, proven, proven ? "Student class year is listed as eligible." : "Student class year is not listed as eligible.", `Eligible class years: ${opportunity.academic_years.join(", ")}.`);
+  const proven = classYears.includes("Any Year") || classYears.includes(context.academicYear);
+  return proof("class_year", true, proven, proven ? "Student class year is listed as eligible." : "Student class year is not listed as eligible.", `Eligible class years: ${classYears.join(", ")}.`);
 }
 
 function degreeLevelCheck(opportunity: Opportunity, context: OpportunityStudentContext) {
   const text = eligibilityText(opportunity);
+  const canonical = normalizeOpportunityEligibility(opportunity);
   const configured = rules(opportunity).degreeLevels;
   if (!context.degreeLevel || context.degreeLevel === "unknown") return proof("degree_level", true, false, "Student degree level is not known.", "Degree level is required for recommendation eligibility.");
   if (configured?.length) {
-    const proven = configured.includes(context.degreeLevel);
+    const proven = context.degreeLevel !== "high_school" && configured.includes(context.degreeLevel);
     return proof("degree_level", true, proven, proven ? "Student degree level is explicitly eligible." : "Student degree level is not listed as eligible.", `Eligible degree levels: ${configured.join(", ")}.`);
+  }
+  if (canonical.educationLevels.length) {
+    const studentLevel = context.degreeLevel === "associate" ? "community_college" : context.degreeLevel;
+    const proven = canonical.educationLevels.includes(studentLevel as never)
+      || context.degreeLevel === "undergraduate" && canonical.educationLevels.includes("undergraduate")
+      || context.degreeLevel === "graduate" && canonical.educationLevels.includes("graduate");
+    return proof("degree_level", true, proven, proven ? "Student education level is explicitly eligible." : "Student education level is not listed as eligible.", `Eligible education levels: ${canonical.educationLevels.join(", ")}.`);
   }
   const graduateOnly = /\b(graduate|masters?|master s|phd|doctoral) students? only\b/.test(text);
   const undergraduateOnly = /\b(undergraduate|bachelor s|baccalaureate) students?\b/.test(text) && !/\bgraduate students?\b/.test(text);
@@ -174,12 +216,24 @@ function degreeLevelCheck(opportunity: Opportunity, context: OpportunityStudentC
 
 function citizenshipCheck(opportunity: Opportunity, context: OpportunityStudentContext) {
   const text = eligibilityText(opportunity);
+  const canonical = normalizeOpportunityEligibility(opportunity);
   const configured = rules(opportunity).citizenship;
   const usCitizenOnly = configured === "us_citizen" || /\b(u s|us|united states) citizens? only\b/.test(text) || /\bmust be (a )?(u s|us|united states) citizen\b/.test(text);
   const usPerson = configured === "us_person" || /\b(u s|us|united states) citizens? (or|and) (u s )?permanent residents?\b/.test(text);
   const workAuthorized = configured === "us_work_authorized" || /\b(authorized|eligible) to work in the (u s|us|united states)\b/.test(text);
   const internationalAllowed = configured === "international_allowed" || /\binternational students? (are )?(eligible|welcome|may apply)\b/.test(text);
   const genericRestriction = /\b(citizenship|citizen|permanent resident|green card|work authorization|international eligibility)\b/.test(text);
+  if (canonical.citizenship.includes("unrestricted") || canonical.citizenship.includes("international_allowed")) return proof("citizenship", true, true, "Citizenship eligibility is explicitly broad.", "Canonical eligibility explicitly permits broad or international access.");
+  if (canonical.citizenship.length) {
+    const proven = canonical.citizenship.some((status) => status === "us_citizen"
+      ? context.citizenshipStatus === "us_citizen"
+      : status === "permanent_resident"
+        ? context.citizenshipStatus === "permanent_resident"
+        : status === "us_person"
+          ? context.citizenshipStatus === "us_citizen" || context.citizenshipStatus === "permanent_resident"
+          : status === "us_work_authorized" && context.workAuthorization === "us_authorized");
+    return proof(canonical.citizenship.includes("us_work_authorized") ? "work_authorization" : "citizenship", true, proven, proven ? "Citizenship or work-authorization requirement is satisfied." : "Citizenship or work-authorization eligibility is not positively proven.", `Eligible citizenship statuses: ${canonical.citizenship.join(", ")}.`);
+  }
   if (configured === "unrestricted" || internationalAllowed) return proof("citizenship", true, true, "Citizenship eligibility is explicitly broad.", configured === "unrestricted" ? "Structured rules mark citizenship unrestricted." : "Eligibility text explicitly allows international students.");
   if (!genericRestriction && !configured) return proof("citizenship", false, true, "No citizenship restriction is listed.", "No citizenship or work-authorization restriction found in verified eligibility fields.");
   if (usCitizenOnly) return proof("citizenship", true, context.citizenshipStatus === "us_citizen", context.citizenshipStatus === "us_citizen" ? "U.S.-citizen requirement is satisfied." : "U.S.-citizen eligibility is not proven.", "Eligibility requires U.S. citizenship.");
@@ -195,7 +249,7 @@ function citizenshipCheck(opportunity: Opportunity, context: OpportunityStudentC
 }
 
 function gpaCheck(opportunity: Opportunity, context: OpportunityStudentContext) {
-  const requirement = gpaRequirement(opportunity);
+  const requirement = normalizeOpportunityEligibility(opportunity).minimumGpa ?? gpaRequirement(opportunity);
   if (requirement === null) return proof("gpa", false, true, "No GPA requirement is listed.", "No numeric GPA requirement found.");
   if (context.gpaStatus !== "reported" || typeof context.gpa !== "number") return proof("gpa", true, false, "Listed GPA requirement cannot be proven from the profile.", `Minimum GPA: ${requirement.toFixed(1)}.`);
   const proven = context.gpa >= requirement;
@@ -203,24 +257,27 @@ function gpaCheck(opportunity: Opportunity, context: OpportunityStudentContext) 
 }
 
 function majorCheck(opportunity: Opportunity, context: OpportunityStudentContext) {
-  if (opportunity.majors.includes("Any Major")) return proof("major_requirements", false, true, "Opportunity accepts any major.", "Major metadata is Any Major.");
-  if (!context.major) return proof("major_requirements", true, false, "Student major is not known.", `Eligible majors: ${opportunity.majors.join(", ")}.`);
+  const majors = normalizeOpportunityEligibility(opportunity).majors;
+  if (majors.includes("Any Major")) return proof("major_requirements", false, true, "Opportunity accepts any major.", "Major metadata is Any Major.");
+  if (!context.major) return proof("major_requirements", true, false, "Student major is not known.", `Eligible majors: ${majors.join(", ")}.`);
   const matches = [...getMatchingMajors(opportunity, context), ...getMatchingMinor(opportunity, context)];
-  return proof("major_requirements", true, matches.length > 0, matches.length ? "Student major or minor matches a listed requirement." : "Student major is not listed as eligible.", `Eligible majors: ${opportunity.majors.join(", ")}.`);
+  return proof("major_requirements", true, matches.length > 0, matches.length ? "Student major or minor matches a listed requirement." : "Student major is not listed as eligible.", `Eligible majors: ${majors.join(", ")}.`);
 }
 
 function externalStudentCheck(opportunity: Opportunity, context: OpportunityStudentContext) {
+  const canonical = normalizeOpportunityEligibility(opportunity);
   if (opportunity.school_scope === "School Specific") return proof("external_student_eligibility", true, isSchoolEligible(opportunity, context), isSchoolEligible(opportunity, context) ? "Student is eligible through the listed school." : "Student is outside the listed school eligibility.", `Eligible schools: ${opportunity.schools.join(", ")}.`);
   if (!isSchoolLikeHost(opportunity)) return proof("external_student_eligibility", false, true, "No external-student restriction is apparent.", "Provider is not a college or university host.");
-  const proven = hasExternalStudentProof(opportunity) && !hasInternalOnlyLanguage(opportunity);
+  const proven = canonical.acceptsExternalStudents === true || canonical.acceptsExternalStudents !== false && hasExternalStudentProof(opportunity) && !hasInternalOnlyLanguage(opportunity);
   return proof("external_student_eligibility", true, proven, proven ? "External-student eligibility is positively stated." : "External-student eligibility is not positively proven.", proven ? "Verified eligibility explicitly includes external or broad college participation." : "No deterministic external-student rule is available.");
 }
 
 function ageCheck(opportunity: Opportunity, context: OpportunityStudentContext) {
   const text = eligibilityText(opportunity);
   const configured = rules(opportunity);
-  const minimum = configured.minimumAge ?? Number(text.match(/\b(?:age )?(\d{1,2})(?:\+| or older| years? or older| minimum)\b/)?.[1] ?? NaN);
-  const maximum = configured.maximumAge ?? Number(text.match(/\b(?:under|younger than|no older than) (\d{1,2})\b/)?.[1] ?? NaN);
+  const canonical = normalizeOpportunityEligibility(opportunity);
+  const minimum = canonical.ageRange?.minimum ?? configured.minimumAge ?? Number(text.match(/\b(?:age )?(\d{1,2})(?:\+| or older| years? or older| minimum)\b/)?.[1] ?? NaN);
+  const maximum = canonical.ageRange?.maximum ?? configured.maximumAge ?? Number(text.match(/\b(?:under|younger than|no older than) (\d{1,2})\b/)?.[1] ?? NaN);
   const hasMinimum = Number.isFinite(minimum);
   const hasMaximum = Number.isFinite(maximum);
   if (!hasMinimum && !hasMaximum) return proof("age", false, true, "No age restriction is listed.", "No numeric age restriction found.");
@@ -230,7 +287,7 @@ function ageCheck(opportunity: Opportunity, context: OpportunityStudentContext) 
 }
 
 function residencyCheck(opportunity: Opportunity, context: OpportunityStudentContext) {
-  const configured = rules(opportunity).residency;
+  const configured = normalizeOpportunityEligibility(opportunity).residency;
   const text = eligibilityText(opportunity);
   const residencyMatch = text.match(/\b(?:residents?|residency) (?:of|in|required in) ([a-z ]{3,40})(?:\.|,|;| who| and|$)/);
   const required = configured?.length ? configured : residencyMatch?.[1] ? [residencyMatch[1].trim()] : [];
@@ -242,14 +299,14 @@ function residencyCheck(opportunity: Opportunity, context: OpportunityStudentCon
 }
 
 function transferCheck(opportunity: Opportunity, context: OpportunityStudentContext) {
-  const required = rules(opportunity).transferOnly === true || /\b(transfer students? only|community college students? (?:planning|seeking|preparing) to transfer|undergraduate transfer scholarship)\b/.test(eligibilityText(opportunity));
+  const required = normalizeOpportunityEligibility(opportunity).transferOnly || /\b(transfer students? only|community college students? (?:planning|seeking|preparing) to transfer|undergraduate transfer scholarship)\b/.test(eligibilityText(opportunity));
   if (!required) return proof("transfer_status", false, true, "Opportunity is not transfer-only.", "No transfer-only requirement found.");
   const proven = context.transferStatus === "community_college_student" || context.transferStatus === "transfer_applicant";
   return proof("transfer_status", true, proven, proven ? "Student transfer status satisfies the requirement." : "Transfer eligibility is not proven.", "Eligibility limits the opportunity to transfer students.");
 }
 
 function invitationCheck(opportunity: Opportunity, context: OpportunityStudentContext) {
-  const required = rules(opportunity).invitationOnly === true || /\b(invitation only|invite only|by invitation)\b/.test(eligibilityText(opportunity));
+  const required = normalizeOpportunityEligibility(opportunity).invitationOnly || /\b(invitation only|invite only|by invitation)\b/.test(eligibilityText(opportunity));
   if (!required) return proof("invitation_status", false, true, "Opportunity is not invitation-only.", "No invitation requirement found.");
   const proven = context.invitedOpportunityIds?.includes(opportunity.id) === true;
   return proof("invitation_status", true, proven, proven ? "Student invitation is recorded." : "Required invitation is not proven.", "Eligibility is invitation-only.");
@@ -257,7 +314,7 @@ function invitationCheck(opportunity: Opportunity, context: OpportunityStudentCo
 
 function needAndMeritChecks(opportunity: Opportunity, context: OpportunityStudentContext) {
   const text = eligibilityText(opportunity);
-  const needRequired = rules(opportunity).needBased === true || /\b(demonstrated financial need|financial need required|need based applicants? only)\b/.test(text);
+  const needRequired = normalizeOpportunityEligibility(opportunity).financialNeedRequired || /\b(demonstrated financial need|financial need required|need based applicants? only)\b/.test(text);
   const meritRequired = rules(opportunity).meritBased === true || /\b(academic merit required|merit based applicants? only)\b/.test(text);
   return [
     proof("financial_need", needRequired, !needRequired || context.financialNeedStatus === "demonstrated", needRequired ? context.financialNeedStatus === "demonstrated" ? "Demonstrated financial need is recorded." : "Required financial need is not proven." : "No mandatory financial-need restriction is listed.", needRequired ? "Eligibility requires demonstrated financial need." : "No mandatory need-based rule found."),
@@ -303,7 +360,13 @@ function availabilityCheck(opportunity: Opportunity) {
 }
 
 export function evaluateOpportunityEligibility(opportunity: Opportunity, context: OpportunityStudentContext): OpportunityEligibilityEvaluation {
+  const contextCache = eligibilityEvaluationCache.get(context) ?? new WeakMap<Opportunity, OpportunityEligibilityEvaluation>();
+  if (!eligibilityEvaluationCache.has(context)) eligibilityEvaluationCache.set(context, contextCache);
+  const cached = contextCache.get(opportunity);
+  if (cached) return cached;
+  const canonical = normalizeOpportunityEligibility(opportunity);
   const checks = [
+    proof("critical_metadata", canonical.criticalUnknowns.length > 0, canonical.criticalUnknowns.length === 0, canonical.criticalUnknowns.length ? `Critical eligibility metadata is unresolved: ${canonical.criticalUnknowns.join(", ")}.` : "Critical eligibility metadata is established.", canonical.evidence.join(" ")),
     institutionTypeCheck(opportunity, context),
     enrollmentCheck(opportunity, context),
     schoolRestrictionCheck(opportunity, context),
@@ -323,8 +386,12 @@ export function evaluateOpportunityEligibility(opportunity: Opportunity, context
     applicationCycleCheck(opportunity),
     availabilityCheck(opportunity),
   ];
-  const failures = checks.filter((check) => check.applicable && !check.proven).map((check) => check.reason);
+  const nonEligibilityChecks = new Set<EligibilityCheckKey>(["application_cycle", "availability"]);
+  const failures = checks.filter((check) => check.applicable && !check.proven && !nonEligibilityChecks.has(check.key)).map((check) => check.reason);
+  const actionable = checks.filter((check) => nonEligibilityChecks.has(check.key)).every((check) => !check.applicable || check.proven);
   const explicitVerification = opportunity.metadata.verification?.eligibilityVerified === true;
-  const confidence = failures.length ? 0 : explicitVerification ? 96 : opportunity.verification_status === "verified" && !hasUnknownEligibilityLanguage(opportunity) ? 84 : 0;
-  return { eligible: failures.length === 0, confidence, checks, failures };
+  const confidence = failures.length || canonical.recommendationEligibilityStatus !== "eligible_for_ranking" ? 0 : explicitVerification ? 96 : opportunity.verification_status === "verified" && canonical.criticalUnknowns.length === 0 ? 84 : 0;
+  const evaluation = { eligible: failures.length === 0, confidence, checks, failures, actionable, canonical };
+  contextCache.set(opportunity, evaluation);
+  return evaluation;
 }

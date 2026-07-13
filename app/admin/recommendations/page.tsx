@@ -8,6 +8,9 @@ import type { StudentActivity } from "@/data/student-activity";
 import type { StudentProfile } from "@/data/student-profile";
 import { inferApplicationsFromActivity } from "@/data/student-progress";
 import { getAdminSession } from "@/lib/admin-auth";
+import { eligibilitySchemaVersion } from "@/data/opportunity-eligibility-model";
+import { recommendationRulesVersion } from "@/data/recommendation-config";
+import { forYouCatalogVersion, forYouSnapshotEngineVersion } from "@/lib/for-you-snapshot";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Recommendation Diagnostics | UnlockED Admin", robots: { index: false, follow: false } };
@@ -41,6 +44,7 @@ export default async function Page() {
       <p className="rule-label text-forest">Internal diagnostics</p>
       <h1 className="mt-3 font-editorial text-4xl font-bold sm:text-5xl">Recommendation diagnostics</h1>
       <p className="mt-4 max-w-3xl text-base leading-7 text-ink/55">Admin-only inspection of recommendation score, reasoning, matched interests, career path, verification adjustment, timing adjustment, confidence, filters, and performance. These internals are not exposed to students.</p>
+      <div className="mt-6"><DiagnosticBlock title="Active snapshot contract" value={{ engineVersion: forYouSnapshotEngineVersion, eligibilitySchemaVersion, catalogVersion: forYouCatalogVersion, recommendationRulesVersion }} /></div>
       <div className="mt-9 grid gap-6">
         {reports.map(({ fixture, report }) => <section key={fixture.id} className="rounded-[2rem] bg-white p-6 shadow-soft ring-1 ring-ink/8">
           <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_260px]">
@@ -56,6 +60,7 @@ export default async function Page() {
             </div>
           </div>
           <div className="mt-5 grid gap-4 lg:grid-cols-3">
+            <DiagnosticBlock title="Candidate funnel" value={report.funnel} />
             <DiagnosticBlock title="Final ranking" value={report.finalRankingOrder.slice(0, 8)} />
             <DiagnosticBlock title="Filtered" value={report.filteredRecommendations.slice(0, 8)} />
             <DiagnosticBlock title="Competing" value={report.competingOpportunities.slice(0, 8)} />

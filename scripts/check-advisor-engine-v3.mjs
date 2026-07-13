@@ -62,7 +62,7 @@ assert.match(pipeline, /Eligibility has not been positively verified for Pro rec
 assert.match(eligibility, /Listed GPA requirement cannot be proven from the profile/, "Advisor v3 must treat unknown GPA as ineligible when a GPA requirement exists.");
 assert.match(eligibility, /Citizenship or work-authorization eligibility is not positively proven/, "Advisor v3 must reject unproven citizenship or work-authorization restrictions.");
 assert.match(eligibility, /External-student eligibility is not positively proven/, "Advisor v3 must reject unproven external-student eligibility.");
-assert.match(pipeline, /confidence is too low for Pro/i, "Advisor v3 auditor must reject low confidence Pro recommendations.");
+assert.match(pipeline, /confidence is too low for its recommendation tier/i, "Advisor v3 auditor must reject confidence below the selected recommendation tier.");
 assert.match(pipeline, /Explanation contains unsupported school relevance/, "Advisor v3 must reject unsupported school explanations.");
 assert.match(confidence, /eligibilityConfidence/, "Advisor v3 must compute eligibility confidence.");
 assert.match(confidence, /metadataConfidence/, "Advisor v3 must compute metadata confidence.");

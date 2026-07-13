@@ -50,6 +50,7 @@ export type AdvisorBrainDashboard = {
   evidenceInventory: EvidenceInventory;
   interview: InterviewIntelligenceResult;
   recommendations: RecommendationV1[];
+  opportunityRecommendations: RecommendationV1[];
 };
 
 export type OpportunityAdvisorExplanation = AdvisorBrainExplanation & {
@@ -245,6 +246,7 @@ export function buildAdvisorBrain(input: {
     evidenceInventory,
     interview,
     recommendations,
+    opportunityRecommendations: recommendationResult.opportunityRecommendations,
   };
   brainCache.set(cacheKey, result);
   if (brainCache.size > maxBrainCacheEntries) brainCache.delete(brainCache.keys().next().value);

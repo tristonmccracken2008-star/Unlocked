@@ -3,17 +3,20 @@ import { careerRoadmapForStage, scoreCareerRoadmapFit } from "./career-roadmaps"
 import { advisorRuleKnowledgeReference, mergeKnowledgeReferences, milestoneKnowledgeReferences, opportunityKnowledgeReferences, type KnowledgeReferences } from "./knowledge-references";
 import { getMilestoneOpportunityConnections, toMilestone, type Milestone } from "./milestone-engine";
 import { buildOpportunityConfidence, type OpportunityConfidenceProfile } from "./opportunity-confidence";
+import { opportunityEligibilityDataConfidence, opportunityVerificationConfidence } from "./opportunity-confidence";
 import { evaluateOpportunityEligibility } from "./opportunity-eligibility";
-import { getOpportunityIntelligence, isSchoolEligible, scoreOpportunityIntelligence, type OpportunityPriority, type OpportunityScore, type OpportunityStudentContext } from "./opportunity-intelligence";
+import { normalizeOpportunityEligibility } from "./opportunity-eligibility-model";
+import { getOpportunityIntelligence, isSchoolEligible, scoreOpportunityIntelligence, getDeadlineDays, type OpportunityPriority, type OpportunityScore, type OpportunityStudentContext } from "./opportunity-intelligence";
 import { getOpportunityRelationship, type OpportunityRelationship } from "./opportunity-relationships";
 import { opportunities as catalogOpportunities, type Opportunity } from "./opportunities";
-import { auditFinalOpportunityRecommendation, buildRecommendationHealthMonitor, careerAdvisorFit, evaluateProfessionalRecommendationCandidate, type RecommendationHealthMonitor } from "./recommendation-professional-pipeline";
+import { auditFinalOpportunityRecommendation, buildRecommendationHealthMonitor, careerAdvisorFit, evaluateProfessionalRecommendationCandidate, validateOpportunityData, type RecommendationHealthMonitor } from "./recommendation-professional-pipeline";
 import { getRoadmap, type RoadmapImportance, type RoadmapMilestone } from "./roadmap-engine";
 import { buildRecommendationWeeklyStrategy, type RecommendationWeeklyStrategy } from "./recommendation-weekly-strategy";
 import { labelForRecommendationScore, recommendationConfig } from "./recommendation-config";
 import type { ApplicationRecord, StudentProgress } from "./student-progress";
 
 export type RecommendationKind = "Opportunity" | "Milestone" | "Next Action";
+export type RecommendationTier = "excellent" | "strong" | "explore";
 
 export type RecommendationEngineInput = {
   advisorProfile: AdvisorProfile;
@@ -40,6 +43,7 @@ export type RecommendationV1 = {
   relatedMilestoneId?: string;
   categories: string[];
   score: number;
+  tier: RecommendationTier;
   knowledgeReferences: KnowledgeReferences;
   explainability: {
     whyThisUser: string;
@@ -52,6 +56,7 @@ export type RecommendationV1 = {
 
 export type RecommendationEngineResult = {
   recommendations: RecommendationV1[];
+  opportunityRecommendations: RecommendationV1[];
   generatedAt: string;
   weeklyStrategy: RecommendationWeeklyStrategy;
   inputs: {
@@ -86,6 +91,12 @@ export type RecommendationReviewRecord = {
   reasons: string[];
   filteredOut: boolean;
   filterReasons: string[];
+  recommendationTier: RecommendationTier;
+  eligibilityStatus: string;
+  eligibilityEvidence: string[];
+  dataConfidence: number;
+  verificationConfidence: number;
+  survivedFinalAudit: boolean;
 };
 
 export type RecommendationDiagnosticReport = {
@@ -101,6 +112,25 @@ export type RecommendationDiagnosticReport = {
     elapsedMs: number;
   };
   health: RecommendationHealthMonitor;
+  funnel: RecommendationCandidateFunnel;
+};
+
+export type RecommendationCandidateFunnel = {
+  totalCatalog: number;
+  verificationEligible: number;
+  educationLevelEligible: number;
+  schoolEligible: number;
+  classYearEligible: number;
+  gpaEligible: number;
+  citizenshipEligible: number;
+  statusDeadlineEligible: number;
+  confidenceEligible: number;
+  rankingEligible: number;
+  diversitySelected: number;
+  finalRecommendations: number;
+  tierCounts: Record<RecommendationTier, number>;
+  fallbackAttempted: boolean;
+  topRejectionReasons: { reason: string; count: number }[];
 };
 
 const priorityWeight: Record<OpportunityPriority, number> = {
@@ -118,6 +148,7 @@ const importanceScore: Record<RoadmapImportance, number> = {
 };
 
 const terminalApplicationStatuses = new Set(["accepted", "completed", "rejected"]);
+const defaultProfessionalCandidateIndex = catalogOpportunities.filter((opportunity) => validateOpportunityData(opportunity).allowed);
 
 const unique = <T,>(items: T[]) => [...new Set(items.filter(Boolean))];
 
@@ -303,6 +334,7 @@ function rankMilestone(profile: AdvisorProfile, milestone: RoadmapMilestone, pro
     relatedMilestoneId: milestone.id,
     categories: unique([structured.category, ...structured.relatedOpportunityCategories]),
     score,
+    tier: "strong",
     knowledgeReferences: mergeKnowledgeReferences(
       milestoneKnowledgeReferences(milestone),
       advisorRuleKnowledgeReference("milestone_recommendation_v1"),
@@ -362,7 +394,7 @@ function qualityGateFailures(ranked: RankedOpportunity) {
   return failures;
 }
 
-function toOpportunityRecommendation(profile: AdvisorProfile, ranked: RankedOpportunity): RecommendationV1 {
+function toOpportunityRecommendation(profile: AdvisorProfile, ranked: RankedOpportunity, forcedTier?: RecommendationTier): RecommendationV1 {
   const opportunity = ranked.opportunity;
   const application = progressForOpportunity(profile, opportunity.id);
   const priority = recommendationPriority(ranked.finalScore, ranked.score.priority);
@@ -389,6 +421,7 @@ function toOpportunityRecommendation(profile: AdvisorProfile, ranked: RankedOppo
     relatedOpportunityId: opportunity.id,
     categories: unique([opportunity.category, opportunity.type]),
     score: ranked.finalScore,
+    tier: forcedTier ?? (eligibility.actionable && ranked.finalScore >= recommendationConfig.thresholds.excellent ? "excellent" : eligibility.actionable ? "strong" : "explore"),
     knowledgeReferences: mergeKnowledgeReferences(
       opportunityKnowledgeReferences(opportunity),
       advisorRuleKnowledgeReference("opportunity_recommendation_v1"),
@@ -420,17 +453,18 @@ function shouldExcludeOpportunity(profile: AdvisorProfile, opportunity: Opportun
 
 function rankAllOpportunities(input: RecommendationEngineInput) {
   const { advisorProfile: profile, progress } = input;
-  const source = input.opportunities ?? catalogOpportunities;
+  const requestedSource = input.opportunities ?? catalogOpportunities;
+  const source = requestedSource === catalogOpportunities ? defaultProfessionalCandidateIndex : requestedSource;
   const roadmap = getRoadmap(profile, progress);
   const activeMilestones = roadmap.upcomingMilestones.slice(0, 4).map((milestone) => toMilestone(milestone, progress));
-  const context = contextWithLearning(buildOpportunityStudentContext(profile), source);
+  const context = contextWithLearning(buildOpportunityStudentContext(profile), requestedSource);
   const prefiltered = source.filter((opportunity) => !shouldExcludeOpportunity(profile, opportunity, context));
   return prefiltered
     .map((opportunity) => rankOpportunity(profile, opportunity, context, activeMilestones, roadmap.opportunityPriorities, source))
     .sort((a, b) => b.finalScore - a.finalScore || priorityWeight[b.score.priority] - priorityWeight[a.score.priority] || a.opportunity.title.localeCompare(b.opportunity.title));
 }
 
-function diversityAdjustedOpportunityRecommendations(profile: AdvisorProfile, ranked: RankedOpportunity[], limit: number) {
+function diversityAdjustedOpportunityRecommendations(profile: AdvisorProfile, ranked: RankedOpportunity[], limit: number, forcedTier?: RecommendationTier) {
   const config = recommendationConfig.diversity;
   const selected: RankedOpportunity[] = [];
   const remaining = [...ranked];
@@ -463,24 +497,42 @@ function diversityAdjustedOpportunityRecommendations(profile: AdvisorProfile, ra
     typeCounts.set(next.opportunity.type, (typeCounts.get(next.opportunity.type) ?? 0) + 1);
   }
   const selectedSource = ranked.map((item) => item.opportunity);
-  return selected.map((item) => toOpportunityRecommendation(profile, { ...item, relationship: getOpportunityRelationship(item.opportunity, selectedSource) }));
+  return selected.map((item) => toOpportunityRecommendation(profile, { ...item, relationship: getOpportunityRelationship(item.opportunity, selectedSource) }, forcedTier));
+}
+
+function exploreGateFailures(ranked: RankedOpportunity, profile: AdvisorProfile) {
+  const failures: string[] = [];
+  const eligibility = evaluateOpportunityEligibility(ranked.opportunity, buildOpportunityStudentContext(profile));
+  const canonical = normalizeOpportunityEligibility(ranked.opportunity);
+  if (!eligibility.eligible) failures.push(...eligibility.failures);
+  if (canonical.recommendationEligibilityStatus !== "eligible_for_ranking") failures.push(`Recommendation eligibility status is ${canonical.recommendationEligibilityStatus}.`);
+  if (ranked.score.positiveSignalCount < 1) failures.push("No useful recommendation signal.");
+  if (ranked.finalScore < 24) failures.push("Explore score is below the safe fallback floor.");
+  if (ranked.score.confidence < recommendationConfig.confidence.mediumThreshold) failures.push("Explore confidence is too low.");
+  return failures;
 }
 
 export function rankOpportunityRecommendations(input: RecommendationEngineInput): RecommendationV1[] {
   const limit = input.limit ?? 24;
   const context = contextWithLearning(buildOpportunityStudentContext(input.advisorProfile), input.opportunities ?? catalogOpportunities);
-  const ranked = rankAllOpportunities(input).filter((item) => qualityGateFailures(item).length === 0);
-  const primary = ranked.filter((item) => !recommendationConfig.verificationQuality.suppressFromPremiumStatuses.includes(item.opportunity.verification_status as never) && !recommendationConfig.verificationQuality.nonActionableStatuses.includes(item.opportunity.verification_status as never));
-  const fallback = ranked.filter((item) => !primary.includes(item));
-  return diversityAdjustedOpportunityRecommendations(input.advisorProfile, primary.length >= limit ? primary : [...primary, ...fallback], limit)
+  const allRanked = rankAllOpportunities(input);
+  const strict = allRanked.filter((item) => qualityGateFailures(item).length === 0 && evaluateOpportunityEligibility(item.opportunity, context).actionable);
+  const strictRecommendations = diversityAdjustedOpportunityRecommendations(input.advisorProfile, strict, limit);
+  const strictIds = new Set(strictRecommendations.map((item) => item.relatedOpportunityId));
+  const explore = allRanked.filter((item) => !strictIds.has(item.opportunity.id) && exploreGateFailures(item, input.advisorProfile).length === 0);
+  const exploreRecommendations = strictRecommendations.length < limit
+    ? diversityAdjustedOpportunityRecommendations(input.advisorProfile, explore, limit - strictRecommendations.length, "explore")
+    : [];
+  return [...strictRecommendations, ...exploreRecommendations]
     .filter((recommendation) => {
       const opportunity = (input.opportunities ?? catalogOpportunities).find((item) => item.id === recommendation.relatedOpportunityId);
       return opportunity ? auditFinalOpportunityRecommendation(recommendation, opportunity, context).approved : true;
     });
 }
 
-function reviewRecord(ranked: RankedOpportunity, finalRank: number | null): RecommendationReviewRecord {
+function reviewRecord(ranked: RankedOpportunity, finalRank: number | null, context: OpportunityStudentContext): RecommendationReviewRecord {
   const failures = qualityGateFailures(ranked);
+  const eligibility = evaluateOpportunityEligibility(ranked.opportunity, context);
   return {
     opportunityId: ranked.opportunity.id,
     title: ranked.opportunity.title,
@@ -492,18 +544,25 @@ function reviewRecord(ranked: RankedOpportunity, finalRank: number | null): Reco
     reasons: ranked.score.reasons,
     filteredOut: failures.length > 0,
     filterReasons: failures,
+    recommendationTier: eligibility.actionable && ranked.finalScore >= recommendationConfig.thresholds.excellent ? "excellent" : eligibility.actionable ? "strong" : "explore",
+    eligibilityStatus: eligibility.canonical.recommendationEligibilityStatus,
+    eligibilityEvidence: eligibility.checks.filter((check) => check.applicable && check.proven).map((check) => check.evidence).filter(Boolean).slice(0, 8),
+    dataConfidence: opportunityEligibilityDataConfidence(ranked.opportunity),
+    verificationConfidence: opportunityVerificationConfidence(ranked.opportunity),
+    survivedFinalAudit: finalRank !== null,
   };
 }
 
 export function buildRecommendationDiagnosticReport(input: RecommendationEngineInput): RecommendationDiagnosticReport {
   const started = typeof performance !== "undefined" ? performance.now() : Date.now();
+  const context = contextWithLearning(buildOpportunityStudentContext(input.advisorProfile), input.opportunities ?? catalogOpportunities);
   const allRanked = rankAllOpportunities(input);
   const eligibleRanked = allRanked.filter((item) => qualityGateFailures(item).length === 0);
-  const diversified = diversityAdjustedOpportunityRecommendations(input.advisorProfile, eligibleRanked, input.limit ?? 8);
+  const diversified = rankOpportunityRecommendations(input);
   const finalIds = new Map(diversified.map((item, index) => [item.relatedOpportunityId, index + 1]));
-  const finalRankingOrder = eligibleRanked.filter((item) => finalIds.has(item.opportunity.id)).sort((a, b) => (finalIds.get(a.opportunity.id) ?? 999) - (finalIds.get(b.opportunity.id) ?? 999)).map((item) => reviewRecord(item, finalIds.get(item.opportunity.id) ?? null));
-  const filteredRecommendations = allRanked.filter((item) => qualityGateFailures(item).length > 0).slice(0, 20).map((item) => reviewRecord(item, null));
-  const competingOpportunities = eligibleRanked.filter((item) => !finalIds.has(item.opportunity.id)).slice(0, 10).map((item) => reviewRecord(item, null));
+  const finalRankingOrder = allRanked.filter((item) => finalIds.has(item.opportunity.id)).sort((a, b) => (finalIds.get(a.opportunity.id) ?? 999) - (finalIds.get(b.opportunity.id) ?? 999)).map((item) => reviewRecord(item, finalIds.get(item.opportunity.id) ?? null, context));
+  const filteredRecommendations = allRanked.filter((item) => qualityGateFailures(item).length > 0 && exploreGateFailures(item, input.advisorProfile).length > 0).slice(0, 20).map((item) => reviewRecord(item, null, context));
+  const competingOpportunities = allRanked.filter((item) => !finalIds.has(item.opportunity.id) && (qualityGateFailures(item).length === 0 || exploreGateFailures(item, input.advisorProfile).length === 0)).slice(0, 10).map((item) => reviewRecord(item, null, context));
   const elapsedMs = Math.round((typeof performance !== "undefined" ? performance.now() : Date.now()) - started);
   return {
     generatedAt: new Date().toISOString(),
@@ -517,7 +576,60 @@ export function buildRecommendationDiagnosticReport(input: RecommendationEngineI
       recommendedCount: finalRankingOrder.length,
       elapsedMs,
     },
-    health: buildRecommendationHealthMonitor(diversified, sourceForDiagnostics(input), contextWithLearning(buildOpportunityStudentContext(input.advisorProfile), input.opportunities ?? catalogOpportunities)),
+    health: buildRecommendationHealthMonitor(diversified, sourceForDiagnostics(input), context),
+    funnel: buildRecommendationCandidateFunnel(input),
+  };
+}
+
+function checksPass(opportunity: Opportunity, context: OpportunityStudentContext, keys: readonly string[]) {
+  return evaluateOpportunityEligibility(opportunity, context).checks
+    .filter((check) => keys.includes(check.key))
+    .every((check) => !check.applicable || check.proven);
+}
+
+export function buildRecommendationCandidateFunnel(input: RecommendationEngineInput): RecommendationCandidateFunnel {
+  const source = [...(input.opportunities ?? catalogOpportunities)];
+  const context = contextWithLearning(buildOpportunityStudentContext(input.advisorProfile), source);
+  const rejectionCounts = new Map<string, number>();
+  for (const opportunity of source) {
+    const gate = evaluateProfessionalRecommendationCandidate(opportunity, context);
+    if (!gate.allowed) for (const reason of gate.reasons) rejectionCounts.set(reason, (rejectionCounts.get(reason) ?? 0) + 1);
+  }
+  const verificationEligible = source.filter((opportunity) => opportunity.verification_status === "verified" && !recommendationConfig.verificationQuality.excludedStatuses.includes(opportunity.verification_status as never));
+  const educationLevelEligible = verificationEligible.filter((opportunity) => checksPass(opportunity, context, ["critical_metadata", "institution_type", "enrollment_status", "degree_level"]));
+  const schoolEligible = educationLevelEligible.filter((opportunity) => checksPass(opportunity, context, ["school_restrictions", "host_institution", "external_student_eligibility"]));
+  const classYearEligible = schoolEligible.filter((opportunity) => checksPass(opportunity, context, ["class_year", "major_requirements"]));
+  const gpaEligible = classYearEligible.filter((opportunity) => checksPass(opportunity, context, ["gpa", "financial_need", "merit_status"]));
+  const citizenshipEligible = gpaEligible.filter((opportunity) => checksPass(opportunity, context, ["citizenship", "work_authorization", "residency", "age", "transfer_status", "invitation_status", "demographic_eligibility"]));
+  const statusDeadlineEligible = citizenshipEligible.filter((opportunity) => {
+    const deadlineDays = getDeadlineDays(opportunity);
+    return !["temporarily_closed", "expired", "archived", "broken_source", "incomplete"].includes(opportunity.verification_status)
+      && (deadlineDays === null || deadlineDays >= 0);
+  });
+  const confidenceEligible = statusDeadlineEligible.filter((opportunity) => evaluateProfessionalRecommendationCandidate(opportunity, context).allowed);
+  const ranked = rankAllOpportunities(input);
+  const rankingEligible = ranked.filter((item) => qualityGateFailures(item).length === 0 || exploreGateFailures(item, input.advisorProfile).length === 0);
+  const selected = rankOpportunityRecommendations(input);
+  const tierCounts = selected.reduce<Record<RecommendationTier, number>>((counts, item) => {
+    counts[item.tier] += 1;
+    return counts;
+  }, { excellent: 0, strong: 0, explore: 0 });
+  return {
+    totalCatalog: source.length,
+    verificationEligible: verificationEligible.length,
+    educationLevelEligible: educationLevelEligible.length,
+    schoolEligible: schoolEligible.length,
+    classYearEligible: classYearEligible.length,
+    gpaEligible: gpaEligible.length,
+    citizenshipEligible: citizenshipEligible.length,
+    statusDeadlineEligible: statusDeadlineEligible.length,
+    confidenceEligible: confidenceEligible.length,
+    rankingEligible: rankingEligible.length,
+    diversitySelected: selected.length,
+    finalRecommendations: selected.length,
+    tierCounts,
+    fallbackAttempted: selected.some((item) => item.tier === "explore"),
+    topRejectionReasons: [...rejectionCounts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).slice(0, 10).map(([reason, count]) => ({ reason, count })),
   };
 }
 
@@ -539,6 +651,7 @@ export function runRecommendationEngineV1(input: RecommendationEngineInput): Rec
     .slice(0, limit);
   return {
     recommendations,
+    opportunityRecommendations,
     generatedAt: new Date().toISOString(),
     weeklyStrategy: buildRecommendationWeeklyStrategy(recommendations),
     inputs: {

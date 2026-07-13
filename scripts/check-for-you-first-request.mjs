@@ -27,8 +27,10 @@ assert.doesNotMatch(api, /buildRecommendationService/, "The API route must not g
 assert.match(snapshot, /buildRecommendationService/, "Snapshot generation must be the only For You path that builds recommendations.");
 
 assert.match(snapshot, /latestSnapshot\(data, user\.id\)/, "Resolver must check for an existing user-specific snapshot first.");
-assert.match(snapshot, /isFresh\(snapshot, version\)/, "Resolver must distinguish fresh snapshots.");
-assert.match(snapshot, /stateFromSnapshot\(snapshot, access, entitlements, profile, school, activity, "stale", true\)/, "Resolver must return stale snapshots immediately.");
+assert.match(snapshot, /isForYouSnapshotCompatible\(snapshot, version, user\.id\)/, "Resolver must reject snapshots from incompatible users, profiles, engines, schemas, catalogs, or rules.");
+assert.match(snapshot, /snapshotPassesSafetyAudit\(snapshot, profile, school, activity, data\)/, "Every persisted snapshot must pass the current final eligibility audit before rendering.");
+assert.match(snapshot, /isFresh\(compatibleSnapshot\)/, "Resolver must distinguish fresh compatible snapshots.");
+assert.match(snapshot, /stateFromSnapshot\(compatibleSnapshot, access, entitlements, profile, school, activity, "stale", true\)/, "Resolver may return only expired but compatible and re-audited snapshots while refreshing.");
 assert.match(snapshot, /isRefreshing: true/, "Stale snapshots must report background refresh.");
 assert.match(snapshot, /pageState: "preparing"/, "Missing snapshots must return an intentional preparing state.");
 assert.match(snapshot, /generationByUser = new Map<string, Promise<ForYouRecommendationSnapshot>>/, "Generation must be single-flight per user.");
@@ -41,6 +43,13 @@ assert.match(snapshot, /const allowed = pro \? service\.recommendations\.slice\(
 assert.match(snapshot, /getForYouGlobalIndex/, "Global opportunity indexes must be initialized through a shared helper.");
 assert.match(snapshot, /globalIndexPromise/, "Global index initialization must be single-flight.");
 assert.match(snapshot, /sourceSignalsVersion/, "Opportunity database changes must affect snapshot freshness.");
+assert.match(advisorTypes, /eligibilitySchemaVersion: string/, "Snapshots must record the eligibility schema version.");
+assert.match(advisorTypes, /catalogVersion: string/, "Snapshots must record the catalog version.");
+assert.match(advisorTypes, /recommendationRulesVersion: string/, "Snapshots must record the recommendation-rules version.");
+assert.match(snapshot, /\[UnlockED For You\] empty feed diagnostics/, "Empty paid feeds must log aggregate diagnostics.");
+assert.match(snapshot, /buildRecommendationCandidateFunnel/, "Empty-feed diagnostics must use the canonical candidate funnel.");
+assert.match(snapshot, /lastAvailableStage/, "Empty-feed diagnostics must record the last stage with viable candidates.");
+assert.match(snapshot, /fallbackAttempted: funnel\.fallbackAttempted/, "Empty-feed diagnostics must record whether the safe fallback was attempted.");
 
 assert.match(advisorPage, /initialState \? normalizeForYouPayload\(initialState\) : null/, "Client must render from the server snapshot state immediately.");
 assert.match(advisorPage, /ForYouPreparingState/, "Client must show preparing recommendations instead of treating first generation as an error.");

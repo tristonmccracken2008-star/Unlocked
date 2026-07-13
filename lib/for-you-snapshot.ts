@@ -1,6 +1,11 @@
 import "server-only";
 import crypto from "node:crypto";
 import { buildRecommendationService } from "@/data/recommendation-service";
+import { createAdvisorProfile } from "@/data/advisor-engine";
+import { buildOpportunityStudentContext, buildRecommendationCandidateFunnel } from "@/data/recommendation-engine";
+import { auditFinalOpportunityRecommendation, evaluateProfessionalRecommendationCandidate } from "@/data/recommendation-professional-pipeline";
+import { eligibilitySchemaVersion, normalizeOpportunityEligibility } from "@/data/opportunity-eligibility-model";
+import { recommendationRulesVersion } from "@/data/recommendation-config";
 import { opportunities, type Opportunity } from "@/data/opportunities";
 import { schools, type School } from "@/data/seed";
 import { inferApplicationsFromActivity } from "@/data/student-progress";
@@ -13,12 +18,25 @@ import type { AdvisorAccessState } from "@/lib/advisor-access";
 import { nextAdvisorData } from "@/lib/advisor/api";
 import type { ForYouRecommendationSnapshot, ForYouSnapshotState } from "@/lib/advisor/types";
 
-export const forYouSnapshotEngineVersion = "for-you-snapshot-v2-school-eligibility";
+export const forYouSnapshotEngineVersion = "for-you-snapshot-v3-canonical-eligibility";
 export const forYouSnapshotTtlMs = 1000 * 60 * 60 * 6;
 const generationTimeoutMs = 2800;
 const globalIndexTimeoutMs = 1000;
-const schoolEligibilityMetadataHash = crypto.createHash("sha256").update(JSON.stringify(opportunities.map((item) => [item.id, item.school_scope, [...item.schools].sort(), item.verification_status, item.last_verified]))).digest("hex").slice(0, 16);
-const sourceSignalsVersion = `opportunities:${opportunities.length}:${schoolEligibilityMetadataHash}`;
+export const forYouCatalogVersion = crypto.createHash("sha256").update(JSON.stringify(opportunities.map((item) => [
+  item.id,
+  item.school_scope,
+  [...item.schools].sort(),
+  [...item.majors].sort(),
+  [...item.academic_years].sort(),
+  item.eligibility,
+  item.application_deadline,
+  item.metadata.deadlineType,
+  item.metadata.eligibilityRules ?? null,
+  item.verification_status,
+  item.last_verified,
+  normalizeOpportunityEligibility(item).recommendationEligibilityStatus,
+]))).digest("hex").slice(0, 20);
+const sourceSignalsVersion = `opportunities:${opportunities.length}:${forYouCatalogVersion}`;
 const generationByUser = new Map<string, Promise<ForYouRecommendationSnapshot>>();
 
 export type ForYouServerState = {
@@ -87,7 +105,7 @@ function emptyActivity(): StudentActivity {
   return { viewed: [], saved: [], claimed: [], tracked: {} };
 }
 
-function profileVersion(profile: StudentProfile, data: AccountData) {
+export function forYouProfileVersion(profile: StudentProfile, data: AccountData) {
   const activity = data.activity ?? emptyActivity();
   const tracked = Object.values(activity.tracked ?? {}).map((item) => [item.id, item.status, item.updatedAt]).sort();
   const feedback = (data.advisor?.feedbackRecords ?? []).map((item) => [item.recommendationId, item.feedbackType, item.createdAt]).sort();
@@ -103,6 +121,17 @@ function profileVersion(profile: StudentProfile, data: AccountData) {
       careerGoal: profile.careerGoal,
       interests: profile.interests,
       advisorInterview: profile.advisorInterview,
+      institutionType: profile.institutionType,
+      enrollmentStatus: profile.enrollmentStatus,
+      degreeLevel: profile.degreeLevel,
+      citizenshipStatus: profile.citizenshipStatus,
+      workAuthorization: profile.workAuthorization,
+      residency: profile.residency,
+      age: profile.age,
+      transferStatus: profile.transferStatus,
+      financialNeedStatus: profile.financialNeedStatus,
+      meritStatus: profile.meritStatus,
+      eligibilityAttributes: [...(profile.eligibilityAttributes ?? [])].sort(),
     },
     tracked,
     saved: [...(activity.saved ?? [])].sort(),
@@ -118,11 +147,35 @@ function latestSnapshot(data: AccountData, userId: string) {
   return snapshots.filter((snapshot) => snapshot.userId === userId).sort((a, b) => b.generatedAt.localeCompare(a.generatedAt))[0] ?? null;
 }
 
-function isFresh(snapshot: ForYouRecommendationSnapshot, version: string) {
-  return snapshot.profileVersion === version
+export function isForYouSnapshotCompatible(snapshot: ForYouRecommendationSnapshot, version: string, userId: string) {
+  return snapshot.userId === userId
+    && snapshot.profileVersion === version
     && snapshot.engineVersion === forYouSnapshotEngineVersion
+    && snapshot.eligibilitySchemaVersion === eligibilitySchemaVersion
+    && snapshot.catalogVersion === forYouCatalogVersion
+    && snapshot.recommendationRulesVersion === recommendationRulesVersion
     && snapshot.sourceSignalsVersion === sourceSignalsVersion
-    && new Date(snapshot.expiresAt).getTime() > Date.now();
+    && Number.isFinite(new Date(snapshot.generatedAt).getTime());
+}
+
+function isFresh(snapshot: ForYouRecommendationSnapshot) {
+  return new Date(snapshot.expiresAt).getTime() > Date.now();
+}
+
+function snapshotPassesSafetyAudit(snapshot: ForYouRecommendationSnapshot, profile: StudentProfile, school: School, activity: StudentActivity, data: AccountData) {
+  const progress = inferApplicationsFromActivity(activity, opportunities, { milestones: {}, applications: {} });
+  const advisorProfile = createAdvisorProfile({ profile, school, activity, progress });
+  advisorProfile.future.recommendationFeedback = data.advisor?.feedbackRecords ?? [];
+  advisorProfile.future.hiddenOpportunityIds = data.preferences?.hiddenDismissedIds ?? [];
+  const context = buildOpportunityStudentContext(advisorProfile);
+  return snapshot.recommendations.every((view) => {
+    const id = view.recommendation.relatedOpportunityId;
+    const opportunity = id ? globalIndex?.opportunityById.get(id) ?? opportunities.find((item) => item.id === id) : null;
+    return Boolean(opportunity
+      && view.opportunity?.id === opportunity.id
+      && evaluateProfessionalRecommendationCandidate(opportunity, context).allowed
+      && auditFinalOpportunityRecommendation(view.recommendation, opportunity, context).approved);
+  });
 }
 
 async function persistSnapshot(userId: string, data: AccountData, snapshot: ForYouRecommendationSnapshot) {
@@ -146,12 +199,38 @@ async function generateSnapshot(user: AuthUser, data: AccountData, profile: Stud
     referralActivity: data.referrals,
   });
   const pro = entitlements.canUseFullForYou;
+  if (pro && service.recommendations.length === 0) {
+    const funnel = buildRecommendationCandidateFunnel({ advisorProfile: service.advisorProfile, progress, opportunities, limit: 8 });
+    const stages = [
+      ["total_catalog", funnel.totalCatalog],
+      ["verification", funnel.verificationEligible],
+      ["education_level", funnel.educationLevelEligible],
+      ["school", funnel.schoolEligible],
+      ["class_year_major", funnel.classYearEligible],
+      ["gpa_need", funnel.gpaEligible],
+      ["citizenship_other", funnel.citizenshipEligible],
+      ["status_deadline", funnel.statusDeadlineEligible],
+      ["confidence", funnel.confidenceEligible],
+      ["ranking", funnel.rankingEligible],
+      ["final", funnel.finalRecommendations],
+    ] as const;
+    const lastAvailableStage = [...stages].reverse().find(([, count]) => count > 0)?.[0] ?? "none";
+    console.warn("[UnlockED For You] empty feed diagnostics", {
+      counts: Object.fromEntries(stages),
+      lastAvailableStage,
+      fallbackAttempted: funnel.fallbackAttempted,
+      topRejectionReasons: funnel.topRejectionReasons,
+    });
+  }
   const allowed = pro ? service.recommendations.slice(0, 8) : [];
   const now = new Date();
   const snapshot: ForYouRecommendationSnapshot = {
     userId: user.id,
-    profileVersion: profileVersion(profile, data),
+    profileVersion: forYouProfileVersion(profile, data),
     engineVersion: forYouSnapshotEngineVersion,
+    eligibilitySchemaVersion,
+    catalogVersion: forYouCatalogVersion,
+    recommendationRulesVersion,
     generatedAt: now.toISOString(),
     expiresAt: new Date(now.getTime() + forYouSnapshotTtlMs).toISOString(),
     recommendations: allowed.map((view) => ({
@@ -204,12 +283,13 @@ export async function resolveForYouState(user: AuthUser, data: AccountData, opti
   if (!entitlements.canUseFullForYou) {
     return { pageState: "free_preview", access, entitlements, profile, school, activity, session: null, recommendations: [], totalMatches: 0, snapshotStatus: "missing", isRefreshing: false };
   }
-  const version = profileVersion(profile, data);
+  const version = forYouProfileVersion(profile, data);
   const snapshot = latestSnapshot(data, user.id);
-  if (snapshot && isFresh(snapshot, version)) return stateFromSnapshot(snapshot, access, entitlements, profile, school, activity, "fresh", false);
-  if (snapshot) {
+  const compatibleSnapshot = snapshot && isForYouSnapshotCompatible(snapshot, version, user.id) && snapshotPassesSafetyAudit(snapshot, profile, school, activity, data) ? snapshot : null;
+  if (compatibleSnapshot && isFresh(compatibleSnapshot)) return stateFromSnapshot(compatibleSnapshot, access, entitlements, profile, school, activity, "fresh", false);
+  if (compatibleSnapshot) {
     if (!generationByUser.has(user.id)) void generateSingleFlight(user, data, profile, school, entitlements).catch((error) => console.error("[UnlockED For You] background snapshot refresh failed", { errorCategory: error instanceof Error ? error.name : "unknown" }));
-    return stateFromSnapshot(snapshot, access, entitlements, profile, school, activity, "stale", true);
+    return stateFromSnapshot(compatibleSnapshot, access, entitlements, profile, school, activity, "stale", true);
   }
   const active = generationByUser.get(user.id);
   if (active) {
@@ -237,6 +317,9 @@ export function forYouDiagnostics(snapshotStatus: ForYouSnapshotState, extra: Re
     snapshotStatus,
     globalIndexStatus: getForYouGlobalIndexStatus(),
     sourceSignalsVersion,
+    eligibilitySchemaVersion,
+    catalogVersion: forYouCatalogVersion,
+    recommendationRulesVersion,
     activeGenerations: generationByUser.size,
     ...extra,
   };

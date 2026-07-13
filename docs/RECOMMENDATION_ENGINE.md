@@ -19,6 +19,16 @@ Primary modules:
 
 No recommendation surface should independently rank opportunities.
 
+The production eligibility and availability architecture is documented in `FOR_YOU_PRODUCTION_CORRECTNESS.md`.
+
+## Canonical eligibility and tiers
+
+`data/opportunity-eligibility-model.ts` normalizes every hard eligibility constraint before scoring. Unknown critical eligibility is quarantined; unknown noncritical value, effort, or competitiveness may reduce ranking quality without making a student ineligible. Application-cycle availability is tracked separately from personal eligibility.
+
+Opportunity recommendations carry one of three tiers: `excellent`, `strong`, or `explore`. Explore is a verified, eligibility-safe fallback tier with weaker personalization or an unannounced future cycle. It never bypasses school, education, enrollment, class-year, major, GPA, citizenship, transfer, demographic, source, or verification gates.
+
+For You snapshots are compatible only when user, profile, engine, eligibility schema, catalog, rules, and source versions match. Compatible snapshots are re-audited before rendering.
+
 ## Signal Weights
 
 Weights are centralized in `recommendationConfig`.
@@ -97,11 +107,11 @@ A recommendation is filtered when:
 - the student's reported GPA is below a listed GPA requirement
 - a listed GPA exists but the profile GPA is unknown
 - age, residency, transfer, invitation-only, need, merit, or demographic eligibility is unresolved
-- the current application cycle or availability is not proven
+- the current application cycle is explicitly closed, expired, or otherwise non-actionable for the selected tier
 - the deadline has passed
-- eligibility, metadata, verification, recommendation, or overall confidence is below the Pro threshold
-- it has fewer than two meaningful positive signals
-- it has no student-specific relevance signal; generic `Any Major`, `Any Year`, and national availability do not count as personalization
+- eligibility, metadata, or verification confidence is below the professional threshold
+- an Excellent or Strong item has fewer than two meaningful positive signals
+- an Excellent or Strong item has no student-specific relevance signal; generic `Any Major`, `Any Year`, and national availability do not count as personalization
 - the final score falls below the minimum recommendation score
 - the explanation lacks a factual matching reason
 
@@ -228,7 +238,7 @@ The engine maps overall confidence to:
 - Medium
 - Low
 
-Every dimension must be at least 78 for a Pro recommendation. Moderate and low-confidence results are filtered instead of being promoted. Product cards continue to show plain match labels and explanations rather than formulas.
+Excellent and Strong recommendations require every confidence dimension to be at least 78. Explore recommendations retain the same 78-point eligibility, metadata, and verification floors while permitting recommendation confidence down to 52. Low-confidence results are always filtered. Product cards continue to show plain match labels and explanations rather than formulas.
 
 ## Professional Audit
 

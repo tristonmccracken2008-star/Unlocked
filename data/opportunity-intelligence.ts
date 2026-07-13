@@ -17,9 +17,9 @@ export type SchoolEligibility =
 export type OpportunityStudentContext = {
   schoolSlug?: string;
   schoolName?: string;
-  institutionType?: "college" | "university" | "community_college" | "liberal_arts_college" | "unknown";
+  institutionType?: "high_school" | "college" | "university" | "community_college" | "liberal_arts_college" | "unknown";
   enrollmentStatus?: "enrolled" | "incoming" | "recent_graduate" | "not_enrolled" | "unknown";
-  degreeLevel?: "associate" | "undergraduate" | "graduate" | "unknown";
+  degreeLevel?: "high_school" | "associate" | "undergraduate" | "graduate" | "unknown";
   citizenshipStatus?: "us_citizen" | "permanent_resident" | "international" | "unknown";
   workAuthorization?: "us_authorized" | "not_us_authorized" | "unknown";
   residency?: string;

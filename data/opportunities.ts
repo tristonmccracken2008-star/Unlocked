@@ -28,6 +28,11 @@ export type OpportunityVerification = {
 export type OpportunityDifficulty = "Open" | "Competitive" | "Highly Competitive" | null;
 export type OpportunityPrestige = "Established" | "High" | "Very High" | null;
 
+export type OpportunityEducationLevel = "high_school" | "community_college" | "undergraduate" | "graduate" | "recent_graduate";
+export type CanonicalInstitutionType = "high_school" | "community_college" | "four_year_college" | "university" | "liberal_arts_college" | "graduate_school";
+export type CanonicalEnrollmentStatus = "prospective" | "currently_enrolled" | "transfer_applicant" | "graduated";
+export type RecommendationEligibilityStatus = "eligible_for_ranking" | "discover_only" | "needs_eligibility_review" | "ineligible";
+
 export type OpportunityEligibilityRules = {
   institutionTypes?: ("college" | "university" | "community_college" | "liberal_arts_college")[];
   enrollmentStatuses?: ("incoming" | "enrolled" | "recent_graduate")[];
@@ -44,6 +49,20 @@ export type OpportunityEligibilityRules = {
   demographicRequirements?: string[];
   applicationCycle?: string;
   availability?: "open" | "rolling" | "closed" | "no_application" | "unknown";
+  educationLevels?: OpportunityEducationLevel[];
+  canonicalInstitutionTypes?: CanonicalInstitutionType[];
+  canonicalEnrollmentStatuses?: CanonicalEnrollmentStatus[];
+  specificSchoolIds?: string[];
+  hostSchoolId?: string;
+  acceptsExternalStudents?: boolean;
+  classYears?: string[];
+  majors?: string[];
+  minimumGpa?: number;
+  citizenshipStatuses?: ("unrestricted" | "us_citizen" | "permanent_resident" | "us_work_authorized" | "international_allowed")[];
+  ageRange?: { minimum?: number; maximum?: number };
+  financialNeedRequired?: boolean;
+  highSchoolSeniorOnly?: boolean;
+  recommendationEligibilityStatus?: RecommendationEligibilityStatus;
   evidence?: string[];
 };
 

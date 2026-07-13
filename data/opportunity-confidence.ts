@@ -1,5 +1,6 @@
 import { dataQualityScore } from "./opportunity-enrichment";
-import { evaluateOpportunityEligibility, hasUnknownEligibilityLanguage, type OpportunityEligibilityEvaluation } from "./opportunity-eligibility";
+import { evaluateOpportunityEligibility, type OpportunityEligibilityEvaluation } from "./opportunity-eligibility";
+import { normalizeOpportunityEligibility } from "./opportunity-eligibility-model";
 import type { OpportunityStudentContext } from "./opportunity-intelligence";
 import type { Opportunity } from "./opportunities";
 
@@ -39,7 +40,8 @@ export function opportunityVerificationConfidence(opportunity: Opportunity, now 
 }
 
 export function opportunityEligibilityDataConfidence(opportunity: Opportunity) {
-  if (opportunity.verification_status !== "verified" || opportunity.metadata.verification?.eligibilityVerified === false || hasUnknownEligibilityLanguage(opportunity)) return 0;
+  const canonical = normalizeOpportunityEligibility(opportunity);
+  if (opportunity.verification_status !== "verified" || opportunity.metadata.verification?.eligibilityVerified === false || canonical.recommendationEligibilityStatus !== "eligible_for_ranking" || canonical.criticalUnknowns.length) return 0;
   let score = 68;
   if (opportunity.eligibility.trim().length >= 36) score += 6;
   if (opportunity.majors.length > 0) score += 4;

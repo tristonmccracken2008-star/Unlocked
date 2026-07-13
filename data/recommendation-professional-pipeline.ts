@@ -1,6 +1,7 @@
 import type { AdvisorProfile } from "./advisor-engine";
 import { buildOpportunityConfidence, isProfessionalConfidence, opportunityEligibilityDataConfidence, opportunityVerificationConfidence } from "./opportunity-confidence";
 import { evaluateOpportunityEligibility, hasUnknownEligibilityLanguage, rawEligibilityText } from "./opportunity-eligibility";
+import { normalizeOpportunityEligibility } from "./opportunity-eligibility-model";
 import { getDeadlineDays, isSchoolEligible, type OpportunityStudentContext } from "./opportunity-intelligence";
 import { recommendationConfig } from "./recommendation-config";
 import type { RecommendationV1 } from "./recommendation-engine";
@@ -54,6 +55,7 @@ function hasUsableSource(opportunity: Opportunity) {
 
 export function validateOpportunityData(opportunity: Opportunity): CandidateGateResult {
   const reasons: string[] = [];
+  const canonical = normalizeOpportunityEligibility(opportunity);
   if (!hasUsableSource(opportunity)) reasons.push("Missing usable source, organization, or eligibility.");
   if (recommendationConfig.verificationQuality.excludedStatuses.includes(opportunity.verification_status as never)) reasons.push(`Verification status is ${opportunity.verification_status}.`);
   if (hasKnownDeadlineProblem(opportunity)) reasons.push("Deadline has passed.");
@@ -61,7 +63,9 @@ export function validateOpportunityData(opportunity: Opportunity): CandidateGate
   if (opportunity.verification_status === "temporarily_closed") reasons.push("Opportunity is temporarily closed.");
   if (opportunity.verification_status !== "verified") reasons.push("Eligibility has not been positively verified for Pro recommendations.");
   if (opportunity.metadata.verification?.eligibilityVerified === false) reasons.push("Eligibility verification is explicitly incomplete.");
-  if (hasUnknownEligibilityLanguage(opportunity)) reasons.push("Eligibility contains unknown or variable requirements.");
+  if (canonical.recommendationEligibilityStatus !== "eligible_for_ranking") reasons.push(`Recommendation eligibility status is ${canonical.recommendationEligibilityStatus}.`);
+  if (canonical.criticalUnknowns.length) reasons.push(`Critical eligibility metadata is unresolved: ${canonical.criticalUnknowns.join(", ")}.`);
+  if (hasUnknownEligibilityLanguage(opportunity) && canonical.criticalUnknowns.length) reasons.push("Eligibility contains unknown or variable critical requirements.");
   if (rawEligibilityText(opportunity).trim().length < 24) reasons.push("Eligibility detail is too thin to prove fit.");
   if (opportunityEligibilityDataConfidence(opportunity) < recommendationConfig.confidence.professionalMinimum) reasons.push("Eligibility evidence confidence is below the Pro threshold.");
   if (opportunityVerificationConfidence(opportunity) < recommendationConfig.confidence.professionalMinimum) reasons.push("Verification confidence is below the Pro threshold.");
@@ -105,7 +109,12 @@ export function auditFinalOpportunityRecommendation(recommendation: Recommendati
   if (!validation.allowed) rejections.push(...validation.reasons);
   if (!eligibility.allowed) rejections.push(...eligibility.reasons);
   const confidence = recommendation.confidenceBreakdown ?? buildOpportunityConfidence(opportunity, context, recommendation.confidence, eligibilityEvaluation);
-  if (!isProfessionalConfidence(confidence)) rejections.push("Recommendation confidence is too low for Pro.");
+  const safeExploreConfidence = recommendation.tier === "explore"
+    && confidence.eligibilityConfidence >= recommendationConfig.confidence.professionalMinimum
+    && confidence.metadataConfidence >= recommendationConfig.confidence.professionalMinimum
+    && confidence.verificationConfidence >= recommendationConfig.confidence.professionalMinimum
+    && confidence.recommendationConfidence >= recommendationConfig.confidence.mediumThreshold;
+  if (!isProfessionalConfidence(confidence) && !safeExploreConfidence) rejections.push("Recommendation confidence is too low for its recommendation tier.");
   if (!recommendation.reasons.length || recommendation.reasons.some((reason) => /matches your school|available through your university|campus-specific/i.test(reason) && !isSchoolEligible(opportunity, context))) rejections.push("Explanation contains unsupported school relevance.");
   if (!recommendation.explainability.whyThisUser || !recommendation.explainability.whyNow || !recommendation.explainability.whyThisOpportunity || !recommendation.explainability.whyAboveAlternatives) rejections.push("Recommendation explanation is incomplete.");
   if (!recommendation.explainability.evidence.length) rejections.push("Recommendation has no eligibility evidence.");

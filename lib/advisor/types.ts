@@ -249,6 +249,9 @@ export type ForYouRecommendationSnapshot = {
   userId: string;
   profileVersion: string;
   engineVersion: string;
+  eligibilitySchemaVersion: string;
+  catalogVersion: string;
+  recommendationRulesVersion: string;
   generatedAt: string;
   expiresAt: string;
   recommendations: RecommendationViewModel[];

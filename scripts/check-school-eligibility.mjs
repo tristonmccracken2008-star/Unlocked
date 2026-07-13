@@ -66,8 +66,8 @@ assert.match(engine, /const prefiltered = source\.filter\(\(opportunity\) => !sh
 assert.match(engine, /rankOpportunity\(profile, opportunity, context/, "Ranking must happen only after the hard prefilter.");
 assert.match(intelligence, /schoolEligible \? item\.school_scope === "School Specific" \? "School-specific eligibility matches" : "Available nationally" : "Not eligible for this school"/, "School match signals must come from canonical eligibility.");
 assert.match(intelligence, /if \(schoolEligible\) reasons\.push\(item\.school_scope === "National" \? "Available nationally\." : `Available at \$\{context\.schoolName \?\? "your school"\}\.`\);/, "School-match explanations must only appear after verified eligibility.");
-assert.match(snapshot, /forYouSnapshotEngineVersion = "for-you-snapshot-v2-school-eligibility"/, "Snapshot engine version must invalidate previous wrong-school snapshots.");
-assert.match(snapshot, /item\.school_scope, \[\.\.\.item\.schools\]\.sort\(\), item\.verification_status, item\.last_verified/, "Snapshot source version must include school eligibility and verification metadata.");
+assert.match(snapshot, /forYouSnapshotEngineVersion = "for-you-snapshot-v3-canonical-eligibility"/, "Snapshot engine version must invalidate previous wrong-school snapshots.");
+assert.match(snapshot, /item\.school_scope,[\s\S]*\[\.\.\.item\.schools\]\.sort\(\),[\s\S]*item\.metadata\.eligibilityRules \?\? null,[\s\S]*item\.verification_status,[\s\S]*item\.last_verified/, "Snapshot source version must include school eligibility and verification metadata.");
 assert.match(card, /enrollment required/, "Discover cards must clearly label school-specific eligibility.");
 
 const grouped = new Map();

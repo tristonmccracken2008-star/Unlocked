@@ -1,8 +1,7 @@
 import { buildAdvisorBrain, type AdvisorBrainDashboard } from "./advisor-brain";
-import { createAdvisorProfile } from "./advisor-engine";
+import { createAdvisorProfile, type AdvisorProfile } from "./advisor-engine";
 import { opportunities, type Opportunity } from "./opportunities";
 import type { RecommendationV1 } from "./recommendation-engine";
-import { labelForRecommendationScore } from "./recommendation-config";
 import type { School } from "./seed";
 import type { StudentActivity } from "./student-activity";
 import type { StudentProfile } from "./student-profile";
@@ -10,7 +9,7 @@ import { inferApplicationsFromActivity, type StudentProgress } from "./student-p
 import type { AdvisorFeedbackRecord } from "@/lib/advisor/types";
 import type { ReferralAccountData } from "@/lib/referrals";
 
-export type RecommendationMatchLabel = "Excellent Match" | "Strong Match" | "Good Match" | "Worth Reviewing" | "Limited Match";
+export type RecommendationMatchLabel = "Excellent Match" | "Strong Match" | "Good Match" | "Worth Reviewing" | "Limited Match" | "Explore";
 export type RecommendationServiceInput = {
   profile: StudentProfile;
   school: School;
@@ -31,13 +30,16 @@ export type RecommendationViewModel = {
   chips: string[];
 };
 export type RecommendationServiceResult = {
+  advisorProfile: AdvisorProfile;
   brain: AdvisorBrainDashboard;
   recommendations: RecommendationViewModel[];
   topRecommendation: RecommendationViewModel | null;
 };
 
 export function recommendationMatchLabel(recommendation: RecommendationV1): RecommendationMatchLabel {
-  return labelForRecommendationScore(recommendation.score);
+  if (recommendation.tier === "explore") return "Explore";
+  if (recommendation.tier === "excellent") return "Excellent Match";
+  return "Strong Match";
 }
 
 function recommendationHref(recommendation: RecommendationV1) {
@@ -73,7 +75,7 @@ export function buildRecommendationService(input: RecommendationServiceInput): R
   }))];
   const brain = buildAdvisorBrain({ advisorProfile, opportunities: source, progress: inferredProgress });
   const completed = new Set(Object.values(inferredProgress.applications).filter((item) => ["accepted", "completed", "rejected"].includes(item.status)).map((item) => item.opportunityId));
-  const recommendations = brain.recommendations
+  const recommendations = brain.opportunityRecommendations
     .filter((recommendation) => recommendation.relatedOpportunityId && !completed.has(recommendation.relatedOpportunityId))
     .map((recommendation) => {
       const opportunity = source.find((item) => item.id === recommendation.relatedOpportunityId) ?? null;
@@ -86,5 +88,5 @@ export function buildRecommendationService(input: RecommendationServiceInput): R
         chips: recommendationChips(recommendation, opportunity),
       };
     });
-  return { brain, recommendations, topRecommendation: recommendations[0] ?? null };
+  return { advisorProfile, brain, recommendations, topRecommendation: recommendations[0] ?? null };
 }

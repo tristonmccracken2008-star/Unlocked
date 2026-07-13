@@ -1,5 +1,7 @@
 import type { RecommendationMatchLabel } from "./recommendation-service";
 
+export const recommendationRulesVersion = "professional-recommendations-v4-tiered-eligibility";
+
 export const recommendationConfig = {
   weights: {
     schoolEligibleNational: 10,

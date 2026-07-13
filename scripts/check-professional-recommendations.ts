@@ -5,12 +5,13 @@ import schoolsJson from "../data/db/schools.json";
 import { createAdvisorProfile } from "../data/advisor-engine";
 import { evaluateOpportunityEligibility } from "../data/opportunity-eligibility";
 import { buildOpportunityStudentContext, rankOpportunityRecommendations } from "../data/recommendation-engine";
-import { evaluateProfessionalRecommendationCandidate } from "../data/recommendation-professional-pipeline";
+import { evaluateProfessionalRecommendationCandidate, validateOpportunityData } from "../data/recommendation-professional-pipeline";
 import type { Opportunity, OpportunityEligibilityRules } from "../data/opportunities";
 import type { School } from "../data/schemas";
 import type { StudentProfile } from "../data/student-profile";
 
 const catalog = catalogJson as Opportunity[];
+const professionalCatalog = catalog.filter((opportunity) => validateOpportunityData(opportunity).allowed);
 const allSchools = [...schoolsJson, ...institutionsJson].filter((school, index, values) => values.findIndex((candidate) => candidate.slug === school.slug) === index) as School[];
 const majors = ["Computer Science", "Mathematics", "Economics", "Finance", "Biology", "Engineering", "Business", "Psychology", "Data Science", "Political Science"];
 const years = ["First year", "Second year", "Third year", "Fourth year", "Graduate student"];
@@ -167,7 +168,7 @@ for (let index = 0; index < profileCount; index += 1) {
   const advisorProfile = createAdvisorProfile({ profile, school });
   const context = buildOpportunityStudentContext(advisorProfile);
   const profileStarted = performance.now();
-  const recommendations = rankOpportunityRecommendations({ advisorProfile, opportunities: catalog, limit: 8 });
+  const recommendations = rankOpportunityRecommendations({ advisorProfile, opportunities: professionalCatalog, limit: 8 });
   slowestMs = Math.max(slowestMs, performance.now() - profileStarted);
   recommendationCount += recommendations.length;
   if (!recommendations.length) emptyProfiles += 1;
@@ -187,9 +188,18 @@ for (let index = 0; index < profileCount; index += 1) {
     assert.equal(gate.allowed, true, `${opportunity.id} bypassed the professional eligibility gate for profile ${index}: ${gate.reasons.join("; ")}`);
     const eligibility = evaluateOpportunityEligibility(opportunity, context);
     assert.equal(eligibility.eligible, true, `${opportunity.id} has an unresolved eligibility check.`);
-    assert.equal(recommendation.confidenceLevel, "High", `${opportunity.id} does not have High confidence.`);
-    assert.ok(recommendation.confidenceBreakdown.overallConfidence >= 78, `${opportunity.id} overall confidence is below 78.`);
-    assert.ok(Object.values(recommendation.confidenceBreakdown).filter((value): value is number => typeof value === "number").every((value) => value >= 78), `${opportunity.id} has a low confidence dimension.`);
+    const confidence = recommendation.confidenceBreakdown;
+    assert.ok(confidence.eligibilityConfidence >= 78, `${opportunity.id} has low eligibility confidence.`);
+    assert.ok(confidence.metadataConfidence >= 78, `${opportunity.id} has low metadata confidence.`);
+    assert.ok(confidence.verificationConfidence >= 78, `${opportunity.id} has low verification confidence.`);
+    if (recommendation.tier === "explore") {
+      assert.ok(confidence.recommendationConfidence >= 52, `${opportunity.id} Explore recommendation confidence is below 52.`);
+      assert.notEqual(recommendation.confidenceLevel, "Low", `${opportunity.id} Explore recommendation has Low confidence.`);
+    } else {
+      assert.equal(recommendation.confidenceLevel, "High", `${opportunity.id} ${recommendation.tier} recommendation does not have High confidence.`);
+      assert.ok(confidence.overallConfidence >= 78, `${opportunity.id} ${recommendation.tier} overall confidence is below 78.`);
+      assert.ok(confidence.recommendationConfidence >= 78, `${opportunity.id} ${recommendation.tier} recommendation confidence is below 78.`);
+    }
     assert.ok(recommendation.explainability.whyThisUser && recommendation.explainability.whyNow && recommendation.explainability.whyThisOpportunity && recommendation.explainability.whyAboveAlternatives, `${opportunity.id} has incomplete explainability.`);
     assert.ok(recommendation.explainability.evidence.length > 0, `${opportunity.id} has no eligibility evidence.`);
     const key = `${opportunity.title.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim()}|${opportunity.organization.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim()}`;

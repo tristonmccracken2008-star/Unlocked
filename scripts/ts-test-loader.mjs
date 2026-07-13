@@ -6,6 +6,9 @@ import ts from "typescript";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 export async function resolve(specifier, context, nextResolve) {
+  if (specifier === "server-only") return { url: "data:text/javascript,export%20default%20undefined", shortCircuit: true };
+  if (specifier === "next/headers") return nextResolve("next/headers.js", context);
+  if (specifier === "next/server") return nextResolve("next/server.js", context);
   if (specifier.startsWith("@/")) {
     const target = path.join(root, specifier.slice(2));
     for (const candidate of [target, `${target}.ts`, `${target}.tsx`, path.join(target, "index.ts")]) {

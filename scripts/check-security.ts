@@ -25,6 +25,7 @@ process.env.STRIPE_WEBHOOK_SECRET = "whsec_security_regression";
 process.env.STRIPE_SECRET_KEY = "sk_test_security_regression";
 process.env.STRIPE_PRO_MONTHLY_PRICE_ID = "price_monthly_allowed";
 process.env.STRIPE_PRO_ANNUAL_PRICE_ID = "price_annual_allowed";
+const testRunId = crypto.randomUUID().replaceAll("-", "");
 
 assert.equal(appOrigin(), "https://security.unlocked.test");
 assert.equal(constantTimeEqual("same-value", "same-value"), true);
@@ -130,28 +131,39 @@ const {
   withSecurityLock,
 } = await import("../lib/auth-store");
 
+let signalLockAcquired!: () => void;
 let releaseCriticalSection!: () => void;
-const firstLock = withSecurityLock("security-test", "shared-account", async () => {
+const lockAcquired = new Promise<void>((resolve) => { signalLockAcquired = resolve; });
+const lockIdentity = `shared-account-${testRunId}`;
+const firstLock = withSecurityLock("security-test", lockIdentity, async () => {
+  signalLockAcquired();
   await new Promise<void>((resolve) => { releaseCriticalSection = resolve; });
 });
-await new Promise((resolve) => setTimeout(resolve, 0));
-await assert.rejects(() => withSecurityLock("security-test", "shared-account", async () => undefined), /already in progress/, "Concurrent protected writes must be rejected.");
+await lockAcquired;
+await assert.rejects(withSecurityLock("security-test", lockIdentity, async () => undefined), /already in progress/, "Concurrent protected writes must be rejected.");
 releaseCriticalSection();
 await firstLock;
-await withSecurityLock("security-test", "shared-account", async () => undefined);
+await withSecurityLock("security-test", lockIdentity, async () => undefined);
 
-const user = await upsertUser({ googleSub: "security-user", email: "security-user@example.edu", name: "Security User" });
+const failureLockIdentity = `failure-release-${testRunId}`;
+await assert.rejects(withSecurityLock("security-test", failureLockIdentity, async () => {
+  throw new Error("intentional protected operation failure");
+}), /intentional protected operation failure/, "Protected operation failures must propagate.");
+await withSecurityLock("security-test", failureLockIdentity, async () => undefined);
+
+const user = await upsertUser({ googleSub: `security-user-${testRunId}`, email: `security-user-${testRunId}@example.edu`, name: "Security User" });
 const session = await createSession(user);
 const sessionPayload = JSON.parse(Buffer.from(session.token.split(".")[0]!, "base64url").toString("utf8")) as Record<string, unknown>;
 assert.equal(sessionPayload.v, 2);
 assert.equal("user" in sessionPayload, false, "Signed session cookies must not embed account PII.");
 assert.ok(await getSession(session.token), "A newly issued server-backed session must resolve.");
-assert.equal(await claimStripeWebhookEvent("evt_idempotency123"), true);
-assert.equal(await claimStripeWebhookEvent("evt_idempotency123"), false, "The same webhook event must not be claimed twice.");
-await releaseStripeWebhookEvent("evt_idempotency123");
-assert.equal(await claimStripeWebhookEvent("evt_idempotency123"), true, "Failed webhook claims must be releasable for Stripe retries.");
-await completeStripeWebhookEvent("evt_idempotency123");
-assert.equal(await claimStripeWebhookEvent("evt_idempotency123"), false, "Completed webhook events must remain idempotent.");
+const idempotencyEventId = `evt_idempotency_${testRunId}`;
+assert.equal(await claimStripeWebhookEvent(idempotencyEventId), true);
+assert.equal(await claimStripeWebhookEvent(idempotencyEventId), false, "The same webhook event must not be claimed twice.");
+await releaseStripeWebhookEvent(idempotencyEventId);
+assert.equal(await claimStripeWebhookEvent(idempotencyEventId), true, "Failed webhook claims must be releasable for Stripe retries.");
+await completeStripeWebhookEvent(idempotencyEventId);
+assert.equal(await claimStripeWebhookEvent(idempotencyEventId), false, "Completed webhook events must remain idempotent.");
 
 await updateAccountBilling(user.id, { tier: "pro", status: "active", stripeCustomerId: "cus_security123", stripeSubscriptionId: "sub_security123" });
 await mergeAccountData(user.id, { journeyProgress: { "profile-saved": true } });
@@ -160,8 +172,8 @@ assert.equal(afterProfileWrite.billing.stripeCustomerId, "cus_security123", "Pro
 await deleteSession(session.token);
 assert.equal(await getSession(session.token), null, "Logout must revoke the server-side session immediately.");
 
-const referrer = await upsertUser({ googleSub: "security-referrer", email: "security-referrer@example.edu", name: "Security Referrer" });
-const referred = await upsertUser({ googleSub: "security-referred", email: "security-referred@example.edu", name: "Security Referred" });
+const referrer = await upsertUser({ googleSub: `security-referrer-${testRunId}`, email: `security-referrer-${testRunId}@example.edu`, name: "Security Referrer" });
+const referred = await upsertUser({ googleSub: `security-referred-${testRunId}`, email: `security-referred-${testRunId}@example.edu`, name: "Security Referred" });
 const referralCode = (await readAccountData(referrer.id)).referrals?.code;
 assert.ok(referralCode);
 assert.equal((await attachReferralToUser(referred.id, referralCode!)).attached, true);
