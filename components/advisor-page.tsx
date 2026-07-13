@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { deadlineLabel } from "@/data/opportunities";
 import type { RecommendationViewModel } from "@/data/recommendation-service";
 import type { School } from "@/data/seed";
@@ -16,9 +16,12 @@ import { OrganizationLogo } from "./organization-logo";
 import { AddToJourneyButton } from "./opportunity-activity";
 import type { FeedbackType } from "@/lib/advisor/types";
 
+type ForYouPageState = "loading" | "pro_ready" | "free_preview" | "profile_incomplete" | "empty" | "error";
+
 type AdvisorState = {
-  profile: StudentProfile;
-  school: School;
+  pageState?: ForYouPageState;
+  profile?: StudentProfile;
+  school?: School;
   activity: StudentActivity;
   session: AccountSession | null;
   access: AdvisorAccessState;
@@ -37,37 +40,73 @@ function profileInterests(profile: StudentProfile) {
 
 export function AdvisorPage() {
   const [state, setState] = useState<AdvisorState | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [pageState, setPageState] = useState<ForYouPageState>("loading");
+  const [errorMessage, setErrorMessage] = useState("");
   const [feedbackMessage, setFeedbackMessage] = useState("");
   const trackedRecommendation = useRef("");
+  const requestId = useRef(0);
 
-  useEffect(() => {
-    let active = true;
-    async function load() {
-      setLoading(true);
-      const response = await fetch("/api/advisor/for-you", { credentials: "same-origin", cache: "no-store" });
-      if (!active) return;
-      if (!response.ok) {
+  const loadForYou = useCallback(async () => {
+    const currentRequest = requestId.current + 1;
+    requestId.current = currentRequest;
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 12000);
+    setPageState("loading");
+    setErrorMessage("");
+    try {
+      const response = await fetch("/api/advisor/for-you", { credentials: "same-origin", cache: "no-store", signal: controller.signal });
+      if (requestId.current !== currentRequest) return;
+      const payload = await response.json().catch(() => null) as (AdvisorState & { pageState?: ForYouPageState; error?: string }) | null;
+      if (!response.ok || !payload) {
         setState(null);
-        setLoading(false);
+        setPageState("error");
+        setErrorMessage(response.status === 401 ? "Please sign in again to load your recommendations." : "We couldn’t load your recommendations.");
         return;
       }
-      const payload = await response.json() as AdvisorState;
+      const nextState: ForYouPageState = payload.pageState ?? (payload.access === "unavailable" ? "profile_incomplete" : payload.access === "preview" ? "free_preview" : payload.recommendations?.length ? "pro_ready" : "empty");
       setState(payload);
-      setLoading(false);
+      setPageState(nextState);
+    } catch (error) {
+      if (requestId.current !== currentRequest) return;
+      setState(null);
+      setPageState("error");
+      setErrorMessage(error instanceof DOMException && error.name === "AbortError" ? "Recommendations took too long to load." : "We couldn’t load your recommendations.");
+    } finally {
+      window.clearTimeout(timeout);
     }
-    void load();
-    return () => { active = false; };
+  }, []);
+
+  useEffect(() => {
+    void loadForYou();
+    return () => { requestId.current += 1; };
+  }, [loadForYou]);
+
+  useEffect(() => {
+    if (pageState === "loading") return;
+    trackProductEvent("for_you_opened");
+  }, [pageState]);
+
+  useEffect(() => {
+    if (pageState !== "error" || !errorMessage) return;
+    trackProductEvent("for_you_error", { reason: errorMessage });
+  }, [errorMessage, pageState]);
+
+  useEffect(() => {
+    if (pageState !== "free_preview") return;
+    trackProductEvent("pro_gate_viewed", { section: "for-you" });
+  }, [pageState]);
+
+  useEffect(() => {
+    return () => { requestId.current += 1; };
   }, []);
 
   const top = state?.recommendations[0] ?? null;
   const recommended = state?.recommendations.slice(0, 5) ?? [];
-  const firstName = state ? displayFirstName(state.profile, state.session) : "there";
+  const firstName = state?.profile ? displayFirstName(state.profile, state.session) : "there";
 
   useEffect(() => {
     if (!top || trackedRecommendation.current === top.recommendation.id) return;
     trackedRecommendation.current = top.recommendation.id;
-    trackProductEvent("for_you_opened");
     trackProductEvent("recommendation_viewed", { recommendationId: top.recommendation.id, section: "for-you" });
   }, [top]);
 
@@ -93,9 +132,11 @@ export function AdvisorPage() {
     setFeedbackMessage(label);
   }
 
-  if (loading) return <main className="min-h-[70vh] bg-paper px-5 py-16 sm:px-8"><section className="mx-auto max-w-6xl"><p className="rule-label text-forest">For You</p><div className="mt-6 h-16 max-w-2xl rounded-2xl bg-white/70" /><div className="mt-10 h-52 rounded-[2rem] bg-white/70" /></section></main>;
-  if (!state || state.access === "unavailable" || !state.profile) return <ForYouSetupState title="Complete your profile first." text="UnlockED needs your school, major, year, goals, and activity before it can recommend fitting opportunities." actionHref="/profile" actionLabel="Open profile" />;
-  if (!top) return <ForYouSetupState title="We could not find strong matches yet." text="Broaden your profile interests or explore Discover while the opportunity database catches up to your goals." actionHref="/opportunities" actionLabel="Open Discover" />;
+  if (pageState === "loading") return <ForYouLoading />;
+  if (pageState === "error") return <ForYouErrorState message={errorMessage} onRetry={() => void loadForYou()} />;
+  if (pageState === "profile_incomplete" || !state?.profile || !state.school) return <ForYouSetupState title="Complete your profile first." text="UnlockED needs your school, major, year, goals, and activity before it can recommend fitting opportunities." actionHref="/profile" actionLabel="Open profile" />;
+  if (pageState === "free_preview" && !top) return <ForYouFreePreviewOnly totalMatches={state.totalMatches} shown={state.recommendations.length} />;
+  if (pageState === "empty" || !top) return <ForYouEmptyState />;
 
   return <main className="bg-[radial-gradient(circle_at_top_left,rgba(231,216,189,.45),transparent_34rem),#f6f0e6] px-5 py-10 sm:px-8 sm:py-14">
     <section className="mx-auto max-w-[112rem] space-y-10">
@@ -103,7 +144,7 @@ export function AdvisorPage() {
       <TopRecommendation view={top} onFeedback={sendFeedback} />
       <RecommendedGrid recommendations={recommended.slice(1, 5)} onFeedback={sendFeedback} />
       {feedbackMessage ? <p role="status" className="rounded-full bg-white/70 px-4 py-3 text-sm font-bold text-forest ring-1 ring-ink/8">{feedbackMessage}</p> : null}
-      {state.access === "preview" ? <ForYouUpgradeGate totalMatches={state.totalMatches} shown={state.recommendations.length} /> : null}
+      {pageState === "free_preview" ? <ForYouUpgradeGate totalMatches={state.totalMatches} shown={state.recommendations.length} /> : null}
       <WhyRecommendations state={state} />
       <ActivityGlance activity={state.activity} />
       <FooterNote />
@@ -112,6 +153,7 @@ export function AdvisorPage() {
 }
 
 function Hero({ state }: { state: AdvisorState; firstName: string }) {
+  if (!state.profile || !state.school) return null;
   return <header className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_460px] lg:items-start">
     <div>
       <p className="rule-label text-forest">For You</p>
@@ -123,6 +165,7 @@ function Hero({ state }: { state: AdvisorState; firstName: string }) {
 }
 
 function ProfileSummary({ state }: { state: AdvisorState }) {
+  if (!state.profile || !state.school) return null;
   const rows = [
     ["School", state.school.name],
     ["Major", state.profile.major],
@@ -158,8 +201,6 @@ function RecommendedGrid({ recommendations, onFeedback }: { recommendations: Rec
 }
 
 function ForYouUpgradeGate({ totalMatches, shown }: { totalMatches: number; shown: number }) {
-  useEffect(() => { trackProductEvent("pro_gate_viewed", { section: "for-you" }); }, []);
-  if (totalMatches <= shown) return null;
   const lockedCount = Math.max(totalMatches - shown, 0);
   return <section className="overflow-hidden rounded-[1.5rem] bg-forest p-6 text-white shadow-[0_20px_60px_rgba(31,95,67,.18)] sm:p-8">
     <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-center">
@@ -179,6 +220,52 @@ function ForYouUpgradeGate({ totalMatches, shown }: { totalMatches: number; show
       </div>
     </div>
   </section>;
+}
+
+function ForYouFreePreviewOnly({ totalMatches, shown }: { totalMatches: number; shown: number }) {
+  return <main className="min-h-[70vh] bg-[radial-gradient(circle_at_top_left,rgba(231,216,189,.45),transparent_34rem),#f6f0e6] px-5 py-16 sm:px-8">
+    <section className="mx-auto max-w-5xl space-y-8">
+      <div>
+        <p className="rule-label text-forest">For You</p>
+        <h1 className="mt-4 max-w-3xl font-editorial text-5xl font-bold leading-[.98] tracking-[-.055em] text-ink sm:text-7xl">Opportunities selected around you.</h1>
+        <p className="mt-6 max-w-2xl text-base leading-8 text-ink/58">UnlockED uses your school, major, graduation year, goals, interests, GPA status, and activity to find opportunities that fit you.</p>
+      </div>
+      <ForYouUpgradeGate totalMatches={totalMatches} shown={shown} />
+    </section>
+  </main>;
+}
+
+function ForYouLoading() {
+  return <main className="min-h-[70vh] bg-paper px-5 py-16 sm:px-8"><section className="mx-auto max-w-6xl" aria-busy="true" aria-label="Loading For You recommendations"><p className="rule-label text-forest">For You</p><div className="mt-6 h-16 max-w-2xl animate-pulse rounded-2xl bg-white/70" /><div className="mt-10 h-52 animate-pulse rounded-[2rem] bg-white/70" /></section></main>;
+}
+
+function ForYouEmptyState() {
+  return <main className="min-h-[70vh] bg-paper px-5 py-16 sm:px-8">
+    <section className="mx-auto max-w-4xl rounded-[2rem] bg-white/62 p-8 shadow-[0_18px_60px_rgba(43,33,26,.045)] ring-1 ring-ink/6 sm:p-10">
+      <p className="rule-label text-forest">For You</p>
+      <h1 className="mt-4 font-editorial text-5xl font-bold tracking-[-.045em]">We could not find strong matches yet.</h1>
+      <p className="mt-4 max-w-2xl text-sm leading-7 text-ink/55">Your profile is ready, but no recommendations cleared the quality bar. Update your priority or browse Discover while new matches are verified.</p>
+      <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+        <Link href="/profile" className="inline-flex min-h-12 items-center justify-center rounded-full bg-forest px-6 text-sm font-bold text-white hover:bg-ink">Edit profile</Link>
+        <Link href="/opportunities" className="inline-flex min-h-12 items-center justify-center rounded-full border border-ink/15 bg-white px-6 text-sm font-bold text-ink hover:border-forest hover:text-forest">Browse Discover</Link>
+      </div>
+    </section>
+  </main>;
+}
+
+function ForYouErrorState({ message, onRetry }: { message: string; onRetry: () => void }) {
+  return <main className="min-h-[70vh] bg-paper px-5 py-16 sm:px-8">
+    <section className="mx-auto max-w-4xl rounded-[2rem] bg-white/62 p-8 shadow-[0_18px_60px_rgba(43,33,26,.045)] ring-1 ring-ink/6 sm:p-10">
+      <p className="rule-label text-forest">For You</p>
+      <h1 className="mt-4 font-editorial text-5xl font-bold tracking-[-.045em]">We couldn’t load your recommendations.</h1>
+      <p className="mt-4 max-w-2xl text-sm leading-7 text-ink/55">{message || "Something interrupted the request. Try again, or browse Discover while we sort it out."}</p>
+      <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+        <button type="button" onClick={onRetry} className="inline-flex min-h-12 items-center justify-center rounded-full bg-forest px-6 text-sm font-bold text-white hover:bg-ink">Retry</button>
+        <Link href="/opportunities" className="inline-flex min-h-12 items-center justify-center rounded-full border border-ink/15 bg-white px-6 text-sm font-bold text-ink hover:border-forest hover:text-forest">Browse Discover</Link>
+        <Link href="/contact" className="inline-flex min-h-12 items-center justify-center rounded-full px-4 text-sm font-bold text-forest hover:text-ink">Contact support</Link>
+      </div>
+    </section>
+  </main>;
 }
 
 function ForYouSetupState({ title, text, actionHref, actionLabel }: { title: string; text: string; actionHref: string; actionLabel: string }) {
@@ -223,6 +310,7 @@ function RecommendationFeedback({ view, onFeedback, compact = false }: { view: R
 }
 
 function WhyRecommendations({ state }: { state: AdvisorState }) {
+  if (!state.profile) return null;
   const reasons = [`${state.profile.major} major`, `${state.profile.year} eligibility`, ...profileInterests(state.profile).slice(0, 2), state.profile.careerGoal].filter(Boolean).slice(0, 4);
   return <section className="rounded-[1.5rem] bg-white/48 p-6 ring-1 ring-ink/6">
     <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between"><div><h2 className="font-editorial text-2xl font-bold">Why these recommendations?</h2><div className="mt-4 flex flex-wrap gap-5 text-sm text-ink/62">{reasons.map((reason) => <span key={reason} className="inline-flex items-center gap-2"><CheckCircleIcon className="h-4 w-4 text-forest" />{reason}</span>)}</div></div><Link href="/profile" className="text-sm font-black text-forest hover:text-ink">Edit profile <ArrowIcon className="inline h-3.5 w-3.5" /></Link></div>

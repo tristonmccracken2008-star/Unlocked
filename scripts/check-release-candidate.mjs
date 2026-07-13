@@ -33,6 +33,12 @@ assert.doesNotMatch(journeyDashboard, /buildRecommendationService|NextToReview|J
 assert.match(journeyDashboard, /\/api\/opportunities\?ids=/, "Journey dashboard should fetch only tracked opportunities.");
 
 assert.match(forYouApi, /service\.recommendations\.slice\(0,\s*2\)/, "Free For You API must return only preview recommendations.");
+assert.match(forYouApi, /console\.info\("\[UnlockED For You\] request started"/, "For You API should log safe production diagnostics.");
+assert.match(forYouApi, /pageState/, "For You API must return explicit page states.");
+assert.match(advisorPage, /type ForYouPageState = "loading" \| "pro_ready" \| "free_preview" \| "profile_incomplete" \| "empty" \| "error"/, "For You client must use a finite state machine.");
+assert.match(advisorPage, /AbortController/, "For You client must abort stale or slow requests.");
+assert.match(advisorPage, /ForYouErrorState/, "For You must render a real error state.");
+assert.match(advisorPage, /ForYouFreePreviewOnly/, "Free users with zero previews must still see a Pro conversion state.");
 assert.match(advisorPage, /Unlock your full personalized feed/, "Free For You page must show a polished upgrade preview.");
 assert.match(advisorPage, /We could not find strong matches yet/, "For You must show an honest unavailable state when recommendations are empty.");
 
