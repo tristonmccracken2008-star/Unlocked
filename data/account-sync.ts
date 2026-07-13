@@ -6,6 +6,7 @@ import type { AccountData, AccountSession } from "@/lib/account-types";
 import { defaultBillingRecord } from "@/lib/billing";
 
 export const journeyProgressStorageKey = "unlocked-journey-progress";
+export const accountSessionStorageKey = "unlocked-account-session";
 export const accountSessionEvent = "unlocked-account-session-change";
 export const accountSyncErrorEvent = "unlocked-account-sync-error";
 const accountMigrationKey = (userId: string) => `unlocked-account-migrated:${userId}`;
@@ -15,6 +16,23 @@ let sessionCacheAt = 0;
 let sessionRequest: Promise<AccountSession> | null = null;
 let hydrateRequest: Promise<AccountSession> | null = null;
 const sessionCacheMs = 5000;
+
+function persistAccountSession(session: AccountSession | null) {
+  try {
+    if (!session) localStorage.removeItem(accountSessionStorageKey);
+    else localStorage.setItem(accountSessionStorageKey, JSON.stringify(session));
+  } catch {
+    // Best-effort cache for first-paint theme and cross-component session reads.
+  }
+}
+
+export function resetAccountSessionCache() {
+  sessionCache = null;
+  sessionCacheAt = 0;
+  sessionRequest = null;
+  hydrateRequest = null;
+  persistAccountSession(null);
+}
 
 function readJson<T>(key: string, fallback: T): T {
   try {
@@ -58,6 +76,7 @@ export async function readAccountSession(force = false) {
     const session = response.ok ? await response.json() as AccountSession : { authenticated: false, user: null, data: null } as AccountSession;
     sessionCache = session;
     sessionCacheAt = Date.now();
+    persistAccountSession(session);
     return session;
   }).finally(() => { sessionRequest = null; });
   return sessionRequest;
@@ -69,6 +88,7 @@ async function readAccountSessionUncached() {
   const session = await response.json() as AccountSession;
   sessionCache = session;
   sessionCacheAt = Date.now();
+  persistAccountSession(session);
   return session;
 }
 
@@ -158,6 +178,7 @@ async function hydrateAccountDataInner(): Promise<AccountSession> {
   const syncedSession = { ...session, data: saved ?? fallbackData } satisfies AccountSession;
   sessionCache = syncedSession;
   sessionCacheAt = Date.now();
+  persistAccountSession(syncedSession);
   window.dispatchEvent(new CustomEvent(accountSessionEvent, { detail: syncedSession }));
   return syncedSession;
 }

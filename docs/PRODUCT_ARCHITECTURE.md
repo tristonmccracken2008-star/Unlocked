@@ -120,9 +120,9 @@ The product event vocabulary includes:
 - `journey_opened`
 - `journey_filter_changed`
 - `milestone_unlocked`
-- `recap_viewed`
-- `share_card_generated`
-- `share_initiated`
+- `journey_card_generated`
+- `journey_card_share_started`
+- `journey_card_downloaded`
 
 `journey_opened` is stored in the existing dashboard funnel bucket for analytics compatibility.
 

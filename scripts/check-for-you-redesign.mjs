@@ -33,7 +33,9 @@ for (const symbol of ["buildRecommendationService", "recommendationMatchLabel", 
 assert.ok(forYouApi.includes("buildRecommendationService"), "For You API must consume the canonical recommendation service.");
 assert.ok(advisor.includes("/api/advisor/for-you"), "For You client must consume the server-gated recommendation API.");
 assert.ok(!advisor.includes("buildRecommendationService"), "For You client must not build the full recommendation feed.");
-assert.ok(journey.includes("buildRecommendationService"), "Journey must consume the canonical recommendation service.");
+assert.ok(!journey.includes("buildRecommendationService"), "Journey must not build recommendations or bypass For You Pro gating.");
+assert.ok(advisor.includes("Unlock your full personalized feed"), "Free For You should render a clear Pro preview instead of an empty state.");
+assert.ok(advisor.includes("Free") && advisor.includes("Pro"), "Free For You should explain the Free vs Pro difference.");
 assert.doesNotMatch(advisor, /% confidence|Evidence and confidence|Alternatives/, "For You primary UI must not expose old confidence/debug framing.");
 assert.doesNotMatch(advisor, /markMilestoneCompleted/, "For You should not use separate milestone completion logic for opportunity recommendations.");
 assert.doesNotMatch(advisor, /Track this|Tracked as active interest|updateApplicationStatus/, "For You must use Add to Journey instead of Track/status terminology.");

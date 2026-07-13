@@ -5,19 +5,17 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { schools, type School } from "@/data/seed";
 import { advisorProfileUpdatedMessageKey, type StudentProfile } from "@/data/student-profile";
 import type { AccountSession } from "@/lib/account-types";
-import { deadlineLabel, opportunities, type Opportunity } from "@/data/opportunities";
+import { deadlineLabel, type Opportunity } from "@/data/opportunities";
 import { readStudentActivity, studentActivityEvent, type StudentActivity, type OpportunityTrackerStatus, type TrackedOpportunity } from "@/data/student-activity";
 import { trackProductEvent } from "@/data/product-analytics";
 import { inferApplicationsFromActivity, readStudentProgress, studentProgressEvent, type StudentProgress } from "@/data/student-progress";
-import { buildRecommendationService, type RecommendationViewModel } from "@/data/recommendation-service";
 import { buildJourneyMilestones, buildJourneyRecap, journeyActiveStatuses, type JourneyMilestone, type JourneyRecap } from "@/data/journey";
 import { ArrowIcon, BookmarkIcon, CheckCircleIcon, PenLineIcon, SendIcon, TargetIcon, TrophyIcon } from "./icons";
 import { OrganizationLogo } from "./organization-logo";
 
 type TimelineItem = JourneyMilestone | { id: string; title: string; description: string; category: JourneyMilestone["category"]; future: true; href?: string };
 type IconComponent = (props: { className?: string }) => React.ReactElement;
-type CatalogOpportunity = (typeof opportunities)[number];
-type ActiveOpportunity = { record: TrackedOpportunity; opportunity: CatalogOpportunity };
+type ActiveOpportunity = { record: TrackedOpportunity; opportunity: Opportunity };
 
 const activeStatusSet = new Set<OpportunityTrackerStatus>(journeyActiveStatuses);
 const statusCopy: Record<OpportunityTrackerStatus, string> = {
@@ -64,15 +62,6 @@ function compactDate(value: string) {
   return new Intl.DateTimeFormat("en-US", { month: "short", day: "2-digit", timeZone: "UTC" }).format(new Date(value));
 }
 
-function recapHeadline(firstName: string, recap: JourneyRecap) {
-  if (recap.completedOpportunities > 0) return `${firstName} completed an opportunity.`;
-  if (recap.acceptancesRecorded > 0) return `${firstName} reached a major milestone.`;
-  if (recap.interviewsReached > 0) return `${firstName}'s applications are moving forward.`;
-  if (recap.applicationsSubmitted > 0) return `${firstName} is building momentum.`;
-  if (recap.opportunitiesSaved > 0) return `${firstName}'s journey is taking shape.`;
-  return `${firstName}'s journey is just beginning.`;
-}
-
 function futureMilestones(recap: JourneyRecap): TimelineItem[] {
   const items: TimelineItem[] = [];
   if (recap.applicationsSubmitted === 0) items.push({ id: "future-apply", title: "Take the next step", description: "Move a saved opportunity into application progress.", category: "Application", future: true, href: "/my-opportunities" });
@@ -84,6 +73,7 @@ function futureMilestones(recap: JourneyRecap): TimelineItem[] {
 export function StudentDashboard({ profile, session, syncError }: { profile: StudentProfile; session: AccountSession | null; syncError: string }) {
   const [activity, setActivity] = useState<StudentActivity>({ viewed: [], saved: [], claimed: [], tracked: {} });
   const [progress, setProgress] = useState<StudentProgress>({ milestones: {}, applications: {} });
+  const [opportunitiesById, setOpportunitiesById] = useState<Record<string, Opportunity>>({});
   const [profileUpdateMessage, setProfileUpdateMessage] = useState("");
   const opened = useRef(false);
 
@@ -110,21 +100,29 @@ export function StudentDashboard({ profile, session, syncError }: { profile: Stu
     opened.current = true;
     trackProductEvent("journey_opened");
   }, []);
+  useEffect(() => {
+    const ids = Object.keys(activity.tracked ?? {});
+    if (!ids.length) { setOpportunitiesById({}); return; }
+    let active = true;
+    fetch(`/api/opportunities?ids=${encodeURIComponent(ids.join(","))}`, { cache: "force-cache" }).then((response) => response.ok ? response.json() : Promise.reject()).then((body: { opportunities: Opportunity[] }) => {
+      if (active) setOpportunitiesById(Object.fromEntries(body.opportunities.map((item) => [item.id, item])));
+    }).catch(() => undefined);
+    return () => { active = false; };
+  }, [activity.tracked]);
 
+  const firstName = displayName(profile, session);
+  const hydratedOpportunities = useMemo(() => Object.values(opportunitiesById), [opportunitiesById]);
+  const inferredProgress = useMemo(() => inferApplicationsFromActivity(activity, hydratedOpportunities, progress), [activity, hydratedOpportunities, progress]);
+  const milestones = useMemo(() => buildJourneyMilestones({ profile, activity, progress: inferredProgress, opportunities: hydratedOpportunities }), [activity, hydratedOpportunities, inferredProgress, profile]);
+  const completedMilestones = milestones.filter((item) => item.completed);
+  const recap = useMemo(() => buildJourneyRecap({ activity, milestones, opportunities: hydratedOpportunities }), [activity, hydratedOpportunities, milestones]);
+  const activeOpportunities = useMemo(() => Object.values(activity.tracked ?? {}).filter((record) => activeStatusSet.has(record.status)).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)).map((record) => {
+    const opportunity = opportunitiesById[record.id];
+    return opportunity ? { record, opportunity } : null;
+  }).filter((item): item is ActiveOpportunity => Boolean(item)).slice(0, 4), [activity.tracked, opportunitiesById]);
+  const timeline = [...completedMilestones.slice().sort((a, b) => (a.completedAt ?? "").localeCompare(b.completedAt ?? "")), ...futureMilestones(recap)].slice(0, 6);
   const school = schools.find((item) => item.slug === profile.schoolSlug);
   if (!school) return null;
-  const firstName = displayName(profile, session);
-  const inferredProgress = inferApplicationsFromActivity(activity, opportunities, progress);
-  const recommendationService = buildRecommendationService({ profile, school, activity, progress: inferredProgress, source: opportunities });
-  const recommendations = recommendationService.recommendations.slice(0, 2);
-  const milestones = buildJourneyMilestones({ profile, activity, progress: inferredProgress, opportunities });
-  const completedMilestones = milestones.filter((item) => item.completed);
-  const recap = buildJourneyRecap({ activity, milestones, opportunities });
-  const activeOpportunities = useMemo(() => Object.values(activity.tracked ?? {}).filter((record) => activeStatusSet.has(record.status)).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)).map((record) => {
-    const opportunity = opportunities.find((item) => item.id === record.id);
-    return opportunity ? { record, opportunity } : null;
-  }).filter((item): item is ActiveOpportunity => Boolean(item)).slice(0, 4), [activity.tracked]);
-  const timeline = [...completedMilestones.slice().sort((a, b) => (a.completedAt ?? "").localeCompare(b.completedAt ?? "")), ...futureMilestones(recap)].slice(0, 6);
 
   return <main className="bg-[radial-gradient(circle_at_top_left,rgba(231,216,189,.45),transparent_34rem),#f6f0e6] px-5 py-10 sm:px-8 sm:py-14">
     <div className="mx-auto max-w-[112rem] space-y-8">
@@ -132,15 +130,9 @@ export function StudentDashboard({ profile, session, syncError }: { profile: Stu
       <SummaryGrid recap={recap} />
       <div className="grid gap-6 lg:grid-cols-[minmax(0,.88fr)_minmax(0,1.12fr)]">
         <JourneyTimeline items={timeline} />
-        <div className="space-y-6">
-          <ActiveOpportunities items={activeOpportunities} />
-          <NextToReview recommendations={recommendations} />
-        </div>
+        <ActiveOpportunities items={activeOpportunities} />
       </div>
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,.88fr)_minmax(0,1.12fr)]">
-        <MilestoneProgress milestones={completedMilestones} recap={recap} />
-        <JourneyRecapCard firstName={firstName} schoolName={school.name} recap={recap} />
-      </div>
+      <MilestoneProgress milestones={completedMilestones} recap={recap} />
       <ClosingNote />
     </div>
   </main>;
@@ -219,35 +211,6 @@ function ActiveOpportunityRow({ opportunity, status }: { opportunity: Opportunit
   </Link>;
 }
 
-function NextToReview({ recommendations }: { recommendations: RecommendationViewModel[] }) {
-  return <section className="rounded-[1.5rem] bg-white/86 p-5 shadow-[0_14px_42px_rgba(43,33,26,.055)] ring-1 ring-ink/7">
-    <div className="flex items-center justify-between gap-4"><h2 className="font-editorial text-2xl font-bold">Next to review</h2><Link href="/advisor" className="text-sm font-black text-forest hover:text-ink">Open For You</Link></div>
-    {recommendations.length ? <div className="mt-4 divide-y divide-ink/10">{recommendations.map((recommendation) => <AdvisorRecommendationRow key={recommendation.recommendation.id} recommendation={recommendation} />)}</div> : <EmptyState title="No recommendation ready yet" text="As you save and review opportunities, UnlockED will surface the next best matches here." actionHref="/opportunities" actionLabel="Browse Discover" />}
-  </section>;
-}
-
-function AdvisorRecommendationRow({ recommendation: view }: { recommendation: RecommendationViewModel }) {
-  const { recommendation } = view;
-  const opportunity = view.opportunity;
-  return <article className="py-5">
-    <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
-      <div className="flex gap-3">
-        {opportunity && <OrganizationLogo opportunity={opportunity} size="sm"/>}
-        <div className="min-w-0">
-        <p className="rule-label text-forest">{recommendation.priority} · {recommendation.kind}</p>
-        <h3 className="mt-2 font-editorial text-xl font-bold leading-tight">{recommendation.title}</h3>
-        <p className="mt-2 text-sm leading-6 text-ink/55">{recommendation.reason}</p>
-        <details className="mt-3" onToggle={(event) => { if ((event.currentTarget as HTMLDetailsElement).open) trackProductEvent("journey_recommendation_reason_expanded", { recommendationId: recommendation.id }); }}>
-          <summary className="cursor-pointer text-xs font-black text-forest">Why this is a great match</summary>
-          <ul className="mt-3 space-y-1 text-xs leading-5 text-ink/55">{view.reasons.map((reason) => <li key={reason}>{reason}</li>)}</ul>
-        </details>
-        </div>
-      </div>
-      <div className="flex items-center gap-3 sm:flex-col sm:items-end"><span className="text-sm font-black text-forest">{view.label}</span><Link href={view.href} onClick={() => trackProductEvent("journey_recommendation_opened", { recommendationId: recommendation.id, opportunityId: recommendation.relatedOpportunityId })} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-forest px-5 text-sm font-bold text-white hover:bg-ink">Open <ArrowIcon /></Link></div>
-    </div>
-  </article>;
-}
-
 function MilestoneProgress({ milestones, recap }: { milestones: JourneyMilestone[]; recap: JourneyRecap }) {
   const completedIds = new Set(milestones.map((item) => item.id));
   const steps = [
@@ -267,44 +230,6 @@ function MilestoneProgress({ milestones, recap }: { milestones: JourneyMilestone
     <div className="mt-7 h-2 overflow-hidden rounded-full bg-paper"><div className="h-full rounded-full bg-forest transition-all duration-300" style={{ width: `${Math.round((completedCount / steps.length) * 100)}%` }} /></div>
     <p className="mt-4 text-sm text-ink/50">{recap.biggestMilestone ? `Latest: ${recap.biggestMilestone.title}` : "Your first milestone appears after you save an opportunity."}</p>
   </section>;
-}
-
-function JourneyRecapCard({ firstName, schoolName, recap }: { firstName: string; schoolName: string; recap: JourneyRecap }) {
-  const [status, setStatus] = useState("");
-  const [preview, setPreview] = useState(false);
-  const shareText = `${recapHeadline(firstName, recap)} Saved: ${recap.opportunitiesSaved}. Applied: ${recap.applicationsSubmitted}. Interviews: ${recap.interviewsReached}. Completed: ${recap.completedOpportunities}.`;
-  useEffect(() => { trackProductEvent("recap_viewed"); }, []);
-  async function share() {
-    trackProductEvent("share_card_generated");
-    trackProductEvent("journey_recap_share_started");
-    if (navigator.share) {
-      await navigator.share({ title: "UnlockED Journey", text: shareText }).then(() => trackProductEvent("share_initiated")).catch(() => undefined);
-      return;
-    }
-    await navigator.clipboard?.writeText(shareText).catch(() => undefined);
-    setStatus("Copied recap");
-    trackProductEvent("share_initiated");
-  }
-  function downloadRecap() {
-    const svg = encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1350"><rect width="1080" height="1350" fill="#073f2d"/><text x="90" y="160" fill="#f6f0e6" font-size="42" font-family="Georgia">UnlockED Journey</text><text x="90" y="330" fill="#f6f0e6" font-size="76" font-family="Georgia">${recapHeadline(firstName, recap).replaceAll("&", "and")}</text><text x="90" y="470" fill="#f6f0e6" font-size="34" font-family="Arial">${schoolName.replaceAll("&", "and")}</text><text x="90" y="700" fill="#f6f0e6" font-size="46" font-family="Arial">Saved ${recap.opportunitiesSaved}   Applied ${recap.applicationsSubmitted}</text><text x="90" y="790" fill="#f6f0e6" font-size="46" font-family="Arial">Interviews ${recap.interviewsReached}   Completed ${recap.completedOpportunities}</text><text x="90" y="1210" fill="#e7d8bd" font-size="32" font-family="Arial">No opportunity names included by default.</text></svg>`);
-    const link = document.createElement("a");
-    link.href = `data:image/svg+xml;charset=utf-8,${svg}`;
-    link.download = "unlocked-journey-recap.svg";
-    link.click();
-    setStatus("Downloaded recap");
-    trackProductEvent("journey_recap_downloaded");
-  }
-  return <section className="overflow-hidden rounded-[1.5rem] bg-forest p-6 text-white shadow-[0_18px_60px_rgba(7,63,45,.2)]">
-    <div className="grid gap-6 sm:grid-cols-[minmax(0,1fr)_220px] sm:items-center">
-      <div><p className="rule-label text-white/70">Journey recap</p><h2 className="mt-4 font-editorial text-4xl font-bold leading-[1.04] tracking-[-.04em]">{recapHeadline(firstName, recap)}</h2><p className="mt-4 max-w-md text-sm leading-6 text-white/75">Every real step today creates better opportunities tomorrow.</p><div className="mt-6 flex flex-wrap gap-3"><button type="button" onClick={() => setPreview(true)} className="min-h-11 rounded-full bg-white px-5 text-sm font-bold text-ink hover:bg-paper">Preview recap</button><button type="button" onClick={() => void share()} className="min-h-11 rounded-full bg-white/12 px-5 text-sm font-bold text-white ring-1 ring-white/20 hover:bg-white/18">Share recap</button></div>{status && <p className="mt-3 text-xs font-bold text-white/70">{status}</p>}</div>
-      <div className="rounded-[1.25rem] bg-paper p-5 text-ink"><dl className="grid grid-cols-2 gap-5"><JourneyMiniStat label="Saved" value={recap.opportunitiesSaved} /><JourneyMiniStat label="Applied" value={recap.applicationsSubmitted} /><JourneyMiniStat label="Interviews" value={recap.interviewsReached} /><JourneyMiniStat label="Completed" value={recap.completedOpportunities} /></dl></div>
-    </div>
-    {preview && <div className="fixed inset-0 z-50 grid place-items-center bg-ink/40 px-5" role="dialog" aria-modal="true" aria-label="Journey recap preview"><div className="w-full max-w-sm rounded-[2rem] bg-paper p-6 text-ink shadow-[0_30px_90px_rgba(43,33,26,.28)]"><p className="rule-label text-forest">Share preview</p><h3 className="mt-4 font-editorial text-4xl font-bold leading-tight">{recapHeadline(firstName, recap)}</h3><p className="mt-3 text-sm text-ink/55">This recap uses counts only. It does not include opportunity names or private profile details.</p><dl className="mt-6 grid grid-cols-2 gap-4"><JourneyMiniStat label="Saved" value={recap.opportunitiesSaved} /><JourneyMiniStat label="Applied" value={recap.applicationsSubmitted} /><JourneyMiniStat label="Interviews" value={recap.interviewsReached} /><JourneyMiniStat label="Completed" value={recap.completedOpportunities} /></dl><div className="mt-6 grid gap-3"><button type="button" onClick={() => void share()} className="min-h-11 rounded-full bg-forest px-5 text-sm font-bold text-white">Share</button><button type="button" onClick={downloadRecap} className="min-h-11 rounded-full border border-ink/15 px-5 text-sm font-bold text-ink/70">Download image</button><button type="button" onClick={() => setPreview(false)} className="min-h-11 rounded-full text-sm font-bold text-ink/45">Close</button></div></div></div>}
-  </section>;
-}
-
-function JourneyMiniStat({ label, value }: { label: string; value: number }) {
-  return <div><dt className="text-[10px] font-black uppercase tracking-[.14em] text-ink/40">{label}</dt><dd className="mt-1 font-editorial text-3xl font-bold text-forest">{value}</dd></div>;
 }
 
 function ClosingNote() {

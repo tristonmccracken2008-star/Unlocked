@@ -157,7 +157,7 @@ Advisor profile fingerprints include minor, GPA status/value, current priority, 
 
 Recommendation generation is deterministic and in-memory over the local opportunity catalog. The diagnostic report records elapsed time, ranked count, recommended count, and source opportunity count so future regressions can be caught before launch.
 
-The engine avoids frontend sorting hacks by letting product surfaces consume `buildRecommendationService()`. Discover only applies search/filter narrowing around the same canonical ranking order.
+The engine avoids frontend ranking work by keeping personalized recommendation generation behind server-gated For You APIs. Discover uses lightweight local ordering after search/filter narrowing so browsing remains responsive without duplicating Advisor Brain work in the browser.
 
 Relationship inference is cached by opportunity id and catalog size. Advisor Brain results keep the existing bounded in-memory cache. The ranking pass remains deterministic and avoids client-side recomputation.
 
@@ -236,9 +236,9 @@ Current behavior:
 
 ## Product Surfaces
 
-- For You consumes `buildRecommendationService()` for the full recommendation page.
-- Journey uses the same service for “Next to review.”
-- Discover uses the same service to order “Relevant” results when a completed profile is available, while search and filters still narrow the browsed result set.
+- For You consumes `buildRecommendationService()` through the server-gated recommendation API.
+- Journey uses tracked opportunity records and journey milestones only; it does not generate recommendations.
+- Discover uses search, filters, and lightweight local relevance sorting for manual browsing.
 
 This preserves the product model:
 

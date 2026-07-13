@@ -75,22 +75,18 @@ assert.ok(intelligence.includes("signals: OpportunityRankingSignal[]"), "Opportu
 assert.ok(intelligence.includes("positiveSignalCount"), "Opportunity scores must count meaningful positive signals.");
 assert.ok(service.includes("labelForRecommendationScore(recommendation.score)"), "Recommendation labels must use score thresholds, not confidence percentages.");
 
-for (const surface of [
-  [forYouApi, "buildRecommendationService", "For You API"],
-  [journey, "buildRecommendationService", "Journey"],
-  [discover, "buildRecommendationService", "Discover"],
-]) {
-  assert.ok(surface[0].includes(surface[1]), `${surface[2]} must consume the canonical recommendation service.`);
-}
+assert.ok(forYouApi.includes("buildRecommendationService"), "For You API must consume the canonical recommendation service.");
+assert.ok(!journey.includes("buildRecommendationService"), "Journey must not bypass Pro gating with client-side recommendations.");
+assert.ok(!discover.includes("buildRecommendationService"), "Discover must not block search with client-side recommendation generation.");
 
 for (const event of [
   "recommendation_viewed",
   "recommendation_clicked",
   "recommendation_saved",
   "recommendation_ignored",
-  "recommendation_added_to_journey",
-  "recommendation_explanation_expanded",
-  "recommendation_refresh",
+  "recommendation_dismissed",
+  "recommendation_applied",
+  "recommendation_completed",
 ]) {
   assert.ok(analytics.includes(`"${event}"`), `Analytics must include ${event}.`);
 }

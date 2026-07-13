@@ -37,12 +37,12 @@ for (const label of [
   "Journey progress",
   "Journey timeline",
   "Active opportunities",
-  "Journey recap",
-  "Share recap",
+  "Milestones",
+  "Small steps today lead to bigger opportunities tomorrow.",
 ]) {
   assert.ok(journeyDashboard.includes(label), `Dashboard must render ${label}.`);
 }
-assert.ok(journeyDashboard.includes("buildRecommendationService"), "Dashboard must consume the canonical recommendation service.");
+assert.ok(!journeyDashboard.includes("buildRecommendationService"), "Journey dashboard must not bypass For You Pro gating with client-side recommendations.");
 assert.ok(recommendationService.includes("buildAdvisorBrain"), "Recommendation service must consume the Advisor Brain API instead of duplicating scoring logic.");
 assert.ok(journeyDashboard.includes("buildJourneyMilestones"), "Journey must derive timeline milestones from real student activity.");
 assert.ok(journeyDashboard.includes("buildJourneyRecap"), "Journey must derive recap values from real student activity.");
@@ -128,9 +128,9 @@ for (const event of [
   "recommendation_viewed",
   "recommendation_clicked",
   "journey_opened",
-  "recap_viewed",
-  "share_card_generated",
-  "share_initiated",
+  "journey_card_generated",
+  "journey_card_share_started",
+  "journey_card_downloaded",
 ]) {
   assert.ok(analytics.includes(`"${event}"`), `Analytics events must include ${event}.`);
 }

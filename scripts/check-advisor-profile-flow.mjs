@@ -7,6 +7,7 @@ const authStore = readFileSync("lib/auth-store.ts", "utf8");
 const profileVersion = readFileSync("lib/advisor/profile-version.ts", "utf8");
 const dashboard = readFileSync("components/personalized-home.tsx", "utf8");
 const journeyDashboard = readFileSync("components/student-journey-dashboard.tsx", "utf8");
+const journeyBoard = readFileSync("components/my-opportunities-page.tsx", "utf8");
 const profileData = readFileSync("data/student-profile.ts", "utf8");
 const packageJson = JSON.parse(readFileSync("package.json", "utf8"));
 const snapshots = JSON.parse(readFileSync("data/advisor-review-snapshots.json", "utf8"));
@@ -29,7 +30,8 @@ assert.match(dashboard, /Journey/, "Private home must be the student's Journey."
 assert.match(journeyDashboard, /Journey progress/, "Journey must summarize actual saved and application progress.");
 assert.match(journeyDashboard, /Journey timeline/, "Journey must expose a real activity timeline.");
 assert.match(journeyDashboard, /Active opportunities/, "Journey must connect saved opportunities to progress.");
-assert.match(journeyDashboard, /Share recap/, "Journey must support a shareable progress recap.");
+assert.match(journeyBoard, /Journey Card/, "Journey Board must support the single shareable Journey Card experience.");
+assert.doesNotMatch(journeyDashboard, /Share recap/, "Dashboard must not duplicate the Journey Card sharing experience.");
 assert.doesNotMatch(dashboard, /Today’s Mission/, "Journey should not keep the old coaching-dashboard copy.");
 assert.doesNotMatch(dashboard, /Object\.entries\(advisor\.dimensionScores\)/, "Readiness breakdown should not render as an initial dashboard block.");
 

@@ -33,6 +33,7 @@ export function googleAuthUrl(state: string) {
     response_type: "code",
     scope: "openid email profile",
     state,
+    include_granted_scopes: "false",
     prompt: "select_account",
   });
   return `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;

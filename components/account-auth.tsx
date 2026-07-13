@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { accountSessionEvent, clearLocalDashboardState, hydrateAccountData, readAccountSession } from "@/data/account-sync";
+import { accountSessionEvent, clearLocalDashboardState, hydrateAccountData, readAccountSession, resetAccountSessionCache } from "@/data/account-sync";
 import type { AccountSession } from "@/lib/account-types";
 import { trackProductEvent } from "@/data/product-analytics";
 
@@ -30,7 +30,7 @@ export function AccountButton({ compact = false }: { compact?: boolean }) {
     return () => { active = false; window.removeEventListener(accountSessionEvent, onSession); window.removeEventListener("focus", refresh); };
   }, []);
   if (!session) return <span className="inline-flex min-h-10 items-center px-3 text-[11px] font-bold uppercase tracking-wider text-ink/35">Checking account</span>;
-  if (!session.authenticated) return <span className="inline-flex flex-col items-start gap-1"><a href="/api/auth/google" className="inline-flex min-h-10 shrink-0 items-center justify-center rounded-full bg-forest px-5 text-sm font-bold text-white hover:bg-ink">Sign in</a>{!compact && <span className="text-[11px] font-bold text-ink/35">Save your dashboard across devices.</span>}{error && <span className="text-[10px] font-bold text-red-700">{error}</span>}</span>;
+  if (!session.authenticated) return <span className="inline-flex flex-col items-start gap-1"><a href="/api/auth/google" onClick={() => resetAccountSessionCache()} className="inline-flex min-h-10 shrink-0 items-center justify-center rounded-full bg-forest px-5 text-sm font-bold text-white hover:bg-ink">Sign in</a>{!compact && <span className="text-[11px] font-bold text-ink/35">Save your dashboard across devices.</span>}{error && <span className="text-[10px] font-bold text-red-700">{error}</span>}</span>;
   const label = session.user?.name || session.user?.email || "Signed in";
   return <form action="/api/auth/logout" method="post" onSubmit={async (event) => {
     event.preventDefault();
@@ -38,6 +38,7 @@ export function AccountButton({ compact = false }: { compact?: boolean }) {
     const response = await fetch("/api/auth/logout", { method: "POST", credentials: "same-origin", cache: "no-store" });
     if (!response.ok) { setError("Sign out failed"); return; }
     const signedOut = { authenticated: false, user: null, data: null } satisfies AccountSession;
+    resetAccountSessionCache();
     setSession(signedOut);
     clearLocalDashboardState();
     window.dispatchEvent(new CustomEvent(accountSessionEvent, { detail: signedOut }));

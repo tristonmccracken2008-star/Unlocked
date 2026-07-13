@@ -94,7 +94,8 @@ export function AdvisorPage() {
   }
 
   if (loading) return <main className="min-h-[70vh] bg-paper px-5 py-16 sm:px-8"><section className="mx-auto max-w-6xl"><p className="rule-label text-forest">For You</p><div className="mt-6 h-16 max-w-2xl rounded-2xl bg-white/70" /><div className="mt-10 h-52 rounded-[2rem] bg-white/70" /></section></main>;
-  if (!state || !top) return <main className="min-h-[70vh] bg-paper px-5 py-16 sm:px-8"><section className="mx-auto max-w-4xl"><p className="rule-label text-forest">For You</p><h1 className="mt-4 font-editorial text-5xl font-bold tracking-[-.045em]">Complete your profile first.</h1><p className="mt-4 max-w-2xl text-sm leading-7 text-ink/55">UnlockED needs your school, major, year, goals, and activity before it can recommend fitting opportunities.</p><Link href="/profile" className="mt-8 inline-flex min-h-12 items-center justify-center rounded-full bg-forest px-6 text-sm font-bold text-white hover:bg-ink">Open profile</Link></section></main>;
+  if (!state || state.access === "unavailable" || !state.profile) return <ForYouSetupState title="Complete your profile first." text="UnlockED needs your school, major, year, goals, and activity before it can recommend fitting opportunities." actionHref="/profile" actionLabel="Open profile" />;
+  if (!top) return <ForYouSetupState title="We could not find strong matches yet." text="Broaden your profile interests or explore Discover while the opportunity database catches up to your goals." actionHref="/opportunities" actionLabel="Open Discover" />;
 
   return <main className="bg-[radial-gradient(circle_at_top_left,rgba(231,216,189,.45),transparent_34rem),#f6f0e6] px-5 py-10 sm:px-8 sm:py-14">
     <section className="mx-auto max-w-[112rem] space-y-10">
@@ -159,16 +160,36 @@ function RecommendedGrid({ recommendations, onFeedback }: { recommendations: Rec
 function ForYouUpgradeGate({ totalMatches, shown }: { totalMatches: number; shown: number }) {
   useEffect(() => { trackProductEvent("pro_gate_viewed", { section: "for-you" }); }, []);
   if (totalMatches <= shown) return null;
-  return <section className="rounded-[1.5rem] bg-forest p-6 text-white shadow-[0_20px_60px_rgba(31,95,67,.18)] sm:p-8">
-    <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+  const lockedCount = Math.max(totalMatches - shown, 0);
+  return <section className="overflow-hidden rounded-[1.5rem] bg-forest p-6 text-white shadow-[0_20px_60px_rgba(31,95,67,.18)] sm:p-8">
+    <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-center">
       <div>
         <p className="rule-label text-white/70">UnlockED Pro</p>
         <h2 className="mt-3 font-editorial text-3xl font-bold tracking-[-.03em]">Unlock your full personalized feed</h2>
-        <p className="mt-3 max-w-2xl text-sm leading-7 text-white/72">We found {totalMatches} opportunities aligned with your profile. Free shows the first {shown}; Pro unlocks the full feed and deeper recommendation explanations.</p>
+        <p className="mt-3 max-w-2xl text-sm leading-7 text-white/72">We found {totalMatches} opportunities aligned with your profile. Free shows {shown}; Pro unlocks the remaining {lockedCount} matches, deeper explanations, roadmap guidance, and premium themes.</p>
+        <div className="mt-6 grid gap-3 text-sm sm:grid-cols-2">
+          <div className="rounded-2xl bg-white/10 p-4"><p className="font-black">Free</p><p className="mt-2 text-white/68">Discover, Journey, and a focused For You preview.</p></div>
+          <div className="rounded-2xl bg-white/14 p-4"><p className="font-black">Pro</p><p className="mt-2 text-white/68">Full feed, detailed match logic, adaptive learning, and career-roadmap guidance.</p></div>
+        </div>
       </div>
-      <Link href="/pricing" onClick={() => trackProductEvent("pro_upgrade_clicked", { section: "for-you" })} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-white px-6 text-sm font-bold text-forest hover:bg-paper">View Pro <ArrowIcon /></Link>
+      <div className="rounded-[1.25rem] bg-white/10 p-4 ring-1 ring-white/15">
+        <div className="space-y-3">{Array.from({ length: 3 }, (_, index) => <div key={index} className="rounded-2xl bg-white/12 p-4"><div className="h-3 w-24 rounded-full bg-white/30" /><div className="mt-4 h-5 w-3/4 rounded-full bg-white/25" /><div className="mt-3 h-3 w-1/2 rounded-full bg-white/20" /></div>)}</div>
+        <Link href="/pricing" onClick={() => trackProductEvent("pro_upgrade_clicked", { section: "for-you" })} className="mt-5 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-white px-6 text-sm font-bold text-forest hover:bg-paper">Upgrade to Pro <ArrowIcon /></Link>
+        <Link href="/pricing" className="mt-3 inline-flex w-full justify-center text-sm font-bold text-white/76 hover:text-white">View pricing</Link>
+      </div>
     </div>
   </section>;
+}
+
+function ForYouSetupState({ title, text, actionHref, actionLabel }: { title: string; text: string; actionHref: string; actionLabel: string }) {
+  return <main className="min-h-[70vh] bg-paper px-5 py-16 sm:px-8">
+    <section className="mx-auto max-w-4xl rounded-[2rem] bg-white/62 p-8 shadow-[0_18px_60px_rgba(43,33,26,.045)] ring-1 ring-ink/6 sm:p-10">
+      <p className="rule-label text-forest">For You</p>
+      <h1 className="mt-4 font-editorial text-5xl font-bold tracking-[-.045em]">{title}</h1>
+      <p className="mt-4 max-w-2xl text-sm leading-7 text-ink/55">{text}</p>
+      <Link href={actionHref} className="mt-8 inline-flex min-h-12 items-center justify-center rounded-full bg-forest px-6 text-sm font-bold text-white hover:bg-ink">{actionLabel}</Link>
+    </section>
+  </main>;
 }
 
 function RecommendationCard({ view, onFeedback }: { view: RecommendationViewModel; onFeedback: (view: RecommendationViewModel, feedbackType: FeedbackType, label: string) => void }) {
