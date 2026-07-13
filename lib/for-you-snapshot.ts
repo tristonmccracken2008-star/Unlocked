@@ -13,11 +13,12 @@ import type { AdvisorAccessState } from "@/lib/advisor-access";
 import { nextAdvisorData } from "@/lib/advisor/api";
 import type { ForYouRecommendationSnapshot, ForYouSnapshotState } from "@/lib/advisor/types";
 
-export const forYouSnapshotEngineVersion = "for-you-snapshot-v1";
+export const forYouSnapshotEngineVersion = "for-you-snapshot-v2-school-eligibility";
 export const forYouSnapshotTtlMs = 1000 * 60 * 60 * 6;
 const generationTimeoutMs = 2800;
 const globalIndexTimeoutMs = 1000;
-const sourceSignalsVersion = `opportunities:${opportunities.length}:${opportunities.reduce((latest, item) => item.last_verified > latest ? item.last_verified : latest, "")}`;
+const schoolEligibilityMetadataHash = crypto.createHash("sha256").update(JSON.stringify(opportunities.map((item) => [item.id, item.school_scope, [...item.schools].sort(), item.verification_status, item.last_verified]))).digest("hex").slice(0, 16);
+const sourceSignalsVersion = `opportunities:${opportunities.length}:${schoolEligibilityMetadataHash}`;
 const generationByUser = new Map<string, Promise<ForYouRecommendationSnapshot>>();
 
 export type ForYouServerState = {

@@ -2,7 +2,7 @@ import type { AdvisorProfile } from "./advisor-engine";
 import { careerRoadmapForStage, scoreCareerRoadmapFit } from "./career-roadmaps";
 import { advisorRuleKnowledgeReference, mergeKnowledgeReferences, milestoneKnowledgeReferences, opportunityKnowledgeReferences, type KnowledgeReferences } from "./knowledge-references";
 import { getMilestoneOpportunityConnections, toMilestone, type Milestone } from "./milestone-engine";
-import { getOpportunityIntelligence, scoreOpportunityIntelligence, type OpportunityPriority, type OpportunityScore, type OpportunityStudentContext } from "./opportunity-intelligence";
+import { getOpportunityIntelligence, isSchoolEligible, scoreOpportunityIntelligence, type OpportunityPriority, type OpportunityScore, type OpportunityStudentContext } from "./opportunity-intelligence";
 import { getOpportunityRelationship, type OpportunityRelationship } from "./opportunity-relationships";
 import { opportunities as catalogOpportunities, type Opportunity } from "./opportunities";
 import { getRoadmap, type RoadmapImportance, type RoadmapMilestone } from "./roadmap-engine";
@@ -347,8 +347,9 @@ function toOpportunityRecommendation(profile: AdvisorProfile, ranked: RankedOppo
   };
 }
 
-function shouldExcludeOpportunity(profile: AdvisorProfile, opportunity: Opportunity) {
+function shouldExcludeOpportunity(profile: AdvisorProfile, opportunity: Opportunity, context: OpportunityStudentContext) {
   if (recommendationConfig.verificationQuality.excludedStatuses.includes(opportunity.verification_status as never)) return true;
+  if (!isSchoolEligible(opportunity, context)) return true;
   if (!opportunity.organization.trim() || !opportunity.eligibility.trim() || !opportunity.official_source_url.startsWith("https://")) return true;
   if (profile.experience.claimedOpportunityIds.includes(opportunity.id)) return true;
   if ((profile.future.hiddenOpportunityIds ?? []).includes(opportunity.id)) return true;
@@ -366,7 +367,7 @@ function rankAllOpportunities(input: RecommendationEngineInput) {
   const roadmap = getRoadmap(profile, progress);
   const activeMilestones = roadmap.upcomingMilestones.slice(0, 4).map((milestone) => toMilestone(milestone, progress));
   const context = contextWithLearning(studentContext(profile), source);
-  const prefiltered = source.filter((opportunity) => !shouldExcludeOpportunity(profile, opportunity));
+  const prefiltered = source.filter((opportunity) => !shouldExcludeOpportunity(profile, opportunity, context));
   return prefiltered
     .map((opportunity) => rankOpportunity(profile, opportunity, context, activeMilestones, roadmap.opportunityPriorities, source))
     .sort((a, b) => b.finalScore - a.finalScore || priorityWeight[b.score.priority] - priorityWeight[a.score.priority] || a.opportunity.title.localeCompare(b.opportunity.title));

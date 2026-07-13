@@ -6,6 +6,12 @@ export type OpportunityWorkMode = "Remote" | "Hybrid" | "In Person" | "Varies" |
 export type OpportunityPayStatus = "Paid" | "Unpaid" | "Varies" | "Unknown";
 export type OpportunityCompetitiveness = "Open" | "Selective" | "Competitive" | "Highly Competitive" | "Unknown";
 export type OpportunityPriority = "Critical" | "High" | "Recommended" | "Optional";
+export type SchoolEligibility =
+  | { type: "all_colleges" }
+  | { type: "specific_schools"; schoolIds: string[] }
+  | { type: "school_system"; schoolSystemIds: string[] }
+  | { type: "regional"; regions: string[] }
+  | { type: "unknown" };
 
 export type OpportunityStudentContext = {
   schoolSlug?: string;
@@ -287,8 +293,21 @@ export function getDeadlineDays(item: Opportunity, now = new Date()) {
   return Math.ceil((deadline.getTime() - now.getTime()) / 86400000);
 }
 
-function isSchoolEligible(item: Opportunity, context: OpportunityStudentContext) {
-  return item.school_scope === "National" || Boolean(context.schoolSlug && item.schools.includes(context.schoolSlug));
+export function getSchoolEligibility(item: Opportunity): SchoolEligibility {
+  const schoolIds = unique(item.schools.map((school) => school.trim()).filter(Boolean));
+  if (item.school_scope === "National") return { type: "all_colleges" };
+  if (item.school_scope === "School Specific" && schoolIds.length) return { type: "specific_schools", schoolIds };
+  if (item.school_scope === "School Specific") return { type: "unknown" };
+  return { type: "unknown" };
+}
+
+export function isSchoolEligible(item: Opportunity, context: Pick<OpportunityStudentContext, "schoolSlug">) {
+  const eligibility = getSchoolEligibility(item);
+  if (eligibility.type === "all_colleges") return true;
+  if (eligibility.type === "specific_schools") return Boolean(context.schoolSlug && eligibility.schoolIds.includes(context.schoolSlug));
+  if (eligibility.type === "school_system") return false;
+  if (eligibility.type === "regional") return false;
+  return item.school_scope !== "School Specific";
 }
 
 function gpaRequirement(item: Opportunity) {
