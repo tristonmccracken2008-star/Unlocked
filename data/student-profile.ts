@@ -36,6 +36,17 @@ export type StudentProfile = {
   goals?: string[];
   topics?: string[];
   clubs?: string;
+  institutionType?: "college" | "university" | "community_college" | "liberal_arts_college" | "unknown";
+  enrollmentStatus?: "enrolled" | "incoming" | "recent_graduate" | "not_enrolled" | "unknown";
+  degreeLevel?: "associate" | "undergraduate" | "graduate" | "unknown";
+  citizenshipStatus?: "us_citizen" | "permanent_resident" | "international" | "unknown";
+  workAuthorization?: "us_authorized" | "not_us_authorized" | "unknown";
+  residency?: string;
+  age?: number;
+  transferStatus?: "community_college_student" | "transfer_applicant" | "not_transfer" | "unknown";
+  financialNeedStatus?: "demonstrated" | "not_demonstrated" | "unknown";
+  meritStatus?: "demonstrated" | "not_demonstrated" | "unknown";
+  eligibilityAttributes?: string[];
 };
 
 export function isStudentProfile(value: unknown): value is StudentProfile {

@@ -1,4 +1,4 @@
-# Recommendation Engine 2.0
+# Professional Recommendation Engine
 
 UnlockED recommendations come from one canonical path:
 
@@ -9,6 +9,8 @@ Primary modules:
 - `data/recommendation-config.ts`: tunable weights, label thresholds, and diversity penalties.
 - `data/opportunity-enrichment.ts`: canonical schema derivation, organization normalization, structured eligibility, rich tags, duplicate keys, and data quality scores.
 - `data/opportunity-intelligence.ts`: opportunity metadata normalization, eligibility matching, scoring inputs, and explanation reasons.
+- `data/opportunity-eligibility.ts`: fail-closed eligibility checks and evidence for every applicable restriction.
+- `data/opportunity-confidence.ts`: eligibility, metadata, verification, recommendation, and overall confidence dimensions.
 - `data/recommendation-engine.ts`: ranking, exclusion rules, roadmap connections, deterministic diversity, and `RecommendationV1` output.
 - `data/recommendation-service.ts`: product-facing view models consumed by For You, Journey, and Discover.
 - `data/career-roadmaps.ts`: deterministic career progression maps by destination career and student stage.
@@ -25,10 +27,10 @@ Weights are centralized in `recommendationConfig`.
 - Major alignment: major matches are a primary positive signal. `Any Major` receives a smaller boost.
 - Minor alignment: minor matches receive a moderate boost for interdisciplinary fit.
 - Graduation year eligibility: matching class year is strong. Wrong class year receives a hard penalty.
-- Career goals: career-goal text and opportunity metadata are strongly weighted.
-- Opportunity interests: selected interests bias categories and tags without excluding other strong matches.
+- Career goals: destination careers match the structured career-field taxonomy; arbitrary token overlap is not treated as career fit.
+- Opportunity interests: selected interests match explicit categories, tags, and career fields. Research, internship, scholarship, benefit, and AI interests require the corresponding opportunity category or type.
 - Current priority: current priority receives a temporary boost. It biases ranking but is not a hard filter.
-- GPA handling: GPA is used only when an opportunity appears to publish a GPA requirement. No-GPA-yet is not broadly penalized.
+- GPA handling: GPA is used only when an opportunity publishes a requirement. Unknown GPA fails that opportunity's eligibility gate.
 - Deadline timing: near deadlines are boosted. Passed deadlines are suppressed.
 - Verification and quality: verified, complete, official-source opportunities rank higher.
 - Activity learning: saved and completed categories receive small boosts; already active Journey records are suppressed from For You.
@@ -71,7 +73,7 @@ The engine does not fabricate reasons for unavailable data.
 
 ## Diversity
 
-After base scoring, the engine applies deterministic diversity penalties so the ranked list does not become five similar items in a row.
+After base scoring, the engine applies deterministic diversity penalties and hard per-organization, category, and type caps so the ranked list cannot be padded with near-identical items.
 
 The diversity pass balances:
 
@@ -83,15 +85,23 @@ Diversity can lower an otherwise strong duplicate, but it does not introduce ran
 
 ## Quality Gates
 
-Recommendation Engine 1.0 uses internal quality gates before an opportunity can appear in For You or Journey's “Next to review.”
+The professional pipeline uses internal quality gates before an opportunity can appear in For You or Journey's “Next to review.” Unknown eligibility fails closed.
 
 A recommendation is filtered when:
 
 - it is not eligible for the student's school
+- institution type, enrollment, host-institution access, or external-student access is not proven
 - it does not match the student's class year and is not marked `Any Year`
+- degree level does not match
+- citizenship and work-authorization requirements are unresolved or mismatched
 - the student's reported GPA is below a listed GPA requirement
+- a listed GPA exists but the profile GPA is unknown
+- age, residency, transfer, invitation-only, need, merit, or demographic eligibility is unresolved
+- the current application cycle or availability is not proven
 - the deadline has passed
+- eligibility, metadata, verification, recommendation, or overall confidence is below the Pro threshold
 - it has fewer than two meaningful positive signals
+- it has no student-specific relevance signal; generic `Any Major`, `Any Year`, and national availability do not count as personalization
 - the final score falls below the minimum recommendation score
 - the explanation lacks a factual matching reason
 
@@ -204,13 +214,27 @@ Feedback records are server-side Advisor data. React components do not rank oppo
 
 ## Confidence Model
 
-The engine calculates raw numeric confidence internally, then maps it to:
+Every opportunity recommendation carries five internal confidence dimensions:
+
+- eligibility confidence
+- metadata confidence
+- verification confidence
+- recommendation confidence
+- overall confidence, calculated from the weakest dimension rather than an average
+
+The engine maps overall confidence to:
 
 - High
 - Medium
 - Low
 
-Low-confidence results are filtered by quality gates instead of being promoted. Product cards continue to show plain match labels and explanations rather than formulas.
+Every dimension must be at least 78 for a Pro recommendation. Moderate and low-confidence results are filtered instead of being promoted. Product cards continue to show plain match labels and explanations rather than formulas.
+
+## Professional Audit
+
+`npm run check:professional-catalog` inspects every catalog record for semantic duplicates, repeated copy, school-scope contradictions, verification contradictions, and deadline inconsistencies.
+
+`npm run check:professional-recommendations` executes the real ranking pipeline against 512 synthetic students spanning schools, majors, years, career goals, GPAs, citizenship/work authorization, ages, institution types, transfer states, financial situations, and relevant eligibility attributes. The fast prebuild smoke test runs the same invariants across 32 profiles.
 
 ## Premium Behavior
 

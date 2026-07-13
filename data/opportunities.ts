@@ -28,6 +28,25 @@ export type OpportunityVerification = {
 export type OpportunityDifficulty = "Open" | "Competitive" | "Highly Competitive" | null;
 export type OpportunityPrestige = "Established" | "High" | "Very High" | null;
 
+export type OpportunityEligibilityRules = {
+  institutionTypes?: ("college" | "university" | "community_college" | "liberal_arts_college")[];
+  enrollmentStatuses?: ("incoming" | "enrolled" | "recent_graduate")[];
+  degreeLevels?: ("associate" | "undergraduate" | "graduate")[];
+  citizenship?: "unrestricted" | "us_citizen" | "us_person" | "us_work_authorized" | "international_allowed" | "unknown";
+  externalStudents?: "eligible" | "ineligible" | "unknown";
+  transferOnly?: boolean;
+  minimumAge?: number;
+  maximumAge?: number;
+  residency?: string[];
+  invitationOnly?: boolean;
+  needBased?: boolean;
+  meritBased?: boolean;
+  demographicRequirements?: string[];
+  applicationCycle?: string;
+  availability?: "open" | "rolling" | "closed" | "no_application" | "unknown";
+  evidence?: string[];
+};
+
 export type OpportunityMetadata = {
   legacySlug?: string;
   valueLabel?: string;
@@ -70,6 +89,7 @@ export type OpportunityMetadata = {
   pricing?: string;
   freeTier?: string;
   bestUseCases?: string[];
+  eligibilityRules?: OpportunityEligibilityRules;
   verification?: OpportunityVerification;
 };
 

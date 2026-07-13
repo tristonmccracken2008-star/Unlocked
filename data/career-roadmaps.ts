@@ -63,6 +63,7 @@ export const careerRoadmaps: CareerRoadmap[] = [
 export const generalCareerRoadmap: CareerRoadmap = { id: "general", label: "General Career Exploration", aliases: ["undecided", "explore", "general"], progression: generalStage };
 
 const normalize = (value: string) => value.toLowerCase().replace(/[^a-z0-9+#. ]/g, " ").replace(/\s+/g, " ").trim();
+const containsSignal = (text: string, signal: string) => ` ${text} `.includes(` ${normalize(signal)} `);
 
 export function getCareerRoadmap(goal: string | undefined) {
   const normalized = normalize(goal ?? "");
@@ -78,9 +79,9 @@ export function scoreCareerRoadmapFit(item: Opportunity, goal: string | undefine
   const { roadmap, stagePlan } = careerRoadmapForStage(goal, stage);
   const text = normalize([item.title, item.organization, item.category, item.type, item.description, item.eligibility, ...item.tags, ...item.majors].join(" "));
   const categoryMatch = stagePlan.categories.includes(item.category) || stagePlan.categories.includes(item.type);
-  const signalMatches = stagePlan.opportunitySignals.filter((signal) => text.includes(normalize(signal)));
-  const organizationMatch = stagePlan.targetOrganizations.some((org) => text.includes(normalize(org)));
-  const skillMatches = stagePlan.skills.filter((skill) => text.includes(normalize(skill)));
+  const signalMatches = stagePlan.opportunitySignals.filter((signal) => containsSignal(text, signal));
+  const organizationMatch = stagePlan.targetOrganizations.some((org) => containsSignal(text, org));
+  const skillMatches = stagePlan.skills.filter((skill) => containsSignal(text, skill));
   const score = (categoryMatch ? 12 : 0) + Math.min(18, signalMatches.length * 6) + (organizationMatch ? 10 : 0) + Math.min(10, skillMatches.length * 5);
   return { roadmap, stagePlan, score, categoryMatch, signalMatches, organizationMatch, skillMatches };
 }

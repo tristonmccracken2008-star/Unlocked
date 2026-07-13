@@ -75,6 +75,7 @@ export type DuplicateOpportunityGroup = {
 
 const normalize = (value: string) => value.toLowerCase().replace(/&/g, " and ").replace(/[^a-z0-9+#.]+/g, " ").replace(/\s+/g, " ").trim();
 const unique = <T,>(values: T[]) => [...new Set(values.filter(Boolean))];
+const containsSignal = (text: string, signal: string) => ` ${text} `.includes(` ${normalize(signal)} `);
 
 function hostname(value: string | null | undefined) {
   if (!value) return null;
@@ -155,7 +156,7 @@ function linkStatus(url: string | null | undefined): LinkValidationState {
 function careerFields(item: Opportunity) {
   const text = normalize([item.title, item.organization, item.category, item.description, item.eligibility, ...item.tags, ...item.majors].join(" "));
   const fields: string[] = [];
-  const add = (field: string, terms: string[]) => { if (terms.some((term) => text.includes(normalize(term)))) fields.push(field); };
+  const add = (field: string, terms: string[]) => { if (terms.some((term) => containsSignal(text, term))) fields.push(field); };
   add("Software Engineering", ["software", "developer", "programming", "computer science", "github"]);
   add("AI / Machine Learning", ["ai", "machine learning", "artificial intelligence", "deep learning"]);
   add("Data Science", ["data", "analytics", "statistics", "quantitative"]);

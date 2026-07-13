@@ -1,6 +1,7 @@
 import type { DeadlineType, Opportunity, OpportunityDifficulty, OpportunityType, VerificationStatus } from "./opportunities";
 import { canonicalOpportunity, dataQualityScore } from "./opportunity-enrichment";
 import { recommendationConfig } from "./recommendation-config";
+import { getCareerRoadmap } from "./career-roadmaps";
 
 export type OpportunityWorkMode = "Remote" | "Hybrid" | "In Person" | "Varies" | "Unknown";
 export type OpportunityPayStatus = "Paid" | "Unpaid" | "Varies" | "Unknown";
@@ -17,11 +18,17 @@ export type OpportunityStudentContext = {
   schoolSlug?: string;
   schoolName?: string;
   institutionType?: "college" | "university" | "community_college" | "liberal_arts_college" | "unknown";
-  enrollmentStatus?: "enrolled" | "incoming" | "recent_graduate" | "unknown";
-  degreeLevel?: "undergraduate" | "graduate" | "unknown";
+  enrollmentStatus?: "enrolled" | "incoming" | "recent_graduate" | "not_enrolled" | "unknown";
+  degreeLevel?: "associate" | "undergraduate" | "graduate" | "unknown";
   citizenshipStatus?: "us_citizen" | "permanent_resident" | "international" | "unknown";
   workAuthorization?: "us_authorized" | "not_us_authorized" | "unknown";
   residency?: string;
+  age?: number;
+  transferStatus?: "community_college_student" | "transfer_applicant" | "not_transfer" | "unknown";
+  financialNeedStatus?: "demonstrated" | "not_demonstrated" | "unknown";
+  meritStatus?: "demonstrated" | "not_demonstrated" | "unknown";
+  eligibilityAttributes?: string[];
+  invitedOpportunityIds?: string[];
   externalStudentEligible?: boolean;
   major?: string;
   minor?: string;
@@ -93,11 +100,14 @@ export type OpportunityMatchBreakdown = {
 export type OpportunityScore = {
   opportunityId: string;
   score: number;
+  rawScore: number;
   priority: OpportunityPriority;
   difficulty: OpportunityCompetitiveness;
   confidence: number;
   signals: OpportunityRankingSignal[];
   positiveSignalCount: number;
+  personalizedSignalCount: number;
+  personalizedSignals: string[];
   reasons: string[];
   breakdown: OpportunityMatchBreakdown;
 };
@@ -110,7 +120,7 @@ export type OpportunityRankingSignal = {
 
 const normalize = (value: string) => value.toLowerCase().replace(/[^a-z0-9+#. ]/g, " ").replace(/\s+/g, " ").trim();
 const unique = <T,>(values: T[]) => [...new Set(values.filter(Boolean))];
-const tokens = (value: string) => normalize(value).split(" ").filter((token) => token.length > 2);
+const containsSignal = (text: string, signal: string) => ` ${text} `.includes(` ${normalize(signal)} `);
 
 const careerPathSignals: Record<string, string[]> = {
   "Software Engineering": ["software", "coding", "developer", "computer science", "programming", "github"],
@@ -152,7 +162,7 @@ function inferCareerPaths(item: Opportunity) {
     return unique(item.metadata.careerPaths);
   }
   const text = searchableText(item);
-  const inferred = Object.entries(careerPathSignals).filter(([, terms]) => terms.some((term) => text.includes(normalize(term)))).map(([path]) => path);
+  const inferred = Object.entries(careerPathSignals).filter(([, terms]) => terms.some((term) => containsSignal(text, term))).map(([path]) => path);
   if (item.type === "Scholarship") inferred.push("Funding");
   if (item.type === "Research") inferred.push("Research");
   if (item.type === "AI") inferred.push("Software Engineering", "Data and Analytics");
@@ -162,7 +172,7 @@ function inferCareerPaths(item: Opportunity) {
 function inferSkills(item: Opportunity) {
   const text = searchableText(item);
   const explicit = Array.isArray(item.metadata.skillsGained) ? item.metadata.skillsGained : [];
-  const inferred = Object.entries(skillSignals).filter(([, terms]) => terms.some((term) => text.includes(normalize(term)))).map(([skill]) => skill);
+  const inferred = Object.entries(skillSignals).filter(([, terms]) => terms.some((term) => containsSignal(text, term))).map(([skill]) => skill);
   return unique([...explicit, ...inferred]);
 }
 
@@ -265,15 +275,36 @@ export function getMatchingMinor(item: Opportunity, context: OpportunityStudentC
 }
 
 export function getMatchingCareerGoals(item: Opportunity, context: OpportunityStudentContext) {
-  const text = searchableText(item);
-  const terms = unique(tokens(context.careerGoals ?? ""));
-  return terms.filter((term) => text.includes(term)).slice(0, 8);
+  const goal = context.careerGoals?.trim();
+  if (!goal) return [];
+  const roadmap = getCareerRoadmap(goal);
+  const canonical = canonicalOpportunity(item);
+  const fields = new Set([...canonical.careerFields, ...(item.metadata.careerPaths ?? [])].map(normalize));
+  const text = normalize([item.title, item.organization, item.category, ...item.tags, ...(item.metadata.careerPaths ?? [])].join(" "));
+  const hasField = (...values: string[]) => values.some((value) => fields.has(normalize(value)));
+  if (roadmap.id === "software-engineering" && hasField("Software Engineering") && /\b(developer|programming|coding|github|ide|software engineering|software development|cloud computing|api)\b/.test(text)) return [roadmap.label];
+  if (roadmap.id === "data-science" && hasField("Data Science", "Data and Analytics", "AI / Machine Learning")) return [roadmap.label];
+  if (roadmap.id === "quantitative-finance" && (hasField("Quantitative Finance") || /\b(quant|quantitative trading)\b/.test(text) || hasField("Data and Analytics", "Data Science") && /\b(math|mathematics|statistics|probability|markets)\b/.test(text))) return [roadmap.label];
+  if (roadmap.id === "investment-banking" && hasField("Finance") && /\b(investment|banking|summer analyst|financial modeling)\b/.test(text)) return [roadmap.label];
+  if (roadmap.id === "medicine" && hasField("Healthcare", "Health and Medicine")) return [roadmap.label];
+  const normalizedGoal = normalize(goal);
+  if (roadmap.id === "general" && [...fields].some((field) => field === normalizedGoal || field.includes(normalizedGoal) || normalizedGoal.includes(field))) return [goal];
+  return [];
 }
 
 export function getMatchingInterests(item: Opportunity, context: OpportunityStudentContext) {
-  const text = searchableText(item);
-  const terms = unique((context.interests ?? []).flatMap(tokens));
-  return terms.filter((term) => text.includes(term)).slice(0, 8);
+  const canonical = canonicalOpportunity(item);
+  const fields = unique([item.type, item.category, canonical.category, ...item.tags, ...canonical.careerFields, ...(item.metadata.careerPaths ?? []), ...(item.metadata.bestUseCases ?? [])]).map(normalize);
+  return unique(context.interests ?? []).filter((interest) => {
+    const candidate = normalize(interest);
+    if (candidate.length < 3) return false;
+    if (candidate === "research") return item.type === "Research" || normalize(item.category).includes("research");
+    if (candidate === "internships" || candidate === "internship") return normalize(item.category).includes("internship") || normalize(item.category).includes("co op");
+    if (candidate === "scholarships" || candidate === "scholarship") return item.type === "Scholarship";
+    if (candidate === "student benefits" || candidate === "benefits") return item.type === "Benefit";
+    if (candidate === "ai tools") return item.type === "AI";
+    return fields.some((field) => field === candidate || field.includes(candidate) || candidate.includes(field));
+  }).slice(0, 8);
 }
 
 function currentPriorityMatches(item: Opportunity, priority?: string) {
@@ -355,6 +386,7 @@ export function scoreOpportunityIntelligence(item: Opportunity, context: Opportu
   const requirement = gpaRequirement(item);
   const meetsGpa = gpaEligible(item, context);
   const intelligence = getOpportunityIntelligence(item);
+  const personalizedSignals: string[] = [];
   let score = 0;
   if (context.dismissedOpportunityIds?.includes(item.id) || context.hiddenOpportunityIds?.includes(item.id) || context.completedOpportunityIds?.includes(item.id)) {
     score += weights.dismissedOpportunityPenalty;
@@ -367,42 +399,47 @@ export function scoreOpportunityIntelligence(item: Opportunity, context: Opportu
     const weight = matchingMajors.includes("Any Major") ? weights.majorAny : weights.majorExact;
     score += weight;
     addSignal(matchingMajors.includes("Any Major") ? "Open to any major" : `Major matches ${matchingMajors[0]}`, "positive", weight);
+    if (!matchingMajors.includes("Any Major")) personalizedSignals.push(`major:${matchingMajors[0]}`);
   }
   if (matchingMinor.length) {
     score += weights.minorExact;
     addSignal(`Minor connects with ${matchingMinor[0]}`, "positive", weights.minorExact);
+    personalizedSignals.push(`minor:${matchingMinor[0]}`);
   }
   if (matchingCareerGoals.length) {
     const weight = Math.min(weights.careerGoalMax, matchingCareerGoals.length * weights.careerGoalPerSignal);
     score += weight;
     addSignal(`Career goal matches ${matchingCareerGoals.slice(0, 2).join(", ")}`, "positive", weight);
+    personalizedSignals.push(`career:${matchingCareerGoals[0]}`);
   }
   if (matchingInterests.length) {
     const weight = Math.min(weights.interestMax, matchingInterests.length * weights.interestPerSignal);
     score += weight;
     addSignal(`Interest matches ${matchingInterests.slice(0, 2).join(", ")}`, "positive", weight);
+    personalizedSignals.push(`interest:${matchingInterests[0]}`);
   }
   if (matchingCurrentPriority) {
     score += weights.currentPriority;
     addSignal(`Current priority matches ${context.currentPriority}`, "positive", weights.currentPriority);
+    personalizedSignals.push(`priority:${context.currentPriority}`);
   }
   const roadmapCategory = context.careerRoadmapCategories?.some((category) => category === item.category || category === item.type || category === intelligence.category);
   if (roadmapCategory) {
     score += weights.careerRoadmapCategory;
     addSignal("Matches your career roadmap stage", "positive", weights.careerRoadmapCategory);
   }
-  const roadmapSignals = (context.careerRoadmapSignals ?? []).filter((signal) => text.includes(normalize(signal))).slice(0, 4);
+  const roadmapSignals = (context.careerRoadmapSignals ?? []).filter((signal) => containsSignal(text, signal)).slice(0, 4);
   if (roadmapSignals.length) {
     const weight = Math.min(24, roadmapSignals.length * weights.careerRoadmapSignal);
     score += weight;
     addSignal(`Career roadmap signal: ${roadmapSignals.slice(0, 2).join(", ")}`, "positive", weight);
   }
-  const targetOrg = (context.careerTargetOrganizations ?? []).find((org) => text.includes(normalize(org)));
+  const targetOrg = (context.careerTargetOrganizations ?? []).find((org) => containsSignal(text, org));
   if (targetOrg) {
     score += weights.careerRoadmapOrganization;
     addSignal(`Connects to target path organization: ${targetOrg}`, "positive", weights.careerRoadmapOrganization);
   }
-  const skillMatches = (context.skillPriorities ?? []).filter((skill) => text.includes(normalize(skill))).slice(0, 4);
+  const skillMatches = (context.skillPriorities ?? []).filter((skill) => containsSignal(text, skill)).slice(0, 4);
   if (skillMatches.length) {
     const weight = Math.min(weights.skillAlignmentMax, skillMatches.length * weights.skillAlignmentPerSignal);
     score += weight;
@@ -511,16 +548,20 @@ export function scoreOpportunityIntelligence(item: Opportunity, context: Opportu
     score = weights.excludedVerificationStatus;
     addSignal(`${item.verification_status.replaceAll("_", " ")} verification status`, "negative", weights.excludedVerificationStatus);
   }
-  const normalizedScore = Math.max(0, Math.min(100, score));
+  const rawScore = score;
+  const normalizedScore = Math.max(0, Math.min(100, rawScore));
   const priority: OpportunityPriority = deadlineDays !== null && deadlineDays >= 0 && deadlineDays <= 10 && normalizedScore >= 55 ? "Critical" : normalizedScore >= 78 ? "High" : normalizedScore >= 50 ? "Recommended" : "Optional";
   return {
     opportunityId: item.id,
     score: normalizedScore,
+    rawScore,
     priority,
     difficulty: intelligence.competitiveness,
     confidence: Math.max(20, Math.min(98, normalizedScore + Math.round(intelligence.qualityScore * 0.12))),
     signals,
     positiveSignalCount: signals.filter((signal) => signal.impact === "positive" && signal.weight >= 8).length,
+    personalizedSignalCount: unique(personalizedSignals).length,
+    personalizedSignals: unique(personalizedSignals),
     reasons: getRecommendationReasons(item, context),
     breakdown: { matchingMajors, matchingMinor, matchingCareerGoals, matchingInterests, matchingCurrentPriority, matchingYears, schoolEligible, gpaRequirement: requirement, gpaEligible: meetsGpa, deadlineDays },
   };

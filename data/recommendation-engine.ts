@@ -2,6 +2,8 @@ import type { AdvisorProfile } from "./advisor-engine";
 import { careerRoadmapForStage, scoreCareerRoadmapFit } from "./career-roadmaps";
 import { advisorRuleKnowledgeReference, mergeKnowledgeReferences, milestoneKnowledgeReferences, opportunityKnowledgeReferences, type KnowledgeReferences } from "./knowledge-references";
 import { getMilestoneOpportunityConnections, toMilestone, type Milestone } from "./milestone-engine";
+import { buildOpportunityConfidence, type OpportunityConfidenceProfile } from "./opportunity-confidence";
+import { evaluateOpportunityEligibility } from "./opportunity-eligibility";
 import { getOpportunityIntelligence, isSchoolEligible, scoreOpportunityIntelligence, type OpportunityPriority, type OpportunityScore, type OpportunityStudentContext } from "./opportunity-intelligence";
 import { getOpportunityRelationship, type OpportunityRelationship } from "./opportunity-relationships";
 import { opportunities as catalogOpportunities, type Opportunity } from "./opportunities";
@@ -30,6 +32,7 @@ export type RecommendationV1 = {
   priority: OpportunityPriority;
   confidence: number;
   confidenceLevel: "High" | "Medium" | "Low";
+  confidenceBreakdown: OpportunityConfidenceProfile;
   estimatedValue: number | null;
   estimatedValueLabel: string;
   nextAction: string;
@@ -38,6 +41,13 @@ export type RecommendationV1 = {
   categories: string[];
   score: number;
   knowledgeReferences: KnowledgeReferences;
+  explainability: {
+    whyThisUser: string;
+    whyNow: string;
+    whyThisOpportunity: string;
+    whyAboveAlternatives: string;
+    evidence: string[];
+  };
 };
 
 export type RecommendationEngineResult = {
@@ -128,7 +138,7 @@ function confidenceLevel(confidence: number): RecommendationV1["confidenceLevel"
   return "Low";
 }
 
-function studentContext(profile: AdvisorProfile): OpportunityStudentContext {
+export function buildOpportunityStudentContext(profile: AdvisorProfile): OpportunityStudentContext {
   const trackedRecords = Object.values(profile.experience.tracked);
   const feedbackRecords = profile.future.recommendationFeedback ?? [];
   const negativeFeedback = feedbackRecords.filter((record) => ["not-relevant", "dismissed", "dont-enjoy-this", "not-interested", "too-expensive", "too-time-consuming"].includes(record.feedbackType));
@@ -147,13 +157,21 @@ function studentContext(profile: AdvisorProfile): OpportunityStudentContext {
   return {
     schoolSlug: profile.school.slug,
     schoolName: profile.school.name,
-    institutionType: "college",
-    enrollmentStatus: "enrolled",
-    degreeLevel: profile.academics.academicYear === "Graduate student" ? "graduate" : "undergraduate",
+    institutionType: profile.academics.institutionType,
+    enrollmentStatus: profile.academics.enrollmentStatus,
+    degreeLevel: profile.academics.degreeLevel,
+    citizenshipStatus: profile.academics.citizenshipStatus,
+    workAuthorization: profile.academics.workAuthorization,
+    residency: profile.academics.residency,
+    age: profile.academics.age,
+    transferStatus: profile.academics.transferStatus,
+    financialNeedStatus: profile.academics.financialNeedStatus,
+    meritStatus: profile.academics.meritStatus,
+    eligibilityAttributes: profile.academics.eligibilityAttributes,
     major: profile.academics.major,
     minor: profile.academics.minor,
     academicYear: profile.academics.academicYear,
-    careerGoals: unique([profile.goals.careerGoal, profile.goals.currentPriority ?? "", ...profile.goals.primaryGoals]).join(", "),
+    careerGoals: profile.goals.careerGoal,
     interests: unique([...profile.goals.interests, ...profile.goals.topics, profile.goals.currentPriority ?? ""]),
     currentPriority: profile.goals.currentPriority,
     gpaStatus: profile.academics.gpaStatus,
@@ -260,6 +278,7 @@ function rankMilestone(profile: AdvisorProfile, milestone: RoadmapMilestone, pro
   const score = clamp(baseScore + stateBoost);
   const priority = recommendationPriority(score, milestone.importance);
   const reasons = milestoneReasons(profile, milestone);
+  const recommendationConfidence = clamp(score + (profile.student.completedProfile ? 8 : 0));
   return {
     id: `recommendation-milestone-${milestone.id}`,
     kind: "Milestone",
@@ -268,8 +287,16 @@ function rankMilestone(profile: AdvisorProfile, milestone: RoadmapMilestone, pro
     reason: primaryReason(reasons),
     reasons,
     priority,
-    confidence: clamp(score + (profile.student.completedProfile ? 8 : 0)),
-    confidenceLevel: confidenceLevel(clamp(score + (profile.student.completedProfile ? 8 : 0))),
+    confidence: recommendationConfidence,
+    confidenceLevel: confidenceLevel(recommendationConfidence),
+    confidenceBreakdown: {
+      eligibilityConfidence: 100,
+      metadataConfidence: 100,
+      verificationConfidence: 100,
+      recommendationConfidence,
+      overallConfidence: recommendationConfidence,
+      level: recommendationConfidence >= 78 ? "High" : recommendationConfidence >= 55 ? "Moderate" : "Low",
+    },
     estimatedValue: null,
     estimatedValueLabel: milestoneEstimatedValueLabel(structured),
     nextAction: nextActionForMilestone(structured),
@@ -280,6 +307,13 @@ function rankMilestone(profile: AdvisorProfile, milestone: RoadmapMilestone, pro
       milestoneKnowledgeReferences(milestone),
       advisorRuleKnowledgeReference("milestone_recommendation_v1"),
     ),
+    explainability: {
+      whyThisUser: reasons[0],
+      whyNow: reasons[1] ?? "This milestone matches the student's current academic stage.",
+      whyThisOpportunity: reasons[2] ?? "This milestone supports the student's structured roadmap.",
+      whyAboveAlternatives: `This is the highest-priority incomplete milestone with a structured score of ${score}.`,
+      evidence: reasons,
+    },
   };
 }
 
@@ -307,7 +341,7 @@ function rankOpportunity(profile: AdvisorProfile, opportunity: Opportunity, cont
   const activeApplicationBoost = progressForOpportunity(profile, opportunity.id) ? 7 : 0;
   const connectionBoost = Math.min(12, milestoneReasons.length * 6);
   const advisorBoost = advisorFit.shouldDoNext ? 6 : 0;
-  const finalScore = clamp(score.score + roadmapBoost + careerRoadmapBoost + advisorBoost + relationshipBoost + savedBoost + activeApplicationBoost + connectionBoost);
+  const finalScore = Math.max(0, score.rawScore + roadmapBoost + careerRoadmapBoost + advisorBoost + relationshipBoost + savedBoost + activeApplicationBoost + connectionBoost);
   return { opportunity, score, milestoneReasons, roadmapBoost, careerRoadmapBoost, relationshipBoost, relationship, progressBoost: savedBoost + activeApplicationBoost, finalScore };
 }
 
@@ -320,6 +354,7 @@ function qualityGateFailures(ranked: RankedOpportunity) {
   if (score.breakdown.gpaEligible === false) failures.push("Student GPA is below the listed GPA requirement.");
   if (score.breakdown.deadlineDays !== null && score.breakdown.deadlineDays < 0) failures.push("Deadline has passed.");
   if (score.positiveSignalCount < recommendationConfig.qualityGates.minimumPositiveSignals) failures.push("Fewer than two meaningful positive recommendation signals.");
+  if (score.personalizedSignalCount < recommendationConfig.qualityGates.minimumPersonalizedSignals) failures.push("No strong student-specific relevance signal.");
   if (finalScore < recommendationConfig.qualityGates.minimumRecommendationScore) failures.push("Final recommendation score is below the quality gate.");
   if (!score.reasons.some((reason) => /matches|accepts|available|deadline|verified|gpa|supports|open to/i.test(reason))) failures.push("Missing factual explanation reasons.");
   if (ranked.finalScore < recommendationConfig.thresholds.worthReviewing) failures.push("Confidence is below the visible recommendation threshold.");
@@ -332,6 +367,11 @@ function toOpportunityRecommendation(profile: AdvisorProfile, ranked: RankedOppo
   const application = progressForOpportunity(profile, opportunity.id);
   const priority = recommendationPriority(ranked.finalScore, ranked.score.priority);
   const reasons = opportunityReasons(profile, ranked);
+  const context = buildOpportunityStudentContext(profile);
+  const eligibility = evaluateOpportunityEligibility(opportunity, context);
+  const recommendationConfidence = clamp((ranked.score.confidence + ranked.finalScore) / 2);
+  const confidenceBreakdown = buildOpportunityConfidence(opportunity, context, recommendationConfidence, eligibility);
+  const applicableEvidence = eligibility.checks.filter((check) => check.applicable && check.proven).map((check) => check.evidence).filter(Boolean);
   return {
     id: `recommendation-opportunity-${opportunity.id}`,
     kind: "Opportunity",
@@ -340,8 +380,9 @@ function toOpportunityRecommendation(profile: AdvisorProfile, ranked: RankedOppo
     reason: primaryReason(reasons),
     reasons,
     priority,
-    confidence: clamp((ranked.score.confidence + ranked.finalScore) / 2),
-    confidenceLevel: confidenceLevel(clamp((ranked.score.confidence + ranked.finalScore) / 2)),
+    confidence: confidenceBreakdown.overallConfidence,
+    confidenceLevel: confidenceLevel(confidenceBreakdown.overallConfidence),
+    confidenceBreakdown,
     estimatedValue: opportunity.estimated_value,
     estimatedValueLabel: estimatedValueLabel(opportunity),
     nextAction: nextActionForOpportunity(opportunity, ranked.score, application),
@@ -352,6 +393,13 @@ function toOpportunityRecommendation(profile: AdvisorProfile, ranked: RankedOppo
       opportunityKnowledgeReferences(opportunity),
       advisorRuleKnowledgeReference("opportunity_recommendation_v1"),
     ),
+    explainability: {
+      whyThisUser: reasons.find((reason) => /major|class year|school|priority|career goal/i.test(reason)) ?? reasons[0],
+      whyNow: reasons.find((reason) => /deadline|current priority|roadmap|current stage/i.test(reason)) ?? `It supports the ${profile.academics.timelineStage.toLowerCase()} stage of your roadmap.`,
+      whyThisOpportunity: reasons.find((reason) => /verified|available|matches|accepts/i.test(reason)) ?? "It passed every applicable eligibility and data-quality check.",
+      whyAboveAlternatives: `It passed every applicable eligibility gate and earned a structured quality score of ${ranked.finalScore}.`,
+      evidence: applicableEvidence.slice(0, 8),
+    },
   };
 }
 
@@ -375,7 +423,7 @@ function rankAllOpportunities(input: RecommendationEngineInput) {
   const source = input.opportunities ?? catalogOpportunities;
   const roadmap = getRoadmap(profile, progress);
   const activeMilestones = roadmap.upcomingMilestones.slice(0, 4).map((milestone) => toMilestone(milestone, progress));
-  const context = contextWithLearning(studentContext(profile), source);
+  const context = contextWithLearning(buildOpportunityStudentContext(profile), source);
   const prefiltered = source.filter((opportunity) => !shouldExcludeOpportunity(profile, opportunity, context));
   return prefiltered
     .map((opportunity) => rankOpportunity(profile, opportunity, context, activeMilestones, roadmap.opportunityPriorities, source))
@@ -390,22 +438,24 @@ function diversityAdjustedOpportunityRecommendations(profile: AdvisorProfile, ra
   const categoryCounts = new Map<string, number>();
   const typeCounts = new Map<string, number>();
   while (selected.length < limit && remaining.length) {
-    let bestIndex = 0;
+    let bestIndex = -1;
     let bestScore = -Infinity;
     for (let index = 0; index < remaining.length; index += 1) {
       const candidate = remaining[index];
       const orgCount = organizationCounts.get(candidate.opportunity.organization) ?? 0;
       const categoryCount = categoryCounts.get(candidate.opportunity.category) ?? 0;
       const typeCount = typeCounts.get(candidate.opportunity.type) ?? 0;
+      if (orgCount >= config.maxSameOrganization || categoryCount >= config.maxSameCategory || typeCount >= config.maxSameType) continue;
       let adjusted = candidate.finalScore;
       if (orgCount >= config.maxSameOrganizationBeforePenalty) adjusted -= config.organizationPenalty * orgCount;
       if (categoryCount >= config.maxSameCategoryBeforePenalty) adjusted -= config.categoryPenalty * categoryCount;
       if (typeCount >= config.maxSameTypeBeforePenalty) adjusted -= config.typePenalty * typeCount;
-      if (adjusted > bestScore || (adjusted === bestScore && candidate.opportunity.title.localeCompare(remaining[bestIndex].opportunity.title) < 0)) {
+      if (adjusted > bestScore || (adjusted === bestScore && (bestIndex < 0 || candidate.opportunity.title.localeCompare(remaining[bestIndex].opportunity.title) < 0))) {
         bestScore = adjusted;
         bestIndex = index;
       }
     }
+    if (bestIndex < 0) break;
     const [next] = remaining.splice(bestIndex, 1);
     selected.push(next);
     organizationCounts.set(next.opportunity.organization, (organizationCounts.get(next.opportunity.organization) ?? 0) + 1);
@@ -418,7 +468,7 @@ function diversityAdjustedOpportunityRecommendations(profile: AdvisorProfile, ra
 
 export function rankOpportunityRecommendations(input: RecommendationEngineInput): RecommendationV1[] {
   const limit = input.limit ?? 24;
-  const context = contextWithLearning(studentContext(input.advisorProfile), input.opportunities ?? catalogOpportunities);
+  const context = contextWithLearning(buildOpportunityStudentContext(input.advisorProfile), input.opportunities ?? catalogOpportunities);
   const ranked = rankAllOpportunities(input).filter((item) => qualityGateFailures(item).length === 0);
   const primary = ranked.filter((item) => !recommendationConfig.verificationQuality.suppressFromPremiumStatuses.includes(item.opportunity.verification_status as never) && !recommendationConfig.verificationQuality.nonActionableStatuses.includes(item.opportunity.verification_status as never));
   const fallback = ranked.filter((item) => !primary.includes(item));
@@ -467,7 +517,7 @@ export function buildRecommendationDiagnosticReport(input: RecommendationEngineI
       recommendedCount: finalRankingOrder.length,
       elapsedMs,
     },
-    health: buildRecommendationHealthMonitor(diversified, sourceForDiagnostics(input), contextWithLearning(studentContext(input.advisorProfile), input.opportunities ?? catalogOpportunities)),
+    health: buildRecommendationHealthMonitor(diversified, sourceForDiagnostics(input), contextWithLearning(buildOpportunityStudentContext(input.advisorProfile), input.opportunities ?? catalogOpportunities)),
   };
 }
 

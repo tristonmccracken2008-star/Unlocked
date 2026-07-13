@@ -60,9 +60,13 @@ export const recommendationConfig = {
     maxSameOrganizationBeforePenalty: 1,
     maxSameCategoryBeforePenalty: 2,
     maxSameTypeBeforePenalty: 3,
+    maxSameOrganization: 1,
+    maxSameCategory: 2,
+    maxSameType: 3,
   },
   qualityGates: {
     minimumPositiveSignals: 2,
+    minimumPersonalizedSignals: 1,
     minimumRecommendationScore: 34,
   },
   verificationQuality: {
@@ -75,6 +79,7 @@ export const recommendationConfig = {
     minimumVisible: "Medium",
     highThreshold: 78,
     mediumThreshold: 52,
+    professionalMinimum: 78,
   },
 } as const;
 

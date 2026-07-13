@@ -31,6 +31,17 @@ export type AdvisorProfile = {
     timelineStage: AdvisorTimelineStage;
     gpaStatus?: StudentProfile["gpaStatus"];
     gpa?: number;
+    institutionType: NonNullable<StudentProfile["institutionType"]>;
+    enrollmentStatus: NonNullable<StudentProfile["enrollmentStatus"]>;
+    degreeLevel: NonNullable<StudentProfile["degreeLevel"]>;
+    citizenshipStatus: NonNullable<StudentProfile["citizenshipStatus"]>;
+    workAuthorization: NonNullable<StudentProfile["workAuthorization"]>;
+    residency?: string;
+    age?: number;
+    transferStatus: NonNullable<StudentProfile["transferStatus"]>;
+    financialNeedStatus: NonNullable<StudentProfile["financialNeedStatus"]>;
+    meritStatus: NonNullable<StudentProfile["meritStatus"]>;
+    eligibilityAttributes: string[];
   };
   goals: {
     careerGoal: string;
@@ -120,6 +131,14 @@ export function createAdvisorProfile(input: { profile: StudentProfile; school: S
   const progress = inferApplicationsFromActivity(activity, [], input.progress);
   const interests = unique([profile.interests, ...(profile.topics ?? [])].flatMap((item) => item.split(",").map((part) => part.trim())));
   const goals = unique([profile.careerGoal, ...(profile.goals ?? [])].flatMap((item) => item.split(",").map((part) => part.trim())));
+  const schoolName = school.name.toLowerCase();
+  const inferredInstitutionType: AdvisorProfile["academics"]["institutionType"] = schoolName.includes("community college") || schoolName.includes("technical college")
+    ? "community_college"
+    : schoolName.includes("university") || schoolName.includes("institute of technology")
+      ? "university"
+      : schoolName.includes("college")
+        ? "college"
+        : "unknown";
   return {
     student: {
       firstName: profile.firstName,
@@ -140,6 +159,17 @@ export function createAdvisorProfile(input: { profile: StudentProfile; school: S
       timelineStage: advisorTimelineStage(profile.year),
       gpaStatus: profile.gpaStatus,
       gpa: profile.gpa,
+      institutionType: profile.institutionType ?? inferredInstitutionType,
+      enrollmentStatus: profile.enrollmentStatus ?? (profile.year === "Graduate student" ? "recent_graduate" : "enrolled"),
+      degreeLevel: profile.degreeLevel ?? (profile.year === "Graduate student" ? "graduate" : inferredInstitutionType === "community_college" ? "associate" : "undergraduate"),
+      citizenshipStatus: profile.citizenshipStatus ?? "unknown",
+      workAuthorization: profile.workAuthorization ?? "unknown",
+      residency: profile.residency,
+      age: profile.age,
+      transferStatus: profile.transferStatus ?? "unknown",
+      financialNeedStatus: profile.financialNeedStatus ?? "unknown",
+      meritStatus: profile.meritStatus ?? "unknown",
+      eligibilityAttributes: profile.eligibilityAttributes ?? [],
     },
     goals: {
       careerGoal: profile.careerGoal,
