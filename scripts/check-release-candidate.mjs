@@ -37,7 +37,7 @@ assert.doesNotMatch(journeyDashboard, /buildRecommendationService|NextToReview|J
 assert.match(journeyDashboard, /\/api\/opportunities\?ids=/, "Journey dashboard should fetch only tracked opportunities.");
 
 assert.match(forYouSnapshot, /recommendations: allowed\.map/, "For You snapshots must store serialized recommendation view models.");
-assert.match(forYouSnapshot, /const allowed = pro \? service\.recommendations\.slice\(0,\s*24\) : \[\]/, "Free For You should render the Pro conversion state immediately without expensive feed generation.");
+assert.match(forYouSnapshot, /const allowed = pro \? service\.recommendations\.slice\(0,\s*8\) : \[\]/, "Free For You should render the Pro conversion state immediately without expensive feed generation while Pro stays precision-first.");
 assert.match(advisorRoute, /resolveForYouState/, "For You should resolve initial page state on the server.");
 assert.match(forYouApi, /console\.info\("\[UnlockED For You\] request started"/, "For You API should log safe production diagnostics.");
 assert.match(forYouApi, /auth complete/, "For You API should checkpoint auth completion.");

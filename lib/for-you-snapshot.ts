@@ -146,7 +146,7 @@ async function generateSnapshot(user: AuthUser, data: AccountData, profile: Stud
     referralActivity: data.referrals,
   });
   const pro = entitlements.canUseFullForYou;
-  const allowed = pro ? service.recommendations.slice(0, 24) : [];
+  const allowed = pro ? service.recommendations.slice(0, 8) : [];
   const now = new Date();
   const snapshot: ForYouRecommendationSnapshot = {
     userId: user.id,

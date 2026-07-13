@@ -33,11 +33,36 @@ assert.match(pipeline, /evaluateProfessionalRecommendationCandidate/, "Advisor v
 assert.match(pipeline, /auditFinalOpportunityRecommendation/, "Advisor v3 must audit final recommendations.");
 assert.match(pipeline, /buildRecommendationHealthMonitor/, "Advisor v3 must expose recommendation health monitoring.");
 assert.match(pipeline, /careerAdvisorFit/, "Advisor v3 must ask what the student should do next.");
+for (const eligibilityGate of [
+  "institutionTypeEligible",
+  "enrollmentEligible",
+  "schoolRestrictionEligible",
+  "hostInstitutionEligible",
+  "classYearEligible",
+  "degreeLevelEligible",
+  "citizenshipEligible",
+  "gpaEligible",
+  "majorEligible",
+  "externalStudentEligible",
+]) {
+  assert.match(pipeline, new RegExp(`${eligibilityGate}\\(opportunity, context\\)`), `Advisor v3 must run ${eligibilityGate} before Pro ranking.`);
+}
+assert.match(pipeline, /hasUnknownEligibilityLanguage/, "Advisor v3 must reject unknown or variable eligibility before Pro ranking.");
+assert.match(pipeline, /Eligibility has not been positively verified for Pro recommendations/, "Advisor v3 must require verified eligibility for Pro recommendations.");
+assert.match(pipeline, /Listed GPA requirement cannot be proven from the profile/, "Advisor v3 must treat unknown GPA as ineligible when a GPA requirement exists.");
+assert.match(pipeline, /Citizenship or work-authorization eligibility is not positively proven/, "Advisor v3 must reject unproven citizenship or work-authorization restrictions.");
+assert.match(pipeline, /External-student eligibility is not positively proven/, "Advisor v3 must reject unproven external-student eligibility.");
 assert.match(pipeline, /confidence is too low for Pro/i, "Advisor v3 auditor must reject low confidence Pro recommendations.");
 assert.match(pipeline, /Explanation contains unsupported school relevance/, "Advisor v3 must reject unsupported school explanations.");
 assert.match(intelligence, /export type SchoolEligibility/, "Advisor v3 eligibility must use canonical school eligibility.");
+for (const profileField of ["institutionType", "enrollmentStatus", "degreeLevel", "citizenshipStatus", "workAuthorization", "externalStudentEligible"]) {
+  assert.match(intelligence, new RegExp(`${profileField}\\?`), `Advisor context must support ${profileField} for precision eligibility.`);
+}
 assert.match(engine, /evaluateProfessionalRecommendationCandidate\(opportunity, context\)\.allowed/, "Recommendation engine must gate candidates before ranking.");
 assert.match(engine, /auditFinalOpportunityRecommendation\(recommendation, opportunity, context\)\.approved/, "Recommendation engine must audit final recommendations.");
+assert.match(engine, /institutionType: "college"/, "Recommendation context must provide college-level institution proof.");
+assert.match(engine, /enrollmentStatus: "enrolled"/, "Recommendation context must provide enrollment proof.");
+assert.match(engine, /degreeLevel: profile\.academics\.academicYear === "Graduate student" \? "graduate" : "undergraduate"/, "Recommendation context must provide degree-level proof.");
 assert.match(engine, /buildRecommendationHealthMonitor/, "Recommendation diagnostics must include health monitoring.");
 assert.match(engine, /diversityAdjustedOpportunityRecommendations/, "Advisor v3 must keep recommendation diversity.");
 assert.match(engine, /getOpportunityRelationship/, "Advisor v3 must keep opportunity relationships.");

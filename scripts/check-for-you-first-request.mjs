@@ -37,7 +37,7 @@ assert.match(snapshot, /generationByUser\.delete\(user\.id\)/, "Failed or comple
 assert.match(snapshot, /withTimeout\(generateSingleFlight\(user, data, profile, school, entitlements\), "initial recommendation snapshot", generationTimeoutMs\)/, "Initial generation must be bounded.");
 assert.match(snapshot, /withTimeout\(active, "active recommendation snapshot"/, "Concurrent missing-snapshot requests must wait only briefly.");
 assert.match(snapshot, /entitlements\.canUseFullForYou/, "Pro and Free states must be decided server-side.");
-assert.match(snapshot, /const allowed = pro \? service\.recommendations\.slice\(0,\s*24\) : \[\]/, "Free users must not require expensive preview generation.");
+assert.match(snapshot, /const allowed = pro \? service\.recommendations\.slice\(0,\s*8\) : \[\]/, "Free users must not require expensive preview generation and Pro should prioritize a short precision-first feed.");
 assert.match(snapshot, /getForYouGlobalIndex/, "Global opportunity indexes must be initialized through a shared helper.");
 assert.match(snapshot, /globalIndexPromise/, "Global index initialization must be single-flight.");
 assert.match(snapshot, /sourceSignalsVersion/, "Opportunity database changes must affect snapshot freshness.");

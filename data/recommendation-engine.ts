@@ -147,6 +147,9 @@ function studentContext(profile: AdvisorProfile): OpportunityStudentContext {
   return {
     schoolSlug: profile.school.slug,
     schoolName: profile.school.name,
+    institutionType: "college",
+    enrollmentStatus: "enrolled",
+    degreeLevel: profile.academics.academicYear === "Graduate student" ? "graduate" : "undergraduate",
     major: profile.academics.major,
     minor: profile.academics.minor,
     academicYear: profile.academics.academicYear,
