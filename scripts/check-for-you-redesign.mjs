@@ -36,6 +36,22 @@ assert.ok(forYouApi.includes('"free_preview"'), "For You API must return an expl
 assert.ok(forYouApi.includes('"profile_incomplete"'), "For You API must return an explicit profile_incomplete state.");
 assert.ok(forYouApi.includes('"empty"'), "For You API must return an explicit empty state.");
 assert.ok(forYouApi.includes('"error"'), "For You API must return an explicit error state.");
+for (const checkpoint of [
+  "auth complete",
+  "billing record lookup complete",
+  "entitlements complete",
+  "saved/journey/feedback data complete",
+  "opportunity index complete",
+  "recommendation context complete",
+  "ranking complete",
+  "diversity processing complete",
+  "explanation generation complete",
+  "response serialization complete",
+  "response complete",
+]) {
+  assert.ok(forYouApi.includes(checkpoint), `For You API must log ${checkpoint}.`);
+}
+assert.ok(forYouApi.includes("withTimeout(getSession") && forYouApi.includes("sessionTimeoutMs"), "For You API must bound session lookup.");
 assert.ok(advisor.includes("/api/advisor/for-you"), "For You client must consume the server-gated recommendation API.");
 assert.ok(!advisor.includes("buildRecommendationService"), "For You client must not build the full recommendation feed.");
 assert.ok(advisor.includes('type ForYouPageState = "loading" | "pro_ready" | "free_preview" | "profile_incomplete" | "empty" | "error"'), "For You client must use an explicit finite state machine.");

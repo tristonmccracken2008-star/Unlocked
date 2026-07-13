@@ -15,6 +15,8 @@ const forYouApi = read("app/api/advisor/for-you/route.ts");
 const themeController = read("components/theme-controller.tsx");
 const globals = read("app/globals.css");
 const analytics = read("lib/analytics-types.ts");
+const authStore = read("lib/auth-store.ts");
+const recommendationEngine = read("data/recommendation-engine.ts");
 
 assert.match(googleOAuth, /prompt:\s*"select_account"/, "Google OAuth must request account selection.");
 assert.match(googleOAuth, /include_granted_scopes:\s*"false"/, "Google OAuth must not silently reuse granted scopes.");
@@ -34,6 +36,12 @@ assert.match(journeyDashboard, /\/api\/opportunities\?ids=/, "Journey dashboard 
 
 assert.match(forYouApi, /service\.recommendations\.slice\(0,\s*2\)/, "Free For You API must return only preview recommendations.");
 assert.match(forYouApi, /console\.info\("\[UnlockED For You\] request started"/, "For You API should log safe production diagnostics.");
+assert.match(forYouApi, /auth complete/, "For You API should checkpoint auth completion.");
+assert.match(forYouApi, /ranking complete/, "For You API should checkpoint ranking completion.");
+assert.match(forYouApi, /response complete/, "For You API should log total completion in finally.");
+assert.match(forYouApi, /serverTimeoutMs/, "For You API should have a server-side failure bound.");
+assert.match(authStore, /kvTimeoutMs/, "KV operations should have a bounded timeout.");
+assert.match(recommendationEngine, /selected\.map\(\(item\) => toOpportunityRecommendation\(profile, \{ \.\.\.item, relationship: getOpportunityRelationship/, "Opportunity relationships should be generated only for selected recommendations.");
 assert.match(forYouApi, /pageState/, "For You API must return explicit page states.");
 assert.match(advisorPage, /type ForYouPageState = "loading" \| "pro_ready" \| "free_preview" \| "profile_incomplete" \| "empty" \| "error"/, "For You client must use a finite state machine.");
 assert.match(advisorPage, /AbortController/, "For You client must abort stale or slow requests.");

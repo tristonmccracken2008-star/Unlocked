@@ -23,6 +23,7 @@ const memoryStore = new Map<string, StoredValue>();
 const kvUrl = process.env.KV_REST_API_URL ?? process.env.UPSTASH_REDIS_REST_URL;
 const kvToken = process.env.KV_REST_API_TOKEN ?? process.env.UPSTASH_REDIS_REST_TOKEN;
 const hasKv = Boolean(kvUrl && kvToken);
+const kvTimeoutMs = 3500;
 
 const emptyData = (): AccountData => ({ profile: null, onboardingComplete: false, billing: defaultBillingRecord(), activity: null, savedOpportunities: [], tracker: {}, preferences: null, journeyProgress: {}, advisor: null, referrals: null, updatedAt: new Date().toISOString() });
 
@@ -100,15 +101,25 @@ async function kvCommand<T>(command: unknown[]): Promise<T | null> {
     }
     throw new Error(`Unsupported development store command: ${op}`);
   }
-  const response = await fetch(kvUrl, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${kvToken}`, "Content-Type": "application/json" },
-    body: JSON.stringify(command),
-    cache: "no-store",
-  });
-  if (!response.ok) throw new Error(`KV command failed: ${response.status}`);
-  const parsed = await response.json() as { result?: T | null };
-  return parsed.result ?? null;
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), kvTimeoutMs);
+  try {
+    const response = await fetch(kvUrl, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${kvToken}`, "Content-Type": "application/json" },
+      body: JSON.stringify(command),
+      cache: "no-store",
+      signal: controller.signal,
+    });
+    if (!response.ok) throw new Error(`KV command failed: ${response.status}`);
+    const parsed = await response.json() as { result?: T | null };
+    return parsed.result ?? null;
+  } catch (error) {
+    if (error instanceof Error && error.name === "AbortError") throw new Error("KV command timed out.");
+    throw error;
+  } finally {
+    clearTimeout(timeout);
+  }
 }
 
 async function dbGet<T>(key: string): Promise<T | null> {

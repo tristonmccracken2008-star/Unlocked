@@ -60,7 +60,7 @@ type RankedOpportunity = {
   progressBoost: number;
   careerRoadmapBoost: number;
   relationshipBoost: number;
-  relationship: OpportunityRelationship;
+  relationship: OpportunityRelationship | null;
   finalScore: number;
 };
 
@@ -223,14 +223,15 @@ function milestoneReasons(profile: AdvisorProfile, milestone: RoadmapMilestone) 
 function opportunityReasons(profile: AdvisorProfile, ranked: RankedOpportunity) {
   const intelligence = getOpportunityIntelligence(ranked.opportunity);
   const careerFit = scoreCareerRoadmapFit(ranked.opportunity, profile.goals.careerGoal, profile.academics.timelineStage);
+  const relationship = ranked.relationship ?? getOpportunityRelationship(ranked.opportunity, [ranked.opportunity]);
   return unique([
     `You are a ${profile.academics.timelineStage.toLowerCase()} ${profile.academics.major} student.`,
     ...ranked.score.reasons,
     ...ranked.milestoneReasons,
     ranked.roadmapBoost > 0 ? `Fits your roadmap priority: ${intelligence.category}.` : "",
     ranked.careerRoadmapBoost > 0 ? `Fits the ${careerFit.roadmap.label} progression for your current stage.` : "",
-    ranked.relationship.prerequisites.length ? `Next step is clear: ${ranked.relationship.prerequisites[0]}.` : "",
-    ranked.relationship.followUps.length ? "This can unlock stronger follow-up opportunities later." : "",
+    relationship.prerequisites.length ? `Next step is clear: ${relationship.prerequisites[0]}.` : "",
+    relationship.followUps.length ? "This can unlock stronger follow-up opportunities later." : "",
     ranked.progressBoost > 0 ? "Matches an opportunity you already saved or started." : "",
     profile.goals.currentPriority && normalizePriority(profile.goals.currentPriority, ranked.opportunity) ? `Matches your current priority: ${profile.goals.currentPriority}.` : "",
   ]).slice(0, 6);
@@ -294,8 +295,8 @@ function rankOpportunity(profile: AdvisorProfile, opportunity: Opportunity, cont
   const roadmapBoost = roadmapCategories.includes(intelligence.category) || roadmapCategories.includes(opportunity.category) ? 10 : 0;
   const careerFit = scoreCareerRoadmapFit(opportunity, profile.goals.careerGoal, profile.academics.timelineStage);
   const careerRoadmapBoost = Math.min(24, careerFit.score);
-  const relationship = getOpportunityRelationship(opportunity, source);
-  const relationshipBoost = Math.min(8, relationship.prerequisites.length * 2 + relationship.followUps.length);
+  const relationship: OpportunityRelationship | null = null;
+  const relationshipBoost = 0;
   const savedBoost = profile.experience.savedOpportunityIds.includes(opportunity.id) ? 5 : 0;
   const activeApplicationBoost = progressForOpportunity(profile, opportunity.id) ? 7 : 0;
   const connectionBoost = Math.min(12, milestoneReasons.length * 6);
@@ -401,7 +402,8 @@ function diversityAdjustedOpportunityRecommendations(profile: AdvisorProfile, ra
     categoryCounts.set(next.opportunity.category, (categoryCounts.get(next.opportunity.category) ?? 0) + 1);
     typeCounts.set(next.opportunity.type, (typeCounts.get(next.opportunity.type) ?? 0) + 1);
   }
-  return selected.map((item) => toOpportunityRecommendation(profile, item));
+  const selectedSource = ranked.map((item) => item.opportunity);
+  return selected.map((item) => toOpportunityRecommendation(profile, { ...item, relationship: getOpportunityRelationship(item.opportunity, selectedSource) }));
 }
 
 export function rankOpportunityRecommendations(input: RecommendationEngineInput): RecommendationV1[] {

@@ -11,6 +11,9 @@ const personalizedHome = read("components/personalized-home.tsx");
 const accountSync = read("data/account-sync.ts");
 const tracker = read("components/my-opportunities-page.tsx");
 const journeyDashboard = read("components/student-journey-dashboard.tsx");
+const forYouApi = read("app/api/advisor/for-you/route.ts");
+const authStore = read("lib/auth-store.ts");
+const recommendationEngine = read("data/recommendation-engine.ts");
 
 assert.doesNotMatch(globalSearch, /opportunities as seedOpportunities/, "Global search must not statically import the full opportunity catalog.");
 assert.match(globalSearch, /if\(!open\|\|loaded\)return/, "Global search should fetch the catalog only after the search dialog opens.");
@@ -39,5 +42,11 @@ assert.match(accountSync, /let hydrateRequest/, "Account hydration requests shou
 assert.match(accountSync, /resetAccountSessionCache/, "Account session cache should be explicitly reset for account switching.");
 assert.match(accountSync, /const cloudData = session\.data/, "Hydration should reuse session account data instead of fetching it again.");
 assert.match(accountSync, /!migrated \|\| !sameAccountData\(merged, cloudData\)/, "Hydration should skip account writes when merged data has not changed.");
+
+assert.match(authStore, /kvTimeoutMs/, "Production KV operations should have a bounded timeout.");
+assert.match(authStore, /AbortController/, "Production KV fetches should be abortable.");
+assert.match(forYouApi, /serverTimeoutMs/, "For You should have a server-side hard failure bound.");
+assert.match(forYouApi, /lastCheckpoint/, "For You should log the last completed checkpoint on failure.");
+assert.match(recommendationEngine, /selected\.map\(\(item\) => toOpportunityRecommendation\(profile, \{ \.\.\.item, relationship: getOpportunityRelationship/, "Opportunity relationship work should run only for selected recommendations.");
 
 console.log("Performance regression checks passed.");
