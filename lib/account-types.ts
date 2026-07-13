@@ -3,6 +3,7 @@ import type { TrackedOpportunity } from "@/data/student-activity";
 import type { StudentProfile } from "@/data/student-profile";
 import type { AdvisorAccountData } from "./advisor/types";
 import type { BillingRecord } from "./billing";
+import type { ReferralAccountData } from "./referrals";
 
 export type AuthUser = {
   id: string;
@@ -48,6 +49,7 @@ export type AccountData = {
   preferences: UserPreferencesRecord | null;
   journeyProgress: JourneyProgressRecord;
   advisor: AdvisorAccountData | null;
+  referrals: ReferralAccountData | null;
   updatedAt: string;
 };
 

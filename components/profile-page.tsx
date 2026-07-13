@@ -40,6 +40,7 @@ export function ProfilePage() {
   const pro = isProUser(billing);
   const interval = billing?.billingInterval === "year" ? "Annual" : billing?.billingInterval === "month" ? "Monthly" : "";
   const renewalLabel = billing?.currentPeriodEnd ? new Intl.DateTimeFormat(undefined, { month: "long", day: "numeric", year: "numeric" }).format(new Date(billing.currentPeriodEnd)) : "";
+  const referralProLabel = billing?.referralProGrantedUntil ? new Intl.DateTimeFormat(undefined, { month: "long", day: "numeric", year: "numeric" }).format(new Date(billing.referralProGrantedUntil)) : "";
   return <div>
     <section className="px-5 pt-8 sm:px-8 sm:pt-10">
       <div className="mx-auto grid max-w-5xl gap-5 border-b border-ink/15 pb-6 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
@@ -83,7 +84,7 @@ export function ProfilePage() {
           <div>
             <p className="rule-label text-forest">Billing</p>
             <h2 className="mt-2 font-editorial text-2xl font-bold">{pro ? `UnlockED Pro${interval ? ` — ${interval}` : ""}` : "UnlockED Free"}</h2>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-ink/50">{pro ? billing?.cancelAtPeriodEnd && renewalLabel ? `Cancels ${renewalLabel}. You’ll keep Pro access until then.` : renewalLabel ? `Renews ${renewalLabel}.` : "Your Pro subscription is active." : "Free includes Discover, Journey, standard Journey Cards, and a limited For You preview."}</p>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-ink/50">{pro ? referralProLabel && !billing?.stripeSubscriptionId ? `Referral-earned Pro is active until ${referralProLabel}.` : billing?.cancelAtPeriodEnd && renewalLabel ? `Cancels ${renewalLabel}. You’ll keep Pro access until then.` : renewalLabel ? `Renews ${renewalLabel}.` : "Your Pro subscription is active." : "Free includes Discover, Journey, standard Journey Cards, and a limited For You preview."}</p>
             {billing?.status === "past_due" && <p className="mt-3 max-w-2xl rounded-2xl bg-amber-50 px-4 py-3 text-xs font-bold leading-5 text-amber-800">Payment needs attention. Update your payment method in Stripe to keep Pro active.</p>}
             {billing?.status && <p className="mt-2 text-xs font-bold uppercase tracking-wider text-ink/35">Subscription status: {billing.status.replaceAll("_"," ")}</p>}
             {billingAvailability?.developmentWarning && <p className="mt-3 max-w-2xl rounded-2xl bg-paper px-4 py-3 text-xs font-bold leading-5 text-ink/55">{billingAvailability.developmentWarning}</p>}

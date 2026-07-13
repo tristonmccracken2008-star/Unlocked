@@ -16,6 +16,8 @@ export type BillingRecord = {
   billingInterval: BillingInterval;
   currentPeriodStart?: string;
   currentPeriodEnd?: string;
+  referralProGrantedAt?: string;
+  referralProGrantedUntil?: string;
   cancelAtPeriodEnd: boolean;
   updatedAt: string;
 };
@@ -71,6 +73,8 @@ export function normalizeBillingRecord(value: unknown): BillingRecord {
     billingInterval,
     currentPeriodStart: typeof input.currentPeriodStart === "string" ? input.currentPeriodStart : undefined,
     currentPeriodEnd: typeof input.currentPeriodEnd === "string" ? input.currentPeriodEnd : undefined,
+    referralProGrantedAt: typeof input.referralProGrantedAt === "string" ? input.referralProGrantedAt : undefined,
+    referralProGrantedUntil: typeof input.referralProGrantedUntil === "string" ? input.referralProGrantedUntil : undefined,
     cancelAtPeriodEnd: Boolean(input.cancelAtPeriodEnd),
     updatedAt: typeof input.updatedAt === "string" ? input.updatedAt : new Date().toISOString(),
   };
@@ -78,6 +82,9 @@ export function normalizeBillingRecord(value: unknown): BillingRecord {
 
 export function isProUser(billing: BillingRecord | null | undefined) {
   const record = normalizeBillingRecord(billing);
+  const referralGrantActive = Boolean(record.referralProGrantedUntil && new Date(record.referralProGrantedUntil) > new Date());
+  if (referralGrantActive) return true;
+  if (record.referralProGrantedUntil && !record.stripeSubscriptionId) return false;
   if (record.tier !== "pro") return false;
   if (record.status === "active" || record.status === "trialing" || record.status === "past_due") return true;
   if (record.status === "canceled" && record.cancelAtPeriodEnd && record.currentPeriodEnd) return new Date(record.currentPeriodEnd) > new Date();

@@ -80,6 +80,12 @@ export const analyticsEvents = [
   "onboarding_completed",
   "onboarding_save_failed",
   "report_outdated",
+  "referral_link_opened",
+  "referral_link_copied",
+  "referral_code_copied",
+  "referral_share_started",
+  "referral_completed",
+  "referral_reward_unlocked",
 ] as const;
 export type AnalyticsEventName = (typeof analyticsEvents)[number];
 export type AnalyticsEventProperties = {
@@ -97,5 +103,7 @@ export type AnalyticsEventProperties = {
   stepIndex?: string;
   stepCount?: string;
   reason?: string;
+  referralCode?: string;
+  referralReward?: string;
 };
 export type AnalyticsSummary = { dailyUsers: number; weeklyUsers: number; mostViewed: [string, number][]; searchedSchools: [string, number][]; searchedMajors: [string, number][]; mostSaved: [string, number][]; funnel: { homepage: number; onboarding: number; dashboard: number } };

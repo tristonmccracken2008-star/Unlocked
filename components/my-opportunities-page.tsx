@@ -11,6 +11,7 @@ import { schools } from "@/data/seed";
 import { readCompletedStudentProfile, type StudentProfile } from "@/data/student-profile";
 import type { AccountSession } from "@/lib/account-types";
 import { isProUser } from "@/lib/billing";
+import { canShowFounderBadge, canUseReferralJourneyThemes } from "@/lib/referrals";
 import { ArrowIcon, BookmarkIcon, CheckCircleIcon, CheckIcon, HeartIcon, MoreIcon, MoveIcon, PenLineIcon, SendIcon, SparkIcon, TargetIcon, TrophyIcon, XCircleIcon } from "./icons";
 import { OrganizationLogo } from "./organization-logo";
 import { trackProductEvent } from "@/data/product-analytics";
@@ -287,7 +288,8 @@ function JourneyCardModal({ baseSummary, profile, activity, session, opportuniti
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const pro = isProUser(session?.data?.billing);
-  const premiumThemeSelected = options.theme !== "forest" && !pro;
+  const referralThemes = canUseReferralJourneyThemes(session?.data?.referrals);
+  const premiumThemeSelected = options.theme !== "forest" && !(pro || referralThemes);
   const summary = useMemo(() => options.range === "all" ? baseSummary : buildCollegeJourneySummary({ profile, activity, opportunities: Object.values(opportunitiesById), range: options.range }), [activity, baseSummary, opportunitiesById, options.range, profile]);
   const svg = useMemo(() => journeyCardSvg({ summary, profile, session, options, opportunitiesById }), [opportunitiesById, options, profile, session, summary]);
   const previewUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
@@ -322,7 +324,7 @@ function JourneyCardModal({ baseSummary, profile, activity, session, opportuniti
     setBusy(true);
     setMessage("");
     try {
-      if (premiumThemeSelected) throw new Error("Premium Journey Card themes require UnlockED Pro.");
+      if (premiumThemeSelected) throw new Error("Premium Journey Card themes require UnlockED Pro or a referral reward.");
       const blob = await imageBlob();
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
@@ -344,7 +346,7 @@ function JourneyCardModal({ baseSummary, profile, activity, session, opportuniti
     setMessage("");
     trackProductEvent("journey_card_share_started", { filterValue: options.format });
     try {
-      if (premiumThemeSelected) throw new Error("Premium Journey Card themes require UnlockED Pro.");
+      if (premiumThemeSelected) throw new Error("Premium Journey Card themes require UnlockED Pro or a referral reward.");
       const blob = await imageBlob();
       const file = new File([blob], `unlocked-college-journey-${options.format}.png`, { type: "image/png" });
       if (navigator.canShare?.({ files: [file] })) {
@@ -389,7 +391,7 @@ function JourneyCardModal({ baseSummary, profile, activity, session, opportuniti
         <ControlGroup label="Format">{(["story", "square"] as ShareFormat[]).map((format) => <button key={format} type="button" onClick={() => { setOptions((current) => ({ ...current, format })); trackProductEvent("journey_card_format_changed", { filterValue: format }); }} className={`min-h-10 rounded-full px-4 text-sm font-bold capitalize ${options.format === format ? "bg-forest text-white" : "bg-white text-ink/60 ring-1 ring-ink/10"}`}>{format === "story" ? "Story 9:16" : "Square"}</button>)}</ControlGroup>
         <ControlGroup label="Theme">{(Object.keys(shareThemes) as ShareTheme[]).map((theme) => {
           const premium = theme !== "forest";
-          return <button key={theme} type="button" onClick={() => { setOptions((current) => ({ ...current, theme })); trackProductEvent(premium ? "premium_theme_previewed" : "journey_card_theme_changed", { filterValue: theme }); if (premium && !pro) setMessage("Premium themes can be previewed, but export requires Pro."); else trackProductEvent("premium_journey_theme_selected", { filterValue: theme }); }} className={`inline-flex min-h-10 items-center gap-2 rounded-full px-4 text-sm font-bold ${options.theme === theme ? "bg-forest text-white" : "bg-white text-ink/60 ring-1 ring-ink/10"}`}><span className="h-3 w-3 rounded-full" style={{ background: shareThemes[theme].background }} />{shareThemes[theme].name}{premium ? " · Pro" : ""}</button>;
+          return <button key={theme} type="button" onClick={() => { setOptions((current) => ({ ...current, theme })); trackProductEvent(premium ? "premium_theme_previewed" : "journey_card_theme_changed", { filterValue: theme }); if (premium && !(pro || referralThemes)) setMessage("Premium themes can be previewed, but export requires Pro or a referral reward."); else trackProductEvent("premium_journey_theme_selected", { filterValue: theme }); }} className={`inline-flex min-h-10 items-center gap-2 rounded-full px-4 text-sm font-bold ${options.theme === theme ? "bg-forest text-white" : "bg-white text-ink/60 ring-1 ring-ink/10"}`}><span className="h-3 w-3 rounded-full" style={{ background: shareThemes[theme].background }} />{shareThemes[theme].name}{premium && !referralThemes ? " · Pro" : premium ? " · Unlocked" : ""}</button>;
         })}</ControlGroup>
         <ControlGroup label="Range">{(["all", "semester", "academicYear"] as JourneyTimeRange[]).map((range) => <button key={range} type="button" onClick={() => setOptions((current) => ({ ...current, range }))} className={`min-h-10 rounded-full px-4 text-sm font-bold ${options.range === range ? "bg-forest text-white" : "bg-white text-ink/60 ring-1 ring-ink/10"}`}>{range === "all" ? "All time" : range === "semester" ? "This semester" : "Academic year"}</button>)}</ControlGroup>
         <div className="rounded-[1.35rem] bg-white/78 p-4 text-sm leading-6 text-ink/56 ring-1 ring-ink/8">
@@ -435,6 +437,7 @@ function journeyCardSvg({ summary, profile, session, options, opportunitiesById 
   const classYear = escapeSvg(safeClassYear(profile));
   const topCategory = escapeSvg(summary.topCategory ?? "Building");
   const topInterest = escapeSvg(summary.topInterest ?? "Exploring");
+  const founderBadge = canShowFounderBadge(session?.data?.referrals);
   const milestones = summary.completedMilestones.filter((item) => item.shareable).slice(0, story ? 4 : 3);
   const milestoneText = milestones.length ? milestones.map((item, index) => `<text x="96" y="${story ? 1270 + index * 70 : 742 + index * 55}" fill="${theme.text}" font-size="${story ? 32 : 24}" font-weight="700">${escapeSvg(item.title)}</text>`).join("") : `<text x="96" y="${story ? 1270 : 742}" fill="${theme.muted}" font-size="${story ? 32 : 24}" font-weight="700">First milestone coming soon</text>`;
   const subtitle = [school, major, classYear].filter(Boolean).join(" • ");
@@ -449,6 +452,7 @@ function journeyCardSvg({ summary, profile, session, options, opportunitiesById 
   <text x="155" y="265" text-anchor="middle" fill="${theme.background}" font-size="56" font-weight="900">${escapeSvg(initialsFor(profile, session))}</text>
   <text x="260" y="225" fill="${theme.text}" font-size="${story ? 56 : 46}" font-family="Georgia, serif" font-weight="800">${name}</text>
   <text x="260" y="280" fill="${theme.muted}" font-size="${story ? 30 : 24}" font-weight="600">${escapeSvg(subtitle)}</text>
+  ${founderBadge ? `<rect x="${story ? 790 : 800}" y="208" width="160" height="48" rx="24" fill="${theme.accent}" opacity=".95"/><text x="${story ? 870 : 880}" y="239" text-anchor="middle" fill="${theme.background}" font-size="18" font-weight="900" letter-spacing="3">FOUNDER</text>` : ""}
   <line x1="80" x2="1000" y1="${story ? 405 : 360}" y2="${story ? 405 : 360}" stroke="${theme.muted}" opacity=".25"/>
   <text x="96" y="${story ? 520 : 445}" fill="${theme.muted}" font-size="${story ? 28 : 22}" font-weight="800">Opportunities saved</text>
   <text x="940" y="${story ? 520 : 445}" text-anchor="end" fill="${theme.text}" font-size="${story ? 58 : 44}" font-family="Georgia, serif" font-weight="800">${summary.recap.opportunitiesSaved}</text>

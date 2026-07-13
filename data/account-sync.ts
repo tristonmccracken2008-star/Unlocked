@@ -119,13 +119,13 @@ export function clearLocalDashboardState() {
   window.dispatchEvent(new CustomEvent(studentActivityEvent, { detail: { viewed: [], saved: [], claimed: [], tracked: {} } }));
 }
 
-export async function hydrateAccountData() {
+export async function hydrateAccountData(): Promise<AccountSession> {
   if (hydrateRequest) return hydrateRequest;
   hydrateRequest = hydrateAccountDataInner().finally(() => { hydrateRequest = null; });
   return hydrateRequest;
 }
 
-async function hydrateAccountDataInner() {
+async function hydrateAccountDataInner(): Promise<AccountSession> {
   const session = await readAccountSessionUncached();
   if (!session.authenticated || !session.user) return session;
   const cloudData = session.data;
@@ -138,6 +138,7 @@ async function hydrateAccountDataInner() {
     journeyProgress: migrated ? { ...(local.journeyProgress ?? {}), ...(cloudData?.journeyProgress ?? {}) } : { ...(cloudData?.journeyProgress ?? {}), ...(local.journeyProgress ?? {}) },
     preferences: cloudData?.preferences ?? null,
     advisor: cloudData?.advisor ?? null,
+    referrals: cloudData?.referrals ?? null,
   };
   merged.tracker = merged.activity?.tracked ?? {};
   merged.savedOpportunities = [...new Set([...(merged.activity?.saved ?? []), ...Object.keys(merged.tracker)])].map((opportunityId) => ({ opportunityId, savedAt: merged.tracker?.[opportunityId]?.savedAt ?? new Date().toISOString() }));
@@ -153,7 +154,8 @@ async function hydrateAccountDataInner() {
   localStorage.setItem(journeyProgressStorageKey, JSON.stringify(merged.journeyProgress ?? {}));
   localStorage.setItem(accountMigrationKey(session.user.id), "true");
   const saved = !migrated || !sameAccountData(merged, cloudData) ? await pushAccountData(merged) : cloudData;
-  const syncedSession = { ...session, data: saved ?? { profile: merged.profile ?? null, onboardingComplete: Boolean(merged.onboardingComplete), billing: cloudData?.billing ?? defaultBillingRecord(), activity: merged.activity ?? null, savedOpportunities: merged.savedOpportunities ?? [], tracker: merged.tracker ?? {}, preferences: merged.preferences ?? null, journeyProgress: merged.journeyProgress ?? {}, advisor: merged.advisor ?? null, updatedAt: new Date().toISOString() } } satisfies AccountSession;
+  const fallbackData: AccountData = { profile: merged.profile ?? null, onboardingComplete: Boolean(merged.onboardingComplete), billing: cloudData?.billing ?? defaultBillingRecord(), activity: merged.activity ?? null, savedOpportunities: merged.savedOpportunities ?? [], tracker: merged.tracker ?? {}, preferences: merged.preferences ?? null, journeyProgress: merged.journeyProgress ?? {}, advisor: merged.advisor ?? null, referrals: cloudData?.referrals ?? null, updatedAt: new Date().toISOString() };
+  const syncedSession = { ...session, data: saved ?? fallbackData } satisfies AccountSession;
   sessionCache = syncedSession;
   sessionCacheAt = Date.now();
   window.dispatchEvent(new CustomEvent(accountSessionEvent, { detail: syncedSession }));
