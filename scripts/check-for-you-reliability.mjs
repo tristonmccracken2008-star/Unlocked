@@ -5,6 +5,7 @@ const read = (path) => readFileSync(path, "utf8");
 
 const advisor = read("components/advisor-page.tsx");
 const api = read("app/api/advisor/for-you/route.ts");
+const snapshot = read("lib/for-you-snapshot.ts");
 const authStore = read("lib/auth-store.ts");
 const analytics = read("lib/analytics-types.ts");
 const pkg = read("package.json");
@@ -14,7 +15,7 @@ assert.match(advisor, /readAccountSession\(true\)/, "For You must confirm the cu
 assert.match(advisor, /accountSessionEvent/, "For You must react to account session changes.");
 assert.match(advisor, /sessionReadiness !== "authenticated"/, "For You must gate recommendation loading until the session is authenticated.");
 assert.match(advisor, /activeRequestKey/, "For You must dedupe in-flight recommendation requests.");
-assert.match(advisor, /requestId\.current !== currentRequest \|\| sessionKey\.current !== targetSessionKey/, "For You must ignore stale responses and account-switch races.");
+assert.match(advisor, /requestId\.current !== currentRequest \|\| \(sessionKey\.current && sessionKey\.current !== targetSessionKey\)/, "For You must ignore stale responses and account-switch races.");
 assert.match(advisor, /lastValidResponse/, "For You must preserve the last valid response if a refresh fails.");
 assert.match(advisor, /transientForYouStatus/, "For You must identify transient server failures.");
 assert.match(advisor, /for_you_auto_retry/, "For You must track the single automatic retry path.");
@@ -25,10 +26,10 @@ assert.doesNotMatch(advisor, /useEffect\(\(\) => \{\s*void loadForYou\(\);/, "Fo
 assert.match(api, /nextRequestId/, "For You API must assign a safe request ID to each request.");
 assert.match(api, /requestId/, "For You API logs must include request IDs.");
 assert.match(api, /coldStart/, "For You API must distinguish cold-start requests in logs.");
-assert.match(api, /getForYouGlobalIndex/, "For You API must precompute user-independent recommendation indexes.");
-assert.match(api, /globalIndexPromise/, "For You API global index warmup must be deduped.");
+assert.match(snapshot, /getForYouGlobalIndex/, "For You snapshot generation must precompute user-independent recommendation indexes.");
+assert.match(snapshot, /globalIndexPromise/, "For You global index warmup must be deduped.");
 assert.match(api, /global indexes complete/, "For You API must checkpoint global index readiness.");
-assert.match(api, /withTimeout\(getForYouGlobalIndex\(\), "global recommendation index", 1000\)/, "For You API must bound global index initialization.");
+assert.match(snapshot, /withTimeout\(getForYouGlobalIndex\(\), "global recommendation index", globalIndexTimeoutMs\)/, "For You must bound global index initialization.");
 assert.match(api, /response complete/, "For You API must log total completion in a finally block.");
 
 assert.match(authStore, /kvTimeoutMs = 2800/, "KV operation timeout should fit inside the For You server hard limit even with one retry.");

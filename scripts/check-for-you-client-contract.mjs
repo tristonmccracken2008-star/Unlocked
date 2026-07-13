@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 const advisor = readFileSync("components/advisor-page.tsx", "utf8");
 const api = readFileSync("app/api/advisor/for-you/route.ts", "utf8");
 
-for (const state of ["pro_ready", "free_preview", "profile_incomplete", "empty", "error"]) {
+for (const state of ["pro_ready", "free_preview", "profile_incomplete", "empty", "preparing", "error"]) {
   assert.ok(advisor.includes(`"${state}"`), `Client must understand ${state}.`);
   assert.ok(api.includes(`"${state}"`), `API must be able to return ${state}.`);
 }
@@ -17,6 +17,7 @@ assert.ok(advisor.includes("<TopRecommendation view={top}") && advisor.includes(
 assert.ok(advisor.includes('pageState === "free_preview" ? <ForYouUpgradeGate'), "free_preview with recommendations must render preview cards plus the Pro upsell.");
 assert.ok(advisor.includes("<ForYouSetupState"), "profile_incomplete must render profile guidance.");
 assert.ok(advisor.includes("<ForYouEmptyState"), "empty must render an honest empty state.");
+assert.ok(advisor.includes("<ForYouPreparingState"), "preparing must render an intentional non-error loading state.");
 assert.ok(advisor.includes("<ForYouErrorState"), "error must render a retryable error state.");
 
 assert.ok(api.includes("logResponseShape"), "API must log response field names only.");

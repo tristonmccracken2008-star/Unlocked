@@ -233,6 +233,7 @@ function normalizeAdvisorData(value: AdvisorAccountData | null | undefined): Adv
   return {
     normalizedProfiles: Array.isArray(value.normalizedProfiles) ? value.normalizedProfiles.slice(-20) : [],
     recommendationSnapshots: Array.isArray(value.recommendationSnapshots) ? value.recommendationSnapshots.slice(-20) : [],
+    forYouSnapshots: Array.isArray(value.forYouSnapshots) ? value.forYouSnapshots.slice(-3) : [],
     auditRecords: Array.isArray(value.auditRecords) ? value.auditRecords.slice(-50) : [],
     feedbackRecords: Array.isArray(value.feedbackRecords) ? value.feedbackRecords.slice(-100) : [],
     completedActionEvidence: Array.isArray(value.completedActionEvidence) ? value.completedActionEvidence.slice(-100) : [],

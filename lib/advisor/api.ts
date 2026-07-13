@@ -18,7 +18,7 @@ export function unauthorizedAdvisorResponse() {
 }
 
 export function emptyAdvisorData(): AdvisorAccountData {
-  return { normalizedProfiles: [], recommendationSnapshots: [], auditRecords: [], feedbackRecords: [], completedActionEvidence: [], updatedAt: new Date().toISOString() };
+  return { normalizedProfiles: [], recommendationSnapshots: [], forYouSnapshots: [], auditRecords: [], feedbackRecords: [], completedActionEvidence: [], updatedAt: new Date().toISOString() };
 }
 
 export function nextAdvisorData(current: AccountData, patch: Partial<AdvisorAccountData>): AdvisorAccountData {
@@ -26,6 +26,7 @@ export function nextAdvisorData(current: AccountData, patch: Partial<AdvisorAcco
   const next = {
     normalizedProfiles: [...existing.normalizedProfiles, ...(patch.normalizedProfiles ?? [])].slice(-20),
     recommendationSnapshots: [...existing.recommendationSnapshots, ...(patch.recommendationSnapshots ?? [])].slice(-20),
+    forYouSnapshots: [...(existing.forYouSnapshots ?? []), ...(patch.forYouSnapshots ?? [])].slice(-3),
     auditRecords: [...existing.auditRecords, ...(patch.auditRecords ?? [])].slice(-50),
     feedbackRecords: [...existing.feedbackRecords, ...(patch.feedbackRecords ?? [])].slice(-100),
     completedActionEvidence: [...existing.completedActionEvidence, ...(patch.completedActionEvidence ?? [])].slice(-100),

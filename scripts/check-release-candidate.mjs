@@ -12,6 +12,8 @@ const discover = read("components/opportunity-filter.tsx");
 const journeyDashboard = read("components/student-journey-dashboard.tsx");
 const advisorPage = read("components/advisor-page.tsx");
 const forYouApi = read("app/api/advisor/for-you/route.ts");
+const forYouSnapshot = read("lib/for-you-snapshot.ts");
+const advisorRoute = read("app/advisor/page.tsx");
 const themeController = read("components/theme-controller.tsx");
 const globals = read("app/globals.css");
 const analytics = read("lib/analytics-types.ts");
@@ -34,7 +36,9 @@ assert.doesNotMatch(journeyDashboard, /import \{[^}]*opportunities,/, "Journey d
 assert.doesNotMatch(journeyDashboard, /buildRecommendationService|NextToReview|JourneyRecapCard/, "Journey must not include retired recommendations or recap sharing.");
 assert.match(journeyDashboard, /\/api\/opportunities\?ids=/, "Journey dashboard should fetch only tracked opportunities.");
 
-assert.match(forYouApi, /service\.recommendations\.slice\(0,\s*2\)/, "Free For You API must return only preview recommendations.");
+assert.match(forYouSnapshot, /recommendations: allowed\.map/, "For You snapshots must store serialized recommendation view models.");
+assert.match(forYouSnapshot, /const allowed = pro \? service\.recommendations\.slice\(0,\s*24\) : \[\]/, "Free For You should render the Pro conversion state immediately without expensive feed generation.");
+assert.match(advisorRoute, /resolveForYouState/, "For You should resolve initial page state on the server.");
 assert.match(forYouApi, /console\.info\("\[UnlockED For You\] request started"/, "For You API should log safe production diagnostics.");
 assert.match(forYouApi, /auth complete/, "For You API should checkpoint auth completion.");
 assert.match(forYouApi, /ranking complete/, "For You API should checkpoint ranking completion.");
@@ -43,7 +47,7 @@ assert.match(forYouApi, /serverTimeoutMs/, "For You API should have a server-sid
 assert.match(authStore, /kvTimeoutMs/, "KV operations should have a bounded timeout.");
 assert.match(recommendationEngine, /selected\.map\(\(item\) => toOpportunityRecommendation\(profile, \{ \.\.\.item, relationship: getOpportunityRelationship/, "Opportunity relationships should be generated only for selected recommendations.");
 assert.match(forYouApi, /pageState/, "For You API must return explicit page states.");
-assert.match(advisorPage, /type ForYouPageState = "loading" \| "pro_ready" \| "free_preview" \| "profile_incomplete" \| "empty" \| "error"/, "For You client must use a finite state machine.");
+assert.match(advisorPage, /type ForYouPageState = "loading" \| "pro_ready" \| "free_preview" \| "profile_incomplete" \| "empty" \| "preparing" \| "error"/, "For You client must use a finite state machine.");
 assert.match(advisorPage, /AbortController/, "For You client must abort stale or slow requests.");
 assert.match(advisorPage, /ForYouErrorState/, "For You must render a real error state.");
 assert.match(advisorPage, /ForYouFreePreviewOnly/, "Free users with zero previews must still see a Pro conversion state.");

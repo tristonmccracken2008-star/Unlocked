@@ -9,6 +9,7 @@ const checkout = read("app/api/billing/checkout/route.ts");
 const webhook = read("app/api/billing/webhook/route.ts");
 const portal = read("app/api/billing/portal/route.ts");
 const forYouApi = read("app/api/advisor/for-you/route.ts");
+const forYouSnapshot = read("lib/for-you-snapshot.ts");
 const forYou = read("components/advisor-page.tsx");
 const profile = read("components/profile-page.tsx");
 const journey = read("components/my-opportunities-page.tsx");
@@ -71,9 +72,11 @@ for (const token of ["getSession", "session.data.billing.stripeCustomerId", "cre
   assert.ok(portal.includes(token), `Portal route must include ${token}.`);
 }
 
-for (const token of ["getEntitlementsForBilling", "slice(0, 2)", "slice(0, 24)", "canViewRecommendationExplanations"]) {
-  assert.ok(forYouApi.includes(token), `For You API must server-gate ${token}.`);
+assert.ok(forYouApi.includes("resolveForYouState"), "For You API must use the server-gated snapshot resolver.");
+for (const token of ["getEntitlementsForBilling", "slice(0, 24)", "canViewRecommendationExplanations"]) {
+  assert.ok(forYouSnapshot.includes(token), `For You snapshot resolver must server-gate ${token}.`);
 }
+assert.ok(forYouSnapshot.includes("const allowed = pro ? service.recommendations.slice(0, 24) : []"), "Free For You must not require paid recommendation generation.");
 
 assert.ok(forYou.includes("pro_gate_viewed"), "For You must show a Pro gate for Free preview.");
 assert.ok(forYou.includes("Unlock your full personalized feed"), "For You must explain the preview gate.");

@@ -10,6 +10,7 @@ import type { StudentProfile } from "@/data/student-profile";
 import type { AccountSession } from "@/lib/account-types";
 import type { AdvisorAccessState } from "@/lib/advisor-access";
 import type { Entitlements } from "@/lib/entitlements";
+import type { ForYouServerState } from "@/lib/for-you-snapshot";
 import { accountSessionEvent, readAccountSession } from "@/data/account-sync";
 import { trackProductEvent } from "@/data/product-analytics";
 import { ArrowIcon, BookmarkIcon, CheckCircleIcon, SearchIcon, SendIcon, TargetIcon } from "./icons";
@@ -17,7 +18,7 @@ import { OrganizationLogo } from "./organization-logo";
 import { AddToJourneyButton } from "./opportunity-activity";
 import type { FeedbackType } from "@/lib/advisor/types";
 
-type ForYouPageState = "loading" | "pro_ready" | "free_preview" | "profile_incomplete" | "empty" | "error";
+type ForYouPageState = "loading" | "pro_ready" | "free_preview" | "profile_incomplete" | "empty" | "preparing" | "error";
 type SessionReadiness = "checking" | "authenticated" | "unauthenticated" | "error";
 
 type AdvisorState = {
@@ -30,9 +31,12 @@ type AdvisorState = {
   entitlements: Entitlements | null;
   recommendations: RecommendationViewModel[];
   totalMatches: number;
+  snapshotStatus?: string;
+  isRefreshing?: boolean;
+  errorCode?: string;
 };
 
-const validForYouPageStates = ["pro_ready", "free_preview", "profile_incomplete", "empty", "error"] as const;
+const validForYouPageStates = ["pro_ready", "free_preview", "profile_incomplete", "empty", "preparing", "error"] as const;
 const emptyActivity: StudentActivity = { viewed: [], saved: [], claimed: [], tracked: {} };
 
 function isForYouPageState(value: unknown): value is Exclude<ForYouPageState, "loading"> {
@@ -60,6 +64,9 @@ export function normalizeForYouPayload(payload: unknown): { pageState: Exclude<F
       entitlements: input.entitlements ?? null,
       recommendations,
       totalMatches: typeof input.totalMatches === "number" ? input.totalMatches : recommendations.length,
+      snapshotStatus: typeof input.snapshotStatus === "string" ? input.snapshotStatus : undefined,
+      isRefreshing: Boolean(input.isRefreshing),
+      errorCode: typeof input.errorCode === "string" ? input.errorCode : undefined,
     },
   };
 }
@@ -84,10 +91,11 @@ function wait(ms: number) {
   return new Promise((resolve) => window.setTimeout(resolve, ms));
 }
 
-export function AdvisorPage() {
-  const [state, setState] = useState<AdvisorState | null>(null);
-  const [pageState, setPageState] = useState<ForYouPageState>("loading");
-  const [sessionReadiness, setSessionReadiness] = useState<SessionReadiness>("checking");
+export function AdvisorPage({ initialState = null }: { initialState?: ForYouServerState | null }) {
+  const initial = initialState ? normalizeForYouPayload(initialState) : null;
+  const [state, setState] = useState<AdvisorState | null>(initial?.state ?? null);
+  const [pageState, setPageState] = useState<ForYouPageState>(initial?.pageState ?? "loading");
+  const [sessionReadiness, setSessionReadiness] = useState<SessionReadiness>(initialState ? "authenticated" : "checking");
   const [errorMessage, setErrorMessage] = useState("");
   const [feedbackMessage, setFeedbackMessage] = useState("");
   const [requestActive, setRequestActive] = useState(false);
@@ -95,7 +103,7 @@ export function AdvisorPage() {
   const requestId = useRef(0);
   const sessionKey = useRef("");
   const activeRequestKey = useRef("");
-  const lastValidResponse = useRef<{ pageState: Exclude<ForYouPageState, "loading">; state: AdvisorState } | null>(null);
+  const lastValidResponse = useRef<{ pageState: Exclude<ForYouPageState, "loading">; state: AdvisorState } | null>(initial ?? null);
 
   const applySession = useCallback((session: AccountSession) => {
     if (session.authenticated && session.user) {
@@ -135,8 +143,8 @@ export function AdvisorPage() {
   }, [applySession]);
 
   const loadForYou = useCallback(async (options: { allowAutoRetry?: boolean } = {}) => {
-    const targetSessionKey = sessionKey.current;
-    if (!targetSessionKey) return;
+    const targetSessionKey = sessionKey.current || (state ? "server-initial-session" : "");
+    if (!targetSessionKey && !state) return;
     if (activeRequestKey.current === targetSessionKey) return;
     const currentRequest = requestId.current + 1;
     requestId.current = currentRequest;
@@ -149,7 +157,7 @@ export function AdvisorPage() {
       const timeout = window.setTimeout(() => controller.abort(), 12000);
       try {
         const response = await fetch("/api/advisor/for-you", { credentials: "same-origin", cache: "no-store", signal: controller.signal });
-        if (requestId.current !== currentRequest || sessionKey.current !== targetSessionKey) return;
+        if (requestId.current !== currentRequest || (sessionKey.current && sessionKey.current !== targetSessionKey)) return;
         const payload = await response.json().catch(() => null) as unknown;
         if (!response.ok || !payload) {
           if (options.allowAutoRetry !== false && attempt === 0 && transientForYouStatus(response.status)) {
@@ -172,7 +180,7 @@ export function AdvisorPage() {
         setState(normalized.state);
         setPageState(normalized.pageState);
       } catch (error) {
-        if (requestId.current !== currentRequest || sessionKey.current !== targetSessionKey) return;
+        if (requestId.current !== currentRequest || (sessionKey.current && sessionKey.current !== targetSessionKey)) return;
         const timedOut = error instanceof DOMException && error.name === "AbortError";
         if (options.allowAutoRetry !== false && attempt === 0) {
           trackProductEvent("for_you_auto_retry", { reason: timedOut ? "timeout" : "network" });
@@ -202,6 +210,7 @@ export function AdvisorPage() {
   }, []);
 
   useEffect(() => {
+    if (initialState) return;
     void refreshSession();
     const onSessionChange = (event: Event) => {
       const session = (event as CustomEvent<AccountSession>).detail;
@@ -212,12 +221,19 @@ export function AdvisorPage() {
       requestId.current += 1;
       window.removeEventListener(accountSessionEvent, onSessionChange);
     };
-  }, [applySession, refreshSession]);
+  }, [applySession, initialState, refreshSession]);
 
   useEffect(() => {
+    if (initialState) return;
     if (sessionReadiness !== "authenticated") return;
     void loadForYou({ allowAutoRetry: true });
-  }, [loadForYou, sessionReadiness]);
+  }, [initialState, loadForYou, sessionReadiness]);
+
+  useEffect(() => {
+    if (pageState !== "preparing" && !state?.isRefreshing) return;
+    const timeout = window.setTimeout(() => void loadForYou({ allowAutoRetry: false }), pageState === "preparing" ? 900 : 1800);
+    return () => window.clearTimeout(timeout);
+  }, [loadForYou, pageState, state?.isRefreshing]);
 
   useEffect(() => {
     if (pageState === "loading") return;
@@ -271,6 +287,7 @@ export function AdvisorPage() {
   if (sessionReadiness === "error") return <ForYouErrorState message={errorMessage} onRetry={() => void refreshSession()} retrying={requestActive} />;
   if (pageState === "error") return <ForYouErrorState message={errorMessage} onRetry={() => void loadForYou({ allowAutoRetry: false })} retrying={requestActive} />;
   if (pageState === "profile_incomplete" || !state?.profile || !state.school) return <ForYouSetupState title="Complete your profile first." text="UnlockED needs your school, major, year, goals, and activity before it can recommend fitting opportunities." actionHref="/profile" actionLabel="Open profile" />;
+  if (pageState === "preparing") return <ForYouPreparingState />;
   if (pageState === "free_preview" && !top) return <ForYouFreePreviewOnly totalMatches={state.totalMatches} shown={state.recommendations.length} />;
   if (pageState === "empty" || !top) return <ForYouEmptyState />;
 
@@ -385,6 +402,17 @@ function ForYouEmptyState() {
         <Link href="/profile" className="inline-flex min-h-12 items-center justify-center rounded-full bg-forest px-6 text-sm font-bold text-white hover:bg-ink">Edit profile</Link>
         <Link href="/opportunities" className="inline-flex min-h-12 items-center justify-center rounded-full border border-ink/15 bg-white px-6 text-sm font-bold text-ink hover:border-forest hover:text-forest">Browse Discover</Link>
       </div>
+    </section>
+  </main>;
+}
+
+function ForYouPreparingState() {
+  return <main className="min-h-[70vh] bg-paper px-5 py-16 sm:px-8">
+    <section className="mx-auto max-w-4xl rounded-[2rem] bg-white/62 p-8 shadow-[0_18px_60px_rgba(43,33,26,.045)] ring-1 ring-ink/6 sm:p-10" aria-busy="true">
+      <p className="rule-label text-forest">For You</p>
+      <h1 className="mt-4 font-editorial text-5xl font-bold tracking-[-.045em]">Preparing your personalized recommendations.</h1>
+      <p className="mt-4 max-w-2xl text-sm leading-7 text-ink/55">UnlockED is building your first snapshot. This should finish on its own in a moment.</p>
+      <div className="mt-8 h-2 overflow-hidden rounded-full bg-ink/8"><div className="h-full w-1/3 animate-pulse rounded-full bg-forest" /></div>
     </section>
   </main>;
 }

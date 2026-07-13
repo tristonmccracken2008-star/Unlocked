@@ -1,4 +1,5 @@
 import type { Opportunity } from "@/data/opportunities";
+import type { RecommendationViewModel } from "@/data/recommendation-service";
 import type { StudentProfile } from "@/data/student-profile";
 
 export const advisorEngineVersion = "advisor-brain-v0.4";
@@ -235,8 +236,23 @@ export type AdvisorOutput = {
 export type AdvisorAccountData = {
   normalizedProfiles: NormalizedAdvisorProfile[];
   recommendationSnapshots: AdvisorOutput[];
+  forYouSnapshots?: ForYouRecommendationSnapshot[];
   auditRecords: RecommendationAuditRecord[];
   feedbackRecords: AdvisorFeedbackRecord[];
   completedActionEvidence: AdvisorFeedbackRecord[];
   updatedAt: string;
+};
+
+export type ForYouSnapshotState = "fresh" | "stale" | "missing" | "generating" | "failed";
+
+export type ForYouRecommendationSnapshot = {
+  userId: string;
+  profileVersion: string;
+  engineVersion: string;
+  generatedAt: string;
+  expiresAt: string;
+  recommendations: RecommendationViewModel[];
+  totalMatches: number;
+  sourceSignalsVersion: string;
+  pageState: "pro_ready" | "free_preview" | "empty";
 };

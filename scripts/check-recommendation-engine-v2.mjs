@@ -12,6 +12,7 @@ const relationships = read("data/opportunity-relationships.ts");
 const weekly = read("data/recommendation-weekly-strategy.ts");
 const advisor = read("components/advisor-page.tsx");
 const forYouApi = read("app/api/advisor/for-you/route.ts");
+const forYouSnapshot = read("lib/for-you-snapshot.ts");
 const feedbackApi = read("app/api/advisor/feedback/route.ts");
 const adminDiagnostics = read("app/admin/recommendations/page.tsx");
 const analytics = read("lib/analytics-types.ts");
@@ -53,8 +54,9 @@ assert.ok(engine.includes("confidenceLevel"), "Recommendations must include inte
 assert.ok(engine.includes("buildRecommendationWeeklyStrategy"), "Engine must produce weekly strategy output.");
 assert.ok(engine.includes("recommendationFeedback"), "Engine must consume advisor feedback.");
 assert.ok(service.includes("feedbackRecords") && service.includes("hiddenOpportunityIds") && service.includes("referralActivity"), "Recommendation service must pass holistic student context.");
-assert.ok(forYouApi.includes("session.data.advisor?.feedbackRecords"), "For You API must pass feedback records.");
-assert.ok(forYouApi.includes("session.data.referrals"), "For You API must be referral future-ready.");
+assert.ok(forYouApi.includes("resolveForYouState"), "For You API must use the snapshot-backed resolver.");
+assert.ok(forYouSnapshot.includes("data.advisor?.feedbackRecords"), "For You snapshot generation must pass feedback records.");
+assert.ok(forYouSnapshot.includes("data.referrals"), "For You snapshot generation must be referral future-ready.");
 
 for (const relationship of ["prerequisites", "followUps", "alternatives", "easierVersion", "harderVersion", "careerProgression"]) {
   assert.ok(relationships.includes(relationship), `Opportunity relationships must include ${relationship}.`);

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { AdvisorPage } from "@/components/advisor-page";
 import { requireCompletedOnboarding } from "@/lib/onboarding";
+import { resolveForYouState } from "@/lib/for-you-snapshot";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
@@ -11,6 +12,7 @@ export const metadata: Metadata = {
 };
 
 export default async function Page() {
-  await requireCompletedOnboarding();
-  return <AdvisorPage />;
+  const session = await requireCompletedOnboarding();
+  const initialState = await resolveForYouState(session.user, session.data);
+  return <AdvisorPage initialState={initialState} />;
 }

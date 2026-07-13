@@ -9,6 +9,7 @@ const service = read("data/recommendation-service.ts");
 const config = read("data/recommendation-config.ts");
 const advisor = read("components/advisor-page.tsx");
 const forYouApi = read("app/api/advisor/for-you/route.ts");
+const forYouSnapshot = read("lib/for-you-snapshot.ts");
 const journey = read("components/student-journey-dashboard.tsx");
 const discover = read("components/opportunity-filter.tsx");
 const analytics = read("lib/analytics-types.ts");
@@ -75,7 +76,8 @@ assert.ok(intelligence.includes("signals: OpportunityRankingSignal[]"), "Opportu
 assert.ok(intelligence.includes("positiveSignalCount"), "Opportunity scores must count meaningful positive signals.");
 assert.ok(service.includes("labelForRecommendationScore(recommendation.score)"), "Recommendation labels must use score thresholds, not confidence percentages.");
 
-assert.ok(forYouApi.includes("buildRecommendationService"), "For You API must consume the canonical recommendation service.");
+assert.ok(forYouApi.includes("resolveForYouState"), "For You API must consume the snapshot-backed recommendation resolver.");
+assert.ok(forYouSnapshot.includes("buildRecommendationService"), "For You snapshot generation must consume the canonical recommendation service.");
 assert.ok(!journey.includes("buildRecommendationService"), "Journey must not bypass Pro gating with client-side recommendations.");
 assert.ok(!discover.includes("buildRecommendationService"), "Discover must not block search with client-side recommendation generation.");
 
