@@ -26,7 +26,7 @@ for(const school of schools){if(seenSlugs.has(school.slug))failures.push(`Duplic
 function search(query){const normalized=normalize(query);const exact=schools.filter((school)=>termsBySchool.get(school.slug).some((term)=>term===normalized));return exact.length?exact:schools.filter((school)=>termsBySchool.get(school.slug).some((term)=>term.includes(normalized)))}
 for(const school of schools)for(const term of [school.name,school.domain,school.slug,...school.aliases])if(!search(term).some((result)=>result.slug===school.slug))failures.push(`Search term did not find ${school.slug}: ${term}`);
 
-const ids=new Set();const types=new Set(["Benefit","AI","Career","Research","Scholarship"]);const required=["id","title","type","category","description","organization","school_scope","eligibility","location","official_source","official_source_url","verification_status","last_verified","deadline","reviewer_notes","estimated_value_note","date_added","icon"];
+const ids=new Set();const types=new Set(["Benefit","AI","Career","Research","Scholarship"]);const statuses=new Set(["verified","needs_review","temporarily_closed","expired","broken_source","archived","incomplete","community_reported"]);const deadlineTypes=new Set(["fixed","rolling","varies","not_announced","current_cycle_closed","no_deadline","unknown"]);const required=["id","title","type","category","description","organization","school_scope","eligibility","location","official_source","official_source_url","verification_status","last_verified","deadline","reviewer_notes","estimated_value_note","date_added","icon"];
 const duplicateGroups=new Map();const incomplete=[];
 for(const item of opportunities){
   if(ids.has(item.id))failures.push(`Duplicate opportunity id: ${item.id}`);ids.add(item.id);
@@ -35,6 +35,11 @@ for(const item of opportunities){
   for(const field of ["schools","majors","academic_years","tags"])if(!Array.isArray(item[field]))failures.push(`Opportunity ${item.id} has invalid ${field}`);
   for(const field of ["recurring","featured","hidden_gem"])if(typeof item[field]!=="boolean")failures.push(`Opportunity ${item.id} has invalid ${field}`);
   if(!types.has(item.type))failures.push(`Invalid opportunity type: ${item.id}`);
+  if(!statuses.has(item.verification_status))failures.push(`Invalid verification status: ${item.id}`);
+  if(!deadlineTypes.has(item.metadata?.deadlineType))failures.push(`Invalid deadline type: ${item.id}`);
+  if(item.metadata?.deadlineType==="fixed"&&!item.application_deadline)failures.push(`Fixed deadline opportunity is missing exact deadline: ${item.id}`);
+  if(item.metadata?.deadlineType==="unknown"&&item.application_deadline)failures.push(`Unknown deadline opportunity has exact deadline: ${item.id}`);
+  if(item.metadata?.deadlineType==="fixed"&&item.metadata?.verification?.deadlineVerified===false)failures.push(`Fixed deadline marked unverified: ${item.id}`);
   if(!item.official_source?.startsWith("https://"))failures.push(`Opportunity source is not HTTPS: ${item.id}`);
   if(!/^\d{4}-\d{2}-\d{2}$/.test(item.last_verified))failures.push(`Invalid verification date: ${item.id}`);
   if(!/^\d{4}-\d{2}-\d{2}$/.test(item.date_added))failures.push(`Invalid date added: ${item.id}`);

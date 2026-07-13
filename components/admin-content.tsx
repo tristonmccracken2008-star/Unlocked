@@ -6,7 +6,7 @@ import { schools } from "@/data/seed";
 import type { ManagedOpportunity } from "@/lib/content-store";
 import type { OpportunityInput } from "@/lib/content-validation";
 
-const statuses:VerificationStatus[]=["verified","needs_review","expired","incomplete","community_reported"];
+const statuses:VerificationStatus[]=["verified","needs_review","temporarily_closed","expired","broken_source","archived","incomplete","community_reported"];
 const blank:OpportunityInput={title:"",organization:"",type:"Benefit",category:"",description:"",official_source_url:"",eligibility:"",deadline:null,estimated_value:null,tags:[],school_scope:"National",schools:[],verification_status:"needs_review",last_verified:new Date().toISOString().slice(0,10)};
 const fromRecord=(record:ManagedOpportunity):OpportunityInput=>{const item=record.opportunity;return{title:item.title,organization:item.organization,type:item.type,category:item.category,description:item.description,official_source_url:item.official_source_url,eligibility:item.eligibility,deadline:item.deadline,estimated_value:item.estimated_value,tags:item.tags,school_scope:item.school_scope,schools:item.schools,verification_status:item.verification_status,last_verified:item.last_verified}};
 

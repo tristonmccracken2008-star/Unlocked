@@ -54,7 +54,7 @@ for (const helper of [
 }
 
 for (const exclusion of [
-  "verification_status === \"expired\"",
+  "excludedStatuses.includes",
   "wrongSchoolPenalty",
   "wrongClassYearPenalty",
   "deadlinePassedPenalty",

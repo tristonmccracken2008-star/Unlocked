@@ -1,4 +1,4 @@
-import type { Opportunity, OpportunityDifficulty, OpportunityType, VerificationStatus } from "./opportunities";
+import type { DeadlineType, Opportunity, OpportunityDifficulty, OpportunityType, VerificationStatus } from "./opportunities";
 import { canonicalOpportunity, dataQualityScore } from "./opportunity-enrichment";
 import { recommendationConfig } from "./recommendation-config";
 
@@ -37,7 +37,7 @@ export type OpportunityIntelligence = {
   opportunityType: OpportunityType;
   officialSource: string;
   deadline: string | null;
-  deadlineType: "fixed" | "rolling" | "varies" | "not_announced";
+  deadlineType: DeadlineType;
   applicationDifficulty: OpportunityDifficulty;
   estimatedApplicationTime: "15-30 minutes" | "1-2 hours" | "3-5 hours" | "1-2 weeks" | "Unknown";
   eligibility: string;
@@ -127,6 +127,9 @@ function inferSubcategory(item: Opportunity) {
 function inferCareerPaths(item: Opportunity) {
   const canonical = canonicalOpportunity(item);
   if (canonical.careerFields.length) return canonical.careerFields;
+  if (Array.isArray(item.metadata.careerPaths) && item.metadata.careerPaths.length) {
+    return unique(item.metadata.careerPaths);
+  }
   const text = searchableText(item);
   const inferred = Object.entries(careerPathSignals).filter(([, terms]) => terms.some((term) => text.includes(normalize(term)))).map(([path]) => path);
   if (item.type === "Scholarship") inferred.push("Funding");
@@ -137,7 +140,9 @@ function inferCareerPaths(item: Opportunity) {
 
 function inferSkills(item: Opportunity) {
   const text = searchableText(item);
-  return unique(Object.entries(skillSignals).filter(([, terms]) => terms.some((term) => text.includes(normalize(term)))).map(([skill]) => skill));
+  const explicit = Array.isArray(item.metadata.skillsGained) ? item.metadata.skillsGained : [];
+  const inferred = Object.entries(skillSignals).filter(([, terms]) => terms.some((term) => text.includes(normalize(term)))).map(([skill]) => skill);
+  return unique([...explicit, ...inferred]);
 }
 
 function workMode(item: Opportunity): OpportunityWorkMode {
@@ -163,6 +168,7 @@ export function getOpportunityDifficulty(item: Opportunity): OpportunityCompetit
 }
 
 function estimatedApplicationTime(item: Opportunity): OpportunityIntelligence["estimatedApplicationTime"] {
+  if (item.metadata.estimatedApplicationTime) return item.metadata.estimatedApplicationTime;
   if (item.metadata.applicationRequirements && item.metadata.applicationRequirements.length >= 3) return "3-5 hours";
   if (item.difficulty === "Highly Competitive" || item.category === "Fellowships") return "1-2 weeks";
   if (["Scholarship", "Research", "Career"].includes(item.type)) return "1-2 hours";
@@ -171,16 +177,17 @@ function estimatedApplicationTime(item: Opportunity): OpportunityIntelligence["e
 }
 
 function qualityScore(item: Opportunity) {
+  if (["expired", "archived", "broken_source"].includes(item.verification_status)) return 0;
   const enriched = dataQualityScore(item);
   let score = 40;
   if (item.verification_status === "verified") score += 25;
-  if (item.verification_status === "needs_review") score += 10;
+  if (item.verification_status === "needs_review") score -= 8;
+  if (item.verification_status === "temporarily_closed") score -= 16;
   if (item.official_source_url.startsWith("https://")) score += 10;
   if (item.description.length >= 120) score += 8;
   if (item.eligibility.length >= 40) score += 6;
   if (item.application_deadline || ["rolling", "varies"].includes(item.metadata.deadlineType ?? "")) score += 5;
   if (item.estimated_value !== null || /unknown|not documented|not published/i.test(item.estimated_value_note)) score += 4;
-  if (item.verification_status === "expired") score = 0;
   return Math.max(enriched, Math.min(100, score));
 }
 
@@ -359,12 +366,15 @@ export function scoreOpportunityIntelligence(item: Opportunity, context: Opportu
     score += weights.noGpaKnownRequirementPenalty;
     addSignal(`GPA requirement ${requirement.toFixed(1)} needs future confirmation`, "negative", weights.noGpaKnownRequirementPenalty);
   }
-  if (deadlineDays !== null && deadlineDays >= 0 && deadlineDays <= 14) {
+  const deadlineVerified = item.metadata.verification?.deadlineVerified === true || item.verification_status === "verified";
+  if (deadlineDays !== null && deadlineDays >= 0 && deadlineDays <= 14 && deadlineVerified) {
     score += weights.deadlineCritical;
     addSignal(`Deadline in ${deadlineDays} days`, "positive", weights.deadlineCritical);
-  } else if (deadlineDays !== null && deadlineDays >= 0 && deadlineDays <= 45) {
+  } else if (deadlineDays !== null && deadlineDays >= 0 && deadlineDays <= 45 && deadlineVerified) {
     score += weights.deadlineSoon;
     addSignal(`Deadline in ${deadlineDays} days`, "positive", weights.deadlineSoon);
+  } else if (deadlineDays !== null && deadlineDays >= 0 && !deadlineVerified) {
+    addSignal("Deadline needs official confirmation", "neutral", 0);
   } else if (deadlineDays !== null && deadlineDays < 0) {
     score += weights.deadlinePassedPenalty;
     addSignal("Deadline has passed", "negative", weights.deadlinePassedPenalty);
@@ -378,7 +388,11 @@ export function scoreOpportunityIntelligence(item: Opportunity, context: Opportu
   }
   if (item.verification_status === "needs_review") {
     score += weights.needsReview;
-    addSignal("Needs review but not expired", "neutral", weights.needsReview);
+    addSignal("Details need review before acting", "negative", weights.needsReview);
+  }
+  if (item.verification_status === "temporarily_closed") {
+    score += weights.temporarilyClosed;
+    addSignal("Applications are currently closed", "negative", weights.temporarilyClosed);
   }
   if (item.estimated_value && item.estimated_value >= 1000) {
     score += weights.highValue;
@@ -408,9 +422,9 @@ export function scoreOpportunityIntelligence(item: Opportunity, context: Opportu
     score += weights.activeTrackedPenalty;
     addSignal("Already active in Journey", "negative", weights.activeTrackedPenalty);
   }
-  if (item.verification_status === "expired") {
-    score = -100;
-    addSignal("Expired verification status", "negative", -100);
+  if (recommendationConfig.verificationQuality.excludedStatuses.includes(item.verification_status as never)) {
+    score = weights.excludedVerificationStatus;
+    addSignal(`${item.verification_status.replaceAll("_", " ")} verification status`, "negative", weights.excludedVerificationStatus);
   }
   const normalizedScore = Math.max(0, Math.min(100, score));
   const priority: OpportunityPriority = deadlineDays !== null && deadlineDays >= 0 && deadlineDays <= 10 && normalizedScore >= 55 ? "Critical" : normalizedScore >= 78 ? "High" : normalizedScore >= 50 ? "Recommended" : "Optional";
@@ -448,8 +462,10 @@ export function getRecommendationReasons(item: Opportunity, context: Opportunity
   if (schoolEligible) reasons.push(item.school_scope === "National" ? "Available nationally." : `Available at ${context.schoolName ?? "your school"}.`);
   if (requirement !== null && meetsGpa === true) reasons.push(`Your GPA meets the listed ${requirement.toFixed(1)} requirement.`);
   if (requirement !== null && context.gpaStatus === "none_yet") reasons.push(`This lists a ${requirement.toFixed(1)} GPA requirement, so confirm eligibility once you have a college GPA.`);
-  if (deadlineDays !== null && deadlineDays >= 0) reasons.push(`Deadline is in ${deadlineDays} day${deadlineDays === 1 ? "" : "s"}.`);
+  if (deadlineDays !== null && deadlineDays >= 0 && (item.metadata.verification?.deadlineVerified === true || item.verification_status === "verified")) reasons.push(`Deadline is in ${deadlineDays} day${deadlineDays === 1 ? "" : "s"}.`);
+  if (item.verification_status === "temporarily_closed") reasons.push("Applications are currently closed or awaiting the next cycle.");
   if (item.verification_status === "verified") reasons.push("Verified from an official source.");
+  if (item.verification_status === "needs_review") reasons.push("Details need review on the official source before acting.");
   if (!reasons.length) reasons.push("Included for review because it is in the opportunity catalog, but profile-specific matches are limited.");
   return reasons;
 }

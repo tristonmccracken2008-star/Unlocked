@@ -22,7 +22,9 @@ export const recommendationConfig = {
     deadlineSoon: 10,
     deadlinePassedPenalty: -100,
     verified: 12,
-    needsReview: 3,
+    needsReview: -14,
+    temporarilyClosed: -28,
+    excludedVerificationStatus: -100,
     qualityMultiplier: 0.18,
     highValue: 8,
     openDifficulty: 5,
@@ -49,6 +51,12 @@ export const recommendationConfig = {
   qualityGates: {
     minimumPositiveSignals: 2,
     minimumRecommendationScore: 34,
+  },
+  verificationQuality: {
+    excludedStatuses: ["expired", "archived", "broken_source"],
+    suppressFromPremiumStatuses: ["needs_review"],
+    nonActionableStatuses: ["temporarily_closed"],
+    urgentDeadlineRequiresVerifiedDeadline: true,
   },
 } as const;
 

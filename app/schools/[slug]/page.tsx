@@ -6,7 +6,10 @@ import { SchoolPersonalizedRecommendations } from "@/components/school-personali
 import { formatValueTotal, getSchool, getSchoolBenefits, schools } from "@/data/seed";
 import { opportunities, type Opportunity } from "@/data/opportunities";
 
-export function generateStaticParams() { return schools.map(({ slug }) => ({ slug })); }
+export const revalidate = 86400;
+export const dynamicParams = true;
+const preRenderedSchoolSlugs = new Set(["university-of-chicago", "university-of-michigan", "new-york-university", "university-of-california-berkeley", "university-of-texas-at-austin", "university-of-florida", "university-of-southern-california", "university-of-illinois-urbana-champaign", "georgia-institute-of-technology-main-campus", "stanford-university", "harvard-university", "massachusetts-institute-of-technology"]);
+export function generateStaticParams() { return schools.filter(({ slug }) => preRenderedSchoolSlugs.has(slug)).map(({ slug }) => ({ slug })); }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const school = getSchool((await params).slug);
@@ -25,7 +28,7 @@ export default async function SchoolPage({ params }: { params: Promise<{ slug: s
   const nationalCount = schoolBenefits.filter((item) => item.scope === "national").length;
   const schoolSpecificCount = schoolBenefits.filter((item) => item.scope === "school").length;
   const lastUpdated = [...schoolBenefits].sort((a,b)=>b.verifiedAt.localeCompare(a.verifiedAt))[0]?.verifiedAt ?? "2026-07-06";
-  const eligibleOpportunities = opportunities.filter((item)=>item.verification_status!=="expired"&&(item.school_scope==="National"||item.schools.includes(school.slug)));
+  const eligibleOpportunities = opportunities.filter((item)=>!["expired","archived","broken_source"].includes(item.verification_status)&&(item.school_scope==="National"||item.schools.includes(school.slug)));
   const schoolSpecific = eligibleOpportunities.filter((item)=>item.school_scope==="School Specific");
   const upcoming = eligibleOpportunities.filter((item)=>item.application_deadline).sort((a,b)=>(a.application_deadline??"").localeCompare(b.application_deadline??"")).slice(0,5);
   const hiddenGems = eligibleOpportunities.filter((item)=>item.hidden_gem).slice(0,5);

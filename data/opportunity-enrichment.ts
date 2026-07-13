@@ -186,6 +186,7 @@ function enrichedTags(item: Opportunity, fields: string[]) {
 }
 
 function estimatedTimeCommitment(item: Opportunity) {
+  if (item.metadata.estimatedApplicationTime) return item.metadata.estimatedApplicationTime;
   if (item.metadata.applicationRequirements && item.metadata.applicationRequirements.length >= 3) return "3-5 hours";
   if (item.difficulty === "Highly Competitive" || item.category === "Fellowships") return "1-2 weeks";
   if (["Scholarship", "Research", "Career"].includes(item.type)) return "1-2 hours";

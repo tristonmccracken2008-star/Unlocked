@@ -1,7 +1,7 @@
 import { opportunityTypes, type Opportunity, type OpportunityScope, type VerificationStatus } from "@/data/opportunities";
 
 export type OpportunityInput = Pick<Opportunity,"title"|"organization"|"type"|"category"|"description"|"eligibility"|"school_scope"|"schools"|"verification_status"|"last_verified"|"tags"> & { official_source_url:string; deadline:string|null; estimated_value:number|null };
-const statuses:VerificationStatus[]=["verified","needs_review","expired","incomplete","community_reported"];
+const statuses:VerificationStatus[]=["verified","needs_review","temporarily_closed","expired","broken_source","archived","incomplete","community_reported"];
 const date=/^\d{4}-\d{2}-\d{2}$/;
 export function validateOpportunityInput(value:unknown):{data?:OpportunityInput;errors:string[]}{
   const input=value as Partial<OpportunityInput>;const errors:string[]=[];const required:[[keyof OpportunityInput,string]]|[keyof OpportunityInput,string][]=[["title","Title"],["organization","Organization"],["category","Category"],["description","Description"],["eligibility","Eligibility"],["official_source_url","Official source URL"],["last_verified","Last verified date"]];

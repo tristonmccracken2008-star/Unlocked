@@ -6,7 +6,11 @@ import { ConfidenceBadge, StatusBadge } from "@/components/status-badge";
 import { OpportunityViewTracker } from "@/components/opportunity-activity";
 import { benefits, getBenefit } from "@/data/seed";
 
-export function generateStaticParams() { return benefits.map(({ slug }) => ({ slug })); }
+export const revalidate = 86400;
+export const dynamicParams = true;
+export function generateStaticParams() {
+  return benefits.filter((item) => item.scope === "national").slice(0, 24).map(({ slug }) => ({ slug }));
+}
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const item = getBenefit((await params).slug);
   if (!item) return { title: "Benefit not found" };

@@ -11,7 +11,20 @@ export type OpportunityCategory = Exclude<(typeof opportunityCategories)[number]
 export type Compensation = "Paid" | "Unpaid" | "Varies";
 export type WorkMode = "Remote" | "Hybrid" | "In Person" | "Varies";
 export type OpportunityScope = "National" | "School Specific";
-export type VerificationStatus = "verified" | "needs_review" | "expired" | "incomplete" | "community_reported";
+export type VerificationStatus = "verified" | "needs_review" | "temporarily_closed" | "expired" | "broken_source" | "archived" | "incomplete" | "community_reported";
+export type DeadlineType = "fixed" | "rolling" | "varies" | "not_announced" | "current_cycle_closed" | "no_deadline" | "unknown";
+export type OpportunityVerification = {
+  status: VerificationStatus;
+  lastVerifiedAt?: string;
+  verifiedCycle?: string;
+  officialSourceUrl?: string;
+  applicationUrlVerified?: boolean;
+  deadlineVerified?: boolean;
+  eligibilityVerified?: boolean;
+  sourceReachable?: boolean;
+  sourceAuditStatus?: number | null;
+  notes?: string;
+};
 export type OpportunityDifficulty = "Open" | "Competitive" | "Highly Competitive" | null;
 export type OpportunityPrestige = "Established" | "High" | "Very High" | null;
 
@@ -26,7 +39,7 @@ export type OpportunityMetadata = {
   reviewScore?: number;
   studentOffer?: string;
   offerType?: string;
-  deadlineType?: "fixed" | "rolling" | "varies" | "not_announced";
+  deadlineType?: DeadlineType;
   compensation?: "Paid" | "Unpaid" | "Varies";
   workMode?: "Remote" | "Hybrid" | "In Person" | "Varies";
   professor?: string | null;
@@ -37,6 +50,27 @@ export type OpportunityMetadata = {
   awardAmountLabel?: string;
   renewable?: boolean | null;
   applicationRequirements?: string[];
+  estimatedApplicationTime?: "15-30 minutes" | "1-2 hours" | "3-5 hours" | "1-2 weeks" | "Unknown";
+  estimatedAcceptanceRate?: string;
+  estimatedCompetitiveness?: string;
+  applicationSeason?: string;
+  internshipDuration?: string;
+  salaryEstimate?: string;
+  skillsGained?: string[];
+  careerPaths?: string[];
+  expectedROI?: string;
+  recommendedMajors?: string[];
+  recommendedClassYears?: string[];
+  citizenship?: string;
+  internationalEligibility?: string;
+  discountAmount?: string;
+  verificationRequired?: string;
+  howToRedeem?: string;
+  limitations?: string;
+  pricing?: string;
+  freeTier?: string;
+  bestUseCases?: string[];
+  verification?: OpportunityVerification;
 };
 
 export type Opportunity = {
@@ -123,10 +157,16 @@ export const opportunities = (catalogJson as Opportunity[]).map((item) => {
   return { ...item, canonical: canonicalOpportunity(item), contentComplete: quality.contentComplete, completenessScore: quality.completenessScore, missingContentFields: quality.missingFields };
 }) as OpportunityWithQuality[];
 const seen = new Set<string>();
+const verificationStatuses: VerificationStatus[] = ["verified", "needs_review", "temporarily_closed", "expired", "broken_source", "archived", "incomplete", "community_reported"];
+const deadlineTypes: DeadlineType[] = ["fixed", "rolling", "varies", "not_announced", "current_cycle_closed", "no_deadline", "unknown"];
 for (const item of opportunities) {
   if (seen.has(item.id)) throw new Error(`Duplicate opportunity id: ${item.id}`);
   seen.add(item.id);
   if (!opportunityTypes.includes(item.type)) throw new Error(`Invalid opportunity type: ${item.id}`);
+  if (!verificationStatuses.includes(item.verification_status)) throw new Error(`Invalid opportunity verification status: ${item.id}`);
+  if (!item.metadata.deadlineType || !deadlineTypes.includes(item.metadata.deadlineType)) throw new Error(`Invalid opportunity deadline type: ${item.id}`);
+  if (item.metadata.deadlineType === "fixed" && !item.application_deadline) throw new Error(`Fixed deadline requires an exact application deadline: ${item.id}`);
+  if (item.metadata.deadlineType === "unknown" && item.application_deadline) throw new Error(`Unknown deadline cannot include an exact application deadline: ${item.id}`);
   if (!item.official_source.startsWith("https://")) throw new Error(`Opportunity source must use HTTPS: ${item.id}`);
   if (item.official_source_url !== item.official_source) throw new Error(`Opportunity source fields do not match: ${item.id}`);
   if (!/^\d{4}-\d{2}-\d{2}$/.test(item.last_verified)) throw new Error(`Invalid verification date: ${item.id}`);
@@ -166,7 +206,7 @@ export const getOpportunity = (id: string) => opportunities.find((item) => item.
 export const getOpportunityByLegacySlug = (type: OpportunityType, slug: string) => opportunities.find((item) => item.type === type && item.metadata.legacySlug === slug);
 export function getRelatedOpportunities(item: Opportunity, limit = 5, source: readonly Opportunity[] = opportunities) {
   const tokens = new Set(`${item.title} ${item.category} ${item.tags.join(" ")}`.toLowerCase().split(/[^a-z0-9]+/).filter((token) => token.length > 3));
-  return source.filter((candidate) => candidate.id !== item.id && candidate.verification_status !== "expired").map((candidate) => {
+  return source.filter((candidate) => candidate.id !== item.id && !["expired", "archived", "broken_source"].includes(candidate.verification_status)).map((candidate) => {
     const candidateTokens = new Set(`${candidate.title} ${candidate.category} ${candidate.tags.join(" ")}`.toLowerCase().split(/[^a-z0-9]+/).filter((token) => token.length > 3));
     const tokenOverlap = [...tokens].filter((token) => candidateTokens.has(token)).length;
     const majorOverlap = item.majors.filter((major) => major !== "Any Major" && candidate.majors.includes(major)).length;
@@ -183,5 +223,8 @@ export function deadlineLabel(item: Opportunity) {
   if (item.application_deadline) return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" }).format(new Date(`${item.application_deadline}T00:00:00Z`));
   if (item.metadata.deadlineType === "rolling") return "Rolling";
   if (item.metadata.deadlineType === "varies") return item.type === "Scholarship" ? "Deadline varies" : "Varies by role or site";
+  if (item.metadata.deadlineType === "current_cycle_closed") return "Applications currently closed";
+  if (item.metadata.deadlineType === "no_deadline") return "No application deadline";
+  if (item.metadata.deadlineType === "unknown") return "Deadline unknown";
   return "Not announced";
 }

@@ -162,7 +162,9 @@ function primaryReason(reasons: string[]) {
 function nextActionForOpportunity(opportunity: Opportunity, score: OpportunityScore, application?: ApplicationRecord) {
   if (application && ["preparing", "applying", "interview"].includes(application.status)) return application.nextAction ?? "Keep this application moving before the next deadline.";
   if (application?.status === "saved") return "Open your saved opportunity and decide whether to start the application.";
-  if (score.breakdown.deadlineDays !== null && score.breakdown.deadlineDays >= 0 && score.breakdown.deadlineDays <= 10) return "Review the official source today and apply before the deadline.";
+  if (opportunity.verification_status === "temporarily_closed") return "Check the official source for the next application cycle before planning next steps.";
+  if (opportunity.verification_status === "needs_review") return "Confirm current availability on the official source before adding this to your shortlist.";
+  if (score.breakdown.deadlineDays !== null && score.breakdown.deadlineDays >= 0 && score.breakdown.deadlineDays <= 10 && (opportunity.metadata.verification?.deadlineVerified === true || opportunity.verification_status === "verified")) return "Review the official source today and apply before the deadline.";
   if (opportunity.difficulty === "Highly Competitive") return "Open the official source and start gathering required materials early.";
   if (score.breakdown.matchingYears.length && score.breakdown.matchingMajors.length) return "Confirm eligibility on the official source and save it if you plan to apply.";
   return "Open the official source and decide whether this belongs on your shortlist.";
@@ -260,6 +262,7 @@ function qualityGateFailures(ranked: RankedOpportunity) {
   const failures: string[] = [];
   const { opportunity, score, finalScore } = ranked;
   if (!score.breakdown.schoolEligible) failures.push("Not eligible for the student's school.");
+  if (recommendationConfig.verificationQuality.excludedStatuses.includes(opportunity.verification_status as never)) failures.push("Verification status excludes this opportunity from recommendations.");
   if (!score.breakdown.matchingYears.length && opportunity.academic_years.length && !opportunity.academic_years.includes("Any Year")) failures.push("Does not match the student's class year.");
   if (score.breakdown.gpaEligible === false) failures.push("Student GPA is below the listed GPA requirement.");
   if (score.breakdown.deadlineDays !== null && score.breakdown.deadlineDays < 0) failures.push("Deadline has passed.");
@@ -297,7 +300,7 @@ function toOpportunityRecommendation(profile: AdvisorProfile, ranked: RankedOppo
 }
 
 function shouldExcludeOpportunity(profile: AdvisorProfile, opportunity: Opportunity) {
-  if (opportunity.verification_status === "expired") return true;
+  if (recommendationConfig.verificationQuality.excludedStatuses.includes(opportunity.verification_status as never)) return true;
   if (!opportunity.organization.trim() || !opportunity.eligibility.trim() || !opportunity.official_source_url.startsWith("https://")) return true;
   if (profile.experience.claimedOpportunityIds.includes(opportunity.id)) return true;
   const trackerRecord = profile.experience.tracked[opportunity.id];
@@ -352,8 +355,11 @@ function diversityAdjustedOpportunityRecommendations(profile: AdvisorProfile, ra
 }
 
 export function rankOpportunityRecommendations(input: RecommendationEngineInput): RecommendationV1[] {
+  const limit = input.limit ?? 24;
   const ranked = rankAllOpportunities(input).filter((item) => qualityGateFailures(item).length === 0);
-  return diversityAdjustedOpportunityRecommendations(input.advisorProfile, ranked, input.limit ?? 24);
+  const primary = ranked.filter((item) => !recommendationConfig.verificationQuality.suppressFromPremiumStatuses.includes(item.opportunity.verification_status as never) && !recommendationConfig.verificationQuality.nonActionableStatuses.includes(item.opportunity.verification_status as never));
+  const fallback = ranked.filter((item) => !primary.includes(item));
+  return diversityAdjustedOpportunityRecommendations(input.advisorProfile, primary.length >= limit ? primary : [...primary, ...fallback], limit);
 }
 
 function reviewRecord(ranked: RankedOpportunity, finalRank: number | null): RecommendationReviewRecord {
