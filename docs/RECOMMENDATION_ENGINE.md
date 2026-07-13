@@ -246,6 +246,8 @@ Excellent and Strong recommendations require every confidence dimension to be at
 
 `npm run check:professional-recommendations` executes the real ranking pipeline against 512 synthetic students spanning schools, majors, years, career goals, GPAs, citizenship/work authorization, ages, institution types, transfer states, financial situations, and relevant eligibility attributes. The fast prebuild smoke test runs the same invariants across 32 profiles.
 
+The performance guard measures ranking time separately from test assertions and catalog-audit bookkeeping. It requires average generation below 1 second, p95 below 2 seconds, and every run below the production snapshot generation ceiling of 2.8 seconds. This catches sustained regressions while tolerating an isolated build-worker scheduling or garbage-collection pause that remains inside the server's hard bound.
+
 ## Premium Behavior
 
 Free users receive two genuine recommendations as a preview. Pro users receive the full ranked feed, complete explanations, adaptive learning, career roadmap intelligence, opportunity relationships, and future weekly strategy surfaces. Core Discover and Journey behavior remains available to free users.

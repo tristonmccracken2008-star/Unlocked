@@ -158,6 +158,7 @@ const profileCount = process.argv.includes("--quick") ? 32 : 512;
 let recommendationCount = 0;
 let emptyProfiles = 0;
 let slowestMs = 0;
+const engineDurationsMs: number[] = [];
 const rejectionReasons = new Map<string, number>();
 const segmentStats = new Map<string, { profiles: number; recommendations: number; empty: number }>();
 const started = performance.now();
@@ -169,7 +170,9 @@ for (let index = 0; index < profileCount; index += 1) {
   const context = buildOpportunityStudentContext(advisorProfile);
   const profileStarted = performance.now();
   const recommendations = rankOpportunityRecommendations({ advisorProfile, opportunities: professionalCatalog, limit: 8 });
-  slowestMs = Math.max(slowestMs, performance.now() - profileStarted);
+  const engineDurationMs = performance.now() - profileStarted;
+  engineDurationsMs.push(engineDurationMs);
+  slowestMs = Math.max(slowestMs, engineDurationMs);
   recommendationCount += recommendations.length;
   if (!recommendations.length) emptyProfiles += 1;
   const segment = `${profile.year}|${profile.institutionType}|${profile.citizenshipStatus}`;
@@ -216,7 +219,12 @@ for (let index = 0; index < profileCount; index += 1) {
 }
 
 const elapsedMs = Math.round(performance.now() - started);
-assert.ok(slowestMs < 2000, `A single recommendation run exceeded the 2 second production target (${Math.round(slowestMs)}ms).`);
+const sortedEngineDurationsMs = [...engineDurationsMs].sort((a, b) => a - b);
+const averageEngineMs = engineDurationsMs.reduce((sum, duration) => sum + duration, 0) / engineDurationsMs.length;
+const p95EngineMs = sortedEngineDurationsMs[Math.max(0, Math.ceil(sortedEngineDurationsMs.length * 0.95) - 1)] ?? 0;
+assert.ok(averageEngineMs < 1000, `Average recommendation generation exceeded 1 second (${Math.round(averageEngineMs)}ms).`);
+assert.ok(p95EngineMs < 2000, `Recommendation generation p95 exceeded 2 seconds (${Math.round(p95EngineMs)}ms).`);
+assert.ok(slowestMs < 2800, `A recommendation run exceeded the bounded 2.8 second snapshot-generation ceiling (${Math.round(slowestMs)}ms).`);
 
 console.log(JSON.stringify({
   profiles: profileCount,
@@ -225,7 +233,8 @@ console.log(JSON.stringify({
   emptyProfiles,
   emptyProfileRate: Number((emptyProfiles / profileCount).toFixed(3)),
   elapsedMs,
-  averageEngineMs: Number((elapsedMs / profileCount).toFixed(2)),
+  averageEngineMs: Number(averageEngineMs.toFixed(2)),
+  p95EngineMs: Math.round(p95EngineMs),
   slowestEngineMs: Math.round(slowestMs),
   emptySegments: [...segmentStats.entries()].filter(([, value]) => value.empty > 0).map(([segment, value]) => ({ segment, ...value })),
   topRejectionReasons: [...rejectionReasons.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8),
