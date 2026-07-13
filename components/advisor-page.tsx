@@ -10,6 +10,7 @@ import type { StudentProfile } from "@/data/student-profile";
 import type { AccountSession } from "@/lib/account-types";
 import type { AdvisorAccessState } from "@/lib/advisor-access";
 import type { Entitlements } from "@/lib/entitlements";
+import { accountSessionEvent, readAccountSession } from "@/data/account-sync";
 import { trackProductEvent } from "@/data/product-analytics";
 import { ArrowIcon, BookmarkIcon, CheckCircleIcon, SearchIcon, SendIcon, TargetIcon } from "./icons";
 import { OrganizationLogo } from "./organization-logo";
@@ -17,6 +18,7 @@ import { AddToJourneyButton } from "./opportunity-activity";
 import type { FeedbackType } from "@/lib/advisor/types";
 
 type ForYouPageState = "loading" | "pro_ready" | "free_preview" | "profile_incomplete" | "empty" | "error";
+type SessionReadiness = "checking" | "authenticated" | "unauthenticated" | "error";
 
 type AdvisorState = {
   pageState: Exclude<ForYouPageState, "loading">;
@@ -70,48 +72,152 @@ function profileInterests(profile: StudentProfile) {
   return [...new Set([...(profile.advisorInterview?.interests ?? []), ...profile.interests.split(",").map((item) => item.trim()).filter(Boolean)])].slice(0, 3);
 }
 
+function transientForYouStatus(status: number) {
+  return [408, 425, 429, 500, 502, 503, 504].includes(status);
+}
+
+function retryDelay(attempt: number) {
+  return 280 + attempt * 140;
+}
+
+function wait(ms: number) {
+  return new Promise((resolve) => window.setTimeout(resolve, ms));
+}
+
 export function AdvisorPage() {
   const [state, setState] = useState<AdvisorState | null>(null);
   const [pageState, setPageState] = useState<ForYouPageState>("loading");
+  const [sessionReadiness, setSessionReadiness] = useState<SessionReadiness>("checking");
   const [errorMessage, setErrorMessage] = useState("");
   const [feedbackMessage, setFeedbackMessage] = useState("");
+  const [requestActive, setRequestActive] = useState(false);
   const trackedRecommendation = useRef("");
   const requestId = useRef(0);
+  const sessionKey = useRef("");
+  const activeRequestKey = useRef("");
+  const lastValidResponse = useRef<{ pageState: Exclude<ForYouPageState, "loading">; state: AdvisorState } | null>(null);
 
-  const loadForYou = useCallback(async () => {
-    const currentRequest = requestId.current + 1;
-    requestId.current = currentRequest;
-    const controller = new AbortController();
-    const timeout = window.setTimeout(() => controller.abort(), 12000);
-    setPageState("loading");
+  const applySession = useCallback((session: AccountSession) => {
+    if (session.authenticated && session.user) {
+      const nextSessionKey = session.user.id;
+      if (sessionKey.current !== nextSessionKey) {
+        requestId.current += 1;
+        trackedRecommendation.current = "";
+        setState(null);
+        setPageState("loading");
+      }
+      sessionKey.current = nextSessionKey;
+      setSessionReadiness("authenticated");
+      return;
+    }
+    requestId.current += 1;
+    sessionKey.current = "";
+    activeRequestKey.current = "";
+    setRequestActive(false);
+    setState(null);
+    lastValidResponse.current = null;
+    setSessionReadiness("unauthenticated");
+    setPageState("error");
+    setErrorMessage("Please sign in to load your recommendations.");
+  }, []);
+
+  const refreshSession = useCallback(async () => {
+    setSessionReadiness("checking");
     setErrorMessage("");
     try {
-      const response = await fetch("/api/advisor/for-you", { credentials: "same-origin", cache: "no-store", signal: controller.signal });
-      if (requestId.current !== currentRequest) return;
-      const payload = await response.json().catch(() => null) as unknown;
-      if (!response.ok || !payload) {
-        setState(null);
-        setPageState("error");
-        setErrorMessage(response.status === 401 ? "Please sign in again to load your recommendations." : "We couldn’t load your recommendations.");
-        return;
-      }
-      const normalized = normalizeForYouPayload(payload);
-      setState(normalized.state);
-      setPageState(normalized.pageState);
-    } catch (error) {
-      if (requestId.current !== currentRequest) return;
-      setState(null);
+      const session = await readAccountSession(true);
+      applySession(session);
+    } catch {
+      setSessionReadiness("error");
       setPageState("error");
-      setErrorMessage(error instanceof DOMException && error.name === "AbortError" ? "Recommendations took too long to load." : "We couldn’t load your recommendations.");
+      setErrorMessage("We couldn’t confirm your session.");
+    }
+  }, [applySession]);
+
+  const loadForYou = useCallback(async (options: { allowAutoRetry?: boolean } = {}) => {
+    const targetSessionKey = sessionKey.current;
+    if (!targetSessionKey) return;
+    if (activeRequestKey.current === targetSessionKey) return;
+    const currentRequest = requestId.current + 1;
+    requestId.current = currentRequest;
+    activeRequestKey.current = targetSessionKey;
+    setRequestActive(true);
+    if (!lastValidResponse.current) setPageState("loading");
+    setErrorMessage("");
+    const runAttempt = async (attempt: number): Promise<void> => {
+      const controller = new AbortController();
+      const timeout = window.setTimeout(() => controller.abort(), 12000);
+      try {
+        const response = await fetch("/api/advisor/for-you", { credentials: "same-origin", cache: "no-store", signal: controller.signal });
+        if (requestId.current !== currentRequest || sessionKey.current !== targetSessionKey) return;
+        const payload = await response.json().catch(() => null) as unknown;
+        if (!response.ok || !payload) {
+          if (options.allowAutoRetry !== false && attempt === 0 && transientForYouStatus(response.status)) {
+            trackProductEvent("for_you_auto_retry", { reason: `status_${response.status}` });
+            await wait(retryDelay(attempt));
+            return runAttempt(1);
+          }
+          if (lastValidResponse.current) {
+            setState(lastValidResponse.current.state);
+            setPageState(lastValidResponse.current.pageState);
+          } else {
+            setState(null);
+            setPageState("error");
+          }
+          setErrorMessage(response.status === 401 ? "Please sign in again to load your recommendations." : "We couldn’t load your recommendations.");
+          return;
+        }
+        const normalized = normalizeForYouPayload(payload);
+        lastValidResponse.current = normalized;
+        setState(normalized.state);
+        setPageState(normalized.pageState);
+      } catch (error) {
+        if (requestId.current !== currentRequest || sessionKey.current !== targetSessionKey) return;
+        const timedOut = error instanceof DOMException && error.name === "AbortError";
+        if (options.allowAutoRetry !== false && attempt === 0) {
+          trackProductEvent("for_you_auto_retry", { reason: timedOut ? "timeout" : "network" });
+          await wait(retryDelay(attempt));
+          return runAttempt(1);
+        }
+        if (lastValidResponse.current) {
+          setState(lastValidResponse.current.state);
+          setPageState(lastValidResponse.current.pageState);
+        } else {
+          setState(null);
+          setPageState("error");
+        }
+        setErrorMessage(timedOut ? "Recommendations took too long to load." : "We couldn’t load your recommendations.");
+      } finally {
+        window.clearTimeout(timeout);
+      }
+    };
+    try {
+      await runAttempt(0);
     } finally {
-      window.clearTimeout(timeout);
+      if (requestId.current === currentRequest && activeRequestKey.current === targetSessionKey) {
+        activeRequestKey.current = "";
+        setRequestActive(false);
+      }
     }
   }, []);
 
   useEffect(() => {
-    void loadForYou();
-    return () => { requestId.current += 1; };
-  }, [loadForYou]);
+    void refreshSession();
+    const onSessionChange = (event: Event) => {
+      const session = (event as CustomEvent<AccountSession>).detail;
+      if (session) applySession(session);
+    };
+    window.addEventListener(accountSessionEvent, onSessionChange);
+    return () => {
+      requestId.current += 1;
+      window.removeEventListener(accountSessionEvent, onSessionChange);
+    };
+  }, [applySession, refreshSession]);
+
+  useEffect(() => {
+    if (sessionReadiness !== "authenticated") return;
+    void loadForYou({ allowAutoRetry: true });
+  }, [loadForYou, sessionReadiness]);
 
   useEffect(() => {
     if (pageState === "loading") return;
@@ -127,10 +233,6 @@ export function AdvisorPage() {
     if (pageState !== "free_preview") return;
     trackProductEvent("pro_gate_viewed", { section: "for-you" });
   }, [pageState]);
-
-  useEffect(() => {
-    return () => { requestId.current += 1; };
-  }, []);
 
   const top = state?.recommendations[0] ?? null;
   const recommended = state?.recommendations.slice(0, 5) ?? [];
@@ -164,8 +266,10 @@ export function AdvisorPage() {
     setFeedbackMessage(label);
   }
 
-  if (pageState === "loading") return <ForYouLoading />;
-  if (pageState === "error") return <ForYouErrorState message={errorMessage} onRetry={() => void loadForYou()} />;
+  if (sessionReadiness === "checking" || pageState === "loading") return <ForYouLoading />;
+  if (sessionReadiness === "unauthenticated") return <ForYouSetupState title="Sign in to see For You." text="Your recommendations are tied to your UnlockED account so they can reflect your profile and Journey." actionHref="/api/auth/google" actionLabel="Sign in" />;
+  if (sessionReadiness === "error") return <ForYouErrorState message={errorMessage} onRetry={() => void refreshSession()} retrying={requestActive} />;
+  if (pageState === "error") return <ForYouErrorState message={errorMessage} onRetry={() => void loadForYou({ allowAutoRetry: false })} retrying={requestActive} />;
   if (pageState === "profile_incomplete" || !state?.profile || !state.school) return <ForYouSetupState title="Complete your profile first." text="UnlockED needs your school, major, year, goals, and activity before it can recommend fitting opportunities." actionHref="/profile" actionLabel="Open profile" />;
   if (pageState === "free_preview" && !top) return <ForYouFreePreviewOnly totalMatches={state.totalMatches} shown={state.recommendations.length} />;
   if (pageState === "empty" || !top) return <ForYouEmptyState />;
@@ -285,14 +389,14 @@ function ForYouEmptyState() {
   </main>;
 }
 
-function ForYouErrorState({ message, onRetry }: { message: string; onRetry: () => void }) {
+function ForYouErrorState({ message, onRetry, retrying = false }: { message: string; onRetry: () => void; retrying?: boolean }) {
   return <main className="min-h-[70vh] bg-paper px-5 py-16 sm:px-8">
     <section className="mx-auto max-w-4xl rounded-[2rem] bg-white/62 p-8 shadow-[0_18px_60px_rgba(43,33,26,.045)] ring-1 ring-ink/6 sm:p-10">
       <p className="rule-label text-forest">For You</p>
       <h1 className="mt-4 font-editorial text-5xl font-bold tracking-[-.045em]">We couldn’t load your recommendations.</h1>
       <p className="mt-4 max-w-2xl text-sm leading-7 text-ink/55">{message || "Something interrupted the request. Try again, or browse Discover while we sort it out."}</p>
       <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-        <button type="button" onClick={onRetry} className="inline-flex min-h-12 items-center justify-center rounded-full bg-forest px-6 text-sm font-bold text-white hover:bg-ink">Retry</button>
+        <button type="button" onClick={onRetry} disabled={retrying} className="inline-flex min-h-12 items-center justify-center rounded-full bg-forest px-6 text-sm font-bold text-white hover:bg-ink disabled:cursor-not-allowed disabled:bg-ink/35">{retrying ? "Retrying..." : "Retry"}</button>
         <Link href="/opportunities" className="inline-flex min-h-12 items-center justify-center rounded-full border border-ink/15 bg-white px-6 text-sm font-bold text-ink hover:border-forest hover:text-forest">Browse Discover</Link>
         <Link href="/contact" className="inline-flex min-h-12 items-center justify-center rounded-full px-4 text-sm font-bold text-forest hover:text-ink">Contact support</Link>
       </div>

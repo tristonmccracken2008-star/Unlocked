@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { buildRecommendationService } from "@/data/recommendation-service";
-import { opportunities } from "@/data/opportunities";
+import { opportunities, type Opportunity } from "@/data/opportunities";
 import { schools } from "@/data/seed";
 import { inferApplicationsFromActivity } from "@/data/student-progress";
 import { getSession, sessionCookieName } from "@/lib/auth-store";
@@ -13,6 +13,10 @@ export const revalidate = 0;
 const serverTimeoutMs = 8000;
 const sessionTimeoutMs = 6500;
 const validPageStates = new Set(["pro_ready", "free_preview", "profile_incomplete", "empty", "error"]);
+const moduleStartedAt = Date.now();
+let requestSequence = 0;
+let globalIndex: { opportunityCount: number; opportunityById: Map<string, Opportunity> } | null = null;
+let globalIndexPromise: Promise<{ opportunityCount: number; opportunityById: Map<string, Opportunity> }> | null = null;
 
 function timeoutError(label: string, ms: number) {
   const error = new Error(`${label} timed out after ${ms}ms`);
@@ -41,14 +45,41 @@ function logResponseShape(body: Record<string, unknown>) {
   });
 }
 
+function nextRequestId() {
+  requestSequence += 1;
+  return `for-you-${Date.now().toString(36)}-${requestSequence.toString(36)}`;
+}
+
+async function getForYouGlobalIndex() {
+  if (globalIndex) return globalIndex;
+  if (!globalIndexPromise) {
+    globalIndexPromise = Promise.resolve().then(() => {
+      const built = {
+        opportunityCount: opportunities.length,
+        opportunityById: new Map(opportunities.map((opportunity) => [opportunity.id, opportunity])),
+      };
+      globalIndex = built;
+      return built;
+    }).catch((error) => {
+      globalIndexPromise = null;
+      throw error;
+    });
+  }
+  const built = await globalIndexPromise;
+  if (globalIndex) globalIndexPromise = null;
+  return built;
+}
+
 export async function GET() {
   const startedAt = Date.now();
+  const requestId = nextRequestId();
+  const coldStart = requestSequence === 1 || Date.now() - moduleStartedAt < 1000;
   let lastCheckpoint = "request started";
   const checkpoint = (label: string, extra: Record<string, unknown> = {}) => {
     lastCheckpoint = label;
-    console.info(`[UnlockED For You] ${label}: ${Date.now() - startedAt}ms`, extra);
+    console.info(`[UnlockED For You] ${label}: ${Date.now() - startedAt}ms`, { requestId, ...extra });
   };
-  console.info("[UnlockED For You] request started");
+  console.info("[UnlockED For You] request started", { requestId, coldStart });
   try {
     const cookieStore = await cookies();
     checkpoint("cookies complete");
@@ -77,6 +108,9 @@ export async function GET() {
       trackedCount: Object.keys(activity.tracked ?? {}).length,
       feedbackCount: session.data.advisor?.feedbackRecords?.length ?? 0,
     });
+    const indexWasWarm = Boolean(globalIndex);
+    const index = await withTimeout(getForYouGlobalIndex(), "global recommendation index", 1000);
+    checkpoint("global indexes complete", { cache: indexWasWarm ? "hit" : "miss", opportunityCount: index.opportunityCount });
     const source = opportunities;
     checkpoint("opportunity index complete", { opportunityCount: source.length });
     const progress = inferApplicationsFromActivity(activity, opportunities, { milestones: {}, applications: {} });
@@ -118,6 +152,7 @@ export async function GET() {
     };
     logResponseShape(body);
     console.info("[UnlockED For You] request completed", {
+      requestId,
       pageState,
       access: pro ? "pro" : "preview",
       plan: entitlements.plan,
@@ -129,6 +164,7 @@ export async function GET() {
     return NextResponse.json(body, { headers: { "Cache-Control": "no-store, max-age=0" } });
   } catch (error) {
     console.error("[UnlockED For You] request failed", {
+      requestId,
       errorCategory: error instanceof Error ? error.name : "unknown",
       lastCheckpoint,
       durationMs: Date.now() - startedAt,
@@ -137,6 +173,6 @@ export async function GET() {
     logResponseShape(body);
     return NextResponse.json(body, { status: 500, headers: { "Cache-Control": "no-store, max-age=0" } });
   } finally {
-    console.info("[UnlockED For You] response complete", { lastCheckpoint, durationMs: Date.now() - startedAt });
+    console.info("[UnlockED For You] response complete", { requestId, lastCheckpoint, durationMs: Date.now() - startedAt });
   }
 }

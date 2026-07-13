@@ -36,6 +36,7 @@ export const analyticsEvents = [
   "application_recorded",
   "for_you_opened",
   "for_you_error",
+  "for_you_auto_retry",
   "recommendation_viewed",
   "recommendation_clicked",
   "recommendation_saved",

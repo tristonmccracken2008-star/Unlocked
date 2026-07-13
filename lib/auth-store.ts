@@ -23,7 +23,8 @@ const memoryStore = new Map<string, StoredValue>();
 const kvUrl = process.env.KV_REST_API_URL ?? process.env.UPSTASH_REDIS_REST_URL;
 const kvToken = process.env.KV_REST_API_TOKEN ?? process.env.UPSTASH_REDIS_REST_TOKEN;
 const hasKv = Boolean(kvUrl && kvToken);
-const kvTimeoutMs = 3500;
+const kvTimeoutMs = 2800;
+const kvRetryDelayMs = 120;
 
 const emptyData = (): AccountData => ({ profile: null, onboardingComplete: false, billing: defaultBillingRecord(), activity: null, savedOpportunities: [], tracker: {}, preferences: null, journeyProgress: {}, advisor: null, referrals: null, updatedAt: new Date().toISOString() });
 
@@ -86,6 +87,15 @@ function referralAdminSummaryKey() {
   return "unlocked:referral-admin-summary";
 }
 
+function shouldRetryKvCommand(error: unknown) {
+  if (!(error instanceof Error)) return false;
+  return error.name === "AbortError" || error.message.includes("timed out") || error.message.includes("fetch failed");
+}
+
+function wait(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 async function kvCommand<T>(command: unknown[]): Promise<T | null> {
   requireProductionStore();
   if (!kvUrl || !kvToken) {
@@ -101,25 +111,36 @@ async function kvCommand<T>(command: unknown[]): Promise<T | null> {
     }
     throw new Error(`Unsupported development store command: ${op}`);
   }
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), kvTimeoutMs);
-  try {
-    const response = await fetch(kvUrl, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${kvToken}`, "Content-Type": "application/json" },
-      body: JSON.stringify(command),
-      cache: "no-store",
-      signal: controller.signal,
-    });
-    if (!response.ok) throw new Error(`KV command failed: ${response.status}`);
-    const parsed = await response.json() as { result?: T | null };
-    return parsed.result ?? null;
-  } catch (error) {
-    if (error instanceof Error && error.name === "AbortError") throw new Error("KV command timed out.");
-    throw error;
-  } finally {
-    clearTimeout(timeout);
+  const operation = typeof command[0] === "string" ? command[0] : "UNKNOWN";
+  let lastError: unknown;
+  for (let attempt = 1; attempt <= 2; attempt += 1) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), kvTimeoutMs);
+    try {
+      const response = await fetch(kvUrl, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${kvToken}`, "Content-Type": "application/json" },
+        body: JSON.stringify(command),
+        cache: "no-store",
+        signal: controller.signal,
+      });
+      if (!response.ok) throw new Error(`KV command failed: ${response.status}`);
+      const parsed = await response.json() as { result?: T | null };
+      return parsed.result ?? null;
+    } catch (error) {
+      lastError = error instanceof Error && error.name === "AbortError" ? new Error("KV command timed out.") : error;
+      if (attempt >= 2 || !shouldRetryKvCommand(lastError)) throw lastError;
+      console.warn("[UnlockED store] KV command retry", {
+        operation,
+        attempt,
+        reason: lastError instanceof Error ? lastError.message : "unknown",
+      });
+      await wait(kvRetryDelayMs);
+    } finally {
+      clearTimeout(timeout);
+    }
   }
+  throw lastError instanceof Error ? lastError : new Error("KV command failed.");
 }
 
 async function dbGet<T>(key: string): Promise<T | null> {
