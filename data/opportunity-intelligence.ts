@@ -310,7 +310,7 @@ export function isSchoolEligible(item: Opportunity, context: Pick<OpportunityStu
   return item.school_scope !== "School Specific";
 }
 
-function gpaRequirement(item: Opportunity) {
+export function gpaRequirement(item: Opportunity) {
   const enriched = canonicalOpportunity(item).eligibility.minimumGPA;
   if (enriched !== null) return enriched;
   const text = `${item.eligibility} ${(item.metadata.applicationRequirements ?? []).join(" ")} ${(item.metadata.eligibilityNotes ?? []).join(" ")}`;

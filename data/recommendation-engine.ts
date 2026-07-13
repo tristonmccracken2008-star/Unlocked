@@ -5,6 +5,7 @@ import { getMilestoneOpportunityConnections, toMilestone, type Milestone } from 
 import { getOpportunityIntelligence, isSchoolEligible, scoreOpportunityIntelligence, type OpportunityPriority, type OpportunityScore, type OpportunityStudentContext } from "./opportunity-intelligence";
 import { getOpportunityRelationship, type OpportunityRelationship } from "./opportunity-relationships";
 import { opportunities as catalogOpportunities, type Opportunity } from "./opportunities";
+import { auditFinalOpportunityRecommendation, buildRecommendationHealthMonitor, careerAdvisorFit, evaluateProfessionalRecommendationCandidate, type RecommendationHealthMonitor } from "./recommendation-professional-pipeline";
 import { getRoadmap, type RoadmapImportance, type RoadmapMilestone } from "./roadmap-engine";
 import { buildRecommendationWeeklyStrategy, type RecommendationWeeklyStrategy } from "./recommendation-weekly-strategy";
 import { labelForRecommendationScore, recommendationConfig } from "./recommendation-config";
@@ -89,6 +90,7 @@ export type RecommendationDiagnosticReport = {
     recommendedCount: number;
     elapsedMs: number;
   };
+  health: RecommendationHealthMonitor;
 };
 
 const priorityWeight: Record<OpportunityPriority, number> = {
@@ -295,12 +297,14 @@ function rankOpportunity(profile: AdvisorProfile, opportunity: Opportunity, cont
   const roadmapBoost = roadmapCategories.includes(intelligence.category) || roadmapCategories.includes(opportunity.category) ? 10 : 0;
   const careerFit = scoreCareerRoadmapFit(opportunity, profile.goals.careerGoal, profile.academics.timelineStage);
   const careerRoadmapBoost = Math.min(24, careerFit.score);
+  const advisorFit = careerAdvisorFit(profile, opportunity);
   const relationship: OpportunityRelationship | null = null;
   const relationshipBoost = 0;
   const savedBoost = profile.experience.savedOpportunityIds.includes(opportunity.id) ? 5 : 0;
   const activeApplicationBoost = progressForOpportunity(profile, opportunity.id) ? 7 : 0;
   const connectionBoost = Math.min(12, milestoneReasons.length * 6);
-  const finalScore = clamp(score.score + roadmapBoost + careerRoadmapBoost + relationshipBoost + savedBoost + activeApplicationBoost + connectionBoost);
+  const advisorBoost = advisorFit.shouldDoNext ? 6 : 0;
+  const finalScore = clamp(score.score + roadmapBoost + careerRoadmapBoost + advisorBoost + relationshipBoost + savedBoost + activeApplicationBoost + connectionBoost);
   return { opportunity, score, milestoneReasons, roadmapBoost, careerRoadmapBoost, relationshipBoost, relationship, progressBoost: savedBoost + activeApplicationBoost, finalScore };
 }
 
@@ -316,6 +320,7 @@ function qualityGateFailures(ranked: RankedOpportunity) {
   if (finalScore < recommendationConfig.qualityGates.minimumRecommendationScore) failures.push("Final recommendation score is below the quality gate.");
   if (!score.reasons.some((reason) => /matches|accepts|available|deadline|verified|gpa|supports|open to/i.test(reason))) failures.push("Missing factual explanation reasons.");
   if (ranked.finalScore < recommendationConfig.thresholds.worthReviewing) failures.push("Confidence is below the visible recommendation threshold.");
+  if (ranked.score.confidence < recommendationConfig.confidence.mediumThreshold) failures.push("Professional advisor confidence is too low.");
   return failures;
 }
 
@@ -348,6 +353,7 @@ function toOpportunityRecommendation(profile: AdvisorProfile, ranked: RankedOppo
 }
 
 function shouldExcludeOpportunity(profile: AdvisorProfile, opportunity: Opportunity, context: OpportunityStudentContext) {
+  if (!evaluateProfessionalRecommendationCandidate(opportunity, context).allowed) return true;
   if (recommendationConfig.verificationQuality.excludedStatuses.includes(opportunity.verification_status as never)) return true;
   if (!isSchoolEligible(opportunity, context)) return true;
   if (!opportunity.organization.trim() || !opportunity.eligibility.trim() || !opportunity.official_source_url.startsWith("https://")) return true;
@@ -409,10 +415,15 @@ function diversityAdjustedOpportunityRecommendations(profile: AdvisorProfile, ra
 
 export function rankOpportunityRecommendations(input: RecommendationEngineInput): RecommendationV1[] {
   const limit = input.limit ?? 24;
+  const context = contextWithLearning(studentContext(input.advisorProfile), input.opportunities ?? catalogOpportunities);
   const ranked = rankAllOpportunities(input).filter((item) => qualityGateFailures(item).length === 0);
   const primary = ranked.filter((item) => !recommendationConfig.verificationQuality.suppressFromPremiumStatuses.includes(item.opportunity.verification_status as never) && !recommendationConfig.verificationQuality.nonActionableStatuses.includes(item.opportunity.verification_status as never));
   const fallback = ranked.filter((item) => !primary.includes(item));
-  return diversityAdjustedOpportunityRecommendations(input.advisorProfile, primary.length >= limit ? primary : [...primary, ...fallback], limit);
+  return diversityAdjustedOpportunityRecommendations(input.advisorProfile, primary.length >= limit ? primary : [...primary, ...fallback], limit)
+    .filter((recommendation) => {
+      const opportunity = (input.opportunities ?? catalogOpportunities).find((item) => item.id === recommendation.relatedOpportunityId);
+      return opportunity ? auditFinalOpportunityRecommendation(recommendation, opportunity, context).approved : true;
+    });
 }
 
 function reviewRecord(ranked: RankedOpportunity, finalRank: number | null): RecommendationReviewRecord {
@@ -453,7 +464,12 @@ export function buildRecommendationDiagnosticReport(input: RecommendationEngineI
       recommendedCount: finalRankingOrder.length,
       elapsedMs,
     },
+    health: buildRecommendationHealthMonitor(diversified, sourceForDiagnostics(input), contextWithLearning(studentContext(input.advisorProfile), input.opportunities ?? catalogOpportunities)),
   };
+}
+
+function sourceForDiagnostics(input: RecommendationEngineInput) {
+  return [...(input.opportunities ?? catalogOpportunities)];
 }
 
 export function rankMilestoneRecommendations(input: RecommendationEngineInput): RecommendationV1[] {
