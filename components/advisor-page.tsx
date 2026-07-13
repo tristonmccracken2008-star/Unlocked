@@ -19,9 +19,9 @@ import type { FeedbackType } from "@/lib/advisor/types";
 type ForYouPageState = "loading" | "pro_ready" | "free_preview" | "profile_incomplete" | "empty" | "error";
 
 type AdvisorState = {
-  pageState?: ForYouPageState;
-  profile?: StudentProfile;
-  school?: School;
+  pageState: Exclude<ForYouPageState, "loading">;
+  profile: StudentProfile | null;
+  school: School | null;
   activity: StudentActivity;
   session: AccountSession | null;
   access: AdvisorAccessState;
@@ -29,6 +29,38 @@ type AdvisorState = {
   recommendations: RecommendationViewModel[];
   totalMatches: number;
 };
+
+const validForYouPageStates = ["pro_ready", "free_preview", "profile_incomplete", "empty", "error"] as const;
+const emptyActivity: StudentActivity = { viewed: [], saved: [], claimed: [], tracked: {} };
+
+function isForYouPageState(value: unknown): value is Exclude<ForYouPageState, "loading"> {
+  return validForYouPageStates.includes(value as never);
+}
+
+export function normalizeForYouPayload(payload: unknown): { pageState: Exclude<ForYouPageState, "loading">; state: AdvisorState } {
+  const input = payload && typeof payload === "object" ? payload as Partial<AdvisorState> : {};
+  const recommendations = Array.isArray(input.recommendations) ? input.recommendations.filter((item): item is RecommendationViewModel => Boolean(item && typeof item === "object" && "recommendation" in item)) : [];
+  const access: AdvisorAccessState = input.access === "pro" || input.access === "preview" || input.access === "free" || input.access === "unavailable" ? input.access : "unavailable";
+  const profile = input.profile ?? null;
+  const school = input.school ?? null;
+  let pageState: Exclude<ForYouPageState, "loading"> = isForYouPageState(input.pageState) ? input.pageState : access === "unavailable" ? "profile_incomplete" : access === "preview" ? "free_preview" : recommendations.length ? "pro_ready" : "empty";
+  if ((pageState === "pro_ready" || pageState === "free_preview" || pageState === "empty") && (!profile || !school)) pageState = "profile_incomplete";
+  if (pageState === "pro_ready" && recommendations.length === 0) pageState = "empty";
+  return {
+    pageState,
+    state: {
+      pageState,
+      profile,
+      school,
+      activity: input.activity ?? emptyActivity,
+      session: input.session ?? null,
+      access,
+      entitlements: input.entitlements ?? null,
+      recommendations,
+      totalMatches: typeof input.totalMatches === "number" ? input.totalMatches : recommendations.length,
+    },
+  };
+}
 
 function displayFirstName(profile: StudentProfile, session: AccountSession | null) {
   return profile.firstName?.trim() || session?.user?.name?.split(" ")[0] || "there";
@@ -56,16 +88,16 @@ export function AdvisorPage() {
     try {
       const response = await fetch("/api/advisor/for-you", { credentials: "same-origin", cache: "no-store", signal: controller.signal });
       if (requestId.current !== currentRequest) return;
-      const payload = await response.json().catch(() => null) as (AdvisorState & { pageState?: ForYouPageState; error?: string }) | null;
+      const payload = await response.json().catch(() => null) as unknown;
       if (!response.ok || !payload) {
         setState(null);
         setPageState("error");
         setErrorMessage(response.status === 401 ? "Please sign in again to load your recommendations." : "We couldn’t load your recommendations.");
         return;
       }
-      const nextState: ForYouPageState = payload.pageState ?? (payload.access === "unavailable" ? "profile_incomplete" : payload.access === "preview" ? "free_preview" : payload.recommendations?.length ? "pro_ready" : "empty");
-      setState(payload);
-      setPageState(nextState);
+      const normalized = normalizeForYouPayload(payload);
+      setState(normalized.state);
+      setPageState(normalized.pageState);
     } catch (error) {
       if (requestId.current !== currentRequest) return;
       setState(null);

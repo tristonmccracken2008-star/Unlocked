@@ -24,7 +24,7 @@
     "check:college-journey": "node scripts/check-college-journey.mjs",
     "check:discover": "node scripts/check-discover-redesign.mjs",
     "check:journey-redesign": "node scripts/check-journey-redesign.mjs",
-    "check:for-you": "node scripts/check-for-you-redesign.mjs",
+    "check:for-you": "node scripts/check-for-you-redesign.mjs && node scripts/check-for-you-client-contract.mjs",
     "check:logos": "node scripts/check-organization-logos.mjs",
     "check:referrals": "node scripts/check-referrals.mjs",
     "check:release-candidate": "node scripts/check-release-candidate.mjs",

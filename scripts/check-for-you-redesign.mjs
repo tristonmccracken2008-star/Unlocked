@@ -54,6 +54,8 @@ for (const checkpoint of [
 assert.ok(forYouApi.includes("withTimeout(getSession") && forYouApi.includes("sessionTimeoutMs"), "For You API must bound session lookup.");
 assert.ok(advisor.includes("/api/advisor/for-you"), "For You client must consume the server-gated recommendation API.");
 assert.ok(!advisor.includes("buildRecommendationService"), "For You client must not build the full recommendation feed.");
+assert.ok(advisor.includes("normalizeForYouPayload"), "For You client must normalize the API response contract.");
+assert.ok(forYouApi.includes("logResponseShape"), "For You API must log response field names only.");
 assert.ok(advisor.includes('type ForYouPageState = "loading" | "pro_ready" | "free_preview" | "profile_incomplete" | "empty" | "error"'), "For You client must use an explicit finite state machine.");
 assert.ok(advisor.includes("AbortController") && advisor.includes("setTimeout") && advisor.includes("12000"), "For You client must bound loading with a request timeout.");
 assert.ok(advisor.includes("ForYouErrorState") && advisor.includes("Retry"), "For You client must render a retryable error state.");
