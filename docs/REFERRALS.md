@@ -18,6 +18,9 @@ UnlockED referrals use the existing account, onboarding, billing, analytics, and
 - Referral loops are rejected.
 - Referrer changes are not accepted through the client account save API.
 - Completion credit requires a completed profile and `onboardingComplete`.
+- Referral ledger mutations use a distributed lock so concurrent onboarding requests cannot double-credit a referral or Pro reward.
+- Partial writes are repaired idempotently on retry; billing is stored only after the referral ledger records the reward.
+- Referral codes use cryptographically random values and cannot be chosen by the browser.
 
 ## Rewards
 

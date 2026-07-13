@@ -18,6 +18,7 @@ import { inferApplicationsFromActivity, normalizeStudentProgress } from "@/data/
 import { getSession, sessionCookieName } from "@/lib/auth-store";
 import { requireCompletedOnboarding } from "@/lib/onboarding";
 import type { StudentActivity } from "@/data/student-activity";
+import { serializeJsonLd } from "@/lib/json-ld";
 
 export const dynamic="force-dynamic";
 export async function generateMetadata({params}:{params:Promise<{id:string}>}):Promise<Metadata>{const item=await getManagedOpportunity((await params).id);if(!item)return{title:"Opportunity not found"};const title=`${item.title}: Eligibility, Value & How to Apply`;const description=`A verified guide to ${item.title} from ${item.organization}, including eligibility, value, timeline, official source, and application guidance.`;return{title,description,alternates:{canonical:`/opportunities/${item.id}`},openGraph:{title,description,url:`/opportunities/${item.id}`,type:"article"}}}
@@ -94,7 +95,7 @@ export default async function Page({params}:{params:Promise<{id:string}>}){
   const faqLd={"@context":"https://schema.org","@type":"FAQPage",mainEntity:faq.map(({q,a})=>({"@type":"Question",name:q,acceptedAnswer:{"@type":"Answer",text:a}}))};
   return <>
     <OpportunityViewTracker opportunityId={item.id}/>
-    <script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(jsonLd)}}/><script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(faqLd)}}/>
+    <script type="application/ld+json" dangerouslySetInnerHTML={{__html:serializeJsonLd(jsonLd)}}/><script type="application/ld+json" dangerouslySetInnerHTML={{__html:serializeJsonLd(faqLd)}}/>
     <header className="bg-white px-5 py-12 sm:px-8 sm:py-20"><div className="mx-auto max-w-6xl">
       <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-2 text-xs font-bold text-ink/40"><Link href="/">Dashboard</Link><span>/</span><Link href="/opportunities" className="text-forest">Discover</Link><span>/</span><span>{item.type}</span></nav>
       <div className="mt-10 grid gap-10 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start"><div className="min-w-0"><div className="flex flex-wrap items-center gap-3"><span className="rule-label text-forest">{item.type}</span><span className="rule-label text-ink/40">{item.category}</span><StatusBadge status={displayedStatus}/></div><div className="mt-6 flex items-center gap-4"><OrganizationLogo opportunity={item} size="lg"/><p className="text-sm font-bold uppercase tracking-widest text-ink/35">{item.organization}</p></div><h1 className="mt-4 max-w-4xl font-editorial text-5xl font-bold leading-[1] tracking-[-.05em] sm:text-7xl">{item.title}</h1><p className="mt-7 max-w-3xl text-lg leading-8 text-ink/60">{item.description}</p></div><aside className="rounded-[2rem] bg-paper p-5 shadow-soft"><p className="rule-label text-forest">Official next step</p><OpportunityActivityActions opportunityId={item.id} type={item.type} officialSource={item.official_source}/><div className="mt-5 border-t border-ink/10 pt-5"><p className="rule-label text-ink/35">Last verified</p><p className="mt-2 font-bold">{item.last_verified}</p></div></aside></div>

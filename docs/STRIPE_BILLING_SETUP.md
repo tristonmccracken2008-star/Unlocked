@@ -17,6 +17,8 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 
 Never mix test-mode price IDs with live-mode keys.
 
+Production must use a canonical HTTPS `NEXT_PUBLIC_APP_URL`. Store every Stripe secret only in the deployment platform's encrypted environment settings; never expose a secret key or webhook secret through a `NEXT_PUBLIC_` variable.
+
 ## Stripe Dashboard
 
 1. Create product: `UnlockED Pro`.
@@ -45,9 +47,11 @@ Subscribe to:
 
 Paste the signing secret into `STRIPE_WEBHOOK_SECRET`.
 
+The endpoint verifies the signature against the untouched raw body with a five-minute timestamp tolerance. It also verifies live/test mode, event shape, configured Price IDs, Checkout metadata ownership, existing customer ownership, and event ordering. Event IDs are claimed atomically for replay protection, and events for the same Stripe customer are serialized to prevent stale concurrent updates. Browser redirects and success pages never grant Pro access.
+
 ## Subscription Data
 
-Billing state is stored inside `AccountData.billing`:
+The public account model exposes a redacted `AccountData.billing` view. Canonical billing state is stored in a dedicated server-side account billing record so concurrent profile writes cannot overwrite Stripe state:
 
 - `tier`: `free` or `pro`
 - `status`: `free`, `trialing`, `active`, `past_due`, `unpaid`, `incomplete`, `incomplete_expired`, `canceled`, or `paused`
@@ -100,8 +104,12 @@ No Pro access:
 - Replace test keys with live keys.
 - Replace test price IDs with live price IDs.
 - Configure the live webhook endpoint.
+- Verify the webhook signing secret belongs to that exact endpoint and environment.
+- Enable Stripe webhook delivery alerts and monitor non-2xx responses.
+- If the deployment firewall supports it, allow Stripe webhook source IPs using Stripe's current published list in addition to signature verification.
 - Configure Customer Portal cancellation and invoice settings.
 - Confirm tax settings operationally.
 - Confirm Terms, Privacy, and cancellation language are public.
 - Run `npm run check:billing`.
+- Run `npm run check:security` and `npm audit --omit=dev`.
 - Run `npm run build`.

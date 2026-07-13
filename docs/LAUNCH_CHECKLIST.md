@@ -1,6 +1,6 @@
 # UnlockED Launch Checklist
 
-Generated: 2026-07-09
+Updated: 2026-07-13
 
 ## Completed
 
@@ -14,6 +14,12 @@ Generated: 2026-07-09
 - All page routes export metadata or generated metadata.
 - Internal links pass the route checker.
 - Production build completes successfully.
+- OAuth uses state and PKCE; sessions are revocable and contain no account PII.
+- Authenticated mutations enforce same-origin requests, bounded bodies, and distributed rate limits.
+- Stripe webhook processing verifies signatures, environment, ownership, allowed prices, ordering, and replay IDs.
+- Browser account responses redact Stripe, referral, and advisor internal identifiers.
+- Global CSP, HSTS, clickjacking, content-type, referrer, and permissions headers are configured.
+- Production dependency audit reports zero known vulnerabilities.
 
 ## Verification Run
 
@@ -25,7 +31,12 @@ Generated: 2026-07-09
 ## Remaining Before Public Launch
 
 - Configure and test production environment variables: `NEXT_PUBLIC_APP_URL`, `AUTH_SECRET`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `ADMIN_EMAILS`, and KV or Upstash credentials.
+- Generate `AUTH_SECRET` and `RATE_LIMIT_SECRET` from at least 32 random bytes; never reuse Stripe or Google credentials.
+- Configure Stripe live keys, allowed monthly/annual Price IDs, the live webhook signing secret, and webhook delivery alerts.
+- Verify deployment WAF, rate-limit storage, log alerts, backups, secret rotation, and incident-response ownership.
 - Run a live OAuth sign-in/sign-out test against the production domain and Google OAuth callback URL.
+- Run test-mode Checkout, subscription update, cancellation, failed payment, duplicate webhook, and out-of-order webhook smoke tests in a staging deployment.
 - Confirm `hello@unlocked.education` is a working monitored inbox.
 - Replace baseline school-domain source URLs with precise office-level URLs where available, starting with the V1 priority subset.
 - Decide whether the report-outdated flow should remain local-only for V1 or be connected to an admin-visible backend before launch.
+- Review the residual risks and operational controls in `docs/PRODUCTION_SECURITY_AUDIT.md`.

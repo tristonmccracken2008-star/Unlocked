@@ -3,7 +3,7 @@ import Link from "next/link";
 import { cookies } from "next/headers";
 import { getSession, sessionCookieName } from "@/lib/auth-store";
 import { isProUser } from "@/lib/billing";
-import { retrieveCheckoutSession } from "@/lib/stripe";
+import { checkoutSessionBelongsToUser, retrieveCheckoutSession } from "@/lib/stripe";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Billing Success", description: "UnlockED Pro checkout confirmation.", robots: { index: false, follow: false } };
@@ -13,7 +13,8 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
   const cookieStore = await cookies();
   const session = await getSession(cookieStore.get(sessionCookieName)?.value);
   const pro = isProUser(session?.data.billing);
-  const checkout = params.session_id ? await retrieveCheckoutSession(params.session_id).catch(() => null) : null;
+  const candidate = session && params.session_id ? await retrieveCheckoutSession(params.session_id).catch(() => null) : null;
+  const checkout = candidate && session && checkoutSessionBelongsToUser(candidate, session.user.id) ? candidate : null;
   return <main className="min-h-[70vh] bg-paper px-5 py-16 sm:px-8">
     <section className="mx-auto max-w-3xl rounded-[2rem] bg-white/82 p-8 shadow-soft ring-1 ring-ink/8">
       <p className="rule-label text-forest">UnlockED Pro</p>

@@ -17,9 +17,18 @@ async function command<T>(args: (string | number)[]): Promise<T> {
     if (op === "ZREVRANGE") { const map = memory.get(String(key)) as Map<string, number> ?? new Map<string, number>(); return [...map.entries()].sort((a,b) => b[1]-a[1]).slice(Number(rest[0]), Number(rest[1])+1).flatMap(([field,score]) => [field,String(score)]) as T; }
     throw new Error(`Unsupported analytics operation: ${op}`);
   }
-  const response = await fetch(kvUrl, { method: "POST", headers: { Authorization: `Bearer ${kvToken}`, "Content-Type": "application/json" }, body: JSON.stringify(args), cache: "no-store" });
-  if (!response.ok) throw new Error(`Analytics store failed: ${response.status}`);
-  return ((await response.json()) as { result: T }).result;
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 2200);
+  try {
+    const response = await fetch(kvUrl, { method: "POST", headers: { Authorization: `Bearer ${kvToken}`, "Content-Type": "application/json" }, body: JSON.stringify(args), cache: "no-store", signal: controller.signal });
+    if (!response.ok) throw new Error(`Analytics store failed: ${response.status}`);
+    return ((await response.json()) as { result: T }).result;
+  } catch (error) {
+    if (error instanceof Error && error.name === "AbortError") throw new Error("Analytics store timed out.");
+    throw error;
+  } finally {
+    clearTimeout(timeout);
+  }
 }
 
 const anonymousHash = (id: string) => crypto.createHash("sha256").update(id).digest("hex").slice(0, 24);

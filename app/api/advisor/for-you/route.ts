@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { getSession, sessionCookieName } from "@/lib/auth-store";
 import { forYouDiagnostics, resolveForYouState } from "@/lib/for-you-snapshot";
+import { enforceRateLimit, SecurityError } from "@/lib/security";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -44,7 +45,7 @@ function nextRequestId() {
   return `for-you-${Date.now().toString(36)}-${requestSequence.toString(36)}`;
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   const startedAt = Date.now();
   const requestId = nextRequestId();
   const coldStart = requestSequence === 1 || Date.now() - moduleStartedAt < 1000;
@@ -65,6 +66,7 @@ export async function GET() {
       logResponseShape(body);
       return NextResponse.json(body, { status: 401, headers: { "Cache-Control": "no-store, max-age=0" } });
     }
+    await enforceRateLimit(request, "advisor-for-you", 30, 60, session.user.id);
     const profile = session.data.profile;
     checkpoint("user/profile lookup complete", { profileComplete: Boolean(profile) });
     checkpoint("billing record lookup complete", { billingStatus: session.data.billing.status });
@@ -105,7 +107,10 @@ export async function GET() {
     });
     const body = { pageState: "error", errorCode: "unexpected", error: "recommendations_unavailable", access: "unavailable", entitlements: null, profile: null, school: null, activity: { viewed: [], saved: [], claimed: [], tracked: {} }, session: null, recommendations: [], totalMatches: 0, snapshotStatus: "failed", isRefreshing: false };
     logResponseShape(body);
-    return NextResponse.json(body, { status: 500, headers: { "Cache-Control": "no-store, max-age=0" } });
+    const status = error instanceof SecurityError ? error.status : 500;
+    const headers: Record<string, string> = { "Cache-Control": "no-store, max-age=0" };
+    if (error instanceof SecurityError && error.retryAfter) headers["Retry-After"] = String(error.retryAfter);
+    return NextResponse.json(body, { status, headers });
   } finally {
     console.info("[UnlockED For You] response complete", { requestId, lastCheckpoint, durationMs: Date.now() - startedAt });
   }

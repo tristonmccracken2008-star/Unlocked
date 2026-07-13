@@ -13,6 +13,10 @@ export type BillingRecord = {
   stripeCustomerId?: string;
   stripeSubscriptionId?: string;
   stripePriceId?: string;
+  hasStripeCustomer?: boolean;
+  hasStripeSubscription?: boolean;
+  stripeEventId?: string;
+  stripeEventCreatedAt?: string;
   billingInterval: BillingInterval;
   currentPeriodStart?: string;
   currentPeriodEnd?: string;
@@ -70,6 +74,10 @@ export function normalizeBillingRecord(value: unknown): BillingRecord {
     stripeCustomerId: typeof input.stripeCustomerId === "string" ? input.stripeCustomerId : undefined,
     stripeSubscriptionId: typeof input.stripeSubscriptionId === "string" ? input.stripeSubscriptionId : undefined,
     stripePriceId: typeof input.stripePriceId === "string" ? input.stripePriceId : undefined,
+    hasStripeCustomer: Boolean(input.stripeCustomerId || input.hasStripeCustomer),
+    hasStripeSubscription: Boolean(input.stripeSubscriptionId || input.hasStripeSubscription),
+    stripeEventId: typeof input.stripeEventId === "string" ? input.stripeEventId : undefined,
+    stripeEventCreatedAt: typeof input.stripeEventCreatedAt === "string" ? input.stripeEventCreatedAt : undefined,
     billingInterval,
     currentPeriodStart: typeof input.currentPeriodStart === "string" ? input.currentPeriodStart : undefined,
     currentPeriodEnd: typeof input.currentPeriodEnd === "string" ? input.currentPeriodEnd : undefined,

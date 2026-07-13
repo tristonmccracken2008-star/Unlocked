@@ -23,9 +23,9 @@ async function command<T>(args: string[]): Promise<T | null> {
     if (op === "LRANGE") return (memory.get(key) as string[]??[]).slice(Number(rest[0]),Number(rest[1])+1) as T;
     throw new Error(`Unsupported content store operation: ${op}`);
   }
-  const response=await fetch(kvUrl,{method:"POST",headers:{Authorization:`Bearer ${kvToken}`,"Content-Type":"application/json"},body:JSON.stringify(args),cache:"no-store"});
+  const controller=new AbortController();const timeout=setTimeout(()=>controller.abort(),2800);try{const response=await fetch(kvUrl,{method:"POST",headers:{Authorization:`Bearer ${kvToken}`,"Content-Type":"application/json"},body:JSON.stringify(args),cache:"no-store",signal:controller.signal});
   if(!response.ok)throw new Error(`Content database failed: ${response.status}`);
-  return ((await response.json()) as {result:T|null}).result;
+  return ((await response.json()) as {result:T|null}).result;}catch(error){if(error instanceof Error&&error.name==="AbortError")throw new Error("Content database timed out.");throw error}finally{clearTimeout(timeout)}
 }
 
 function requireWritableStore(){if((!kvUrl||!kvToken)&&process.env.NODE_ENV==="production")throw new Error("Production content storage is not configured. Set KV_REST_API_URL/KV_REST_API_TOKEN or the Upstash equivalents.")}

@@ -5,6 +5,7 @@ import { BenefitBrowser } from "@/components/benefit-browser";
 import { SchoolPersonalizedRecommendations } from "@/components/school-personalized-recommendations";
 import { formatValueTotal, getSchool, getSchoolBenefits, schools } from "@/data/seed";
 import { opportunities, type Opportunity } from "@/data/opportunities";
+import { serializeJsonLd } from "@/lib/json-ld";
 
 export const revalidate = 86400;
 export const dynamicParams = true;
@@ -44,7 +45,7 @@ export default async function SchoolPage({ params }: { params: Promise<{ slug: s
   const jsonLd = { "@context": "https://schema.org", "@type": "CollectionPage", name: `${school.name} Student Discounts & .edu Benefits`, description: `National student benefits available to eligible ${school.name} students plus school-specific benefits verified from official university sources.`, url: `https://unlocked.education/schools/${school.slug}`, mainEntity: { "@type": "ItemList", numberOfItems: schoolBenefits.length, itemListElement: schoolBenefits.slice(0, 10).map((item, index) => ({ "@type": "ListItem", position: index + 1, url: `https://unlocked.education/benefits/${item.slug}`, name: item.name })) } };
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }} />
       <nav aria-label="Breadcrumb" className="mx-auto flex max-w-7xl items-center gap-2 px-5 py-3 text-xs font-bold uppercase tracking-wider text-ink/40 sm:px-8"><Link href="/">Dashboard</Link><span>/</span><Link href="/university" className="text-forest">My University</Link><span>/</span><span>{school.name}</span></nav>
       <section className="border-b border-ink/15 bg-white">
         <div className="mx-auto grid max-w-7xl sm:grid-cols-[120px_1fr_260px]">

@@ -6,25 +6,30 @@ import { applyReferralProGrant, newlyUnlockedReferralRewards, normalizeReferralD
 import { recordAnalyticsEvent } from "./analytics-store";
 import { isCompletedStudentProfile, normalizeStudentProfile } from "@/data/student-profile";
 import { meaningfulAdvisorProfileChanged } from "./advisor/profile-version";
+import { constantTimeEqual, requiredAuthSecret } from "./security";
 
 export const sessionCookieName = "unlocked_session";
 export const oauthStateCookieName = "unlocked_oauth_state";
+export const oauthCodeVerifierCookieName = "unlocked_oauth_verifier";
 
 type SignedSessionPayload = {
-  v: 1;
-  user: AuthUser;
+  v: 2;
+  sid: string;
   exp: string;
   iat: string;
 };
 
-type StoredValue = DatabaseUser | AccountData | ReferralAdminSummary | string | null;
+type StoredSession = { userId: string; expiresAt: string };
+type StoredValue = DatabaseUser | AccountData | ReferralAdminSummary | StoredSession | string | null;
 
 const memoryStore = new Map<string, StoredValue>();
+const memoryExpiry = new Map<string, number>();
 const kvUrl = process.env.KV_REST_API_URL ?? process.env.UPSTASH_REDIS_REST_URL;
 const kvToken = process.env.KV_REST_API_TOKEN ?? process.env.UPSTASH_REDIS_REST_TOKEN;
 const hasKv = Boolean(kvUrl && kvToken);
 const kvTimeoutMs = 2800;
 const kvRetryDelayMs = 120;
+const releaseLockScript = "if redis.call('GET',KEYS[1]) == ARGV[1] then return redis.call('DEL',KEYS[1]) else return 0 end";
 
 const emptyData = (): AccountData => ({ profile: null, onboardingComplete: false, billing: defaultBillingRecord(), activity: null, savedOpportunities: [], tracker: {}, preferences: null, journeyProgress: {}, advisor: null, referrals: null, updatedAt: new Date().toISOString() });
 
@@ -33,9 +38,7 @@ function requireProductionStore() {
 }
 
 function hash(value: string) {
-  const secret = process.env.AUTH_SECRET;
-  if (!secret && process.env.NODE_ENV === "production") throw new Error("AUTH_SECRET is required in production.");
-  return crypto.createHmac("sha256", secret ?? "unlocked-development-secret").update(value).digest("hex");
+  return crypto.createHmac("sha256", requiredAuthSecret()).update(value).digest("hex");
 }
 
 function encode(value: unknown) {
@@ -52,11 +55,13 @@ function signPayload(payload: SignedSessionPayload) {
 }
 
 function verifySignedSession(token: string): SignedSessionPayload | null {
-  const [body, signature] = token.split(".");
-  if (!body || !signature || hash(body) !== signature) return null;
+  const parts = token.split(".");
+  if (parts.length !== 2) return null;
+  const [body, signature] = parts;
+  if (!body || !signature || !constantTimeEqual(hash(body), signature)) return null;
   try {
     const payload = decode<SignedSessionPayload>(body);
-    if (payload.v !== 1 || !payload.user?.id || !payload.user.email || new Date(payload.exp) <= new Date()) return null;
+    if (payload.v !== 2 || !payload.sid || new Date(payload.exp) <= new Date()) return null;
     return payload;
   } catch {
     return null;
@@ -73,6 +78,22 @@ function emailKey(email: string) {
 
 function accountDataKey(userId: string) {
   return `unlocked:account-data:${hash(userId).slice(0, 24)}`;
+}
+
+function accountBillingKey(userId: string) {
+  return `unlocked:account-billing:${hash(userId).slice(0, 24)}`;
+}
+
+function sessionKey(sessionId: string) {
+  return `unlocked:session:${hash(sessionId).slice(0, 32)}`;
+}
+
+function stripeEventKey(eventId: string) {
+  return `unlocked:stripe-event:${hash(eventId).slice(0, 32)}`;
+}
+
+function securityLockKey(scope: string, identity: string) {
+  return `unlocked:lock:${scope}:${hash(`${scope}:${identity}`).slice(0, 32)}`;
 }
 
 function stripeCustomerKey(customerId: string) {
@@ -99,14 +120,31 @@ function wait(ms: number) {
 async function kvCommand<T>(command: unknown[]): Promise<T | null> {
   requireProductionStore();
   if (!kvUrl || !kvToken) {
-    const [op, key, value] = command as [string, string, StoredValue?];
+    const [op, key, value, ...options] = command as [string, string, StoredValue?, ...unknown[]];
+    const expiresAt = memoryExpiry.get(key);
+    if (expiresAt && expiresAt <= Date.now()) {
+      memoryStore.delete(key);
+      memoryExpiry.delete(key);
+    }
     if (op === "GET") return (memoryStore.get(key) ?? null) as T | null;
     if (op === "SET") {
+      if (options.includes("NX") && memoryStore.has(key)) return null;
       memoryStore.set(key, value ?? null);
+      const expiryIndex = options.findIndex((item) => item === "EX");
+      if (expiryIndex >= 0) memoryExpiry.set(key, Date.now() + Number(options[expiryIndex + 1]) * 1000);
       return "OK" as T;
     }
     if (op === "DEL") {
       memoryStore.delete(key);
+      memoryExpiry.delete(key);
+      return 1 as T;
+    }
+    if (op === "EVAL" && key === releaseLockScript) {
+      const lockKey = String(options[0] ?? "");
+      const token = String(options[1] ?? "");
+      if (memoryStore.get(lockKey) !== token) return 0 as T;
+      memoryStore.delete(lockKey);
+      memoryExpiry.delete(lockKey);
       return 1 as T;
     }
     throw new Error(`Unsupported development store command: ${op}`);
@@ -151,13 +189,39 @@ async function dbGet<T>(key: string): Promise<T | null> {
   return value as T | null;
 }
 
-async function dbSet(key: string, value: unknown) {
-  await kvCommand(["SET", key, JSON.stringify(value)]);
+async function dbSet(key: string, value: unknown, options: { expiresInSeconds?: number; onlyIfMissing?: boolean } = {}) {
+  const command: unknown[] = ["SET", key, JSON.stringify(value)];
+  if (options.expiresInSeconds) command.push("EX", options.expiresInSeconds);
+  if (options.onlyIfMissing) command.push("NX");
+  return await kvCommand<string>(command);
+}
+
+async function dbDelete(key: string) {
+  await kvCommand(["DEL", key]);
+}
+
+export async function withSecurityLock<T>(scope: string, identity: string, operation: () => Promise<T>) {
+  const key = securityLockKey(scope, identity);
+  const token = crypto.randomBytes(24).toString("base64url");
+  const acquired = await dbSet(key, token, { expiresInSeconds: 60, onlyIfMissing: true });
+  if (acquired !== "OK") throw new Error("A protected account operation is already in progress.");
+  try {
+    return await operation();
+  } finally {
+    await kvCommand<number>(["EVAL", releaseLockScript, "1", key, JSON.stringify(token)]).catch((error) => {
+      console.warn("[UnlockED store] Lock release failed", { scope, errorCategory: error instanceof Error ? error.name : "unknown" });
+    });
+  }
 }
 
 export async function readAccountData(userId: string) {
-  const data = await dbGet<AccountData>(accountDataKey(userId));
-  return await ensureReferralAccountData(userId, normalizeAccountData(data));
+  const [data, canonicalBilling] = await Promise.all([
+    dbGet<AccountData>(accountDataKey(userId)),
+    dbGet<BillingRecord>(accountBillingKey(userId)),
+  ]);
+  const normalized = normalizeAccountData(data);
+  if (canonicalBilling) normalized.billing = normalizeBillingRecord(canonicalBilling);
+  return await ensureReferralAccountData(userId, normalized);
 }
 
 async function writeAccountData(userId: string, data: AccountData) {
@@ -178,15 +242,11 @@ export async function upsertUser(input: Omit<AuthUser, "id"> & { googleSub: stri
   return user;
 }
 
-async function generateReferralCode(userId: string) {
+async function generateReferralCode(_userId: string) {
   for (let attempt = 0; attempt < 20; attempt += 1) {
-    const digest = hash(`referral:${userId}:${attempt}`).toUpperCase().replace(/[^A-Z0-9]/g, "");
-    const code = `U${digest.slice(0, 7)}`;
-    const owner = await dbGet<string>(referralCodeKey(code));
-    if (!owner || owner === userId) {
-      await dbSet(referralCodeKey(code), userId);
-      return code;
-    }
+    const random = crypto.randomBytes(10).toString("base64url").toUpperCase().replace(/[^A-Z0-9]/g, "");
+    const code = `U${random.slice(0, 11)}`;
+    if (await dbSet(referralCodeKey(code), _userId, { onlyIfMissing: true }) === "OK") return code;
   }
   throw new Error("Could not generate a unique referral code.");
 }
@@ -209,7 +269,9 @@ async function ensureReferralAccountData(userId: string, data: AccountData): Pro
 export async function createSession(user: AuthUser) {
   const expires = new Date();
   expires.setDate(expires.getDate() + 30);
-  const payload: SignedSessionPayload = { v: 1, user, exp: expires.toISOString(), iat: new Date().toISOString() };
+  const sid = crypto.randomBytes(32).toString("base64url");
+  const payload: SignedSessionPayload = { v: 2, sid, exp: expires.toISOString(), iat: new Date().toISOString() };
+  await dbSet(sessionKey(sid), { userId: user.id, expiresAt: expires.toISOString() } satisfies StoredSession, { expiresInSeconds: 60 * 60 * 24 * 30 });
   const token = signPayload(payload);
   console.info("[UnlockED auth] Session created", { expiresAt: expires.toISOString() });
   return { token, expires };
@@ -219,11 +281,31 @@ export async function getSession(token: string | undefined) {
   if (!token) return null;
   const signed = verifySignedSession(token);
   if (!signed) return null;
-  return { user: signed.user, data: await readAccountData(signed.user.id) };
+  const stored = await dbGet<StoredSession>(sessionKey(signed.sid));
+  if (!stored || new Date(stored.expiresAt) <= new Date()) return null;
+  const databaseUser = await dbGet<DatabaseUser>(userKey(stored.userId));
+  if (!databaseUser) return null;
+  const user: AuthUser = { id: databaseUser.id, email: databaseUser.email, name: databaseUser.name, image: databaseUser.image };
+  return { user, data: await readAccountData(user.id) };
 }
 
-export async function deleteSession(_token: string | undefined) {
-  return;
+export async function deleteSession(token: string | undefined) {
+  if (!token) return;
+  const signed = verifySignedSession(token);
+  if (signed?.sid) await dbDelete(sessionKey(signed.sid));
+}
+
+export async function claimStripeWebhookEvent(eventId: string) {
+  const result = await dbSet(stripeEventKey(eventId), "processing", { expiresInSeconds: 10 * 60, onlyIfMissing: true });
+  return result === "OK";
+}
+
+export async function completeStripeWebhookEvent(eventId: string) {
+  await dbSet(stripeEventKey(eventId), "processed", { expiresInSeconds: 60 * 60 * 24 * 30 });
+}
+
+export async function releaseStripeWebhookEvent(eventId: string) {
+  await dbDelete(stripeEventKey(eventId));
 }
 
 const uniqueStrings = (items: unknown) => Array.isArray(items) ? [...new Set(items.filter((item): item is string => typeof item === "string"))] : [];
@@ -311,11 +393,13 @@ export async function mergeAccountData(userId: string, incoming: Partial<Account
 
 export async function updateAccountBilling(userId: string, billing: Partial<BillingRecord>) {
   const current = await readAccountData(userId);
+  const nextBilling = normalizeBillingRecord({ ...current.billing, ...billing, updatedAt: new Date().toISOString() });
   const next: AccountData = {
     ...current,
-    billing: normalizeBillingRecord({ ...current.billing, ...billing, updatedAt: new Date().toISOString() }),
+    billing: nextBilling,
     updatedAt: new Date().toISOString(),
   };
+  await dbSet(accountBillingKey(userId), nextBilling);
   await writeAccountData(userId, next);
   if (next.billing.stripeCustomerId) await dbSet(stripeCustomerKey(next.billing.stripeCustomerId), userId);
   return next;
@@ -323,6 +407,10 @@ export async function updateAccountBilling(userId: string, billing: Partial<Bill
 
 export async function findUserIdByStripeCustomerId(customerId: string) {
   return await dbGet<string>(stripeCustomerKey(customerId));
+}
+
+export async function accountUserExists(userId: string) {
+  return Boolean(await dbGet<DatabaseUser>(userKey(userId)));
 }
 
 function participantFor(userId: string, data: AccountData, status: "pending" | "completed", now: string): ReferralParticipant {
@@ -372,7 +460,7 @@ export async function getReferralCodeOwner(code: string) {
   return await dbGet<string>(referralCodeKey(safeCode));
 }
 
-export async function attachReferralToUser(userId: string, code: string) {
+async function attachReferralToUserUnlocked(userId: string, code: string) {
   const safeCode = sanitizeReferralCode(code);
   if (!safeCode) return { attached: false, reason: "invalid_code" as const };
   const referrerUserId = await getReferralCodeOwner(safeCode);
@@ -416,7 +504,11 @@ export async function attachReferralToUser(userId: string, code: string) {
   return { attached: true, reason: "attached" as const };
 }
 
-export async function completeReferralOnboarding(userId: string) {
+export async function attachReferralToUser(userId: string, code: string) {
+  return await withSecurityLock("referral-ledger", "global", () => attachReferralToUserUnlocked(userId, code));
+}
+
+async function completeReferralOnboardingUnlocked(userId: string) {
   const referred = await readAccountData(userId);
   const attribution = referred.referrals?.referredBy;
   if (!attribution || attribution.status === "completed" || attribution.status === "blocked") return { credited: false, reason: "not_pending" as const };
@@ -429,7 +521,16 @@ export async function completeReferralOnboarding(userId: string) {
     return { credited: false, reason: "invalid_referrer" as const };
   }
   const referrer = await readAccountData(referrerUserId);
-  if (referrer.referrals!.completed.some((item) => item.userId === userId)) return { credited: false, reason: "duplicate_completion" as const };
+  if (referrer.referrals!.completed.some((item) => item.userId === userId)) {
+    const now = new Date().toISOString();
+    await dbSet(accountBillingKey(referrerUserId), referrer.billing);
+    await writeAccountData(userId, {
+      ...referred,
+      referrals: { ...referred.referrals!, referredBy: { ...attribution, status: "completed", creditedAt: now }, updatedAt: now },
+      updatedAt: now,
+    });
+    return { credited: false, reason: "duplicate_completion" as const };
+  }
   const now = new Date().toISOString();
   const previousCompleted = referrer.referrals!.completed.length;
   const completedParticipant = participantFor(userId, referred, "completed", now);
@@ -464,11 +565,16 @@ export async function completeReferralOnboarding(userId: string) {
     updatedAt: now,
   };
   await writeAccountData(referrerUserId, nextReferrer);
+  await dbSet(accountBillingKey(referrerUserId), nextReferrer.billing);
   await writeAccountData(userId, nextReferred);
-  await updateReferralAdminSnapshot(referrerUserId, nextReferrer.referrals!);
-  await recordAnalyticsEvent("referral_completed", referrerUserId, { referralCode: attribution.code }).catch((error) => console.warn("[UnlockED referrals] completion analytics failed", error));
-  await Promise.all(unlocked.map((reward) => recordAnalyticsEvent("referral_reward_unlocked", referrerUserId, { referralCode: attribution.code, referralReward: reward.key }).catch((error) => console.warn("[UnlockED referrals] reward analytics failed", error))));
+  await updateReferralAdminSnapshot(referrerUserId, nextReferrer.referrals!).catch((error) => console.warn("[UnlockED referrals] admin snapshot failed", { errorCategory: error instanceof Error ? error.name : "unknown" }));
+  await recordAnalyticsEvent("referral_completed", referrerUserId, { referralCode: attribution.code }).catch((error) => console.warn("[UnlockED referrals] completion analytics failed", { errorCategory: error instanceof Error ? error.name : "unknown" }));
+  await Promise.all(unlocked.map((reward) => recordAnalyticsEvent("referral_reward_unlocked", referrerUserId, { referralCode: attribution.code, referralReward: reward.key }).catch((error) => console.warn("[UnlockED referrals] reward analytics failed", { errorCategory: error instanceof Error ? error.name : "unknown" }))));
   return { credited: true, rewards: unlocked.map((reward) => reward.key) };
+}
+
+export async function completeReferralOnboarding(userId: string) {
+  return await withSecurityLock("referral-ledger", "global", () => completeReferralOnboardingUnlocked(userId));
 }
 
 export async function getReferralAdminSummary() {

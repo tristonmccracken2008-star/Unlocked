@@ -20,6 +20,7 @@
     "check:professional-catalog": "node scripts/check-professional-catalog.mjs",
     "check:recommendation-engine-v2": "node scripts/check-recommendation-engine-v2.mjs",
     "check:auth": "node scripts/check-auth-query.mjs",
+    "check:security": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-security.ts",
     "check:profile-flow": "node scripts/check-advisor-profile-flow.mjs",
     "check:interview": "node scripts/check-interview-intelligence.mjs",
     "check:advisor-ux": "node scripts/check-advisor-ux-integration.mjs",
@@ -37,7 +38,7 @@
     "check:release-candidate": "node scripts/check-release-candidate.mjs",
     "audit:logos": "node scripts/audit-organization-logos.mjs",
     "diagnose:logos": "node scripts/diagnose-organization-logos.mjs",
-    "prebuild": "npm run validate:data && npm run check:data-enrichment && npm run check:national-opportunities && npm run check:opportunity-verification && npm run check:professional-catalog && npm run check:school-eligibility && npm run check:national-links && npm run check:build-performance && npm run check:billing && npm run check:onboarding && npm run check:advisor && npm run check:advisor-v3 && npm run check:professional-recommendations:quick && npm run check:auth && npm run check:profile-flow && npm run check:interview && npm run check:advisor-ux && npm run check:performance && npm run check:journey-board && npm run check:college-journey && npm run check:discover && npm run check:journey-redesign && npm run check:for-you && npm run check:for-you-reliability && npm run check:for-you-first-request && npm run check:logos && npm run check:referrals && npm run check:release-candidate",
+    "prebuild": "npm run validate:data && npm run check:data-enrichment && npm run check:national-opportunities && npm run check:opportunity-verification && npm run check:professional-catalog && npm run check:school-eligibility && npm run check:national-links && npm run check:build-performance && npm run check:billing && npm run check:onboarding && npm run check:advisor && npm run check:advisor-v3 && npm run check:professional-recommendations:quick && npm run check:auth && npm run check:security && npm run check:profile-flow && npm run check:interview && npm run check:advisor-ux && npm run check:performance && npm run check:journey-board && npm run check:college-journey && npm run check:discover && npm run check:journey-redesign && npm run check:for-you && npm run check:for-you-reliability && npm run check:for-you-first-request && npm run check:logos && npm run check:referrals && npm run check:release-candidate",
     "build": "next build",
     "postbuild": "node scripts/verify-homepage-build.mjs",
     "start": "next start",
@@ -55,8 +56,11 @@
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "autoprefixer": "10.4.19",
-    "postcss": "8.4.40",
+    "postcss": "8.5.10",
     "tailwindcss": "3.4.7",
     "typescript": "5.5.4"
+  },
+  "overrides": {
+    "postcss": "8.5.10"
   }
 }

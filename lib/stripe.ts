@@ -1,6 +1,7 @@
 import crypto from "node:crypto";
 import type { AuthUser } from "./account-types";
 import { normalizeProPlanId, proPricing, type BillingInterval, type BillingStatus, type ProPlanId } from "./billing";
+import { appOrigin } from "./security";
 
 const stripeApiBase = "https://api.stripe.com/v1";
 
@@ -30,22 +31,33 @@ export function stripePortalConfigured() {
 }
 
 function appUrl() {
-  if (process.env.NEXT_PUBLIC_APP_URL) return process.env.NEXT_PUBLIC_APP_URL.replace(/\/$/, "");
-  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
-  return "http://localhost:3000";
+  return appOrigin();
 }
 
-async function stripeRequest<T>(path: string, params: URLSearchParams) {
+async function stripeFetch(url: string, init: RequestInit) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 6500);
+  try {
+    return await fetch(url, { ...init, cache: "no-store", signal: controller.signal });
+  } catch (error) {
+    if (error instanceof Error && error.name === "AbortError") throw new Error("Stripe request timed out.");
+    throw error;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+async function stripeRequest<T>(path: string, params: URLSearchParams, idempotencyKey?: string) {
   const secretKey = stripeConfig().secretKey;
   if (!secretKey) throw new Error("Stripe is not configured.");
-  const response = await fetch(`${stripeApiBase}${path}`, {
+  const response = await stripeFetch(`${stripeApiBase}${path}`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${secretKey}`,
       "Content-Type": "application/x-www-form-urlencoded",
+      ...(idempotencyKey ? { "Idempotency-Key": idempotencyKey } : {}),
     },
     body: params,
-    cache: "no-store",
   });
   const parsed = await response.json().catch(() => null) as T | { error?: { message?: string } } | null;
   if (!response.ok) {
@@ -58,7 +70,7 @@ async function stripeRequest<T>(path: string, params: URLSearchParams) {
 async function stripeGet<T>(path: string) {
   const secretKey = stripeConfig().secretKey;
   if (!secretKey) throw new Error("Stripe is not configured.");
-  const response = await fetch(`${stripeApiBase}${path}`, { headers: { Authorization: `Bearer ${secretKey}` }, cache: "no-store" });
+  const response = await stripeFetch(`${stripeApiBase}${path}`, { headers: { Authorization: `Bearer ${secretKey}` } });
   const parsed = await response.json().catch(() => null) as T | { error?: { message?: string } } | null;
   if (!response.ok) {
     const message = parsed && typeof parsed === "object" && "error" in parsed ? parsed.error?.message : undefined;
@@ -67,7 +79,7 @@ async function stripeGet<T>(path: string) {
   return parsed as T;
 }
 
-export type StripeCheckoutSession = { id: string; url?: string | null; customer?: string | null; subscription?: string | null };
+export type StripeCheckoutSession = { id: string; url?: string | null; customer?: string | null; subscription?: string | null; client_reference_id?: string | null; metadata?: Record<string, string | undefined> };
 export type StripePortalSession = { id: string; url: string };
 
 export function priceIdForPlan(planId: ProPlanId) {
@@ -80,6 +92,12 @@ export function intervalForPriceId(priceId: string | undefined | null): BillingI
   if (priceId && priceId === config.proMonthlyPriceId) return "month";
   if (priceId && priceId === config.proAnnualPriceId) return "year";
   return null;
+}
+
+export function isConfiguredProPriceId(priceId: string | undefined | null) {
+  if (!priceId) return false;
+  const config = stripeConfig();
+  return priceId === config.proMonthlyPriceId || priceId === config.proAnnualPriceId;
 }
 
 export async function createProCheckoutSession(user: AuthUser, planId: ProPlanId, stripeCustomerId?: string) {
@@ -100,7 +118,9 @@ export async function createProCheckoutSession(user: AuthUser, planId: ProPlanId
   });
   if (stripeCustomerId) params.set("customer", stripeCustomerId);
   else params.set("customer_email", user.email);
-  return await stripeRequest<StripeCheckoutSession>("/checkout/sessions", params);
+  const windowBucket = Math.floor(Date.now() / (5 * 60 * 1000));
+  const idempotencyKey = crypto.createHash("sha256").update(`checkout:${user.id}:${planId}:${windowBucket}`).digest("hex");
+  return await stripeRequest<StripeCheckoutSession>("/checkout/sessions", params, idempotencyKey);
 }
 
 export async function createCustomerPortalSession(stripeCustomerId: string) {
@@ -111,33 +131,45 @@ export async function createCustomerPortalSession(stripeCustomerId: string) {
 }
 
 export async function retrieveCheckoutSession(sessionId: string) {
+  if (!/^cs_(test_|live_)?[A-Za-z0-9_]{8,}$/.test(sessionId)) throw new Error("Checkout session ID is invalid.");
   return await stripeGet<StripeCheckoutSession & { metadata?: Record<string, string | undefined>; payment_status?: string | null }>(`/checkout/sessions/${encodeURIComponent(sessionId)}`);
 }
 
 export async function retrieveSubscription(subscriptionId: string) {
+  if (!/^sub_[A-Za-z0-9]{8,}$/.test(subscriptionId)) throw new Error("Subscription ID is invalid.");
   return await stripeGet<StripeSubscription>(`/subscriptions/${encodeURIComponent(subscriptionId)}`);
 }
 
 export function verifyStripeWebhookPayload(payload: string, signature: string | null) {
   const secret = stripeConfig().webhookSecret;
   if (!secret || !signature) throw new Error("Stripe webhook verification is not configured.");
-  const entries = Object.fromEntries(signature.split(",").map((part) => {
-    const [key, value] = part.split("=");
-    return [key, value];
-  }));
-  const timestamp = entries.t;
-  const expected = entries.v1;
-  if (!timestamp || !expected) throw new Error("Stripe webhook signature is malformed.");
-  if (Math.abs(Date.now() / 1000 - Number(timestamp)) > 300) throw new Error("Stripe webhook signature timestamp is outside tolerance.");
+  const parts = signature.split(",").map((part) => part.trim()).filter(Boolean);
+  const timestamp = parts.find((part) => part.startsWith("t="))?.slice(2);
+  const candidates = parts.filter((part) => part.startsWith("v1=")).map((part) => part.slice(3));
+  const numericTimestamp = Number(timestamp);
+  if (!timestamp || !Number.isFinite(numericTimestamp) || !candidates.length) throw new Error("Stripe webhook signature is malformed.");
+  if (Math.abs(Date.now() / 1000 - numericTimestamp) > 300) throw new Error("Stripe webhook signature timestamp is outside tolerance.");
   const digest = crypto.createHmac("sha256", secret).update(`${timestamp}.${payload}`).digest("hex");
-  const left = Buffer.from(digest, "hex");
-  const right = Buffer.from(expected, "hex");
-  if (left.length !== right.length || !crypto.timingSafeEqual(left, right)) throw new Error("Stripe webhook signature verification failed.");
-  return JSON.parse(payload) as StripeEvent;
+  const digestBytes = Buffer.from(digest, "hex");
+  if (!candidates.some((candidate) => {
+    if (!/^[a-f0-9]{64}$/i.test(candidate)) return false;
+    const candidateBytes = Buffer.from(candidate, "hex");
+    return candidateBytes.length === digestBytes.length && crypto.timingSafeEqual(digestBytes, candidateBytes);
+  })) {
+    throw new Error("Stripe webhook signature verification failed.");
+  }
+  const event = JSON.parse(payload) as StripeEvent;
+  if (!event || typeof event !== "object" || !/^evt_[A-Za-z0-9]{8,}$/.test(event.id) || typeof event.type !== "string" || !event.data?.object
+    || !Number.isInteger(event.created) || Number(event.created) <= 0 || typeof event.livemode !== "boolean") {
+    throw new Error("Stripe webhook event is malformed.");
+  }
+  return event;
 }
 
 export type StripeEvent = {
   id: string;
+  created?: number;
+  livemode?: boolean;
   type: "checkout.session.completed" | "customer.subscription.created" | "customer.subscription.updated" | "customer.subscription.deleted" | "invoice.paid" | "invoice.payment_failed" | string;
   data: { object: StripeCheckoutSession | StripeSubscription | StripeInvoice };
 };
@@ -186,4 +218,15 @@ export function planIdFromRequest(value: unknown) {
 
 export function pricingForPlan(planId: ProPlanId) {
   return proPricing[planId];
+}
+
+export function stripeEventMatchesEnvironment(event: StripeEvent) {
+  const secretKey = stripeConfig().secretKey ?? "";
+  if (secretKey.startsWith("sk_live_")) return event.livemode === true;
+  if (secretKey.startsWith("sk_test_")) return event.livemode === false;
+  return process.env.NODE_ENV !== "production";
+}
+
+export function checkoutSessionBelongsToUser(session: StripeCheckoutSession, userId: string) {
+  return session.client_reference_id === userId && session.metadata?.userId === userId;
 }

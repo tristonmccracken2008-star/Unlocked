@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { OnboardingFlow } from "@/components/onboarding-flow";
 import { requireOnboardingSession } from "@/lib/onboarding";
+import { publicAccountSession } from "@/lib/public-account";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
@@ -11,5 +12,5 @@ export const metadata: Metadata = {
 
 export default async function Page() {
   const session = await requireOnboardingSession();
-  return <OnboardingFlow session={{ ...session, authenticated: true }} initialProfile={session.data.profile} />;
+  return <OnboardingFlow session={publicAccountSession(session)} initialProfile={session.data.profile} />;
 }

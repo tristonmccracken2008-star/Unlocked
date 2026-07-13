@@ -58,16 +58,21 @@ export function recommendationFor(user: AuthUser, data: AccountData, body: unkno
 export function cleanFeedback(input: unknown, userId: string): AdvisorFeedbackRecord | null {
   if (!input || typeof input !== "object") return null;
   const body = input as Partial<AdvisorFeedbackRecord>;
-  if (!body.recommendationId || !body.actionId || !body.feedbackType) return null;
+  const cleanId = (value: unknown) => typeof value === "string" && /^[A-Za-z0-9][A-Za-z0-9._:-]{0,199}$/.test(value) ? value : null;
+  const recommendationId = cleanId(body.recommendationId);
+  const actionId = cleanId(body.actionId);
+  if (!recommendationId || !actionId || !body.feedbackType) return null;
   if (!["helpful", "not-relevant", "already-completed", "already-applied", "too-expensive", "too-time-consuming", "completed", "dismissed", "dont-enjoy-this", "prefer-research", "prefer-industry", "not-interested"].includes(body.feedbackType)) return null;
   return {
-    recommendationId: body.recommendationId,
+    recommendationId,
     studentId: userId,
-    actionId: body.actionId,
-    signal: body.signal,
+    actionId,
+    signal: typeof body.signal === "string" ? body.signal.trim().slice(0, 160) : undefined,
     feedbackType: body.feedbackType,
-    reason: body.reason,
-    outcomeEvidence: body.outcomeEvidence ?? null,
+    reason: typeof body.reason === "string" ? body.reason.trim().slice(0, 500) : undefined,
+    outcomeEvidence: body.outcomeEvidence && typeof body.outcomeEvidence === "object" && !Array.isArray(body.outcomeEvidence)
+      ? Object.fromEntries(Object.entries(body.outcomeEvidence).slice(0, 20).filter(([, value]) => value === null || typeof value === "boolean" || typeof value === "number" || typeof value === "string").map(([key, value]) => [key.slice(0, 80), typeof value === "string" ? value.slice(0, 500) : value]))
+      : null,
     createdAt: new Date().toISOString(),
   };
 }
