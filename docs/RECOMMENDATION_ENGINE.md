@@ -1,4 +1,4 @@
-# Recommendation Engine 1.0
+# Recommendation Engine 2.0
 
 UnlockED recommendations come from one canonical path:
 
@@ -11,6 +11,9 @@ Primary modules:
 - `data/opportunity-intelligence.ts`: opportunity metadata normalization, eligibility matching, scoring inputs, and explanation reasons.
 - `data/recommendation-engine.ts`: ranking, exclusion rules, roadmap connections, deterministic diversity, and `RecommendationV1` output.
 - `data/recommendation-service.ts`: product-facing view models consumed by For You, Journey, and Discover.
+- `data/career-roadmaps.ts`: deterministic career progression maps by destination career and student stage.
+- `data/opportunity-relationships.ts`: inferred prerequisites, follow-ups, alternatives, easier/harder versions, and career progression chains.
+- `data/recommendation-weekly-strategy.ts`: internal weekly strategy summary for future Pro surfaces.
 
 No recommendation surface should independently rank opportunities.
 
@@ -29,6 +32,12 @@ Weights are centralized in `recommendationConfig`.
 - Deadline timing: near deadlines are boosted. Passed deadlines are suppressed.
 - Verification and quality: verified, complete, official-source opportunities rank higher.
 - Activity learning: saved and completed categories receive small boosts; already active Journey records are suppressed from For You.
+- Career roadmap fit: destination careers such as quantitative finance, software engineering, medicine, investment banking, and data science add stage-specific category, skill, signal, and organization boosts.
+- Skill alignment: opportunities that build roadmap skills receive additional weight.
+- Opportunity gaps: underused categories in the student's stage receive a balancing boost so the feed does not overfit to one behavior.
+- Adaptive feedback: dismissed, hidden, not-interested, already-applied, and already-completed recommendations are suppressed or penalized immediately.
+- Freshness and deadline confidence: recently verified records receive a small boost; weak deadline confidence receives a penalty.
+- Expected ROI and time required: high-value or low-effort opportunities can rise when other eligibility signals are strong.
 
 ## Recommendation Labels
 
@@ -53,6 +62,10 @@ Every explanation bullet must map to a real scoring signal:
 - GPA requirement handling
 - deadline proximity
 - official-source verification
+- career roadmap fit
+- prerequisite or follow-up relationship
+- opportunity mix gap
+- adaptive learning from prior feedback
 
 The engine does not fabricate reasons for unavailable data.
 
@@ -117,6 +130,10 @@ The diagnostic report includes:
 - final score
 - deterministic match label
 - generation timing
+- confidence level
+- career roadmap adjustments
+- timing and verification adjustments
+- matched interests, roadmap skills, and opportunity relationships
 
 This report is internal. It should not be exposed to normal users because it contains debugging details and ranking internals.
 
@@ -130,6 +147,9 @@ Recommendations regenerate when inputs change:
 - completed or rejected opportunities
 - viewed opportunities
 - opportunity database contents
+- advisor feedback records
+- hidden or dismissed opportunities
+- referral activity for future recommendation rules
 
 Advisor profile fingerprints include minor, GPA status/value, current priority, goals, interests, and preferred opportunity types so cached Advisor Brain snapshots invalidate when meaningful recommendation inputs change.
 
@@ -138,6 +158,63 @@ Advisor profile fingerprints include minor, GPA status/value, current priority, 
 Recommendation generation is deterministic and in-memory over the local opportunity catalog. The diagnostic report records elapsed time, ranked count, recommended count, and source opportunity count so future regressions can be caught before launch.
 
 The engine avoids frontend sorting hacks by letting product surfaces consume `buildRecommendationService()`. Discover only applies search/filter narrowing around the same canonical ranking order.
+
+Relationship inference is cached by opportunity id and catalog size. Advisor Brain results keep the existing bounded in-memory cache. The ranking pass remains deterministic and avoids client-side recomputation.
+
+## Career Roadmaps
+
+Career roadmaps are structured rules, not AI text generation. Each roadmap defines:
+
+- aliases used to select the destination career
+- stage-specific focus
+- preferred categories
+- skills to build
+- target organizations
+- opportunity text signals
+
+If a career goal is unknown or broad, the engine uses the general exploration roadmap. Two students with different goals should receive meaningfully different rankings because the roadmap categories, skills, organizations, and signals differ by destination career.
+
+## Opportunity Relationships
+
+Every scored opportunity can expose internal relationships:
+
+- prerequisites
+- follow-up opportunities
+- alternatives
+- easier version
+- harder version
+- career progression chain
+
+These relationships support explanations such as “this can unlock stronger follow-up opportunities later” without exposing private ranking formulas.
+
+## Adaptive Learning
+
+The For You page stores feedback through `/api/advisor/feedback`.
+
+Supported user signals:
+
+- Interested
+- Not interested
+- Hide
+- Already applied
+- Already completed
+- Never show again
+
+Feedback records are server-side Advisor data. React components do not rank opportunities. The recommendation service passes feedback into the Advisor Profile, and the engine suppresses or penalizes opportunities according to structured rules.
+
+## Confidence Model
+
+The engine calculates raw numeric confidence internally, then maps it to:
+
+- High
+- Medium
+- Low
+
+Low-confidence results are filtered by quality gates instead of being promoted. Product cards continue to show plain match labels and explanations rather than formulas.
+
+## Premium Behavior
+
+Free users receive two genuine recommendations as a preview. Pro users receive the full ranked feed, complete explanations, adaptive learning, career roadmap intelligence, opportunity relationships, and future weekly strategy surfaces. Core Discover and Journey behavior remains available to free users.
 
 ## Recommendation Quality Audit
 
@@ -168,3 +245,11 @@ This preserves the product model:
 - Discover: browse manually.
 - For You: UnlockED already found the best matches.
 - Journey: manage active progress.
+
+## Remaining Future Improvements
+
+- Add larger anonymous aggregate behavior once enough real users exist.
+- Build manual admin controls for reviewing individual diagnostic reports.
+- Add explicit search-history storage only after privacy wording and retention rules are finalized.
+- Add more destination career roadmaps as usage data shows demand.
+- Tune weights from real conversion outcomes rather than assumptions.

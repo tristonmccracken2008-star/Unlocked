@@ -7,6 +7,8 @@ import type { School } from "./seed";
 import type { StudentActivity } from "./student-activity";
 import type { StudentProfile } from "./student-profile";
 import { inferApplicationsFromActivity, type StudentProgress } from "./student-progress";
+import type { AdvisorFeedbackRecord } from "@/lib/advisor/types";
+import type { ReferralAccountData } from "@/lib/referrals";
 
 export type RecommendationMatchLabel = "Excellent Match" | "Strong Match" | "Good Match" | "Worth Reviewing" | "Limited Match";
 export type RecommendationServiceInput = {
@@ -15,6 +17,10 @@ export type RecommendationServiceInput = {
   activity: StudentActivity;
   progress: StudentProgress;
   source?: readonly Opportunity[];
+  feedbackRecords?: AdvisorFeedbackRecord[];
+  hiddenOpportunityIds?: string[];
+  dismissedOpportunityIds?: string[];
+  referralActivity?: ReferralAccountData | null;
 };
 export type RecommendationViewModel = {
   recommendation: RecommendationV1;
@@ -57,6 +63,14 @@ export function buildRecommendationService(input: RecommendationServiceInput): R
   const source = input.source ?? opportunities;
   const inferredProgress = inferApplicationsFromActivity(input.activity, source, input.progress);
   const advisorProfile = createAdvisorProfile({ profile: input.profile, school: input.school, activity: input.activity, progress: inferredProgress });
+  advisorProfile.future.recommendationFeedback = input.feedbackRecords ?? [];
+  advisorProfile.future.hiddenOpportunityIds = input.hiddenOpportunityIds ?? [];
+  advisorProfile.future.dismissedOpportunityIds = input.dismissedOpportunityIds ?? [];
+  advisorProfile.future.referralActivity = input.referralActivity ? { completed: input.referralActivity.completed.length, pending: input.referralActivity.pending.length, rewards: input.referralActivity.rewardHistory.map((reward) => reward.rewardKey) } : undefined;
+  advisorProfile.future.opportunityCategoriesUsed = [...new Set(Object.keys(input.activity.tracked ?? {}).flatMap((id) => {
+    const item = source.find((candidate) => candidate.id === id);
+    return item ? [item.category, item.type] : [];
+  }))];
   const brain = buildAdvisorBrain({ advisorProfile, opportunities: source, progress: inferredProgress });
   const completed = new Set(Object.values(inferredProgress.applications).filter((item) => ["accepted", "completed", "rejected"].includes(item.status)).map((item) => item.opportunityId));
   const recommendations = brain.recommendations

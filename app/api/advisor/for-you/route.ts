@@ -19,7 +19,17 @@ export async function GET() {
   if (!profile || !school) return NextResponse.json({ access: "unavailable", recommendations: [], totalMatches: 0 }, { headers: { "Cache-Control": "no-store, max-age=0" } });
   const activity = session.data.activity ?? { viewed: [], saved: [], claimed: [], tracked: {} };
   const progress = inferApplicationsFromActivity(activity, opportunities, { milestones: {}, applications: {} });
-  const service = buildRecommendationService({ profile, school, activity, progress, source: opportunities });
+  const service = buildRecommendationService({
+    profile,
+    school,
+    activity,
+    progress,
+    source: opportunities,
+    feedbackRecords: session.data.advisor?.feedbackRecords ?? [],
+    hiddenOpportunityIds: session.data.preferences?.hiddenDismissedIds ?? [],
+    dismissedOpportunityIds: session.data.advisor?.feedbackRecords?.filter((record) => ["dismissed", "not-interested", "already-completed", "completed"].includes(record.feedbackType)).map((record) => record.recommendationId.replace("recommendation-opportunity-", "")) ?? [],
+    referralActivity: session.data.referrals,
+  });
   const entitlements = getEntitlementsForBilling(session.data.billing);
   const pro = entitlements.canUseFullForYou;
   const allowed = pro ? service.recommendations.slice(0, 24) : service.recommendations.slice(0, 2);

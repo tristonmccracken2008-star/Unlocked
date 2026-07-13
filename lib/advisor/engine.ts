@@ -349,12 +349,12 @@ export function rankVerifiedOpportunities(student: NormalizedAdvisorProfile, car
 export function summarizeFeedback(records: AdvisorFeedbackRecord[]) {
   const summary: Record<string, { positive: number; negative: number; completed: number; reasons: string[] }> = {};
   const negative = new Set(["not-helpful", "not-relevant", "too-expensive", "too-time-consuming", "dismissed", "dont-enjoy-this", "prefer-research", "prefer-industry", "not-interested"]);
-  const positive = new Set(["helpful", "completed", "already-completed"]);
+  const positive = new Set(["helpful", "completed", "already-completed", "already-applied"]);
   for (const record of records) {
     const current = summary[record.actionId] ?? { positive: 0, negative: 0, completed: 0, reasons: [] };
     if (positive.has(record.feedbackType)) current.positive += 1;
     if (negative.has(record.feedbackType)) current.negative += 1;
-    if (record.feedbackType === "completed" || record.feedbackType === "already-completed") current.completed += 1;
+    if (record.feedbackType === "completed" || record.feedbackType === "already-completed" || record.feedbackType === "already-applied") current.completed += 1;
     if (record.reason) current.reasons.push(record.reason);
     summary[record.actionId] = current;
   }

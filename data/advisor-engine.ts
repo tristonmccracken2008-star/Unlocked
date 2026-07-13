@@ -1,4 +1,5 @@
 import type { Opportunity } from "./opportunities";
+import type { AdvisorFeedbackRecord } from "@/lib/advisor/types";
 import { getMajorPathway, type MajorPathway } from "./major-pathways";
 import { scoreOpportunityIntelligence } from "./opportunity-intelligence";
 import type { School } from "./schemas";
@@ -64,6 +65,11 @@ export type AdvisorProfile = {
     roadmapMilestones?: string[];
     weeklyDigestPreferences?: Record<string, unknown>;
     applicationTracking?: Record<string, unknown>;
+    recommendationFeedback?: AdvisorFeedbackRecord[];
+    hiddenOpportunityIds?: string[];
+    dismissedOpportunityIds?: string[];
+    opportunityCategoriesUsed?: string[];
+    referralActivity?: Record<string, unknown>;
   };
 };
 

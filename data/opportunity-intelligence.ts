@@ -26,6 +26,14 @@ export type OpportunityStudentContext = {
   acceptedOpportunityIds?: string[];
   savedCategories?: string[];
   completedCategories?: string[];
+  ignoredCategories?: string[];
+  dismissedOpportunityIds?: string[];
+  hiddenOpportunityIds?: string[];
+  careerRoadmapCategories?: string[];
+  careerRoadmapSignals?: string[];
+  careerTargetOrganizations?: string[];
+  skillPriorities?: string[];
+  underusedCategories?: string[];
 };
 
 export type OpportunityIntelligence = {
@@ -315,12 +323,17 @@ export function scoreOpportunityIntelligence(item: Opportunity, context: Opportu
   const matchingInterests = getMatchingInterests(item, context);
   const matchingCurrentPriority = currentPriorityMatches(item, context.currentPriority);
   const matchingYears = getMatchingYears(item, context);
+  const text = searchableText(item);
   const schoolEligible = isSchoolEligible(item, context);
   const deadlineDays = getDeadlineDays(item);
   const requirement = gpaRequirement(item);
   const meetsGpa = gpaEligible(item, context);
   const intelligence = getOpportunityIntelligence(item);
   let score = 0;
+  if (context.dismissedOpportunityIds?.includes(item.id) || context.hiddenOpportunityIds?.includes(item.id) || context.completedOpportunityIds?.includes(item.id)) {
+    score += weights.dismissedOpportunityPenalty;
+    addSignal("Previously dismissed, hidden, or completed", "negative", weights.dismissedOpportunityPenalty);
+  }
   const schoolWeight = schoolEligible ? item.school_scope === "School Specific" ? weights.schoolEligibleSpecific : weights.schoolEligibleNational : weights.wrongSchoolPenalty;
   score += schoolWeight;
   addSignal(schoolEligible ? item.school_scope === "School Specific" ? "School-specific eligibility matches" : "Available nationally" : "Not eligible for this school", schoolEligible ? "positive" : "negative", schoolWeight);
@@ -346,6 +359,28 @@ export function scoreOpportunityIntelligence(item: Opportunity, context: Opportu
   if (matchingCurrentPriority) {
     score += weights.currentPriority;
     addSignal(`Current priority matches ${context.currentPriority}`, "positive", weights.currentPriority);
+  }
+  const roadmapCategory = context.careerRoadmapCategories?.some((category) => category === item.category || category === item.type || category === intelligence.category);
+  if (roadmapCategory) {
+    score += weights.careerRoadmapCategory;
+    addSignal("Matches your career roadmap stage", "positive", weights.careerRoadmapCategory);
+  }
+  const roadmapSignals = (context.careerRoadmapSignals ?? []).filter((signal) => text.includes(normalize(signal))).slice(0, 4);
+  if (roadmapSignals.length) {
+    const weight = Math.min(24, roadmapSignals.length * weights.careerRoadmapSignal);
+    score += weight;
+    addSignal(`Career roadmap signal: ${roadmapSignals.slice(0, 2).join(", ")}`, "positive", weight);
+  }
+  const targetOrg = (context.careerTargetOrganizations ?? []).find((org) => text.includes(normalize(org)));
+  if (targetOrg) {
+    score += weights.careerRoadmapOrganization;
+    addSignal(`Connects to target path organization: ${targetOrg}`, "positive", weights.careerRoadmapOrganization);
+  }
+  const skillMatches = (context.skillPriorities ?? []).filter((skill) => text.includes(normalize(skill))).slice(0, 4);
+  if (skillMatches.length) {
+    const weight = Math.min(weights.skillAlignmentMax, skillMatches.length * weights.skillAlignmentPerSignal);
+    score += weight;
+    addSignal(`Builds roadmap skill: ${skillMatches.slice(0, 2).join(", ")}`, "positive", weight);
   }
   if (matchingYears.length) {
     const weight = matchingYears.includes("Any Year") ? weights.classYearAny : weights.classYearExact;
@@ -398,6 +433,14 @@ export function scoreOpportunityIntelligence(item: Opportunity, context: Opportu
     score += weights.highValue;
     addSignal("High documented value", "positive", weights.highValue);
   }
+  if ((item.estimated_value ?? 0) >= 5000 || (item.paid === true && ["Internships", "Co-ops", "Fellowships"].includes(item.category))) {
+    score += weights.expectedRoiHigh;
+    addSignal("High expected return for the time invested", "positive", weights.expectedRoiHigh);
+  }
+  if (intelligence.estimatedApplicationTime === "15-30 minutes") {
+    score += weights.estimatedTimeLow;
+    addSignal("Low estimated time to start", "positive", weights.estimatedTimeLow);
+  }
   if (item.difficulty === "Open") {
     score += weights.openDifficulty;
     addSignal("Open application difficulty", "positive", weights.openDifficulty);
@@ -413,6 +456,22 @@ export function scoreOpportunityIntelligence(item: Opportunity, context: Opportu
   if (context.completedCategories?.includes(item.category)) {
     score += weights.completedSimilarCategory;
     addSignal(`Similar to completed ${item.category} opportunities`, "positive", weights.completedSimilarCategory);
+  }
+  if (context.ignoredCategories?.includes(item.category)) {
+    score += weights.ignoredSimilarPenalty;
+    addSignal(`Similar to previously ignored ${item.category} opportunities`, "negative", weights.ignoredSimilarPenalty);
+  }
+  if (context.underusedCategories?.includes(item.category) || context.underusedCategories?.includes(item.type)) {
+    score += weights.categoryGapBoost;
+    addSignal(`Balances your opportunity mix with ${item.category}`, "positive", weights.categoryGapBoost);
+  }
+  if (item.last_verified && new Date(item.last_verified).getTime() > Date.now() - 1000 * 60 * 60 * 24 * 120) {
+    score += weights.freshnessRecent;
+    addSignal("Recently verified", "positive", weights.freshnessRecent);
+  }
+  if (item.metadata.deadlineType === "not_announced" || item.metadata.verification?.deadlineVerified === false) {
+    score += weights.weakDeadlineConfidencePenalty;
+    addSignal("Deadline confidence is limited", "negative", weights.weakDeadlineConfidencePenalty);
   }
   if (context.viewedOpportunityIds?.includes(item.id)) {
     score += weights.viewedPenalty;

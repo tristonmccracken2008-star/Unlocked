@@ -12,7 +12,7 @@
     "check:build-performance": "node scripts/check-build-performance.mjs",
     "check:billing": "node scripts/check-billing.mjs",
     "check:onboarding": "node scripts/check-onboarding-flow.mjs",
-    "check:advisor": "node scripts/check-advisor-brain.mjs && node scripts/check-advisor-quality.mjs && node scripts/check-recommendation-engine.mjs",
+    "check:advisor": "node scripts/check-advisor-brain.mjs && node scripts/check-advisor-quality.mjs && node scripts/check-recommendation-engine.mjs && node scripts/check-recommendation-engine-v2.mjs",
     "check:auth": "node scripts/check-auth-query.mjs",
     "check:profile-flow": "node scripts/check-advisor-profile-flow.mjs",
     "check:interview": "node scripts/check-interview-intelligence.mjs",

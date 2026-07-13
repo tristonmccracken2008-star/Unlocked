@@ -14,6 +14,7 @@ import { trackProductEvent } from "@/data/product-analytics";
 import { ArrowIcon, BookmarkIcon, CheckCircleIcon, SearchIcon, SendIcon, TargetIcon } from "./icons";
 import { OrganizationLogo } from "./organization-logo";
 import { AddToJourneyButton } from "./opportunity-activity";
+import type { FeedbackType } from "@/lib/advisor/types";
 
 type AdvisorState = {
   profile: StudentProfile;
@@ -37,6 +38,7 @@ function profileInterests(profile: StudentProfile) {
 export function AdvisorPage() {
   const [state, setState] = useState<AdvisorState | null>(null);
   const [loading, setLoading] = useState(true);
+  const [feedbackMessage, setFeedbackMessage] = useState("");
   const trackedRecommendation = useRef("");
 
   useEffect(() => {
@@ -69,14 +71,37 @@ export function AdvisorPage() {
     trackProductEvent("recommendation_viewed", { recommendationId: top.recommendation.id, section: "for-you" });
   }, [top]);
 
+  async function sendFeedback(view: RecommendationViewModel, feedbackType: FeedbackType, label: string) {
+    setFeedbackMessage("");
+    const body = {
+      recommendationId: view.recommendation.id,
+      actionId: view.recommendation.relatedOpportunityId ? `opportunity:${view.recommendation.relatedOpportunityId}` : view.recommendation.id,
+      signal: view.opportunity ? `category:${view.opportunity.category}` : view.recommendation.categories[0],
+      feedbackType,
+      reason: label,
+    };
+    const response = await fetch("/api/advisor/feedback", { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    if (!response.ok) {
+      setFeedbackMessage("Could not save that signal.");
+      return;
+    }
+    const event = feedbackType === "helpful" ? "recommendation_saved" : feedbackType === "already-applied" ? "recommendation_applied" : feedbackType === "already-completed" || feedbackType === "completed" ? "recommendation_completed" : feedbackType === "dismissed" ? "recommendation_dismissed" : "recommendation_ignored";
+    trackProductEvent(event, { recommendationId: view.recommendation.id, opportunityId: view.recommendation.relatedOpportunityId, section: "for-you-feedback" });
+    if (["dismissed", "not-interested", "already-completed", "completed"].includes(feedbackType)) {
+      setState((current) => current ? { ...current, recommendations: current.recommendations.filter((item) => item.recommendation.id !== view.recommendation.id) } : current);
+    }
+    setFeedbackMessage(label);
+  }
+
   if (loading) return <main className="min-h-[70vh] bg-paper px-5 py-16 sm:px-8"><section className="mx-auto max-w-6xl"><p className="rule-label text-forest">For You</p><div className="mt-6 h-16 max-w-2xl rounded-2xl bg-white/70" /><div className="mt-10 h-52 rounded-[2rem] bg-white/70" /></section></main>;
   if (!state || !top) return <main className="min-h-[70vh] bg-paper px-5 py-16 sm:px-8"><section className="mx-auto max-w-4xl"><p className="rule-label text-forest">For You</p><h1 className="mt-4 font-editorial text-5xl font-bold tracking-[-.045em]">Complete your profile first.</h1><p className="mt-4 max-w-2xl text-sm leading-7 text-ink/55">UnlockED needs your school, major, year, goals, and activity before it can recommend fitting opportunities.</p><Link href="/profile" className="mt-8 inline-flex min-h-12 items-center justify-center rounded-full bg-forest px-6 text-sm font-bold text-white hover:bg-ink">Open profile</Link></section></main>;
 
   return <main className="bg-[radial-gradient(circle_at_top_left,rgba(231,216,189,.45),transparent_34rem),#f6f0e6] px-5 py-10 sm:px-8 sm:py-14">
     <section className="mx-auto max-w-[112rem] space-y-10">
       <Hero state={state} firstName={firstName} />
-      <TopRecommendation view={top} />
-      <RecommendedGrid recommendations={recommended.slice(1, 5)} />
+      <TopRecommendation view={top} onFeedback={sendFeedback} />
+      <RecommendedGrid recommendations={recommended.slice(1, 5)} onFeedback={sendFeedback} />
+      {feedbackMessage ? <p role="status" className="rounded-full bg-white/70 px-4 py-3 text-sm font-bold text-forest ring-1 ring-ink/8">{feedbackMessage}</p> : null}
       {state.access === "preview" ? <ForYouUpgradeGate totalMatches={state.totalMatches} shown={state.recommendations.length} /> : null}
       <WhyRecommendations state={state} />
       <ActivityGlance activity={state.activity} />
@@ -111,7 +136,7 @@ function ProfileSummary({ state }: { state: AdvisorState }) {
   </aside>;
 }
 
-function TopRecommendation({ view }: { view: RecommendationViewModel }) {
+function TopRecommendation({ view, onFeedback }: { view: RecommendationViewModel; onFeedback: (view: RecommendationViewModel, feedbackType: FeedbackType, label: string) => void }) {
   const opportunity = view.opportunity;
   return <article className="rounded-[2rem] bg-white/48 p-6 shadow-[0_18px_60px_rgba(43,33,26,.045)] ring-1 ring-ink/6 sm:p-8">
     <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_220px_250px] lg:items-center">
@@ -119,13 +144,14 @@ function TopRecommendation({ view }: { view: RecommendationViewModel }) {
       <dl className="grid gap-5 border-ink/10 text-sm lg:border-l lg:pl-8"><div><dt className="text-ink/40">Deadline</dt><dd className="mt-1 font-black">{opportunity ? deadlineLabel(opportunity) : "Not announced"}</dd></div><div><dt className="text-ink/40">Est. effort</dt><dd className="mt-1 font-black">{view.recommendation.estimatedValueLabel === "Unknown" ? "Medium" : view.recommendation.estimatedValueLabel}</dd></div><div><dt className="text-ink/40">Match</dt><dd className="mt-1 font-black text-forest">{view.label}</dd></div></dl>
       <div className="flex flex-col gap-3"><Link href={view.href} onClick={() => trackProductEvent("recommendation_clicked", { recommendationId: view.recommendation.id, opportunityId: view.recommendation.relatedOpportunityId, section: "for-you" })} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-forest px-6 text-sm font-bold text-white shadow-[0_16px_34px_rgba(31,95,67,.18)] hover:bg-ink">Open Opportunity <ArrowIcon /></Link>{view.recommendation.relatedOpportunityId ? <AddToJourneyButton opportunityId={view.recommendation.relatedOpportunityId} className="rounded-full border border-forest/35 bg-white px-6 text-forest hover:border-forest" /> : null}</div>
     </div>
+    <RecommendationFeedback view={view} onFeedback={onFeedback} />
   </article>;
 }
 
-function RecommendedGrid({ recommendations }: { recommendations: RecommendationViewModel[] }) {
+function RecommendedGrid({ recommendations, onFeedback }: { recommendations: RecommendationViewModel[]; onFeedback: (view: RecommendationViewModel, feedbackType: FeedbackType, label: string) => void }) {
   return <section>
     <div className="mb-5 flex items-end justify-between gap-4"><h2 className="font-editorial text-3xl font-bold tracking-[-.025em]">Recommended for you</h2><span className="hidden rounded-full border border-ink/10 bg-white px-4 py-2 text-sm font-bold text-ink/55 sm:inline-flex">Most relevant</span></div>
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{recommendations.map((view) => <RecommendationCard key={view.recommendation.id} view={view} />)}</div>
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{recommendations.map((view) => <RecommendationCard key={view.recommendation.id} view={view} onFeedback={onFeedback} />)}</div>
     <Link href="/opportunities" className="mt-4 flex min-h-12 items-center justify-center gap-2 rounded-full border border-ink/10 bg-white text-sm font-bold text-ink hover:border-forest hover:text-forest">View more opportunities <ArrowIcon /></Link>
   </section>;
 }
@@ -145,7 +171,7 @@ function ForYouUpgradeGate({ totalMatches, shown }: { totalMatches: number; show
   </section>;
 }
 
-function RecommendationCard({ view }: { view: RecommendationViewModel }) {
+function RecommendationCard({ view, onFeedback }: { view: RecommendationViewModel; onFeedback: (view: RecommendationViewModel, feedbackType: FeedbackType, label: string) => void }) {
   const opportunity = view.opportunity;
   return <article className="flex min-h-96 flex-col rounded-[1.35rem] bg-white/92 p-5 shadow-[0_14px_42px_rgba(43,33,26,.055)] ring-1 ring-ink/7">
     <div className="flex items-start justify-between gap-3"><p className="rule-label text-forest">{opportunity?.type ?? view.recommendation.kind}</p><BookmarkIcon className="h-5 w-5 text-ink/45" /></div>
@@ -154,7 +180,25 @@ function RecommendationCard({ view }: { view: RecommendationViewModel }) {
     <div className="mt-5 flex flex-wrap gap-2">{view.chips.slice(0, 2).map((chip) => <span key={chip} className="rounded-full bg-paper px-3 py-1 text-xs font-bold text-ink/65">{chip}</span>)}</div>
     <div className="mt-5 grid grid-cols-2 gap-3 border-t border-ink/8 pt-4 text-xs"><div><p className="text-ink/40">Deadline</p><p className="mt-1 font-black">{opportunity ? deadlineLabel(opportunity) : "Not announced"}</p></div><div className="text-right"><p className="text-ink/40">{view.label}</p><span className="mt-2 inline-block h-2 w-2 rounded-full bg-forest" /></div></div>
     <div className="mt-5 grid gap-3"><Link href={view.href} onClick={() => trackProductEvent("recommendation_clicked", { recommendationId: view.recommendation.id, opportunityId: view.recommendation.relatedOpportunityId, section: "for-you-card" })} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-forest text-sm font-bold text-white hover:bg-ink">Open Opportunity <ArrowIcon /></Link>{view.recommendation.relatedOpportunityId ? <AddToJourneyButton opportunityId={view.recommendation.relatedOpportunityId} className="rounded-full border border-ink/15 text-ink hover:border-forest hover:text-forest" /> : null}</div>
+    <RecommendationFeedback view={view} onFeedback={onFeedback} compact />
   </article>;
+}
+
+function RecommendationFeedback({ view, onFeedback, compact = false }: { view: RecommendationViewModel; onFeedback: (view: RecommendationViewModel, feedbackType: FeedbackType, label: string) => void; compact?: boolean }) {
+  const actions: Array<{ label: string; type: FeedbackType; eventLabel: string }> = [
+    { label: "Interested", type: "helpful", eventLabel: "Saved interest signal." },
+    { label: "Not interested", type: "not-interested", eventLabel: "We will show fewer like this." },
+    { label: "Hide", type: "dismissed", eventLabel: "Hidden from your recommendations." },
+    { label: "Already applied", type: "already-applied", eventLabel: "Marked as already applied." },
+    { label: "Already completed", type: "already-completed", eventLabel: "Marked as already completed." },
+  ];
+  return <details className={`${compact ? "mt-4" : "mt-6"} group`}>
+    <summary className="cursor-pointer text-xs font-black uppercase tracking-[.14em] text-ink/38 hover:text-forest">Improve recommendations</summary>
+    <div className="mt-3 flex flex-wrap gap-2">
+      {actions.map((action) => <button key={action.type} type="button" onClick={() => onFeedback(view, action.type, action.eventLabel)} className="min-h-9 rounded-full border border-ink/10 bg-white px-3 text-xs font-bold text-ink/55 hover:border-forest hover:text-forest">{action.label}</button>)}
+      <button type="button" onClick={() => onFeedback(view, "dismissed", "We will not show this again.")} className="min-h-9 rounded-full border border-ink/10 bg-paper px-3 text-xs font-bold text-ink/45 hover:border-forest hover:text-forest">Never show again</button>
+    </div>
+  </details>;
 }
 
 function WhyRecommendations({ state }: { state: AdvisorState }) {

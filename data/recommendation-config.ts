@@ -33,6 +33,19 @@ export const recommendationConfig = {
     completedSimilarCategory: 4,
     viewedPenalty: -3,
     activeTrackedPenalty: -70,
+    careerRoadmapCategory: 12,
+    careerRoadmapSignal: 6,
+    careerRoadmapOrganization: 10,
+    skillAlignmentPerSignal: 4,
+    skillAlignmentMax: 16,
+    categoryGapBoost: 12,
+    ignoredSimilarPenalty: -18,
+    dismissedOpportunityPenalty: -100,
+    completedOpportunityPenalty: -100,
+    freshnessRecent: 6,
+    weakDeadlineConfidencePenalty: -6,
+    expectedRoiHigh: 7,
+    estimatedTimeLow: 5,
   },
   thresholds: {
     excellent: 86,
@@ -57,6 +70,11 @@ export const recommendationConfig = {
     suppressFromPremiumStatuses: ["needs_review"],
     nonActionableStatuses: ["temporarily_closed"],
     urgentDeadlineRequiresVerifiedDeadline: true,
+  },
+  confidence: {
+    minimumVisible: "Medium",
+    highThreshold: 78,
+    mediumThreshold: 52,
   },
 } as const;
 

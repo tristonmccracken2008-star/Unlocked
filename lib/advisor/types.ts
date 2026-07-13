@@ -6,7 +6,7 @@ export const advisorSourceSnapshotVersion = "advisor-brain-v0.4:2026-07-10";
 
 export type AdvisorCareerId = "career.quantitative-trader" | "career.software-engineer" | "career.physician" | "career.general-exploration";
 export type AdvisorAcademicStage = "incoming-first-year" | "first-year" | "second-year" | "third-year" | "fourth-year" | "recent-graduate";
-export type FeedbackType = "helpful" | "not-relevant" | "already-completed" | "too-expensive" | "too-time-consuming" | "completed" | "dismissed" | "dont-enjoy-this" | "prefer-research" | "prefer-industry" | "not-interested";
+export type FeedbackType = "helpful" | "not-relevant" | "already-completed" | "already-applied" | "too-expensive" | "too-time-consuming" | "completed" | "dismissed" | "dont-enjoy-this" | "prefer-research" | "prefer-industry" | "not-interested";
 
 export type RawAdvisorProfile = Partial<StudentProfile> & {
   studentId?: string;
