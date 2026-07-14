@@ -92,17 +92,17 @@ function wait(ms: number) {
   return new Promise((resolve) => window.setTimeout(resolve, ms));
 }
 
-export function AdvisorPage({ initialState = null }: { initialState?: ForYouServerState | null }) {
+export function AdvisorPage({ initialState = null, serverAuthenticated = false }: { initialState?: ForYouServerState | null; serverAuthenticated?: boolean }) {
   const initial = initialState ? normalizeForYouPayload(initialState) : null;
   const [state, setState] = useState<AdvisorState | null>(initial?.state ?? null);
   const [pageState, setPageState] = useState<ForYouPageState>(initial?.pageState ?? "loading");
-  const [sessionReadiness, setSessionReadiness] = useState<SessionReadiness>(initialState ? "authenticated" : "checking");
+  const [sessionReadiness, setSessionReadiness] = useState<SessionReadiness>(initialState || serverAuthenticated ? "authenticated" : "checking");
   const [errorMessage, setErrorMessage] = useState("");
   const [feedbackMessage, setFeedbackMessage] = useState("");
   const [requestActive, setRequestActive] = useState(false);
   const trackedRecommendation = useRef("");
   const requestId = useRef(0);
-  const sessionKey = useRef("");
+  const sessionKey = useRef(serverAuthenticated ? "server-authenticated" : "");
   const activeRequestKey = useRef("");
   const lastValidResponse = useRef<{ pageState: Exclude<ForYouPageState, "loading">; state: AdvisorState } | null>(initial ?? null);
 
@@ -211,7 +211,7 @@ export function AdvisorPage({ initialState = null }: { initialState?: ForYouServ
   }, []);
 
   useEffect(() => {
-    if (initialState) return;
+    if (initialState || serverAuthenticated) return;
     void refreshSession();
     const onSessionChange = (event: Event) => {
       const session = (event as CustomEvent<AccountSession>).detail;
@@ -222,7 +222,7 @@ export function AdvisorPage({ initialState = null }: { initialState?: ForYouServ
       requestId.current += 1;
       window.removeEventListener(accountSessionEvent, onSessionChange);
     };
-  }, [applySession, initialState, refreshSession]);
+  }, [applySession, initialState, refreshSession, serverAuthenticated]);
 
   useEffect(() => {
     if (initialState) return;

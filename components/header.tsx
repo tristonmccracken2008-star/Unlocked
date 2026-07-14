@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Logo } from "./logo";
@@ -21,7 +20,6 @@ function isServerProtectedProductPath(pathname: string) {
 
 export function Header() {
   const [session, setSession] = useState<AccountSession | null>(null);
-  const [pendingHref, setPendingHref] = useState("");
   const pathname = usePathname();
 
   useEffect(() => {
@@ -39,10 +37,6 @@ export function Header() {
     };
   }, []);
 
-  useEffect(() => {
-    setPendingHref("");
-  }, [pathname]);
-
   const authenticated = Boolean(session?.authenticated || !session && isServerProtectedProductPath(pathname));
 
   if (!authenticated) {
@@ -56,23 +50,16 @@ export function Header() {
 
   function navigationLink(label: string, href: string, mobile = false) {
     const active = href === "/" ? pathname === "/" : pathname?.startsWith(href);
-    const pending = pendingHref === href && !active;
-    return <Link
+    return <a
       key={href}
       href={href}
-      prefetch={href === "/advisor" ? false : undefined}
       aria-current={active ? "page" : undefined}
-      aria-busy={pending || undefined}
-      onClick={() => {
-        if (!active) setPendingHref(href);
-      }}
       className={mobile
-        ? `relative rounded-full px-3 py-3 text-center transition duration-200 ${active ? "bg-white text-forest" : pending ? "bg-white/10 text-white" : "text-white/70 hover:text-white"}`
-        : `relative rounded-full px-4 py-2 transition duration-200 ${active ? "bg-white text-forest shadow-[0_8px_20px_rgba(43,33,26,.08)]" : pending ? "bg-white/75 text-forest" : "hover:bg-white/75 hover:text-forest"}`}
+        ? `relative rounded-full px-3 py-3 text-center transition duration-200 active:scale-[.98] ${active ? "bg-white text-forest" : "text-white/70 hover:text-white"}`
+        : `relative rounded-full px-4 py-2 transition duration-200 active:scale-[.98] ${active ? "bg-white text-forest shadow-[0_8px_20px_rgba(43,33,26,.08)]" : "hover:bg-white/75 hover:text-forest"}`}
     >
       {label}
-      {pending && <span aria-hidden="true" className={`absolute right-2 top-2 h-1.5 w-1.5 animate-pulse rounded-full ${mobile ? "bg-white" : "bg-forest"}`} />}
-    </Link>;
+    </a>;
   }
 
   return <>
@@ -83,7 +70,7 @@ export function Header() {
           {destinations.map(([label, href]) => navigationLink(label, href))}
         </nav>
         <div className="flex items-center gap-3">
-          <Link href="/profile" className={`rounded-full px-3 py-2 text-xs font-bold transition duration-200 ${pathname?.startsWith("/profile") ? "bg-white text-forest shadow-[0_8px_20px_rgba(43,33,26,.08)]" : "text-ink/45 hover:bg-white/75 hover:text-forest"}`}>Profile</Link>
+          <a href="/profile" className={`rounded-full px-3 py-2 text-xs font-bold transition duration-200 active:scale-[.98] ${pathname?.startsWith("/profile") ? "bg-white text-forest shadow-[0_8px_20px_rgba(43,33,26,.08)]" : "text-ink/45 hover:bg-white/75 hover:text-forest"}`}>Profile</a>
           <AccountButton compact />
         </div>
       </div>

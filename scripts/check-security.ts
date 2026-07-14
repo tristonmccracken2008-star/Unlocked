@@ -39,6 +39,10 @@ assert.doesNotThrow(() => assertSameOrigin(new Request("https://security.unlocke
   method: "PUT",
   headers: { "Sec-Fetch-Site": "same-origin" },
 })), "Browser same-origin authenticated mutations must not require Origin or Referer when Fetch Metadata proves same-origin.");
+assert.doesNotThrow(() => assertSameOrigin(new Request("https://www.security.unlocked.test/api/account/data", {
+  method: "PUT",
+  headers: { Origin: "https://www.security.unlocked.test", Referer: "https://www.security.unlocked.test/profile", "Sec-Fetch-Site": "same-origin" },
+})), "Same-origin writes on a production hostname alias must validate against the actual request target.");
 assert.throws(() => assertSameOrigin(new Request("https://security.unlocked.test/api/account/data", {
   method: "PUT",
   headers: { Origin: "https://attacker.example", "Sec-Fetch-Site": "cross-site" },

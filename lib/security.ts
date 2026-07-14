@@ -63,10 +63,12 @@ export function assertSameOrigin(request: Request) {
   if (fetchSite === "cross-site") throw new SecurityError("Cross-site request rejected.", 403, "cross_site_request");
 
   const expected = appOrigin();
+  const requestTarget = requestOrigin(request.url);
+  const allowedOrigins = new Set([expected, requestTarget].filter((value): value is string => Boolean(value)));
   const origin = requestOrigin(request.headers.get("origin"));
   const referer = requestOrigin(request.headers.get("referer"));
-  if (origin && origin !== expected) throw new SecurityError("Request origin rejected.", 403, "invalid_origin");
-  if (!origin && referer && referer !== expected) throw new SecurityError("Request origin rejected.", 403, "invalid_origin");
+  if (origin && !allowedOrigins.has(origin)) throw new SecurityError("Request origin rejected.", 403, "invalid_origin");
+  if (!origin && referer && !allowedOrigins.has(referer)) throw new SecurityError("Request origin rejected.", 403, "invalid_origin");
   if (!origin && !referer && fetchSite === "same-origin") return;
   if (!origin && !referer && process.env.NODE_ENV === "production") {
     throw new SecurityError("Request origin could not be verified.", 403, "missing_origin");

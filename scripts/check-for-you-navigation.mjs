@@ -9,20 +9,20 @@ const callback = read("app/api/auth/callback/google/route.ts");
 const proxy = read("proxy.ts");
 
 assert.equal(existsSync("app/advisor/loading.tsx"), true, "For You needs an App Router loading boundary for cold navigation.");
-assert.match(header, /import Link from "next\/link"/, "For You navigation must use a semantic Next.js link.");
+assert.match(header, /return <a[\s\S]*href=\{href\}/, "For You navigation must use a native semantic link with immediate document navigation.");
 assert.match(header, /\["For You", "\/advisor"\]/, "Desktop and mobile destinations must include For You.");
-assert.match(header, /prefetch=\{href === "\/advisor" \? false/, "For You must not prefetch expensive recommendation generation on hover.");
-assert.match(header, /onClick=\{\(\) => \{[\s\S]*setPendingHref\(href\)/, "Clicks must provide immediate visible pending feedback.");
-assert.match(header, /aria-busy=\{pending \|\| undefined\}/, "Pending navigation must be exposed to assistive technology.");
+assert.doesNotMatch(header, /from "next\/link"/, "Authenticated header navigation must not wait for an App Router RSC transition.");
+assert.doesNotMatch(header, /onClick=|preventDefault\(\)/, "Header links must not intercept browser navigation.");
 assert.doesNotMatch(header, /disabled=|pointer-events-none/, "For You links must never be silently disabled.");
 assert.match(header, /aria-label="Primary navigation"/, "Desktop navigation must remain keyboard accessible.");
 assert.match(header, /aria-label="Mobile navigation"/, "Mobile navigation must use the same semantic links.");
-assert.match(header, /setPendingHref\(""\)[\s\S]*\[pathname\]/, "Completed navigation must clear pending state, including repeated clicks and account switches.");
+assert.match(header, /active:scale-\[\.98\]/, "Header links must provide immediate pressed feedback without blocking navigation.");
 
 assert.match(loading, /aria-busy="true"/, "Cold route loading must be announced immediately.");
 assert.match(loading, /Preparing your recommendations/, "Cold starts and slow session stores need a bounded preparing state.");
 assert.match(advisorPage, /requireCompletedOnboarding\(\)/, "The destination must remain server-authenticated.");
-assert.match(advisorPage, /resolveForYouState\(session\.user, session\.data\)/, "The route must render server-first without waiting for client session warming.");
+assert.match(advisorPage, /<AdvisorPage serverAuthenticated \/>/, "The destination must render immediately after server authentication.");
+assert.doesNotMatch(advisorPage, /resolveForYouState/, "The route document must not wait for recommendation generation.");
 
 const cookieSet = callback.indexOf("response.cookies.set(sessionCookieName");
 const callbackReturn = callback.indexOf("return response", cookieSet);
@@ -35,10 +35,10 @@ console.log(JSON.stringify({
   desktopSemanticLink: true,
   mobileSemanticLink: true,
   keyboardNavigation: true,
-  immediatePendingFeedback: true,
+  immediatePressedFeedback: true,
   coldStartBoundary: true,
   slowSessionStoreBoundary: true,
   oauthCookieBeforeRedirect: true,
   repeatedClicksNotDisabled: true,
-  accountSwitchPendingReset: true,
+  nativeDocumentNavigation: true,
 }, null, 2));

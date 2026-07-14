@@ -9,13 +9,15 @@ const advisorRoute = read("app/advisor/page.tsx");
 const proxy = read("proxy.ts");
 
 assert.equal(existsSync("app/advisor/loading.tsx"), true, "For You must have an immediate route loading boundary.");
-assert.match(header, /<Link[\s\S]*href=\{href\}/, "Product navigation must remain a semantic link.");
+assert.match(header, /return <a[\s\S]*href=\{href\}/, "Product navigation must use a native semantic link.");
 assert.match(header, /isServerProtectedProductPath\(pathname\)/, "Protected product routes must render navigation without waiting for client session hydration.");
 assert.doesNotMatch(header, /preventDefault\(\)/, "Product navigation must never intercept or defer a normal link click.");
 assert.doesNotMatch(header, /pointer-events-none|disabled=\{[^}]*pendingHref/, "Pending navigation must remain clickable and keyboard accessible.");
-assert.match(header, /setPendingHref\(href\)/, "Navigation must show immediate pending feedback.");
+assert.doesNotMatch(header, /from "next\/link"|setPendingHref/, "Navigation must not wait for a client router transition.");
 assert.match(advisorRoute, /requireCompletedOnboarding\(\)/, "The destination route must authenticate from the incoming cookie.");
-assert.match(advisorRoute, /resolveForYouState\(session\.user, session\.data\)/, "Recommendation work must remain in the destination route.");
+assert.match(advisorRoute, /await requireCompletedOnboarding\(\)/, "The destination must complete server authorization before rendering.");
+assert.match(advisorRoute, /<AdvisorPage serverAuthenticated \/>/, "The route must render its loading UI without blocking on recommendation generation.");
+assert.doesNotMatch(advisorRoute, /resolveForYouState/, "Cold recommendation generation must not block the destination document response.");
 
 const persistSession = callback.indexOf("await createSession(user)");
 const createRedirect = callback.indexOf("NextResponse.redirect", persistSession);

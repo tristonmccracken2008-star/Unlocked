@@ -36,7 +36,8 @@ for (const symbol of ["buildRecommendationService", "recommendationMatchLabel", 
 assert.ok(forYouApi.includes("resolveForYouState"), "For You API must consume the snapshot-backed recommendation resolver.");
 assert.ok(forYouSnapshot.includes("buildRecommendationService"), "For You snapshot generation must consume the canonical recommendation service.");
 assert.ok(advisorTypes.includes("ForYouRecommendationSnapshot"), "Advisor account data must include persisted For You snapshots.");
-assert.ok(advisorRoute.includes("resolveForYouState") && advisorRoute.includes("<AdvisorPage initialState={initialState}"), "For You must server-resolve its initial state.");
+assert.ok(advisorRoute.includes("await requireCompletedOnboarding()") && advisorRoute.includes("<AdvisorPage serverAuthenticated />"), "For You must authenticate server-side and render before recommendation generation.");
+assert.ok(!advisorRoute.includes("resolveForYouState"), "For You route documents must not block on recommendation generation.");
 assert.ok(forYouApi.includes('pageState: "pro_ready"') || forYouApi.includes('"pro_ready"'), "For You API must return an explicit pro_ready state.");
 assert.ok(forYouApi.includes('"free_preview"'), "For You API must return an explicit free_preview state.");
 assert.ok(forYouApi.includes('"profile_incomplete"'), "For You API must return an explicit profile_incomplete state.");

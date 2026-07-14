@@ -11,6 +11,10 @@ assert.doesNotThrow(() => assertSameOrigin(new Request("https://logout.unlocked.
   method: "POST",
   headers: { "Sec-Fetch-Site": "same-origin" },
 })), "A same-origin browser logout must pass CSRF protection.");
+assert.doesNotThrow(() => assertSameOrigin(new Request("https://www.logout.unlocked.test/api/auth/logout", {
+  method: "POST",
+  headers: { Origin: "https://www.logout.unlocked.test", Referer: "https://www.logout.unlocked.test/profile", "Sec-Fetch-Site": "same-origin" },
+})), "A legitimate production alias must be validated against the actual request target rather than a different configured canonical host.");
 assert.throws(() => assertSameOrigin(new Request("https://logout.unlocked.test/api/auth/logout", {
   method: "POST",
   headers: { Origin: "https://attacker.example", "Sec-Fetch-Site": "cross-site" },
@@ -49,7 +53,8 @@ assert.match(button, /abortAuthenticatedRequests\(\)/, "Sign-out must abort in-f
 assert.match(button, /resetAccountSessionCache\(\)/, "Sign-out must clear the client session cache.");
 assert.match(button, /clearLocalDashboardState\(\)/, "Sign-out must clear account-specific local state.");
 assert.match(button, /window\.location\.replace\("\/"\)/, "Sign-out must replace private history with the public homepage.");
-assert.match(button, /Sign out didn’t finish\. Try again\./, "Failed logout must remain visible and retryable.");
+assert.match(button, /Sign out was blocked \(\$\{category\}\)\. Try again\./, "Rejected logout must expose a safe error category.");
+assert.match(button, /new AbortController\(\)/, "Logout must own a fresh controller outside the authenticated-request registry.");
 assert.match(requestRegistry, /activeControllers/, "Authenticated requests must share an abort registry.");
 assert.match(accountSync, /studentProgressStorageKey/, "Logout cache clearing must include milestone and application state.");
 

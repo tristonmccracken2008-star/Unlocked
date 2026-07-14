@@ -38,7 +38,9 @@ assert.match(journeyDashboard, /\/api\/opportunities\?ids=/, "Journey dashboard 
 
 assert.match(forYouSnapshot, /recommendations: allowed\.map/, "For You snapshots must store serialized recommendation view models.");
 assert.match(forYouSnapshot, /const allowed = pro \? service\.recommendations\.slice\(0,\s*8\) : \[\]/, "Free For You should render the Pro conversion state immediately without expensive feed generation while Pro stays precision-first.");
-assert.match(advisorRoute, /resolveForYouState/, "For You should resolve initial page state on the server.");
+assert.match(advisorRoute, /await requireCompletedOnboarding\(\)/, "For You must remain protected server-side.");
+assert.match(advisorRoute, /<AdvisorPage serverAuthenticated \/>/, "For You must render a loading shell before recommendation work completes.");
+assert.doesNotMatch(advisorRoute, /resolveForYouState/, "For You document navigation must not block on recommendation generation.");
 assert.match(forYouApi, /console\.info\("\[UnlockED For You\] request started"/, "For You API should log safe production diagnostics.");
 assert.match(forYouApi, /auth complete/, "For You API should checkpoint auth completion.");
 assert.match(forYouApi, /ranking complete/, "For You API should checkpoint ranking completion.");

@@ -20,8 +20,9 @@ assert.match(advisorTypes, /recommendations: RecommendationViewModel\[\]/, "Snap
 assert.match(authStore, /forYouSnapshots: Array\.isArray\(value\.forYouSnapshots\)/, "Account normalization must preserve For You snapshots.");
 assert.match(advisorApi, /forYouSnapshots: \[\.\.\.\(existing\.forYouSnapshots \?\? \[\]\), \.\.\.\(patch\.forYouSnapshots \?\? \[\]\)\]\.slice\(-3\)/, "Advisor data writes must append For You snapshots without replacing unrelated advisor data.");
 
-assert.match(advisorRoute, /const initialState = await resolveForYouState\(session\.user, session\.data\)/, "The For You route must resolve the first page state on the server.");
-assert.match(advisorRoute, /<AdvisorPage initialState=\{initialState\}/, "The client must receive server-resolved initial state.");
+assert.match(advisorRoute, /await requireCompletedOnboarding\(\)/, "The For You route must authenticate and verify onboarding on the server.");
+assert.match(advisorRoute, /<AdvisorPage serverAuthenticated \/>/, "The client must begin from a server-authenticated loading state.");
+assert.doesNotMatch(advisorRoute, /resolveForYouState/, "The route document must not be blocked by first recommendation generation.");
 assert.match(api, /resolveForYouState/, "The API route must reuse the snapshot resolver.");
 assert.doesNotMatch(api, /buildRecommendationService/, "The API route must not generate the feed directly on normal page navigation.");
 assert.match(snapshot, /buildRecommendationService/, "Snapshot generation must be the only For You path that builds recommendations.");
@@ -51,11 +52,12 @@ assert.match(snapshot, /buildRecommendationCandidateFunnel/, "Empty-feed diagnos
 assert.match(snapshot, /lastAvailableStage/, "Empty-feed diagnostics must record the last stage with viable candidates.");
 assert.match(snapshot, /fallbackAttempted: funnel\.fallbackAttempted/, "Empty-feed diagnostics must record whether the safe fallback was attempted.");
 
-assert.match(advisorPage, /initialState \? normalizeForYouPayload\(initialState\) : null/, "Client must render from the server snapshot state immediately.");
+assert.match(advisorPage, /serverAuthenticated \? "authenticated" : "checking"/, "Client must trust the completed server route gate without warming the session API first.");
+assert.match(advisorPage, /serverAuthenticated \? "server-authenticated" : ""/, "The initial recommendation request must have a stable server-authenticated request key.");
 assert.match(advisorPage, /ForYouPreparingState/, "Client must show preparing recommendations instead of treating first generation as an error.");
 assert.match(advisorPage, /state\?\.isRefreshing/, "Client must keep stale recommendations visible while refreshing.");
 assert.match(advisorPage, /pageState !== "preparing" && !state\?\.isRefreshing/, "Client polling must be tied to preparing/stale-refresh states.");
-assert.match(advisorPage, /lastValidResponse = useRef[\s\S]*\(initial \?\? null\)/, "Client must keep server-provided stale recommendations visible while polling.");
+assert.match(advisorPage, /lastValidResponse = useRef[\s\S]*\(initial \?\? null\)/, "Client must keep the last valid recommendations visible while polling.");
 assert.doesNotMatch(advisorPage, /useEffect\(\(\) => \{\s*void loadForYou\(\);/, "Client must not immediately fetch recommendations before the server state renders.");
 
 assert.match(authStore, /kvTimeoutMs = 2800/, "KV reads must be bounded under the server hard timeout.");

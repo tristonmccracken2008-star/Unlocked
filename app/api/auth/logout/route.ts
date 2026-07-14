@@ -36,6 +36,7 @@ export async function POST(request: Request) {
     return clearAuthenticationCookies(NextResponse.json({ ok: true }, { headers: { "Cache-Control": "no-store, max-age=0", "X-Request-ID": requestId } }));
   } catch (error) {
     const response = securityErrorResponse(error, "Sign out could not be completed.");
+    response.headers.set("X-Request-ID", requestId);
     if (error instanceof SecurityError) console.warn("[UnlockED auth] Logout rejected", { requestId, code: error.code, durationMs: Math.round(performance.now() - startedAt) });
     else console.error("[UnlockED auth] Logout failed", { requestId, errorCategory: error instanceof Error ? error.name : "unknown", durationMs: Math.round(performance.now() - startedAt) });
     return response;

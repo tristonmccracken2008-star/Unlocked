@@ -39,10 +39,15 @@ export function AccountButton({ compact = false }: { compact?: boolean }) {
     if (signingOut) return;
     setSigningOut(true);
     setError("");
+    const controller = new AbortController();
     try {
-      const response = await fetch("/api/auth/logout", { method: "POST", credentials: "same-origin", cache: "no-store" });
+      const response = await fetch("/api/auth/logout", { method: "POST", credentials: "same-origin", cache: "no-store", signal: controller.signal });
       if (!response.ok) {
-        setError("Sign out didn’t finish. Try again.");
+        const body = await response.json().catch(() => null) as { code?: string } | null;
+        const requestId = response.headers.get("x-request-id") ?? "unavailable";
+        const category = body?.code ?? `http_${response.status}`;
+        console.warn("[UnlockED auth] Client logout rejected", { requestId, status: response.status, category });
+        setError(`Sign out was blocked (${category}). Try again.`);
         return;
       }
       abortAuthenticatedRequests();
@@ -53,8 +58,10 @@ export function AccountButton({ compact = false }: { compact?: boolean }) {
       window.dispatchEvent(new CustomEvent(accountSessionEvent, { detail: signedOut }));
       trackProductEvent("sign_out");
       window.location.replace("/");
-    } catch {
-      setError("Sign out didn’t finish. Try again.");
+    } catch (reason) {
+      const category = reason instanceof DOMException && reason.name === "AbortError" ? "request_aborted" : "network_error";
+      console.warn("[UnlockED auth] Client logout failed", { category });
+      setError(`Sign out didn’t finish (${category}). Try again.`);
     } finally {
       setSigningOut(false);
     }

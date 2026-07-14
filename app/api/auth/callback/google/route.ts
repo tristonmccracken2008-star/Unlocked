@@ -12,8 +12,8 @@ function clearOAuthCookies(response: NextResponse) {
   return response;
 }
 
-function failedAuthResponse() {
-  return clearOAuthCookies(NextResponse.redirect(new URL("/?auth=failed", appUrl())));
+function failedAuthResponse(origin = appUrl()) {
+  return clearOAuthCookies(NextResponse.redirect(new URL("/?auth=failed", origin)));
 }
 
 export async function GET(request: NextRequest) {
@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
     console.info("[UnlockED auth] OAuth callback protection complete", { requestId, durationMs: Math.round(performance.now() - startedAt) });
   } catch (error) {
     console.warn("[UnlockED auth] OAuth callback rate limited", { requestId, errorCategory: error instanceof Error ? error.name : "unknown" });
-    return failedAuthResponse();
+    return failedAuthResponse(request.nextUrl.origin);
   }
   const url = new URL(request.url);
   const code = url.searchParams.get("code");
@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
       providerError: safeLogText(providerError),
       providerErrorDescription: safeLogText(providerErrorDescription),
     });
-    return failedAuthResponse();
+    return failedAuthResponse(request.nextUrl.origin);
   }
   try {
     const googleUser = await exchangeGoogleCode(code, codeVerifier);
@@ -62,7 +62,7 @@ export async function GET(request: NextRequest) {
     console.info("[UnlockED auth] Previous session cleanup complete", { requestId, durationMs: Math.round(performance.now() - startedAt) });
     const session = await createSession(user);
     console.info("[UnlockED auth] New session persistence complete", { requestId, durationMs: Math.round(performance.now() - startedAt) });
-    const response = NextResponse.redirect(new URL(accountHasCompletedOnboarding(accountData) ? "/advisor" : "/onboarding", appUrl()));
+    const response = NextResponse.redirect(new URL(accountHasCompletedOnboarding(accountData) ? "/advisor" : "/onboarding", request.nextUrl.origin));
     clearOAuthCookies(response);
     response.cookies.delete(referralCookieName);
     response.cookies.set(sessionCookieName, session.token, { httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", expires: session.expires, maxAge: 60 * 60 * 24 * 30, path: "/", priority: "high" });
@@ -70,7 +70,7 @@ export async function GET(request: NextRequest) {
     return response;
   } catch (error) {
     console.error("[UnlockED auth] OAuth callback failed", { requestId, errorCategory: error instanceof Error ? error.name : "unknown", reason: safeLogText(error instanceof Error ? error.message : undefined), durationMs: Math.round(performance.now() - startedAt) });
-    return failedAuthResponse();
+    return failedAuthResponse(request.nextUrl.origin);
   } finally {
     console.info("[UnlockED auth] OAuth callback complete", { requestId, durationMs: Math.round(performance.now() - startedAt) });
   }
