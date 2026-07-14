@@ -12,6 +12,7 @@ import type { AdvisorAccessState } from "@/lib/advisor-access";
 import type { Entitlements } from "@/lib/entitlements";
 import type { ForYouServerState } from "@/lib/for-you-snapshot";
 import { accountSessionEvent, readAccountSession } from "@/data/account-sync";
+import { authenticatedFetch } from "@/data/authenticated-request";
 import { trackProductEvent } from "@/data/product-analytics";
 import { ArrowIcon, BookmarkIcon, CheckCircleIcon, SearchIcon, SendIcon, TargetIcon } from "./icons";
 import { OrganizationLogo } from "./organization-logo";
@@ -156,7 +157,7 @@ export function AdvisorPage({ initialState = null }: { initialState?: ForYouServ
       const controller = new AbortController();
       const timeout = window.setTimeout(() => controller.abort(), 12000);
       try {
-        const response = await fetch("/api/advisor/for-you", { credentials: "same-origin", cache: "no-store", signal: controller.signal });
+        const response = await authenticatedFetch("/api/advisor/for-you", { credentials: "same-origin", cache: "no-store", signal: controller.signal });
         if (requestId.current !== currentRequest || (sessionKey.current && sessionKey.current !== targetSessionKey)) return;
         const payload = await response.json().catch(() => null) as unknown;
         if (!response.ok || !payload) {
@@ -269,7 +270,7 @@ export function AdvisorPage({ initialState = null }: { initialState?: ForYouServ
       feedbackType,
       reason: label,
     };
-    const response = await fetch("/api/advisor/feedback", { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    const response = await authenticatedFetch("/api/advisor/feedback", { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
     if (!response.ok) {
       setFeedbackMessage("Could not save that signal.");
       return;

@@ -37,7 +37,11 @@ async function signedSessionIsValid(token: string | undefined) {
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const hasValidSession = await signedSessionIsValid(request.cookies.get(sessionCookieName)?.value);
-  if (hasValidSession) return NextResponse.next();
+  if (hasValidSession) {
+    const response = NextResponse.next();
+    response.headers.set("Cache-Control", "private, no-store, max-age=0");
+    return response;
+  }
 
   const configuredOrigin = process.env.NEXT_PUBLIC_APP_URL
     ?? (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : request.nextUrl.origin);

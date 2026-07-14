@@ -1,3 +1,5 @@
+import { authenticatedFetch } from "./authenticated-request";
+
 export const studentActivityStorageKey = "unlocked-student-activity";
 export const studentActivityEvent = "unlocked-student-activity-change";
 export const studentActivitySyncFailedEvent = "unlocked-student-activity-sync-failed";
@@ -54,7 +56,7 @@ export function replaceStudentActivity(activity: StudentActivity) {
 }
 
 export async function persistStudentActivity(activity: StudentActivity) {
-  const response = await fetch("/api/account/data", { method: "PUT", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ activity }) });
+  const response = await authenticatedFetch("/api/account/data", { method: "PUT", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ activity }) });
   if (response.status === 401) return null;
   if (!response.ok) throw new Error("Activity could not be saved.");
   return await response.json();

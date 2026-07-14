@@ -1,3 +1,5 @@
+import { authenticatedFetch } from "./authenticated-request";
+
 export const studentProfileStorageKey = "unlocked-student-profile";
 export const studentProfileCompleteStorageKey = "unlocked-student-profile-complete";
 export const advisorProfileUpdatedMessageKey = "unlocked-advisor-profile-updated-message";
@@ -171,7 +173,7 @@ export async function writeStudentProfile(profile: StudentProfile) {
   localStorage.setItem(studentProfileCompleteStorageKey, "true");
   if (changedForAdvisor) localStorage.setItem(advisorProfileUpdatedMessageKey, normalized.careerGoal ? `Your plan was updated for your interest in ${normalized.careerGoal}.` : "Your plan was updated based on your new profile.");
   if (typeof window !== "undefined") {
-    const response = await fetch("/api/account/data", { method: "PUT", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ profile: normalized, onboardingComplete: true }) });
+    const response = await authenticatedFetch("/api/account/data", { method: "PUT", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ profile: normalized, onboardingComplete: true }) });
     if (response.status === 401) return null;
     if (!response.ok) throw new Error("Profile could not be saved.");
     return await response.json();

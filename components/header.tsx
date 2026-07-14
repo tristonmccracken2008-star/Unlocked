@@ -10,6 +10,15 @@ import type { AccountSession } from "@/lib/account-types";
 
 const destinations = [["Discover", "/opportunities"], ["For You", "/advisor"], ["Journey", "/"], ["Refer", "/referral"]] as const;
 
+function isServerProtectedProductPath(pathname: string) {
+  return pathname === "/advisor"
+    || pathname === "/profile"
+    || pathname === "/referral"
+    || pathname === "/my-opportunities"
+    || pathname.startsWith("/opportunities")
+    || pathname.startsWith("/admin");
+}
+
 export function Header() {
   const [session, setSession] = useState<AccountSession | null>(null);
   const [pendingHref, setPendingHref] = useState("");
@@ -34,7 +43,9 @@ export function Header() {
     setPendingHref("");
   }, [pathname]);
 
-  if (!session?.authenticated) {
+  const authenticated = Boolean(session?.authenticated || !session && isServerProtectedProductPath(pathname));
+
+  if (!authenticated) {
     return <header className="sticky top-0 z-30 border-b border-ink/10 bg-paper/90 backdrop-blur-xl">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 sm:px-8">
         <Logo className="py-4" />

@@ -295,6 +295,19 @@ export async function deleteSession(token: string | undefined) {
   if (signed?.sid) await dbDelete(sessionKey(signed.sid));
 }
 
+export type SessionRevocationResult = "revoked" | "already_revoked" | "no_session" | "invalid_session";
+
+export async function revokeCurrentSession(token: string | undefined): Promise<SessionRevocationResult> {
+  if (!token) return "no_session";
+  const signed = verifySignedSession(token);
+  if (!signed?.sid) return "invalid_session";
+  const key = sessionKey(signed.sid);
+  const stored = await dbGet<StoredSession>(key);
+  if (!stored) return "already_revoked";
+  await dbDelete(key);
+  return "revoked";
+}
+
 export async function claimStripeWebhookEvent(eventId: string) {
   const result = await dbSet(stripeEventKey(eventId), "processing", { expiresInSeconds: 10 * 60, onlyIfMissing: true });
   return result === "OK";

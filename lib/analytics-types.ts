@@ -66,6 +66,7 @@ export const analyticsEvents = [
   "milestone_unlocked",
   "journey_filter_changed",
   "sign_in",
+  "sign_out",
   "onboarding_started",
   "onboarding_step_viewed",
   "onboarding_step_completed",

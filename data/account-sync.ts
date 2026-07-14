@@ -4,6 +4,8 @@ import { studentActivityEvent, studentActivityStorageKey, type StudentActivity }
 import { isCompletedStudentProfile, normalizeStudentProfile, studentProfileCompleteStorageKey, studentProfileStorageKey, type StudentProfile } from "./student-profile";
 import type { AccountData, AccountSession } from "@/lib/account-types";
 import { defaultBillingRecord } from "@/lib/billing";
+import { authenticatedFetch } from "./authenticated-request";
+import { studentProgressEvent, studentProgressStorageKey } from "./student-progress";
 
 export const journeyProgressStorageKey = "unlocked-journey-progress";
 export const accountSessionStorageKey = "unlocked-account-session";
@@ -72,7 +74,7 @@ function localAccountData(): Partial<AccountData> {
 export async function readAccountSession(force = false) {
   if (!force && sessionCache && Date.now() - sessionCacheAt < sessionCacheMs) return sessionCache;
   if (!force && sessionRequest) return sessionRequest;
-  sessionRequest = fetch("/api/auth/session", { credentials: "same-origin", cache: "no-store" }).then(async (response) => {
+  sessionRequest = authenticatedFetch("/api/auth/session", { credentials: "same-origin", cache: "no-store" }).then(async (response) => {
     const session = response.ok ? await response.json() as AccountSession : { authenticated: false, user: null, data: null } as AccountSession;
     sessionCache = session;
     sessionCacheAt = Date.now();
@@ -83,7 +85,7 @@ export async function readAccountSession(force = false) {
 }
 
 async function readAccountSessionUncached() {
-  const response = await fetch("/api/auth/session", { credentials: "same-origin", cache: "no-store" });
+  const response = await authenticatedFetch("/api/auth/session", { credentials: "same-origin", cache: "no-store" });
   if (!response.ok) return { authenticated: false, user: null, data: null } as AccountSession;
   const session = await response.json() as AccountSession;
   sessionCache = session;
@@ -93,7 +95,7 @@ async function readAccountSessionUncached() {
 }
 
 export async function readCloudAccountData() {
-  const response = await fetch("/api/account/data", { credentials: "same-origin", cache: "no-store" });
+  const response = await authenticatedFetch("/api/account/data", { credentials: "same-origin", cache: "no-store" });
   if (response.status === 401) return null;
   if (!response.ok) throw new Error("Account data could not be loaded.");
   const parsed = await response.json() as { ok: boolean; data: AccountData };
@@ -101,7 +103,7 @@ export async function readCloudAccountData() {
 }
 
 export async function pushAccountData(data: Partial<AccountData>) {
-  const response = await fetch("/api/account/data", { method: "PUT", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
+  const response = await authenticatedFetch("/api/account/data", { method: "PUT", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
   if (response.status === 401) return null;
   if (!response.ok) throw new Error("Account data could not be saved.");
   const parsed = await response.json() as { ok: boolean; data: AccountData };
@@ -135,8 +137,10 @@ export function clearLocalDashboardState() {
   localStorage.removeItem(studentProfileCompleteStorageKey);
   localStorage.removeItem(studentActivityStorageKey);
   localStorage.removeItem(journeyProgressStorageKey);
+  localStorage.removeItem(studentProgressStorageKey);
   for (const key of Object.keys(localStorage)) if (key.startsWith(accountMigrationPrefix)) localStorage.removeItem(key);
   window.dispatchEvent(new CustomEvent(studentActivityEvent, { detail: { viewed: [], saved: [], claimed: [], tracked: {} } }));
+  window.dispatchEvent(new CustomEvent(studentProgressEvent, { detail: { milestones: {}, applications: {} } }));
 }
 
 export async function hydrateAccountData(): Promise<AccountSession> {
