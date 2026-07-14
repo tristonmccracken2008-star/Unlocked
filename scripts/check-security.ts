@@ -35,12 +35,24 @@ assert.doesNotThrow(() => assertSameOrigin(new Request("https://security.unlocke
   method: "PUT",
   headers: { Origin: "https://security.unlocked.test", "Sec-Fetch-Site": "same-origin" },
 })));
+assert.doesNotThrow(() => assertSameOrigin(new Request("https://security.unlocked.test/api/account/data", {
+  method: "PUT",
+  headers: { "Sec-Fetch-Site": "same-origin" },
+})), "Browser same-origin authenticated mutations must not require Origin or Referer when Fetch Metadata proves same-origin.");
 assert.throws(() => assertSameOrigin(new Request("https://security.unlocked.test/api/account/data", {
   method: "PUT",
   headers: { Origin: "https://attacker.example", "Sec-Fetch-Site": "cross-site" },
 })), (error: unknown) => error instanceof SecurityError && error.status === 403);
 const previousNodeEnv = process.env.NODE_ENV;
 Reflect.set(process.env, "NODE_ENV", "production");
+assert.doesNotThrow(() => assertSameOrigin(new Request("https://security.unlocked.test/api/account/data", {
+  method: "PUT",
+  headers: { "Sec-Fetch-Site": "same-origin" },
+})), "Production first-party writes with same-origin Fetch Metadata must be accepted.");
+assert.throws(() => assertSameOrigin(new Request("https://security.unlocked.test/api/account/data", {
+  method: "PUT",
+  headers: { "Sec-Fetch-Site": "same-site" },
+})), (error: unknown) => error instanceof SecurityError && error.code === "missing_origin", "Same-site requests without Origin or Referer must not be treated as same-origin.");
 assert.throws(() => assertSameOrigin(new Request("https://security.unlocked.test/api/account/data", { method: "PUT" })), (error: unknown) => error instanceof SecurityError && error.code === "missing_origin");
 const validAuthSecret = process.env.AUTH_SECRET;
 process.env.AUTH_SECRET = "short";

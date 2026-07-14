@@ -67,6 +67,7 @@ export function assertSameOrigin(request: Request) {
   const referer = requestOrigin(request.headers.get("referer"));
   if (origin && origin !== expected) throw new SecurityError("Request origin rejected.", 403, "invalid_origin");
   if (!origin && referer && referer !== expected) throw new SecurityError("Request origin rejected.", 403, "invalid_origin");
+  if (!origin && !referer && fetchSite === "same-origin") return;
   if (!origin && !referer && process.env.NODE_ENV === "production") {
     throw new SecurityError("Request origin could not be verified.", 403, "missing_origin");
   }
