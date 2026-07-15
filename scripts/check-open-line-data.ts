@@ -108,7 +108,9 @@ assert.match(savedOnly.events[0].narrative, /began exploring research/i);
 const chosen = buildPathprint(trackedInput("Saved"));
 assert.equal(chosen.events[0].kind, "chosen");
 assert.equal(chosen.events[0].progressLevel, "intention");
-assert.equal(chosen.branches[0].key, "category:internship");
+assert.equal(chosen.events[0].branchKey, "main", "The strongest pursued direction becomes the central path.");
+assert.equal(chosen.branchIntelligence?.primaryDirectionKey, "experience:internships");
+assert.equal(chosen.branchIntelligence?.directions[0]?.state, "active");
 
 const expectedStatusEvents = [
   ["Applying", "active", "action"],
@@ -139,7 +141,8 @@ const multipleBranches = buildPathprint({
   manualEvidence: [{ id: "python-project", occurredAt: dates.later, label: "Python analysis project", skillIds: ["Python"], visibility: "private" }],
   generatedAt: dates.generated,
 });
-assert.deepEqual(multipleBranches.branches.map((branch) => branch.key), ["category:internship", "category:research", "skill:python"]);
+assert.equal(multipleBranches.branchIntelligence?.primaryDirectionKey, "academic:undergraduate-research");
+assert.deepEqual(multipleBranches.branches.map((branch) => branch.key), ["experience:internships", "skill:python"]);
 
 const directionPath = buildPathprint({
   userId: "direction-user",
@@ -153,8 +156,8 @@ const directionPath = buildPathprint({
 });
 assert.equal(directionPath.summary.currentDirection, "Research");
 assert.match(directionPath.events[1].narrative, /shifted your direction from Medicine to Research/i);
-assert.equal(directionPath.branches.find((branch) => branch.key === "career:research")?.state, "paused");
-assert.equal(directionPath.branches.find((branch) => branch.key === "career:medicine")?.state, "closed");
+assert.equal(directionPath.branchIntelligence?.directions.find((branch) => branch.key === "career:research")?.state, "paused");
+assert.equal(directionPath.branchIntelligence?.directions.find((branch) => branch.key === "career:medicine")?.state, "closed");
 
 const repeated = buildPathprint({
   userId: "repeat-user",
@@ -258,7 +261,7 @@ for (const privateValue of ["private-user-id", "Private Career Direction", "Priv
   assert.equal(publicJson.includes(privateValue), false, `Public Pathprints must exclude ${privateValue}.`);
 }
 assert.equal(publicPath.events.length, 1, "Only the explicitly shareable accepted event should remain public.");
-assert.equal(publicPath.branches[0]?.state, "active", "Private closure state must not leak through a public branch.");
+assert.equal(publicPath.branches.length, 0, "A single public direction remains on the central public path.");
 const privateHistoryChanged = createPublicPathprint(buildPathprint({
   ...trackedInput("Accepted"),
   userId: "another-private-user",

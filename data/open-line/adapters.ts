@@ -30,7 +30,7 @@ export function waypointFromAdvisorAction(action: Pick<AdvisorBrainAction, "reco
   };
 }
 
-export function waypointFromRoadmap(milestone: Pick<RoadmapMilestone, "id" | "title" | "description" | "estimatedCompletionTime" | "importance">): OpenLineWaypointSource | null {
+export function waypointFromRoadmap(milestone: Pick<RoadmapMilestone, "id" | "title" | "description" | "estimatedCompletionTime" | "importance"> & Partial<Pick<RoadmapMilestone, "relatedOpportunityCategories" | "requiredSkills" | "recommendedBefore" | "unlocks">>): OpenLineWaypointSource | null {
   if (!milestone.id.trim() || !milestone.title.trim() || !milestone.description.trim()) return null;
   return {
     type: "roadmap",
@@ -39,6 +39,10 @@ export function waypointFromRoadmap(milestone: Pick<RoadmapMilestone, "id" | "ti
     whyItMatters: milestone.description,
     estimatedTime: milestone.estimatedCompletionTime,
     impact: milestone.importance,
+    relatedOpportunityCategories: milestone.relatedOpportunityCategories,
+    requiredSkills: milestone.requiredSkills,
+    recommendedBefore: milestone.recommendedBefore,
+    unlocks: milestone.unlocks,
   };
 }
 

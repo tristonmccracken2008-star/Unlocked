@@ -1,5 +1,5 @@
 import { memo, useId } from "react";
-import type { PathGeometry, PathGeometryNode, PathGeometrySegment } from "@/data/open-line";
+import type { OpenLineMotionPlan, PathGeometry, PathGeometryNode, PathGeometrySegment } from "@/data/open-line";
 import { openLineAperturePath } from "./open-line-marker-primitives";
 import { openLineMarkerInteractionSize } from "./open-line-marker-tokens";
 import { getOpenLineMarkerAccessibleLabel, OpenLineMarker, type OpenLineClusterDetail, type OpenLineMarkerInteractionState } from "./open-line-markers";
@@ -27,6 +27,8 @@ export type OpenLineRendererProps = {
   description?: string;
   className?: string;
   idPrefix?: string;
+  motionPlan?: OpenLineMotionPlan;
+  motionLayer?: "current" | "previous";
 };
 
 type PathRecord = { segment: PathGeometrySegment; d: string };
@@ -155,6 +157,8 @@ function OpenLineRendererComponent({
   description = "A visual path of completed steps, current direction, and future possibilities.",
   className,
   idPrefix,
+  motionPlan,
+  motionLayer = "current",
 }: OpenLineRendererProps) {
   const instanceId = useId();
   const prefix = safeId(idPrefix ?? `open-line-${instanceId}`);
@@ -197,6 +201,9 @@ function OpenLineRendererComponent({
     data-layout-mode={geometry.layoutMode}
     data-theme={theme.name}
     data-quality={quality}
+    data-motion-layer={motionLayer}
+    data-motion-plan-signature={motionPlan?.deterministicSignature}
+    data-motion-transition={motionPlan?.transitionKind}
     shapeRendering="geometricPrecision"
   >
     <title id={titleId}>{title}</title>
@@ -252,7 +259,7 @@ function OpenLineRendererComponent({
       {geometry.intersections.filter((intersection) => visibleSegmentIds.has(intersection.foregroundSegmentId) && visibleSegmentIds.has(intersection.backgroundSegmentId)).map((intersection) => {
         const foreground = recordsById.get(intersection.foregroundSegmentId);
         if (!foreground) return null;
-        return <g key={intersection.id} id={`${prefix}-intersection-${safeId(intersection.id)}`} clipPath={`url(#${prefix}-intersection-clip-${safeId(intersection.id)})`} data-intersection-kind={intersection.kind} data-foreground-segment-id={intersection.foregroundSegmentId} data-background-segment-id={intersection.backgroundSegmentId}>
+        return <g key={intersection.id} id={`${prefix}-intersection-${safeId(intersection.id)}`} clipPath={`url(#${prefix}-intersection-clip-${safeId(intersection.id)})`} data-intersection-id={intersection.id} data-intersection-kind={intersection.kind} data-foreground-segment-id={intersection.foregroundSegmentId} data-background-segment-id={intersection.backgroundSegmentId}>
           <use href={`#${prefix}-curve-${safeId(foreground.segment.id)}`} fill="none" stroke={theme.paper} strokeWidth={pathWidth(foreground.segment.state, quality) + 5} strokeLinecap="round" />
           <use href={`#${prefix}-curve-${safeId(foreground.segment.id)}`} fill="none" stroke={pathColor(foreground.segment.state, theme)} strokeWidth={pathWidth(foreground.segment.state, quality)} strokeLinecap="round" />
         </g>;
