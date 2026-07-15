@@ -171,10 +171,12 @@ type Candidate = {
   kind: JourneyDirectionKind;
   label: string;
   events: JourneyEvent[];
+  eventIds: Set<string>;
   evidenceEventIds: Set<string>;
   explicitSkillIds: Set<string>;
   explicitCareerKeys: Set<string>;
   rawLabels: Set<string>;
+  rawLabelInputs: Set<string>;
   parentDirectionKey?: string;
   opportunitySpecific: boolean;
 };
@@ -191,6 +193,19 @@ type ScoredCandidate = Candidate & {
 export type BranchIntelligenceOptions = {
   maxVisibleBranches?: number;
 };
+
+export type BranchIntelligenceBuildStage =
+  | "validation_index"
+  | "candidate_generation"
+  | "candidate_scoring"
+  | "branch_selection"
+  | "transitions"
+  | "rejoins"
+  | "assignments"
+  | "signature"
+  | "diagnostics";
+
+export type BranchIntelligenceBuildObserver = (stage: BranchIntelligenceBuildStage, durationMs: number) => void;
 
 function normalizedAlias(value: string) {
   return value.toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9+#.]+/g, " ").trim().replace(/\s+/g, " ");
@@ -282,18 +297,26 @@ function addCandidate(map: Map<string, Candidate>, identity: { key: string; kind
   const candidate = map.get(identity.key) ?? {
     ...identity,
     events: [],
+    eventIds: new Set<string>(),
     evidenceEventIds: new Set<string>(),
     explicitSkillIds: new Set<string>(),
     explicitCareerKeys: new Set<string>(),
     rawLabels: new Set<string>(),
+    rawLabelInputs: new Set<string>(),
     parentDirectionKey: options.parentDirectionKey,
     opportunitySpecific: Boolean(options.opportunitySpecific),
   };
-  if (!candidate.events.some((current) => current.id === event.id)) candidate.events.push(event);
+  if (!candidate.eventIds.has(event.id)) {
+    candidate.events.push(event);
+    candidate.eventIds.add(event.id);
+  }
   if (options.evidence) candidate.evidenceEventIds.add(event.id);
   for (const skill of options.skills ?? []) candidate.explicitSkillIds.add(canonicalSkillDirection(skill));
   for (const career of options.careers ?? []) candidate.explicitCareerKeys.add(`career:${canonicalCareerDirection(career)}`);
-  if (options.rawLabel) candidate.rawLabels.add(normalizedAlias(options.rawLabel));
+  if (options.rawLabel && !candidate.rawLabelInputs.has(options.rawLabel)) {
+    candidate.rawLabels.add(normalizedAlias(options.rawLabel));
+    candidate.rawLabelInputs.add(options.rawLabel);
+  }
   map.set(identity.key, candidate);
 }
 
@@ -318,13 +341,30 @@ function eventSkillMetadata(opportunity: Opportunity | undefined) {
   return safeStrings(opportunity?.metadata?.skillsGained);
 }
 
-function buildCandidates(input: OpenLineInput, events: readonly JourneyEvent[], validation: readonly ValidationEvidence[]) {
+function buildCandidates(
+  input: OpenLineInput,
+  events: readonly JourneyEvent[],
+  validation: readonly ValidationEvidence[],
+  opportunities: ReadonlyMap<string, Opportunity>,
+) {
   const candidates = new Map<string, Candidate>();
-  const opportunities = new Map((input.opportunities ?? []).map((opportunity) => [opportunity.id, opportunity]));
   const validationIds = new Set(validation.map((item) => item.eventId));
-  const rejectedOpportunityIds = new Set(events.filter((event) => event.type === "direction_closed" && event.opportunityId).map((event) => event.opportunityId as string));
-  const explicitCareerKeys = new Set(events.filter((event) => event.careerDirection).map((event) => `career:${canonicalCareerDirection(event.careerDirection as string)}`));
+  const rejectedOpportunityIds = new Set<string>();
+  const explicitCareerKeys = new Set<string>();
+  for (const event of events) {
+    if (event.type === "direction_closed" && event.opportunityId) rejectedOpportunityIds.add(event.opportunityId);
+    if (event.careerDirection) explicitCareerKeys.add(`career:${canonicalCareerDirection(event.careerDirection)}`);
+  }
   if (input.profile?.careerGoal?.trim()) explicitCareerKeys.add(`career:${canonicalCareerDirection(input.profile.careerGoal)}`);
+  const categoryDirections = new Map<string, ReturnType<typeof categoryDirection>>();
+  const directionForCategory = (value: string | undefined) => {
+    const key = value ?? "";
+    const cached = categoryDirections.get(key);
+    if (cached) return cached;
+    const direction = categoryDirection(value);
+    categoryDirections.set(key, direction);
+    return direction;
+  };
 
   for (const event of events) {
     if (event.careerDirection) {
@@ -358,7 +398,7 @@ function buildCandidates(input: OpenLineInput, events: readonly JourneyEvent[], 
       continue;
     }
 
-    const category = categoryDirection(event.category);
+    const category = directionForCategory(event.category);
     addCandidate(candidates, category, event, { evidence: validationIds.has(event.id), careers, skills, rawLabel: event.category });
     if (meaningful(event)) {
       for (const career of careers.slice(0, 8)) {
@@ -382,7 +422,14 @@ function latestTimestamp(events: readonly JourneyEvent[]) {
 }
 
 function explicitCurrentGoalKey(input: OpenLineInput, events: readonly JourneyEvent[]) {
-  const latestDirection = [...events].reverse().find((event) => event.careerDirection && (event.type === "goal_selected" || event.type === "goal_changed"));
+  let latestDirection: JourneyEvent | undefined;
+  for (let index = events.length - 1; index >= 0; index -= 1) {
+    const event = events[index];
+    if (event.careerDirection && (event.type === "goal_selected" || event.type === "goal_changed")) {
+      latestDirection = event;
+      break;
+    }
+  }
   const value = latestDirection?.careerDirection ?? input.profile?.careerGoal?.trim();
   return value ? `career:${canonicalCareerDirection(value)}` : undefined;
 }
@@ -400,7 +447,7 @@ function confidenceFor(candidate: Candidate, currentGoalKey: string | undefined)
 }
 
 function deriveDirectionState(candidate: Candidate, confidence: number, currentGoalKey: string | undefined) {
-  const events = [...candidate.events].sort((a, b) => a.occurredAt.localeCompare(b.occurredAt) || a.id.localeCompare(b.id));
+  const events = candidate.events;
   let inactiveIndex = -1;
   let inactiveType: "paused" | "closed" | undefined;
   for (let index = 0; index < events.length; index += 1) {
@@ -489,6 +536,7 @@ function selectPrimary(scored: readonly ScoredCandidate[]) {
 }
 
 function preferredAssignment(event: JourneyEvent, containing: readonly ScoredCandidate[], primaryKey: string | undefined) {
+  if (containing.length === 1) return containing[0].key;
   if (event.type === "skill_evidence_created") {
     return [...containing].filter((candidate) => candidate.kind === "skill").sort(compareCandidates)[0]?.key;
   }
@@ -707,21 +755,39 @@ function ignoreReason(candidate: ScoredCandidate): IgnoredDirectionCandidateReas
   return "insufficient_evidence";
 }
 
-export function analyzeJourneyBranches(input: OpenLineInput, events: readonly JourneyEvent[], options: BranchIntelligenceOptions = {}): BranchIntelligenceResult {
+export function analyzeJourneyBranches(
+  input: OpenLineInput,
+  events: readonly JourneyEvent[],
+  options: BranchIntelligenceOptions = {},
+  observeStage?: BranchIntelligenceBuildObserver,
+): BranchIntelligenceResult {
+  let stageStartedAt = observeStage ? performance.now() : 0;
+  const completeStage = (stage: BranchIntelligenceBuildStage) => {
+    if (!observeStage) return;
+    const completedAt = performance.now();
+    observeStage(stage, completedAt - stageStartedAt);
+    stageStartedAt = completedAt;
+  };
   const maxVisibleBranches = Math.max(0, Math.min(3, Math.floor(options.maxVisibleBranches ?? 3)));
   const opportunities = new Map((input.opportunities ?? []).map((opportunity) => [opportunity.id, opportunity]));
   const validationEvidence = events.map((event) => validationForEvent(event, event.opportunityId ? opportunities.get(event.opportunityId) : undefined)).filter((item): item is ValidationEvidence => Boolean(item));
-  const candidates = buildCandidates(input, events, validationEvidence);
+  completeStage("validation_index");
+  const candidates = buildCandidates(input, events, validationEvidence, opportunities);
+  completeStage("candidate_generation");
   const scored = scoreCandidates(input, events, candidates);
+  completeStage("candidate_scoring");
   const primary = selectPrimary(scored);
   const secondary = scored.filter((candidate) => candidate.activated && candidate.key !== primary?.key).sort(compareCandidates);
   const visibleSecondary = secondary.slice(0, maxVisibleBranches);
+  completeStage("branch_selection");
   const transitions = buildTransitions(events, scored);
+  completeStage("transitions");
   const rejoins = deduplicateRejoins([
     ...buildExperienceCompletionRejoins(scored, primary),
     ...buildGroupedRejoins(scored, primary),
     ...buildSynthesisRejoins(scored, primary),
   ]);
+  completeStage("rejoins");
   const rejoinBySource = new Map<string, RejoinEvidence>();
   for (const rejoin of rejoins) for (const source of rejoin.sourceBranchKeys) if (!rejoinBySource.has(source)) rejoinBySource.set(source, rejoin);
   const directions = scored.sort((a, b) => a.direction.startedAt.localeCompare(b.direction.startedAt) || a.key.localeCompare(b.key)).map((candidate) => {
@@ -740,6 +806,7 @@ export function analyzeJourneyBranches(input: OpenLineInput, events: readonly Jo
     const directionKey = preferredAssignment(event, candidatesByEvent.get(event.id) ?? [], primary?.key);
     return directionKey ? [{ eventId: event.id, directionKey }] : [];
   });
+  completeStage("assignments");
   const rawSignatureData = {
     version: openLineBranchRulesVersion,
     primaryDirectionKey: primary?.key,
@@ -751,6 +818,7 @@ export function analyzeJourneyBranches(input: OpenLineInput, events: readonly Jo
     validationEvidence,
   };
   const signature = stableHash(rawSignatureData);
+  completeStage("signature");
   const opaque = (key: string) => stableId("direction-diagnostic", signature, key);
   const ignoredCandidates = scored.filter((candidate) => !candidate.activated).map((candidate) => ({ opaqueKey: opaque(candidate.key), reason: ignoreReason(candidate) }));
   for (const candidate of scored) {
@@ -769,6 +837,7 @@ export function analyzeJourneyBranches(input: OpenLineInput, events: readonly Jo
     ignoredCandidates: ignoredCandidates.sort((a, b) => a.opaqueKey.localeCompare(b.opaqueKey) || a.reason.localeCompare(b.reason)),
     deterministicSignature: signature,
   };
+  completeStage("diagnostics");
   return {
     version: openLineBranchRulesVersion,
     signature,

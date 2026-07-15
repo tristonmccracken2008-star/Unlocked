@@ -11,6 +11,7 @@ import {
   createPublicPathprint,
   normalizeJourneyEvents,
   openLineBranchRulesVersion,
+  type BranchIntelligenceBuildStage,
   type JourneyEvent,
   type OpenLineInput,
 } from "../data/open-line";
@@ -298,6 +299,8 @@ const repeatA = analyze(sharedInput);
 const repeatB = analyze(sharedInput);
 assert.deepEqual(repeatA, repeatB, "Branch analysis must be deterministic across repeated runs.");
 assert.equal(repeatA.signature, repeatB.signature);
+assert.equal(repeatA.signature, "3c681c89edb820ed", "Canonical branch signature must remain stable.");
+assert.equal(publicA.signature, "bd9a4b0b50fdc61f", "Canonical public Pathprint signature must remain stable.");
 
 const legacy = buildPathprint({
   userId: "legacy",
@@ -312,19 +315,8 @@ const malformed = opportunity("malformed", "Internships");
 (malformed.metadata as { careerPaths?: unknown; skillsGained?: unknown }).skillsGained = { invalid: true };
 assert.doesNotThrow(() => analyze({ ...inputWithTracked([tracked(malformed.id, "Applying")]), opportunities: [malformed] }));
 
-function percentile(values: number[], value: number) {
-  const ordered = [...values].sort((a, b) => a - b);
-  return ordered[Math.min(ordered.length - 1, Math.ceil(ordered.length * value) - 1)] ?? 0;
-}
-
+const fixtureStartedAt = performance.now();
 const typicalEvents = normalizeJourneyEvents(overflowInput).events;
-for (let index = 0; index < 20; index += 1) analyzeJourneyBranches(overflowInput, typicalEvents);
-const typicalDurations = Array.from({ length: 150 }, () => {
-  const startedAt = performance.now();
-  analyzeJourneyBranches(overflowInput, typicalEvents);
-  return performance.now() - startedAt;
-});
-
 const largeEvents: JourneyEvent[] = Array.from({ length: 2_000 }, (_, index) => ({
   id: `large-event-${index}`,
   userId: "large-history",
@@ -337,15 +329,75 @@ const largeEvents: JourneyEvent[] = Array.from({ length: 2_000 }, (_, index) => 
   publicSafe: false,
 }));
 const largeInput: OpenLineInput = { userId: "large-history" };
-for (let index = 0; index < 5; index += 1) analyzeJourneyBranches(largeInput, largeEvents);
-const largeDurations = Array.from({ length: 30 }, () => {
-  const startedAt = performance.now();
-  analyzeJourneyBranches(largeInput, largeEvents);
-  return performance.now() - startedAt;
-});
-const typicalP95 = percentile(typicalDurations, 0.95);
-const largeP95 = percentile(largeDurations, 0.95);
-assert.ok(typicalP95 < 5, `Typical branch analysis p95 must remain under 5ms; measured ${typicalP95.toFixed(2)}ms.`);
-assert.ok(largeP95 < 25, `Large-history branch analysis p95 must remain under 25ms; measured ${largeP95.toFixed(2)}ms.`);
+const normalizationInput: OpenLineInput = {
+  userId: "large-normalization",
+  activity: {
+    viewed: [],
+    saved: [],
+    claimed: [],
+    tracked: Object.fromEntries(Array.from({ length: 1_000 }, (_, index) => {
+      const id = `normalized-branch-${index}`;
+      const savedAt = new Date(Date.UTC(2020, 0, 1) + index * 7_200_000).toISOString();
+      const updatedAt = new Date(Date.UTC(2020, 0, 1) + index * 7_200_000 + 3_600_000).toISOString();
+      return [id, { id, status: index % 5 === 0 ? "Submitted" as const : "Applying" as const, savedAt, updatedAt }];
+    })),
+  },
+};
+const fixtureCreationMs = performance.now() - fixtureStartedAt;
 
-console.log(`Open Line branch intelligence checks passed. Typical p95 ${typicalP95.toFixed(2)}ms; large-history p95 ${largeP95.toFixed(2)}ms.`);
+type BenchmarkSummary = { average: number; p95: number; maximum: number; samples: number };
+let benchmarkBookkeepingMs = 0;
+const summarize = (values: readonly number[]): BenchmarkSummary => {
+  const ordered = [...values].sort((a, b) => a - b);
+  return {
+    average: values.reduce((total, value) => total + value, 0) / values.length,
+    p95: ordered[Math.min(ordered.length - 1, Math.max(0, Math.ceil(ordered.length * 0.95) - 1))] ?? 0,
+    maximum: ordered.at(-1) ?? 0,
+    samples: values.length,
+  };
+};
+const benchmark = (warmupRuns: number, measuredRuns: number, operation: () => void) => {
+  for (let index = 0; index < warmupRuns; index += 1) operation();
+  const durations: number[] = [];
+  for (let index = 0; index < measuredRuns; index += 1) {
+    const startedAt = performance.now();
+    operation();
+    durations.push(performance.now() - startedAt);
+  }
+  const bookkeepingStartedAt = performance.now();
+  const summary = summarize(durations);
+  benchmarkBookkeepingMs += performance.now() - bookkeepingStartedAt;
+  return summary;
+};
+
+const normalizationBenchmark = benchmark(8, 30, () => { normalizeJourneyEvents(normalizationInput); });
+const typicalBenchmark = benchmark(20, 150, () => { analyzeJourneyBranches(overflowInput, typicalEvents); });
+const largeBenchmark = benchmark(10, 40, () => { analyzeJourneyBranches(largeInput, largeEvents); });
+
+const stageDurations = new Map<BranchIntelligenceBuildStage, number[]>();
+for (let run = 0; run < 20; run += 1) {
+  analyzeJourneyBranches(largeInput, largeEvents, {}, (stage, durationMs) => {
+    const values = stageDurations.get(stage) ?? [];
+    values.push(durationMs);
+    stageDurations.set(stage, values);
+  });
+}
+const branchStages = Object.fromEntries([...stageDurations.entries()].map(([stage, values]) => [stage, summarize(values)]));
+
+const assertionStartedAt = performance.now();
+assert.ok(typicalBenchmark.p95 < 5, `Typical branch analysis p95 must remain under 5ms; measured ${typicalBenchmark.p95.toFixed(2)}ms.`);
+assert.ok(largeBenchmark.average < 15, `Large-history branch analysis average must remain under 15ms; measured ${largeBenchmark.average.toFixed(2)}ms.`);
+assert.ok(largeBenchmark.p95 < 25, `Large-history branch analysis p95 must remain under 25ms; measured ${largeBenchmark.p95.toFixed(2)}ms.`);
+assert.ok(largeBenchmark.maximum < 75, `Large-history branch analysis must remain under the 75ms hard ceiling; measured ${largeBenchmark.maximum.toFixed(2)}ms.`);
+const assertionMs = performance.now() - assertionStartedAt;
+
+console.log(JSON.stringify({
+  message: "Open Line branch intelligence checks passed.",
+  fixtureCreationMs: Number(fixtureCreationMs.toFixed(3)),
+  normalization: normalizationBenchmark,
+  typicalBranchAnalysis: typicalBenchmark,
+  largeBranchAnalysis: largeBenchmark,
+  branchStages,
+  benchmarkBookkeepingMs: Number(benchmarkBookkeepingMs.toFixed(3)),
+  assertionMs: Number(assertionMs.toFixed(3)),
+}, null, 2));

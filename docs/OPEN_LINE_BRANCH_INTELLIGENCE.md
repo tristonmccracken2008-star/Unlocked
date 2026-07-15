@@ -126,7 +126,18 @@ Public Pathprints are reprojected from shareable, public-safe `PathEvent` record
 
 ## Performance
 
-Analysis has no I/O. Opportunity metadata is indexed once, candidates are capped defensively, event-to-candidate assignments are indexed, shared relationships are grouped by maps, and synthesis traversal is fixed and bounded. The regression suite measures robust p95 latency for typical and 2,000-event histories.
+Analysis has no I/O. Opportunity metadata is indexed once, candidates are capped defensively, candidate event membership and event-to-candidate assignments are indexed, repeated category aliases are cached per analysis, shared relationships are grouped by maps, and synthesis traversal is fixed and bounded.
+
+The optional fourth argument to `analyzeJourneyBranches` is a synchronous stage observer used only by the regression benchmark. Product execution does not enable it.
+
+The benchmark warms the runtime before collecting 40 large-history samples and separately measures fixture creation, normalization, branch stages, assertions, and bookkeeping. It enforces:
+
+- typical-history p95 below 5 ms
+- 2,000-event average below 15 ms
+- 2,000-event p95 below 25 ms
+- 2,000-event hard maximum below 75 ms
+
+The combined average, p95, and hard ceiling tolerate isolated build-worker scheduling pauses without hiding sustained regressions.
 
 Run:
 
