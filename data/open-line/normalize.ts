@@ -11,6 +11,7 @@ export const progressLevelForEvent: Record<JourneyEventType, ProgressLevel> = {
   goal_selected: "intention",
   goal_changed: "intention",
   direction_paused: "intention",
+  direction_resumed: "intention",
   direction_closed: "intention",
   application_started: "action",
   application_submitted: "commitment",
@@ -25,6 +26,7 @@ export const journeyEventImportance: Record<JourneyEventType, number> = {
   opportunity_saved: 10,
   direction_closed: 12,
   direction_paused: 15,
+  direction_resumed: 20,
   goal_selected: 18,
   goal_changed: 20,
   opportunity_chosen: 25,
@@ -72,6 +74,7 @@ function eventPrivacy(type: JourneyEventType) {
 }
 
 function trackerEventType(status: OpportunityTrackerStatus): JourneyEventType | null {
+  if (status === "Interested") return "opportunity_chosen";
   if (status === "Applying") return "application_started";
   if (status === "Submitted") return "application_submitted";
   if (status === "Interview") return "interview_reached";
@@ -79,6 +82,18 @@ function trackerEventType(status: OpportunityTrackerStatus): JourneyEventType | 
   if (status === "Rejected") return "direction_closed";
   if (status === "Completed") return "opportunity_completed";
   return null;
+}
+
+function transitionEventType(transition: import("../student-activity").JourneyProgressTransition): JourneyEventType {
+  if (transition === "choose") return "opportunity_chosen";
+  if (transition === "start") return "application_started";
+  if (transition === "submit") return "application_submitted";
+  if (transition === "interview") return "interview_reached";
+  if (transition === "accept") return "accepted";
+  if (transition === "complete") return "opportunity_completed";
+  if (transition === "pause") return "direction_paused";
+  if (transition === "resume") return "direction_resumed";
+  return "direction_closed";
 }
 
 function applicationEventType(status: ApplicationStatus): JourneyEventType {
@@ -139,9 +154,24 @@ export function normalizeJourneyEvents(input: OpenLineInput): JourneyNormalizati
 
   for (const [id, record] of Object.entries(tracked).sort(([a], [b]) => a.localeCompare(b))) {
     const opportunity = opportunities.get(id);
-    add({ type: "opportunity_chosen", occurredAt: record.savedAt, opportunityId: id, organizationId: organizationId(opportunity), category: categoryLabel(opportunity), source: "journey_status" });
-    const type = trackerEventType(record.status);
-    if (type) add({ type, occurredAt: record.updatedAt, opportunityId: id, organizationId: organizationId(opportunity), category: categoryLabel(opportunity), source: "journey_status" });
+    const legacyRecord = record.version === undefined && record.history === undefined;
+    add({ type: legacyRecord ? "opportunity_chosen" : "opportunity_saved", occurredAt: record.savedAt, opportunityId: id, organizationId: organizationId(opportunity), category: categoryLabel(opportunity), source: "journey_status" });
+    if (!legacyRecord && record.history?.length) {
+      for (const transition of record.history) {
+        add({
+          type: transitionEventType(transition.transition),
+          occurredAt: transition.occurredAt,
+          opportunityId: id,
+          organizationId: organizationId(opportunity),
+          category: categoryLabel(opportunity),
+          source: "journey_status",
+          evidence: { label: transition.transition, referenceId: transition.id },
+        });
+      }
+    } else if (record.status !== "Saved") {
+      const type = trackerEventType(record.status);
+      if (type) add({ type, occurredAt: record.updatedAt, opportunityId: id, organizationId: organizationId(opportunity), category: categoryLabel(opportunity), source: "journey_status" });
+    }
   }
 
   for (const id of [...new Set(input.activity?.claimed ?? [])].sort()) {

@@ -61,6 +61,7 @@ const eventConfidence: Record<JourneyEventType, number> = {
   goal_selected: 0.85,
   goal_changed: 0.9,
   direction_paused: 0.9,
+  direction_resumed: 0.9,
   direction_closed: 0.9,
 };
 
@@ -159,6 +160,7 @@ function eventTitleTemplate(event: JourneyEvent, named: boolean): OpenLineNarrat
   if (event.type === "goal_selected") return "event.direction.selected.title";
   if (event.type === "goal_changed") return "event.direction.changed.title";
   if (event.type === "direction_paused") return "event.direction.paused.title";
+  if (event.type === "direction_resumed") return "event.opportunity.resumed.title";
   return "event.direction.closed.title";
 }
 
@@ -177,6 +179,7 @@ function eventBodyTemplate(event: JourneyEvent, counts: EventCountContext, trans
   if (event.type === "goal_selected") return transition?.type === "expanded" ? "event.direction.expanded.body" : "event.direction.selected.body";
   if (event.type === "goal_changed") return event.previousCareerDirection ? "event.direction.changed.from.body" : "event.direction.changed.body";
   if (event.type === "direction_paused") return "event.direction.paused.body";
+  if (event.type === "direction_resumed") return "event.opportunity.resumed.body";
   return event.careerDirection ? "event.direction.closed.body" : "event.opportunity.closed.body";
 }
 
@@ -192,13 +195,14 @@ function eventExplanationTemplate(event: JourneyEvent, hasSkills: boolean): Open
   if (event.type === "goal_selected") return "explanation.direction";
   if (event.type === "goal_changed") return "explanation.direction.changed";
   if (event.type === "direction_paused") return "explanation.direction.paused";
+  if (event.type === "direction_resumed") return "explanation.direction.resumed";
   return "explanation.direction.closed";
 }
 
 function eventExplanationSource(event: JourneyEvent, opportunity: Opportunity | undefined): NarrativeExplanationSource {
   if (event.type === "interview_reached" || event.type === "accepted") return "validation_evidence";
   if (event.type === "skill_evidence_created") return "skill_evidence";
-  if (event.type === "goal_selected" || event.type === "goal_changed" || event.type === "direction_paused" || event.type === "direction_closed") return "branch_transition";
+  if (event.type === "goal_selected" || event.type === "goal_changed" || event.type === "direction_paused" || event.type === "direction_resumed" || event.type === "direction_closed") return "branch_transition";
   if (event.type === "opportunity_completed" && Array.isArray(opportunity?.metadata?.skillsGained) && opportunity.metadata.skillsGained.length) return "opportunity_metadata";
   return "event_type";
 }
@@ -232,7 +236,7 @@ function createEventNarrative(event: JourneyEvent, context: EventNarrativeContex
 
 function momentKind(event: JourneyEvent): NarrativeMomentKind {
   if (event.type === "opportunity_viewed" || event.type === "opportunity_saved") return "exploration";
-  if (event.type === "opportunity_chosen" || event.type === "goal_selected") return "direction";
+  if (event.type === "opportunity_chosen" || event.type === "goal_selected" || event.type === "direction_resumed") return "direction";
   if (event.type === "application_started") return "action";
   if (event.type === "application_submitted") return "commitment";
   if (event.type === "interview_reached" || event.type === "accepted") return "validation";
@@ -242,7 +246,7 @@ function momentKind(event: JourneyEvent): NarrativeMomentKind {
 
 function storyType(event: JourneyEvent, transition?: DirectionTransitionRecord): NarrativeStoryType {
   if (event.type === "opportunity_viewed" || event.type === "opportunity_saved") return "exploration";
-  if (event.type === "opportunity_chosen" || event.type === "goal_selected" || event.type === "goal_changed") return transition?.type === "expanded" ? "expansion" : "direction";
+  if (event.type === "opportunity_chosen" || event.type === "goal_selected" || event.type === "goal_changed" || event.type === "direction_resumed") return transition?.type === "expanded" ? "expansion" : "direction";
   if (event.type === "application_started") return "action";
   if (event.type === "application_submitted") return "commitment";
   if (event.type === "interview_reached") return "validation";

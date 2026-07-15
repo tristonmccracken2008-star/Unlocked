@@ -24,6 +24,7 @@ const eventConfidence: Record<JourneyEventType, number> = {
   goal_selected: 0.35,
   goal_changed: 0.4,
   direction_paused: 0.4,
+  direction_resumed: 0.55,
   direction_closed: 0.4,
   opportunity_chosen: 0.55,
   application_started: 0.7,

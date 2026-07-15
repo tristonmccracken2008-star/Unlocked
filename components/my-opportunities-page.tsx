@@ -4,7 +4,9 @@ import Link from "next/link";
 import type { ReactElement, ReactNode } from "react";
 import { memo, useEffect, useMemo, useState } from "react";
 import { deadlineLabel, type Opportunity } from "@/data/opportunities";
-import { opportunityTrackerStatuses, persistStudentActivity, readStudentActivity, removeTrackedOpportunity, replaceStudentActivity, studentActivityEvent, updateOpportunityStatus, type OpportunityTrackerStatus, type StudentActivity } from "@/data/student-activity";
+import { opportunityTrackerStatuses, readStudentActivity, removeTrackedOpportunity, replaceStudentActivity, studentActivityEvent, type OpportunityTrackerStatus, type StudentActivity, type TrackedOpportunity } from "@/data/student-activity";
+import { getJourneyTransitionActions, transitionForTargetStatus } from "@/data/journey-transformations";
+import { authenticatedFetch } from "@/data/authenticated-request";
 import { readAccountSession } from "@/data/account-sync";
 import { buildCollegeJourneySummary, type CollegeJourneySummary, type JourneyTimeRange } from "@/data/journey";
 import { schools } from "@/data/seed";
@@ -41,6 +43,7 @@ const statusMeta: Record<OpportunityTrackerStatus, { Icon: IconComponent; descri
   Submitted: { Icon: SendIcon, description: "Sent and tracked.", accent: "text-blue-700", soft: "bg-blue-50", border: "border-blue-400" },
   Interview: { Icon: TargetIcon, description: "Preparing for conversation.", accent: "text-violet-700", soft: "bg-violet-50", border: "border-violet-400" },
   Accepted: { Icon: CheckCircleIcon, description: "Good news to build on.", accent: "text-emerald-700", soft: "bg-emerald-50", border: "border-emerald-500" },
+  Paused: { Icon: TargetIcon, description: "Available when you return.", accent: "text-stone-600", soft: "bg-stone-100", border: "border-stone-400" },
   Rejected: { Icon: XCircleIcon, description: "Closed, but still useful.", accent: "text-red-700", soft: "bg-red-50", border: "border-red-300" },
   Completed: { Icon: TrophyIcon, description: "Finished and resume-ready.", accent: "text-forest", soft: "bg-forest/8", border: "border-forest" },
 };
@@ -157,25 +160,41 @@ export function MyOpportunitiesPage() {
 
   async function moveOpportunity(opportunity: Opportunity, nextStatus: OpportunityTrackerStatus, source: "menu" | "drag") {
     const previous = readStudentActivity();
-    const next = updateOpportunityStatus(opportunity.id, nextStatus, false);
-    setActivity(next);
-    setOpenMenu(null);
-    setToast({ tone: "success", message: `Moved to ${nextStatus}` });
-    if (typeof navigator !== "undefined" && "vibrate" in navigator) navigator.vibrate?.(12);
-    trackProductEvent(source === "drag" ? "opportunity_drag_completed" : "opportunity_status_changed", { opportunityId: opportunity.id, status: nextStatus });
-    trackProductEvent("status_changed", { opportunityId: opportunity.id, status: nextStatus });
-    if (["Applying", "Submitted", "Interview", "Accepted", "Rejected", "Completed"].includes(nextStatus)) trackProductEvent("application_recorded", { opportunityId: opportunity.id, status: nextStatus });
-    const unlocked = milestoneFor(nextStatus, previous, next, opportunity);
-    if (unlocked) {
-      setMilestone(unlocked);
-      trackProductEvent("milestone_unlocked", { opportunityId: opportunity.id, status: nextStatus, milestoneTitle: unlocked.title });
+    const currentRecord = previous.tracked?.[opportunity.id];
+    if (!currentRecord) return;
+    const transition = transitionForTargetStatus(currentRecord, nextStatus);
+    if (!transition) {
+      setToast({ tone: "error", message: "That status is not available from the current step." });
+      return;
     }
+    setOpenMenu(null);
+    setToast({ tone: "success", message: "Saving Journey update…" });
     try {
-      await persistStudentActivity(next);
+      const response = await authenticatedFetch("/api/journey/transition", {
+        method: "POST",
+        credentials: "same-origin",
+        cache: "no-store",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ opportunityId: opportunity.id, transition, expectedStatus: currentRecord.status, expectedVersion: currentRecord.version ?? 0, idempotencyKey: `journey:${crypto.randomUUID()}` }),
+      });
+      const body = await response.json().catch(() => null) as { ok?: boolean; record?: TrackedOpportunity; error?: string } | null;
+      if (!response.ok || !body?.ok || !body.record) throw new Error(body?.error || "Journey update failed.");
+      const next = readStudentActivity();
+      next.tracked = { ...(next.tracked ?? {}), [opportunity.id]: body.record };
+      next.saved = [...new Set([...next.saved, opportunity.id])];
+      replaceStudentActivity(next);
+      setActivity(next);
+      setToast({ tone: "success", message: `Moved to ${nextStatus}` });
+      if (typeof navigator !== "undefined" && "vibrate" in navigator) navigator.vibrate?.(12);
+      trackProductEvent(source === "drag" ? "opportunity_drag_completed" : "opportunity_status_changed", { opportunityId: opportunity.id, status: nextStatus });
+      if (["Applying", "Submitted", "Interview", "Accepted", "Rejected", "Completed"].includes(nextStatus)) trackProductEvent("application_recorded", { opportunityId: opportunity.id, status: nextStatus });
+      const unlocked = milestoneFor(nextStatus, previous, next, opportunity);
+      if (unlocked) {
+        setMilestone(unlocked);
+        trackProductEvent("milestone_unlocked", { opportunityId: opportunity.id, status: nextStatus, milestoneTitle: unlocked.title });
+      }
     } catch {
-      replaceStudentActivity(previous);
-      setActivity(previous);
-      setToast({ tone: "error", message: "Could not save that move. Restored the previous status." });
+      setToast({ tone: "error", message: "Could not save that move. Your previous status is unchanged." });
       if (source === "drag") trackProductEvent("opportunity_drag_failed", { opportunityId: opportunity.id, status: nextStatus });
     }
   }
@@ -497,7 +516,7 @@ function Lane({ status, items, openMenu, setOpenMenu, moveOpportunity, remove, d
       </div>
     </div>
     <div className={`min-h-80 rounded-[1.25rem] border border-dashed p-2 transition duration-200 ${activeDrop ? "border-forest/40 bg-forest/[.035]" : "border-transparent"}`}>
-      {items.length ? <div className="space-y-4">{items.map(({ opportunity, record }) => <TrackedCard key={opportunity.id} opportunity={opportunity} status={record.status} open={openMenu === opportunity.id} setOpen={(open) => setOpenMenu(open ? opportunity.id : null)} moveOpportunity={moveOpportunity} remove={remove} setDraggingId={setDraggingId} />)}</div> : <EmptyLane status={status} />}
+      {items.length ? <div className="space-y-4">{items.map(({ opportunity, record }) => <TrackedCard key={opportunity.id} opportunity={opportunity} record={record} open={openMenu === opportunity.id} setOpen={(open) => setOpenMenu(open ? opportunity.id : null)} moveOpportunity={moveOpportunity} remove={remove} setDraggingId={setDraggingId} />)}</div> : <EmptyLane status={status} />}
     </div>
   </section>;
 }
@@ -506,8 +525,9 @@ declare global {
   interface Window { __unlockedDraggedOpportunity?: Opportunity }
 }
 
-const TrackedCard = memo(function TrackedCard({ opportunity, status, open, setOpen, moveOpportunity, remove, setDraggingId }: { opportunity: Opportunity; status: OpportunityTrackerStatus; open: boolean; setOpen: (open: boolean) => void; moveOpportunity: (opportunity: Opportunity, status: OpportunityTrackerStatus, source: "menu" | "drag") => void; remove: (opportunity: Opportunity) => void; setDraggingId: (id: string | null) => void }) {
-  const nextStatuses = opportunityTrackerStatuses.filter((item) => item !== status);
+const TrackedCard = memo(function TrackedCard({ opportunity, record, open, setOpen, moveOpportunity, remove, setDraggingId }: { opportunity: Opportunity; record: TrackedOpportunity; open: boolean; setOpen: (open: boolean) => void; moveOpportunity: (opportunity: Opportunity, status: OpportunityTrackerStatus, source: "menu" | "drag") => void; remove: (opportunity: Opportunity) => void; setDraggingId: (id: string | null) => void }) {
+  const status = record.status;
+  const nextStatuses = getJourneyTransitionActions(record).map((action) => action.resultingStatus);
   const { Icon, accent, soft } = statusMeta[status];
   return <article data-opportunity-id={opportunity.id} data-opportunity-title={opportunity.title} data-journey-card draggable onDragStart={(event) => { window.__unlockedDraggedOpportunity = opportunity; event.dataTransfer.setData("text/plain", opportunity.id); event.dataTransfer.effectAllowed = "move"; setDraggingId(opportunity.id); trackProductEvent("opportunity_drag_started", { opportunityId: opportunity.id, status }); }} onDragEnd={() => { setDraggingId(null); window.__unlockedDraggedOpportunity = undefined; }} className="group min-h-[13.75rem] rounded-[1.25rem] bg-white/95 p-4 shadow-[0_14px_36px_rgba(43,33,26,.075)] ring-1 ring-ink/7 transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_20px_48px_rgba(43,33,26,.11)] focus-within:ring-2 focus-within:ring-forest/30 motion-reduce:transition-none motion-reduce:hover:translate-y-0">
     <div className="grid grid-cols-[2.25rem_minmax(0,1fr)_auto] items-start gap-3">

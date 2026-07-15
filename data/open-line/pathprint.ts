@@ -41,6 +41,7 @@ const eventKinds: Record<JourneyEventType, PathEventKind> = {
   goal_selected: "chosen",
   goal_changed: "chosen",
   direction_paused: "paused",
+  direction_resumed: "active",
   direction_closed: "closed",
 };
 

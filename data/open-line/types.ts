@@ -20,6 +20,7 @@ export type JourneyEventType =
   | "goal_selected"
   | "goal_changed"
   | "direction_paused"
+  | "direction_resumed"
   | "direction_closed";
 
 export type ProgressLevel = "exploration" | "intention" | "action" | "commitment" | "validation";

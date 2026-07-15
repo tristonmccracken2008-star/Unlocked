@@ -55,7 +55,7 @@ function createKvServer() {
   });
 }
 
-async function seedSession(label: string, populated: boolean, dark = false, longHistory = false) {
+async function seedSession(label: string, populated: boolean, dark = false, longHistory = false, savedOnly = false) {
   const { createSession, mergeAccountData, updateAccountBilling, upsertUser } = await import("../lib/auth-store");
   const { opportunities } = await import("../data/opportunities");
   const selectedOpportunities = longHistory ? opportunities.slice(0, 8) : [opportunities[0]];
@@ -66,7 +66,7 @@ async function seedSession(label: string, populated: boolean, dark = false, long
     const day = String(index + 1).padStart(2, "0");
     return [item.id, {
       id: item.id,
-      status: longHistory ? longStatuses[index % longStatuses.length] : "Applying" as const,
+      status: longHistory ? longStatuses[index % longStatuses.length] : savedOnly ? "Saved" as const : "Applying" as const,
       savedAt: longHistory ? `2026-01-${day}T12:00:00.000Z` : now,
       updatedAt: longHistory ? `2026-02-${day}T12:00:00.000Z` : now,
     }];
@@ -114,7 +114,7 @@ async function verifyPage(page: Page, origin: string, label: string, expectedThe
 
   if (state === "populated") {
     const waypoint = root.locator("#journey-waypoint-title");
-    const action = root.getByRole("link", { name: /Open opportunity|Explore ways to start/ });
+    const action = root.getByRole("link", { name: /Open opportunity|Explore ways to start/ }).or(root.getByRole("button", { name: /Choose this opportunity|Start this application|Mark as submitted|Record an interview|Record acceptance|Complete this experience|Resume this direction/ }));
     await waypoint.waitFor({ state: "visible" });
     await action.waitFor({ state: "visible" });
     const waypointBox = await waypoint.boundingBox();
@@ -148,6 +148,30 @@ async function verifyPage(page: Page, origin: string, label: string, expectedThe
     await root.getByRole("link", { name: "Find my first opportunity" }).waitFor({ state: "visible" });
     await root.getByText("Choose one opportunity worth pursuing.").waitFor({ state: "visible" });
   }
+
+  const horizon = root.locator("[data-journey-horizon]");
+  await horizon.scrollIntoViewIfNeeded();
+  await horizon.getByRole("heading", { name: "After this…" }).waitFor({ state: "visible" });
+  const horizonState = await horizon.getAttribute("data-horizon-state");
+  const visibleItems = horizon.locator("[data-horizon-item]:visible");
+  if (horizonState === "empty") {
+    assert.equal(await visibleItems.count(), 0, `${label} empty Horizon must not fabricate directions.`);
+    await horizon.getByText("As you build experience, new possibilities will appear here.").waitFor({ state: "visible" });
+  } else {
+    const count = await visibleItems.count();
+    const maximum = (page.viewportSize()?.width ?? 0) < 680 ? 2 : 3;
+    assert.ok(count >= 1 && count <= maximum, `${label} must show between one and ${maximum} future directions; received ${count}.`);
+    const firstItem = visibleItems.first();
+    await firstItem.getByText("Why it becomes possible", { exact: true }).waitFor({ state: "visible" });
+    const detail = firstItem.locator("[data-horizon-detail]");
+    const detailSummary = detail.locator("summary");
+    await detailSummary.focus();
+    await page.keyboard.press("Enter");
+    assert.equal(await detail.getAttribute("open"), "", `${label} Horizon detail must expand from the keyboard.`);
+    await firstItem.getByText("Required evidence", { exact: true }).waitFor({ state: "visible" });
+    await page.keyboard.press("Enter");
+    assert.equal(await detail.getAttribute("open"), null, `${label} Horizon detail must collapse from the keyboard.`);
+  }
   await page.evaluate(() => { (document.activeElement as HTMLElement | null)?.blur(); window.scrollTo(0, 0); });
   await page.screenshot({ path: path.join(outputDirectory, `${label}.png`), fullPage: true });
 }
@@ -165,6 +189,7 @@ const populatedSession = await seedSession("Populated", true);
 const emptySession = await seedSession("Empty", false);
 const darkSession = await seedSession("Dark", true, true);
 const longHistorySession = await seedSession("LongHistory", true, false, true);
+const sparseSession = await seedSession("Sparse", true, false, false, true);
 
 const app = next({ dev: true, dir: root, hostname: "127.0.0.1", port: requestedAppPort });
 await app.prepare();
@@ -178,6 +203,7 @@ try {
   for (const scenario of [
     { label: "desktop-populated", viewport: { width: 1440, height: 1000 }, session: populatedSession, theme: "light" as const },
     { label: "desktop-long-history", viewport: { width: 1440, height: 1000 }, session: longHistorySession, theme: "light" as const },
+    { label: "desktop-sparse", viewport: { width: 1440, height: 1000 }, session: sparseSession, theme: "light" as const },
     { label: "tablet-populated", viewport: { width: 900, height: 1000 }, session: populatedSession, theme: "light" as const },
     { label: "mobile-populated", viewport: { width: 390, height: 844 }, session: populatedSession, theme: "light" as const },
     { label: "desktop-empty", viewport: { width: 1440, height: 1000 }, session: emptySession, theme: "light" as const },

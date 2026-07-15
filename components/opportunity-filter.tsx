@@ -36,6 +36,7 @@ const statusMeta: Record<OpportunityTrackerStatus, { Icon: IconComponent; accent
   Submitted: { Icon: SendIcon, accent: "text-blue-700", soft: "bg-blue-50" },
   Interview: { Icon: TargetIcon, accent: "text-violet-700", soft: "bg-violet-50" },
   Accepted: { Icon: CheckCircleIcon, accent: "text-emerald-700", soft: "bg-emerald-50" },
+  Paused: { Icon: TargetIcon, accent: "text-stone-600", soft: "bg-stone-100" },
   Rejected: { Icon: XCircleIcon, accent: "text-red-700", soft: "bg-red-50" },
   Completed: { Icon: TrophyIcon, accent: "text-forest", soft: "bg-forest/8" },
 };

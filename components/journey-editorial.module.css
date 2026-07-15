@@ -176,6 +176,27 @@
 .disclosure p { margin: .7rem 0 0; line-height: 1.6; }
 .disclosureSource { opacity: .72; }
 
+.transitionControls { max-width: 30rem; }
+.transitionControls .primaryAction { cursor: pointer; }
+.transitionControls .primaryAction:disabled { cursor: wait; opacity: .72; }
+.manageDisclosure { max-width: 30rem; margin-top: .85rem; color: var(--unlocked-muted); font-size: .8rem; }
+.manageDisclosure > summary { width: fit-content; min-height: 2.75rem; align-content: center; color: var(--unlocked-text); cursor: pointer; font-weight: 750; }
+.manageDisclosure > summary:focus-visible,
+.manageActions button:focus-visible,
+.transitionControls .primaryAction:focus-visible,
+.quietJourneyLink:focus-visible { border-radius: .25rem; outline: 2px solid #146044; outline-offset: .25rem; }
+.manageActions { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: .4rem; }
+.manageActions button { min-height: 2.75rem; border: 1px solid var(--unlocked-border); border-radius: .35rem; background: transparent; padding-inline: .8rem; color: var(--unlocked-muted); cursor: pointer; font: inherit; font-weight: 700; }
+.manageActions button:hover { border-color: #146044; color: #146044; }
+.transitionError { max-width: 30rem; margin: .8rem 0 0; color: #9a2e27; font-size: .8rem; line-height: 1.55; }
+.transformationResult { max-width: 31rem; margin-top: 1.35rem; border-top: 1px solid color-mix(in srgb, #9a7429 35%, var(--unlocked-border)); padding-top: 1.15rem; animation: journey-detail-reveal var(--journey-disclosure-duration) var(--journey-motion-easing) both; }
+.transformationLabel { margin: 0; color: #755719; font-size: .65rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.transformationResult h3 { margin: .55rem 0 0; font-family: Iowan Old Style, Baskerville, Georgia, "Times New Roman", serif; font-size: 1.45rem; font-weight: 650; letter-spacing: 0; line-height: 1.1; }
+.transformationResult > p:not(.transformationLabel) { margin: .6rem 0 0; color: var(--unlocked-muted); font-size: .84rem; line-height: 1.58; }
+.transformationMeaning { color: var(--unlocked-text) !important; }
+.quietJourneyLink { display: inline-flex; min-height: 2.75rem; align-items: center; gap: .45rem; margin-top: .75rem; color: #146044; font-size: .78rem; font-weight: 750; text-decoration: none; }
+.quietJourneyLink svg { width: .85rem; height: .85rem; }
+
 .history {
   max-width: 56rem;
   padding-block: clamp(4.5rem, 8vw, 8rem);
@@ -322,6 +343,290 @@
 .toolsDisclosure a { display: inline-flex; align-items: center; gap: .5rem; margin-top: 1rem; color: #146044; font-size: .85rem; font-weight: 750; text-decoration: none; }
 .toolsDisclosure svg { width: .9rem; height: .9rem; }
 
+.horizon {
+  position: relative;
+  min-height: 46rem;
+  padding-block: clamp(2rem, 5vw, 4rem) clamp(6rem, 10vw, 10rem);
+}
+
+.horizonHeading {
+  position: relative;
+  z-index: 2;
+  max-width: 43rem;
+}
+
+.horizonHeading h2 {
+  margin: .8rem 0 0;
+  font-family: Iowan Old Style, Baskerville, Georgia, "Times New Roman", serif;
+  font-size: 3.75rem;
+  font-weight: 650;
+  letter-spacing: 0;
+  line-height: 1;
+}
+
+.horizonHeading > p:last-child {
+  max-width: 37rem;
+  margin: 1.1rem 0 0;
+  color: var(--unlocked-muted);
+  font-size: .95rem;
+  line-height: 1.72;
+}
+
+.horizonComposition {
+  position: relative;
+  min-height: 42rem;
+  margin-top: 3.5rem;
+}
+
+.horizonLineField {
+  position: absolute;
+  inset: 0 54% 0 0;
+  overflow: hidden;
+  opacity: .68;
+  pointer-events: none;
+}
+
+.horizonLineField > div {
+  width: 100%;
+  height: 100%;
+}
+
+.horizonLineField svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  filter: saturate(.68);
+}
+
+.horizonDesktopLine { display: block; }
+.horizonTabletLine,
+.horizonMobileLine { display: none; }
+
+.horizonList {
+  position: relative;
+  z-index: 2;
+  width: min(48%, 36rem);
+  margin: 0 0 0 auto;
+  padding: 0;
+  list-style: none;
+}
+
+.horizonItem {
+  position: relative;
+  border-top: 1px solid var(--unlocked-border);
+  padding-block: 2.25rem 2.75rem;
+}
+
+.horizonItem:first-child { padding-top: 0; border-top: 0; }
+.horizonItem[data-horizon-primary="true"] { padding-bottom: 4rem; }
+
+.horizonOrder {
+  margin: 0;
+  color: #146044;
+  font-size: .66rem;
+  font-weight: 800;
+  letter-spacing: .1em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.horizonItem h3 {
+  max-width: 31rem;
+  margin: .75rem 0 0;
+  font-family: Iowan Old Style, Baskerville, Georgia, "Times New Roman", serif;
+  font-size: 1.85rem;
+  font-weight: 650;
+  letter-spacing: 0;
+  line-height: 1.08;
+  text-wrap: balance;
+}
+
+.horizonItem[data-horizon-primary="true"] h3 {
+  font-size: 2.7rem;
+  line-height: 1.02;
+}
+
+.horizonExplanation {
+  max-width: 33rem;
+  margin: .85rem 0 0;
+  color: var(--unlocked-muted);
+  font-size: .92rem;
+  line-height: 1.7;
+}
+
+.horizonReason {
+  display: grid;
+  gap: .35rem;
+  max-width: 32rem;
+  margin: 1.15rem 0 0;
+  color: var(--unlocked-muted);
+  font-size: .84rem;
+  line-height: 1.62;
+}
+
+.horizonReason strong {
+  color: var(--unlocked-text);
+  font-size: .68rem;
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.horizonMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 2.75rem;
+  margin: 1.3rem 0 0;
+}
+
+.horizonMeta dt {
+  color: var(--unlocked-muted);
+  font-size: .64rem;
+  font-weight: 750;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.horizonMeta dd {
+  margin: .25rem 0 0;
+  font-size: .84rem;
+  font-weight: 750;
+  text-transform: capitalize;
+}
+
+.relatedExperience {
+  display: grid;
+  gap: .28rem;
+  margin: 1.15rem 0 0;
+  color: var(--unlocked-muted);
+  font-size: .78rem;
+  line-height: 1.5;
+}
+
+.relatedExperience span {
+  color: var(--unlocked-text);
+  font-size: .64rem;
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.horizonPrimaryAction,
+.horizonAction {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  gap: .55rem;
+  margin-top: 1.35rem;
+  border-radius: .4rem;
+  padding-inline: 1.05rem;
+  color: #0e5b3e;
+  font-size: .8rem;
+  font-weight: 750;
+  text-decoration: none;
+}
+
+.horizonPrimaryAction {
+  border: 1px solid transparent;
+  background: #0e5b3e;
+  color: #fff;
+}
+
+.horizonAction { border: 1px solid var(--unlocked-border); }
+.horizonPrimaryAction:hover { background: #203a2e; }
+.horizonAction:hover { border-color: #146044; }
+.horizonPrimaryAction svg,
+.horizonAction svg { width: .9rem; height: .9rem; }
+
+.horizonDisclosure {
+  max-width: 33rem;
+  margin-top: 1rem;
+}
+
+.horizonDisclosure > summary {
+  display: flex;
+  width: fit-content;
+  align-items: center;
+  gap: .5rem;
+  color: #146044;
+  cursor: pointer;
+  font-size: .74rem;
+  font-weight: 750;
+  list-style: none;
+}
+
+.horizonDisclosure > summary::-webkit-details-marker { display: none; }
+.horizonDisclosure > summary::marker { display: none; content: ""; }
+.horizonDisclosure > summary:focus-visible { border-radius: .25rem; outline: 2px solid #146044; outline-offset: .3rem; }
+.horizonDisclosure > summary > span:last-child { transition: transform var(--journey-disclosure-duration) var(--journey-motion-easing); }
+.horizonDetailOpen { display: none; }
+.horizonDisclosure[open] .horizonDetailClosed { display: none; }
+.horizonDisclosure[open] .horizonDetailOpen { display: inline; }
+.horizonDisclosure[open] > summary > span:last-child { transform: rotate(180deg); }
+
+.horizonDetail {
+  margin-top: 1.25rem;
+  border-top: 1px solid var(--unlocked-border);
+  padding-top: 1.25rem;
+}
+
+.horizonDetail dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem 2rem;
+  margin: 0;
+}
+
+.horizonDetail dt {
+  color: var(--unlocked-muted);
+  font-size: .63rem;
+  font-weight: 800;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+}
+
+.horizonDetail dd {
+  margin: .4rem 0 0;
+  color: var(--unlocked-muted);
+  font-size: .8rem;
+  line-height: 1.6;
+}
+
+.horizonDisclosure[open] .horizonDetail { animation: journey-detail-reveal var(--journey-disclosure-duration) var(--journey-motion-easing) both; }
+
+.horizonOpenEnd {
+  position: absolute;
+  top: 0;
+  bottom: 7rem;
+  left: 2rem;
+  width: 2px;
+  background: repeating-linear-gradient(180deg, color-mix(in srgb, #146044 42%, transparent) 0 8px, transparent 8px 15px);
+}
+
+.horizonOpenEnd::after {
+  position: absolute;
+  bottom: -.2rem;
+  left: 50%;
+  width: .8rem;
+  height: .8rem;
+  border: 2px solid color-mix(in srgb, #146044 55%, transparent);
+  border-radius: 50%;
+  background: var(--unlocked-page);
+  content: "";
+  transform: translateX(-50%);
+}
+
+.horizonEmpty {
+  max-width: 31rem;
+  margin: 0 0 0 5rem;
+  color: var(--unlocked-muted);
+  font-family: Iowan Old Style, Baskerville, Georgia, "Times New Roman", serif;
+  font-size: 1.45rem;
+  line-height: 1.45;
+}
+
 .diagnosticGrid {
   background-image:
     linear-gradient(rgb(181 139 56 / .08) 1px, transparent 1px),
@@ -368,6 +673,11 @@
   .waypoint { top: calc(var(--waypoint-tablet-y) - 3.5rem); left: calc(44% + 2.75rem); }
   .emptyWaypoint { left: calc(44% + 2.75rem); }
   .waypoint, .emptyWaypoint { width: min(27rem, 48%); }
+  .horizonDesktopLine { display: none; }
+  .horizonTabletLine { display: block; }
+  .horizonLineField { right: 58%; }
+  .horizonList { width: 54%; }
+  .horizonHeading h2 { font-size: 3.25rem; }
 }
 
 @media (max-width: 42rem) {
@@ -395,6 +705,9 @@
   .waypointMeta dd { margin-top: .15rem; font-size: .82rem; }
   .waypointMeta div { min-width: 0; }
   .primaryAction { min-height: 2.75rem; width: 100%; margin-top: .75rem; }
+  .manageDisclosure > summary,
+  .manageActions button,
+  .quietJourneyLink { min-height: 2.75rem; }
   .disclosure { margin-top: .45rem; }
   .history { padding-top: 5rem; }
   .historyHeading h2 { font-size: clamp(2.35rem, 10vw, 3rem); }
@@ -415,6 +728,27 @@
   .historyEmpty { grid-template-columns: 2.5rem minmax(0, 1fr); gap: .75rem; }
   .historyEmpty::before { left: 1.25rem; }
   .toolsDisclosure { margin-left: 3.25rem; }
+  .horizon { min-height: 38rem; padding-top: 6.5rem; padding-bottom: 7rem; }
+  .horizonHeading h2 { font-size: 2.3rem; }
+  .horizonHeading > p:last-child { font-size: .88rem; }
+  .horizonComposition { min-height: 35rem; margin-top: 3rem; }
+  .horizonLineField { right: auto; width: 4rem; }
+  .horizonLineField > div { width: 24rem; height: 100%; }
+  .horizonTabletLine { display: none; }
+  .horizonMobileLine { display: block; }
+  .horizonList { width: auto; margin-left: 4.25rem; }
+  .horizonItem:nth-child(n + 3) { display: none; }
+  .horizonItem { padding-block: 2rem 2.4rem; }
+  .horizonItem[data-horizon-primary="true"] { padding-bottom: 3.25rem; }
+  .horizonItem h3 { font-size: 1.65rem; }
+  .horizonItem[data-horizon-primary="true"] h3 { font-size: 2.2rem; }
+  .horizonExplanation { font-size: .86rem; line-height: 1.62; }
+  .horizonMeta { gap: .9rem 1.5rem; }
+  .horizonPrimaryAction,
+  .horizonAction { width: 100%; }
+  .horizonDetail dl { grid-template-columns: 1fr; gap: 1.15rem; }
+  .horizonOpenEnd { left: 1.25rem; }
+  .horizonEmpty { margin-left: 3.25rem; font-size: 1.3rem; }
   .profileUpdateStatus { right: 1rem; left: 1rem; max-width: none; }
 }
 
@@ -432,6 +766,10 @@
   .momentMarker,
   .earlierChapters > summary::before,
   .emptyStoryMarker { border-color: currentColor; }
+  .horizonLineField { opacity: 1; }
+  .horizonItem,
+  .horizonDetail { border-color: currentColor; }
+  .horizonOpenEnd { background: currentColor; }
   .primaryAction { border-color: currentColor; background: #004c32; }
 }
 
@@ -442,7 +780,10 @@
   .momentMarker,
   .detailArrow,
   .momentDetail,
-  .earlierContent { animation: none !important; transition: none !important; }
+  .earlierContent,
+  .horizonDisclosure > summary > span:last-child,
+  .horizonDetail { animation: none !important; transition: none !important; }
+  .transformationResult { animation: none !important; }
 }
 
 .srOnly {

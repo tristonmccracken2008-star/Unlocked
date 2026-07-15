@@ -4,7 +4,8 @@ import { getSession, mergeAccountData, readAccountData, sessionCookieName } from
 import { isProUser } from "@/lib/billing";
 import { cleanAccountDataInput } from "@/lib/account-input";
 import { publicAccountData } from "@/lib/public-account";
-import { assertSameOrigin, enforceRateLimit, readBoundedJson, securityErrorResponse } from "@/lib/security";
+import { assertSameOrigin, enforceRateLimit, readBoundedJson, SecurityError, securityErrorResponse } from "@/lib/security";
+import { accountSyncPreservesJourneyState } from "@/data/journey-transformations";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -33,6 +34,16 @@ export async function PUT(request: Request) {
     const body = cleanAccountDataInput(await readBoundedJson(request, 256 * 1024));
     if (!Object.values(body).some((value) => value !== undefined)) return NextResponse.json({ error: "No valid account fields were provided" }, { status: 400, headers: { "Cache-Control": "no-store, max-age=0" } });
     if (body.preferences?.appearance && body.preferences.appearance !== "light" && !isProUser(session.data.billing)) body.preferences.appearance = "light";
+    const incomingTracker = body.tracker ?? body.activity?.tracked;
+    if (incomingTracker) {
+      const current = await readAccountData(session.user.id);
+      const currentTracker = { ...(current.activity?.tracked ?? {}), ...(current.tracker ?? {}) };
+      for (const [id, record] of Object.entries(incomingTracker)) {
+        if (!accountSyncPreservesJourneyState(currentTracker[id], record)) {
+          throw new SecurityError("Journey status changes require the Journey transition endpoint.", 409, "journey_transition_required");
+        }
+      }
+    }
     const data = await mergeAccountData(session.user.id, body);
     return NextResponse.json({ ok: true, data: publicAccountData(data) }, { headers: { "Cache-Control": "no-store, max-age=0" } });
   } catch (error) {

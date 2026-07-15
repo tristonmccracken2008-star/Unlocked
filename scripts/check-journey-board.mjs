@@ -6,17 +6,18 @@ const read = (path) => readFileSync(path, "utf8");
 const board = read("components/my-opportunities-page.tsx");
 const activity = read("data/student-activity.ts");
 const analytics = read("lib/analytics-types.ts");
+const transitions = read("data/journey-transformations.ts");
 
 for (const label of ["Journey Board", "Move to...", "No opportunities here yet.", "Milestone unlocked", "All changes save automatically"]) {
   assert.ok(board.includes(label), `Journey Board must render ${label}.`);
 }
 
-for (const status of ["Saved", "Interested", "Applying", "Submitted", "Interview", "Accepted", "Rejected", "Completed"]) {
+for (const status of ["Saved", "Interested", "Applying", "Submitted", "Interview", "Accepted", "Paused", "Rejected", "Completed"]) {
   assert.ok(board.includes(status), `Journey Board must preserve ${status} status.`);
   assert.ok(activity.includes(`"${status}"`), `Activity model must preserve ${status} status.`);
 }
 
-for (const symbol of ["persistStudentActivity", "replaceStudentActivity", "moveOpportunity", "milestoneFor", "role=\"menu\"", "aria-live=\"polite\"", "draggable", "onDrop"]) {
+for (const symbol of ["/api/journey/transition", "transitionForTargetStatus", "replaceStudentActivity", "moveOpportunity", "milestoneFor", "role=\"menu\"", "aria-live=\"polite\"", "draggable", "onDrop"]) {
   assert.ok(board.includes(symbol) || activity.includes(symbol), `Journey Board must include ${symbol}.`);
 }
 
@@ -47,5 +48,6 @@ for (const event of ["journey_board_opened", "opportunity_status_menu_opened", "
 assert.doesNotMatch(board, /\bXP\b|streak|loot|percentile/i, "Journey Board must not add fake gamification.");
 assert.doesNotMatch(board, /nextStatuses\.map[\s\S]*updateOpportunityStatus\(opportunity\.id, item\)[\s\S]*<\/button>\)\}/, "Cards must not show all status buttons inline.");
 assert.ok(board.includes("fetch(`/api/opportunities?ids="), "Journey Board should fetch only tracked opportunity records.");
+assert.ok(transitions.includes("getJourneyTransitionActions"), "Journey Board status options must come from the canonical transition map.");
 
 console.log("Journey Board checks passed.");

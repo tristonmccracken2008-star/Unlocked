@@ -32,6 +32,7 @@ export const openLineNarrativeTemplates = {
   "event.direction.selected.title": "Chose {direction}",
   "event.direction.changed.title": "Changed direction to {direction}",
   "event.direction.paused.title": "Paused {direction}",
+  "event.opportunity.resumed.title": "Resumed {opportunityTitle}",
   "event.direction.closed.title": "Closed {direction}",
 
   "event.viewed.first.body": "You started exploring {categoryPlural}.",
@@ -57,6 +58,7 @@ export const openLineNarrativeTemplates = {
   "event.direction.changed.body": "You shifted your direction to {direction}.",
   "event.direction.expanded.body": "{direction} became another direction you chose to explore.",
   "event.direction.paused.body": "You paused {direction} while focusing elsewhere.",
+  "event.opportunity.resumed.body": "You returned to this {category} direction and made it active again.",
   "event.direction.closed.body": "This opportunity ended, but the broader {direction} direction remains part of your history.",
   "event.opportunity.closed.body": "This {category} opportunity ended, but the broader direction remains open.",
 
@@ -64,6 +66,7 @@ export const openLineNarrativeTemplates = {
   "explanation.direction": "Future recommendations can become more specific around this direction.",
   "explanation.direction.changed": "Your current direction changed without erasing prior work.",
   "explanation.direction.paused": "This direction is not active for now, and its history remains available.",
+  "explanation.direction.resumed": "This direction is active again without losing the progress you made before pausing.",
   "explanation.direction.closed": "The closed opportunity no longer needs attention; related directions remain available.",
   "explanation.chosen": "Exploration became a direction you intend to act on.",
   "explanation.started": "You moved from considering this opportunity to preparing a real application.",

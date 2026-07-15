@@ -1,4 +1,4 @@
-import { opportunityTrackerStatuses, type StudentActivity, type TrackedOpportunity } from "@/data/student-activity";
+import { journeyProgressTransitions, opportunityTrackerStatuses, type JourneyTransitionHistoryRecord, type StudentActivity, type TrackedOpportunity } from "@/data/student-activity";
 import type { StudentProfile } from "@/data/student-profile";
 import type { AccountData, SavedOpportunityRecord, UserPreferencesRecord } from "./account-types";
 
@@ -121,7 +121,24 @@ function cleanTracker(value: unknown) {
     const savedAt = safeTimestamp(record.savedAt);
     const updatedAt = safeTimestamp(record.updatedAt);
     if (!status || !savedAt || !updatedAt) continue;
-    entries.push([id, { id, status, savedAt, updatedAt }]);
+    const history: JourneyTransitionHistoryRecord[] = [];
+    if (Array.isArray(record.history)) {
+      for (const rawHistory of record.history.slice(-100)) {
+        if (!rawHistory || typeof rawHistory !== "object" || Array.isArray(rawHistory)) continue;
+        const item = rawHistory as Partial<JourneyTransitionHistoryRecord>;
+        const historyId = safeId(item.id);
+        const transition = enumValue(item.transition, journeyProgressTransitions);
+        const priorStatus = enumValue(item.priorStatus, opportunityTrackerStatuses);
+        const resultingStatus = enumValue(item.resultingStatus, opportunityTrackerStatuses);
+        const occurredAt = safeTimestamp(item.occurredAt);
+        if (historyId && transition && priorStatus && resultingStatus && occurredAt) history.push({ id: historyId, transition, priorStatus, resultingStatus, occurredAt });
+      }
+    }
+    const version = typeof record.version === "number" && Number.isInteger(record.version) && record.version >= 0
+      ? Math.min(record.version, Number.MAX_SAFE_INTEGER)
+      : history.length;
+    const pausedFrom = enumValue(record.pausedFrom, opportunityTrackerStatuses);
+    entries.push([id, { id, status, savedAt, updatedAt, version, pausedFrom: pausedFrom === "Paused" ? undefined : pausedFrom, history }]);
   }
   return Object.fromEntries(entries);
 }

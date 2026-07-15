@@ -4,14 +4,28 @@ export const studentActivityStorageKey = "unlocked-student-activity";
 export const studentActivityEvent = "unlocked-student-activity-change";
 export const studentActivitySyncFailedEvent = "unlocked-student-activity-sync-failed";
 
-export const opportunityTrackerStatuses = ["Saved", "Interested", "Applying", "Submitted", "Interview", "Accepted", "Rejected", "Completed"] as const;
+export const opportunityTrackerStatuses = ["Saved", "Interested", "Applying", "Submitted", "Interview", "Accepted", "Paused", "Rejected", "Completed"] as const;
 export type OpportunityTrackerStatus = (typeof opportunityTrackerStatuses)[number];
+
+export const journeyProgressTransitions = ["choose", "start", "submit", "interview", "accept", "complete", "pause", "resume", "close"] as const;
+export type JourneyProgressTransition = (typeof journeyProgressTransitions)[number];
+
+export type JourneyTransitionHistoryRecord = {
+  id: string;
+  transition: JourneyProgressTransition;
+  priorStatus: OpportunityTrackerStatus;
+  resultingStatus: OpportunityTrackerStatus;
+  occurredAt: string;
+};
 
 export type TrackedOpportunity = {
   id: string;
   status: OpportunityTrackerStatus;
   savedAt: string;
   updatedAt: string;
+  version?: number;
+  pausedFrom?: OpportunityTrackerStatus;
+  history?: JourneyTransitionHistoryRecord[];
 };
 
 export type StudentActivity = {
@@ -36,10 +50,18 @@ export function readStudentActivity(): StudentActivity {
     const tracked = Object.fromEntries(trackedEntries.filter(([id]) => typeof id === "string").map(([id, record]) => {
       const fallbackDate = new Date().toISOString();
       const value = record && typeof record === "object" ? record as Partial<TrackedOpportunity> : {};
-      return [id, { id, status: normalizeStatus(value.status), savedAt: typeof value.savedAt === "string" ? value.savedAt : fallbackDate, updatedAt: typeof value.updatedAt === "string" ? value.updatedAt : fallbackDate }];
+      return [id, {
+        id,
+        status: normalizeStatus(value.status),
+        savedAt: typeof value.savedAt === "string" ? value.savedAt : fallbackDate,
+        updatedAt: typeof value.updatedAt === "string" ? value.updatedAt : fallbackDate,
+        version: typeof value.version === "number" && Number.isInteger(value.version) && value.version >= 0 ? value.version : 0,
+        pausedFrom: value.pausedFrom ? normalizeStatus(value.pausedFrom) : undefined,
+        history: Array.isArray(value.history) ? value.history : [],
+      }];
     }));
     for (const id of saved) {
-      if (!tracked[id]) tracked[id] = { id, status: "Saved", savedAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+      if (!tracked[id]) tracked[id] = { id, status: "Saved", savedAt: new Date().toISOString(), updatedAt: new Date().toISOString(), version: 0, pausedFrom: undefined, history: [] };
     }
     return {
       viewed: uniqueStrings(parsed?.viewed),
@@ -78,7 +100,15 @@ export function saveOpportunity(id: string, status: OpportunityTrackerStatus = "
   const activity = readStudentActivity();
   const tracked = activity.tracked ?? {};
   const existing = tracked[id];
-  tracked[id] = { id, status, savedAt: existing?.savedAt ?? new Date().toISOString(), updatedAt: new Date().toISOString() };
+  tracked[id] = {
+    id,
+    status,
+    savedAt: existing?.savedAt ?? new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    version: existing?.version ?? 0,
+    pausedFrom: existing?.pausedFrom,
+    history: existing?.history ?? [],
+  };
   activity.tracked = tracked;
   activity.saved = [...new Set([...activity.saved, id])];
   writeStudentActivity(activity, persist); return activity;

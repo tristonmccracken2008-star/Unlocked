@@ -95,6 +95,7 @@ const page = read("app/page.tsx");
 const loading = read("app/loading.tsx");
 const model = read("lib/journey-editorial.ts");
 const narrative = read("data/open-line/narrative.ts");
+const liveLine = read("components/journey-live-line.tsx");
 
 for (const required of ["Your Journey", "What matters now", "Estimated effort", "Expected impact", "Why this step", "Your living story", "The moments that moved you forward.", "See earlier chapters", "Why it mattered", "Skills gained", "What changed", "What this opens next", "Journey tools"]) {
   assert.ok(component.includes(required), `Journey editorial view must render ${required}.`);
@@ -111,9 +112,9 @@ assert.ok(model.includes("createPathGeometry"), "The server model must precomput
 assert.ok(!component.includes("createPathGeometry"), "React must not calculate Open Line geometry.");
 assert.ok(model.includes("narrative.editorialStatement"), "The story must come from Prompt 7.");
 assert.ok(narrative.includes("buildEditorialStatement"), "Narrative Engine must own editorial statement selection.");
-assert.ok(component.includes("OpenLineMotionRenderer"), "Journey must reuse Prompt 6 motion.");
+assert.ok(component.includes("JourneyLiveLine") && liveLine.includes("OpenLineMotionRenderer"), "Journey must reuse Prompt 6 motion through the narrow live-line boundary.");
 assert.ok(component.includes("OPEN_LINE_MOTION.disclosure"), "Moment disclosure must reuse Prompt 6 timing tokens.");
-assert.ok(component.includes('preference: "system"'), "Journey motion must respect system reduced-motion preference.");
+assert.ok(liveLine.includes('preference: "system"'), "Journey motion must respect system reduced-motion preference.");
 assert.ok(styles.includes("prefers-reduced-motion"), "Journey styles must explicitly preserve reduced motion.");
 assert.ok(styles.includes("prefers-contrast: more"), "Journey must support high contrast.");
 assert.ok(styles.includes(".desktopLine") && styles.includes(".tabletLine") && styles.includes(".mobileLine"), "All responsive layouts must be defined.");
