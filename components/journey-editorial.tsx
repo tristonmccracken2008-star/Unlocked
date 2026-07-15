@@ -1,6 +1,9 @@
 import Link from "next/link";
 import type { CSSProperties } from "react";
-import type { JourneyEditorialGeometry, JourneyEditorialModel } from "@/lib/journey-editorial";
+import { OPEN_LINE_MOTION } from "@/data/open-line/motion";
+import type { NarrativeStoryType } from "@/data/open-line/types";
+import type { JourneyEditorialGeometry, JourneyEditorialHistoryChapter, JourneyEditorialHistoryItem, JourneyEditorialModel } from "@/lib/journey-editorial";
+import { OpenLineEventGlyph, type OpenLineEventGlyphType } from "@/components/open-line/open-line-event-glyphs";
 import { OpenLineMotionRenderer } from "@/components/open-line/open-line-motion-renderer";
 import { ArrowIcon } from "@/components/icons";
 import styles from "./journey-editorial.module.css";
@@ -97,18 +100,81 @@ function OpenLineComposition({ model, showDiagnostics }: { model: JourneyEditori
   </section>;
 }
 
-function History({ items }: { items: JourneyEditorialModel["history"] }) {
+function glyphForStory(storyType: NarrativeStoryType): OpenLineEventGlyphType | null {
+  if (storyType === "action" || storyType === "commitment") return "application";
+  if (storyType === "validation") return "interview";
+  if (storyType === "acceptance") return "completion";
+  if (storyType === "experience") return "experience";
+  if (storyType === "skill") return "skill";
+  return null;
+}
+
+function MomentMarker({ item, theme }: { item: JourneyEditorialHistoryItem; theme: JourneyEditorialModel["theme"] }) {
+  const glyph = glyphForStory(item.storyType);
+  return <span className={styles.momentMarker} aria-hidden="true">
+    {glyph ? <OpenLineEventGlyph type={glyph} theme={theme} size={item.weight === "landmark" ? 20 : 16} decorative /> : <span className={styles.momentCenter} />}
+  </span>;
+}
+
+function Moment({ item, theme }: { item: JourneyEditorialHistoryItem; theme: JourneyEditorialModel["theme"] }) {
+  return <li className={styles.moment} data-moment-weight={item.weight} data-moment-kind={item.storyType}>
+    <details className={styles.momentDisclosure} data-journey-moment="">
+      <summary className={styles.momentSummary}>
+        <MomentMarker item={item} theme={theme} />
+        <span className={styles.momentEditorial}>
+          <span className={styles.momentMeta}>
+            <time dateTime={item.occurredAt ?? undefined}>{formatDate(item.occurredAt)}</time>
+            {item.category ? <span>{item.category}</span> : null}
+          </span>
+          <h4 className={styles.momentTitle}><span className={styles.srOnly}>Open details for </span>{item.title}</h4>
+          <span className={styles.momentBody}>{item.body}</span>
+          <span className={styles.detailHint} aria-hidden="true"><span className={styles.detailClosed}>Read this moment</span><span className={styles.detailOpen}>Close this moment</span><span className={styles.detailArrow}>↓</span></span>
+        </span>
+      </summary>
+      <div className={styles.momentDetail}>
+        <dl>
+          <div><dt>Why it mattered</dt><dd>{item.detail.whyItMattered}</dd></div>
+          <div><dt>What changed</dt><dd>{item.detail.whatChanged}</dd></div>
+          <div><dt>Skills gained</dt><dd>{item.detail.skillsGained.length ? item.detail.skillsGained.join(" · ") : "No specific skill evidence is attached to this moment yet."}</dd></div>
+          <div><dt>What this opens next</dt><dd>{item.detail.nextConsequence}</dd></div>
+        </dl>
+        {item.detail.relatedOpportunity ? <Link href={`/opportunities/${item.detail.relatedOpportunity.id}`} className={styles.relatedOpportunity}>View {item.detail.relatedOpportunity.title} <ArrowIcon /></Link> : null}
+      </div>
+    </details>
+  </li>;
+}
+
+function Chapters({ chapters, theme }: { chapters: JourneyEditorialHistoryChapter[]; theme: JourneyEditorialModel["theme"] }) {
+  return <>{chapters.map((chapter) => <section key={chapter.id} className={styles.chapter} aria-labelledby={`${chapter.id}-title`}>
+    <h3 id={`${chapter.id}-title`} className={styles.chapterTitle}>{chapter.title}</h3>
+    <ol className={styles.momentList}>
+      {chapter.moments.map((item) => <Moment key={item.id} item={item} theme={theme} />)}
+    </ol>
+  </section>)}</>;
+}
+
+function History({ history, theme }: { history: JourneyEditorialModel["history"]; theme: JourneyEditorialModel["theme"] }) {
+  const hasMoments = history.totalMomentCount > 0;
   return <section className={styles.history} aria-labelledby="journey-history-title">
     <div className={styles.historyHeading}>
-      <p className={styles.sectionLabel}>The path behind you</p>
-      <h2 id="journey-history-title">Your story so far.</h2>
+      <p className={styles.sectionLabel}>Your living story</p>
+      <h2 id="journey-history-title">The moments that moved you forward.</h2>
+      <p>{history.state === "exploration"
+        ? "Your story is just beginning. The options you explore now give your next choice context."
+        : history.state === "first_moment"
+          ? "One meaningful step is enough to begin."
+          : hasMoments ? "Not every click belongs here. Only the choices and outcomes that changed your path." : "Your story is just beginning."}</p>
     </div>
-    {items.length ? <ol className={styles.historyList}>
-      {items.map((item) => <li key={item.id}>
-        <time dateTime={item.occurredAt ?? undefined}>{formatDate(item.occurredAt)}</time>
-        <div><h3>{item.title}</h3><p>{item.body}</p></div>
-      </li>)}
-    </ol> : <p className={styles.historyEmpty}>The first meaningful step you take will appear here.</p>}
+    {hasMoments ? <div className={styles.storyFlow} aria-label="Your Journey moments in chronological order">
+      {history.earlierChapters.length ? <details className={styles.earlierChapters} data-earlier-chapters="">
+        <summary><span className={styles.earlierClosed}>See earlier chapters</span><span className={styles.earlierOpen}>Hide earlier chapters</span><span>{history.totalMomentCount - history.recentChapters.reduce((count, chapter) => count + chapter.moments.length, 0)} moments</span></summary>
+        <div className={styles.earlierContent}><Chapters chapters={history.earlierChapters} theme={theme} /></div>
+      </details> : null}
+      <Chapters chapters={history.recentChapters} theme={theme} />
+    </div> : <div className={styles.historyEmpty}>
+      <span className={styles.emptyStoryMarker} aria-hidden="true" />
+      <p>The first meaningful step you take will appear here.</p>
+    </div>}
     <details className={styles.toolsDisclosure}>
       <summary>Journey tools</summary>
       <p>Application status and saved opportunities stay in your private Journey Board.</p>
@@ -128,7 +194,11 @@ function Diagnostics({ model }: { model: JourneyEditorialModel }) {
 }
 
 export function JourneyEditorial({ model, showDiagnostics = false }: JourneyEditorialProps) {
-  return <main className={`${styles.page} ${showDiagnostics ? styles.diagnosticGrid : ""}`} data-journey-editorial="" data-journey-state={model.empty ? "empty" : "populated"}>
+  const motionStyle = {
+    "--journey-disclosure-duration": `${OPEN_LINE_MOTION.disclosure}ms`,
+    "--journey-motion-easing": OPEN_LINE_MOTION.easing,
+  } as CSSProperties;
+  return <main className={`${styles.page} ${showDiagnostics ? styles.diagnosticGrid : ""}`} style={motionStyle} data-journey-editorial="" data-journey-state={model.empty ? "empty" : "populated"}>
     <article className={styles.article}>
       <section className={styles.opening}>
         <header className={styles.storyHeader}>
@@ -138,7 +208,7 @@ export function JourneyEditorial({ model, showDiagnostics = false }: JourneyEdit
         </header>
         <OpenLineComposition model={model} showDiagnostics={showDiagnostics} />
       </section>
-      <History items={model.history} />
+      <History history={model.history} theme={model.theme} />
     </article>
     {showDiagnostics ? <Diagnostics model={model} /> : null}
   </main>;

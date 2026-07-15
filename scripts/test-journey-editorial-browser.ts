@@ -55,12 +55,22 @@ function createKvServer() {
   });
 }
 
-async function seedSession(label: string, populated: boolean, dark = false) {
+async function seedSession(label: string, populated: boolean, dark = false, longHistory = false) {
   const { createSession, mergeAccountData, updateAccountBilling, upsertUser } = await import("../lib/auth-store");
   const { opportunities } = await import("../data/opportunities");
-  const opportunity = opportunities[0];
+  const selectedOpportunities = longHistory ? opportunities.slice(0, 8) : [opportunities[0]];
+  const opportunity = selectedOpportunities[0];
   const now = "2026-07-14T12:00:00.000Z";
-  const tracker = populated ? { [opportunity.id]: { id: opportunity.id, status: "Applying" as const, savedAt: now, updatedAt: now } } : {};
+  const longStatuses = ["Applying", "Submitted", "Interview", "Accepted", "Completed"] as const;
+  const tracker = populated ? Object.fromEntries(selectedOpportunities.map((item, index) => {
+    const day = String(index + 1).padStart(2, "0");
+    return [item.id, {
+      id: item.id,
+      status: longHistory ? longStatuses[index % longStatuses.length] : "Applying" as const,
+      savedAt: longHistory ? `2026-01-${day}T12:00:00.000Z` : now,
+      updatedAt: longHistory ? `2026-02-${day}T12:00:00.000Z` : now,
+    }];
+  })) : {};
   const user = await upsertUser({ googleSub: `journey-${label}`, email: `journey-${label}@example.test`, name: `Jordan ${label}` });
   await mergeAccountData(user.id, {
     profile: {
@@ -75,8 +85,8 @@ async function seedSession(label: string, populated: boolean, dark = false) {
       onboardingCompletedAt: now,
     },
     onboardingComplete: true,
-    activity: populated ? { viewed: [opportunity.id], saved: [opportunity.id], claimed: [], tracked: tracker } : { viewed: [], saved: [], claimed: [], tracked: {} },
-    savedOpportunities: populated ? [{ opportunityId: opportunity.id, savedAt: now }] : [],
+    activity: populated ? { viewed: [opportunity.id], saved: selectedOpportunities.map((item) => item.id), claimed: [], tracked: tracker } : { viewed: [], saved: [], claimed: [], tracked: {} },
+    savedOpportunities: populated ? selectedOpportunities.map((item, index) => ({ opportunityId: item.id, savedAt: longHistory ? `2026-01-${String(index + 1).padStart(2, "0")}T12:00:00.000Z` : now })) : [],
     tracker,
     preferences: { appearance: dark ? "midnight" : "light", updatedAt: now },
   });
@@ -112,10 +122,33 @@ async function verifyPage(page: Page, origin: string, label: string, expectedThe
     const minimumWaypointLeft = (page.viewportSize()?.width ?? 0) < 680 ? 70 : 0;
     assert.ok(waypointBox && waypointBox.x >= minimumWaypointLeft, `${label} waypoint must clear the mobile rail.`);
     if ((page.viewportSize()?.width ?? 0) < 680) assert.ok(actionBox && actionBox.y + actionBox.height < (page.viewportSize()?.height ?? 0) - 64, `${label} primary action must remain above the mobile navigation.`);
+
+    const moment = root.locator("[data-journey-moment]").last();
+    await moment.waitFor({ state: "visible" });
+    const summary = moment.locator("summary");
+    await summary.focus();
+    await page.keyboard.press("Enter");
+    assert.equal(await moment.getAttribute("open"), "", `${label} Journey moment must expand from the keyboard.`);
+    await moment.getByText("Why it mattered", { exact: true }).waitFor({ state: "visible" });
+    await page.keyboard.press("Enter");
+    assert.equal(await moment.getAttribute("open"), null, `${label} Journey moment must collapse from the keyboard.`);
+
+    const earlier = root.locator("[data-earlier-chapters]");
+    if (await earlier.count()) {
+      const earlierSummary = earlier.locator(":scope > summary");
+      await earlierSummary.scrollIntoViewIfNeeded();
+      const scrollBefore = await page.evaluate(() => window.scrollY);
+      await earlierSummary.click();
+      assert.equal(await earlier.getAttribute("open"), "", `${label} earlier chapters must expand inline.`);
+      assert.equal(await page.evaluate(() => window.scrollY), scrollBefore, `${label} expanding earlier chapters must preserve scroll position.`);
+      await earlierSummary.click();
+      assert.equal(await earlier.getAttribute("open"), null, `${label} earlier chapters must collapse inline.`);
+    }
   } else {
     await root.getByRole("link", { name: "Find my first opportunity" }).waitFor({ state: "visible" });
     await root.getByText("Choose one opportunity worth pursuing.").waitFor({ state: "visible" });
   }
+  await page.evaluate(() => { (document.activeElement as HTMLElement | null)?.blur(); window.scrollTo(0, 0); });
   await page.screenshot({ path: path.join(outputDirectory, `${label}.png`), fullPage: true });
 }
 
@@ -131,6 +164,7 @@ process.env.NEXT_PUBLIC_APP_URL = `http://127.0.0.1:${requestedAppPort}`;
 const populatedSession = await seedSession("Populated", true);
 const emptySession = await seedSession("Empty", false);
 const darkSession = await seedSession("Dark", true, true);
+const longHistorySession = await seedSession("LongHistory", true, false, true);
 
 const app = next({ dev: true, dir: root, hostname: "127.0.0.1", port: requestedAppPort });
 await app.prepare();
@@ -143,6 +177,7 @@ const browser = await chromium.launch({ headless: true });
 try {
   for (const scenario of [
     { label: "desktop-populated", viewport: { width: 1440, height: 1000 }, session: populatedSession, theme: "light" as const },
+    { label: "desktop-long-history", viewport: { width: 1440, height: 1000 }, session: longHistorySession, theme: "light" as const },
     { label: "tablet-populated", viewport: { width: 900, height: 1000 }, session: populatedSession, theme: "light" as const },
     { label: "mobile-populated", viewport: { width: 390, height: 844 }, session: populatedSession, theme: "light" as const },
     { label: "desktop-empty", viewport: { width: 1440, height: 1000 }, session: emptySession, theme: "light" as const },

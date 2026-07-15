@@ -41,7 +41,7 @@ for (const label of [
   "What matters now",
   "Estimated effort",
   "Expected impact",
-  "The path behind you",
+  "Your living story",
   "Open Journey Board",
 ]) {
   assert.ok(journeyEditorial.includes(label), `Journey editorial experience must render ${label}.`);

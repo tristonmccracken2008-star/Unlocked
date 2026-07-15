@@ -65,6 +65,29 @@ assert.equal(populatedModel.geometries.mobile.geometry.nodes.find((node) => node
 assert.ok(populatedModel.geometries.mobile.waypointPosition?.yPercent && populatedModel.geometries.mobile.waypointPosition.yPercent > 0);
 assert.equal(populatedModel.theme, "light");
 assert.equal(buildJourneyEditorialModel({ user, account: account(true, true), opportunities: [opportunity] }).theme, "dark");
+assert.ok(populatedModel.history.totalMomentCount > 0);
+assert.ok(populatedModel.history.recentChapters.length > 0);
+assert.ok(populatedModel.history.recentChapters.flatMap((chapter) => chapter.moments).every((moment) => moment.detail.whyItMattered && moment.detail.whatChanged && moment.detail.nextConsequence));
+assert.ok(populatedModel.history.recentChapters.flatMap((chapter) => chapter.moments).some((moment) => moment.detail.relatedOpportunity?.id === opportunity.id));
+
+const longHistoryOpportunities = opportunities.slice(0, 8);
+const longHistoryTracker = Object.fromEntries(longHistoryOpportunities.map((item, index) => {
+  const day = String(index + 1).padStart(2, "0");
+  const statuses = ["Applying", "Submitted", "Interview", "Accepted", "Completed"] as const;
+  return [item.id, { id: item.id, status: statuses[index % statuses.length], savedAt: `2026-01-${day}T12:00:00.000Z`, updatedAt: `2026-02-${day}T12:00:00.000Z` }];
+}));
+const longHistoryAccount: AccountData = {
+  ...account(false),
+  activity: { viewed: [], saved: longHistoryOpportunities.map((item) => item.id), claimed: [], tracked: longHistoryTracker },
+  savedOpportunities: longHistoryOpportunities.map((item, index) => ({ opportunityId: item.id, savedAt: `2026-01-${String(index + 1).padStart(2, "0")}T12:00:00.000Z` })),
+  tracker: longHistoryTracker,
+};
+const longHistoryModel = buildJourneyEditorialModel({ user, account: longHistoryAccount, opportunities: longHistoryOpportunities });
+const recentMoments = longHistoryModel.history.recentChapters.flatMap((chapter) => chapter.moments);
+const earlierMoments = longHistoryModel.history.earlierChapters.flatMap((chapter) => chapter.moments);
+assert.equal(recentMoments.length, 10, "Long histories must initially expose exactly ten meaningful moments.");
+assert.ok(earlierMoments.length > 0, "Long histories must preserve earlier chapters behind disclosure.");
+assert.deepEqual([...earlierMoments, ...recentMoments].map((moment) => moment.occurredAt), [...earlierMoments, ...recentMoments].map((moment) => moment.occurredAt).sort(), "Journey moments must remain in chronological DOM order.");
 
 const component = read("components/journey-editorial.tsx");
 const styles = read("components/journey-editorial.module.css");
@@ -73,7 +96,7 @@ const loading = read("app/loading.tsx");
 const model = read("lib/journey-editorial.ts");
 const narrative = read("data/open-line/narrative.ts");
 
-for (const required of ["Your Journey", "What matters now", "Estimated effort", "Expected impact", "Why this step", "The path behind you", "Journey tools"]) {
+for (const required of ["Your Journey", "What matters now", "Estimated effort", "Expected impact", "Why this step", "Your living story", "The moments that moved you forward.", "See earlier chapters", "Why it mattered", "Skills gained", "What changed", "What this opens next", "Journey tools"]) {
   assert.ok(component.includes(required), `Journey editorial view must render ${required}.`);
 }
 for (const required of ["Choose one opportunity worth pursuing.", "Find my first opportunity"]) {
@@ -89,13 +112,17 @@ assert.ok(!component.includes("createPathGeometry"), "React must not calculate O
 assert.ok(model.includes("narrative.editorialStatement"), "The story must come from Prompt 7.");
 assert.ok(narrative.includes("buildEditorialStatement"), "Narrative Engine must own editorial statement selection.");
 assert.ok(component.includes("OpenLineMotionRenderer"), "Journey must reuse Prompt 6 motion.");
+assert.ok(component.includes("OPEN_LINE_MOTION.disclosure"), "Moment disclosure must reuse Prompt 6 timing tokens.");
 assert.ok(component.includes('preference: "system"'), "Journey motion must respect system reduced-motion preference.");
 assert.ok(styles.includes("prefers-reduced-motion"), "Journey styles must explicitly preserve reduced motion.");
 assert.ok(styles.includes("prefers-contrast: more"), "Journey must support high contrast.");
 assert.ok(styles.includes(".desktopLine") && styles.includes(".tabletLine") && styles.includes(".mobileLine"), "All responsive layouts must be defined.");
 assert.ok(styles.includes("left: 5.6rem"), "Mobile waypoint text must clear the 40px Open Line rail.");
+assert.ok(styles.includes(".storyFlow::before") && styles.includes("left: 1.25rem"), "Mobile history must reserve a 40px Open Line rail.");
 assert.ok(styles.includes(".mobileLine { display: block; overflow: hidden; }"), "Mobile Open Line content must not paint into the narrative headline.");
 assert.ok(component.includes("<ol") && component.includes("aria-labelledby"), "History must keep chronological and accessible structure.");
+assert.ok(component.includes("<details") && component.includes("<summary"), "Moment and chapter disclosures must remain keyboard-native.");
+assert.ok(!component.includes("useState") && !component.includes("useMemo"), "Journey history must remain server-first without client recomputation.");
 assert.ok(loading.includes("loadingNarrative") && loading.includes("loadingLine") && !loading.includes("grid-cols"), "Loading must resemble unfinished editorial print, not a dashboard.");
 assert.ok(styles.includes("font-family: Iowan Old Style"), "Editorial serif must carry the student story.");
 assert.ok(styles.includes("width: min(100% - 2.5rem, 75rem)"), "Desktop composition must be capped at 1200px.");

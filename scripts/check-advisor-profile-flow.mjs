@@ -30,7 +30,7 @@ assert.match(journeyClientEffects, /localStorage\.removeItem\(advisorProfileUpda
 
 assert.match(dashboard, /Journey/, "Private home must be the student's Journey.");
 assert.match(journeyEditorial, /What matters now/, "Journey must explain the student's current waypoint.");
-assert.match(journeyEditorial, /The path behind you/, "Journey must expose real activity history below the opening composition.");
+assert.match(journeyEditorial, /Your living story/, "Journey must expose real activity history below the opening composition.");
 assert.match(journeyEditorial, /Open Journey Board/, "Journey must keep application management accessible below progressive disclosure.");
 assert.match(journeyBoard, /Journey Card/, "Journey Board must support the single shareable Journey Card experience.");
 assert.doesNotMatch(journeyDashboard, /Share recap/, "Dashboard must not duplicate the Journey Card sharing experience.");
