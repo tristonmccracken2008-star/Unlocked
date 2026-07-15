@@ -253,6 +253,24 @@ const typicalEvents = Array.from({ length: 20 }, (_, index) => event(index % 4 =
 const typicalInput: OpenLineInput = { userId: "typical", opportunities: [] };
 const largeEvents = Array.from({ length: 1000 }, (_, index) => event(index % 5 === 0 ? "application_submitted" : "application_started", index + 1, { id: `large-${index}`, userId: "large", opportunityId: `large-opportunity-${index}`, category: index % 3 === 0 ? "research" : "internship" }));
 const largeInput: OpenLineInput = { userId: "large", opportunities: [] };
+const semanticLargeInput: OpenLineInput = {
+  ...largeInput,
+  profile: { firstName: "Test", schoolSlug: "test", major: "Mathematics", graduationYear: "2029", year: "First year", careerGoal: "Data Science", interests: "Research", onboardingCompletedAt: timestamp(0) },
+  currentWaypoint: {
+    type: "roadmap",
+    id: "benchmark-waypoint",
+    title: "Build a small data project",
+    whyItMatters: "Structured benchmark fixture.",
+    estimatedTime: "2 hours",
+    impact: "High",
+    requiredSkills: ["Python", "Data Analysis"],
+    relatedOpportunityCategories: ["Internships"],
+  },
+  horizon: [
+    { id: "benchmark-horizon-project", title: "Complete a larger project", rationale: "Structured benchmark fixture.", requiredSkills: ["Python"] },
+    { id: "benchmark-horizon-research", title: "Explore research", rationale: "Structured benchmark fixture.", prerequisiteMilestoneIds: ["benchmark-waypoint"] },
+  ],
+};
 const normalizationInput: OpenLineInput = {
   userId: "large-normalization",
   activity: {
@@ -302,13 +320,16 @@ const largeBenchmark = benchmark(10, 40, () => { buildOpenLineNarratives(largeIn
 
 const stageDurations = new Map<OpenLineNarrativeBuildStage, number[]>();
 for (let run = 0; run < 20; run += 1) {
-  buildOpenLineNarratives(largeInput, largeEvents, largeBranches, (stage, durationMs) => {
+  buildOpenLineNarratives(semanticLargeInput, largeEvents, largeBranches, (stage, durationMs) => {
     const values = stageDurations.get(stage) ?? [];
     values.push(durationMs);
     stageDurations.set(stage, values);
   });
 }
 const narrativeStages = Object.fromEntries([...stageDurations.entries()].map(([stage, values]) => [stage, summarize(values)]));
+for (const stage of ["editorial_composition", "waypoint_reasoning", "horizon_reasoning"] satisfies OpenLineNarrativeBuildStage[]) {
+  assert.equal(stageDurations.get(stage)?.length, 20, `${stage} must execute exactly once per narrative build.`);
+}
 
 const assertionStartedAt = performance.now();
 assert.ok(typicalBenchmark.p95 < 2, `Typical narrative histories must remain under 2ms p95; received ${typicalBenchmark.p95.toFixed(2)}ms.`);
@@ -320,6 +341,7 @@ const assertionMs = performance.now() - assertionStartedAt;
 const engineSource = readFileSync(new URL("../data/open-line/narrative.ts", import.meta.url), "utf8");
 assert.doesNotMatch(engineSource, /\bfetch\s*\(/, "Narrative generation must not perform network requests.");
 assert.doesNotMatch(engineSource, /\basync\s+function\b|\bPromise\b/, "Narrative generation must remain synchronous.");
+assert.doesNotMatch(engineSource, /from\s+["'][^"']*(?:geometry|renderer)[^"']*["']|\bbuildPathprint\s*\(/, "Narrative generation must not execute geometry or rendering work.");
 const templateText = Object.values(openLineNarrativeTemplates).join(" ");
 assert.doesNotMatch(templateText, /you(?:'re| are) crushing it|amazing|keep going|dreams!/i, "Narratives must avoid hype and generic coaching language.");
 
@@ -334,6 +356,9 @@ console.log(JSON.stringify({
   typicalNarrative: typicalBenchmark,
   largeNarrative: largeBenchmark,
   narrativeStages,
-  benchmarkBookkeepingMs: Number(benchmarkBookkeepingMs.toFixed(3)),
-  assertionMs: Number(assertionMs.toFixed(3)),
+  benchmarkHarness: {
+    fixtureCreationMs: Number(fixtureCreationMs.toFixed(3)),
+    bookkeepingMs: Number(benchmarkBookkeepingMs.toFixed(3)),
+    assertionMs: Number(assertionMs.toFixed(3)),
+  },
 }, null, 2));

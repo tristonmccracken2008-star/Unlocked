@@ -90,11 +90,13 @@ type MergedRecord = { momentId: string; eventCount: number; reason: "exploration
 
 export type OpenLineNarrativeBuildStage =
   | "indexing"
-  | "event_narratives"
+  | "narrative_generation"
   | "rejoins"
-  | "semantic_context"
+  | "editorial_composition"
+  | "waypoint_reasoning"
+  | "horizon_reasoning"
   | "sorting"
-  | "signature"
+  | "signature_generation"
   | "diagnostics";
 
 export type OpenLineNarrativeBuildObserver = (stage: OpenLineNarrativeBuildStage, durationMs: number) => void;
@@ -587,6 +589,7 @@ export function buildOpenLineNarratives(
   const privateCategoryCounts = new Map<string, number>();
   const publicTypeCounts = new Map<JourneyEventType, number>();
   const publicCategoryCounts = new Map<string, number>();
+  const categories = new Map<string, ReturnType<typeof narrativeCategoryLabels>>();
   const copies: NarrativeEventCopy[] = [];
   const copiesByEvent = new Map<string, NarrativeEventCopy>();
   const suppressed: SuppressedRecord[] = [];
@@ -596,7 +599,12 @@ export function buildOpenLineNarratives(
   completeStage("indexing");
 
   for (const event of events) {
-    const category = categoryForEvent(event);
+    const rawCategory = event.category ?? "";
+    let category = categories.get(rawCategory);
+    if (!category) {
+      category = categoryForEvent(event);
+      categories.set(rawCategory, category);
+    }
     const categoryKey = `${event.type}|${category.singular}`;
     const privateCounts = {
       priorTypeCount: privateTypeCounts.get(event.type) ?? 0,
@@ -649,7 +657,7 @@ export function buildOpenLineNarratives(
     merged.push({ momentId: moment.id, eventCount: explorationEvents.length, reason: "exploration_sequence" });
     for (const event of explorationEvents) suppressed.push({ eventId: event.id, reason: "merged_exploration" });
   }
-  completeStage("event_narratives");
+  completeStage("narrative_generation");
 
   if (branchIntelligence.rejoins.length) {
     const eventsById = new Map(events.map((event) => [event.id, event]));
@@ -659,9 +667,11 @@ export function buildOpenLineNarratives(
 
   const origin = buildOrigin(events.length > 0, events[0]?.occurredAt ?? null, events[0] ? [events[0].id] : []);
   const editorialStatement = buildEditorialStatement(events, moments, branchIntelligence);
+  completeStage("editorial_composition");
   const waypoint = buildWaypoint(input, opportunities);
+  completeStage("waypoint_reasoning");
   const horizon = buildHorizon(input, opportunities);
-  completeStage("semantic_context");
+  completeStage("horizon_reasoning");
   const sortedMoments = moments.sort(compareMoments);
   completeStage("sorting");
   const raw = {
@@ -706,13 +716,14 @@ export function buildOpenLineNarratives(
     waypoint,
     horizon,
   });
-  completeStage("signature");
+  completeStage("signature_generation");
   const sourceCounts = new Map<NarrativeExplanationSource, number>();
-  for (const source of [
-    ...sortedMoments.map((moment) => moment.explanationSource),
-    ...(waypoint ? [waypoint.explanationSource] : []),
-    ...horizon.map((item) => item.explanationSource),
-  ]) sourceCounts.set(source, (sourceCounts.get(source) ?? 0) + 1);
+  const countSource = (source: NarrativeExplanationSource) => {
+    sourceCounts.set(source, (sourceCounts.get(source) ?? 0) + 1);
+  };
+  for (const moment of sortedMoments) countSource(moment.explanationSource);
+  if (waypoint) countSource(waypoint.explanationSource);
+  for (const item of horizon) countSource(item.explanationSource);
   const diagnostics = {
     sourceEventCount: events.length,
     momentCount: sortedMoments.length,
