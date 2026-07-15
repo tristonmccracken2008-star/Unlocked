@@ -7,6 +7,8 @@ const authStore = readFileSync("lib/auth-store.ts", "utf8");
 const profileVersion = readFileSync("lib/advisor/profile-version.ts", "utf8");
 const dashboard = readFileSync("components/personalized-home.tsx", "utf8");
 const journeyDashboard = readFileSync("components/student-journey-dashboard.tsx", "utf8");
+const journeyEditorial = readFileSync("components/journey-editorial.tsx", "utf8");
+const journeyClientEffects = readFileSync("components/journey-client-effects.tsx", "utf8");
 const journeyBoard = readFileSync("components/my-opportunities-page.tsx", "utf8");
 const profileData = readFileSync("data/student-profile.ts", "utf8");
 const packageJson = JSON.parse(readFileSync("package.json", "utf8"));
@@ -24,12 +26,12 @@ assert.match(profileVersion, /weeklyAvailability/, "Profile hash must include we
 assert.match(profileVersion, /currentExperience/, "Profile hash must include current experience.");
 assert.match(profileVersion, /preferredOpportunityTypes/, "Profile hash must include preferred path/opportunity type.");
 assert.match(profileData, /advisorProfileUpdatedMessageKey/, "Profile saves must set a one-time plan-updated acknowledgement.");
-assert.match(journeyDashboard, /localStorage\.removeItem\(advisorProfileUpdatedMessageKey\)/, "Dashboard must consume the profile-change acknowledgement once.");
+assert.match(journeyClientEffects, /localStorage\.removeItem\(advisorProfileUpdatedMessageKey\)/, "Journey must consume the profile-change acknowledgement once.");
 
 assert.match(dashboard, /Journey/, "Private home must be the student's Journey.");
-assert.match(journeyDashboard, /Journey progress/, "Journey must summarize actual saved and application progress.");
-assert.match(journeyDashboard, /Journey timeline/, "Journey must expose a real activity timeline.");
-assert.match(journeyDashboard, /Active opportunities/, "Journey must connect saved opportunities to progress.");
+assert.match(journeyEditorial, /What matters now/, "Journey must explain the student's current waypoint.");
+assert.match(journeyEditorial, /The path behind you/, "Journey must expose real activity history below the opening composition.");
+assert.match(journeyEditorial, /Open Journey Board/, "Journey must keep application management accessible below progressive disclosure.");
 assert.match(journeyBoard, /Journey Card/, "Journey Board must support the single shareable Journey Card experience.");
 assert.doesNotMatch(journeyDashboard, /Share recap/, "Dashboard must not duplicate the Journey Card sharing experience.");
 assert.doesNotMatch(dashboard, /Today’s Mission/, "Journey should not keep the old coaching-dashboard copy.");

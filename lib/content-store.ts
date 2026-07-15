@@ -40,6 +40,15 @@ export async function listManagedRecords() {
 }
 
 export async function listPublishedOpportunities(){return (await listManagedRecords()).filter((item)=>!item.archived&&!item.deleted).map((item)=>item.opportunity)}
+export async function listPublishedOpportunitiesByIds(ids: readonly string[]) {
+  const uniqueIds = [...new Set(ids.filter(Boolean))];
+  const records = await Promise.all(uniqueIds.map(async (id) => {
+    const managed = parse<ManagedOpportunity>(await command<string>(["GET", recordKey(id)]));
+    if (managed) return managed.archived || managed.deleted ? undefined : managed.opportunity;
+    return seedOpportunities.find((opportunity) => opportunity.id === id);
+  }));
+  return records.filter((opportunity): opportunity is Opportunity => Boolean(opportunity));
+}
 export async function getManagedOpportunity(id:string){return (await listManagedRecords()).find((item)=>item.opportunity.id===id&&!item.archived&&!item.deleted)?.opportunity}
 export async function getManagedRecord(id:string){return (await listManagedRecords()).find((item)=>item.opportunity.id===id)}
 

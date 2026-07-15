@@ -7,7 +7,6 @@ const resolver = read("data/organization-logos.ts");
 const component = read("components/organization-logo.tsx");
 const opportunityCard = read("components/opportunity-card.tsx");
 const advisor = read("components/advisor-page.tsx");
-const journey = read("components/student-journey-dashboard.tsx");
 const tracker = read("components/my-opportunities-page.tsx");
 const detail = read("app/opportunities/[id]/page.tsx");
 const config = read("next.config.mjs");
@@ -84,7 +83,6 @@ assert.ok(config.includes("logo.clearbit.com"), "Next image configuration must p
 for (const [path, source] of [
   ["components/opportunity-card.tsx", opportunityCard],
   ["components/advisor-page.tsx", advisor],
-  ["components/student-journey-dashboard.tsx", journey],
   ["components/my-opportunities-page.tsx", tracker],
   ["app/opportunities/[id]/page.tsx", detail],
 ]) {

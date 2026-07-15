@@ -101,6 +101,8 @@ Rules are versioned as `open-line-narratives-v1`. Output signatures use compact 
 
 Diagnostics contain only counts, enums, signatures, and opaque IDs for suppressed or merged events. They never contain student or opportunity content.
 
+The optional fourth argument is a synchronous stage observer used by the regression benchmark. It records aggregate durations only and is never enabled by the product request path.
+
 ## Performance
 
 The engine is synchronous and performs no I/O. It uses maps and bounded sorting, then hashes a compact semantic representation rather than duplicating rendered prose in signature input.
@@ -114,6 +116,9 @@ npm run check:open-line-narratives
 The regression suite enforces:
 
 - typical-history p95 below 2 ms
+- 1,000-event history average below 12 ms
 - 1,000-event history p95 below 15 ms
+- 1,000-event history hard maximum below 50 ms
 - no network or asynchronous generation path
 
+The benchmark warms the runtime before collecting 40 large-history samples. The p95 gate therefore ignores isolated build-worker scheduling or garbage-collection pauses while the hard maximum still catches severe stalls. Fixture construction, normalization, branch intelligence, assertions, and benchmark bookkeeping are measured separately from narrative generation.

@@ -10,6 +10,8 @@ const accountSync = read("data/account-sync.ts");
 const accountAuth = read("components/account-auth.tsx");
 const discover = read("components/opportunity-filter.tsx");
 const journeyDashboard = read("components/student-journey-dashboard.tsx");
+const journeyPage = read("app/page.tsx");
+const journeyEditorial = read("components/journey-editorial.tsx");
 const advisorPage = read("components/advisor-page.tsx");
 const forYouApi = read("app/api/advisor/for-you/route.ts");
 const forYouSnapshot = read("lib/for-you-snapshot.ts");
@@ -34,7 +36,9 @@ assert.match(discover, /relevanceScore/, "Discover should use a lightweight loca
 
 assert.doesNotMatch(journeyDashboard, /import \{[^}]*opportunities,/, "Journey dashboard must not statically import the full catalog.");
 assert.doesNotMatch(journeyDashboard, /buildRecommendationService|NextToReview|JourneyRecapCard/, "Journey must not include retired recommendations or recap sharing.");
-assert.match(journeyDashboard, /\/api\/opportunities\?ids=/, "Journey dashboard should fetch only tracked opportunities.");
+assert.match(journeyPage, /listPublishedOpportunitiesByIds\(trackedIds\)/, "Journey should fetch only tracked opportunities on the server.");
+assert.doesNotMatch(journeyEditorial, /fetch\(|createPathGeometry/, "Journey must not fetch its catalog or calculate geometry in the browser.");
+assert.match(journeyDashboard, /router\.refresh\(\)/, "Journey client recovery must refresh into the server-composed experience.");
 
 assert.match(forYouSnapshot, /recommendations: allowed\.map/, "For You snapshots must store serialized recommendation view models.");
 assert.match(forYouSnapshot, /const allowed = pro \? service\.recommendations\.slice\(0,\s*8\) : \[\]/, "Free For You should render the Pro conversion state immediately without expensive feed generation while Pro stays precision-first.");

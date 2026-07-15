@@ -16,6 +16,7 @@ import {
   type JourneyEvent,
   type JourneyEventType,
   type OpenLineInput,
+  type OpenLineNarrativeBuildStage,
 } from "../data/open-line";
 
 const baseTime = Date.UTC(2026, 0, 1, 12);
@@ -219,6 +220,7 @@ const deterministicB = narratives(deterministicEvents);
 assert.deepEqual(deterministicA, deterministicB);
 assert.equal(deterministicA.signature, deterministicB.signature);
 assert.equal(deterministicA.signature, deterministicA.diagnostics.deterministicSignature);
+assert.equal(deterministicA.signature, "58b850a966ee1925", "Canonical private narrative signature must remain stable.");
 
 const publicEvent = event("application_submitted", 2, { id: "public-submission", opportunityId: internship.id });
 const privateEvent = event("goal_selected", 1, { id: "private-direction", careerDirection: "Private Medical Direction", source: "profile" });
@@ -226,6 +228,7 @@ const privateEvidence = event("skill_evidence_created", 3, { id: "private-eviden
 const publicOnly = createPublicNarrativeProjection(narratives([publicEvent]));
 const withPrivate = createPublicNarrativeProjection(narratives([privateEvent, publicEvent, privateEvidence]));
 assert.deepEqual(withPrivate, publicOnly, "Private history must not alter public narrative output or signatures.");
+assert.equal(withPrivate.signature, "5c4581abd654c62f", "Canonical public narrative signature must remain stable.");
 const publicJson = JSON.stringify(withPrivate);
 for (const secret of ["Private Medical Direction", "Private Skill", "Private Notes", internship.title, internship.organization]) assert.equal(publicJson.includes(secret), false);
 assert.equal("evidenceEventIds" in withPrivate.moments[0], false, "Public narratives must not expose internal evidence IDs.");
@@ -245,30 +248,74 @@ const chronological = narratives([
 ]);
 assert.deepEqual(chronological.moments.map((moment) => moment.occurredAt), [...chronological.moments.map((moment) => moment.occurredAt)].sort(), "Narratives must remain in chronological reading order without graphics.");
 
+const fixtureStartedAt = performance.now();
 const typicalEvents = Array.from({ length: 20 }, (_, index) => event(index % 4 === 0 ? "application_submitted" : "application_started", index + 1, { id: `typical-${index}`, opportunityId: `typical-opportunity-${index}`, category: index % 2 ? "research" : "internship" }));
 const typicalInput: OpenLineInput = { userId: "typical", opportunities: [] };
-const typicalBranches = analyzeJourneyBranches(typicalInput, typicalEvents);
-const typicalDurations: number[] = [];
-for (let run = 0; run < 120; run += 1) {
-  const started = performance.now();
-  buildOpenLineNarratives(typicalInput, typicalEvents, typicalBranches);
-  typicalDurations.push(performance.now() - started);
-}
-
 const largeEvents = Array.from({ length: 1000 }, (_, index) => event(index % 5 === 0 ? "application_submitted" : "application_started", index + 1, { id: `large-${index}`, userId: "large", opportunityId: `large-opportunity-${index}`, category: index % 3 === 0 ? "research" : "internship" }));
 const largeInput: OpenLineInput = { userId: "large", opportunities: [] };
+const normalizationInput: OpenLineInput = {
+  userId: "large-normalization",
+  activity: {
+    viewed: [],
+    saved: [],
+    claimed: [],
+    tracked: Object.fromEntries(Array.from({ length: 500 }, (_, index) => {
+      const id = `normalization-${index}`;
+      return [id, { id, status: index % 5 === 0 ? "Submitted" as const : "Applying" as const, savedAt: timestamp(index + 1), updatedAt: timestamp(index + 2) }];
+    })),
+  },
+};
+const fixtureCreationMs = performance.now() - fixtureStartedAt;
+const typicalBranches = analyzeJourneyBranches(typicalInput, typicalEvents);
 const largeBranches = analyzeJourneyBranches(largeInput, largeEvents);
-const largeDurations: number[] = [];
+
+type BenchmarkSummary = { average: number; p95: number; maximum: number; samples: number };
+let benchmarkBookkeepingMs = 0;
+const percentile = (sortedValues: readonly number[], amount: number) => sortedValues[Math.min(sortedValues.length - 1, Math.max(0, Math.ceil(sortedValues.length * amount) - 1))];
+const summarize = (values: readonly number[]): BenchmarkSummary => {
+  const sorted = [...values].sort((a, b) => a - b);
+  return {
+    average: values.reduce((total, value) => total + value, 0) / values.length,
+    p95: percentile(sorted, 0.95),
+    maximum: sorted.at(-1) ?? 0,
+    samples: values.length,
+  };
+};
+const benchmark = (warmupRuns: number, measuredRuns: number, operation: () => void) => {
+  for (let run = 0; run < warmupRuns; run += 1) operation();
+  const durations: number[] = [];
+  for (let run = 0; run < measuredRuns; run += 1) {
+    const started = performance.now();
+    operation();
+    durations.push(performance.now() - started);
+  }
+  const bookkeepingStartedAt = performance.now();
+  const summary = summarize(durations);
+  benchmarkBookkeepingMs += performance.now() - bookkeepingStartedAt;
+  return summary;
+};
+
+const normalizationBenchmark = benchmark(8, 30, () => { normalizeJourneyEvents(normalizationInput); });
+const branchBenchmark = benchmark(8, 30, () => { analyzeJourneyBranches(largeInput, largeEvents); });
+const typicalBenchmark = benchmark(20, 120, () => { buildOpenLineNarratives(typicalInput, typicalEvents, typicalBranches); });
+const largeBenchmark = benchmark(10, 40, () => { buildOpenLineNarratives(largeInput, largeEvents, largeBranches); });
+
+const stageDurations = new Map<OpenLineNarrativeBuildStage, number[]>();
 for (let run = 0; run < 20; run += 1) {
-  const started = performance.now();
-  buildOpenLineNarratives(largeInput, largeEvents, largeBranches);
-  largeDurations.push(performance.now() - started);
+  buildOpenLineNarratives(largeInput, largeEvents, largeBranches, (stage, durationMs) => {
+    const values = stageDurations.get(stage) ?? [];
+    values.push(durationMs);
+    stageDurations.set(stage, values);
+  });
 }
-const percentile = (values: number[], amount: number) => [...values].sort((a, b) => a - b)[Math.min(values.length - 1, Math.floor(values.length * amount))];
-const typicalP95 = percentile(typicalDurations, 0.95);
-const largeP95 = percentile(largeDurations, 0.95);
-assert.ok(typicalP95 < 2, `Typical narrative histories must remain under 2ms p95; received ${typicalP95.toFixed(2)}ms.`);
-assert.ok(largeP95 < 15, `Large narrative histories must remain under 15ms p95; received ${largeP95.toFixed(2)}ms.`);
+const narrativeStages = Object.fromEntries([...stageDurations.entries()].map(([stage, values]) => [stage, summarize(values)]));
+
+const assertionStartedAt = performance.now();
+assert.ok(typicalBenchmark.p95 < 2, `Typical narrative histories must remain under 2ms p95; received ${typicalBenchmark.p95.toFixed(2)}ms.`);
+assert.ok(largeBenchmark.average < 12, `Large narrative histories must remain under 12ms average; received ${largeBenchmark.average.toFixed(2)}ms.`);
+assert.ok(largeBenchmark.p95 < 15, `Large narrative histories must remain under 15ms p95; received ${largeBenchmark.p95.toFixed(2)}ms.`);
+assert.ok(largeBenchmark.maximum < 50, `Large narrative histories must remain under the 50ms hard ceiling; received ${largeBenchmark.maximum.toFixed(2)}ms.`);
+const assertionMs = performance.now() - assertionStartedAt;
 
 const engineSource = readFileSync(new URL("../data/open-line/narrative.ts", import.meta.url), "utf8");
 assert.doesNotMatch(engineSource, /\bfetch\s*\(/, "Narrative generation must not perform network requests.");
@@ -279,4 +326,14 @@ assert.doesNotMatch(templateText, /you(?:'re| are) crushing it|amazing|keep goin
 const diagnosticJson = JSON.stringify(withPrivate);
 assert.doesNotMatch(diagnosticJson, /gpa|private notes|internal reasoning/i);
 
-console.log(`Open Line narrative checks passed. Typical p95 ${typicalP95.toFixed(2)}ms; large-history p95 ${largeP95.toFixed(2)}ms.`);
+console.log(JSON.stringify({
+  message: "Open Line narrative checks passed.",
+  fixtureCreationMs: Number(fixtureCreationMs.toFixed(3)),
+  normalization: normalizationBenchmark,
+  branchIntelligence: branchBenchmark,
+  typicalNarrative: typicalBenchmark,
+  largeNarrative: largeBenchmark,
+  narrativeStages,
+  benchmarkBookkeepingMs: Number(benchmarkBookkeepingMs.toFixed(3)),
+  assertionMs: Number(assertionMs.toFixed(3)),
+}, null, 2));

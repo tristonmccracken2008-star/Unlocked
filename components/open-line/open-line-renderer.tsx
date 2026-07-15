@@ -8,6 +8,8 @@ import { resolveOpenLineTheme, type OpenLineTheme } from "./open-line-theme";
 
 export type OpenLineRenderQuality = "standard" | "high" | "print";
 
+export type OpenLineViewport = { x: number; y: number; width: number; height: number };
+
 export type OpenLineRendererProps = {
   geometry: PathGeometry;
   theme?: OpenLineTheme;
@@ -29,6 +31,7 @@ export type OpenLineRendererProps = {
   idPrefix?: string;
   motionPlan?: OpenLineMotionPlan;
   motionLayer?: "current" | "previous";
+  viewport?: OpenLineViewport;
 };
 
 type PathRecord = { segment: PathGeometrySegment; d: string };
@@ -159,6 +162,7 @@ function OpenLineRendererComponent({
   idPrefix,
   motionPlan,
   motionLayer = "current",
+  viewport,
 }: OpenLineRendererProps) {
   const instanceId = useId();
   const prefix = safeId(idPrefix ?? `open-line-${instanceId}`);
@@ -172,6 +176,7 @@ function OpenLineRendererComponent({
   const recordsById = new Map(records.map((record) => [record.segment.id, record]));
   const titleId = `${prefix}-title`;
   const descriptionId = `${prefix}-description`;
+  const visibleViewport = viewport ?? { x: 0, y: 0, width: geometry.width, height: geometry.height };
 
   const renderState = (state: PathGeometrySegment["state"], layer: string) => <g id={`${prefix}-${layer}`} data-path-state={state}>
     {visibleRecords.filter(({ segment }) => segment.state === state).map((record) => <SegmentPath
@@ -187,7 +192,7 @@ function OpenLineRendererComponent({
 
   return <svg
     xmlns="http://www.w3.org/2000/svg"
-    viewBox={`0 0 ${geometry.width} ${geometry.height}`}
+    viewBox={`${visibleViewport.x} ${visibleViewport.y} ${visibleViewport.width} ${visibleViewport.height}`}
     width="100%"
     height="auto"
     preserveAspectRatio="xMidYMid meet"
@@ -221,7 +226,7 @@ function OpenLineRendererComponent({
         <use href={`#${prefix}-canonical-marker-aperture`} fill="none" stroke={theme.ink} strokeWidth="2" />
       </mask>
       <clipPath id={`${prefix}-viewport-clip`}>
-        <rect x="0" y="0" width={geometry.width} height={geometry.height} />
+        <rect x={visibleViewport.x} y={visibleViewport.y} width={visibleViewport.width} height={visibleViewport.height} />
       </clipPath>
       {records.map((record) => <path key={record.segment.id} id={`${prefix}-curve-${safeId(record.segment.id)}`} d={record.d} data-open-line-curve="" />)}
       {records.filter(({ segment }) => segment.state === "closed").map(({ segment }) => <g key={`fade-${segment.id}`}>

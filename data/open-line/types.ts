@@ -189,12 +189,22 @@ export type NarrativeDiagnostics = {
   deterministicSignature: string;
 };
 
+export type NarrativeEditorialStatement = {
+  text: string;
+  source: "branch_direction" | "narrative_moment" | "origin";
+  confidence: number;
+  explanationSource: NarrativeExplanationSource;
+  templateKey: string;
+  parameters: NarrativeTemplateParameters;
+};
+
 export type OpenLineNarrativeResult = {
   version: string;
   signature: string;
   origin: NarrativeMoment;
   eventNarratives: NarrativeEventCopy[];
   moments: NarrativeMoment[];
+  editorialStatement: NarrativeEditorialStatement;
   waypoint?: NarrativeWaypointMeaning;
   horizon: NarrativeHorizonMeaning[];
   diagnostics: NarrativeDiagnostics;

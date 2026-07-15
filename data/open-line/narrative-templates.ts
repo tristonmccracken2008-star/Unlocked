@@ -6,6 +6,12 @@ export const openLineNarrativeTemplates = {
   "origin.started.body": "This is the earliest activity UnlockED can verify.",
   "origin.explanation": "Every path begins with one meaningful choice.",
 
+  "editorial.story.career": "You’re building the experience to pursue {direction}.",
+  "editorial.story.direction": "You’re building experience through {direction}.",
+  "editorial.story.moment": "{statement}",
+  "editorial.story.progress": "Your path is taking shape through real choices and action.",
+  "editorial.story.empty": "Every path begins with one meaningful choice.",
+
   "event.viewed.title": "Explored {categoryTitle}",
   "event.saved.named.title": "Saved {opportunityTitle}",
   "event.saved.generic.title": "Saved a {category} opportunity",
@@ -136,6 +142,7 @@ export function narrativeList(values: readonly string[], fallback: string) {
 
 export function renderNarrativeTemplate(key: OpenLineNarrativeTemplateKey, parameters: NarrativeTemplateParameters = {}) {
   const template = openLineNarrativeTemplates[key];
+  if (!template.includes("{")) return template;
   return template.replace(/\{([a-zA-Z0-9]+)\}/g, (_match, name: string) => {
     const value = parameters[name];
     if (value === undefined || value === null || String(value).trim() === "") throw new Error(`Missing narrative template parameter: ${name}`);

@@ -13,6 +13,7 @@ import type {
   JourneyEvent,
   JourneyEventType,
   NarrativeEventCopy,
+  NarrativeEditorialStatement,
   NarrativeExplanationSource,
   NarrativeHorizonMeaning,
   NarrativeMoment,
@@ -79,12 +80,24 @@ type EventCountContext = {
 type EventNarrativeContext = {
   privateCounts: EventCountContext;
   publicCounts: EventCountContext;
+  category: ReturnType<typeof narrativeCategoryLabels>;
   opportunity?: Opportunity;
   transition?: DirectionTransitionRecord;
 };
 
 type SuppressedRecord = { eventId: string; reason: NarrativeSuppressionReason };
 type MergedRecord = { momentId: string; eventCount: number; reason: "exploration_sequence" };
+
+export type OpenLineNarrativeBuildStage =
+  | "indexing"
+  | "event_narratives"
+  | "rejoins"
+  | "semantic_context"
+  | "sorting"
+  | "signature"
+  | "diagnostics";
+
+export type OpenLineNarrativeBuildObserver = (stage: OpenLineNarrativeBuildStage, durationMs: number) => void;
 
 function text(
   titleTemplateKey: OpenLineNarrativeTemplateKey,
@@ -111,8 +124,11 @@ function opportunityTitle(event: JourneyEvent, opportunity: Opportunity | undefi
   return opportunity?.title?.trim() || event.evidence?.label?.trim() || undefined;
 }
 
-function eventParameters(event: JourneyEvent, opportunity: Opportunity | undefined) {
-  const category = categoryForEvent(event);
+function eventParameters(
+  event: JourneyEvent,
+  opportunity: Opportunity | undefined,
+  category: ReturnType<typeof narrativeCategoryLabels>,
+) {
   const skills = event.skillIds?.length
     ? event.skillIds
     : Array.isArray(opportunity?.metadata?.skillsGained) ? opportunity.metadata.skillsGained : [];
@@ -186,22 +202,23 @@ function eventExplanationSource(event: JourneyEvent, opportunity: Opportunity | 
 }
 
 function createEventNarrative(event: JourneyEvent, context: EventNarrativeContext): NarrativeEventCopy {
-  const parameters = eventParameters(event, context.opportunity);
+  const parameters = eventParameters(event, context.opportunity, context.category);
   const named = Boolean(opportunityTitle(event, context.opportunity));
   const skills = event.skillIds?.length || (Array.isArray(context.opportunity?.metadata?.skillsGained) && context.opportunity.metadata.skillsGained.length);
   const explanationKey = eventExplanationTemplate(event, Boolean(skills));
+  const privateTitleKey = eventTitleTemplate(event, named);
+  const privateBodyKey = eventBodyTemplate(event, context.privateCounts, context.transition);
+  const publicTitleKey = eventTitleTemplate(event, false);
+  const publicBodyKey = eventBodyTemplate(event, context.publicCounts, context.transition);
   const privateCopy = text(
-    eventTitleTemplate(event, named),
-    eventBodyTemplate(event, context.privateCounts, context.transition),
+    privateTitleKey,
+    privateBodyKey,
     explanationKey,
     parameters,
   );
-  const publicCopy = text(
-    eventTitleTemplate(event, false),
-    eventBodyTemplate(event, context.publicCounts, context.transition),
-    explanationKey,
-    parameters,
-  );
+  const publicCopy = privateTitleKey === publicTitleKey && privateBodyKey === publicBodyKey
+    ? privateCopy
+    : text(publicTitleKey, publicBodyKey, explanationKey, parameters);
   return {
     eventId: event.id,
     ...privateCopy,
@@ -475,11 +492,91 @@ function buildOrigin(hasEvents: boolean, occurredAt: string | null = null, evide
   };
 }
 
+function buildEditorialStatement(
+  events: readonly JourneyEvent[],
+  moments: readonly NarrativeMoment[],
+  branchIntelligence: BranchIntelligenceResult,
+): NarrativeEditorialStatement {
+  let activeCareerDirection: (typeof branchIntelligence.directions)[number] | undefined;
+  let configuredPrimaryDirection: (typeof branchIntelligence.directions)[number] | undefined;
+  for (const direction of branchIntelligence.directions) {
+    if (direction.key === branchIntelligence.primaryDirectionKey) configuredPrimaryDirection = direction;
+    if (direction.kind !== "career" || direction.state === "closed") continue;
+    const preferred = activeCareerDirection
+      ? activeCareerDirection.lastMeaningfulActivityAt.localeCompare(direction.lastMeaningfulActivityAt)
+        || activeCareerDirection.confidence - direction.confidence
+        || direction.key.localeCompare(activeCareerDirection.key)
+      : -1;
+    if (preferred < 0) {
+      activeCareerDirection = direction;
+    }
+  }
+  const primaryDirection = activeCareerDirection ?? configuredPrimaryDirection;
+  if (primaryDirection?.label.trim()) {
+    const templateKey: OpenLineNarrativeTemplateKey = primaryDirection.kind === "career"
+      ? "editorial.story.career"
+      : "editorial.story.direction";
+    const parameters = { direction: primaryDirection.label.trim() };
+    return {
+      text: renderNarrativeTemplate(templateKey, parameters),
+      source: "branch_direction",
+      confidence: primaryDirection.confidence,
+      explanationSource: "branch_transition",
+      templateKey,
+      parameters,
+    };
+  }
+
+  let latestMeaningfulMoment: NarrativeMoment | undefined;
+  for (const moment of moments) {
+    if (moment.storyType === "exploration" || moment.storyType === "origin") continue;
+    const preferred = latestMeaningfulMoment
+      ? (latestMeaningfulMoment.occurredAt ?? "").localeCompare(moment.occurredAt ?? "")
+        || narrativeStoryHierarchy[latestMeaningfulMoment.storyType] - narrativeStoryHierarchy[moment.storyType]
+        || moment.id.localeCompare(latestMeaningfulMoment.id)
+      : -1;
+    if (preferred < 0) {
+      latestMeaningfulMoment = moment;
+    }
+  }
+  if (latestMeaningfulMoment) {
+    const templateKey: OpenLineNarrativeTemplateKey = "editorial.story.moment";
+    const parameters = { statement: latestMeaningfulMoment.body };
+    return {
+      text: renderNarrativeTemplate(templateKey, parameters),
+      source: "narrative_moment",
+      confidence: latestMeaningfulMoment.confidence,
+      explanationSource: latestMeaningfulMoment.explanationSource,
+      templateKey,
+      parameters,
+    };
+  }
+
+  const templateKey: OpenLineNarrativeTemplateKey = events.length ? "editorial.story.progress" : "editorial.story.empty";
+  const parameters = {};
+  return {
+    text: renderNarrativeTemplate(templateKey, parameters),
+    source: events.length ? "narrative_moment" : "origin",
+    confidence: events.length ? 0.7 : 0.6,
+    explanationSource: "safe_fallback",
+    templateKey,
+    parameters,
+  };
+}
+
 export function buildOpenLineNarratives(
   input: OpenLineInput,
   events: readonly JourneyEvent[],
   branchIntelligence: BranchIntelligenceResult,
+  observeStage?: OpenLineNarrativeBuildObserver,
 ): OpenLineNarrativeResult {
+  let stageStartedAt = observeStage ? performance.now() : 0;
+  const completeStage = (stage: OpenLineNarrativeBuildStage) => {
+    if (!observeStage) return;
+    const completedAt = performance.now();
+    observeStage(stage, completedAt - stageStartedAt);
+    stageStartedAt = completedAt;
+  };
   const opportunities = new Map((input.opportunities ?? []).map((opportunity) => [opportunity.id, opportunity]));
   const assignments = new Map(branchIntelligence.eventAssignments.map((assignment) => [assignment.eventId, assignment.directionKey]));
   const transitionsByEvent = new Map<string, DirectionTransitionRecord>();
@@ -496,9 +593,11 @@ export function buildOpenLineNarratives(
   const merged: MergedRecord[] = [];
   const moments: NarrativeMoment[] = [];
   const explorationGroups = new Map<string, JourneyEvent[]>();
+  completeStage("indexing");
 
   for (const event of events) {
-    const categoryKey = `${event.type}|${categoryForEvent(event).singular}`;
+    const category = categoryForEvent(event);
+    const categoryKey = `${event.type}|${category.singular}`;
     const privateCounts = {
       priorTypeCount: privateTypeCounts.get(event.type) ?? 0,
       priorCategoryTypeCount: privateCategoryCounts.get(categoryKey) ?? 0,
@@ -511,6 +610,7 @@ export function buildOpenLineNarratives(
     const copy = createEventNarrative(event, {
       privateCounts,
       publicCounts,
+      category,
       opportunity: event.opportunityId ? opportunities.get(event.opportunityId) : undefined,
       transition: transitionsByEvent.get(event.id),
     });
@@ -528,7 +628,7 @@ export function buildOpenLineNarratives(
       continue;
     }
     if (event.type === "opportunity_viewed") {
-      const groupKey = categoryForEvent(event).singular;
+      const groupKey = category.singular;
       const group = explorationGroups.get(groupKey) ?? [];
       group.push(event);
       explorationGroups.set(groupKey, group);
@@ -549,19 +649,27 @@ export function buildOpenLineNarratives(
     merged.push({ momentId: moment.id, eventCount: explorationEvents.length, reason: "exploration_sequence" });
     for (const event of explorationEvents) suppressed.push({ eventId: event.id, reason: "merged_exploration" });
   }
+  completeStage("event_narratives");
 
-  const eventsById = new Map(events.map((event) => [event.id, event]));
-  for (const rejoin of branchIntelligence.rejoins) moments.push(rejoinMoment(rejoin, eventsById, branchIntelligence));
+  if (branchIntelligence.rejoins.length) {
+    const eventsById = new Map(events.map((event) => [event.id, event]));
+    for (const rejoin of branchIntelligence.rejoins) moments.push(rejoinMoment(rejoin, eventsById, branchIntelligence));
+  }
+  completeStage("rejoins");
 
   const origin = buildOrigin(events.length > 0, events[0]?.occurredAt ?? null, events[0] ? [events[0].id] : []);
+  const editorialStatement = buildEditorialStatement(events, moments, branchIntelligence);
   const waypoint = buildWaypoint(input, opportunities);
   const horizon = buildHorizon(input, opportunities);
+  completeStage("semantic_context");
   const sortedMoments = moments.sort(compareMoments);
+  completeStage("sorting");
   const raw = {
     version: openLineNarrativeRulesVersion,
     origin,
     eventNarratives: copies,
     moments: sortedMoments,
+    editorialStatement,
     waypoint,
     horizon,
   };
@@ -594,9 +702,11 @@ export function buildOpenLineNarratives(
       moment.explanationTemplateKey,
       moment.parameters,
     ]),
+    editorialStatement,
     waypoint,
     horizon,
   });
+  completeStage("signature");
   const sourceCounts = new Map<NarrativeExplanationSource, number>();
   for (const source of [
     ...sortedMoments.map((moment) => moment.explanationSource),
@@ -615,6 +725,7 @@ export function buildOpenLineNarratives(
     explanationSources: [...sourceCounts.entries()].map(([source, count]) => ({ source, count })).sort((a, b) => a.source.localeCompare(b.source)),
     deterministicSignature: signature,
   };
+  completeStage("diagnostics");
   return { ...raw, signature, diagnostics };
 }
 

@@ -11,6 +11,9 @@ const personalizedHome = read("components/personalized-home.tsx");
 const accountSync = read("data/account-sync.ts");
 const tracker = read("components/my-opportunities-page.tsx");
 const journeyDashboard = read("components/student-journey-dashboard.tsx");
+const journeyPage = read("app/page.tsx");
+const journeyEditorial = read("components/journey-editorial.tsx");
+const journeyEditorialModel = read("lib/journey-editorial.ts");
 const forYouApi = read("app/api/advisor/for-you/route.ts");
 const authStore = read("lib/auth-store.ts");
 const recommendationEngine = read("data/recommendation-engine.ts");
@@ -34,7 +37,10 @@ assert.match(tracker, /\/api\/opportunities\?ids=/, "My Opportunities should fet
 
 assert.doesNotMatch(journeyDashboard, /import \{[^}]*opportunities,/, "Journey dashboard must not statically import the full opportunity catalog.");
 assert.doesNotMatch(journeyDashboard, /buildRecommendationService/, "Journey dashboard must not bypass Pro gating with client-side recommendations.");
-assert.match(journeyDashboard, /\/api\/opportunities\?ids=/, "Journey dashboard should fetch only tracked opportunity records.");
+assert.doesNotMatch(journeyEditorial, /fetch\(|createPathGeometry/, "Journey editorial rendering must not fetch data or calculate geometry on the client.");
+assert.match(journeyPage, /listPublishedOpportunitiesByIds\(trackedIds\)/, "Journey should load only the tracked opportunity records on the server.");
+assert.match(journeyEditorialModel, /input\.opportunities\.filter\(\(opportunity\) => allTrackedIds\.has\(opportunity\.id\)\)/, "Journey composition must bound opportunity work to tracked records.");
+assert.match(journeyDashboard, /router\.refresh\(\)/, "The client recovery bridge should refresh into the server-composed Journey.");
 assert.doesNotMatch(journeyDashboard, /JourneyRecapCard|NextToReview/, "Journey dashboard should not load retired share/recommendation experiences.");
 
 assert.match(accountSync, /let sessionRequest/, "Account session requests should be deduped.");
