@@ -41,6 +41,7 @@
     "check:open-line-branches": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-open-line-branches.ts",
     "check:open-line-motion": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-open-line-motion.tsx",
     "check:open-line-narratives": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-open-line-narratives.ts",
+    "benchmark:open-line": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-pathprint-geometry.ts --strict-benchmark && node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-open-line-renderer.tsx --strict-benchmark && node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-open-line-markers.tsx --strict-benchmark && node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-open-line-branches.ts --strict-benchmark && node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-open-line-motion.tsx --strict-benchmark && node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-open-line-narratives.ts --strict-benchmark",
     "check:journey-editorial": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-journey-editorial.ts",
     "test:journey-editorial-browser": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/test-journey-editorial-browser.ts",
     "test:open-line-motion-browser": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/test-open-line-motion-browser.ts",

@@ -113,7 +113,15 @@ Run:
 npm run check:open-line-narratives
 ```
 
-The regression suite enforces:
+The deployment-blocking check enforces narrative correctness, privacy isolation, canonical signatures, synchronous/no-network execution, and a broad catastrophic ceiling for large histories. It does not enforce millisecond-level average or p95 gates because shared build workers can be CPU-throttled or variably scheduled enough to make strict microbenchmarks noisy.
+
+Run the strict Open Line benchmark in a controlled local or scheduled CI environment:
+
+```bash
+npm run benchmark:open-line
+```
+
+The strict benchmark enforces:
 
 - typical-history p95 below 2 ms
 - 1,000-event history average below 12 ms
@@ -121,4 +129,4 @@ The regression suite enforces:
 - 1,000-event history hard maximum below 50 ms
 - no network or asynchronous generation path
 
-The benchmark warms the runtime before collecting 40 large-history samples. The p95 gate therefore ignores isolated build-worker scheduling or garbage-collection pauses while the hard maximum still catches severe stalls. Fixture construction, normalization, branch intelligence, assertions, and benchmark bookkeeping are measured separately from narrative generation.
+The benchmark warms the runtime before collecting 40 large-history samples. Fixture construction, normalization, branch intelligence, assertions, and benchmark bookkeeping are measured separately from narrative generation. The build check keeps the 250 ms catastrophic ceiling to catch severe algorithmic regressions without blocking production deployments on normal host variance.

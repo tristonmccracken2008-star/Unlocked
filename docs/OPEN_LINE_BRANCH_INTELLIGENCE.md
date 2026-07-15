@@ -130,14 +130,22 @@ Analysis has no I/O. Opportunity metadata is indexed once, candidates are capped
 
 The optional fourth argument to `analyzeJourneyBranches` is a synchronous stage observer used only by the regression benchmark. Product execution does not enable it.
 
-The benchmark warms the runtime before collecting 40 large-history samples and separately measures fixture creation, normalization, branch stages, assertions, and bookkeeping. It enforces:
+The deployment-blocking check enforces branch correctness, deterministic signatures, privacy isolation, validation behavior, and a broad catastrophic ceiling. Strict average and p95 microbenchmarks run separately because shared build workers are not reliable environments for millisecond-level gates.
+
+Run the strict Open Line benchmark in a controlled local or scheduled CI environment:
+
+```bash
+npm run benchmark:open-line
+```
+
+The strict branch benchmark warms the runtime before collecting 40 large-history samples and separately measures fixture creation, normalization, branch stages, assertions, and bookkeeping. It enforces:
 
 - typical-history p95 below 5 ms
 - 2,000-event average below 15 ms
 - 2,000-event p95 below 25 ms
 - 2,000-event hard maximum below 75 ms
 
-The combined average, p95, and hard ceiling tolerate isolated build-worker scheduling pauses without hiding sustained regressions.
+The normal build keeps the 250 ms catastrophic ceiling to catch severe regressions without letting CPU contention on a deployment worker block production.
 
 Run:
 
