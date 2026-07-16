@@ -13,14 +13,14 @@ export default function Page() {
     <section className="mx-auto max-w-6xl">
       <p className="rule-label text-forest">UnlockED Pro</p>
       <h1 className="mt-4 max-w-4xl font-editorial text-5xl font-bold leading-[.98] tracking-[-.055em] text-ink sm:text-7xl">Never miss the right opportunity.</h1>
-      <p className="mt-6 max-w-2xl text-base leading-8 text-ink/58">Free stays useful. Pro unlocks the full personalized feed, deeper explanations, premium Journey Card themes, and premium appearance options.</p>
+      <p className="mt-6 max-w-2xl text-base leading-8 text-ink/58">Free stays useful. Pro unlocks the full personalized feed, deeper explanations, and premium appearance options.</p>
       <div className="mt-10 grid gap-5 lg:grid-cols-2">
         <PlanCard planId="pro_monthly" />
         <PlanCard planId="pro_annual" highlight />
       </div>
       <div className="mt-10 grid gap-5 rounded-[1.5rem] bg-white/72 p-6 ring-1 ring-ink/8 lg:grid-cols-2">
-        <section><h2 className="font-editorial text-2xl font-bold">Free includes</h2><ul className="mt-4 space-y-2 text-sm leading-6 text-ink/58"><li>Discover, search, filters, and opportunity pages</li><li>Add to Journey and manage your Journey Board</li><li>Standard Journey Card export and sharing</li><li>Limited For You preview</li></ul></section>
-        <section><h2 className="font-editorial text-2xl font-bold">Pro unlocks</h2><ul className="mt-4 space-y-2 text-sm leading-6 text-ink/58"><li>Full personalized For You feed</li><li>Recommendation explanations</li><li>Premium Journey Card themes and customization</li><li>Dark mode and premium appearance</li></ul></section>
+        <section><h2 className="font-editorial text-2xl font-bold">Free includes</h2><ul className="mt-4 space-y-2 text-sm leading-6 text-ink/58"><li>Discover, search, filters, and opportunity pages</li><li>Add to Journey and manage your Journey Board</li><li>Path Moment image export and sharing</li><li>Limited For You preview</li></ul></section>
+        <section><h2 className="font-editorial text-2xl font-bold">Pro unlocks</h2><ul className="mt-4 space-y-2 text-sm leading-6 text-ink/58"><li>Full personalized For You feed</li><li>Recommendation explanations</li><li>Deeper recommendation context</li><li>Dark mode and premium appearance</li></ul></section>
       </div>
       <p className="mt-6 max-w-3xl text-xs leading-6 text-ink/45">Subscriptions renew automatically until canceled in Stripe Billing. You can manage or cancel from your Billing settings. Taxes, if applicable, depend on Stripe account configuration. See <Link href="/terms" className="font-bold text-forest">Terms</Link> and <Link href="/privacy" className="font-bold text-forest">Privacy</Link>.</p>
     </section>

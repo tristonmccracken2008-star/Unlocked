@@ -1,7 +1,9 @@
 .page {
   --journey-green: #0e5b3e;
-  --journey-green-soft: rgb(14 91 62 / .12);
-  --journey-gold: #86651f;
+  --journey-green-soft: rgb(14 91 62 / .09);
+  --journey-gold: #7a5a18;
+  --journey-mineral: rgb(92 101 94 / .72);
+  --journey-rail-x: 1.5rem;
   min-height: 100vh;
   overflow: hidden;
   background: var(--unlocked-page);
@@ -11,12 +13,13 @@
 :global([data-theme="midnight"]) .page,
 :global([data-theme="forest"]) .page {
   --journey-green: #91c9ad;
-  --journey-green-soft: rgb(145 201 173 / .13);
-  --journey-gold: #cfb56d;
+  --journey-green-soft: rgb(145 201 173 / .1);
+  --journey-gold: #d6bd78;
+  --journey-mineral: rgb(205 211 205 / .68);
 }
 
 .article { width: min(100% - 2.5rem, 72rem); margin-inline: auto; }
-.opening { min-height: calc(100svh - 4.75rem); padding-block: clamp(3.75rem, 7vw, 6.5rem) clamp(4rem, 7vw, 6rem); }
+.opening { min-height: calc(100svh - 4.75rem); padding-block: clamp(3.5rem, 6.5vw, 6rem) clamp(4.5rem, 8vw, 7rem); }
 .storyHeader { position: relative; z-index: 2; max-width: 50rem; }
 
 .sectionLabel,
@@ -31,19 +34,19 @@
 }
 
 .storyHeader h1 {
-  max-width: 49rem;
-  margin: 1rem 0 0;
+  max-width: 48rem;
+  margin: .9rem 0 0;
   font-family: Iowan Old Style, Baskerville, Georgia, "Times New Roman", serif;
-  font-size: clamp(3.25rem, 5.7vw, 5.25rem);
+  font-size: clamp(3.15rem, 5.35vw, 4.95rem);
   font-weight: 650;
   letter-spacing: 0;
-  line-height: 1;
+  line-height: 1.015;
   text-wrap: balance;
 }
 
-.identity { margin: 1.35rem 0 0; color: var(--unlocked-muted); font-size: .93rem; font-weight: 650; }
+.identity { margin: 1.2rem 0 0; color: var(--journey-mineral); font-size: .86rem; font-weight: 650; line-height: 1.5; }
 
-.lineComposition { position: relative; min-height: 30rem; margin-top: 2.5rem; container-type: inline-size; }
+.lineComposition { position: relative; min-height: 29rem; margin-top: 2.75rem; container-type: inline-size; }
 .lineField { position: absolute; inset: 0 42% 0 2%; overflow: hidden; opacity: .84; pointer-events: none; }
 .lineField > div,
 .lineField > div > div,
@@ -55,26 +58,25 @@
   position: absolute;
   z-index: 2;
   width: min(31rem, 44%);
-  border: 1px solid var(--unlocked-border);
-  border-radius: .4rem;
-  background: var(--unlocked-surface);
+  border: 1px solid color-mix(in srgb, var(--journey-green) 13%, var(--unlocked-border));
+  border-radius: .25rem;
+  background: color-mix(in srgb, var(--unlocked-surface) 72%, var(--unlocked-page));
   padding: clamp(1.35rem, 2.5vw, 2rem);
-  box-shadow: 0 16px 42px rgb(43 33 26 / .06);
-  backdrop-filter: blur(10px);
+  box-shadow: 0 12px 34px rgb(43 33 26 / .045);
 }
 
 :global([data-theme="midnight"]) .waypoint,
 :global([data-theme="midnight"]) .emptyWaypoint,
 :global([data-theme="forest"]) .waypoint,
-:global([data-theme="forest"]) .emptyWaypoint { box-shadow: 0 16px 42px rgb(0 0 0 / .2); }
+:global([data-theme="forest"]) .emptyWaypoint { box-shadow: 0 12px 34px rgb(0 0 0 / .14); }
 
 .waypoint { top: clamp(4rem, calc(var(--waypoint-desktop-y) - 3.25rem), 12rem); right: 0; }
 .emptyWaypoint { top: 5.5rem; right: 0; }
-.waypointTitle { margin: .65rem 0 0; font-family: Iowan Old Style, Baskerville, Georgia, "Times New Roman", serif; font-size: clamp(1.9rem, 3vw, 2.65rem); font-weight: 650; letter-spacing: 0; line-height: 1.06; text-wrap: balance; }
-.waypointWhy { max-width: 32rem; margin: .8rem 0 0; color: var(--unlocked-muted); font-size: .91rem; line-height: 1.65; }
-.waypointMeta { display: flex; flex-wrap: wrap; gap: 1rem 2.25rem; margin: 1.05rem 0 0; }
+.waypointTitle { margin: .6rem 0 0; font-family: Iowan Old Style, Baskerville, Georgia, "Times New Roman", serif; font-size: clamp(1.8rem, 2.7vw, 2.4rem); font-weight: 650; letter-spacing: 0; line-height: 1.08; text-wrap: balance; }
+.waypointWhy { max-width: 30rem; margin: .75rem 0 0; color: var(--unlocked-muted); font-size: .88rem; line-height: 1.62; }
+.waypointMeta { display: flex; flex-wrap: wrap; gap: .85rem 2rem; margin: 1rem 0 0; }
 .waypointMeta div { min-width: 7rem; }
-.waypointMeta dt { color: var(--unlocked-muted); font-size: .64rem; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; }
+.waypointMeta dt { color: var(--journey-mineral); font-size: .61rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
 .waypointMeta dd { margin: .2rem 0 0; font-size: .86rem; font-weight: 750; text-transform: capitalize; }
 
 .primaryAction {
@@ -85,16 +87,17 @@
   gap: .65rem;
   margin-top: 1.2rem;
   border: 1px solid transparent;
-  border-radius: .35rem;
+  border-radius: .28rem;
   background: #0e5b3e;
   padding-inline: 1.15rem;
   color: #fff;
   cursor: pointer;
-  font-size: .84rem;
+  font-size: .82rem;
   font-weight: 760;
   text-decoration: none;
 }
-.primaryAction:hover { background: #204434; }
+.primaryAction:hover { background: #164b37; transform: translateY(-1px); }
+.primaryAction:active { transform: translateY(0); }
 .primaryAction svg { width: .95rem; height: .95rem; }
 .primaryAction:focus-visible { outline: 2px solid var(--journey-green); outline-offset: .25rem; }
 
@@ -130,19 +133,24 @@
 .transformationResult > p:not(.transformationLabel) { margin: .55rem 0 0; color: var(--unlocked-muted); font-size: .84rem; line-height: 1.58; }
 .transformationMeaning { color: var(--unlocked-text) !important; }
 
-.history { max-width: 49rem; padding-block: clamp(6rem, 10vw, 9rem); content-visibility: auto; contain-intrinsic-size: auto 900px; }
+.history { max-width: 49rem; padding-block: clamp(5.5rem, 9vw, 8rem) clamp(6.5rem, 10vw, 9rem); }
 .historyHeading { max-width: 41rem; }
 .historyHeading h2,
-.horizonHeading h2 { margin: .75rem 0 0; font-family: Iowan Old Style, Baskerville, Georgia, "Times New Roman", serif; font-size: clamp(2.5rem, 4.2vw, 3.65rem); font-weight: 650; letter-spacing: 0; line-height: 1.04; text-wrap: balance; }
+.horizonHeading h2 { margin: .7rem 0 0; font-family: Iowan Old Style, Baskerville, Georgia, "Times New Roman", serif; font-size: clamp(2.35rem, 3.85vw, 3.35rem); font-weight: 650; letter-spacing: 0; line-height: 1.055; text-wrap: balance; }
 .historyHeading > p:last-child,
 .horizonHeading > p:last-child { max-width: 36rem; margin: 1rem 0 0; color: var(--unlocked-muted); font-size: .91rem; line-height: 1.7; }
-.storyFlow { position: relative; margin-top: clamp(3.5rem, 6vw, 5.25rem); }
-.storyFlow::before { position: absolute; top: .75rem; bottom: 2rem; left: 1.5rem; width: 2px; border-radius: 999px; background: color-mix(in srgb, var(--journey-green) 62%, transparent); content: ""; }
+.pathMomentAction { margin-top: 1.35rem; }
+.pathMomentEmpty { max-width: 34rem; margin: -2rem 0 4rem; color: var(--unlocked-muted); font-size: .8rem; line-height: 1.6; }
+.pathMomentStandalone { padding-block: 2rem 6rem; }
+.storyFlow { position: relative; margin-top: clamp(3.25rem, 5.5vw, 4.75rem); }
+.storyFlow::before { position: absolute; top: .75rem; bottom: 2rem; left: var(--journey-rail-x); width: 1px; background: color-mix(in srgb, var(--journey-green) 58%, transparent); content: ""; }
 .chapter { position: relative; margin-top: clamp(3.25rem, 6vw, 5rem); }
 .chapter:first-child { margin-top: 0; }
-.chapterTitle { margin: 0 0 1rem 4rem; color: var(--journey-green); font-family: Iowan Old Style, Baskerville, Georgia, "Times New Roman", serif; font-size: 1rem; font-weight: 650; letter-spacing: 0; }
+.chapterTitle { margin: 0 0 1.15rem 4rem; color: var(--journey-green); font-family: Iowan Old Style, Baskerville, Georgia, "Times New Roman", serif; font-size: .96rem; font-weight: 650; letter-spacing: 0; }
 .momentList { display: grid; gap: clamp(2rem, 4vw, 3.5rem); margin: 0; padding: 0; list-style: none; }
 .moment { position: relative; }
+.moment[data-moment-kind="validation"],
+.moment[data-moment-kind="acceptance"] { margin-block: clamp(.7rem, 2vw, 1.5rem); }
 .momentDisclosure { margin: 0; }
 .momentSummary { display: grid; min-height: 3.5rem; grid-template-columns: 3rem minmax(0, 1fr); gap: 1rem; align-items: start; cursor: pointer; list-style: none; }
 .momentSummary::-webkit-details-marker { display: none; }
@@ -151,12 +159,12 @@
 .moment[data-moment-weight="landmark"] .momentMarker { width: 1.65rem; height: 1.65rem; border-color: var(--journey-gold); color: var(--journey-gold); }
 .momentCenter { width: .32rem; height: .32rem; border-radius: 50%; background: currentColor; }
 .momentEditorial { min-width: 0; }
-.momentMeta { display: flex; flex-wrap: wrap; gap: .45rem .8rem; color: var(--unlocked-muted); font-size: .64rem; font-weight: 750; letter-spacing: .06em; text-transform: uppercase; }
+.momentMeta { display: flex; flex-wrap: wrap; gap: .4rem .7rem; color: var(--journey-mineral); font-size: .6rem; font-weight: 750; letter-spacing: .075em; line-height: 1.5; text-transform: uppercase; }
 .momentMeta span::before { margin-right: .8rem; content: "·"; }
-.momentTitle { max-width: 38rem; margin: .55rem 0 0; font-family: Iowan Old Style, Baskerville, Georgia, "Times New Roman", serif; font-size: 1.35rem; font-weight: 650; letter-spacing: 0; line-height: 1.13; text-wrap: balance; }
-.moment[data-moment-weight="medium"] .momentTitle { font-size: clamp(1.7rem, 3vw, 2.15rem); }
-.moment[data-moment-weight="large"] .momentTitle { font-size: clamp(2rem, 3.5vw, 2.7rem); }
-.moment[data-moment-weight="landmark"] .momentTitle { max-width: 41rem; font-size: clamp(2.3rem, 4vw, 3.15rem); line-height: 1.02; }
+.momentTitle { max-width: 38rem; margin: .5rem 0 0; font-family: Iowan Old Style, Baskerville, Georgia, "Times New Roman", serif; font-size: 1.3rem; font-weight: 650; letter-spacing: 0; line-height: 1.15; text-wrap: balance; }
+.moment[data-moment-weight="medium"] .momentTitle { font-size: clamp(1.6rem, 2.7vw, 2rem); }
+.moment[data-moment-weight="large"] .momentTitle { font-size: clamp(1.9rem, 3.15vw, 2.45rem); }
+.moment[data-moment-weight="landmark"] .momentTitle { max-width: 41rem; font-size: clamp(2.2rem, 3.7vw, 2.9rem); line-height: 1.045; }
 .momentBody { display: block; max-width: 35rem; margin-top: .65rem; color: var(--unlocked-muted); font-size: .9rem; line-height: 1.68; }
 .detailHint { display: inline-flex; align-items: center; gap: .4rem; min-height: 2.75rem; margin-top: .4rem; color: var(--journey-green); font-size: .72rem; font-weight: 750; }
 .detailArrow { transition: transform var(--journey-disclosure-duration) var(--journey-motion-easing); }
@@ -164,7 +172,7 @@
 .momentDisclosure[open] .detailClosed { display: none; }
 .momentDisclosure[open] .detailOpen { display: inline; }
 .momentDisclosure[open] .detailArrow { transform: rotate(180deg); }
-.momentDetail { max-width: 39rem; margin: 1.1rem 0 0 4rem; border-top: 1px solid var(--unlocked-border); padding-top: 1.25rem; }
+.momentDetail { max-width: 39rem; margin: 1rem 0 0 4rem; padding: 1.25rem 1.4rem; background: var(--journey-green-soft); }
 .momentDetail dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem 2rem; margin: 0; }
 .momentDetail dt,
 .horizonDetail dt { color: var(--unlocked-muted); font-size: .64rem; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; }
@@ -188,17 +196,17 @@
 
 .historyEmpty { display: none; }
 
-.horizon { position: relative; max-width: 54rem; padding-block: clamp(5rem, 9vw, 8rem) clamp(7rem, 11vw, 10rem); content-visibility: auto; contain-intrinsic-size: auto 650px; }
+.horizon { position: relative; max-width: 54rem; padding-block: clamp(5.5rem, 9vw, 8rem) clamp(7rem, 11vw, 10rem); }
 .horizonHeading { max-width: 42rem; }
 .horizonComposition { position: relative; min-height: 18rem; margin-top: 3.5rem; }
-.horizonOpenEnd { position: absolute; top: 0; bottom: 0; left: 1.5rem; width: 2px; background: repeating-linear-gradient(180deg, color-mix(in srgb, var(--journey-green) 48%, transparent) 0 7px, transparent 7px 14px); }
+.horizonOpenEnd { position: absolute; top: 0; bottom: 0; left: var(--journey-rail-x); width: 0; border-left: 1px dashed color-mix(in srgb, var(--journey-green) 48%, transparent); }
 .horizonOpenEnd::before { position: absolute; top: 0; left: 50%; width: .9rem; height: .9rem; border: 2px solid var(--journey-green); border-radius: 50%; background: var(--unlocked-page); content: ""; transform: translate(-50%, -50%); }
 .horizonOpenEnd::after { position: absolute; bottom: 0; left: 50%; width: .75rem; height: .75rem; border: 2px solid color-mix(in srgb, var(--journey-green) 60%, transparent); border-radius: 50%; background: var(--unlocked-page); content: ""; transform: translate(-50%, 50%); }
 .horizonContent { margin-left: 4rem; }
 .horizonList { margin: 0; padding: 0; list-style: none; }
 .horizonItem { max-width: 39rem; }
 .horizonOrder { margin: 0; color: var(--journey-green); font-size: .66rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
-.horizonItem h3 { max-width: 36rem; margin: .65rem 0 0; font-family: Iowan Old Style, Baskerville, Georgia, "Times New Roman", serif; font-size: clamp(2rem, 3.6vw, 2.9rem); font-weight: 650; letter-spacing: 0; line-height: 1.04; text-wrap: balance; }
+.horizonItem h3 { max-width: 36rem; margin: .6rem 0 0; font-family: Iowan Old Style, Baskerville, Georgia, "Times New Roman", serif; font-size: clamp(1.9rem, 3.25vw, 2.65rem); font-weight: 650; letter-spacing: 0; line-height: 1.055; text-wrap: balance; }
 .horizonExplanation { max-width: 36rem; margin: .8rem 0 0; color: var(--unlocked-muted); font-size: .9rem; line-height: 1.68; }
 .horizonReason { max-width: 35rem; margin: .85rem 0 0; color: var(--unlocked-muted); font-size: .82rem; line-height: 1.62; }
 .horizonDisclosure { max-width: 36rem; margin-top: .55rem; }
@@ -230,7 +238,7 @@
 .loadingNarrative { display: grid; gap: .65rem; max-width: 42rem; margin-top: 1.25rem; }
 .loadingNarrative span,
 .loadingIdentity,
-.loadingWaypoint span { display: block; border-radius: .2rem; background: color-mix(in srgb, var(--unlocked-text) 8%, transparent); }
+.loadingWaypoint span { display: block; border-radius: .15rem; background: color-mix(in srgb, var(--unlocked-text) 7%, transparent); }
 .loadingNarrative span { height: clamp(2.5rem, 5vw, 4.25rem); }
 .loadingNarrative span:nth-child(1) { width: 92%; }
 .loadingNarrative span:nth-child(2) { width: 73%; }
@@ -243,7 +251,7 @@
 .loadingLine b { position: absolute; left: calc(52% - .5rem); width: 1rem; height: 1rem; border: 2px solid color-mix(in srgb, #146044 45%, transparent); border-radius: 50%; background: var(--unlocked-page); }
 .loadingLine i { top: 3rem; }
 .loadingLine b { top: 12rem; }
-.loadingWaypoint { position: absolute; top: 5rem; right: 0; display: grid; width: min(31rem, 44%); gap: .7rem; border: 1px solid var(--unlocked-border); border-radius: .4rem; background: var(--unlocked-surface); padding: 2rem; }
+.loadingWaypoint { position: absolute; top: 5rem; right: 0; display: grid; width: min(31rem, 44%); gap: .7rem; border: 1px solid color-mix(in srgb, var(--journey-green) 13%, var(--unlocked-border)); border-radius: .25rem; background: color-mix(in srgb, var(--unlocked-surface) 72%, var(--unlocked-page)); padding: 2rem; }
 .loadingWaypoint span { height: .9rem; }
 .loadingWaypoint span:first-child { height: 2.4rem; width: 88%; }
 .loadingWaypoint span:last-child { width: 58%; }
@@ -257,26 +265,27 @@
 }
 
 @media (max-width: 42rem) {
+  .page { --journey-rail-x: 1.25rem; }
   .article { width: min(100% - 2rem, 36rem); }
-  .opening { min-height: auto; padding-block: 1.75rem 4.5rem; }
-  .storyHeader h1 { font-size: clamp(2.4rem, 10.5vw, 2.9rem); line-height: .98; }
+  .opening { min-height: auto; padding-block: 1.75rem 5.25rem; }
+  .storyHeader h1 { font-size: clamp(2.25rem, 10vw, 2.75rem); line-height: 1; }
   .identity { margin-top: .7rem; font-size: .8rem; line-height: 1.45; }
-  .lineComposition { min-height: 24rem; margin-top: 1rem; }
+  .lineComposition { display: grid; min-height: 25rem; grid-template-columns: 3.5rem minmax(0, 1fr); align-items: start; margin-top: 1.25rem; }
   .lineField { inset: 0 auto 0 0; width: 3.4rem; opacity: .9; }
   .lineField > div { width: 22rem; height: 100%; }
   .lineField svg { width: 22rem; }
   .waypoint,
-  .emptyWaypoint { top: .75rem; right: 0; left: 4.4rem; width: auto; padding: 1rem; backdrop-filter: none; }
-  .waypointTitle { font-size: clamp(1.45rem, 6.7vw, 1.8rem); }
+  .emptyWaypoint { position: relative; top: auto; right: auto; left: auto; grid-column: 2; width: auto; margin-top: .5rem; padding: 1rem; }
+  .waypointTitle { font-size: clamp(1.38rem, 6.35vw, 1.7rem); }
   .waypointWhy { margin-top: .55rem; font-size: .78rem; line-height: 1.45; }
   .waypointMeta { gap: .65rem 1rem; margin-top: .75rem; }
   .waypointMeta div { min-width: 0; }
   .primaryAction { width: 100%; min-height: 2.75rem; margin-top: .75rem; }
-  .history { padding-block: 5.5rem; }
+  .history { padding-block: 4.75rem 6.5rem; }
   .historyHeading h2,
   .horizonHeading h2 { font-size: clamp(2.15rem, 9.5vw, 2.7rem); }
   .storyFlow { margin-top: 3.5rem; }
-  .storyFlow::before { left: 1.25rem; }
+  .storyFlow::before { left: var(--journey-rail-x); }
   .chapter { margin-top: 3.5rem; }
   .chapterTitle { margin-left: 3.25rem; }
   .momentSummary { grid-template-columns: 2.5rem minmax(0, 1fr); gap: .75rem; }
@@ -292,7 +301,7 @@
   .omittedHistory { margin-left: 3.25rem; }
   .horizon { padding-block: 5rem 7rem; }
   .horizonComposition { margin-top: 2.75rem; }
-  .horizonOpenEnd { left: 1.25rem; }
+  .horizonOpenEnd { left: var(--journey-rail-x); }
   .horizonContent { margin-left: 3.5rem; }
   .horizonItem h3 { font-size: 2rem; }
   .horizonExplanation { font-size: .86rem; }
@@ -301,7 +310,29 @@
   .loadingLine::before { left: 1.5rem; }
   .loadingLine i,
   .loadingLine b { left: 1rem; }
-  .loadingWaypoint { right: 0; left: 4.4rem; width: auto; padding: 1.2rem; }
+  .loadingComposition { display: grid; min-height: 25rem; grid-template-columns: 3.5rem minmax(0, 1fr); }
+  .loadingWaypoint { position: relative; top: auto; right: auto; left: auto; grid-column: 2; width: auto; margin-top: .75rem; padding: 1.2rem; }
+}
+
+@media (max-width: 22.5rem) {
+  .article { width: min(100% - 1.5rem, 36rem); }
+  .opening { padding-bottom: 6rem; }
+  .storyHeader h1 { font-size: 2rem; line-height: .98; }
+  .historyHeading h2,
+  .horizonHeading h2 { font-size: 1.85rem; }
+  .horizonItem h3,
+  .additionalDirection .horizonItem h3 { font-size: 1.75rem; }
+  .identity { margin-top: .55rem; font-size: .73rem; }
+  .lineComposition { grid-template-columns: 2.75rem minmax(0, 1fr); margin-top: .75rem; }
+  .lineField { width: 2.6rem; transform: translateX(-.35rem); }
+  .waypoint,
+  .emptyWaypoint { margin-top: .2rem; padding: .75rem .8rem; }
+  .waypointTitle { margin-top: .45rem; font-size: 1.18rem; line-height: 1.04; }
+  .waypointWhy { margin-top: .45rem; font-size: .7rem; line-height: 1.35; }
+  .waypointMeta { display: grid; grid-template-columns: 1fr 1fr; gap: .4rem .65rem; margin-top: .55rem; }
+  .waypointMeta dt { font-size: .54rem; }
+  .waypointMeta dd { margin-top: .1rem; font-size: .72rem; }
+  .primaryAction { min-height: 2.6rem; margin-top: .55rem; font-size: .74rem; }
 }
 
 @media (prefers-contrast: more) {
@@ -334,6 +365,18 @@
 }
 
 @media (prefers-reduced-motion: no-preference) {
+  .loadingLabel,
+  .loadingIdentity,
+  .loadingNarrative,
+  .loadingWaypoint,
+  .loadingLine,
+  .loadingStatus { opacity: 0; animation: editorial-arrive .42s var(--journey-motion-easing, ease-out) forwards; }
+  .loadingLabel,
+  .loadingIdentity { animation-delay: 0ms; }
+  .loadingNarrative { animation-delay: 90ms; }
+  .loadingWaypoint,
+  .loadingLine { animation-delay: 190ms; }
+  .loadingStatus { animation-delay: 320ms; }
   .loadingNarrative span,
   .loadingIdentity,
   .loadingWaypoint span { animation: editorial-ink 1.8s ease-in-out infinite alternate; }
@@ -342,4 +385,9 @@
 @keyframes editorial-ink {
   from { opacity: .5; }
   to { opacity: .85; }
+}
+
+@keyframes editorial-arrive {
+  from { opacity: 0; transform: translateY(.2rem); }
+  to { opacity: 1; transform: translateY(0); }
 }

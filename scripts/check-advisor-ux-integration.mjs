@@ -41,8 +41,8 @@ for (const label of [
   "What matters now",
   "Estimated effort",
   "Expected impact",
-  "Your living story",
-  "Open Journey Board",
+  "The moments that shaped your path",
+  "Manage applications",
 ]) {
   assert.ok(journeyEditorial.includes(label), `Journey editorial experience must render ${label}.`);
 }
@@ -137,9 +137,9 @@ for (const event of [
   "recommendation_viewed",
   "recommendation_clicked",
   "journey_opened",
-  "journey_card_generated",
-  "journey_card_share_started",
-  "journey_card_downloaded",
+  "path_moment_preview_opened",
+  "path_moment_shared",
+  "path_moment_downloaded",
 ]) {
   assert.ok(analytics.includes(`"${event}"`), `Analytics events must include ${event}.`);
 }

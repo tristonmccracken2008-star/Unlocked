@@ -1,0 +1,280 @@
+import assert from "node:assert/strict";
+import { mkdirSync, readFileSync } from "node:fs";
+import http from "node:http";
+import net from "node:net";
+import path from "node:path";
+import next from "next";
+import { chromium, webkit, type BrowserContext, type Page } from "playwright";
+import type { JourneyProgressTransition, OpportunityTrackerStatus, TrackedOpportunity } from "../data/student-activity";
+
+type StoredValue = { value: unknown; expiresAt?: number };
+const store = new Map<string, StoredValue>();
+const outputDirectory = "/tmp/unlocked-semester-story";
+
+function liveValue(key: string) {
+  const item = store.get(key);
+  if (item?.expiresAt && item.expiresAt <= Date.now()) { store.delete(key); return undefined; }
+  return item;
+}
+
+async function listen(server: net.Server, port = 0) {
+  await new Promise<void>((resolve, reject) => server.once("error", reject).listen(port, "127.0.0.1", resolve));
+  return (server.address() as net.AddressInfo).port;
+}
+
+async function freePort() {
+  const server = net.createServer();
+  const port = await listen(server);
+  await new Promise<void>((resolve) => server.close(() => resolve()));
+  return port;
+}
+
+function createKvServer() {
+  return http.createServer(async (request, response) => {
+    const chunks: Buffer[] = [];
+    for await (const chunk of request) chunks.push(Buffer.from(chunk));
+    const command = JSON.parse(Buffer.concat(chunks).toString("utf8")) as unknown[];
+    const operation = String(command[0] ?? "");
+    let result: unknown = null;
+    if (operation === "GET") result = liveValue(String(command[1]))?.value ?? null;
+    else if (operation === "SET") {
+      const key = String(command[1]);
+      if (!command.includes("NX") || !liveValue(key)) {
+        const expiryIndex = command.indexOf("EX");
+        store.set(key, { value: command[2], expiresAt: expiryIndex >= 0 ? Date.now() + Number(command[expiryIndex + 1]) * 1000 : undefined });
+        result = "OK";
+      }
+    } else if (operation === "DEL") result = store.delete(String(command[1])) ? 1 : 0;
+    else if (operation === "EVAL") {
+      const key = String(command[3]);
+      if (liveValue(key)?.value === command[4]) { store.delete(key); result = 1; } else result = 0;
+    } else if (operation === "SMEMBERS" || operation === "LRANGE") result = [];
+    else if (operation === "SADD" || operation === "LPUSH") result = 1;
+    else if (operation === "LTRIM") result = "OK";
+    response.writeHead(200, { "Content-Type": "application/json" });
+    response.end(JSON.stringify({ result }));
+  });
+}
+
+const transitions: Array<{ transition: JourneyProgressTransition; status: OpportunityTrackerStatus }> = [
+  { transition: "choose", status: "Interested" },
+  { transition: "start", status: "Applying" },
+  { transition: "submit", status: "Submitted" },
+  { transition: "interview", status: "Interview" },
+  { transition: "accept", status: "Accepted" },
+  { transition: "complete", status: "Completed" },
+];
+
+function recordFor(id: string, finalStatus: OpportunityTrackerStatus, month: number): TrackedOpportunity {
+  const end = transitions.findIndex((item) => item.status === finalStatus);
+  const history = transitions.slice(0, end + 1).map((item, index) => ({
+    id: `semester-browser-${month}-${index}`,
+    transition: item.transition,
+    priorStatus: index ? transitions[index - 1].status : "Saved",
+    resultingStatus: item.status,
+    occurredAt: `2026-${String(month).padStart(2, "0")}-${String(8 + index).padStart(2, "0")}T12:00:00.000Z`,
+  }));
+  return {
+    id,
+    status: finalStatus,
+    savedAt: `2026-${String(month).padStart(2, "0")}-05T12:00:00.000Z`,
+    updatedAt: history.at(-1)?.occurredAt ?? `2026-${String(month).padStart(2, "0")}-05T12:00:00.000Z`,
+    version: history.length,
+    history,
+  };
+}
+
+async function seedSession(label: string, populated: boolean, dark = false) {
+  const { createSession, mergeAccountData, updateAccountBilling, upsertUser } = await import("../lib/auth-store");
+  const { opportunities } = await import("../data/opportunities");
+  const selected = populated ? opportunities.filter((item) => item.type === "Career" && item.category === "Internships").slice(0, 4) : [];
+  const statuses: OpportunityTrackerStatus[] = ["Submitted", "Interview", "Accepted", "Completed"];
+  const months = [1, 3, 5, 7];
+  const tracker = Object.fromEntries(selected.map((opportunity, index) => [opportunity.id, recordFor(opportunity.id, statuses[index], months[index])]));
+  const user = await upsertUser({ googleSub: `semester-story-${label}`, email: `semester-story-${label}@example.test`, name: `Jordan ${label}` });
+  const now = "2026-07-16T12:00:00.000Z";
+  await mergeAccountData(user.id, {
+    profile: {
+      firstName: "Jordan",
+      lastName: label,
+      schoolSlug: "university-of-chicago",
+      major: "Mathematics",
+      graduationYear: "2030",
+      year: "First year",
+      careerGoal: "Quantitative Finance",
+      interests: "Finance, Research",
+      onboardingCompletedAt: now,
+    },
+    onboardingComplete: true,
+    activity: { viewed: [], saved: selected.map((item) => item.id), claimed: [], tracked: tracker },
+    savedOpportunities: selected.map((item) => ({ opportunityId: item.id, savedAt: tracker[item.id].savedAt })),
+    tracker,
+    preferences: { appearance: dark ? "midnight" : "light", updatedAt: now },
+  });
+  if (dark) await updateAccountBilling(user.id, { tier: "pro", status: "active", billingInterval: "month", cancelAtPeriodEnd: false });
+  return await createSession(user);
+}
+
+async function installSession(context: BrowserContext, origin: string, token: string) {
+  await context.addCookies([{ name: "unlocked_session", value: token, url: origin, httpOnly: true, sameSite: "Lax", expires: Math.floor(Date.now() / 1000) + 3600 }]);
+}
+
+async function openCreator(page: Page, origin: string) {
+  const response = await page.goto(origin, { waitUntil: "domcontentloaded", timeout: 60_000 });
+  assert.equal(response?.status(), 200);
+  const journey = page.locator("[data-journey-editorial]");
+  await journey.waitFor({ state: "visible" });
+  const trigger = journey.getByRole("button", { name: "View your semester story" });
+  await trigger.scrollIntoViewIfNeeded();
+  assert.equal(await page.locator("[data-semester-story-creator]").count(), 0, "Export UI must remain unmounted before opening.");
+  await trigger.click();
+  const dialog = page.getByRole("dialog", { name: "See how your path changed." });
+  await dialog.waitFor({ state: "visible", timeout: 60_000 });
+  return { journey, trigger, dialog };
+}
+
+async function assertNoOverflow(page: Page, label: string) {
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  assert.ok(overflow <= 1, `${label} must not create horizontal overflow; received ${overflow}px.`);
+}
+
+async function selectFormat(dialog: ReturnType<Page["getByRole"]>, label: "Story" | "Square" | "LinkedIn") {
+  await dialog.getByRole("button", { name: label, exact: true }).click();
+  await dialog.locator("[data-semester-story-artwork]").waitFor({ state: "visible" });
+}
+
+function pngDimensions(filePath: string) {
+  const bytes = readFileSync(filePath);
+  assert.equal(bytes.subarray(1, 4).toString("ascii"), "PNG");
+  return { width: bytes.readUInt32BE(16), height: bytes.readUInt32BE(20) };
+}
+
+async function downloadAndAssert(page: Page, dialog: ReturnType<Page["getByRole"]>, layout: "story" | "square" | "linkedin", width: number, height: number) {
+  const downloadPromise = page.waitForEvent("download");
+  await dialog.getByRole("button", { name: "Download PNG" }).click();
+  const download = await downloadPromise;
+  assert.equal(download.suggestedFilename(), `unlocked-semester-story-${layout}.png`);
+  const downloadPath = path.join(outputDirectory, download.suggestedFilename());
+  await download.saveAs(downloadPath);
+  assert.deepEqual(pngDimensions(downloadPath), { width, height });
+  await dialog.getByText("Semester Story downloaded.").waitFor({ state: "visible" });
+}
+
+const kvServer = createKvServer();
+const kvPort = await listen(kvServer);
+process.env.AUTH_SECRET = "semester-story-browser-secret-with-at-least-thirty-two-bytes";
+process.env.KV_REST_API_URL = `http://127.0.0.1:${kvPort}`;
+process.env.KV_REST_API_TOKEN = "semester-story-browser-token";
+const requestedAppPort = await freePort();
+process.env.NEXT_PUBLIC_APP_URL = `http://127.0.0.1:${requestedAppPort}`;
+
+const populatedSession = await seedSession("Student", true);
+const darkSession = await seedSession("Night", true, true);
+const emptySession = await seedSession("Beginning", false);
+const app = next({ dev: true, dir: process.cwd(), hostname: "127.0.0.1", port: requestedAppPort });
+await app.prepare();
+const server = http.createServer((request, response) => app.getRequestHandler()(request, response));
+const appPort = await listen(server, requestedAppPort);
+const origin = `http://127.0.0.1:${appPort}`;
+mkdirSync(outputDirectory, { recursive: true });
+
+const chromiumBrowser = await chromium.launch({ headless: true });
+const webkitBrowser = await webkit.launch({ headless: true });
+try {
+  {
+    const context = await chromiumBrowser.newContext({ viewport: { width: 1440, height: 1000 }, colorScheme: "light", acceptDownloads: true, permissions: ["clipboard-read", "clipboard-write"] });
+    await installSession(context, origin, populatedSession.token);
+    const page = await context.newPage();
+    await page.goto(origin, { waitUntil: "domcontentloaded", timeout: 60_000 });
+    const { trigger, dialog } = await openCreator(page, origin);
+    await assertNoOverflow(page, "desktop Semester Story creator");
+    assert.equal(await dialog.getByRole("button", { name: "Anonymous", exact: true }).getAttribute("aria-pressed"), "true");
+    assert.equal(await dialog.getByRole("checkbox", { name: "Term" }).isChecked(), true, "Term must be included by default.");
+    const checkedLabels = await dialog.locator('input[type="checkbox"]:checked').evaluateAll((items) => items.map((item) => (item.parentElement?.textContent ?? "").trim()));
+    assert.deepEqual(checkedLabels, ["Term"]);
+    const anonymousText = await dialog.locator("[data-semester-story-artwork]").textContent() ?? "";
+    assert.doesNotMatch(anonymousText, /Jordan|University of Chicago/, "Anonymous preview cannot expose identity.");
+    assert.ok(await dialog.locator("[data-semester-story-artwork] [data-open-line-marker]").count() >= 1);
+    assert.ok(await dialog.locator("[data-semester-story-artwork] [data-open-line-segment]").count() >= 1);
+    await page.screenshot({ path: path.join(outputDirectory, "story-anonymous-light.png"), fullPage: true });
+    await dialog.locator("[data-semester-story-artwork]").screenshot({ path: path.join(outputDirectory, "semester-story-story.png") });
+    await downloadAndAssert(page, dialog, "story", 1080, 1920);
+
+    const termSelect = dialog.locator("select");
+    assert.ok(await termSelect.locator("option").count() >= 2, "Previous completed terms must remain selectable when evidence exists.");
+    await dialog.getByRole("button", { name: "Full name", exact: true }).click();
+    await dialog.getByRole("checkbox", { name: "School" }).check();
+    await dialog.getByRole("checkbox", { name: "Major" }).check();
+    await dialog.getByRole("checkbox", { name: "Organization" }).check();
+    await dialog.getByRole("checkbox", { name: "Opportunity" }).check();
+    await dialog.getByRole("checkbox", { name: "Month and year" }).check();
+    await dialog.getByRole("checkbox", { name: "Selected counts" }).check();
+    const namedText = await dialog.locator("[data-semester-story-artwork]").textContent() ?? "";
+    assert.match(namedText, /Jordan Student/);
+    assert.match(namedText, /University of Chicago/);
+    assert.match(namedText, /Mathematics/);
+
+    await selectFormat(dialog, "Square");
+    assert.equal(await dialog.locator("[data-semester-story-artwork]").getAttribute("width"), "1080");
+    assert.equal(await dialog.locator("[data-semester-story-artwork]").getAttribute("height"), "1080");
+    await dialog.locator("[data-semester-story-artwork]").screenshot({ path: path.join(outputDirectory, "semester-story-square.png") });
+    await downloadAndAssert(page, dialog, "square", 1080, 1080);
+
+    await selectFormat(dialog, "LinkedIn");
+    assert.equal(await dialog.locator("[data-semester-story-artwork]").getAttribute("width"), "1200");
+    assert.equal(await dialog.locator("[data-semester-story-artwork]").getAttribute("height"), "627");
+    await dialog.locator("[data-semester-story-artwork]").screenshot({ path: path.join(outputDirectory, "semester-story-linkedin.png") });
+    await downloadAndAssert(page, dialog, "linkedin", 1200, 627);
+
+    await page.keyboard.press("Escape");
+    await dialog.waitFor({ state: "hidden" });
+    await trigger.waitFor({ state: "visible" });
+    assert.equal(await trigger.evaluate((node) => node === document.activeElement), true, "Closing the creator must restore focus to its trigger.");
+    await context.close();
+  }
+
+  {
+    const context = await chromiumBrowser.newContext({ viewport: { width: 1440, height: 1000 }, colorScheme: "dark" });
+    await installSession(context, origin, darkSession.token);
+    const page = await context.newPage();
+    const { dialog } = await openCreator(page, origin);
+    assert.equal(await dialog.getAttribute("data-theme"), "dark");
+    await page.screenshot({ path: path.join(outputDirectory, "story-anonymous-dark.png"), fullPage: true });
+    await context.close();
+  }
+
+  {
+    const context = await webkitBrowser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce", colorScheme: "light" });
+    await installSession(context, origin, populatedSession.token);
+    const page = await context.newPage();
+    const { dialog } = await openCreator(page, origin);
+    await assertNoOverflow(page, "mobile WebKit Semester Story creator");
+    await selectFormat(dialog, "Square");
+    const sizes = await dialog.getByRole("button", { name: /Story|Square|LinkedIn|Anonymous|First name|Full name/ }).evaluateAll((nodes) => nodes.map((node) => (node as HTMLElement).getBoundingClientRect().height));
+    assert.ok(sizes.every((height) => height >= 40), "Mobile creator controls must preserve comfortable touch height.");
+    await page.screenshot({ path: path.join(outputDirectory, "square-mobile-webkit.png"), fullPage: true });
+    await context.close();
+  }
+
+  {
+    const context = await chromiumBrowser.newContext({ viewport: { width: 1200, height: 900 } });
+    await installSession(context, origin, emptySession.token);
+    const page = await context.newPage();
+    const response = await page.goto(origin, { waitUntil: "domcontentloaded", timeout: 60_000 });
+    assert.equal(response?.status(), 200);
+    const root = page.locator("[data-journey-editorial]");
+    await root.waitFor({ state: "visible" });
+    assert.equal(await root.locator("[data-semester-story-entry]").count(), 0, "No qualifying activity must not render a dead Semester Story action.");
+    await page.screenshot({ path: path.join(outputDirectory, "empty-state.png"), fullPage: true });
+    await context.close();
+  }
+} finally {
+  await chromiumBrowser.close();
+  await webkitBrowser.close();
+  await new Promise<void>((resolve) => server.close(() => resolve()));
+  await app.close();
+  await new Promise<void>((resolve) => kvServer.close(() => resolve()));
+}
+
+console.log(JSON.stringify({ message: "Semester Story browser checks passed in Chromium and WebKit.", screenshots: outputDirectory }, null, 2));
+process.exit(0);

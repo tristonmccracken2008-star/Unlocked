@@ -305,3 +305,4 @@ try {
 }
 
 console.log(JSON.stringify({ message: "Journey polish browser checks passed in Chromium and WebKit.", screenshots: outputDirectory, performance: Object.fromEntries(Object.entries(performanceResults).map(([key, value]) => [key, Number(value.toFixed(1))])) }, null, 2));
+process.exit(0);

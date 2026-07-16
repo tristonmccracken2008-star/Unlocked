@@ -119,8 +119,8 @@ assert.ok(liveLine.includes('preference: "system"'), "Journey motion must respec
 assert.ok(styles.includes("prefers-reduced-motion"), "Journey styles must explicitly preserve reduced motion.");
 assert.ok(styles.includes("prefers-contrast: more"), "Journey must support high contrast.");
 assert.ok(liveLine.includes("responsiveMode") && liveLine.includes("data-open-line-mode"), "One responsive renderer must select the active geometry.");
-assert.ok(styles.includes("left: 4.4rem"), "Mobile waypoint text must clear the 40px Open Line rail.");
-assert.ok(styles.includes(".storyFlow::before") && styles.includes("left: 1.25rem"), "Mobile history must reserve a 40px Open Line rail.");
+assert.ok(styles.includes("grid-template-columns: 3.5rem minmax(0, 1fr)") && styles.includes("grid-column: 2"), "Mobile waypoint text must clear the Open Line rail through document flow.");
+assert.ok(styles.includes("--journey-rail-x: 1.25rem") && styles.includes("left: var(--journey-rail-x)"), "Mobile history and Horizon must share a stable Open Line rail.");
 assert.ok(styles.includes(".lineField { inset: 0 auto 0 0; width: 3.4rem;"), "Mobile Open Line content must remain clipped to its rail.");
 assert.ok(component.includes("<ol") && component.includes("aria-labelledby"), "History must keep chronological and accessible structure.");
 assert.ok(component.includes("<details") && component.includes("<summary"), "Moment and chapter disclosures must remain keyboard-native.");

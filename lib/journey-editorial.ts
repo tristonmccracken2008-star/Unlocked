@@ -28,6 +28,8 @@ import {
   type PathGeometry,
   type Pathprint,
 } from "@/data/open-line/index";
+import { buildPathMoments, type PathMomentCollection } from "@/lib/path-moments";
+import { buildSemesterStories, type SemesterStoryCollection } from "@/lib/semester-story";
 
 export type JourneyEditorialViewport = {
   x: number;
@@ -135,6 +137,8 @@ export type JourneyEditorialModel = {
   };
   history: JourneyEditorialHistory;
   horizon: JourneyEditorialHorizon;
+  pathMoments: PathMomentCollection;
+  semesterStories: SemesterStoryCollection;
   geometries: {
     desktop: JourneyEditorialGeometry;
     tablet: JourneyEditorialGeometry;
@@ -229,6 +233,17 @@ function displayIdentity(account: AccountData) {
   if (!profile) return [];
   const school = schools.find((item) => item.slug === profile.schoolSlug);
   return [profile.major, school?.name, profile.year].filter((item): item is string => Boolean(item?.trim()));
+}
+
+function pathMomentIdentity(account: AccountData, user: Pick<AuthUser, "name">, schoolName?: string) {
+  const profile = account.profile;
+  const firstName = profile?.firstName?.trim() || user.name.trim().split(/\s+/)[0] || "Student";
+  const profileFullName = [profile?.firstName, profile?.lastName].map((part) => part?.trim()).filter(Boolean).join(" ");
+  return {
+    firstName,
+    fullName: profileFullName || user.name.trim() || firstName,
+    school: schoolName,
+  };
 }
 
 function currentTheme(account: AccountData): "light" | "dark" {
@@ -569,6 +584,21 @@ export function buildJourneyEditorialProjection(input: {
           : { href: horizonHref(roadmap.recommendedMilestone.relatedOpportunityCategories), label: "Find an opportunity for this step" },
       }
       : undefined;
+  const pathMoments = buildPathMoments({
+    pathprint,
+    opportunities,
+    identity: pathMomentIdentity(account, user, school.name),
+  });
+  const semesterStories = buildSemesterStories({
+    pathprint,
+    opportunities,
+    identity: {
+      ...pathMomentIdentity(account, user, school.name),
+      major: profile.major,
+      profileHref: "/profile",
+    },
+    generatedAt: account.updatedAt,
+  });
 
   const model: JourneyEditorialModel = {
     empty,
@@ -598,6 +628,8 @@ export function buildJourneyEditorialProjection(input: {
         mobile: horizonGeometryPresentation(mobileGeometry, 720),
       },
     },
+    pathMoments,
+    semesterStories,
     geometries: {
       desktop: geometryPresentation(desktopGeometry, 560, 252),
       tablet: geometryPresentation(tabletGeometry, 600, 250),

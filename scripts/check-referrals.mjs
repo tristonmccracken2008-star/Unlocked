@@ -50,9 +50,8 @@ for (const event of ["referral_link_opened", "referral_link_copied", "referral_c
 assert.ok(referralPage.includes("ReferralPage"), "Referral page component must exist.");
 assert.ok(referralPage.includes("Copy link"), "Referral page must support copying the referral link.");
 assert.ok(referralPage.includes("Share"), "Referral page must support sharing.");
-assert.ok(journey.includes("canUseReferralJourneyThemes"), "Journey Card themes must honor referral rewards.");
-assert.ok(journey.includes("canShowFounderBadge"), "Journey Card must display Founder badge when unlocked.");
-assert.ok(journey.includes("FOUNDER"), "Founder badge must be present in the Journey Card SVG.");
+assert.ok(!journey.includes("Journey Card"), "Referral compatibility cannot keep the retired Journey Card exporter in application management.");
+assert.ok(referrals.includes("canUseReferralJourneyThemes") && referrals.includes("canShowFounderBadge"), "Legacy referral entitlements must remain readable for backward compatibility.");
 assert.ok(adminPage.includes("getAdminSession"), "Admin referral page must be protected server-side.");
 assert.ok(adminPage.includes("getReferralAdminSummary"), "Admin referral page must use referral admin summary data.");
 

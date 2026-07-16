@@ -24,10 +24,10 @@ UnlockED referrals use the existing account, onboarding, billing, analytics, and
 
 ## Rewards
 
-- 1 successful referral: Exclusive Journey Card theme.
-- 3 successful referrals: Founder badge on Journey Card.
+- 1 successful referral: reserved Path Moment treatment entitlement.
+- 3 successful referrals: Founder account designation.
 - 5 successful referrals: one month of referral-earned Pro.
-- 15 successful referrals: premium Journey Card theme pack.
+- 15 successful referrals: reserved Path Moment treatment pack.
 - 50 successful referrals: Campus Ambassador badge and early access marker.
 
 Referral-earned Pro uses `billing.referralProGrantedUntil`. It extends from the later of now, the current referral grant, or the current paid period end. It does not create, duplicate, or cancel Stripe subscriptions.
@@ -36,8 +36,8 @@ Referral-earned Pro uses `billing.referralProGrantedUntil`. It extends from the 
 
 - `/referral`: authenticated referral page with link copy/share, progress, rewards, pending referrals, and completed referrals.
 - Signed-in navigation includes `Refer`.
-- Journey Card export allows premium themes when the user has Pro or a referral theme reward.
-- Journey Cards display a Founder badge when the founder reward is unlocked.
+- Path Moment export is available to every user and does not expose account tiers.
+- Existing visual-reward keys remain stored for backward compatibility but are not rendered by Path Moments V1.
 
 ## Admin
 

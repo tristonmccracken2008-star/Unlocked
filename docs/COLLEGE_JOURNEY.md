@@ -1,147 +1,112 @@
-# College Journey
+# Journey and Path Moments
 
-College Journey is the shareable layer on top of the existing Journey Board. The board remains the daily workspace for moving opportunities through statuses. College Journey summarizes real progress from the same persisted activity records.
+Journey is the canonical progress experience for tracked opportunities. Application status remains managed by the existing Journey Board, while the editorial Journey reads the same persisted transition history through the Open Line systems.
+
+Path Moments are the sharing layer. A Path Moment represents one evidenced transformation, never a dashboard recap or a synthetic progress summary.
 
 ## Data Flow
 
-The canonical service is `data/journey.ts`.
+1. Existing account activity and transition history build the canonical `Pathprint`.
+2. The Narrative and Branch Intelligence systems attach deterministic meaning.
+3. `lib/journey-editorial.ts` builds the editorial Journey once on the server.
+4. `lib/path-moments.ts` reuses that Pathprint and its share geometry to select eligible moments.
+5. The client receives only the resulting Path Moment collection and renders an opt-in preview.
 
-It powers:
+No second status, milestone, or persistence system is created.
 
-- Journey Board-compatible status counts
-- College Journey progress
-- milestone completion
-- timeline-ready milestone records
-- activity heatmap points
-- Journey Card recap values
-- time-range filtering
+## Eligibility
 
-The service reads `StudentActivity.tracked` records and the existing `Opportunity` catalog. It does not create a second tracking system.
+Path Moments may represent:
 
-## Milestone Catalog
+- first application
+- first submission
+- first interview
+- first acceptance
+- first completed experience
+- meaningful career-direction shift
+- semester recap
+- first research experience
+- scholarship
+- fellowship
+- leadership
+- portfolio milestone
 
-The fixed catalog is `journeyMilestoneCatalog`.
+Routine views and saved opportunities are explicitly suppressed. Every exported moment retains a signature derived from its canonical event, narrative, and cropped geometry.
 
-Current milestones:
+## Composition
 
-- Completed profile
-- Added first opportunity to Journey
-- Saved first opportunity
-- Saved five opportunities
-- Saved ten opportunities
-- Started first application
-- Submitted first application
-- Submitted five applications
-- Reached first interview
-- Reached three interviews
-- Received first acceptance
-- Completed first opportunity
-- Pursued first research opportunity
-- Pursued first scholarship
-- Pursued first internship
-- Claimed first student benefit
-- Used first AI or software benefit
+Each image contains only:
 
-Each milestone has:
+- one narrative headline
+- one supporting explanation
+- one cropped Open Line segment
+- one semantic marker
+- optional user-selected details
+- subtle UnlockED branding
 
-- stable `id`
-- title
-- description
-- category
-- deterministic completion rule
-- order
-- `shareable` flag
+Supported PNG layouts are:
 
-## Progress Rule
+- Instagram Story: `1080 x 1920`
+- Square: `1080 x 1080`
+- LinkedIn: `1200 x 627`
 
-Progress is deterministic:
-
-```text
-completed milestones / applicable milestones
-```
-
-Version 1 uses the full fixed catalog as the applicable denominator. This keeps the denominator stable and explainable. A future version may add eligibility-aware denominators, but only if the rule is explicit and does not mislead students.
-
-## Real Data Only
-
-College Journey may use:
-
-- profile completion timestamp
-- opportunity saved timestamp
-- Journey status timestamps
-- opportunity category/type
-- profile interests
-- school, major, and class year if the user leaves those privacy toggles enabled
-
-College Journey must not fabricate:
-
-- saved counts
-- submitted counts
-- interviews
-- acceptances
-- completed opportunities
-- activity dates
-- top category
-- milestones
-- rankings
-- streaks
-- scores
+The SVG preview is serialized and rasterized at the exact target dimensions. Copy image and native share appear only when the browser supports them.
 
 ## Privacy
 
-Journey Cards default to safe sharing.
+Path Moments are anonymous by default. School, organization, opportunity, month/year, and first or full name require an explicit choice in the preview.
 
-They never include:
-
-- GPA
-- email
-- private application notes
-- rejected opportunities
-- internal recommendation evidence
-
-Optional controls allow users to hide:
-
-- school
-- major
-- milestones
-- opportunity names
-
-The card uses the public domain `unlockededu.com`.
-
-## Export and Share
-
-The preview is generated from the same SVG used for export. PNG export renders the SVG into a canvas at:
-
-- `1080 x 1920` for Story/TikTok
-- `1080 x 1080` for square social posts
-
-Sharing uses the Web Share API when supported. If native file sharing is unavailable, the fallback copies `https://unlockededu.com`.
+Path Moments never include GPA, notes, application counts, rejection history, internal identifiers, or the full Journey.
 
 ## Analytics
 
-College Journey events intentionally avoid sensitive profile values.
+Current events:
 
-Tracked events:
+- `path_moment_preview_opened`
+- `path_moment_downloaded`
+- `path_moment_copied`
+- `path_moment_shared`
 
-- `college_journey_summary_viewed`
-- `journey_card_generator_opened`
-- `journey_card_format_changed`
-- `journey_card_theme_changed`
-- `journey_card_privacy_changed`
-- `journey_card_generated`
-- `journey_card_downloaded`
-- `journey_card_share_started`
-- `journey_card_share_completed`
-- `journey_card_copy_link_clicked`
-- `milestone_share_prompt_viewed`
-- `milestone_share_prompt_clicked`
+Legacy `journey_card_*` event names remain in the analytics type registry only so historical records and dashboards can still be read. The current UI does not emit them.
 
 ## Validation
 
 Run:
 
 ```bash
-npm run check:college-journey
+npm run check:path-moments
+npm run test:path-moments-browser
+npm run check:journey-visual
+npm run test:journey-visual-browser
 ```
 
-The check verifies catalog coverage, privacy language, export formats, analytics names, and Journey Board preservation markers.
+The checks cover all supported types, evidence rules, deterministic signatures, privacy defaults, exact image dimensions, download, copy fallback behavior, mobile layout, dark mode, reduced motion, Chromium, and WebKit.
+
+## Visual System
+
+Journey uses one editorial hierarchy across its opening, history, and Horizon. Forest identifies actions and the Open Line; gold is reserved for evidenced validation; mineral is limited to metadata. The current waypoint is the only prominent contained surface. History remains on the page, with quiet inline surfaces appearing only after a detail disclosure opens.
+
+The history and Horizon rails share one alignment token at each breakpoint. At mobile widths the waypoint participates in document flow beside the rail, including an explicit 320px treatment that keeps the primary action clear of fixed navigation. Long histories and alternate Horizon directions remain bounded by server-side progressive disclosure rather than synthetic offscreen heights.
+
+Path Moment exports use the same serif/sans hierarchy and a larger local Pathprint crop in every format. Optional footer details are arranged into separate identity and context rows so full privacy selections remain inside the export bounds.
+
+## Semester Story
+
+Semester Story is a deterministic term recap built from the same canonical `Pathprint` already produced for Journey. `lib/semester-story.ts` groups only meaningful, timestamped events into academic terms, creates a privacy-safe term projection, and passes that projection to the existing Open Line geometry engine. It does not read recommendations, rebuild Journey, perform network work, or introduce another status model.
+
+The documented fallback calendar is contiguous and intentionally general: Winter is January, Spring is February through May, Summer is June through August, and Fall is September through December. Each term records `source: default_calendar`. The contract accepts school-calendar or profile-derived term overrides so an institution-specific calendar can replace the fallback without changing story logic. The UI never presents the fallback as an official school calendar.
+
+Eligible evidence is limited to direction choices, applications started or submitted, interviews, acceptances, and completed experiences. Views, saves, refreshes, profile edits, logins, and referral activity are suppressed. A recap contains one evidence-based opening, a term-only Pathprint with an open endpoint, up to four strongest chronological moments, up to three secondary counts, and concrete “What changed” statements. Previous-term comparison appears only when both adjacent terms contain at least two reliable moments and the later term shows a stronger evidenced phase.
+
+Active terms are labeled “so far.” Completed-term signatures depend only on the versioned term definition, canonical term events, deterministic copy, and geometry signature, so later recommendation changes cannot rewrite historical recaps.
+
+Semester Story shares Path Moment’s exact PNG formats (`1080 x 1920`, `1080 x 1080`, and `1200 x 627`) and export mechanics. The creator and artwork are dynamically imported only after the student activates a real recap. The Journey entry point is omitted when no term contains qualifying evidence.
+
+Privacy defaults are anonymous with only the academic term, general narrative, and Pathprint included. Name, school, major, opportunity, organization, date, counts, and profile link are opt-in. GPA, notes, application answers, rejection details, citizenship, eligibility data, source IDs, hidden branches, and the full Journey never enter the export projection.
+
+Validate with:
+
+```bash
+npm run check:semester-story
+npm run test:semester-story-browser
+```

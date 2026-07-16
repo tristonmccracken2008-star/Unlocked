@@ -8,7 +8,7 @@ const activity = read("data/student-activity.ts");
 const analytics = read("lib/analytics-types.ts");
 const transitions = read("data/journey-transformations.ts");
 
-for (const label of ["Journey Board", "Move to...", "No opportunities here yet.", "Milestone unlocked", "All changes save automatically"]) {
+for (const label of ["Journey Board", "Move to...", "No opportunities here yet.", "All changes save automatically"]) {
   assert.ok(board.includes(label), `Journey Board must render ${label}.`);
 }
 
@@ -17,7 +17,7 @@ for (const status of ["Saved", "Interested", "Applying", "Submitted", "Interview
   assert.ok(activity.includes(`"${status}"`), `Activity model must preserve ${status} status.`);
 }
 
-for (const symbol of ["/api/journey/transition", "transitionForTargetStatus", "replaceStudentActivity", "moveOpportunity", "milestoneFor", "role=\"menu\"", "aria-live=\"polite\"", "draggable", "onDrop"]) {
+for (const symbol of ["/api/journey/transition", "transitionForTargetStatus", "replaceStudentActivity", "moveOpportunity", "role=\"menu\"", "aria-live=\"polite\"", "draggable", "onDrop"]) {
   assert.ok(board.includes(symbol) || activity.includes(symbol), `Journey Board must include ${symbol}.`);
 }
 
@@ -40,7 +40,7 @@ assert.doesNotMatch(board, /grid-cols-8/, "Journey Board must not crush all eigh
 assert.doesNotMatch(board, /<dt className="text-ink\/46">Value<\/dt>/, "Journey Board cards must not render dense value metadata.");
 assert.doesNotMatch(board, /See official source/, "Journey Board cards must not show verbose source/value placeholder text.");
 
-for (const event of ["journey_board_opened", "opportunity_status_menu_opened", "opportunity_status_changed", "opportunity_drag_started", "opportunity_drag_completed", "opportunity_drag_failed", "milestone_unlocked", "journey_filter_changed"]) {
+for (const event of ["journey_board_opened", "opportunity_status_menu_opened", "opportunity_status_changed", "opportunity_drag_started", "opportunity_drag_completed", "opportunity_drag_failed", "journey_filter_changed"]) {
   assert.ok(analytics.includes(`"${event}"`), `Analytics must include ${event}.`);
   assert.ok(board.includes(`"${event}"`) || event === "opportunity_drag_failed", `Journey Board must track ${event}.`);
 }
@@ -49,5 +49,6 @@ assert.doesNotMatch(board, /\bXP\b|streak|loot|percentile/i, "Journey Board must
 assert.doesNotMatch(board, /nextStatuses\.map[\s\S]*updateOpportunityStatus\(opportunity\.id, item\)[\s\S]*<\/button>\)\}/, "Cards must not show all status buttons inline.");
 assert.ok(board.includes("fetch(`/api/opportunities?ids="), "Journey Board should fetch only tracked opportunity records.");
 assert.ok(transitions.includes("getJourneyTransitionActions"), "Journey Board status options must come from the canonical transition map.");
+assert.doesNotMatch(board, /Journey Card|journeyCardSvg|Generate card/i, "Application management cannot contain the retired dashboard-export experience.");
 
 console.log("Journey Board checks passed.");

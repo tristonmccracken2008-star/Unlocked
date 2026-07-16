@@ -86,9 +86,8 @@ for (const token of ["UnlockED Free", "UnlockED Pro", "Manage subscription", "pa
   assert.ok(profile.includes(token), `Profile billing/appearance must include ${token}.`);
 }
 
-for (const token of ["isProUser", "premiumThemeSelected", "Premium Journey Card themes require UnlockED Pro", "premium_theme_previewed", "premium_theme_upgrade_clicked"]) {
-  assert.ok(journey.includes(token), `Journey Card premium gating must include ${token}.`);
-}
+assert.ok(!journey.includes("journeyCardSvg"), "Billing must not preserve the retired Journey Card dashboard exporter.");
+assert.ok(read("components/path-moment-creator.tsx").includes("Download PNG"), "Path Moment export must remain available without weakening core Free access.");
 
 assert.ok(accountApi.includes("!isProUser(session.data.billing)"), "Account API must enforce premium appearance server-side.");
 

@@ -30,10 +30,11 @@ assert.match(journeyClientEffects, /localStorage\.removeItem\(advisorProfileUpda
 
 assert.match(dashboard, /Journey/, "Private home must be the student's Journey.");
 assert.match(journeyEditorial, /What matters now/, "Journey must explain the student's current waypoint.");
-assert.match(journeyEditorial, /Your living story/, "Journey must expose real activity history below the opening composition.");
-assert.match(journeyEditorial, /Open Journey Board/, "Journey must keep application management accessible below progressive disclosure.");
-assert.match(journeyBoard, /Journey Card/, "Journey Board must support the single shareable Journey Card experience.");
-assert.doesNotMatch(journeyDashboard, /Share recap/, "Dashboard must not duplicate the Journey Card sharing experience.");
+assert.match(journeyEditorial, /The moments that shaped your path/, "Journey must expose real activity history below the opening composition.");
+assert.match(journeyEditorial, /Manage applications/, "Journey must keep application management accessible below progressive disclosure.");
+assert.match(journeyEditorial, /PathMomentCreator/, "Journey history must expose the evidence-based Path Moment experience.");
+assert.doesNotMatch(journeyBoard, /Journey Card|journeyCardSvg/, "The application board cannot duplicate Path Moment sharing.");
+assert.doesNotMatch(journeyDashboard, /Share recap/, "Dashboard must not duplicate Path Moment sharing.");
 assert.doesNotMatch(dashboard, /Today’s Mission/, "Journey should not keep the old coaching-dashboard copy.");
 assert.doesNotMatch(dashboard, /Object\.entries\(advisor\.dimensionScores\)/, "Readiness breakdown should not render as an initial dashboard block.");
 

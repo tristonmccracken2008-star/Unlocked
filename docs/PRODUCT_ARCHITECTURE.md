@@ -120,11 +120,20 @@ The product event vocabulary includes:
 - `journey_opened`
 - `journey_filter_changed`
 - `milestone_unlocked`
-- `journey_card_generated`
-- `journey_card_share_started`
-- `journey_card_downloaded`
+- `path_moment_preview_opened`
+- `path_moment_downloaded`
+- `path_moment_copied`
+- `path_moment_shared`
+
+Historical `journey_card_*` identifiers remain accepted for analytics compatibility but are not emitted by the current Journey UI.
 
 `journey_opened` is stored in the existing dashboard funnel bucket for analytics compatibility.
+
+## Semester Story Projection
+
+`buildJourneyEditorialProjection()` computes the canonical `Pathprint` once. Both Path Moments and Semester Story consume that in-memory result. `buildSemesterStories()` performs a bounded event filter, deterministic term grouping, privacy-safe event projection, and share-mode geometry pass; it does not call the database, recommendation systems, or client geometry APIs.
+
+The resulting `SemesterStoryCollection` is serialized with the Journey server model. Its creator is a narrow client island loaded on demand from `components/semester-story-entry.tsx`, so normal Journey visits do not mount export SVGs, canvases, clipboard handling, or native sharing code.
 
 ## Free and Pro Boundary
 

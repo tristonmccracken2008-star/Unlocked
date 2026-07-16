@@ -55,10 +55,10 @@ export type ReferralAdminSummary = {
 };
 
 export const referralRewards: Array<{ key: ReferralRewardKey; threshold: number; label: string; description: string }> = [
-  { key: "journey_theme", threshold: 1, label: "Exclusive Journey Card theme", description: "Unlock one premium Journey Card theme." },
-  { key: "founder_badge", threshold: 3, label: "Founder profile badge", description: "Show a Founder badge on your Journey Card." },
+  { key: "journey_theme", threshold: 1, label: "Path Moment accent", description: "Reserve an early-supporter Path Moment treatment." },
+  { key: "founder_badge", threshold: 3, label: "Founder profile badge", description: "Keep a Founder designation on your UnlockED account." },
   { key: "one_month_pro", threshold: 5, label: "1 month Pro", description: "Get one month of UnlockED Pro access." },
-  { key: "premium_theme_pack", threshold: 15, label: "Premium theme pack", description: "Unlock all premium Journey Card themes." },
+  { key: "premium_theme_pack", threshold: 15, label: "Path Moment treatment pack", description: "Reserve the complete Path Moment treatment set." },
   { key: "campus_ambassador", threshold: 50, label: "Campus Ambassador badge + early access", description: "Join the early ambassador group." },
 ];
 

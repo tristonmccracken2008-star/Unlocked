@@ -6,6 +6,8 @@ import type { JourneyEditorialHistoryChapter, JourneyEditorialHistoryItem, Journ
 import { OpenLineEventGlyph, type OpenLineEventGlyphType } from "@/components/open-line/open-line-event-glyphs";
 import { JourneyResponsiveLine } from "@/components/journey-live-line";
 import { JourneyTransitionControl } from "@/components/journey-transition-control";
+import { PathMomentCreator } from "@/components/path-moment-creator";
+import { SemesterStoryEntry } from "@/components/semester-story-entry";
 import { ArrowIcon } from "@/components/icons";
 import styles from "./journey-editorial.module.css";
 
@@ -118,13 +120,14 @@ function Chapters({ chapters, theme }: { chapters: JourneyEditorialHistoryChapte
   </section>)}</>;
 }
 
-function History({ history, theme }: { history: JourneyEditorialModel["history"]; theme: JourneyEditorialModel["theme"] }) {
+function History({ history, theme, pathMoments }: { history: JourneyEditorialModel["history"]; theme: JourneyEditorialModel["theme"]; pathMoments: JourneyEditorialModel["pathMoments"] }) {
   const hasMoments = history.totalMomentCount > 0;
   return <section className={styles.history} aria-labelledby="journey-history-title">
     <div className={styles.historyHeading}>
       <p className={styles.sectionLabel}>Story so far</p>
       <h2 id="journey-history-title">The moments that shaped your path.</h2>
       <p>{history.state === "first_moment" ? "One real step is enough to begin." : "Only actions and outcomes supported by your Journey appear here."}</p>
+      {pathMoments.moments.length ? <div className={styles.pathMomentAction}><PathMomentCreator collection={pathMoments} theme={theme} /></div> : null}
     </div>
     {hasMoments ? <div className={styles.storyFlow} aria-label="Your Journey moments in chronological order">
       {history.earlierChapters.length ? <details className={styles.earlierChapters} data-earlier-chapters="">
@@ -200,6 +203,10 @@ function Diagnostics({ model }: { model: JourneyEditorialModel }) {
     <span>Evidence: {model.diagnostics.horizonEvidenceSource.join(", ") || "none"}</span>
     <span>Audit: {model.diagnostics.editorialAuditVersion}</span>
     <span>Suppressed: {model.diagnostics.suppressedClaimCount}</span>
+    <span>Semester term: {model.semesterStories.diagnostics.selectedTermId ?? "none"}</span>
+    <span>Semester calendar: {model.semesterStories.diagnostics.calendarSource}</span>
+    <span>Semester evidence: {model.semesterStories.diagnostics.includedEventCount}</span>
+    <span>Semester signature: {model.semesterStories.diagnostics.deterministicSignature.slice(0, 10)}</span>
   </aside>;
 }
 
@@ -218,7 +225,10 @@ export function JourneyEditorial({ model, showDiagnostics = false }: JourneyEdit
         </header>
         <OpenLineComposition model={model} showDiagnostics={showDiagnostics} />
       </section>
-      {model.history.totalMomentCount ? <History history={model.history} theme={model.theme} /> : null}
+      {model.history.totalMomentCount ? <History history={model.history} theme={model.theme} pathMoments={model.pathMoments} /> : null}
+      {!model.pathMoments.moments.length ? <p className={styles.pathMomentEmpty}>You’ll unlock your first Path Moment after a meaningful milestone.</p> : null}
+      {!model.history.totalMomentCount && model.pathMoments.moments.length ? <section className={styles.pathMomentStandalone} aria-label="Path Moments"><PathMomentCreator collection={model.pathMoments} theme={model.theme} /></section> : null}
+      {model.semesterStories.stories.length ? <SemesterStoryEntry collection={model.semesterStories} theme={model.theme} /> : null}
       {model.horizon.items.length ? <Horizon horizon={model.horizon} /> : null}
     </article>
     {showDiagnostics ? <Diagnostics model={model} /> : null}

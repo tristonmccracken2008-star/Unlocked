@@ -4,7 +4,7 @@
 
 - Journey loaded the full opportunity catalog inside a client component and built recommendation output in the browser. That created unnecessary main-thread work and also exposed a Pro-gated recommendation path outside For You.
 - Discover loaded the catalog after shell render, but then hydrated the account and built the full Advisor recommendation service client-side for sorting. This made search/filter updates compete with recommendation indexing.
-- The old Journey dashboard still contained a separate recap/share experience in addition to the current Journey Card generator.
+- The old Journey dashboard contained overlapping recap and share experiences that competed with the editorial Journey.
 - Client account session data used a short-lived module cache without an explicit reset path for account switching.
 - Premium theme CSS used broad class overrides that flattened surfaces and made dark/forest themes hard to read.
 
@@ -32,4 +32,4 @@
 - Smaller Journey data payloads for users with few tracked opportunities.
 - Fewer duplicate account/session reads during sign-in, sign-out, and navigation.
 - No Pro-gated recommendations rendered through Journey.
-- One active Journey Card sharing model instead of two overlapping share experiences.
+- One evidence-based Path Moment sharing model instead of dashboard exports or overlapping recap experiences.
