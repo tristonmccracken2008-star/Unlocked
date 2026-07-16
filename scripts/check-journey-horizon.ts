@@ -10,7 +10,7 @@ import { schools } from "../data/seed";
 const read = (path: string) => readFileSync(path, "utf8");
 const now = "2026-07-15T12:00:00.000Z";
 const school = schools.find((item) => item.name.includes("University")) ?? schools[0];
-const opportunity = opportunities[0];
+const opportunity = opportunities.find((item) => item.type === "Career") ?? opportunities[0];
 const user: AuthUser = { id: "journey-horizon-student", email: "student@example.test", name: "Jordan Rivera" };
 
 function account(status?: "Saved" | "Applying", dark = false): AccountData {
@@ -54,14 +54,14 @@ assert.equal(sparse.horizon.items.length, 1, "Saved-only evidence must reveal on
 
 const populated = buildJourneyEditorialModel({ user, account: account("Applying"), opportunities: [opportunity] });
 assert.equal(populated.horizon.state, "populated");
-assert.ok(populated.horizon.items.length >= 2 && populated.horizon.items.length <= 3, "An active Journey must expose two or three bounded future directions.");
+assert.ok(populated.horizon.items.length >= 1 && populated.horizon.items.length <= 2, "An active Journey must retain at most two supported future directions.");
 assert.ok(populated.horizon.items.every((item) => item.title && item.explanation && item.whyAvailable && item.effort && item.cta.href));
 assert.ok(populated.horizon.items.every((item) => !/will guarantee|will get you|ensures/i.test(`${item.explanation} ${item.whyAvailable}`)), "Horizon language must communicate possibility rather than certainty.");
 assert.ok(populated.horizon.items.some((item) => item.source === "recommendation" && item.sourceRecommendationId?.startsWith("recommendation-milestone-")), "Horizon must reuse Recommendation Engine milestone objects.");
 assert.ok(populated.horizon.items.every((item) => item.sourceRoadmapId || item.sourceRecommendationId), "Every future direction must retain a structured reasoning source.");
 assert.ok(populated.horizon.items.every((item) => populated.diagnostics.horizonEvidenceSource.includes("roadmap_metadata") || item.source === "recommendation"));
-assert.ok(populated.horizon.geometries.desktop.geometry.diagnostics.horizonVisibleCount <= 3);
-assert.ok(populated.horizon.geometries.tablet.geometry.diagnostics.horizonVisibleCount <= 3);
+assert.ok(populated.horizon.geometries.desktop.geometry.diagnostics.horizonVisibleCount <= 2);
+assert.ok(populated.horizon.geometries.tablet.geometry.diagnostics.horizonVisibleCount <= 2);
 assert.ok(populated.horizon.geometries.mobile.geometry.diagnostics.horizonVisibleCount <= 2);
 assert.ok(populated.horizon.geometries.desktop.geometry.segments.some((segment) => segment.state === "future"), "Open Line geometry must continue into neutral future segments.");
 assert.deepEqual(
@@ -75,17 +75,18 @@ const component = read("components/journey-editorial.tsx");
 const styles = read("components/journey-editorial.module.css");
 const model = read("lib/journey-editorial.ts");
 const liveLine = read("components/journey-live-line.tsx");
-for (const copy of ["After this…", "Why it becomes possible", "Approximate effort", "Expected impact", "Required evidence", "Skills involved", "Related opportunities", "Expected preparation"]) {
+for (const copy of ["What may open next.", "A direction taking shape", "See why this may fit", "Approximate effort", "Expected impact", "Preparation that helps", "Skills involved", "Expected preparation", "Explore another direction"]) {
   assert.ok(component.includes(copy), `Horizon must render ${copy}.`);
 }
-assert.ok(component.includes("JourneyLiveLine") && liveLine.includes("OpenLineMotionRenderer"), "Horizon must reuse the Open Line motion renderer.");
+assert.ok(component.includes("JourneyResponsiveLine") && liveLine.includes("OpenLineMotionRenderer"), "Journey must keep one responsive Open Line renderer.");
+assert.ok(!component.includes("journey-horizon-desktop"), "Horizon must not mount a duplicate Open Line renderer.");
 assert.ok(component.includes("<details") && component.includes("<summary"), "Horizon detail must use keyboard-native inline disclosure.");
 assert.ok(component.includes('aria-label="Plausible future directions"'), "Horizon possibilities need a screen-reader label.");
 assert.ok(!component.includes("useState") && !component.includes("useMemo"), "Horizon must remain server-first without client recomputation.");
 assert.ok(model.includes("rankMilestoneRecommendations"), "Horizon must consume the existing Recommendation Engine.");
 assert.ok(model.includes("narrative.horizon"), "Horizon explanations must come from the existing Narrative Engine.");
 assert.ok(model.includes("horizonGeometryPresentation"), "Horizon must reuse precomputed Open Line geometry.");
-assert.ok(styles.includes(".horizonItem:nth-child(n + 3) { display: none; }"), "Mobile must expose at most two future directions.");
+assert.ok(styles.includes(".additionalDirection"), "Additional Horizon directions must remain behind progressive disclosure.");
 assert.ok(styles.includes("prefers-reduced-motion"), "Horizon must preserve reduced-motion behavior.");
 assert.ok(styles.includes("prefers-contrast: more"), "Horizon must preserve high-contrast behavior.");
 assert.ok(styles.includes("var(--unlocked-page)") && styles.includes("var(--unlocked-text)"), "Horizon must inherit theme tokens for dark mode.");

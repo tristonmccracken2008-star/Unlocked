@@ -40,14 +40,16 @@ export function JourneyLiveLine({
     const update = (event: Event) => {
       const detail = (event as CustomEvent<TransformationDetail>).detail;
       const next = idPrefix.startsWith("journey-horizon") ? detail.horizonGeometries[mode] : detail.geometries[mode];
-      setPrevious(current);
-      setCurrent(next);
+      setCurrent((currentPresentation) => {
+        setPrevious(currentPresentation);
+        return next;
+      });
       setAnnouncement(detail.announcement);
       setMeaningfulUpdate(true);
     };
     window.addEventListener(journeyTransformationEvent, update);
     return () => window.removeEventListener(journeyTransformationEvent, update);
-  }, [current, idPrefix, mode]);
+  }, [idPrefix, mode]);
 
   return <OpenLineMotionRenderer
     previousGeometry={meaningfulUpdate ? previous?.geometry : undefined}
@@ -68,4 +70,49 @@ export function JourneyLiveLine({
     description={empty ? "An Origin marker begins an open path." : "Your completed steps lead to the current waypoint and future possibilities."}
     idPrefix={idPrefix}
   />;
+}
+
+function responsiveMode() {
+  if (typeof window === "undefined") return "desktop" as const;
+  if (window.matchMedia("(max-width: 42rem)").matches) return "mobile" as const;
+  if (window.matchMedia("(max-width: 64rem)").matches) return "tablet" as const;
+  return "desktop" as const;
+}
+
+export function JourneyResponsiveLine({
+  geometries,
+  theme,
+  empty,
+  showDiagnostics,
+}: {
+  geometries: JourneyEditorialModel["geometries"];
+  theme: JourneyEditorialModel["theme"];
+  empty: boolean;
+  showDiagnostics: boolean;
+}) {
+  const [mode, setMode] = useState<"desktop" | "tablet" | "mobile">("desktop");
+
+  useEffect(() => {
+    const desktop = window.matchMedia("(min-width: 64.001rem)");
+    const tablet = window.matchMedia("(min-width: 42.001rem) and (max-width: 64rem)");
+    const update = () => setMode(responsiveMode());
+    update();
+    desktop.addEventListener("change", update);
+    tablet.addEventListener("change", update);
+    return () => {
+      desktop.removeEventListener("change", update);
+      tablet.removeEventListener("change", update);
+    };
+  }, []);
+
+  return <div data-responsive-open-line="" data-open-line-mode={mode}>
+    <JourneyLiveLine
+      presentation={geometries[mode]}
+      mode={mode}
+      theme={theme}
+      empty={empty}
+      showDiagnostics={showDiagnostics}
+      idPrefix={`journey-editorial-${mode}`}
+    />
+  </div>;
 }

@@ -142,7 +142,7 @@ export function JourneyTransitionControl({ control }: { control: NonNullable<Jou
     <h3 id="journey-transformation-title">{result.narrative.title}</h3>
     <p>{result.narrative.accomplishment}</p>
     <p className={styles.transformationMeaning}>{result.narrative.whatChanged}</p>
-    <a href="/my-opportunities" className={styles.quietJourneyLink}>Manage application <ArrowIcon /></a>
+    <a href="/my-opportunities" className={styles.quietJourneyLink}>Manage applications <ArrowIcon /></a>
   </section>;
 
   return <div className={styles.transitionControls} data-journey-transition-control="" data-opportunity-id={control.opportunityId}>
@@ -150,14 +150,15 @@ export function JourneyTransitionControl({ control }: { control: NonNullable<Jou
       {pending === primary.transition ? "Saving…" : primary.label} {!pending ? <ArrowIcon /> : null}
     </button> : null}
     {actions.some((action) => !action.primary) ? <details className={styles.manageDisclosure}>
-      <summary>Manage application</summary>
+      <summary>Manage applications</summary>
       <div className={styles.manageActions}>
         {actions.filter((action) => !action.primary).map((action) => <button key={action.transition} type="button" disabled={Boolean(pending)} onClick={() => void run(action)}>
           {action.destructive && confirmClose ? "Confirm close" : action.label}
         </button>)}
         {confirmClose ? <button type="button" onClick={() => setConfirmClose(false)}>Keep it active</button> : null}
+        <a href="/my-opportunities" className={styles.manageApplicationsLink}>Open application management <ArrowIcon /></a>
       </div>
-    </details> : null}
+    </details> : <a href="/my-opportunities" className={styles.manageApplicationsLink}>Manage applications <ArrowIcon /></a>}
     {error ? <p id="journey-transition-error" className={styles.transitionError} role="alert">{error}</p> : null}
     <p className={styles.srOnly} aria-live="polite" aria-atomic="true">{pending ? `Saving ${primary?.label ?? "Journey update"}.` : ""}</p>
   </div>;

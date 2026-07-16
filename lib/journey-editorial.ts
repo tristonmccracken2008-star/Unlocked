@@ -10,6 +10,14 @@ import { inferApplicationsFromActivity, type StudentProgress } from "@/data/stud
 import { getJourneyTransitionActions, type JourneyTransitionAction } from "@/data/journey-transformations";
 import type { OpportunityTrackerStatus } from "@/data/student-activity";
 import {
+  canonicalJourneyStatement,
+  canonicalTransitionWaypoint,
+  journeyClarityLimits,
+  journeyClarityStage,
+  journeyEditorialAuditVersion,
+  recordSupportsEditorialAction,
+} from "@/lib/journey-clarity";
+import {
   buildPathprint,
   createPathGeometry,
   getOpenLineDiagnostics,
@@ -66,6 +74,7 @@ export type JourneyEditorialHistory = {
   totalMomentCount: number;
   recentChapters: JourneyEditorialHistoryChapter[];
   earlierChapters: JourneyEditorialHistoryChapter[];
+  omittedMomentCount: number;
 };
 
 export type JourneyEditorialHorizonItem = {
@@ -100,10 +109,11 @@ export type JourneyEditorialHorizon = {
 
 export type JourneyEditorialModel = {
   empty: boolean;
+  state: "empty" | "sparse" | "active" | "validated";
   identity: string[];
   story: {
     text: string;
-    source: "branch_direction" | "narrative_moment" | "origin";
+    source: "branch_direction" | "narrative_moment" | "origin" | "canonical_profile";
     confidence: number;
     explanationSource: NarrativeExplanationSource;
   };
@@ -112,7 +122,7 @@ export type JourneyEditorialModel = {
     whyItMatters: string;
     estimatedMinutes?: number;
     impact: "low" | "medium" | "high";
-    source: "recommendation" | "roadmap";
+    source: "recommendation" | "roadmap" | "journey";
     explanationSource: NarrativeExplanationSource;
     cta: { href: string; label: string };
   };
@@ -140,6 +150,8 @@ export type JourneyEditorialModel = {
     horizonSources: string[];
     horizonBranchSource: string;
     horizonEvidenceSource: string[];
+    editorialAuditVersion: string;
+    suppressedClaimCount: number;
   };
 };
 
@@ -320,14 +332,13 @@ function horizonHref(categories: readonly string[]) {
 }
 
 function horizonSources(input: {
-  account: AccountData;
   advisorProfile: ReturnType<typeof createAdvisorProfile>;
   progress: StudentProgress;
   roadmap: ReturnType<typeof getRoadmap>;
   state: JourneyEditorialHorizon["state"];
 }): HorizonSource[] {
   if (input.state === "empty") return [];
-  const limit = input.state === "sparse" ? 1 : 3;
+  const limit = input.state === "sparse" ? 1 : journeyClarityLimits.retainedHorizonItems;
   const sources: HorizonSource[] = [];
   const seen = new Set<string>();
   const add = (source: HorizonSource) => {
@@ -336,41 +347,6 @@ function horizonSources(input: {
     seen.add(key);
     sources.push({ ...source, input: { ...source.input, id: `horizon-${String(sources.length + 1).padStart(2, "0")}-${source.input.id}` } });
   };
-
-  const latestSnapshot = input.account.advisor?.forYouSnapshots?.at(-1);
-  const persistedRecommendation = latestSnapshot?.recommendations.find((view) =>
-    view.recommendation.kind === "Opportunity"
-    && view.recommendation.tier !== "explore"
-    && Boolean(view.opportunity)
-  );
-  if (persistedRecommendation?.opportunity) {
-    const recommendation = persistedRecommendation.recommendation;
-    const opportunity = persistedRecommendation.opportunity;
-    const requirements = opportunity.metadata.applicationRequirements ?? [];
-    const skills = opportunity.metadata.skillsGained ?? [];
-    add({
-      input: {
-        id: recommendation.id,
-        title: recommendation.title,
-        rationale: recommendation.reason,
-        sourceOpportunityId: opportunity.id,
-        requiredSkills: skills,
-      },
-      explanation: recommendation.description,
-      effort: opportunity.metadata.estimatedApplicationTime ?? "A focused session",
-      impact: horizonImpact(recommendation.priority),
-      source: "recommendation",
-      sourceRecommendationId: recommendation.id,
-      relatedExperience: { id: opportunity.id, title: opportunity.title, organization: opportunity.organization },
-      cta: { href: `/opportunities/${opportunity.id}`, label: "Open opportunity" },
-      detail: {
-        requiredEvidence: requirements,
-        skills,
-        relatedOpportunities: [{ id: opportunity.id, title: opportunity.title, organization: opportunity.organization }],
-        expectedPreparation: recommendation.nextAction,
-      },
-    });
-  }
 
   const recommendations = rankMilestoneRecommendations({ advisorProfile: input.advisorProfile, progress: input.progress });
   const recommendationByMilestone = new Map(recommendations
@@ -415,7 +391,8 @@ function chapteredHistory(items: JourneyEditorialHistoryItem[]) {
     else chapters.push({ id: `${definition.key}-${moment.id}`, key: definition.key, title: definition.title, moments: [moment] });
     return chapters;
   }, []);
-  const recentStart = Math.max(0, chaptered.length - 10);
+  const visibleStart = Math.max(0, chaptered.length - journeyClarityLimits.visibleHistoryMoments);
+  const retainedStart = Math.max(0, visibleStart - journeyClarityLimits.retainedEarlierMoments);
   return {
     state: chaptered.length === 0
       ? "empty" as const
@@ -423,8 +400,9 @@ function chapteredHistory(items: JourneyEditorialHistoryItem[]) {
         ? "exploration" as const
         : chaptered.length === 1 ? "first_moment" as const : "active" as const,
     totalMomentCount: chaptered.length,
-    earlierChapters: group(chaptered.slice(0, recentStart)),
-    recentChapters: group(chaptered.slice(recentStart)),
+    earlierChapters: group(chaptered.slice(retainedStart, visibleStart)),
+    recentChapters: group(chaptered.slice(visibleStart)),
+    omittedMomentCount: retainedStart,
   };
 }
 
@@ -458,10 +436,11 @@ export function buildJourneyEditorialProjection(input: {
   const roadmap = getRoadmap(advisorProfile, progress);
   const roadmapWaypoint = empty ? null : waypointFromRoadmap(roadmap.recommendedMilestone);
   const trackedRecords = { ...(account.activity?.tracked ?? {}), ...(account.tracker ?? {}) };
+  const clarityState = empty ? "empty" : Object.values(trackedRecords).length ? journeyClarityStage(Object.values(trackedRecords)) : "sparse";
   const hasProgressBeyondSaving = (account.activity?.claimed?.length ?? 0) > 0
     || Object.values(trackedRecords).some((record) => record.status !== "Saved");
   const horizonState: JourneyEditorialHorizon["state"] = empty ? "empty" : hasProgressBeyondSaving ? "populated" : "sparse";
-  const futureSources = horizonSources({ account, advisorProfile, progress, roadmap, state: horizonState });
+  const futureSources = horizonSources({ advisorProfile, progress, roadmap, state: horizonState });
   const adapted = openLineInputFromAccount({ userId: user.id, account, generatedAt: account.updatedAt });
   const pathInput = {
     ...adapted,
@@ -494,8 +473,14 @@ export function buildJourneyEditorialProjection(input: {
   ].filter((id): id is string => Boolean(id));
   const transitionRecord = transitionCandidateIds
     .map((id) => trackedRecords[id])
-    .find((record) => record && getJourneyTransitionActions(record).length > 0);
+    .find((record) => {
+      if (!record) return false;
+      const opportunity = opportunityById.get(record.id);
+      return Boolean(opportunity && recordSupportsEditorialAction(record, opportunity) && getJourneyTransitionActions(record).length > 0);
+    });
   const transitionOpportunity = transitionRecord ? opportunityById.get(transitionRecord.id) : undefined;
+  const transitionActions = transitionRecord ? getJourneyTransitionActions(transitionRecord) : [];
+  const transitionPrimary = transitionActions.find((action) => action.primary);
   const pathEventsByMoment = new Map<string, typeof pathprint.events>();
   for (const event of pathprint.events) {
     if (!event.narrativeMomentId) continue;
@@ -503,20 +488,30 @@ export function buildJourneyEditorialProjection(input: {
     related.push(event);
     pathEventsByMoment.set(event.narrativeMomentId, related);
   }
+  let suppressedClaimCount = 0;
   const historyItems: JourneyEditorialHistoryItem[] = narrative.moments
-    .filter((moment) => moment.kind !== "origin")
-    .map((moment) => {
+    .flatMap((moment) => {
+      if (["origin", "exploration", "direction", "expansion", "waypoint", "horizon"].includes(moment.storyType)) {
+        suppressedClaimCount += 1;
+        return [];
+      }
       const pathEvents = pathEventsByMoment.get(moment.id) ?? [];
       const primaryEvent = [...pathEvents].sort((left, right) => right.importance - left.importance)[0];
       const opportunity = primaryEvent?.opportunityId ? opportunityById.get(primaryEvent.opportunityId) : undefined;
+      const eventRecord = opportunity ? trackedRecords[opportunity.id] : undefined;
+      if (moment.storyType === "action" && (!opportunity || !eventRecord || !recordSupportsEditorialAction(eventRecord, opportunity))) {
+        suppressedClaimCount += 1;
+        return [];
+      }
       const parameterSkills = typeof moment.parameters.skills === "string" ? moment.parameters.skills.trim() : "";
-      const skillsGained = [...new Set([
+      const supportsSkillEvidence = moment.storyType === "experience" || moment.storyType === "skill";
+      const skillsGained = supportsSkillEvidence ? [...new Set([
         ...(opportunity?.metadata.skillsGained ?? []),
         ...(parameterSkills ? [parameterSkills] : []),
-      ].map((skill) => skill.trim()).filter(Boolean))].slice(0, 4);
+      ].map((skill) => skill.trim()).filter(Boolean))].slice(0, 4) : [];
       const category = primaryEvent?.category
         ?? (typeof moment.parameters.categoryTitle === "string" ? moment.parameters.categoryTitle : undefined);
-      return {
+      return [{
         id: moment.id,
         occurredAt: moment.occurredAt,
         title: moment.title,
@@ -532,7 +527,7 @@ export function buildJourneyEditorialProjection(input: {
           nextConsequence: consequenceByStory[moment.storyType],
           relatedOpportunity: opportunity ? { id: opportunity.id, title: opportunity.title } : undefined,
         },
-      };
+      }];
     });
   const sourceByTitle = new Map(futureSources.map((source) => [source.input.title, source]));
   const horizonItems: JourneyEditorialHorizonItem[] = narrative.horizon.flatMap((meaning) => {
@@ -554,32 +549,44 @@ export function buildJourneyEditorialProjection(input: {
     }];
   });
 
+  const canonicalWaypoint = !empty && transitionPrimary && transitionOpportunity
+    ? {
+      ...canonicalTransitionWaypoint(transitionPrimary.transition, transitionOpportunity.title),
+      source: "journey" as const,
+      explanationSource: "event_type" as const,
+      cta: { href: "/my-opportunities", label: transitionPrimary.label },
+    }
+    : !empty && waypointMeaning
+      ? {
+        title: waypointMeaning.title,
+        whyItMatters: waypointMeaning.whyItMatters,
+        estimatedMinutes: waypointMeaning.estimatedMinutes,
+        impact: waypointMeaning.impact,
+        source: waypointMeaning.source,
+        explanationSource: waypointMeaning.explanationSource,
+        cta: waypointMeaning.sourceOpportunityId
+          ? { href: `/opportunities/${waypointMeaning.sourceOpportunityId}`, label: "Open opportunity" }
+          : { href: horizonHref(roadmap.recommendedMilestone.relatedOpportunityCategories), label: "Find an opportunity for this step" },
+      }
+      : undefined;
+
   const model: JourneyEditorialModel = {
     empty,
+    state: clarityState,
     identity: displayIdentity(account),
     story: {
-      text: narrative.editorialStatement.text,
-      source: narrative.editorialStatement.source,
-      confidence: narrative.editorialStatement.confidence,
-      explanationSource: narrative.editorialStatement.explanationSource,
+      text: canonicalJourneyStatement(profile, clarityState),
+      source: "canonical_profile",
+      confidence: 1,
+      explanationSource: "event_type",
     },
-    waypoint: waypointMeaning ? {
-      title: waypointMeaning.title,
-      whyItMatters: waypointMeaning.whyItMatters,
-      estimatedMinutes: waypointMeaning.estimatedMinutes,
-      impact: waypointMeaning.impact,
-      source: waypointMeaning.source,
-      explanationSource: waypointMeaning.explanationSource,
-      cta: waypointMeaning.sourceOpportunityId
-        ? { href: `/opportunities/${waypointMeaning.sourceOpportunityId}`, label: "Open opportunity" }
-        : { href: "/opportunities", label: "Explore ways to start" },
-    } : undefined,
-    transitionControl: transitionRecord && transitionOpportunity ? {
+    waypoint: canonicalWaypoint,
+    transitionControl: transitionRecord && transitionOpportunity && transitionPrimary ? {
       opportunityId: transitionRecord.id,
       opportunityTitle: transitionOpportunity.title,
       status: transitionRecord.status,
       version: transitionRecord.version ?? 0,
-      actions: getJourneyTransitionActions(transitionRecord),
+      actions: transitionActions,
     } : undefined,
     history: chapteredHistory(historyItems),
     horizon: {
@@ -606,6 +613,8 @@ export function buildJourneyEditorialProjection(input: {
       horizonSources: horizonItems.map((item) => `${item.source}:${item.sourceRecommendationId ?? item.sourceRoadmapId ?? item.id}`),
       horizonBranchSource: pathprint.branchIntelligence?.primaryDirectionKey ?? "none",
       horizonEvidenceSource: narrative.horizon.map((item) => item.explanationSource),
+      editorialAuditVersion: journeyEditorialAuditVersion,
+      suppressedClaimCount,
     },
   };
   return { model, pathprint };

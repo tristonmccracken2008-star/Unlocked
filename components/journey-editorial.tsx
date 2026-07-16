@@ -2,9 +2,9 @@ import Link from "next/link";
 import type { CSSProperties } from "react";
 import { OPEN_LINE_MOTION } from "@/data/open-line/motion";
 import type { NarrativeStoryType } from "@/data/open-line/types";
-import type { JourneyEditorialGeometry, JourneyEditorialHistoryChapter, JourneyEditorialHistoryItem, JourneyEditorialHorizonItem, JourneyEditorialModel } from "@/lib/journey-editorial";
+import type { JourneyEditorialHistoryChapter, JourneyEditorialHistoryItem, JourneyEditorialHorizonItem, JourneyEditorialModel } from "@/lib/journey-editorial";
 import { OpenLineEventGlyph, type OpenLineEventGlyphType } from "@/components/open-line/open-line-event-glyphs";
-import { JourneyLiveLine } from "@/components/journey-live-line";
+import { JourneyResponsiveLine } from "@/components/journey-live-line";
 import { JourneyTransitionControl } from "@/components/journey-transition-control";
 import { ArrowIcon } from "@/components/icons";
 import styles from "./journey-editorial.module.css";
@@ -26,35 +26,6 @@ function formatDate(value: string | null) {
   return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" }).format(new Date(value));
 }
 
-function LineVariant({
-  presentation,
-  className,
-  idPrefix,
-  theme,
-  empty,
-  showDiagnostics,
-  mode,
-}: {
-  presentation: JourneyEditorialGeometry;
-  className: string;
-  idPrefix: string;
-  theme: JourneyEditorialModel["theme"];
-  empty: boolean;
-  showDiagnostics: boolean;
-  mode: "desktop" | "tablet" | "mobile";
-}) {
-  return <div className={className} aria-hidden="true">
-    <JourneyLiveLine
-      presentation={presentation}
-      mode={mode}
-      theme={theme}
-      empty={empty}
-      showDiagnostics={showDiagnostics}
-      idPrefix={idPrefix}
-    />
-  </div>;
-}
-
 function OpenLineComposition({ model, showDiagnostics }: { model: JourneyEditorialModel; showDiagnostics: boolean }) {
   const desktopWaypoint = model.geometries.desktop.waypointPosition;
   const waypointStyle = desktopWaypoint ? {
@@ -65,16 +36,14 @@ function OpenLineComposition({ model, showDiagnostics }: { model: JourneyEditori
   } as CSSProperties : undefined;
 
   return <section className={styles.lineComposition} aria-labelledby={model.empty ? "journey-empty-title" : "journey-waypoint-title"}>
-    <div className={styles.lineField}>
-      <LineVariant presentation={model.geometries.desktop} mode="desktop" className={styles.desktopLine} idPrefix="journey-editorial-desktop" theme={model.theme} empty={model.empty} showDiagnostics={showDiagnostics} />
-      <LineVariant presentation={model.geometries.tablet} mode="tablet" className={styles.tabletLine} idPrefix="journey-editorial-tablet" theme={model.theme} empty={model.empty} showDiagnostics={showDiagnostics} />
-      <LineVariant presentation={model.geometries.mobile} mode="mobile" className={styles.mobileLine} idPrefix="journey-editorial-mobile" theme={model.theme} empty={model.empty} showDiagnostics={showDiagnostics} />
+    <div className={styles.lineField} aria-hidden="true">
+      <JourneyResponsiveLine geometries={model.geometries} theme={model.theme} empty={model.empty} showDiagnostics={showDiagnostics} />
     </div>
 
     {model.empty ? <div className={styles.emptyWaypoint}>
-      <p className={styles.waypointLabel}>Origin</p>
-      <h2 id="journey-empty-title" className={styles.waypointTitle}>Choose one opportunity worth pursuing.</h2>
-      <p className={styles.waypointWhy}>Your Journey begins when you decide one opportunity is worth keeping close.</p>
+      <p className={styles.waypointLabel}>Your first step</p>
+      <h2 id="journey-empty-title" className={styles.waypointTitle}>Find one opportunity worth pursuing.</h2>
+      <p className={styles.waypointWhy}>Add it to your Journey when it feels worth a closer look.</p>
       <Link href="/opportunities" className={styles.primaryAction}>Find my first opportunity <ArrowIcon /></Link>
     </div> : model.waypoint ? <div className={styles.waypoint} style={waypointStyle}>
       <p className={styles.waypointLabel}>What matters now</p>
@@ -86,10 +55,12 @@ function OpenLineComposition({ model, showDiagnostics }: { model: JourneyEditori
       </dl>
       {model.transitionControl ? <JourneyTransitionControl control={model.transitionControl} /> : <Link href={model.waypoint.cta.href} className={styles.primaryAction}>{model.waypoint.cta.label} <ArrowIcon /></Link>}
       <details className={styles.disclosure}>
-        <summary>Why this step</summary>
-        <p>{model.waypoint.whyItMatters}</p>
-        <p className={styles.disclosureSource}>Chosen from your {model.waypoint.source === "roadmap" ? "roadmap" : "advisor recommendations"} and current stage.</p>
+        <summary>See why this matters</summary>
+        <p>{model.waypoint.source === "journey"
+          ? "This action follows the latest confirmed status in your Journey."
+          : `This step fits your ${model.identity.at(-1)?.toLowerCase() ?? "current"} stage and has not been marked complete.`}</p>
       </details>
+      {!model.transitionControl ? <Link href="/my-opportunities" className={styles.manageApplicationsLink}>Manage applications <ArrowIcon /></Link> : null}
     </div> : null}
   </section>;
 }
@@ -112,7 +83,7 @@ function MomentMarker({ item, theme }: { item: JourneyEditorialHistoryItem; them
 
 function Moment({ item, theme }: { item: JourneyEditorialHistoryItem; theme: JourneyEditorialModel["theme"] }) {
   return <li className={styles.moment} data-moment-weight={item.weight} data-moment-kind={item.storyType}>
-    <details className={styles.momentDisclosure} data-journey-moment="">
+    <details className={styles.momentDisclosure} data-journey-moment="" name="journey-moment-detail">
       <summary className={styles.momentSummary}>
         <MomentMarker item={item} theme={theme} />
         <span className={styles.momentEditorial}>
@@ -122,14 +93,14 @@ function Moment({ item, theme }: { item: JourneyEditorialHistoryItem; theme: Jou
           </span>
           <h4 className={styles.momentTitle}><span className={styles.srOnly}>Open details for </span>{item.title}</h4>
           <span className={styles.momentBody}>{item.body}</span>
-          <span className={styles.detailHint} aria-hidden="true"><span className={styles.detailClosed}>Read this moment</span><span className={styles.detailOpen}>Close this moment</span><span className={styles.detailArrow}>↓</span></span>
+          <span className={styles.detailHint} aria-hidden="true"><span className={styles.detailClosed}>View what changed</span><span className={styles.detailOpen}>Hide details</span><span className={styles.detailArrow}>↓</span></span>
         </span>
       </summary>
       <div className={styles.momentDetail}>
         <dl>
           <div><dt>Why it mattered</dt><dd>{item.detail.whyItMattered}</dd></div>
           <div><dt>What changed</dt><dd>{item.detail.whatChanged}</dd></div>
-          <div><dt>Skills gained</dt><dd>{item.detail.skillsGained.length ? item.detail.skillsGained.join(" · ") : "No specific skill evidence is attached to this moment yet."}</dd></div>
+          {item.detail.skillsGained.length ? <div><dt>Evidence from this moment</dt><dd>{item.detail.skillsGained.join(" · ")}</dd></div> : null}
           <div><dt>What this opens next</dt><dd>{item.detail.nextConsequence}</dd></div>
         </dl>
         {item.detail.relatedOpportunity ? <Link href={`/opportunities/${item.detail.relatedOpportunity.id}`} className={styles.relatedOpportunity}>View {item.detail.relatedOpportunity.title} <ArrowIcon /></Link> : null}
@@ -151,81 +122,68 @@ function History({ history, theme }: { history: JourneyEditorialModel["history"]
   const hasMoments = history.totalMomentCount > 0;
   return <section className={styles.history} aria-labelledby="journey-history-title">
     <div className={styles.historyHeading}>
-      <p className={styles.sectionLabel}>Your living story</p>
-      <h2 id="journey-history-title">The moments that moved you forward.</h2>
-      <p>{history.state === "exploration"
-        ? "Your story is just beginning. The options you explore now give your next choice context."
-        : history.state === "first_moment"
-          ? "One meaningful step is enough to begin."
-          : hasMoments ? "Not every click belongs here. Only the choices and outcomes that changed your path." : "Your story is just beginning."}</p>
+      <p className={styles.sectionLabel}>Story so far</p>
+      <h2 id="journey-history-title">The moments that shaped your path.</h2>
+      <p>{history.state === "first_moment" ? "One real step is enough to begin." : "Only actions and outcomes supported by your Journey appear here."}</p>
     </div>
     {hasMoments ? <div className={styles.storyFlow} aria-label="Your Journey moments in chronological order">
       {history.earlierChapters.length ? <details className={styles.earlierChapters} data-earlier-chapters="">
-        <summary><span className={styles.earlierClosed}>See earlier chapters</span><span className={styles.earlierOpen}>Hide earlier chapters</span><span>{history.totalMomentCount - history.recentChapters.reduce((count, chapter) => count + chapter.moments.length, 0)} moments</span></summary>
+        <summary><span className={styles.earlierClosed}>See earlier moments</span><span className={styles.earlierOpen}>Hide earlier moments</span><span>{history.totalMomentCount - history.recentChapters.reduce((count, chapter) => count + chapter.moments.length, 0)} moments</span></summary>
         <div className={styles.earlierContent}><Chapters chapters={history.earlierChapters} theme={theme} /></div>
       </details> : null}
       <Chapters chapters={history.recentChapters} theme={theme} />
+      {history.omittedMomentCount ? <p className={styles.omittedHistory}>{history.omittedMomentCount} older moments remain in application history.</p> : null}
     </div> : <div className={styles.historyEmpty}>
       <span className={styles.emptyStoryMarker} aria-hidden="true" />
       <p>The first meaningful step you take will appear here.</p>
     </div>}
-    <details className={styles.toolsDisclosure}>
-      <summary>Journey tools</summary>
-      <p>Application status and saved opportunities stay in your private Journey Board.</p>
-      <Link href="/my-opportunities">Open Journey Board <ArrowIcon /></Link>
-    </details>
   </section>;
 }
 
 function HorizonItem({ item, primary }: { item: JourneyEditorialHorizonItem; primary: boolean }) {
   return <li className={styles.horizonItem} data-horizon-item="" data-horizon-primary={primary ? "true" : "false"} data-horizon-source={item.source}>
     <article>
-      <p className={styles.horizonOrder}>{primary ? "Most plausible next" : "Another direction"}</p>
+      <p className={styles.horizonOrder}>{primary ? "A direction taking shape" : "Another direction"}</p>
       <h3>{item.title}</h3>
       <p className={styles.horizonExplanation}>{item.explanation}</p>
-      <p className={styles.horizonReason}><strong>Why it becomes possible</strong>{item.whyAvailable}</p>
-      <dl className={styles.horizonMeta}>
-        <div><dt>Approximate effort</dt><dd>{item.effort}</dd></div>
-        <div><dt>Expected impact</dt><dd>{item.impact}</dd></div>
-      </dl>
-      {item.relatedExperience ? <p className={styles.relatedExperience}><span>Related experience</span>{item.relatedExperience.organization} · {item.relatedExperience.title}</p> : null}
-      <Link href={item.cta.href} className={primary ? styles.horizonPrimaryAction : styles.horizonAction}>{item.cta.label} <ArrowIcon /></Link>
-      <details className={styles.horizonDisclosure} data-horizon-detail="">
-        <summary><span className={styles.horizonDetailClosed}>See what this involves</span><span className={styles.horizonDetailOpen}>Hide preparation details</span><span aria-hidden="true">↓</span></summary>
+      <p className={styles.horizonReason}>{item.whyAvailable}</p>
+      <details className={styles.horizonDisclosure} data-horizon-detail="" name="journey-horizon-detail">
+        <summary><span className={styles.horizonDetailClosed}>See why this may fit</span><span className={styles.horizonDetailOpen}>Hide details</span><span aria-hidden="true">↓</span></summary>
         <div className={styles.horizonDetail}>
           <dl>
-            <div><dt>Required evidence</dt><dd>{item.detail.requiredEvidence.length ? item.detail.requiredEvidence.join(" · ") : "No prerequisite evidence is attached to this direction yet."}</dd></div>
-            <div><dt>Skills involved</dt><dd>{item.detail.skills.length ? item.detail.skills.join(" · ") : "The next step will clarify which skills matter most."}</dd></div>
-            <div><dt>Related opportunities</dt><dd>{item.detail.relatedOpportunities.length ? item.detail.relatedOpportunities.map((opportunity) => opportunity.title).join(" · ") : "Explore the related category when you are ready."}</dd></div>
+            <div><dt>Approximate effort</dt><dd>{item.effort}</dd></div>
+            <div><dt>Expected impact</dt><dd>{item.impact}</dd></div>
+            {item.detail.requiredEvidence.length ? <div><dt>Preparation that helps</dt><dd>{item.detail.requiredEvidence.join(" · ")}</dd></div> : null}
+            {item.detail.skills.length ? <div><dt>Skills involved</dt><dd>{item.detail.skills.join(" · ")}</dd></div> : null}
             <div><dt>Expected preparation</dt><dd>{item.detail.expectedPreparation}</dd></div>
           </dl>
+          <Link href={item.cta.href} className={styles.horizonAction}>{item.cta.label} <ArrowIcon /></Link>
         </div>
       </details>
     </article>
   </li>;
 }
 
-function Horizon({ horizon, theme, showDiagnostics }: { horizon: JourneyEditorialModel["horizon"]; theme: JourneyEditorialModel["theme"]; showDiagnostics: boolean }) {
+function Horizon({ horizon }: { horizon: JourneyEditorialModel["horizon"] }) {
   const hasPossibilities = horizon.items.length > 0;
+  const [primary, secondary] = horizon.items;
   return <section className={styles.horizon} aria-labelledby="journey-horizon-title" data-journey-horizon="" data-horizon-state={horizon.state}>
     <header className={styles.horizonHeading}>
       <p className={styles.sectionLabel}>On the horizon</p>
-      <h2 id="journey-horizon-title">After this…</h2>
-      <p>{horizon.state === "empty"
-        ? "As you build experience, new possibilities will appear here."
-        : horizon.state === "sparse"
-          ? "One direction is beginning to take shape. It can become clearer as you take action."
-          : "Your path is already making a few next chapters possible. These are directions, not promises."}</p>
+      <h2 id="journey-horizon-title">What may open next.</h2>
+      <p>These are possibilities supported by your current path, not promises.</p>
     </header>
     <div className={styles.horizonComposition}>
-      {hasPossibilities ? <div className={styles.horizonLineField} aria-hidden="true">
-        <LineVariant presentation={horizon.geometries.desktop} mode="desktop" className={styles.horizonDesktopLine} idPrefix="journey-horizon-desktop" theme={theme} empty={false} showDiagnostics={showDiagnostics} />
-        <LineVariant presentation={horizon.geometries.tablet} mode="tablet" className={styles.horizonTabletLine} idPrefix="journey-horizon-tablet" theme={theme} empty={false} showDiagnostics={showDiagnostics} />
-        <LineVariant presentation={horizon.geometries.mobile} mode="mobile" className={styles.horizonMobileLine} idPrefix="journey-horizon-mobile" theme={theme} empty={false} showDiagnostics={showDiagnostics} />
-      </div> : <span className={styles.horizonOpenEnd} aria-hidden="true" />}
-      {hasPossibilities ? <ol className={styles.horizonList} aria-label="Plausible future directions">
-        {horizon.items.map((item, index) => <HorizonItem key={item.id} item={item} primary={index === 0} />)}
-      </ol> : <p className={styles.horizonEmpty}>Your Open Line stays open. The next meaningful action will give it a direction.</p>}
+      <span className={styles.horizonOpenEnd} aria-hidden="true" />
+      {hasPossibilities && primary ? <div className={styles.horizonContent}>
+        <ol className={styles.horizonList} aria-label="Plausible future directions">
+          <HorizonItem item={primary} primary />
+        </ol>
+        {secondary ? <details className={styles.additionalDirection} data-additional-horizon="">
+          <summary>Explore another direction</summary>
+          <ol className={styles.horizonList}><HorizonItem item={secondary} primary={false} /></ol>
+        </details> : null}
+      </div> : null}
     </div>
   </section>;
 }
@@ -240,6 +198,8 @@ function Diagnostics({ model }: { model: JourneyEditorialModel }) {
     <span>Future: {model.diagnostics.horizonSources.join(", ") || "none"}</span>
     <span>Branch: {model.diagnostics.horizonBranchSource}</span>
     <span>Evidence: {model.diagnostics.horizonEvidenceSource.join(", ") || "none"}</span>
+    <span>Audit: {model.diagnostics.editorialAuditVersion}</span>
+    <span>Suppressed: {model.diagnostics.suppressedClaimCount}</span>
   </aside>;
 }
 
@@ -248,7 +208,7 @@ export function JourneyEditorial({ model, showDiagnostics = false }: JourneyEdit
     "--journey-disclosure-duration": `${OPEN_LINE_MOTION.disclosure}ms`,
     "--journey-motion-easing": OPEN_LINE_MOTION.easing,
   } as CSSProperties;
-  return <main className={`${styles.page} ${showDiagnostics ? styles.diagnosticGrid : ""}`} style={motionStyle} data-journey-editorial="" data-journey-state={model.empty ? "empty" : "populated"}>
+  return <main className={`${styles.page} ${showDiagnostics ? styles.diagnosticGrid : ""}`} style={motionStyle} data-journey-editorial="" data-journey-state={model.state}>
     <article className={styles.article}>
       <section className={styles.opening}>
         <header className={styles.storyHeader}>
@@ -258,9 +218,23 @@ export function JourneyEditorial({ model, showDiagnostics = false }: JourneyEdit
         </header>
         <OpenLineComposition model={model} showDiagnostics={showDiagnostics} />
       </section>
-      <History history={model.history} theme={model.theme} />
-      <Horizon horizon={model.horizon} theme={model.theme} showDiagnostics={showDiagnostics} />
+      {model.history.totalMomentCount ? <History history={model.history} theme={model.theme} /> : null}
+      {model.horizon.items.length ? <Horizon horizon={model.horizon} /> : null}
     </article>
     {showDiagnostics ? <Diagnostics model={model} /> : null}
+  </main>;
+}
+
+export function JourneyEditorialUnavailable() {
+  return <main className={styles.page} data-journey-editorial-error="">
+    <article className={styles.article}>
+      <section className={styles.unavailable} aria-labelledby="journey-unavailable-title">
+        <p className={styles.sectionLabel}>Your Journey</p>
+        <h1 id="journey-unavailable-title">Your path is still here.</h1>
+        <p>We couldn’t prepare the latest view of it. Your saved applications and progress have not changed.</p>
+        <a href="/" className={styles.primaryAction}>Try again <ArrowIcon /></a>
+        <Link href="/my-opportunities" className={styles.manageApplicationsLink}>Manage applications <ArrowIcon /></Link>
+      </section>
+    </article>
   </main>;
 }
