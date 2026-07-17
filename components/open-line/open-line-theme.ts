@@ -1,3 +1,6 @@
+import { journeyDarkTheme, journeyLightTheme, type JourneyThemeTokens } from "@/lib/journey-theme";
+
+/** Compact custom themes remain supported for the renderer laboratory and embedders. */
 export type OpenLineThemeTokens = Readonly<{
   name: "light" | "dark";
   paper: string;
@@ -13,36 +16,39 @@ export type OpenLineThemeTokens = Readonly<{
 }>;
 
 export type OpenLineTheme = "light" | "dark" | OpenLineThemeTokens;
+export type ResolvedOpenLineThemeTokens = JourneyThemeTokens & OpenLineThemeTokens;
 
-export const openLineLightTheme: OpenLineThemeTokens = Object.freeze({
-  name: "light",
-  paper: "#f6f0e6",
-  ink: "#2b211a",
-  forest: "#1f5f43",
-  deepForest: "#0b3b2d",
-  gold: "#b48a45",
-  mineral: "#5e766c",
-  clay: "#9b7560",
-  neutral: "#847d75",
-  border: "#d8cfc1",
-  dark: false,
+export const openLineLightTheme: ResolvedOpenLineThemeTokens = Object.freeze({
+  ...journeyLightTheme,
+  paper: journeyLightTheme.canvas,
+  ink: journeyLightTheme.textPrimary,
+  deepForest: journeyLightTheme.forestStrong,
+  neutral: journeyLightTheme.pathFuture,
 });
 
-export const openLineDarkTheme: OpenLineThemeTokens = Object.freeze({
-  name: "dark",
-  paper: "#171411",
-  ink: "#f7f0e6",
-  forest: "#75b795",
-  deepForest: "#a5d2b9",
-  gold: "#d4ad63",
-  mineral: "#91a79d",
-  clay: "#c3937b",
-  neutral: "#aaa198",
-  border: "#4e463f",
-  dark: true,
+export const openLineDarkTheme: ResolvedOpenLineThemeTokens = Object.freeze({
+  ...journeyDarkTheme,
+  paper: journeyDarkTheme.canvas,
+  ink: journeyDarkTheme.textPrimary,
+  deepForest: journeyDarkTheme.forestStrong,
+  neutral: journeyDarkTheme.pathFuture,
 });
 
-export function resolveOpenLineTheme(theme: OpenLineTheme = "light"): OpenLineThemeTokens {
-  if (typeof theme !== "string") return theme;
+export function resolveOpenLineTheme(theme: OpenLineTheme = "light"): ResolvedOpenLineThemeTokens {
+  if (typeof theme !== "string") {
+    const base = theme.dark ? journeyDarkTheme : journeyLightTheme;
+    return {
+      ...base,
+      ...theme,
+      canvas: theme.paper,
+      textPrimary: theme.ink,
+      forestStrong: theme.deepForest,
+      pathCompleted: theme.forest,
+      pathCurrent: theme.deepForest,
+      pathFuture: theme.neutral,
+      pathAlternate: theme.mineral,
+      pathClosed: theme.clay,
+    };
+  }
   return theme === "dark" ? openLineDarkTheme : openLineLightTheme;
 }

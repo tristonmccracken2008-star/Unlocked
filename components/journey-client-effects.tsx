@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { trackProductEvent } from "@/data/product-analytics";
 import { advisorProfileUpdatedMessageKey } from "@/data/student-profile";
 import styles from "./journey-editorial.module.css";
 
@@ -18,7 +17,6 @@ export function JourneyClientEffects() {
       localStorage.removeItem(advisorProfileUpdatedMessageKey);
       setProfileUpdateMessage(message);
     }
-    trackProductEvent("journey_opened");
   }, []);
   return profileUpdateMessage ? <p role="status" className={styles.profileUpdateStatus}>{profileUpdateMessage}</p> : null;
 }

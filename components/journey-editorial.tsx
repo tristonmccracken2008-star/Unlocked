@@ -6,7 +6,8 @@ import type { JourneyEditorialHistoryChapter, JourneyEditorialHistoryItem, Journ
 import { OpenLineEventGlyph, type OpenLineEventGlyphType } from "@/components/open-line/open-line-event-glyphs";
 import { JourneyResponsiveLine } from "@/components/journey-live-line";
 import { JourneyTransitionControl } from "@/components/journey-transition-control";
-import { PathMomentCreator } from "@/components/path-moment-creator";
+import { JourneyAnalytics } from "@/components/journey-analytics";
+import { PathMomentEntry } from "@/components/path-moment-entry";
 import { SemesterStoryEntry } from "@/components/semester-story-entry";
 import { ArrowIcon } from "@/components/icons";
 import styles from "./journey-editorial.module.css";
@@ -55,14 +56,14 @@ function OpenLineComposition({ model, showDiagnostics }: { model: JourneyEditori
         <div><dt>Estimated effort</dt><dd>{formatEffort(model.waypoint.estimatedMinutes)}</dd></div>
         <div><dt>Expected impact</dt><dd>{model.waypoint.impact}</dd></div>
       </dl>
-      {model.transitionControl ? <JourneyTransitionControl control={model.transitionControl} /> : <Link href={model.waypoint.cta.href} className={styles.primaryAction}>{model.waypoint.cta.label} <ArrowIcon /></Link>}
-      <details className={styles.disclosure}>
+      {model.transitionControl ? <JourneyTransitionControl control={model.transitionControl} /> : <Link href={model.waypoint.cta.href} className={styles.primaryAction} data-journey-analytics="waypoint" data-journey-source={model.waypoint.source}>{model.waypoint.cta.label} <ArrowIcon /></Link>}
+      <details className={styles.disclosure} data-journey-waypoint-detail="">
         <summary>See why this matters</summary>
         <p>{model.waypoint.source === "journey"
           ? "This action follows the latest confirmed status in your Journey."
           : `This step fits your ${model.identity.at(-1)?.toLowerCase() ?? "current"} stage and has not been marked complete.`}</p>
       </details>
-      {!model.transitionControl ? <Link href="/my-opportunities" className={styles.manageApplicationsLink}>Manage applications <ArrowIcon /></Link> : null}
+      {!model.transitionControl ? <Link href="/my-opportunities" className={styles.manageApplicationsLink} data-journey-analytics="application-management">Manage applications <ArrowIcon /></Link> : null}
     </div> : null}
   </section>;
 }
@@ -83,6 +84,16 @@ function MomentMarker({ item, theme }: { item: JourneyEditorialHistoryItem; them
   </span>;
 }
 
+function momentMeaning(item: JourneyEditorialHistoryItem) {
+  if (item.storyType === "validation") return "External validation moment";
+  if (item.storyType === "acceptance") return "Accepted opportunity moment";
+  if (item.storyType === "experience") return "Completed experience moment";
+  if (item.storyType === "commitment") return "Commitment moment";
+  if (item.storyType === "action") return "Action moment";
+  if (item.storyType === "skill") return "Skill-building moment";
+  return "Journey moment";
+}
+
 function Moment({ item, theme }: { item: JourneyEditorialHistoryItem; theme: JourneyEditorialModel["theme"] }) {
   return <li className={styles.moment} data-moment-weight={item.weight} data-moment-kind={item.storyType}>
     <details className={styles.momentDisclosure} data-journey-moment="" name="journey-moment-detail">
@@ -90,6 +101,7 @@ function Moment({ item, theme }: { item: JourneyEditorialHistoryItem; theme: Jou
         <MomentMarker item={item} theme={theme} />
         <span className={styles.momentEditorial}>
           <span className={styles.momentMeta}>
+            <span className={styles.srOnly}>{momentMeaning(item)}. </span>
             <time dateTime={item.occurredAt ?? undefined}>{formatDate(item.occurredAt)}</time>
             {item.category ? <span>{item.category}</span> : null}
           </span>
@@ -127,9 +139,9 @@ function History({ history, theme, pathMoments }: { history: JourneyEditorialMod
       <p className={styles.sectionLabel}>Story so far</p>
       <h2 id="journey-history-title">The moments that shaped your path.</h2>
       <p>{history.state === "first_moment" ? "One real step is enough to begin." : "Only actions and outcomes supported by your Journey appear here."}</p>
-      {pathMoments.moments.length ? <div className={styles.pathMomentAction}><PathMomentCreator collection={pathMoments} theme={theme} /></div> : null}
+      {pathMoments.moments.length ? <div className={styles.pathMomentAction}><PathMomentEntry collection={pathMoments} theme={theme} /></div> : null}
     </div>
-    {hasMoments ? <div className={styles.storyFlow} aria-label="Your Journey moments in chronological order">
+    {hasMoments ? <div className={styles.storyFlow} aria-label="Your Journey moments in chronological order" data-journey-text-timeline="">
       {history.earlierChapters.length ? <details className={styles.earlierChapters} data-earlier-chapters="">
         <summary><span className={styles.earlierClosed}>See earlier moments</span><span className={styles.earlierOpen}>Hide earlier moments</span><span>{history.totalMomentCount - history.recentChapters.reduce((count, chapter) => count + chapter.moments.length, 0)} moments</span></summary>
         <div className={styles.earlierContent}><Chapters chapters={history.earlierChapters} theme={theme} /></div>
@@ -215,19 +227,20 @@ export function JourneyEditorial({ model, showDiagnostics = false }: JourneyEdit
     "--journey-disclosure-duration": `${OPEN_LINE_MOTION.disclosure}ms`,
     "--journey-motion-easing": OPEN_LINE_MOTION.easing,
   } as CSSProperties;
-  return <main className={`${styles.page} ${showDiagnostics ? styles.diagnosticGrid : ""}`} style={motionStyle} data-journey-editorial="" data-journey-state={model.state}>
+  return <main className={`${styles.page} ${showDiagnostics ? styles.diagnosticGrid : ""}`} style={motionStyle} aria-labelledby="journey-story-title" data-journey-editorial="" data-journey-state={model.state}>
+    <JourneyAnalytics state={model.state} serverProjectionMs={model.diagnostics.serverProjectionMs} />
     <article className={styles.article}>
-      <section className={styles.opening}>
+      <section className={styles.opening} aria-labelledby="journey-story-title">
         <header className={styles.storyHeader}>
           <p className={styles.sectionLabel}>Your Journey</p>
-          <h1>{model.story.text}</h1>
+          <h1 id="journey-story-title">{model.story.text}</h1>
           {model.identity.length ? <p className={styles.identity}>{model.identity.join(" · ")}</p> : null}
         </header>
         <OpenLineComposition model={model} showDiagnostics={showDiagnostics} />
       </section>
       {model.history.totalMomentCount ? <History history={model.history} theme={model.theme} pathMoments={model.pathMoments} /> : null}
       {!model.pathMoments.moments.length ? <p className={styles.pathMomentEmpty}>You’ll unlock your first Path Moment after a meaningful milestone.</p> : null}
-      {!model.history.totalMomentCount && model.pathMoments.moments.length ? <section className={styles.pathMomentStandalone} aria-label="Path Moments"><PathMomentCreator collection={model.pathMoments} theme={model.theme} /></section> : null}
+      {!model.history.totalMomentCount && model.pathMoments.moments.length ? <section className={styles.pathMomentStandalone} aria-label="Path Moments"><PathMomentEntry collection={model.pathMoments} theme={model.theme} /></section> : null}
       {model.semesterStories.stories.length ? <SemesterStoryEntry collection={model.semesterStories} theme={model.theme} /> : null}
       {model.horizon.items.length ? <Horizon horizon={model.horizon} /> : null}
     </article>

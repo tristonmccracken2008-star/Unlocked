@@ -1,14 +1,18 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { trackProductEvent } from "@/data/product-analytics";
+import { trackProductError, trackProductEvent, trackProductTiming } from "@/data/product-analytics";
+import { productIntelligenceEvents } from "@/lib/analytics-types";
 import { PathMomentArtwork, pathMomentAltDescription, type PathMomentPrivacy } from "@/components/path-moment-artwork";
 import { pathMomentLayouts, pathMomentTitle, type PathMomentCollection, type PathMomentLayout, type PathMomentNameMode } from "@/lib/path-moments";
 import styles from "./path-moment.module.css";
+import type { JourneyThemeName } from "@/lib/journey-theme";
 
 type PathMomentCreatorProps = {
   collection: PathMomentCollection;
   theme: "light" | "dark";
+  openedAt: number;
+  onClose: () => void;
 };
 
 function initialPrivacy(collection: PathMomentCollection): PathMomentPrivacy {
@@ -19,10 +23,10 @@ function downloadName(layout: PathMomentLayout) {
   return `unlocked-path-moment-${layout}.png`;
 }
 
-export function PathMomentCreator({ collection, theme }: PathMomentCreatorProps) {
-  const [open, setOpen] = useState(false);
+export function PathMomentCreator({ collection, theme, openedAt, onClose }: PathMomentCreatorProps) {
   const [momentId, setMomentId] = useState(collection.moments[0]?.id ?? "");
   const [layout, setLayout] = useState<PathMomentLayout>("story");
+  const [exportTheme, setExportTheme] = useState<JourneyThemeName>(theme);
   const [privacy, setPrivacy] = useState<PathMomentPrivacy>(() => initialPrivacy(collection));
   const [busy, setBusy] = useState<"download" | "copy" | "share" | null>(null);
   const [message, setMessage] = useState("");
@@ -30,7 +34,7 @@ export function PathMomentCreator({ collection, theme }: PathMomentCreatorProps)
   const [canShare, setCanShare] = useState(false);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const artworkRef = useRef<SVGSVGElement>(null);
-  const triggerRef = useRef<HTMLButtonElement>(null);
+  const completedActionRef = useRef(false);
   const moment = useMemo(() => collection.moments.find((item) => item.id === momentId) ?? collection.moments[0], [collection.moments, momentId]);
 
   useEffect(() => {
@@ -41,22 +45,26 @@ export function PathMomentCreator({ collection, theme }: PathMomentCreatorProps)
   useEffect(() => {
     const dialog = dialogRef.current;
     if (!dialog) return;
-    if (open && !dialog.open) dialog.showModal();
-    if (!open && dialog.open) dialog.close();
-  }, [open]);
+    if (!dialog.open) dialog.showModal();
+    trackProductEvent(productIntelligenceEvents.pathMomentCreatorOpened, { format: layout });
+    trackProductTiming("path_moment", "dialog_open", Math.max(0, performance.now() - openedAt));
+  }, [openedAt]);
 
-  function openCreator() {
-    setOpen(true);
-    setMessage("");
-    trackProductEvent("path_moment_preview_opened", { filterValue: moment?.type });
-  }
+  useEffect(() => {
+    trackProductEvent(productIntelligenceEvents.pathMomentPreviewRendered, { format: layout });
+  }, [layout]);
 
   function close() {
+    if (!completedActionRef.current) trackProductEvent(productIntelligenceEvents.pathMomentCanceled);
     dialogRef.current?.close();
-    setOpen(false);
     setBusy(null);
     setMessage("");
-    window.requestAnimationFrame(() => triggerRef.current?.focus());
+    onClose();
+  }
+
+  function updatePrivacy(control: string, update: (current: PathMomentPrivacy) => PathMomentPrivacy) {
+    setPrivacy(update);
+    trackProductEvent(productIntelligenceEvents.pathMomentPrivacyChanged, { control });
   }
 
   async function imageBlob() {
@@ -91,6 +99,7 @@ export function PathMomentCreator({ collection, theme }: PathMomentCreatorProps)
     if (!moment) return;
     setBusy("download");
     setMessage("");
+    const started = performance.now();
     try {
       const blob = await imageBlob();
       const url = URL.createObjectURL(blob);
@@ -101,9 +110,12 @@ export function PathMomentCreator({ collection, theme }: PathMomentCreatorProps)
       link.click();
       link.remove();
       window.setTimeout(() => URL.revokeObjectURL(url), 1_000);
-      trackProductEvent("path_moment_downloaded", { filterValue: layout, reason: moment.type });
+      completedActionRef.current = true;
+      trackProductEvent(productIntelligenceEvents.pathMomentDownloaded, { format: layout });
+      trackProductTiming("path_moment", "png_generation", performance.now() - started);
       setMessage("Path Moment downloaded.");
     } catch (error) {
+      trackProductError("path_moment", "export", "download");
       setMessage(error instanceof Error ? error.message : "The Path Moment could not be downloaded.");
     } finally {
       setBusy(null);
@@ -114,12 +126,16 @@ export function PathMomentCreator({ collection, theme }: PathMomentCreatorProps)
     if (!moment || !canCopy) return;
     setBusy("copy");
     setMessage("");
+    const started = performance.now();
     try {
       const blob = await imageBlob();
       await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
-      trackProductEvent("path_moment_copied", { filterValue: layout, reason: moment.type });
+      completedActionRef.current = true;
+      trackProductEvent(productIntelligenceEvents.pathMomentCopied, { format: layout });
+      trackProductTiming("path_moment", "copy_latency", performance.now() - started);
       setMessage("Path Moment copied as an image.");
     } catch {
+      trackProductError("path_moment", "export", "copy");
       setMessage("This browser could not copy the image. Download is still available.");
     } finally {
       setBusy(null);
@@ -130,17 +146,23 @@ export function PathMomentCreator({ collection, theme }: PathMomentCreatorProps)
     if (!moment || !canShare) return;
     setBusy("share");
     setMessage("");
+    const started = performance.now();
     try {
       const blob = await imageBlob();
       const file = new File([blob], downloadName(layout), { type: "image/png" });
       const payload = { title: "My UnlockED Path Moment", text: moment.headline, files: [file] };
       if (navigator.canShare && !navigator.canShare(payload)) throw new Error("File sharing is not available.");
       await navigator.share(payload);
-      trackProductEvent("path_moment_shared", { filterValue: layout, reason: moment.type });
+      completedActionRef.current = true;
+      trackProductEvent(productIntelligenceEvents.pathMomentShared, { format: layout });
+      trackProductTiming("path_moment", "share_latency", performance.now() - started);
       setMessage("Share sheet opened.");
     } catch (error) {
       if (error instanceof DOMException && error.name === "AbortError") setMessage("Share canceled.");
-      else setMessage("This browser could not open sharing. Download is still available.");
+      else {
+        trackProductError("path_moment", "export", "share");
+        setMessage("This browser could not open sharing. Download is still available.");
+      }
     } finally {
       setBusy(null);
     }
@@ -148,35 +170,36 @@ export function PathMomentCreator({ collection, theme }: PathMomentCreatorProps)
 
   if (!moment) return null;
   const alt = pathMomentAltDescription(moment, privacy, collection.identity);
+  const messageIsError = /could not|not available|not ready|couldn’t/i.test(message);
 
-  return <>
-    <button ref={triggerRef} type="button" className={styles.trigger} onClick={openCreator}>Create a Path Moment</button>
-    <dialog
+  return <dialog
       ref={dialogRef}
       className={styles.dialog}
       data-theme={theme}
       aria-labelledby="path-moment-title"
+      aria-describedby="path-moment-description"
       onCancel={(event) => { event.preventDefault(); close(); }}
     >
-      {open ? <div className={styles.shell}>
+      <div className={styles.shell}>
         <header className={styles.header}>
           <div>
             <p>Path Moment</p>
             <h2 id="path-moment-title">Share one meaningful step.</h2>
-            <span>Preview every detail before it leaves UnlockED.</span>
+            <span id="path-moment-description">Preview every detail before it leaves UnlockED.</span>
           </div>
           <button type="button" onClick={close} className={styles.close} aria-label="Close Path Moment creator">×</button>
         </header>
 
         <div className={styles.workspace}>
           <section className={styles.previewColumn} aria-label="Path Moment preview">
-            <div className={styles.previewFrame} data-preview-layout={layout} role="img" aria-label={alt}>
-              <PathMomentArtwork ref={artworkRef} moment={moment} layout={layout} privacy={privacy} identity={collection.identity} />
+            <div className={styles.previewFrame} data-preview-layout={layout} role="img" aria-label={alt} aria-describedby="path-moment-preview-description">
+              <PathMomentArtwork ref={artworkRef} moment={moment} layout={layout} privacy={privacy} identity={collection.identity} theme={exportTheme} />
             </div>
+            <p id="path-moment-preview-description" className={styles.orderedStory}>{moment.headline} {moment.explanation}</p>
             <p className={styles.previewCaption}>{pathMomentLayouts[layout].label} · {pathMomentLayouts[layout].width} × {pathMomentLayouts[layout].height} PNG</p>
           </section>
 
-          <aside className={styles.controls} aria-label="Path Moment options">
+          <aside className={styles.controls} aria-label="Path Moment options" aria-busy={busy ? "true" : undefined}>
             <label className={styles.field}>
               <span>Moment</span>
               <select value={moment.id} onChange={(event) => { setMomentId(event.target.value); setMessage(""); }}>
@@ -192,19 +215,26 @@ export function PathMomentCreator({ collection, theme }: PathMomentCreatorProps)
             </fieldset>
 
             <fieldset className={styles.group}>
+              <legend>Appearance</legend>
+              <div className={styles.segmented}>
+                {(["light", "dark"] as JourneyThemeName[]).map((item) => <button key={item} type="button" aria-pressed={exportTheme === item} onClick={() => { setExportTheme(item); setMessage(""); trackProductEvent(productIntelligenceEvents.pathMomentAppearanceChanged, { appearance: item }); }}>{item === "light" ? "Light" : "Dark"}</button>)}
+              </div>
+            </fieldset>
+
+            <fieldset className={styles.group}>
               <legend>Name</legend>
               <div className={styles.segmented}>
-                {(["anonymous", "first_name", "full_name"] as PathMomentNameMode[]).map((mode) => <button key={mode} type="button" aria-pressed={privacy.nameMode === mode} onClick={() => setPrivacy((current) => ({ ...current, nameMode: mode }))}>{mode === "anonymous" ? "Anonymous" : mode === "first_name" ? "First name" : "Full name"}</button>)}
+                {(["anonymous", "first_name", "full_name"] as PathMomentNameMode[]).map((mode) => <button key={mode} type="button" aria-pressed={privacy.nameMode === mode} onClick={() => updatePrivacy("name", (current) => ({ ...current, nameMode: mode }))}>{mode === "anonymous" ? "Anonymous" : mode === "first_name" ? "First name" : "Full name"}</button>)}
               </div>
             </fieldset>
 
             <fieldset className={styles.group}>
               <legend>Optional details</legend>
               <div className={styles.checks}>
-                <PrivacyCheck label="School" checked={privacy.includeSchool} disabled={!collection.identity.school} onChange={(includeSchool) => setPrivacy((current) => ({ ...current, includeSchool }))} />
-                <PrivacyCheck label="Organization" checked={privacy.includeOrganization} disabled={!moment.organization} onChange={(includeOrganization) => setPrivacy((current) => ({ ...current, includeOrganization }))} />
-                <PrivacyCheck label="Opportunity" checked={privacy.includeOpportunity} disabled={!moment.opportunity} onChange={(includeOpportunity) => setPrivacy((current) => ({ ...current, includeOpportunity }))} />
-                <PrivacyCheck label="Month and year" checked={privacy.includeDate} onChange={(includeDate) => setPrivacy((current) => ({ ...current, includeDate }))} />
+                <PrivacyCheck label="School" checked={privacy.includeSchool} disabled={!collection.identity.school} onChange={(includeSchool) => updatePrivacy("school", (current) => ({ ...current, includeSchool }))} />
+                <PrivacyCheck label="Organization" checked={privacy.includeOrganization} disabled={!moment.organization} onChange={(includeOrganization) => updatePrivacy("organization", (current) => ({ ...current, includeOrganization }))} />
+                <PrivacyCheck label="Opportunity" checked={privacy.includeOpportunity} disabled={!moment.opportunity} onChange={(includeOpportunity) => updatePrivacy("opportunity", (current) => ({ ...current, includeOpportunity }))} />
+                <PrivacyCheck label="Month and year" checked={privacy.includeDate} onChange={(includeDate) => updatePrivacy("date", (current) => ({ ...current, includeDate }))} />
               </div>
             </fieldset>
 
@@ -218,12 +248,11 @@ export function PathMomentCreator({ collection, theme }: PathMomentCreatorProps)
               {canCopy ? <button type="button" disabled={Boolean(busy)} onClick={copyImage}>{busy === "copy" ? "Copying…" : "Copy image"}</button> : null}
               {canShare ? <button type="button" disabled={Boolean(busy)} onClick={nativeShare}>{busy === "share" ? "Opening…" : "Share"}</button> : null}
             </div>
-            <p className={styles.status} role="status" aria-live="polite">{message}</p>
+            <p className={styles.status} role={messageIsError ? "alert" : "status"} aria-live={messageIsError ? "assertive" : "polite"}>{message}</p>
           </aside>
         </div>
-      </div> : null}
-    </dialog>
-  </>;
+      </div>
+    </dialog>;
 }
 
 function PrivacyCheck({ label, checked, disabled = false, onChange }: { label: string; checked: boolean; disabled?: boolean; onChange: (checked: boolean) => void }) {

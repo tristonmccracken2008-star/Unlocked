@@ -156,6 +156,7 @@ export type JourneyEditorialModel = {
     horizonEvidenceSource: string[];
     editorialAuditVersion: string;
     suppressedClaimCount: number;
+    serverProjectionMs?: number;
   };
 };
 
@@ -179,12 +180,9 @@ type HorizonSource = {
   detail: JourneyEditorialHorizonItem["detail"];
 };
 
-function activityFromAccount(account: AccountData) {
-  const adapted = openLineInputFromAccount({ userId: "journey-editorial", account });
-  return adapted.activity ?? { viewed: [], saved: [], claimed: [], tracked: {} };
-}
+type JourneyActivity = NonNullable<ReturnType<typeof openLineInputFromAccount>["activity"]>;
 
-function progressFromAccount(account: AccountData, opportunities: readonly Opportunity[]): StudentProgress {
+function progressFromAccount(account: AccountData, opportunities: readonly Opportunity[], activity: JourneyActivity): StudentProgress {
   const milestoneTimestamp = account.updatedAt;
   const milestoneProgress = Object.fromEntries(Object.entries(account.journeyProgress ?? {})
     .filter(([, completed]) => completed)
@@ -195,7 +193,7 @@ function progressFromAccount(account: AccountData, opportunities: readonly Oppor
       source: "system" as const,
       updatedAt: milestoneTimestamp,
     }]));
-  return inferApplicationsFromActivity(activityFromAccount(account), opportunities, { milestones: milestoneProgress, applications: {} });
+  return inferApplicationsFromActivity(activity, opportunities, { milestones: milestoneProgress, applications: {} });
 }
 
 function geometryPresentation(geometry: PathGeometry, viewportHeight: number, targetWaypointY: number): JourneyEditorialGeometry {
@@ -246,9 +244,10 @@ function pathMomentIdentity(account: AccountData, user: Pick<AuthUser, "name">, 
   };
 }
 
-function currentTheme(account: AccountData): "light" | "dark" {
+function currentTheme(account: AccountData, resolvedTheme?: "light" | "dark"): "light" | "dark" {
+  if (resolvedTheme) return resolvedTheme;
   const appearance = account.preferences?.appearance ?? "light";
-  return isProUser(account.billing) && appearance !== "light" ? "dark" : "light";
+  return isProUser(account.billing) && (appearance === "midnight" || appearance === "forest") ? "dark" : "light";
 }
 
 const chapterDefinitions: ReadonlyArray<{ key: JourneyEditorialChapterKey; title: string }> = [
@@ -430,6 +429,7 @@ export function buildJourneyEditorialProjection(input: {
   user: Pick<AuthUser, "id" | "name">;
   account: AccountData;
   opportunities: readonly Opportunity[];
+  resolvedTheme?: "light" | "dark";
 }): JourneyEditorialProjection {
   const { account, user } = input;
   const profile = account.profile;
@@ -445,18 +445,19 @@ export function buildJourneyEditorialProjection(input: {
   ]);
   const empty = allTrackedIds.size === 0;
   const opportunities = input.opportunities.filter((opportunity) => allTrackedIds.has(opportunity.id));
-  const progress = progressFromAccount(account, opportunities);
-  const activity = activityFromAccount(account);
+  const adapted = openLineInputFromAccount({ userId: user.id, account, generatedAt: account.updatedAt });
+  const activity = adapted.activity ?? { viewed: [], saved: [], claimed: [], tracked: {} };
+  const progress = progressFromAccount(account, opportunities, activity);
   const advisorProfile = createAdvisorProfile({ profile, school, activity, progress });
   const roadmap = getRoadmap(advisorProfile, progress);
   const roadmapWaypoint = empty ? null : waypointFromRoadmap(roadmap.recommendedMilestone);
   const trackedRecords = { ...(account.activity?.tracked ?? {}), ...(account.tracker ?? {}) };
-  const clarityState = empty ? "empty" : Object.values(trackedRecords).length ? journeyClarityStage(Object.values(trackedRecords)) : "sparse";
+  const trackedValues = Object.values(trackedRecords);
+  const clarityState = empty ? "empty" : trackedValues.length ? journeyClarityStage(trackedValues) : "sparse";
   const hasProgressBeyondSaving = (account.activity?.claimed?.length ?? 0) > 0
-    || Object.values(trackedRecords).some((record) => record.status !== "Saved");
+    || trackedValues.some((record) => record.status !== "Saved");
   const horizonState: JourneyEditorialHorizon["state"] = empty ? "empty" : hasProgressBeyondSaving ? "populated" : "sparse";
   const futureSources = horizonSources({ advisorProfile, progress, roadmap, state: horizonState });
-  const adapted = openLineInputFromAccount({ userId: user.id, account, generatedAt: account.updatedAt });
   const pathInput = {
     ...adapted,
     profile: empty ? null : adapted.profile,
@@ -484,7 +485,7 @@ export function buildJourneyEditorialProjection(input: {
   const opportunityById = new Map(opportunities.map((opportunity) => [opportunity.id, opportunity]));
   const transitionCandidateIds = [
     waypointMeaning?.sourceOpportunityId,
-    ...Object.values(trackedRecords).sort((left, right) => right.updatedAt.localeCompare(left.updatedAt)).map((record) => record.id),
+    ...trackedValues.toSorted((left, right) => right.updatedAt.localeCompare(left.updatedAt)).map((record) => record.id),
   ].filter((id): id is string => Boolean(id));
   const transitionRecord = transitionCandidateIds
     .map((id) => trackedRecords[id])
@@ -511,7 +512,7 @@ export function buildJourneyEditorialProjection(input: {
         return [];
       }
       const pathEvents = pathEventsByMoment.get(moment.id) ?? [];
-      const primaryEvent = [...pathEvents].sort((left, right) => right.importance - left.importance)[0];
+      const primaryEvent = pathEvents.reduce((mostImportant, event) => !mostImportant || event.importance > mostImportant.importance ? event : mostImportant, undefined as (typeof pathEvents)[number] | undefined);
       const opportunity = primaryEvent?.opportunityId ? opportunityById.get(primaryEvent.opportunityId) : undefined;
       const eventRecord = opportunity ? trackedRecords[opportunity.id] : undefined;
       if (moment.storyType === "action" && (!opportunity || !eventRecord || !recordSupportsEditorialAction(eventRecord, opportunity))) {
@@ -584,16 +585,17 @@ export function buildJourneyEditorialProjection(input: {
           : { href: horizonHref(roadmap.recommendedMilestone.relatedOpportunityCategories), label: "Find an opportunity for this step" },
       }
       : undefined;
+  const identity = pathMomentIdentity(account, user, school.name);
   const pathMoments = buildPathMoments({
     pathprint,
     opportunities,
-    identity: pathMomentIdentity(account, user, school.name),
+    identity,
   });
   const semesterStories = buildSemesterStories({
     pathprint,
     opportunities,
     identity: {
-      ...pathMomentIdentity(account, user, school.name),
+      ...identity,
       major: profile.major,
       profileHref: "/profile",
     },
@@ -635,7 +637,7 @@ export function buildJourneyEditorialProjection(input: {
       tablet: geometryPresentation(tabletGeometry, 600, 250),
       mobile: geometryPresentation(mobileGeometry, 440, 48),
     },
-    theme: currentTheme(account),
+    theme: currentTheme(account, input.resolvedTheme),
     diagnostics: {
       narrativeSource: narrative.editorialStatement.source,
       waypointSource: narrative.waypoint?.source ?? "none",
@@ -656,6 +658,7 @@ export function buildJourneyEditorialModel(input: {
   user: Pick<AuthUser, "id" | "name">;
   account: AccountData;
   opportunities: readonly Opportunity[];
+  resolvedTheme?: "light" | "dark";
 }): JourneyEditorialModel {
   return buildJourneyEditorialProjection(input).model;
 }

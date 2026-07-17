@@ -97,37 +97,11 @@ Status changes are optimistic:
 
 Milestone panels are shown only for real tracked activity, such as first submission, first interview, first acceptance, first completed opportunity, five applications tracked, or ten opportunities tracked. Journey Board does not add XP, streaks, fake scores, or unverifiable progress.
 
-## Analytics Events
+## Product Intelligence
 
-The product event vocabulary includes:
+The canonical versioned event contract, field allowlists, privacy rules, retention recommendations, offline queue, and deterministic aggregate model are documented in `docs/PRODUCT_INTELLIGENCE.md`.
 
-- `discover_opened`
-- `search_performed`
-- `filter_applied`
-- `opportunity_view`
-- `opportunity_saved`
-- `journey_board_opened`
-- `opportunity_status_menu_opened`
-- `opportunity_status_changed`
-- `opportunity_drag_started`
-- `opportunity_drag_completed`
-- `opportunity_drag_failed`
-- `status_changed`
-- `application_recorded`
-- `for_you_opened`
-- `recommendation_viewed`
-- `recommendation_clicked`
-- `journey_opened`
-- `journey_filter_changed`
-- `milestone_unlocked`
-- `path_moment_preview_opened`
-- `path_moment_downloaded`
-- `path_moment_copied`
-- `path_moment_shared`
-
-Historical `journey_card_*` identifiers remain accepted for analytics compatibility but are not emitted by the current Journey UI.
-
-`journey_opened` is stored in the existing dashboard funnel bucket for analytics compatibility.
+Historical unversioned identifiers remain accepted at the ingestion boundary for compatibility. New Journey, export, recommendation-conversion, health, and error telemetry uses `_v1` events exclusively. The app mounts one first-party transport and stores aggregates rather than raw event bodies.
 
 ## Semester Story Projection
 

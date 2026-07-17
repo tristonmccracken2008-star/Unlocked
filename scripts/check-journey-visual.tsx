@@ -7,6 +7,7 @@ const journey = read("components/journey-editorial.tsx");
 const journeyStyles = read("components/journey-editorial.module.css");
 const artwork = read("components/path-moment-artwork.tsx");
 const creator = read("components/path-moment-creator.tsx");
+const pathMomentEntry = read("components/path-moment-entry.tsx");
 const momentStyles = read("components/path-moment.module.css");
 const loading = read("app/loading.tsx");
 
@@ -48,7 +49,9 @@ assert.match(journeyStyles, /\.loadingStatus \{ animation-delay: 320ms; \}/, "La
 assert.ok(!journey.startsWith('"use client"'), "The editorial Journey must remain server-first.");
 assert.equal((journey.match(/<JourneyResponsiveLine/g) ?? []).length, 1, "Journey must render one responsive Open Line.");
 assert.match(loading, /loadingIdentity[\s\S]*loadingComposition/, "Loading must preserve identity-before-waypoint DOM order.");
-assert.match(creator, /\{open \? <div className=\{styles\.shell\}>/, "Closed Path Moment dialogs must not render hidden artwork.");
+assert.match(pathMomentEntry, /import\("@\/components\/path-moment-creator"\)/, "Path Moment artwork and export code must load on intent.");
+assert.doesNotMatch(journey, /path-moment-creator/, "Journey cannot hydrate the full Path Moment creator while it is closed.");
+assert.doesNotMatch(creator, /const \[open, setOpen\]/, "The lazy creator must mount only while its dialog is open.");
 
 assert.deepEqual(Object.fromEntries(Object.entries(pathMomentLayouts).map(([key, value]) => [key, { width: value.width, height: value.height }])), {
   story: { width: 1080, height: 1920 },

@@ -57,9 +57,9 @@ export function ProfilePage() {
       <div className="mx-auto max-w-5xl rounded-[2rem] bg-white p-5 shadow-soft ring-1 ring-ink/8 sm:p-6">
         <p className="rule-label text-forest">Appearance</p>
         <h2 className="mt-2 font-editorial text-2xl font-bold">Site appearance</h2>
-        <p className="mt-2 max-w-2xl text-sm leading-6 text-ink/50">UnlockED Light is available to everyone. Midnight and Forest are Pro appearance options.</p>
+        <p className="mt-2 max-w-2xl text-sm leading-6 text-ink/50">UnlockED Light is available to everyone. System, Midnight, and Forest are Pro appearance options.</p>
         <div className="mt-5 flex flex-wrap gap-3">
-          {(["light", "midnight", "forest"] as const).map((appearance) => {
+          {(["light", "system", "midnight", "forest"] as const).map((appearance) => {
             const premium = appearance !== "light";
             const selected = (session?.data?.preferences?.appearance ?? "light") === appearance;
             return <button key={appearance} type="button" onClick={async () => {
@@ -71,8 +71,8 @@ export function ProfilePage() {
               await pushAccountData({ preferences });
               const next = await hydrateAccountData();
               setSession(next);
-              setAppearanceMessage(`${appearance === "light" ? "Light" : appearance === "midnight" ? "Midnight" : "Forest"} appearance saved.`);
-            }} className={`min-h-11 rounded-full px-5 text-sm font-bold capitalize ${selected ? "bg-forest text-white" : "border border-ink/15 bg-white text-ink/60 hover:border-forest hover:text-forest"}`}>{appearance === "light" ? "UnlockED Light" : appearance}{premium ? " · Pro" : ""}</button>;
+              setAppearanceMessage(`${appearance === "light" ? "Light" : appearance === "system" ? "System" : appearance === "midnight" ? "Midnight" : "Forest"} appearance saved.`);
+            }} className={`min-h-11 rounded-full px-5 text-sm font-bold capitalize ${selected ? "bg-forest text-white" : "border border-ink/15 bg-white text-ink/60 hover:border-forest hover:text-forest"}`}>{appearance === "light" ? "UnlockED Light" : appearance === "system" ? "Use system setting" : appearance}{premium ? " · Pro" : ""}</button>;
           })}
         </div>
         {appearanceMessage && <p role="status" className="mt-3 text-sm font-bold text-forest">{appearanceMessage} {!pro && <Link href="/pricing" className="ml-2 border-b border-current">View Pro</Link>}</p>}

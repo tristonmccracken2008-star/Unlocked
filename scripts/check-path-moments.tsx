@@ -129,9 +129,21 @@ for (const layout of Object.keys(pathMomentLayouts) as Array<keyof typeof pathMo
   assert.match(markup, /data-open-line-renderer/);
   assert.doesNotMatch(markup, /…/, "Path Moment headlines and explanations must fit without truncation.");
   assert.doesNotMatch(markup, /Triston|University of Chicago|GPA|rejection|application counts|internal IDs/i, "Anonymous artwork must not contain optional or sensitive identity data.");
+  const darkMarkup = renderToStaticMarkup(<PathMomentArtwork
+    moment={first}
+    layout={layout}
+    privacy={{ nameMode: "anonymous", includeSchool: false, includeOrganization: false, includeOpportunity: false, includeDate: false }}
+    identity={collection.identity}
+    theme="dark"
+  />);
+  assert.match(darkMarkup, /data-export-theme="dark"/);
+  assert.match(darkMarkup, /fill="#17120f"/);
+  assert.match(darkMarkup, new RegExp(`width="${pathMomentLayouts[layout].width}"`));
+  assert.match(darkMarkup, new RegExp(`height="${pathMomentLayouts[layout].height}"`));
 }
 
 const creatorSource = readFileSync(new URL("../components/path-moment-creator.tsx", import.meta.url), "utf8");
+const entrySource = readFileSync(new URL("../components/path-moment-entry.tsx", import.meta.url), "utf8");
 const artworkSource = readFileSync(new URL("../components/path-moment-artwork.tsx", import.meta.url), "utf8");
 assert.match(creatorSource, /XMLSerializer/);
 assert.match(creatorSource, /canvas\.toBlob/);
@@ -139,6 +151,10 @@ assert.match(creatorSource, /ClipboardItem/);
 assert.match(creatorSource, /navigator\.share/);
 assert.match(creatorSource, /initialPrivacy\(collection\)/);
 assert.match(creatorSource, /GPA, notes, application counts, rejection history, internal IDs/);
+assert.match(entrySource, /import\("@\/components\/path-moment-creator"\)/, "Path Moment exports must remain outside the initial Journey bundle.");
+assert.match(entrySource, /onPointerEnter=\{preload\}/);
+assert.match(entrySource, /onFocus=\{preload\}/);
+assert.doesNotMatch(entrySource, /PathMomentArtwork|XMLSerializer|canvas\.toBlob/, "The entry boundary must remain lightweight.");
 assert.doesNotMatch(artworkSource, /gradient|confetti|progress ring|chart/i);
 
 for (let index = 0; index < 10; index += 1) collectionFor();

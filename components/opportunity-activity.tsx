@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import type { OpportunityType } from "@/data/opportunities";
 import { readStudentActivity, saveOpportunity, studentActivityEvent, trackOpportunityView } from "@/data/student-activity";
 import { ArrowIcon, CheckIcon } from "./icons";
-import { trackProductEvent } from "@/data/product-analytics";
+import { productIntelligenceEvents } from "@/lib/analytics-types";
+import { recommendationAttributionFor, rememberRecommendationAttribution, trackProductEvent } from "@/data/product-analytics";
 
 export function OpportunityViewTracker({ opportunityId }: { opportunityId: string }) {
   useEffect(() => { trackOpportunityView(opportunityId); trackProductEvent("opportunity_view", { opportunityId }); }, [opportunityId]);
@@ -27,11 +28,20 @@ export function OpportunityActivityActions({ opportunityId, type, officialSource
   </div>;
 }
 
-export function AddToJourneyButton({ opportunityId, className = "" }: { opportunityId: string; className?: string }) {
+export function AddToJourneyButton({ opportunityId, recommendationId, className = "" }: { opportunityId: string; recommendationId?: string; className?: string }) {
   const [added,setAdded]=useState(false);
   useEffect(()=>{const update=()=>{const activity=readStudentActivity();setAdded(Boolean(activity.tracked?.[opportunityId]||activity.saved.includes(opportunityId)))};update();window.addEventListener(studentActivityEvent,update);return()=>window.removeEventListener(studentActivityEvent,update)},[opportunityId]);
   if (added) return <JourneyAddedState className={className} />;
-  return <button type="button" onClick={()=>{saveOpportunity(opportunityId,"Saved");setAdded(true);trackProductEvent("opportunity_added_to_journey",{opportunityId});trackProductEvent("opportunity_saved",{opportunityId})}} className={`inline-flex min-h-11 items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider ${className}`}>Add to Journey</button>;
+  return <button type="button" onClick={()=>{
+    saveOpportunity(opportunityId,"Saved");
+    setAdded(true);
+    trackProductEvent("opportunity_added_to_journey",{opportunityId});
+    const attribution = recommendationId ?? recommendationAttributionFor(opportunityId);
+    if (attribution) {
+      rememberRecommendationAttribution(opportunityId, attribution);
+      trackProductEvent(productIntelligenceEvents.recommendationSaved, { opportunityId, recommendationId: attribution });
+    }
+  }} className={`inline-flex min-h-11 items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider ${className}`}>Add to Journey</button>;
 }
 
 function JourneyAddedState({ className = "" }: { className?: string }) {

@@ -9,7 +9,6 @@ export const journeyTransformationEvent = "unlocked-journey-transformation";
 type TransformationDetail = {
   geometries: JourneyEditorialModel["geometries"];
   horizonGeometries: JourneyEditorialModel["horizon"]["geometries"];
-  announcement: string;
 };
 
 export function JourneyLiveLine({
@@ -29,7 +28,6 @@ export function JourneyLiveLine({
 }) {
   const [current, setCurrent] = useState(presentation);
   const [previous, setPrevious] = useState<JourneyEditorialGeometry | null>(null);
-  const [announcement, setAnnouncement] = useState("");
   const [meaningfulUpdate, setMeaningfulUpdate] = useState(false);
 
   useEffect(() => {
@@ -44,7 +42,6 @@ export function JourneyLiveLine({
         setPrevious(currentPresentation);
         return next;
       });
-      setAnnouncement(detail.announcement);
       setMeaningfulUpdate(true);
     };
     window.addEventListener(journeyTransformationEvent, update);
@@ -56,7 +53,6 @@ export function JourneyLiveLine({
     geometry={current.geometry}
     viewport={current.viewport}
     motionContext={{ cause: meaningfulUpdate ? "meaningful_update" : empty ? "first_journey_creation" : "normal_revisit", preference: "system", allowDeveloperReplay: showDiagnostics }}
-    announcement={announcement}
     theme={theme}
     background="transparent"
     quality="high"

@@ -3,11 +3,10 @@ import "./globals.css";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { AccountSync } from "@/components/account-auth";
-import { Analytics } from "@vercel/analytics/next";
-import { SpeedInsights } from "@vercel/speed-insights/next";
 import { ProductAnalytics } from "@/components/product-analytics";
 import { AuthBoundary } from "@/components/auth-boundary";
 import { ThemeBootstrapScript, ThemeController } from "@/components/theme-controller";
+import { journeyThemeCss } from "@/lib/journey-theme";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://unlocked.education"),
@@ -24,5 +23,5 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en" data-scroll-behavior="smooth" data-theme="light" suppressHydrationWarning><body><ThemeBootstrapScript/><AccountSync /><ThemeController/><ProductAnalytics/><Header /><AuthBoundary>{children}</AuthBoundary><Footer /><Analytics/><SpeedInsights/></body></html>;
+  return <html lang="en" data-scroll-behavior="smooth" data-theme="light" suppressHydrationWarning><head><style id="unlocked-journey-theme-tokens" dangerouslySetInnerHTML={{ __html: journeyThemeCss() }} /></head><body><ThemeBootstrapScript/><AccountSync /><ThemeController/><ProductAnalytics/><Header /><AuthBoundary>{children}</AuthBoundary><Footer /></body></html>;
 }

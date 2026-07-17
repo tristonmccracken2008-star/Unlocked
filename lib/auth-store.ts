@@ -581,8 +581,8 @@ async function completeReferralOnboardingUnlocked(userId: string) {
   await dbSet(accountBillingKey(referrerUserId), nextReferrer.billing);
   await writeAccountData(userId, nextReferred);
   await updateReferralAdminSnapshot(referrerUserId, nextReferrer.referrals!).catch((error) => console.warn("[UnlockED referrals] admin snapshot failed", { errorCategory: error instanceof Error ? error.name : "unknown" }));
-  await recordAnalyticsEvent("referral_completed", referrerUserId, { referralCode: attribution.code }).catch((error) => console.warn("[UnlockED referrals] completion analytics failed", { errorCategory: error instanceof Error ? error.name : "unknown" }));
-  await Promise.all(unlocked.map((reward) => recordAnalyticsEvent("referral_reward_unlocked", referrerUserId, { referralCode: attribution.code, referralReward: reward.key }).catch((error) => console.warn("[UnlockED referrals] reward analytics failed", { errorCategory: error instanceof Error ? error.name : "unknown" }))));
+  void recordAnalyticsEvent("referral_completed", referrerUserId).catch((error) => console.warn("[UnlockED referrals] completion analytics failed", { errorCategory: error instanceof Error ? error.name : "unknown" }));
+  for (const reward of unlocked) void recordAnalyticsEvent("referral_reward_unlocked", referrerUserId, { referralReward: reward.key }).catch((error) => console.warn("[UnlockED referrals] reward analytics failed", { errorCategory: error instanceof Error ? error.name : "unknown" }));
   return { credited: true, rewards: unlocked.map((reward) => reward.key) };
 }
 

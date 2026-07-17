@@ -135,11 +135,11 @@ for (const event of [
   "application_recorded",
   "for_you_opened",
   "recommendation_viewed",
-  "recommendation_clicked",
+  "recommendation_opportunity_opened_v1",
   "journey_opened",
-  "path_moment_preview_opened",
-  "path_moment_shared",
-  "path_moment_downloaded",
+  "path_moment_preview_rendered_v1",
+  "path_moment_shared_v1",
+  "path_moment_downloaded_v1",
 ]) {
   assert.ok(analytics.includes(`"${event}"`), `Analytics events must include ${event}.`);
 }

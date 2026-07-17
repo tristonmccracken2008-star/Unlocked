@@ -142,7 +142,7 @@ export function OpportunityFilter({ opportunities: initialOpportunities = [] }: 
     }));
   }, [categories]);
 
-  useEffect(() => trackProductEvent("discover_opened"), []);
+  useEffect(() => { trackProductEvent("discover_opened"); }, []);
   useEffect(() => {
     if (!hydrated.current) return;
     sessionStorage.setItem(storageKey, JSON.stringify(filters));

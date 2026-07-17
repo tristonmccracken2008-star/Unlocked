@@ -13,7 +13,8 @@ import type { Entitlements } from "@/lib/entitlements";
 import type { ForYouServerState } from "@/lib/for-you-snapshot";
 import { accountSessionEvent, readAccountSession } from "@/data/account-sync";
 import { authenticatedFetch } from "@/data/authenticated-request";
-import { trackProductEvent } from "@/data/product-analytics";
+import { rememberRecommendationAttribution, trackProductError, trackProductEvent } from "@/data/product-analytics";
+import { productIntelligenceEvents } from "@/lib/analytics-types";
 import { ArrowIcon, BookmarkIcon, CheckCircleIcon, SearchIcon, SendIcon, TargetIcon } from "./icons";
 import { OrganizationLogo } from "./organization-logo";
 import { AddToJourneyButton } from "./opportunity-activity";
@@ -90,6 +91,16 @@ function retryDelay(attempt: number) {
 
 function wait(ms: number) {
   return new Promise((resolve) => window.setTimeout(resolve, ms));
+}
+
+function trackRecommendationOpen(view: RecommendationViewModel) {
+  const opportunityId = view.recommendation.relatedOpportunityId;
+  if (!opportunityId) return;
+  rememberRecommendationAttribution(opportunityId, view.recommendation.id);
+  trackProductEvent(productIntelligenceEvents.recommendationOpened, {
+    opportunityId,
+    recommendationId: view.recommendation.id,
+  });
 }
 
 export function AdvisorPage({ initialState = null, serverAuthenticated = false }: { initialState?: ForYouServerState | null; serverAuthenticated?: boolean }) {
@@ -243,7 +254,7 @@ export function AdvisorPage({ initialState = null, serverAuthenticated = false }
 
   useEffect(() => {
     if (pageState !== "error" || !errorMessage) return;
-    trackProductEvent("for_you_error", { reason: errorMessage });
+    trackProductError("recommendations", "unavailable", "load");
   }, [errorMessage, pageState]);
 
   useEffect(() => {
@@ -340,7 +351,7 @@ function TopRecommendation({ view, onFeedback }: { view: RecommendationViewModel
     <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_220px_250px] lg:items-center">
       <div>{opportunity && <OrganizationLogo opportunity={opportunity} size="lg" className="mb-5 bg-white/70"/>}<p className="rule-label text-forest">Top recommendation · {view.recommendation.priority} priority</p><h2 className="mt-4 font-editorial text-4xl font-bold leading-tight tracking-[-.035em]">{opportunity?.title ?? view.recommendation.title}</h2><p className="mt-4 max-w-2xl text-sm leading-7 text-ink/62">{opportunity?.description ?? view.recommendation.description}</p>{view.chips.length ? <div className="mt-5 flex flex-wrap gap-2">{view.chips.map((chip) => <span key={chip} className="rounded-full bg-white px-3 py-1.5 text-xs font-bold text-ink/70">{chip}</span>)}</div> : null}</div>
       <dl className="grid gap-5 border-ink/10 text-sm lg:border-l lg:pl-8"><div><dt className="text-ink/40">Deadline</dt><dd className="mt-1 font-black">{opportunity ? deadlineLabel(opportunity) : "Not announced"}</dd></div><div><dt className="text-ink/40">Est. effort</dt><dd className="mt-1 font-black">{view.recommendation.estimatedValueLabel === "Unknown" ? "Medium" : view.recommendation.estimatedValueLabel}</dd></div><div><dt className="text-ink/40">Match</dt><dd className="mt-1 font-black text-forest">{view.label}</dd></div></dl>
-      <div className="flex flex-col gap-3"><Link href={view.href} onClick={() => trackProductEvent("recommendation_clicked", { recommendationId: view.recommendation.id, opportunityId: view.recommendation.relatedOpportunityId, section: "for-you" })} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-forest px-6 text-sm font-bold text-white shadow-[0_16px_34px_rgba(31,95,67,.18)] hover:bg-ink">Open Opportunity <ArrowIcon /></Link>{view.recommendation.relatedOpportunityId ? <AddToJourneyButton opportunityId={view.recommendation.relatedOpportunityId} className="rounded-full border border-forest/35 bg-white px-6 text-forest hover:border-forest" /> : null}</div>
+      <div className="flex flex-col gap-3"><Link href={view.href} onClick={() => trackRecommendationOpen(view)} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-forest px-6 text-sm font-bold text-white shadow-[0_16px_34px_rgba(31,95,67,.18)] hover:bg-ink">Open Opportunity <ArrowIcon /></Link>{view.recommendation.relatedOpportunityId ? <AddToJourneyButton opportunityId={view.recommendation.relatedOpportunityId} recommendationId={view.recommendation.id} className="rounded-full border border-forest/35 bg-white px-6 text-forest hover:border-forest" /> : null}</div>
     </div>
     <RecommendationFeedback view={view} onFeedback={onFeedback} />
   </article>;
@@ -452,7 +463,7 @@ function RecommendationCard({ view, onFeedback }: { view: RecommendationViewMode
     <div className="mt-4 flex-1"><p className="line-clamp-4 text-sm leading-6 text-ink/60">{opportunity?.description ?? view.recommendation.description}</p></div>
     <div className="mt-5 flex flex-wrap gap-2">{view.chips.slice(0, 2).map((chip) => <span key={chip} className="rounded-full bg-paper px-3 py-1 text-xs font-bold text-ink/65">{chip}</span>)}</div>
     <div className="mt-5 grid grid-cols-2 gap-3 border-t border-ink/8 pt-4 text-xs"><div><p className="text-ink/40">Deadline</p><p className="mt-1 font-black">{opportunity ? deadlineLabel(opportunity) : "Not announced"}</p></div><div className="text-right"><p className="text-ink/40">{view.label}</p><span className="mt-2 inline-block h-2 w-2 rounded-full bg-forest" /></div></div>
-    <div className="mt-5 grid gap-3"><Link href={view.href} onClick={() => trackProductEvent("recommendation_clicked", { recommendationId: view.recommendation.id, opportunityId: view.recommendation.relatedOpportunityId, section: "for-you-card" })} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-forest text-sm font-bold text-white hover:bg-ink">Open Opportunity <ArrowIcon /></Link>{view.recommendation.relatedOpportunityId ? <AddToJourneyButton opportunityId={view.recommendation.relatedOpportunityId} className="rounded-full border border-ink/15 text-ink hover:border-forest hover:text-forest" /> : null}</div>
+    <div className="mt-5 grid gap-3"><Link href={view.href} onClick={() => trackRecommendationOpen(view)} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-forest text-sm font-bold text-white hover:bg-ink">Open Opportunity <ArrowIcon /></Link>{view.recommendation.relatedOpportunityId ? <AddToJourneyButton opportunityId={view.recommendation.relatedOpportunityId} recommendationId={view.recommendation.id} className="rounded-full border border-ink/15 text-ink hover:border-forest hover:text-forest" /> : null}</div>
     <RecommendationFeedback view={view} onFeedback={onFeedback} compact />
   </article>;
 }

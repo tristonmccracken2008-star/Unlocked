@@ -9,6 +9,8 @@ import type { JourneyTransitionAction } from "@/data/journey-transformations";
 import type { JourneyEditorialModel } from "@/lib/journey-editorial";
 import { ArrowIcon } from "@/components/icons";
 import { journeyTransformationEvent } from "./journey-live-line";
+import { productIntelligenceEvents } from "@/lib/analytics-types";
+import { recommendationAttributionFor, trackProductEvent, trackProductTiming } from "@/data/product-analytics";
 import styles from "./journey-editorial.module.css";
 
 type TransitionResponse = {
@@ -78,6 +80,8 @@ export function JourneyTransitionControl({ control }: { control: NonNullable<Jou
       return;
     }
     setConfirmClose(false);
+    const started = performance.now();
+    trackProductEvent(productIntelligenceEvents.transitionStarted, { opportunityId: control.opportunityId, transition: action.transition });
     pendingRef.current = true;
     setPending(action.transition);
     setError("");
@@ -102,12 +106,22 @@ export function JourneyTransitionControl({ control }: { control: NonNullable<Jou
       const body = await response.json().catch(() => null) as (TransitionResponse & { error?: string }) | null;
       if (!response.ok || !body?.ok) {
         const message = messageForStatus(response.status, body?.error);
+        const errorType = response.status === 401 ? "session" : response.status === 403 ? "security" : response.status === 409 || response.status === 423 ? "conflict" : response.status === 422 ? "invalid_transition" : "unknown";
+        trackProductEvent(productIntelligenceEvents.transitionFailed, { component: "journey_transition", errorType, action: action.transition });
         if (mountedRef.current) setError(message);
         if (response.status === 409) window.setTimeout(() => router.refresh(), 400);
         return;
       }
       if (!mountedRef.current || controller.signal.aborted) return;
       setRecord(body.record);
+      const latency = performance.now() - started;
+      trackProductEvent(productIntelligenceEvents.transitionCompleted, { opportunityId: control.opportunityId, transition: action.transition });
+      trackProductEvent(productIntelligenceEvents.waypointCompleted, { transition: action.transition });
+      trackProductTiming("journey_transition", "transition_latency", latency);
+      const recommendationId = recommendationAttributionFor(control.opportunityId);
+      if (recommendationId && action.transition === "start") trackProductEvent(productIntelligenceEvents.recommendationStarted, { opportunityId: control.opportunityId, recommendationId });
+      if (recommendationId && action.transition === "submit") trackProductEvent(productIntelligenceEvents.recommendationSubmitted, { opportunityId: control.opportunityId, recommendationId });
+      if (recommendationId && action.transition === "complete") trackProductEvent(productIntelligenceEvents.recommendationCompleted, { opportunityId: control.opportunityId, recommendationId });
       setActions([]);
       setResult(body);
       const activity = readStudentActivity();
@@ -117,16 +131,17 @@ export function JourneyTransitionControl({ control }: { control: NonNullable<Jou
       window.dispatchEvent(new CustomEvent(journeyTransformationEvent, { detail: {
         geometries: body.geometries,
         horizonGeometries: body.horizonGeometries,
-        announcement: `${body.narrative.title}. ${body.narrative.whatChanged}`,
       } }));
       window.setTimeout(() => { if (mountedRef.current) router.refresh(); }, 1_200);
       window.setTimeout(() => { if (mountedRef.current) setResult(null); }, 2_600);
     } catch (caught) {
       if (!mountedRef.current || controller.signal.reason === "account-changed" || controller.signal.reason === "account-signed-out") return;
       if (controller.signal.reason === "journey-transition-timeout") {
+        trackProductEvent(productIntelligenceEvents.transitionFailed, { component: "journey_transition", errorType: "timeout", action: action.transition });
         setError("We couldn’t confirm this update in time. Refreshing your latest Journey.");
         window.setTimeout(() => router.refresh(), 400);
       } else {
+        trackProductEvent(productIntelligenceEvents.transitionFailed, { component: "journey_transition", errorType: "network", action: action.transition });
         setError(caught instanceof Error ? "We couldn’t reach UnlockED. Your previous status is unchanged." : "We couldn’t save this update. Your previous status is unchanged.");
       }
     } finally {
@@ -137,16 +152,16 @@ export function JourneyTransitionControl({ control }: { control: NonNullable<Jou
     }
   }
 
-  if (result) return <section className={styles.transformationResult} aria-labelledby="journey-transformation-title" aria-live="polite" aria-atomic="true" data-journey-transformation-result="">
+  if (result) return <section className={styles.transformationResult} aria-labelledby="journey-transformation-title" role="status" aria-live="polite" aria-atomic="true" data-journey-transformation-result="">
     <p className={styles.transformationLabel}>What changed</p>
     <h3 id="journey-transformation-title">{result.narrative.title}</h3>
     <p>{result.narrative.accomplishment}</p>
     <p className={styles.transformationMeaning}>{result.narrative.whatChanged}</p>
-    <a href="/my-opportunities" className={styles.quietJourneyLink}>Manage applications <ArrowIcon /></a>
+    <a href="/my-opportunities" className={styles.quietJourneyLink} data-journey-analytics="application-management">Manage applications <ArrowIcon /></a>
   </section>;
 
-  return <div className={styles.transitionControls} data-journey-transition-control="" data-opportunity-id={control.opportunityId}>
-    {primary ? <button type="button" className={styles.primaryAction} disabled={Boolean(pending)} aria-describedby={error ? "journey-transition-error" : undefined} onClick={() => void run(primary)}>
+  return <div className={styles.transitionControls} aria-busy={pending ? "true" : undefined} data-journey-transition-control="" data-opportunity-id={control.opportunityId}>
+    {primary ? <button type="button" className={styles.primaryAction} disabled={Boolean(pending)} aria-describedby={error ? "journey-transition-error" : undefined} data-journey-analytics="waypoint" data-journey-source="transition" onClick={() => void run(primary)}>
       {pending === primary.transition ? "Saving…" : primary.label} {!pending ? <ArrowIcon /> : null}
     </button> : null}
     {actions.some((action) => !action.primary) ? <details className={styles.manageDisclosure}>
@@ -156,9 +171,9 @@ export function JourneyTransitionControl({ control }: { control: NonNullable<Jou
           {action.destructive && confirmClose ? "Confirm close" : action.label}
         </button>)}
         {confirmClose ? <button type="button" onClick={() => setConfirmClose(false)}>Keep it active</button> : null}
-        <a href="/my-opportunities" className={styles.manageApplicationsLink}>Open application management <ArrowIcon /></a>
+        <a href="/my-opportunities" className={styles.manageApplicationsLink} data-journey-analytics="application-management">Open application management <ArrowIcon /></a>
       </div>
-    </details> : <a href="/my-opportunities" className={styles.manageApplicationsLink}>Manage applications <ArrowIcon /></a>}
+    </details> : <a href="/my-opportunities" className={styles.manageApplicationsLink} data-journey-analytics="application-management">Manage applications <ArrowIcon /></a>}
     {error ? <p id="journey-transition-error" className={styles.transitionError} role="alert">{error}</p> : null}
     <p className={styles.srOnly} aria-live="polite" aria-atomic="true">{pending ? `Saving ${primary?.label ?? "Journey update"}.` : ""}</p>
   </div>;

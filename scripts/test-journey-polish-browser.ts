@@ -58,7 +58,7 @@ function createKvServer() {
   });
 }
 
-async function seedSession(label: string, state: "empty" | "sparse" | "populated" | "long", dark = false): Promise<Session> {
+async function seedSession(label: string, state: "empty" | "sparse" | "populated" | "long", dark = false, appearance?: "light" | "midnight" | "system"): Promise<Session> {
   const { createSession, mergeAccountData, updateAccountBilling, upsertUser } = await import("../lib/auth-store");
   const { opportunities } = await import("../data/opportunities");
   const source = opportunities.filter((item) => item.type === "Career");
@@ -93,9 +93,9 @@ async function seedSession(label: string, state: "empty" | "sparse" | "populated
     activity: { viewed: selected.map((item) => item.id), saved: selected.map((item) => item.id), claimed: [], tracked: tracker },
     savedOpportunities: selected.map((item, index) => ({ opportunityId: item.id, savedAt: `2026-01-${String(index + 1).padStart(2, "0")}T12:00:00.000Z` })),
     tracker,
-    preferences: { appearance: dark ? "midnight" : "light", updatedAt: now },
+    preferences: { appearance: appearance ?? (dark ? "midnight" : "light"), updatedAt: now },
   });
-  if (dark) await updateAccountBilling(user.id, { tier: "pro", status: "active", billingInterval: "month", cancelAtPeriodEnd: false });
+  if (dark || appearance === "midnight" || appearance === "system") await updateAccountBilling(user.id, { tier: "pro", status: "active", billingInterval: "month", cancelAtPeriodEnd: false });
   return await createSession(user);
 }
 
@@ -120,6 +120,22 @@ async function baseAssertions(page: Page, label: string) {
   assert.ok(overflow <= 1, `${label} must not create horizontal overflow; received ${overflow}px.`);
   assert.equal(await root.locator("[data-responsive-open-line]").count(), 1, `${label} must mount one responsive Open Line.`);
   assert.equal(await root.locator("svg[data-open-line-renderer]").count(), 1, `${label} must render one Open Line SVG rather than hidden responsive variants.`);
+  assert.equal(await root.locator("h1").count(), 1, `${label} must expose exactly one H1.`);
+  assert.equal(await root.getAttribute("aria-labelledby"), "journey-story-title", `${label} main content must have an accessible name.`);
+  assert.ok(await root.locator("section[aria-labelledby]").count() >= 2, `${label} must expose named Journey regions.`);
+  const headingLevels = await root.locator("h1, h2, h3, h4, h5, h6").evaluateAll((nodes) => nodes.filter((node) => (node as HTMLElement).offsetParent !== null).map((node) => Number(node.tagName.slice(1))));
+  assert.equal(headingLevels[0], 1, `${label} heading order must begin with H1.`);
+  for (let index = 1; index < headingLevels.length; index += 1) assert.ok(headingLevels[index] - headingLevels[index - 1] <= 1, `${label} heading hierarchy cannot skip from H${headingLevels[index - 1]} to H${headingLevels[index]}.`);
+  const openLine = root.locator("svg[data-open-line-renderer]");
+  assert.equal(await openLine.getAttribute("tabindex"), null, `${label} decorative Open Line cannot enter keyboard order.`);
+  assert.equal(await openLine.evaluate((node) => node.closest('[aria-hidden="true"]') !== null), true, `${label} Open Line needs a visible text equivalent.`);
+  if (await root.locator("[data-journey-text-timeline]").count()) assert.ok(await root.locator("[data-journey-text-timeline] ol").count() >= 1, `${label} history must use ordered-list semantics.`);
+  const targetSizes = await root.locator("a:visible, button:visible, summary:visible, select:visible").evaluateAll((nodes) => nodes.filter((node) => !(node as HTMLButtonElement).disabled).map((node) => {
+    const bounds = (node as HTMLElement).getBoundingClientRect();
+    return { name: (node.textContent ?? node.getAttribute("aria-label") ?? "control").trim().slice(0, 42), width: bounds.width, height: bounds.height };
+  }));
+  const undersized = targetSizes.filter((target) => target.width < 44 || target.height < 44);
+  assert.deepEqual(undersized, [], `${label} controls must preserve 44px targets: ${JSON.stringify(undersized)}`);
   const h1Size = Number.parseFloat(await root.locator("h1").evaluate((node) => getComputedStyle(node).fontSize));
   const otherSizes = await root.locator("h2, h3").evaluateAll((nodes) => nodes.filter((node) => (node as HTMLElement).offsetParent !== null).map((node) => Number.parseFloat(getComputedStyle(node).fontSize)));
   assert.ok(otherSizes.every((size) => h1Size > size), `${label} identity must remain the dominant headline.`);
@@ -151,7 +167,23 @@ async function screenshot(page: Page, label: string) {
 }
 
 async function contextFor(browser: Browser, viewport: { width: number; height: number }, reducedMotion: "reduce" | "no-preference" = "no-preference") {
-  return await browser.newContext({ viewport, reducedMotion, colorScheme: "light" });
+  const context = await browser.newContext({ viewport, reducedMotion, colorScheme: "light" });
+  await context.addInitScript(() => {
+    const metrics = { cls: 0, longTasks: 0 };
+    (window as typeof window & { __journeyPerformance?: typeof metrics }).__journeyPerformance = metrics;
+    try {
+      new PerformanceObserver((list) => {
+        for (const entry of list.getEntries()) {
+          const shift = entry as PerformanceEntry & { hadRecentInput?: boolean; value?: number };
+          if (!shift.hadRecentInput) metrics.cls += shift.value ?? 0;
+        }
+      }).observe({ type: "layout-shift", buffered: true });
+      new PerformanceObserver((list) => { metrics.longTasks += list.getEntries().length; }).observe({ type: "longtask", buffered: true });
+    } catch {
+      // Older browser engines may not expose these optional performance entry types.
+    }
+  });
+  return context;
 }
 
 const rootDirectory = process.cwd();
@@ -166,6 +198,9 @@ process.env.NEXT_PUBLIC_APP_URL = `http://127.0.0.1:${requestedAppPort}`;
 
 const populatedSession = await seedSession("Populated", "long");
 const darkSession = await seedSession("Dark", "long", true);
+const darkSparseSession = await seedSession("DarkSparse", "sparse", true);
+const darkEmptySession = await seedSession("DarkEmpty", "empty", true);
+const systemSession = await seedSession("System", "long", false, "system");
 const sparseSession = await seedSession("Sparse", "sparse");
 const emptySession = await seedSession("Empty", "empty");
 const applicationSession = await seedSession("Application", "populated");
@@ -188,10 +223,27 @@ try {
     await openJourney(page, origin); // Warm route compilation outside measurements.
     const result = await verifyPopulated(page, origin, "populated-desktop-light");
     performanceResults.desktopMeaningfulMs = result.meaningfulMs;
+    const hydrationMetrics = await page.evaluate(() => (window as typeof window & { __journeyPerformance?: { cls: number; longTasks: number } }).__journeyPerformance ?? { cls: 0, longTasks: 0 });
+    performanceResults.hydrationCls = hydrationMetrics.cls;
+    assert.ok(hydrationMetrics.cls < .1, `Journey hydration must keep CLS below 0.1; received ${hydrationMetrics.cls.toFixed(3)}.`);
     await screenshot(page, "populated-desktop-light");
 
+    const primaryAction = result.root.getByRole("button", { name: /choose this opportunity|start this application|mark as submitted|record an interview|record acceptance|complete this experience|resume this direction/i });
+    await primaryAction.focus();
+    assert.equal(await primaryAction.evaluate((node) => node === document.activeElement), true, "The primary Journey action must be keyboard focusable.");
+    await screenshot(page, "keyboard-focus-light");
+
     const waypointDetail = result.root.locator(".does-not-exist").or(result.root.getByText("See why this matters", { exact: true }));
-    await waypointDetail.click();
+    await result.root.locator("svg[data-open-line-renderer]").evaluate((node) => node.setAttribute("data-performance-identity", "stable"));
+    performanceResults.disclosureMs = await waypointDetail.evaluate(async (node) => {
+      const started = performance.now();
+      (node as HTMLElement).click();
+      await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+      return performance.now() - started;
+    });
+    await result.root.locator("details").filter({ hasText: "See why this matters" }).locator("p").waitFor({ state: "visible" });
+    assert.ok(performanceResults.disclosureMs < 100, `Waypoint disclosure must respond under 100ms; received ${performanceResults.disclosureMs.toFixed(1)}ms.`);
+    assert.equal(await result.root.locator('svg[data-open-line-renderer][data-performance-identity="stable"]').count(), 1, "Disclosure must not replace or duplicate the Open Line renderer.");
     await screenshot(page, "current-waypoint-expanded");
 
     const moment = result.root.locator("[data-journey-moment]:visible").last();
@@ -210,10 +262,71 @@ try {
     const context = await contextFor(chromiumBrowser, { width: 1440, height: 1000 });
     await installSession(context, origin, darkSession.token);
     const page = await context.newPage();
-    await verifyPopulated(page, origin, "populated-desktop-dark", "midnight");
+    const { root } = await verifyPopulated(page, origin, "populated-desktop-dark", "midnight");
     const contrast = await page.locator("[data-journey-editorial] h1").evaluate((node) => ({ color: getComputedStyle(node).color, background: getComputedStyle(document.querySelector("[data-journey-editorial]")!).backgroundColor }));
     assert.notEqual(contrast.color, contrast.background, "Dark mode text must remain distinguishable from its canvas.");
     await screenshot(page, "populated-desktop-dark");
+    await root.getByText("See why this matters", { exact: true }).click();
+    await screenshot(page, "current-waypoint-dark");
+    const moment = root.locator("[data-journey-moment]:visible").last();
+    await moment.locator("summary").click();
+    await screenshot(page, "expanded-history-dark");
+    const horizon = root.locator("[data-journey-horizon]");
+    await horizon.scrollIntoViewIfNeeded();
+    await horizon.locator("[data-horizon-detail] > summary").first().click();
+    await screenshot(page, "expanded-horizon-dark");
+    const primary = root.getByRole("button", { name: /choose this opportunity|start this application|mark as submitted|record an interview|record acceptance|complete this experience|resume this direction/i });
+    await primary.focus();
+    await screenshot(page, "focus-visible-dark");
+    await context.close();
+  }
+
+  for (const scenario of [
+    { label: "sparse-dark", session: darkSparseSession },
+    { label: "empty-dark", session: darkEmptySession },
+  ]) {
+    const context = await chromiumBrowser.newContext({ viewport: { width: 1200, height: 900 }, colorScheme: "dark" });
+    await installSession(context, origin, scenario.session.token);
+    const page = await context.newPage();
+    const { root } = await openJourney(page, origin, "midnight");
+    await baseAssertions(page, scenario.label);
+    await screenshot(page, scenario.label);
+    assert.equal(await root.locator("svg[data-open-line-renderer]").getAttribute("data-theme"), "dark");
+    await context.close();
+  }
+
+  {
+    const context = await chromiumBrowser.newContext({ viewport: { width: 390, height: 844 }, colorScheme: "dark", reducedMotion: "reduce" });
+    await installSession(context, origin, darkSession.token);
+    const page = await context.newPage();
+    await verifyPopulated(page, origin, "populated-mobile-dark", "midnight");
+    await screenshot(page, "populated-mobile-dark");
+    await context.close();
+  }
+
+  {
+    const context = await chromiumBrowser.newContext({ viewport: { width: 1200, height: 900 }, colorScheme: "dark", forcedColors: "active" });
+    await installSession(context, origin, darkSession.token);
+    const page = await context.newPage();
+    await openJourney(page, origin, "midnight");
+    await screenshot(page, "forced-colors-dark");
+    await context.close();
+  }
+
+  {
+    const context = await chromiumBrowser.newContext({ viewport: { width: 1200, height: 900 }, colorScheme: "dark" });
+    await installSession(context, origin, systemSession.token);
+    const page = await context.newPage();
+    await openJourney(page, origin, "midnight");
+    await page.reload({ waitUntil: "domcontentloaded" });
+    await page.locator("[data-journey-editorial]").waitFor({ state: "visible" });
+    assert.equal(await page.locator("[data-journey-editorial] svg[data-open-line-renderer]").getAttribute("data-theme"), "dark", "System preference cookie and server projection must agree after preference is available.");
+    await installSession(context, origin, populatedSession.token);
+    await page.reload({ waitUntil: "domcontentloaded" });
+    await page.waitForFunction(() => document.documentElement.dataset.theme === "light");
+    assert.equal(await page.locator("[data-journey-editorial] svg[data-open-line-renderer]").getAttribute("data-theme"), "light", "Account switching cannot retain another account's dark theme.");
+    await page.evaluate(() => window.dispatchEvent(new CustomEvent("unlocked-account-session-change", { detail: { authenticated: false, user: null, data: null } })));
+    await page.waitForFunction(() => document.documentElement.dataset.theme === "light");
     await context.close();
   }
 
@@ -229,6 +342,26 @@ try {
     const expectedMode = scenario.viewport.width <= 672 ? "mobile" : "tablet";
     await page.waitForFunction((mode) => document.querySelector("[data-responsive-open-line]")?.getAttribute("data-open-line-mode") === mode, expectedMode);
     await screenshot(page, scenario.label);
+    if (scenario.viewport.width === 390) {
+      await page.evaluate(() => {
+        const metrics = (window as typeof window & { __journeyPerformance?: { cls: number; longTasks: number } }).__journeyPerformance;
+        if (metrics) metrics.longTasks = 0;
+      });
+      const scrollStarted = performance.now();
+      await page.evaluate(async () => {
+        const maximum = document.documentElement.scrollHeight - innerHeight;
+        for (let step = 1; step <= 8; step += 1) {
+          scrollTo(0, maximum * step / 8);
+          await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+        }
+      });
+      performanceResults.mobileScrollMs = performance.now() - scrollStarted;
+      const longTasks = await page.evaluate(() => (window as typeof window & { __journeyPerformance?: { longTasks: number } }).__journeyPerformance?.longTasks ?? 0);
+      performanceResults.mobileScrollLongTasks = longTasks;
+      assert.equal(longTasks, 0, "Journey mobile scrolling cannot create a main-thread task over 50ms.");
+    }
+    if (scenario.viewport.width === 820) await screenshot(page, "zoom-equivalent-200-percent");
+    if (scenario.viewport.width === 320) await screenshot(page, "zoom-equivalent-400-percent");
     await context.close();
   }
 

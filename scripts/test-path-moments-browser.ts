@@ -10,6 +10,7 @@ import type { JourneyProgressTransition, OpportunityTrackerStatus, TrackedOpport
 type StoredValue = { value: unknown; expiresAt?: number };
 const store = new Map<string, StoredValue>();
 const outputDirectory = "/tmp/unlocked-path-moments";
+const performanceResults: Record<string, number> = {};
 
 function liveValue(key: string) {
   const item = store.get(key);
@@ -128,9 +129,14 @@ async function openCreator(page: Page, origin: string) {
   await journey.waitFor({ state: "visible" });
   const trigger = journey.getByRole("button", { name: "Create a Path Moment" });
   await trigger.scrollIntoViewIfNeeded();
+  assert.equal(await page.locator("[data-path-moment-artwork]").count(), 0, "Path Moment artwork must remain unmounted before intent.");
+  await trigger.hover();
+  await page.waitForTimeout(100);
+  const started = performance.now();
   await trigger.click();
   const dialog = page.getByRole("dialog", { name: "Share one meaningful step." });
   await dialog.waitFor({ state: "visible" });
+  performanceResults.firstDialogMs ??= performance.now() - started;
   return { journey, trigger, dialog };
 }
 
@@ -188,6 +194,18 @@ try {
     await page.goto(origin, { waitUntil: "domcontentloaded", timeout: 60_000 }); // Warm compilation.
     const { trigger, dialog } = await openCreator(page, origin);
     await assertNoOverflow(page, "desktop creator");
+    assert.equal(await dialog.getAttribute("aria-describedby"), "path-moment-description");
+    const describedPreview = dialog.locator('[role="img"][data-preview-layout]');
+    assert.match(await describedPreview.getAttribute("aria-label") ?? "", /moment|path/i);
+    assert.equal(await describedPreview.getAttribute("aria-describedby"), "path-moment-preview-description");
+    assert.equal(await dialog.evaluate((node) => node.contains(document.activeElement)), true, "Path Moment dialog must contain initial focus.");
+    for (let index = 0; index < 18; index += 1) {
+      await page.keyboard.press("Tab");
+      assert.equal(await dialog.evaluate((node) => {
+        const active = document.activeElement;
+        return active !== document.body && active !== null && !node.contains(active) && active.matches("a, button, input, select, textarea, summary, [tabindex]");
+      }), false, "Path Moment dialog cannot move focus to an outside control.");
+    }
     assert.equal(await dialog.getByRole("button", { name: "Anonymous", exact: true }).getAttribute("aria-pressed"), "true");
     assert.equal(await dialog.getByRole("checkbox").evaluateAll((items) => items.every((item) => !(item as HTMLInputElement).checked)), true, "Optional identity fields must default off.");
     const anonymousText = await dialog.locator("[data-path-moment-artwork]").textContent() ?? "";
@@ -224,6 +242,7 @@ try {
     await page.screenshot({ path: path.join(outputDirectory, "linkedin-named-light.png"), fullPage: true });
     await dialog.locator("[data-path-moment-artwork]").screenshot({ path: path.join(outputDirectory, "path-moment-linkedin.png") });
 
+    const exportStarted = performance.now();
     const downloadPromise = page.waitForEvent("download");
     await dialog.getByRole("button", { name: "Download PNG" }).click();
     const download = await downloadPromise;
@@ -232,6 +251,7 @@ try {
     await download.saveAs(downloadPath);
     assert.deepEqual(pngDimensions(downloadPath), { width: 1200, height: 627 });
     await dialog.getByText("Path Moment downloaded.").waitFor({ state: "visible" });
+    performanceResults.pngGenerationMs = performance.now() - exportStarted;
 
     const copy = dialog.getByRole("button", { name: "Copy image" });
     if (await copy.count()) {
@@ -243,6 +263,15 @@ try {
     await dialog.waitFor({ state: "hidden" });
     await trigger.waitFor({ state: "visible" });
     assert.equal(await trigger.evaluate((node) => node === document.activeElement), true, "Closing the creator must restore focus to its trigger.");
+    assert.equal(await page.locator("[data-path-moment-artwork]").count(), 0, "Closing must release the export artwork tree.");
+    const warmStarted = performance.now();
+    await trigger.click();
+    await dialog.waitFor({ state: "visible" });
+    performanceResults.warmDialogMs = performance.now() - warmStarted;
+    assert.ok(performanceResults.warmDialogMs < 250, `A prepared Path Moment dialog must open under 250ms; received ${performanceResults.warmDialogMs.toFixed(1)}ms.`);
+    assert.equal(await page.locator("dialog[open]").count(), 1, "Repeated opening cannot duplicate dialog trees.");
+    await page.keyboard.press("Escape");
+    await dialog.waitFor({ state: "hidden" });
     await context.close();
   }
 
@@ -252,6 +281,13 @@ try {
     const page = await context.newPage();
     const { dialog } = await openCreator(page, origin);
     assert.equal(await dialog.getAttribute("data-theme"), "dark");
+    assert.equal(await dialog.locator("[data-path-moment-artwork]").getAttribute("data-export-theme"), "dark");
+    await dialog.locator("[data-path-moment-artwork]").screenshot({ path: path.join(outputDirectory, "path-moment-story-dark.png") });
+    await selectFormat(dialog, "Square");
+    assert.equal(await dialog.locator("[data-path-moment-artwork]").getAttribute("data-export-theme"), "dark");
+    await dialog.locator("[data-path-moment-artwork]").screenshot({ path: path.join(outputDirectory, "path-moment-square-dark.png") });
+    await dialog.getByRole("button", { name: "Light", exact: true }).click();
+    assert.equal(await dialog.locator("[data-path-moment-artwork]").getAttribute("data-export-theme"), "light", "Export appearance must update the preview SVG before serialization.");
     await page.screenshot({ path: path.join(outputDirectory, "story-anonymous-dark.png"), fullPage: true });
     await context.close();
   }
@@ -265,8 +301,17 @@ try {
     await selectFormat(dialog, "Square");
     const controls = dialog.getByRole("button", { name: /Story|Square|LinkedIn|Anonymous|First name|Full name/ });
     const sizes = await controls.evaluateAll((nodes) => nodes.map((node) => ({ width: (node as HTMLElement).getBoundingClientRect().width, height: (node as HTMLElement).getBoundingClientRect().height })));
-    assert.ok(sizes.every((size) => size.height >= 40), "Mobile creator controls must preserve comfortable touch height.");
+    assert.ok(sizes.every((size) => size.height >= 44), "Mobile creator controls must preserve 44px touch height.");
     await page.screenshot({ path: path.join(outputDirectory, "square-mobile-webkit.png"), fullPage: true });
+    await context.close();
+  }
+
+  {
+    const context = await chromiumBrowser.newContext({ viewport: { width: 1200, height: 900 }, forcedColors: "active" });
+    await installSession(context, origin, populatedSession.token);
+    const page = await context.newPage();
+    await openCreator(page, origin);
+    await page.screenshot({ path: path.join(outputDirectory, "creator-forced-colors.png"), fullPage: true });
     await context.close();
   }
 
@@ -291,5 +336,5 @@ try {
   await new Promise<void>((resolve) => kvServer.close(() => resolve()));
 }
 
-console.log(JSON.stringify({ message: "Path Moment browser checks passed in Chromium and WebKit.", screenshots: outputDirectory }, null, 2));
+console.log(JSON.stringify({ message: "Path Moment browser checks passed in Chromium and WebKit.", screenshots: outputDirectory, performance: Object.fromEntries(Object.entries(performanceResults).map(([key, value]) => [key, Number(value.toFixed(1))])) }, null, 2));
 process.exit(0);

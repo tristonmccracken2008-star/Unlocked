@@ -5,13 +5,14 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        ink: "#2b211a",
-        paper: "#f6f0e6",
-        forest: "#1f5f43",
-        espresso: "#2b211a",
-        gold: "#b48a45",
-        lime: "#e7d8bd",
-        trust: "#2f6f56",
+        ink: "rgb(var(--color-ink) / <alpha-value>)",
+        paper: "rgb(var(--color-paper) / <alpha-value>)",
+        white: "rgb(var(--color-surface) / <alpha-value>)",
+        forest: "rgb(var(--color-forest) / <alpha-value>)",
+        espresso: "rgb(var(--color-ink) / <alpha-value>)",
+        gold: "rgb(var(--color-gold) / <alpha-value>)",
+        lime: "rgb(var(--color-lime) / <alpha-value>)",
+        trust: "rgb(var(--color-trust) / <alpha-value>)",
       },
       boxShadow: {
         soft: "0 12px 32px rgba(43, 33, 26, 0.07)",

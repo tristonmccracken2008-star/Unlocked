@@ -166,7 +166,7 @@ function cleanPreferences(value: unknown): UserPreferencesRecord | undefined {
     hiddenDismissedIds: Array.isArray(input.hiddenDismissedIds)
       ? input.hiddenDismissedIds.map(safeId).filter((item): item is string => Boolean(item)).slice(0, maxTrackedOpportunities)
       : undefined,
-    appearance: enumValue(input.appearance, ["light", "midnight", "forest"] as const) ?? "light",
+    appearance: enumValue(input.appearance, ["light", "midnight", "forest", "system"] as const) ?? "light",
     updatedAt,
   };
 }

@@ -10,6 +10,7 @@ import type { JourneyProgressTransition, OpportunityTrackerStatus, TrackedOpport
 type StoredValue = { value: unknown; expiresAt?: number };
 const store = new Map<string, StoredValue>();
 const outputDirectory = "/tmp/unlocked-semester-story";
+const performanceResults: Record<string, number> = {};
 
 function liveValue(key: string) {
   const item = store.get(key);
@@ -127,9 +128,14 @@ async function openCreator(page: Page, origin: string) {
   const trigger = journey.getByRole("button", { name: "View your semester story" });
   await trigger.scrollIntoViewIfNeeded();
   assert.equal(await page.locator("[data-semester-story-creator]").count(), 0, "Export UI must remain unmounted before opening.");
+  assert.equal(await page.locator("[data-semester-story-artwork]").count(), 0, "Semester Story artwork must remain unmounted before intent.");
+  await trigger.hover();
+  await page.waitForTimeout(100);
+  const started = performance.now();
   await trigger.click();
   const dialog = page.getByRole("dialog", { name: "See how your path changed." });
   await dialog.waitFor({ state: "visible", timeout: 60_000 });
+  performanceResults.firstDialogMs ??= performance.now() - started;
   return { journey, trigger, dialog };
 }
 
@@ -150,6 +156,7 @@ function pngDimensions(filePath: string) {
 }
 
 async function downloadAndAssert(page: Page, dialog: ReturnType<Page["getByRole"]>, layout: "story" | "square" | "linkedin", width: number, height: number) {
+  const started = performance.now();
   const downloadPromise = page.waitForEvent("download");
   await dialog.getByRole("button", { name: "Download PNG" }).click();
   const download = await downloadPromise;
@@ -158,6 +165,7 @@ async function downloadAndAssert(page: Page, dialog: ReturnType<Page["getByRole"
   await download.saveAs(downloadPath);
   assert.deepEqual(pngDimensions(downloadPath), { width, height });
   await dialog.getByText("Semester Story downloaded.").waitFor({ state: "visible" });
+  performanceResults[`png${layout[0].toUpperCase()}${layout.slice(1)}Ms`] = performance.now() - started;
 }
 
 const kvServer = createKvServer();
@@ -188,6 +196,18 @@ try {
     await page.goto(origin, { waitUntil: "domcontentloaded", timeout: 60_000 });
     const { trigger, dialog } = await openCreator(page, origin);
     await assertNoOverflow(page, "desktop Semester Story creator");
+    assert.equal(await dialog.getAttribute("aria-describedby"), "semester-story-description");
+    const describedPreview = dialog.locator('[role="img"][data-preview-layout]');
+    assert.match(await describedPreview.getAttribute("aria-label") ?? "", /semester|path|story/i);
+    assert.equal(await describedPreview.getAttribute("aria-describedby"), "semester-story-ordered-recap");
+    assert.equal(await dialog.evaluate((node) => node.contains(document.activeElement)), true, "Semester Story dialog must contain initial focus.");
+    for (let index = 0; index < 24; index += 1) {
+      await page.keyboard.press("Tab");
+      assert.equal(await dialog.evaluate((node) => {
+        const active = document.activeElement;
+        return active !== document.body && active !== null && !node.contains(active) && active.matches("a, button, input, select, textarea, summary, [tabindex]");
+      }), false, "Semester Story dialog cannot move focus to an outside control.");
+    }
     assert.equal(await dialog.getByRole("button", { name: "Anonymous", exact: true }).getAttribute("aria-pressed"), "true");
     assert.equal(await dialog.getByRole("checkbox", { name: "Term" }).isChecked(), true, "Term must be included by default.");
     const checkedLabels = await dialog.locator('input[type="checkbox"]:checked').evaluateAll((items) => items.map((item) => (item.parentElement?.textContent ?? "").trim()));
@@ -230,6 +250,15 @@ try {
     await dialog.waitFor({ state: "hidden" });
     await trigger.waitFor({ state: "visible" });
     assert.equal(await trigger.evaluate((node) => node === document.activeElement), true, "Closing the creator must restore focus to its trigger.");
+    assert.equal(await page.locator("[data-semester-story-artwork]").count(), 0, "Closing must release the Semester Story artwork tree.");
+    const warmStarted = performance.now();
+    await trigger.click();
+    await dialog.waitFor({ state: "visible" });
+    performanceResults.warmDialogMs = performance.now() - warmStarted;
+    assert.ok(performanceResults.warmDialogMs < 250, `A prepared Semester Story dialog must open under 250ms; received ${performanceResults.warmDialogMs.toFixed(1)}ms.`);
+    assert.equal(await page.locator("dialog[open]").count(), 1, "Repeated opening cannot duplicate dialog trees.");
+    await page.keyboard.press("Escape");
+    await dialog.waitFor({ state: "hidden" });
     await context.close();
   }
 
@@ -239,6 +268,10 @@ try {
     const page = await context.newPage();
     const { dialog } = await openCreator(page, origin);
     assert.equal(await dialog.getAttribute("data-theme"), "dark");
+    assert.equal(await dialog.locator("[data-semester-story-artwork]").getAttribute("data-export-theme"), "dark");
+    await dialog.locator("[data-semester-story-artwork]").screenshot({ path: path.join(outputDirectory, "semester-story-dark.png") });
+    await dialog.getByRole("button", { name: "Light", exact: true }).click();
+    assert.equal(await dialog.locator("[data-semester-story-artwork]").getAttribute("data-export-theme"), "light", "Export appearance must update the preview SVG before serialization.");
     await page.screenshot({ path: path.join(outputDirectory, "story-anonymous-dark.png"), fullPage: true });
     await context.close();
   }
@@ -251,7 +284,7 @@ try {
     await assertNoOverflow(page, "mobile WebKit Semester Story creator");
     await selectFormat(dialog, "Square");
     const sizes = await dialog.getByRole("button", { name: /Story|Square|LinkedIn|Anonymous|First name|Full name/ }).evaluateAll((nodes) => nodes.map((node) => (node as HTMLElement).getBoundingClientRect().height));
-    assert.ok(sizes.every((height) => height >= 40), "Mobile creator controls must preserve comfortable touch height.");
+    assert.ok(sizes.every((height) => height >= 44), "Mobile creator controls must preserve 44px touch height.");
     await page.screenshot({ path: path.join(outputDirectory, "square-mobile-webkit.png"), fullPage: true });
     await context.close();
   }
@@ -276,5 +309,5 @@ try {
   await new Promise<void>((resolve) => kvServer.close(() => resolve()));
 }
 
-console.log(JSON.stringify({ message: "Semester Story browser checks passed in Chromium and WebKit.", screenshots: outputDirectory }, null, 2));
+console.log(JSON.stringify({ message: "Semester Story browser checks passed in Chromium and WebKit.", screenshots: outputDirectory, performance: Object.fromEntries(Object.entries(performanceResults).map(([key, value]) => [key, Number(value.toFixed(1))])) }, null, 2));
 process.exit(0);

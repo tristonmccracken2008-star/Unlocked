@@ -32,7 +32,7 @@ assert.match(dashboard, /Journey/, "Private home must be the student's Journey."
 assert.match(journeyEditorial, /What matters now/, "Journey must explain the student's current waypoint.");
 assert.match(journeyEditorial, /The moments that shaped your path/, "Journey must expose real activity history below the opening composition.");
 assert.match(journeyEditorial, /Manage applications/, "Journey must keep application management accessible below progressive disclosure.");
-assert.match(journeyEditorial, /PathMomentCreator/, "Journey history must expose the evidence-based Path Moment experience.");
+assert.match(journeyEditorial, /PathMomentEntry/, "Journey history must expose the lazy evidence-based Path Moment experience.");
 assert.doesNotMatch(journeyBoard, /Journey Card|journeyCardSvg/, "The application board cannot duplicate Path Moment sharing.");
 assert.doesNotMatch(journeyDashboard, /Share recap/, "Dashboard must not duplicate Path Moment sharing.");
 assert.doesNotMatch(dashboard, /Today’s Mission/, "Journey should not keep the old coaching-dashboard copy.");

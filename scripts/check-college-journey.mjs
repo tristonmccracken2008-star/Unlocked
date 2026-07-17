@@ -56,9 +56,9 @@ for (const token of ["Journey Board", "Move to...", "data-journey-board-scroll",
   assert.ok(board.includes(token), `Existing Journey Board workspace must remain intact: ${token}.`);
 }
 
-for (const event of ["path_moment_preview_opened", "path_moment_downloaded", "path_moment_copied", "path_moment_shared"]) {
+for (const [event, emitter] of [["path_moment_preview_rendered_v1", "pathMomentPreviewRendered"], ["path_moment_downloaded_v1", "pathMomentDownloaded"], ["path_moment_copied_v1", "pathMomentCopied"], ["path_moment_shared_v1", "pathMomentShared"]]) {
   assert.ok(analytics.includes(`"${event}"`), `Analytics must declare ${event}.`);
-  assert.ok(creator.includes(`"${event}"`), `Path Moment UI must track ${event}.`);
+  assert.ok(creator.includes(`productIntelligenceEvents.${emitter}`), `Path Moment UI must track ${event}.`);
 }
 
 assert.ok(pkg.includes("check:college-journey"), "Package scripts must include check:college-journey.");

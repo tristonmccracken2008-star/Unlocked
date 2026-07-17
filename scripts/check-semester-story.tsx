@@ -158,6 +158,11 @@ for (const layout of Object.keys(semesterStoryLayouts) as Array<keyof typeof sem
   assert.match(namedMarkup, /Triston Private/);
   assert.match(namedMarkup, /Private University/);
   assert.match(namedMarkup, /Mathematics/);
+  const darkMarkup = renderToStaticMarkup(<SemesterStoryArtwork story={spring} layout={layout} privacy={collection.defaultPrivacy} identity={identity} theme="dark" />);
+  assert.match(darkMarkup, /data-export-theme="dark"/);
+  assert.match(darkMarkup, /fill="#17120f"/);
+  assert.match(darkMarkup, new RegExp(`width="${semesterStoryLayouts[layout].width}"`));
+  assert.match(darkMarkup, new RegExp(`height="${semesterStoryLayouts[layout].height}"`));
 }
 
 const creatorSource = readFileSync(new URL("../components/semester-story-creator.tsx", import.meta.url), "utf8");

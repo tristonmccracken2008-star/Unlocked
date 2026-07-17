@@ -10,7 +10,7 @@ export default function JourneyLoading() {
         <div className={styles.loadingLine}><i /><b /></div>
         <div className={styles.loadingWaypoint}><span /><span /><span /></div>
       </div>
-      <p className={styles.loadingStatus}>Preparing the next page of your story.</p>
+      <p className={styles.loadingStatus} role="status" aria-live="polite">Preparing the next page of your story.</p>
     </div>
   </main>;
 }

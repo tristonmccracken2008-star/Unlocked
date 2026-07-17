@@ -8,12 +8,14 @@ import {
   type SemesterStoryLayout,
   type SemesterStoryPrivacy,
 } from "@/lib/semester-story";
+import { resolveJourneyTheme, type JourneyThemeName } from "@/lib/journey-theme";
 
 type SemesterStoryArtworkProps = {
   story: SemesterStory;
   layout: SemesterStoryLayout;
   privacy: SemesterStoryPrivacy;
   identity: SemesterStoryCollection["identity"];
+  theme?: JourneyThemeName;
 };
 
 type Composition = {
@@ -95,7 +97,8 @@ export function semesterStoryAltDescription(story: SemesterStory, privacy: Semes
   return `${story.altDescription}${details.length ? ` Shared details: ${details.join(", ")}.` : " Shared anonymously."}`;
 }
 
-export const SemesterStoryArtwork = forwardRef<SVGSVGElement, SemesterStoryArtworkProps>(function SemesterStoryArtwork({ story, layout, privacy, identity }, ref) {
+export const SemesterStoryArtwork = forwardRef<SVGSVGElement, SemesterStoryArtworkProps>(function SemesterStoryArtwork({ story, layout, privacy, identity, theme = "light" }, ref) {
+  const colors = resolveJourneyTheme(theme);
   const dimensions = semesterStoryLayouts[layout];
   const composition = compositions[layout];
   const headingLines = wrapText(story.opening, layout === "linkedin" ? 38 : layout === "story" ? 26 : 34, layout === "linkedin" ? 3 : 4);
@@ -114,14 +117,15 @@ export const SemesterStoryArtwork = forwardRef<SVGSVGElement, SemesterStoryArtwo
     focusable="false"
     data-semester-story-artwork=""
     data-semester-story-layout={layout}
+    data-export-theme={theme}
   >
-    <rect width={dimensions.width} height={dimensions.height} fill="#f6f0e6" />
+    <rect width={dimensions.width} height={dimensions.height} fill={colors.canvas} />
     <g transform={`translate(${composition.margin} ${layout === "story" ? 108 : 70})`}>
-      <path d={openLineAperturePath} transform="scale(.72)" fill="none" stroke="#0b3b2d" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
-      <text x="28" y="1" fill="#0b3b2d" fontFamily="Arial, Helvetica, sans-serif" fontSize={layout === "story" ? 24 : 18} fontWeight="700">UnlockED</text>
+      <path d={openLineAperturePath} transform="scale(.72)" fill="none" stroke={colors.forestStrong} strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
+      <text x="28" y="1" fill={colors.forestStrong} fontFamily="Arial, Helvetica, sans-serif" fontSize={layout === "story" ? 24 : 18} fontWeight="700">UnlockED</text>
     </g>
-    <text x={composition.margin} y={composition.headingY - (layout === "linkedin" ? 66 : 82)} fill="#1f5f43" fontFamily="Arial, Helvetica, sans-serif" fontSize={layout === "story" ? 20 : 15} fontWeight="700" letterSpacing={layout === "story" ? 3.2 : 2.3}>{termLine.toUpperCase()}</text>
-    <text x={composition.margin} y={composition.headingY} fill="#2b211a" fontFamily="Georgia, 'Times New Roman', serif" fontSize={composition.headingSize} fontWeight="700">
+    <text x={composition.margin} y={composition.headingY - (layout === "linkedin" ? 66 : 82)} fill={colors.forest} fontFamily="Arial, Helvetica, sans-serif" fontSize={layout === "story" ? 20 : 15} fontWeight="700" letterSpacing={layout === "story" ? 3.2 : 2.3}>{termLine.toUpperCase()}</text>
+    <text x={composition.margin} y={composition.headingY} fill={colors.textPrimary} fontFamily="Georgia, 'Times New Roman', serif" fontSize={composition.headingSize} fontWeight="700">
       {headingLines.map((line, index) => <tspan key={`${index}-${line}`} x={composition.margin} dy={index ? composition.headingLineHeight : 0}>{line}</tspan>)}
     </text>
 
@@ -129,7 +133,7 @@ export const SemesterStoryArtwork = forwardRef<SVGSVGElement, SemesterStoryArtwo
       <OpenLineRenderer
         geometry={story.geometry.geometry}
         viewport={story.geometry.viewport}
-        theme="light"
+        theme={theme}
         quality="print"
         showLabels={false}
         showWaypoint={false}
@@ -147,25 +151,25 @@ export const SemesterStoryArtwork = forwardRef<SVGSVGElement, SemesterStoryArtwo
 
     <g transform={`translate(${composition.moments.x} ${composition.moments.y})`}>
       {visibleMoments.map((moment, index) => <g key={moment.id} transform={`translate(0 ${index * composition.moments.gap})`}>
-        <circle cx="7" cy="-5" r="5" fill={moment.evidence === "validation" ? "#a67e34" : "#1f5f43"} />
-        <text x="28" y="0" fill="#2b211a" fontFamily="Georgia, 'Times New Roman', serif" fontSize={layout === "story" ? 27 : layout === "square" ? 21 : 17} fontWeight="700">{moment.headline}</text>
-        {privacy.includeDate ? <text x="28" y={layout === "story" ? 32 : 25} fill="#71665c" fontFamily="Arial, Helvetica, sans-serif" fontSize={layout === "story" ? 17 : 13}>{new Intl.DateTimeFormat("en-US", { month: "short", year: "numeric", timeZone: "UTC" }).format(new Date(moment.occurredAt))}</text> : null}
+        <circle cx="7" cy="-5" r="5" fill={moment.evidence === "validation" ? colors.gold : colors.forest} />
+        <text x="28" y="0" fill={colors.textPrimary} fontFamily="Georgia, 'Times New Roman', serif" fontSize={layout === "story" ? 27 : layout === "square" ? 21 : 17} fontWeight="700">{moment.headline}</text>
+        {privacy.includeDate ? <text x="28" y={layout === "story" ? 32 : 25} fill={colors.textMuted} fontFamily="Arial, Helvetica, sans-serif" fontSize={layout === "story" ? 17 : 13}>{new Intl.DateTimeFormat("en-US", { month: "short", year: "numeric", timeZone: "UTC" }).format(new Date(moment.occurredAt))}</text> : null}
       </g>)}
     </g>
 
     {privacy.includeCounts && story.counts.length ? <g transform={`translate(${composition.margin} ${composition.footerY - (layout === "story" ? 128 : 72)})`}>
       {story.counts.map((count, index) => <g key={count.id} transform={`translate(${index * (layout === "story" ? 270 : 205)} 0)`}>
-        <text x="0" y="0" fill="#1f5f43" fontFamily="Georgia, 'Times New Roman', serif" fontSize={layout === "story" ? 30 : 22} fontWeight="700">{count.value}</text>
-        <text x="0" y={layout === "story" ? 29 : 23} fill="#71665c" fontFamily="Arial, Helvetica, sans-serif" fontSize={layout === "story" ? 15 : 11} fontWeight="700">{count.label.toUpperCase()}</text>
+        <text x="0" y="0" fill={colors.forest} fontFamily="Georgia, 'Times New Roman', serif" fontSize={layout === "story" ? 30 : 22} fontWeight="700">{count.value}</text>
+        <text x="0" y={layout === "story" ? 29 : 23} fill={colors.textMuted} fontFamily="Arial, Helvetica, sans-serif" fontSize={layout === "story" ? 15 : 11} fontWeight="700">{count.label.toUpperCase()}</text>
       </g>)}
     </g> : null}
 
-    {identityLine ? <text x={composition.margin} y={composition.footerY - (contextLine ? 34 : 0)} fill="#5f554c" fontFamily="Arial, Helvetica, sans-serif" fontSize={layout === "story" ? 20 : 15} fontWeight="600">{identityLine}</text> : null}
-    {contextLine ? <text x={composition.margin} y={composition.footerY} fill="#5f554c" fontFamily="Arial, Helvetica, sans-serif" fontSize={layout === "story" ? 18 : 14} fontWeight="600">{contextLine}</text> : null}
-    {privacy.includeProfileLink && identity.profileHref ? <text x={composition.margin} y={composition.footerY + (layout === "story" ? 32 : 22)} fill="#1f5f43" fontFamily="Arial, Helvetica, sans-serif" fontSize={layout === "story" ? 16 : 12}>unlockededu.com{identity.profileHref}</text> : null}
+    {identityLine ? <text x={composition.margin} y={composition.footerY - (contextLine ? 34 : 0)} fill={colors.textSecondary} fontFamily="Arial, Helvetica, sans-serif" fontSize={layout === "story" ? 20 : 15} fontWeight="600">{identityLine}</text> : null}
+    {contextLine ? <text x={composition.margin} y={composition.footerY} fill={colors.textSecondary} fontFamily="Arial, Helvetica, sans-serif" fontSize={layout === "story" ? 18 : 14} fontWeight="600">{contextLine}</text> : null}
+    {privacy.includeProfileLink && identity.profileHref ? <text x={composition.margin} y={composition.footerY + (layout === "story" ? 32 : 22)} fill={colors.forest} fontFamily="Arial, Helvetica, sans-serif" fontSize={layout === "story" ? 16 : 12}>unlockededu.com{identity.profileHref}</text> : null}
     <g transform={`translate(${dimensions.width - (layout === "story" ? 220 : 184)} ${composition.footerY - 8})`}>
-      <path d={openLineAperturePath} transform="scale(.56)" fill="none" stroke="#1f5f43" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
-      <text x="24" y="1" fill="#1f5f43" fontFamily="Arial, Helvetica, sans-serif" fontSize={layout === "story" ? 18 : 14} fontWeight="700">Built with UnlockED</text>
+      <path d={openLineAperturePath} transform="scale(.56)" fill="none" stroke={colors.forest} strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
+      <text x="24" y="1" fill={colors.forest} fontFamily="Arial, Helvetica, sans-serif" fontSize={layout === "story" ? 18 : 14} fontWeight="700">Built with UnlockED</text>
     </g>
   </svg>;
 });

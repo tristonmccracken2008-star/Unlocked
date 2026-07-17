@@ -89,7 +89,7 @@ assert.ok(model.includes("horizonGeometryPresentation"), "Horizon must reuse pre
 assert.ok(styles.includes(".additionalDirection"), "Additional Horizon directions must remain behind progressive disclosure.");
 assert.ok(styles.includes("prefers-reduced-motion"), "Horizon must preserve reduced-motion behavior.");
 assert.ok(styles.includes("prefers-contrast: more"), "Horizon must preserve high-contrast behavior.");
-assert.ok(styles.includes("var(--unlocked-page)") && styles.includes("var(--unlocked-text)"), "Horizon must inherit theme tokens for dark mode.");
+assert.ok(styles.includes("var(--journey-canvas)") && styles.includes("var(--journey-text-primary)"), "Horizon must inherit the canonical Journey theme tokens.");
 
 const durations: number[] = [];
 for (let index = 0; index < 60; index += 1) {

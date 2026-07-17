@@ -35,8 +35,17 @@ export type OpenLineRendererProps = {
 };
 
 type PathRecord = { segment: PathGeometrySegment; d: string };
+type RenderProjection = {
+  records: ReadonlyArray<PathRecord>;
+  visibleRecords: ReadonlyArray<PathRecord>;
+  nodes: ReadonlyArray<PathGeometryNode>;
+  markerNodes: ReadonlyArray<PathGeometryNode>;
+  visibleSegmentIds: ReadonlySet<string>;
+  recordsById: ReadonlyMap<string, PathRecord>;
+};
 
 const geometryPathCache = new WeakMap<PathGeometry, ReadonlyArray<PathRecord>>();
+const geometryProjectionCache = new WeakMap<PathGeometry, Map<string, RenderProjection>>();
 
 function curvePath(segment: PathGeometrySegment) {
   const { start, control1, control2, end } = segment.curve;
@@ -67,15 +76,38 @@ function nodeVisible(node: PathGeometryNode, geometry: PathGeometry, showFuture:
   return true;
 }
 
+function renderProjection(geometry: PathGeometry, showFuture: boolean, showBranches: boolean, showWaypoint: boolean): RenderProjection {
+  const key = `${showFuture ? 1 : 0}:${showBranches ? 1 : 0}:${showWaypoint ? 1 : 0}`;
+  const cachedByOptions = geometryProjectionCache.get(geometry);
+  const cached = cachedByOptions?.get(key);
+  if (cached) return cached;
+  const records = pathRecords(geometry);
+  const visibleRecords = records.filter(({ segment }) => segmentVisible(segment, geometry, showFuture, showBranches));
+  const nodes = geometry.nodes.filter((node) => nodeVisible(node, geometry, showFuture, showBranches));
+  const waypointId = geometry.currentWaypointNodeId;
+  const projection = {
+    records,
+    visibleRecords,
+    nodes,
+    markerNodes: nodes.filter((node) => showWaypoint || node.id !== waypointId),
+    visibleSegmentIds: new Set(visibleRecords.map(({ segment }) => segment.id)),
+    recordsById: new Map(records.map((record) => [record.segment.id, record])),
+  } satisfies RenderProjection;
+  const nextCache = cachedByOptions ?? new Map<string, RenderProjection>();
+  nextCache.set(key, projection);
+  if (!cachedByOptions) geometryProjectionCache.set(geometry, nextCache);
+  return projection;
+}
+
 function pathColor(state: PathGeometrySegment["state"], theme: ReturnType<typeof resolveOpenLineTheme>) {
   switch (state) {
-    case "completed": return theme.forest;
-    case "current": return theme.deepForest;
-    case "future": return theme.neutral;
-    case "alternate": return theme.mineral;
+    case "completed": return theme.pathCompleted;
+    case "current": return theme.pathCurrent;
+    case "future": return theme.pathFuture;
+    case "alternate": return theme.pathAlternate;
     case "paused": return theme.mineral;
-    case "closed": return theme.clay;
-    case "validated": return theme.deepForest;
+    case "closed": return theme.pathClosed;
+    case "validated": return theme.pathCurrent;
   }
 }
 
@@ -167,13 +199,7 @@ function OpenLineRendererComponent({
   const instanceId = useId();
   const prefix = safeId(idPrefix ?? `open-line-${instanceId}`);
   const theme = resolveOpenLineTheme(themeInput);
-  const records = pathRecords(geometry);
-  const visibleRecords = records.filter(({ segment }) => segmentVisible(segment, geometry, showFuture, showBranches));
-  const nodes = geometry.nodes.filter((node) => nodeVisible(node, geometry, showFuture, showBranches));
-  const waypointId = geometry.currentWaypointNodeId;
-  const markerNodes = nodes.filter((node) => showWaypoint || node.id !== waypointId);
-  const visibleSegmentIds = new Set(visibleRecords.map(({ segment }) => segment.id));
-  const recordsById = new Map(records.map((record) => [record.segment.id, record]));
+  const { records, visibleRecords, nodes, markerNodes, visibleSegmentIds, recordsById } = renderProjection(geometry, showFuture, showBranches, showWaypoint);
   const titleId = `${prefix}-title`;
   const descriptionId = `${prefix}-description`;
   const visibleViewport = viewport ?? { x: 0, y: 0, width: geometry.width, height: geometry.height };
@@ -198,8 +224,8 @@ function OpenLineRendererComponent({
     preserveAspectRatio="xMidYMid meet"
     role="img"
     aria-labelledby={`${titleId} ${descriptionId}`}
-    tabIndex={0}
-    focusable="true"
+    tabIndex={interactive ? 0 : undefined}
+    focusable={interactive ? "true" : "false"}
     className={className}
     data-open-line-renderer=""
     data-geometry-version={geometry.version}
@@ -215,12 +241,6 @@ function OpenLineRendererComponent({
     <desc id={descriptionId}>{description}</desc>
     <defs>
       <path id={`${prefix}-canonical-marker-aperture`} d={openLineAperturePath} data-canonical-marker-aperture="" />
-      <filter id={`${prefix}-soft-shadow`} x="-30%" y="-30%" width="160%" height="160%" colorInterpolationFilters="sRGB">
-        <feDropShadow dx="0" dy="2" stdDeviation="3" floodColor={theme.ink} floodOpacity={theme.dark ? 0.24 : 0.12} />
-      </filter>
-      <filter id={`${prefix}-soft-blur`} x="-25%" y="-25%" width="150%" height="150%">
-        <feGaussianBlur stdDeviation="1.25" />
-      </filter>
       <mask id={`${prefix}-aperture-mask`} maskUnits="userSpaceOnUse" x="-16" y="-16" width="32" height="36">
         <rect x="-16" y="-16" width="32" height="36" fill={theme.paper} />
         <use href={`#${prefix}-canonical-marker-aperture`} fill="none" stroke={theme.ink} strokeWidth="2" />

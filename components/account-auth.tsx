@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { accountSessionEvent, clearLocalDashboardState, hydrateAccountData, readAccountSession, resetAccountSessionCache } from "@/data/account-sync";
 import type { AccountSession } from "@/lib/account-types";
-import { trackProductEvent } from "@/data/product-analytics";
+import { clearProductAnalyticsSession, trackProductEvent } from "@/data/product-analytics";
 import { abortAuthenticatedRequests } from "@/data/authenticated-request";
 
 export function AccountSync() {
@@ -57,6 +57,7 @@ export function AccountButton({ compact = false }: { compact?: boolean }) {
       setSession(signedOut);
       window.dispatchEvent(new CustomEvent(accountSessionEvent, { detail: signedOut }));
       trackProductEvent("sign_out");
+      clearProductAnalyticsSession();
       window.location.replace("/");
     } catch (reason) {
       const category = reason instanceof DOMException && reason.name === "AbortError" ? "request_aborted" : "network_error";

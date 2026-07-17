@@ -50,6 +50,15 @@
 .entry button:focus-visible { outline: 2px solid color-mix(in srgb, var(--journey-green) 45%, transparent); outline-offset: 5px; }
 .entry button:disabled { cursor: wait; opacity: .62; }
 
+.entry .loadError {
+  max-width: 22rem;
+  margin: .5rem 0 0;
+  color: var(--journey-clay);
+  font: 700 .8rem/1.4 var(--font-sans), system-ui, sans-serif;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
 @media (max-width: 680px) {
   .entry { align-items: stretch; flex-direction: column; gap: 1.15rem; }
   .entry button { align-self: flex-start; min-width: 0; text-align: left; }

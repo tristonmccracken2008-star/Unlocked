@@ -118,7 +118,7 @@ assert.ok(!component.includes("journey-horizon-desktop"), "Horizon must not moun
 assert.ok(liveLine.includes("data-responsive-open-line") && liveLine.includes("responsiveMode"), "The active viewport must select one geometry.");
 assert.ok(!styles.includes("contain-intrinsic-size"), "Journey sections must not reserve synthetic height that creates dead space before offscreen content paints.");
 assert.ok(modelSource.includes("visibleHistoryMoments") && modelSource.includes("retainedHorizonItems"), "Below-the-fold work must remain bounded through server-side progressive disclosure.");
-assert.ok(styles.includes(":global([data-theme=\"midnight\"])"), "Journey must explicitly repair dark-theme contrast.");
+assert.ok(styles.includes("var(--journey-canvas)") && styles.includes("var(--journey-text-primary)"), "Journey must inherit canonical light/dark contrast roles without component-specific override patches.");
 assert.ok(modelSource.includes("recordSupportsEditorialAction") && modelSource.includes("suppressedClaimCount"), "A server-side editorial trust audit must run before rendering.");
 assert.ok(!modelSource.includes("forYouSnapshot"), "Journey must not load or trust stale recommendation snapshots in its request path.");
 

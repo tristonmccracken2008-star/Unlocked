@@ -1,21 +1,18 @@
 .page {
-  --journey-green: #0e5b3e;
-  --journey-green-soft: rgb(14 91 62 / .09);
-  --journey-gold: #7a5a18;
-  --journey-mineral: rgb(92 101 94 / .72);
+  --journey-green: var(--journey-forest);
+  --journey-green-soft: var(--journey-forest-muted);
+  --journey-ink: var(--journey-text-primary);
+  --unlocked-page: var(--journey-canvas);
+  --unlocked-surface: var(--journey-surface);
+  --unlocked-surface-muted: var(--journey-canvas-elevated);
+  --unlocked-text: var(--journey-text-primary);
+  --unlocked-muted: var(--journey-text-secondary);
+  --unlocked-border: var(--journey-border);
   --journey-rail-x: 1.5rem;
   min-height: 100vh;
   overflow: hidden;
-  background: var(--unlocked-page);
-  color: var(--unlocked-text);
-}
-
-:global([data-theme="midnight"]) .page,
-:global([data-theme="forest"]) .page {
-  --journey-green: #91c9ad;
-  --journey-green-soft: rgb(145 201 173 / .1);
-  --journey-gold: #d6bd78;
-  --journey-mineral: rgb(205 211 205 / .68);
+  background: var(--journey-canvas);
+  color: var(--journey-text-primary);
 }
 
 .article { width: min(100% - 2.5rem, 72rem); margin-inline: auto; }
@@ -60,15 +57,10 @@
   width: min(31rem, 44%);
   border: 1px solid color-mix(in srgb, var(--journey-green) 13%, var(--unlocked-border));
   border-radius: .25rem;
-  background: color-mix(in srgb, var(--unlocked-surface) 72%, var(--unlocked-page));
+  background: var(--journey-surface);
   padding: clamp(1.35rem, 2.5vw, 2rem);
   box-shadow: 0 12px 34px rgb(43 33 26 / .045);
 }
-
-:global([data-theme="midnight"]) .waypoint,
-:global([data-theme="midnight"]) .emptyWaypoint,
-:global([data-theme="forest"]) .waypoint,
-:global([data-theme="forest"]) .emptyWaypoint { box-shadow: 0 12px 34px rgb(0 0 0 / .14); }
 
 .waypoint { top: clamp(4rem, calc(var(--waypoint-desktop-y) - 3.25rem), 12rem); right: 0; }
 .emptyWaypoint { top: 5.5rem; right: 0; }
@@ -88,15 +80,15 @@
   margin-top: 1.2rem;
   border: 1px solid transparent;
   border-radius: .28rem;
-  background: #0e5b3e;
+  background: var(--journey-forest-strong);
   padding-inline: 1.15rem;
-  color: #fff;
+  color: var(--journey-text-inverse);
   cursor: pointer;
   font-size: .82rem;
   font-weight: 760;
   text-decoration: none;
 }
-.primaryAction:hover { background: #164b37; transform: translateY(-1px); }
+.primaryAction:hover { background: var(--journey-forest); transform: translateY(-1px); }
 .primaryAction:active { transform: translateY(0); }
 .primaryAction svg { width: .95rem; height: .95rem; }
 .primaryAction:focus-visible { outline: 2px solid var(--journey-green); outline-offset: .25rem; }
@@ -112,7 +104,7 @@
 .additionalDirection > summary::-webkit-details-marker,
 .horizonDisclosure > summary::-webkit-details-marker,
 .earlierChapters > summary::-webkit-details-marker { display: none; }
-.disclosure summary { width: fit-content; color: var(--unlocked-text); font-weight: 750; }
+.disclosure summary { display: flex; width: fit-content; min-height: 2.75rem; align-items: center; color: var(--unlocked-text); font-weight: 750; }
 .disclosure p { margin: .65rem 0 0; line-height: 1.6; }
 
 .transitionControls { max-width: 30rem; }
@@ -126,7 +118,7 @@
 .quietJourneyLink { display: inline-flex; min-height: 2.75rem; align-items: center; gap: .45rem; color: var(--journey-green); font-size: .78rem; font-weight: 750; text-decoration: none; }
 .manageApplicationsLink svg,
 .quietJourneyLink svg { width: .85rem; height: .85rem; }
-.transitionError { max-width: 30rem; margin: .8rem 0 0; color: #a33b33; font-size: .8rem; line-height: 1.55; }
+.transitionError { max-width: 30rem; margin: .8rem 0 0; color: var(--journey-error); font-size: .8rem; line-height: 1.55; }
 .transformationResult { max-width: 31rem; margin-top: 1rem; border-top: 1px solid color-mix(in srgb, var(--journey-gold) 40%, var(--unlocked-border)); padding-top: 1rem; animation: journey-detail-reveal var(--journey-disclosure-duration) var(--journey-motion-easing) both; }
 .transformationLabel { margin: 0; color: var(--journey-gold); font-size: .65rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
 .transformationResult h3 { margin: .5rem 0 0; font-family: Iowan Old Style, Baskerville, Georgia, "Times New Roman", serif; font-size: 1.4rem; font-weight: 650; letter-spacing: 0; line-height: 1.12; }
@@ -155,7 +147,7 @@
 .momentSummary { display: grid; min-height: 3.5rem; grid-template-columns: 3rem minmax(0, 1fr); gap: 1rem; align-items: start; cursor: pointer; list-style: none; }
 .momentSummary::-webkit-details-marker { display: none; }
 .momentSummary:focus-visible { border-radius: .3rem; outline: 2px solid var(--journey-green); outline-offset: .4rem; }
-.momentMarker { position: relative; z-index: 2; display: grid; width: 1.2rem; height: 1.2rem; place-items: center; justify-self: center; border: 2px solid var(--journey-green); border-radius: 50%; background: var(--unlocked-page); box-shadow: 0 0 0 .4rem var(--unlocked-page); color: var(--journey-green); }
+.momentMarker { position: relative; z-index: 2; display: grid; width: 1.2rem; height: 1.2rem; place-items: center; justify-self: center; border: 2px solid var(--journey-green); border-radius: 50%; background: var(--journey-canvas); box-shadow: 0 0 0 .4rem var(--journey-canvas); color: var(--journey-green); }
 .moment[data-moment-weight="landmark"] .momentMarker { width: 1.65rem; height: 1.65rem; border-color: var(--journey-gold); color: var(--journey-gold); }
 .momentCenter { width: .32rem; height: .32rem; border-radius: 50%; background: currentColor; }
 .momentEditorial { min-width: 0; }
@@ -200,8 +192,8 @@
 .horizonHeading { max-width: 42rem; }
 .horizonComposition { position: relative; min-height: 18rem; margin-top: 3.5rem; }
 .horizonOpenEnd { position: absolute; top: 0; bottom: 0; left: var(--journey-rail-x); width: 0; border-left: 1px dashed color-mix(in srgb, var(--journey-green) 48%, transparent); }
-.horizonOpenEnd::before { position: absolute; top: 0; left: 50%; width: .9rem; height: .9rem; border: 2px solid var(--journey-green); border-radius: 50%; background: var(--unlocked-page); content: ""; transform: translate(-50%, -50%); }
-.horizonOpenEnd::after { position: absolute; bottom: 0; left: 50%; width: .75rem; height: .75rem; border: 2px solid color-mix(in srgb, var(--journey-green) 60%, transparent); border-radius: 50%; background: var(--unlocked-page); content: ""; transform: translate(-50%, 50%); }
+.horizonOpenEnd::before { position: absolute; top: 0; left: 50%; width: .9rem; height: .9rem; border: 2px solid var(--journey-green); border-radius: 50%; background: var(--journey-canvas); content: ""; transform: translate(-50%, -50%); }
+.horizonOpenEnd::after { position: absolute; bottom: 0; left: 50%; width: .75rem; height: .75rem; border: 2px solid color-mix(in srgb, var(--journey-green) 60%, transparent); border-radius: 50%; background: var(--journey-canvas); content: ""; transform: translate(-50%, 50%); }
 .horizonContent { margin-left: 4rem; }
 .horizonList { margin: 0; padding: 0; list-style: none; }
 .horizonItem { max-width: 39rem; }
@@ -232,9 +224,9 @@
 .unavailable > p:not(.sectionLabel) { max-width: 34rem; margin: 1.25rem 0 0; color: var(--unlocked-muted); line-height: 1.7; }
 .unavailable .manageApplicationsLink { margin-left: 1rem; }
 
-.loadingPage { min-height: calc(100vh - 4.75rem); background: var(--unlocked-page); padding: clamp(3.5rem, 7vw, 6rem) 1.25rem; color: var(--unlocked-text); }
+.loadingPage { min-height: calc(100vh - 4.75rem); background: var(--journey-canvas); padding: clamp(3.5rem, 7vw, 6rem) 1.25rem; color: var(--journey-text-primary); }
 .loadingArticle { width: min(100%, 72rem); margin-inline: auto; }
-.loadingLabel { color: var(--journey-green, #146044); font-size: .69rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+.loadingLabel { color: var(--journey-forest); font-size: .69rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
 .loadingNarrative { display: grid; gap: .65rem; max-width: 42rem; margin-top: 1.25rem; }
 .loadingNarrative span,
 .loadingIdentity,
@@ -246,12 +238,12 @@
 .loadingIdentity { width: min(17rem, 70%); height: .75rem; margin-top: 1.35rem; }
 .loadingComposition { position: relative; min-height: 26rem; margin-top: 2.5rem; }
 .loadingLine { position: absolute; inset: 0 42% 0 2%; overflow: hidden; }
-.loadingLine::before { position: absolute; top: 1rem; bottom: 1rem; left: 52%; width: 2px; background: color-mix(in srgb, #146044 34%, transparent); content: ""; }
+.loadingLine::before { position: absolute; top: 1rem; bottom: 1rem; left: 52%; width: 2px; background: color-mix(in srgb, var(--journey-path-current) 34%, transparent); content: ""; }
 .loadingLine i,
-.loadingLine b { position: absolute; left: calc(52% - .5rem); width: 1rem; height: 1rem; border: 2px solid color-mix(in srgb, #146044 45%, transparent); border-radius: 50%; background: var(--unlocked-page); }
+.loadingLine b { position: absolute; left: calc(52% - .5rem); width: 1rem; height: 1rem; border: 2px solid color-mix(in srgb, var(--journey-path-current) 45%, transparent); border-radius: 50%; background: var(--journey-canvas); }
 .loadingLine i { top: 3rem; }
 .loadingLine b { top: 12rem; }
-.loadingWaypoint { position: absolute; top: 5rem; right: 0; display: grid; width: min(31rem, 44%); gap: .7rem; border: 1px solid color-mix(in srgb, var(--journey-green) 13%, var(--unlocked-border)); border-radius: .25rem; background: color-mix(in srgb, var(--unlocked-surface) 72%, var(--unlocked-page)); padding: 2rem; }
+.loadingWaypoint { position: absolute; top: 5rem; right: 0; display: grid; width: min(31rem, 44%); gap: .7rem; border: 1px solid var(--journey-border); border-radius: .25rem; background: var(--journey-surface); padding: 2rem; }
 .loadingWaypoint span { height: .9rem; }
 .loadingWaypoint span:first-child { height: 2.4rem; width: 88%; }
 .loadingWaypoint span:last-child { width: 58%; }
@@ -332,7 +324,7 @@
   .waypointMeta { display: grid; grid-template-columns: 1fr 1fr; gap: .4rem .65rem; margin-top: .55rem; }
   .waypointMeta dt { font-size: .54rem; }
   .waypointMeta dd { margin-top: .1rem; font-size: .72rem; }
-  .primaryAction { min-height: 2.6rem; margin-top: .55rem; font-size: .74rem; }
+  .primaryAction { min-height: 2.75rem; margin-top: .55rem; font-size: .74rem; }
 }
 
 @media (prefers-contrast: more) {
@@ -343,7 +335,18 @@
   .horizonDetail { border-color: currentColor; }
   .storyFlow::before,
   .horizonOpenEnd { background: currentColor; }
-  .primaryAction { border-color: currentColor; background: #004c32; }
+  .primaryAction { border-color: currentColor; background: var(--journey-forest-strong); }
+}
+
+@media (forced-colors: active) {
+  .lineField svg { forced-color-adjust: auto; }
+  .waypoint, .emptyWaypoint, .momentDetail, .horizonDetail, .manageActions button, .primaryAction { border: 1px solid CanvasText; }
+  .momentMarker, .horizonOpenEnd::before, .horizonOpenEnd::after { border-color: CanvasText; background: Canvas; color: CanvasText; }
+  .primaryAction { background: Highlight; color: HighlightText; }
+  .storyFlow::before, .horizonOpenEnd { border-color: CanvasText; background: CanvasText; }
+  .moment[data-moment-weight="landmark"] .momentMarker { border-style: double; border-width: 4px; }
+  .moment[data-moment-kind="validation"] .momentTitle,
+  .moment[data-moment-kind="acceptance"] .momentTitle { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: .18em; }
 }
 
 @media (prefers-reduced-motion: reduce) {
