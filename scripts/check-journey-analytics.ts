@@ -9,9 +9,11 @@ import {
   type AnalyticsEnvelope,
   type AnalyticsEventName,
 } from "../lib/analytics-types";
-import { getAnalyticsSummary, recordAnalyticsEnvelope } from "../lib/analytics-store";
 
 process.env.AUTH_SECRET = "journey-analytics-check-secret-with-at-least-thirty-two-bytes";
+process.env.UNLOCKED_ANALYTICS_STORE = "memory";
+
+const { getAnalyticsSummary, recordAnalyticsEnvelope } = await import("../lib/analytics-store");
 
 const names = Object.values(productIntelligenceEvents);
 assert.equal(new Set(names).size, names.length, "Canonical analytics event names must be unique.");
