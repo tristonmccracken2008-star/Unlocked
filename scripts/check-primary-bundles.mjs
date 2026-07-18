@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { existsSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
-import vm from "node:vm";
+import { readClientReferenceManifest } from "./lib/read-client-reference-manifest.mjs";
 
 const routes = [
   ["Journey", ".next/server/app/page_client-reference-manifest.js", "[project]/app/page"],
@@ -13,10 +13,9 @@ const results = [];
 for (const [label, manifestPath, routeKey] of routes) {
   assert.ok(existsSync(manifestPath), `${label} client reference manifest is missing.`);
   const source = readFileSync(manifestPath, "utf8");
-  const sandbox = { globalThis: {} };
-  vm.runInNewContext(source, sandbox, { filename: manifestPath });
-  const routeManifest = sandbox.globalThis.__RSC_MANIFEST?.[routeKey.replace("[project]/app", "").replace(/^\/page$/, "/page")]
-    ?? sandbox.globalThis.__RSC_MANIFEST?.[`/${routeKey.split("/app/")[1]}`];
+  const manifest = readClientReferenceManifest(source, manifestPath);
+  const routeManifest = manifest[routeKey.replace("[project]/app", "").replace(/^\/page$/, "/page")]
+    ?? manifest[`/${routeKey.split("/app/")[1]}`];
   assert.ok(routeManifest?.entryJSFiles, `${label} entry chunks are missing from the client manifest.`);
   const chunks = [...new Set(routeManifest.entryJSFiles[routeKey] ?? [])];
   assert.ok(chunks.length > 0, `${label} must reference at least one client entry chunk.`);
