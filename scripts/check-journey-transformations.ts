@@ -161,6 +161,8 @@ for (const requirement of ["assertSameOrigin", "getSession", "withSecurityLock",
 for (const status of ["401", "403", "409", "423", "422"]) assert.ok(control.includes(`status === ${status}`), `Client recovery must distinguish HTTP ${status}.`);
 assert.ok(control.includes('aria-live="polite"') && control.includes('role="alert"'), "Status changes and errors must be announced accessibly.");
 assert.ok(control.includes("accountSessionEvent") && control.includes("controllerRef.current?.abort"), "Account changes must abort pending transformations.");
+assert.ok(service.includes("moment?.title ?? pathEvent!.title") && service.includes("moment?.body ?? pathEvent!.narrative"), "Routine transitions suppressed from editorial history must still return their canonical Path event narrative.");
+assert.ok(service.includes("freshMoment ?? (pathEvent ? undefined : currentMoments.at(-1))"), "A fresh routine Path event cannot be replaced by an unrelated older editorial moment.");
 
 const performanceStart = performance.now();
 for (let index = 0; index < 2_000; index += 1) getJourneyTransitionActions(index % 2 ? pausable : paused);

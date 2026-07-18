@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { deadlineLabel, type Opportunity } from "@/data/opportunities";
+import type { Opportunity } from "@/data/opportunities";
+import { listingDeadlineLabel as deadlineLabel } from "@/data/opportunity-listing";
 import { ArrowIcon } from "./icons";
 import { AddToJourneyButton } from "./opportunity-activity";
 import { OrganizationLogo } from "./organization-logo";

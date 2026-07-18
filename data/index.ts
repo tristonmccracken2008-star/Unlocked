@@ -1,36 +1,7 @@
-import curatedSchoolsJson from "./db/schools.json";
-import institutionsJson from "./db/institutions.json";
 import categoriesJson from "./db/categories.json";
 import { filterOpportunities } from "./opportunities";
-import { assertSchool, type Benefit, type BenefitScope, type Category, type CategoryRecord, type School, type SchoolRecord, type VerificationConfidence, type VerificationStatus } from "./schemas";
-
-const curatedSchoolRecords = curatedSchoolsJson as unknown[];
-const institutionRecords = institutionsJson as unknown[];
-curatedSchoolRecords.forEach(assertSchool);
-institutionRecords.forEach(assertSchool);
-
-function assertUnique<T>(records: T[], key: (record: T) => string, label: string) {
-  const seen = new Set<string>();
-  for (const record of records) {
-    const value = key(record).trim().toLowerCase();
-    if (seen.has(value)) throw new Error(`Duplicate ${label}: ${value}`);
-    seen.add(value);
-  }
-}
-
-function normalizeAlias(value: string) {
-  return value.trim().toLowerCase().replace(/^https?:\/\//, "").replace(/^www\./, "").replace(/\/$/, "").replace(/[.,]/g, "").replace(/[-_\s]+/g, " ");
-}
-
-function generatedAliases(school: SchoolRecord) {
-  const words = school.name.replace(/[^A-Za-z0-9 ]/g, " ").split(/\s+/).filter((word) => word && !["of", "the", "at", "and"].includes(word.toLowerCase()));
-  const acronym = words.map((word) => word[0]).join("").toUpperCase();
-  const domainStem = school.domain.split(".")[0];
-  const candidates = [...(school.aliases ?? []), domainStem];
-  if (acronym.length >= 2 && acronym.length <= 8) candidates.push(acronym);
-  const official = new Set([normalizeAlias(school.name), normalizeAlias(school.domain)]);
-  return [...new Map(candidates.filter(Boolean).map((alias) => [normalizeAlias(alias), alias.trim()])).entries()].filter(([normalized]) => !official.has(normalized)).map(([, alias]) => alias);
-}
+import { schoolDirectory } from "./school-directory";
+import type { Benefit, BenefitScope, Category, CategoryRecord, School, VerificationConfidence, VerificationStatus } from "./schemas";
 
 function confidenceFor(status: VerificationStatus, score: number): VerificationConfidence {
   if (status === "verified" && score >= 85) return "high";
@@ -41,7 +12,10 @@ function confidenceFor(status: VerificationStatus, score: number): VerificationC
 export const categoryRecords = categoriesJson as CategoryRecord[];
 export const categories = ["All", ...categoryRecords.map((item) => item.name)] as const;
 
-export const benefits: Benefit[] = filterOpportunities({ types: ["Benefit"] }).map((item) => {
+const benefitOpportunities = filterOpportunities({ types: ["Benefit"] });
+const benefitOpportunityById = new Map(benefitOpportunities.map((item) => [item.id, item]));
+
+export const benefits: Benefit[] = benefitOpportunities.map((item) => {
   const reviewScore = item.metadata.reviewScore ?? 0;
   const status = item.verification_status;
   return {
@@ -70,23 +44,28 @@ export const benefits: Benefit[] = filterOpportunities({ types: ["Benefit"] }).m
   };
 });
 
-const curatedSchools = curatedSchoolRecords as SchoolRecord[];
-const importedSchools = institutionRecords as SchoolRecord[];
-const curatedDomains = new Set(curatedSchools.map((school) => school.domain));
-const rawSchools = [...curatedSchools, ...importedSchools.filter((school) => !curatedDomains.has(school.domain))];
-assertUnique(rawSchools, (school) => school.slug, "school slug");
-assertUnique(rawSchools, (school) => school.domain, "school domain");
-
 const nationalBenefitIds = benefits.filter((benefit) => benefit.scope === "national").map((benefit) => benefit.slug);
-export const schools: School[] = rawSchools.map((school) => ({
+const schoolBenefitIds = new Map<string, string[]>();
+for (const benefit of benefits) {
+  if (benefit.scope !== "school") continue;
+  const opportunity = benefitOpportunityById.get(benefit.opportunityId);
+  for (const schoolSlug of opportunity?.schools ?? []) {
+    const current = schoolBenefitIds.get(schoolSlug) ?? [];
+    current.push(benefit.slug);
+    schoolBenefitIds.set(schoolSlug, current);
+  }
+}
+export const schools: School[] = schoolDirectory.map((school) => ({
   ...school,
-  aliases: generatedAliases(school),
-  benefitSlugs: [...nationalBenefitIds, ...benefits.filter((benefit) => benefit.scope === "school" && filterOpportunities({ types: ["Benefit"], school: school.slug }).some((item) => item.id === benefit.opportunityId)).map((benefit) => benefit.slug)],
+  benefitSlugs: [...nationalBenefitIds, ...(schoolBenefitIds.get(school.slug) ?? [])],
 }));
 
 export const getSchool = (slug: string) => schools.find((school) => school.slug === slug);
 export const getBenefit = (slug: string) => benefits.find((item) => item.slug === slug);
-export const getSchoolBenefits = (school: School) => benefits.filter((item) => item.scope === "national" || filterOpportunities({ types: ["Benefit"], school: school.slug }).some((opportunity) => opportunity.id === item.opportunityId));
+export const getSchoolBenefits = (school: School) => {
+  const eligibleIds = new Set(schoolBenefitIds.get(school.slug) ?? []);
+  return benefits.filter((item) => item.scope === "national" || eligibleIds.has(item.slug));
+};
 export const formatValueTotal = (value: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(value);
 
 export type { Benefit, BenefitScope, Category, School, VerificationConfidence, VerificationStatus } from "./schemas";

@@ -1,4 +1,4 @@
-import { opportunityCategories, opportunityMajors } from "./opportunities";
+import { opportunityCategories, opportunityMajors } from "./opportunity-taxonomy";
 
 export const graduationYears = () => Array.from({ length: 9 }, (_, index) => String(new Date().getFullYear() + index));
 

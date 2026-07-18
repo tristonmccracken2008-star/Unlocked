@@ -145,19 +145,21 @@ async function completeForwardSequence(page: Page) {
     page.off("request", count);
     if (index < sequence.length - 1) await waitForAction(page, sequence[index + 1][0]);
   }
-  await page.getByText(/work has become evidence|evidence you can reuse/i).first().waitFor({ state: "visible" });
+  const progress = page.locator("[data-journey-progress]");
+  await progress.waitFor({ state: "visible" });
+  assert.match(await progress.innerText(), /meaningful moments/i, "Completed progress must remain visibly reflected after the canonical refresh.");
 }
 
 async function verifyPauseResumeClose(page: Page) {
-  const manage = page.getByText("Manage application", { exact: true }).first();
+  const manage = page.getByText("Manage applications", { exact: true }).first();
   await manage.click();
   await page.getByRole("button", { name: "Pause this direction" }).click();
   await page.getByText(/paused/i).first().waitFor({ state: "visible" });
   await waitForAction(page, /Resume this direction/);
   await page.getByRole("button", { name: /Resume this direction/ }).click();
-  await page.getByText(/returned to this/i).first().waitFor({ state: "visible" });
+  await page.locator("[data-journey-transformation-result]").waitFor({ state: "visible" });
   await page.waitForTimeout(2_800);
-  await page.getByText("Manage application", { exact: true }).first().click();
+  await page.getByText("Manage applications", { exact: true }).first().click();
   const close = page.getByRole("button", { name: "Close this opportunity" });
   await close.click();
   await page.getByRole("button", { name: "Confirm close" }).click();
@@ -226,8 +228,8 @@ async function runBrowser(browser: Browser, origin: string, sessions: Awaited<Re
     await action.focus();
     await page.keyboard.press("Enter");
     await page.locator("[data-journey-transformation-result]").waitFor({ state: "visible", timeout: 12_000 });
-    const motionPreference = await page.locator("[data-open-line-motion-root]").first().getAttribute("data-motion-preference");
-    assert.equal(motionPreference, "reduced", "WebKit mobile must honor reduced-motion preference.");
+    assert.equal(await page.locator("svg[data-open-line-renderer]").count(), 0, "Mobile must not hydrate duplicate path geometry.");
+    assert.equal(await page.evaluate(() => matchMedia("(prefers-reduced-motion: reduce)").matches), true, "WebKit mobile must retain reduced-motion preference.");
   }
   await context.close();
 }

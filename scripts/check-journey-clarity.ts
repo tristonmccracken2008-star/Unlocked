@@ -104,18 +104,18 @@ assert.doesNotMatch(changedProfile.story.text, /Quantitative Finance/, "A curren
 assert.equal(changedProfile.diagnostics.editorialAuditVersion, journeyEditorialAuditVersion);
 
 const component = read("components/journey-editorial.tsx");
-const liveLine = read("components/journey-live-line.tsx");
 const styles = read("components/journey-editorial.module.css");
 const modelSource = read("lib/journey-editorial.ts");
 for (const retired of ["Journey tools", "Your living story", "After this…", "Why it becomes possible", "Skills gained", "Journey progress", "completion percentage"]) {
   assert.ok(!component.includes(retired), `Journey clarity must retire duplicated or technical copy: ${retired}.`);
 }
-for (const required of ["Your Journey", "What matters now", "See why this matters", "Story so far", "What may open next.", "Explore another direction", "Manage applications"]) {
+for (const required of ["Your Journey", "Right now", "Your next step", "Why this step", "Proof of progress", "One direction that may open next.", "Consider another direction", "Manage applications"]) {
   assert.ok(component.includes(required), `Journey clarity must preserve the focused hierarchy: ${required}.`);
 }
-assert.equal((component.match(/<JourneyResponsiveLine/g) ?? []).length, 1, "Journey must render one responsive Open Line component.");
-assert.ok(!component.includes("journey-horizon-desktop"), "Horizon must not mount a duplicate Open Line visualization.");
-assert.ok(liveLine.includes("data-responsive-open-line") && liveLine.includes("responsiveMode"), "The active viewport must select one geometry.");
+assert.equal((component.match(/data-journey-next-action/g) ?? []).length, 2, "Empty and active states must share one canonical next-action region.");
+assert.ok(component.includes("data-journey-living-path") && component.includes("Behind you") && component.includes("Where you are") && component.includes("What comes next"), "Journey must explain its living path without requiring students to decode an abstract visualization.");
+assert.ok(!component.includes("JourneyResponsiveLine") && !component.includes("data-responsive-open-line"), "The primary Journey must not mount a client SVG that duplicates the text hierarchy.");
+assert.ok(!component.includes("pathMomentEmpty"), "Sharing cannot be promoted before a student earns a meaningful moment.");
 assert.ok(!styles.includes("contain-intrinsic-size"), "Journey sections must not reserve synthetic height that creates dead space before offscreen content paints.");
 assert.ok(modelSource.includes("visibleHistoryMoments") && modelSource.includes("retainedHorizonItems"), "Below-the-fold work must remain bounded through server-side progressive disclosure.");
 assert.ok(styles.includes("var(--journey-canvas)") && styles.includes("var(--journey-text-primary)"), "Journey must inherit canonical light/dark contrast roles without component-specific override patches.");

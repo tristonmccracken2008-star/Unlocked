@@ -29,8 +29,9 @@ assert.match(profileData, /advisorProfileUpdatedMessageKey/, "Profile saves must
 assert.match(journeyClientEffects, /localStorage\.removeItem\(advisorProfileUpdatedMessageKey\)/, "Journey must consume the profile-change acknowledgement once.");
 
 assert.match(dashboard, /Journey/, "Private home must be the student's Journey.");
-assert.match(journeyEditorial, /What matters now/, "Journey must explain the student's current waypoint.");
-assert.match(journeyEditorial, /The moments that shaped your path/, "Journey must expose real activity history below the opening composition.");
+assert.match(journeyEditorial, /Your next step/, "Journey must explain the student's current waypoint.");
+assert.match(journeyEditorial, /data-journey-next-action/, "Journey must expose one canonical next-action region.");
+assert.match(journeyEditorial, /What you have made real/, "Journey must expose real activity history below the opening composition.");
 assert.match(journeyEditorial, /Manage applications/, "Journey must keep application management accessible below progressive disclosure.");
 assert.match(journeyEditorial, /PathMomentEntry/, "Journey history must expose the lazy evidence-based Path Moment experience.");
 assert.doesNotMatch(journeyBoard, /Journey Card|journeyCardSvg/, "The application board cannot duplicate Path Moment sharing.");

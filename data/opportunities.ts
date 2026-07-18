@@ -1,13 +1,10 @@
 import catalogJson from "./db/opportunities.json";
 import { canonicalOpportunity } from "./opportunity-enrichment";
 import { auditOpportunity } from "./opportunity-quality";
+import { academicYears, opportunityCategories, opportunityMajors, opportunityTypes, type OpportunityCategory, type OpportunityType } from "./opportunity-taxonomy";
 
-export const opportunityTypes = ["Benefit", "AI", "Career", "Research", "Scholarship"] as const;
-export const opportunityCategories = ["All", "Internships", "Freshman Programs", "Hackathons", "Competitions", "Fellowships", "Conferences", "Leadership Programs", "Career Resources", "Campus Jobs", "Co-ops", "Student Organizations", "Certifications", "Grants", "Study Abroad"] as const;
-export const opportunityMajors = ["All", "Any Major", "Accounting", "Actuarial Science", "Aerospace Engineering", "Analytics", "Anthropology", "Applied Mathematics", "Architecture", "Astronomy", "Biology", "Biomedical Engineering", "Business", "Chemical Engineering", "Chemistry", "Civil Engineering", "Communications", "Computer Engineering", "Computer Science", "Criminal Justice", "Cybersecurity", "Data Science", "Design", "Earth Science", "Economics", "Education", "Electrical Engineering", "Engineering", "English", "Entrepreneurship", "Environmental Engineering", "Environmental Science", "Fashion Design", "Finance", "Fine Arts", "Game Design", "Geology", "Graphic Design", "History", "Hospitality Management", "Human Resources", "Human-Computer Interaction", "Industrial Design", "Industrial Engineering", "Information Systems", "Information Technology", "Interior Design", "International Relations", "Journalism", "Kinesiology", "Languages", "Linguistics", "Machine Learning", "Management", "Marine Science", "Marketing", "Materials Science", "Mathematics", "Mechanical Engineering", "Music", "Natural Sciences", "Neuroscience", "Nuclear Engineering", "Nursing", "Operations Management", "Philosophy", "Physics", "Political Science", "Pre-med", "Psychology", "Public Health", "Public Policy", "Religious Studies", "Social Sciences", "Social Work", "Sociology", "Software Engineering", "Statistics", "Supply Chain Management", "Theatre", "Urban Studies", "User Experience Design"] as const;
-export const academicYears = ["All", "First year", "Second year", "Third year", "Fourth year", "Graduate student"] as const;
-export type OpportunityType = (typeof opportunityTypes)[number];
-export type OpportunityCategory = Exclude<(typeof opportunityCategories)[number], "All">;
+export { academicYears, opportunityCategories, opportunityMajors, opportunityTypes } from "./opportunity-taxonomy";
+export type { OpportunityCategory, OpportunityType } from "./opportunity-taxonomy";
 export type Compensation = "Paid" | "Unpaid" | "Varies";
 export type WorkMode = "Remote" | "Hybrid" | "In Person" | "Varies";
 export type OpportunityScope = "National" | "School Specific";

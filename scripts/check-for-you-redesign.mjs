@@ -4,6 +4,7 @@ import { readFileSync } from "node:fs";
 const read = (path) => readFileSync(path, "utf8");
 
 const advisor = read("components/advisor-page.tsx");
+const advisorStyles = read("components/advisor-page.module.css");
 const forYouApi = read("app/api/advisor/for-you/route.ts");
 const forYouSnapshot = read("lib/for-you-snapshot.ts");
 const advisorTypes = read("lib/advisor/types.ts");
@@ -13,17 +14,30 @@ const service = read("data/recommendation-service.ts");
 const pkg = read("package.json");
 
 for (const label of [
-  "Opportunities selected around you.",
-  "Your profile at a glance",
-  "Top recommendation",
-  "Open Opportunity",
+  "Your strongest matches, right now.",
+  "Best fit right now",
+  "Why it fits:",
+  "Review opportunity",
   "AddToJourneyButton",
-  "Recommended for you",
-  "Why these recommendations?",
-  "Your activity at a glance",
+  "More strong matches",
+  "Not quite right?",
+  "Adjust profile",
 ]) {
   assert.ok(advisor.includes(label), `For You must render ${label}.`);
 }
+
+for (const removed of ["Your profile at a glance", "Your activity at a glance", "Stay consistent", "Why these recommendations?"]) {
+  assert.ok(!advisor.includes(removed), `For You must not restore the removed ${removed} dashboard section.`);
+}
+
+assert.ok(advisor.includes('data-for-you-page="premium-v1"'), "For You must expose the focused premium layout for browser QA.");
+assert.ok(advisor.includes("recommendationSignals") && advisor.includes("strongestReason"), "Recommendation presentation must use concise structured signals and reasons.");
+assert.ok(advisor.includes('opportunity?.verification_status === "verified"'), "For You must surface verified-source trust signals from opportunity data.");
+assert.ok(advisor.includes("Estimated value") && !advisor.includes("Est. effort"), "For You must label recommendation value truthfully.");
+assert.ok(advisor.includes("<ol") && advisor.includes("RecommendationCard"), "Secondary recommendations must use a calm ordered shortlist.");
+assert.ok(advisorStyles.includes("border-radius: 8px") && advisorStyles.includes("content-visibility: auto"), "For You styling must keep restrained geometry and defer below-fold rendering.");
+assert.ok(advisorStyles.includes("prefers-reduced-motion: reduce") && advisorStyles.includes("@media (max-width: 640px)"), "For You must support reduced motion and mobile layouts.");
+assert.ok(!advisor.includes("radial-gradient") && !advisorStyles.includes("gradient"), "For You must not restore generic decorative gradients.");
 
 for (const label of ["Excellent Match", "Strong Match", "Good Match", "Worth Reviewing", "Limited Match"]) {
   assert.ok(service.includes(`"${label}"`), `Recommendation service must define ${label}.`);
@@ -36,8 +50,9 @@ for (const symbol of ["buildRecommendationService", "recommendationMatchLabel", 
 assert.ok(forYouApi.includes("resolveForYouState"), "For You API must consume the snapshot-backed recommendation resolver.");
 assert.ok(forYouSnapshot.includes("buildRecommendationService"), "For You snapshot generation must consume the canonical recommendation service.");
 assert.ok(advisorTypes.includes("ForYouRecommendationSnapshot"), "Advisor account data must include persisted For You snapshots.");
-assert.ok(advisorRoute.includes("await requireCompletedOnboarding()") && advisorRoute.includes("<AdvisorPage serverAuthenticated />"), "For You must authenticate server-side and render before recommendation generation.");
-assert.ok(!advisorRoute.includes("resolveForYouState"), "For You route documents must not block on recommendation generation.");
+assert.ok(advisorRoute.includes("await requireCompletedOnboarding()") && advisorRoute.includes("serverAuthenticated"), "For You must authenticate server-side and render before recommendation generation.");
+assert.ok(advisorRoute.includes("allowGeneration: false"), "For You route documents must never block on recommendation generation.");
+assert.ok(advisorRoute.includes('await import("@/lib/for-you-snapshot")'), "The full recommendation stack should load only when a Pro state requires it.");
 assert.ok(forYouApi.includes('pageState: "pro_ready"') || forYouApi.includes('"pro_ready"'), "For You API must return an explicit pro_ready state.");
 assert.ok(forYouApi.includes('"free_preview"'), "For You API must return an explicit free_preview state.");
 assert.ok(forYouApi.includes('"profile_incomplete"'), "For You API must return an explicit profile_incomplete state.");
@@ -70,7 +85,7 @@ assert.ok(advisor.includes("ForYouErrorState") && advisor.includes("Retry"), "Fo
 assert.ok(advisor.includes("ForYouPreparingState"), "For You client must show a preparing state instead of normal retry during first snapshot generation.");
 assert.ok(advisor.includes("ForYouFreePreviewOnly"), "Free users with no previews must still see the Pro conversion page.");
 assert.ok(!journey.includes("buildRecommendationService"), "Journey must not build recommendations or bypass For You Pro gating.");
-assert.ok(advisor.includes("Unlock your full personalized feed"), "Free For You should render a clear Pro preview instead of an empty state.");
+assert.ok(advisor.includes("Keep the full shortlist working for you"), "Free For You should render a clear Pro preview instead of an empty state.");
 assert.ok(advisor.includes("Free") && advisor.includes("Pro"), "Free For You should explain the Free vs Pro difference.");
 assert.doesNotMatch(advisor, /% confidence|Evidence and confidence|Alternatives/, "For You primary UI must not expose old confidence/debug framing.");
 assert.doesNotMatch(advisor, /markMilestoneCompleted/, "For You should not use separate milestone completion logic for opportunity recommendations.");

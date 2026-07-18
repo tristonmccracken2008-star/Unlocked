@@ -16,8 +16,9 @@ assert.doesNotMatch(header, /pointer-events-none|disabled=\{[^}]*pendingHref/, "
 assert.doesNotMatch(header, /from "next\/link"|setPendingHref/, "Navigation must not wait for a client router transition.");
 assert.match(advisorRoute, /requireCompletedOnboarding\(\)/, "The destination route must authenticate from the incoming cookie.");
 assert.match(advisorRoute, /await requireCompletedOnboarding\(\)/, "The destination must complete server authorization before rendering.");
-assert.match(advisorRoute, /<AdvisorPage serverAuthenticated \/>/, "The route must render its loading UI without blocking on recommendation generation.");
-assert.doesNotMatch(advisorRoute, /resolveForYouState/, "Cold recommendation generation must not block the destination document response.");
+assert.match(advisorRoute, /<AdvisorPage initialState=\{initialState\} serverAuthenticated \/>/, "The route must render a server-authorized state without waiting for client session hydration.");
+assert.match(advisorRoute, /allowGeneration: false/, "Cold recommendation generation must not block the destination document response.");
+assert.match(advisorRoute, /await import\("@\/lib\/for-you-snapshot"\)/, "Free first-login navigation must not initialize the Pro recommendation stack.");
 
 const persistSession = callback.indexOf("await createSession(user)");
 const createRedirect = callback.indexOf("NextResponse.redirect", persistSession);

@@ -6,6 +6,8 @@ const read = (path) => readFileSync(path, "utf8");
 const filter = read("components/opportunity-filter.tsx");
 const card = read("components/opportunity-card.tsx");
 const page = read("app/opportunities/page.tsx");
+const api = read("app/api/opportunities/route.ts");
+const catalog = read("lib/discover-catalog.ts");
 const pkg = read("package.json");
 
 for (const label of ["Discover opportunities", "Find the right opportunity.", "Recommended for you", "Top opportunities", "Browse all opportunities"]) {
@@ -34,6 +36,11 @@ for (const token of ["AddToJourneyButton", "Open Opportunity", "StatusBadge", "l
 assert.doesNotMatch(card, /SaveOpportunityButton|>Save<|Save opportunity|Track this|Official source/, "Discover cards must use only Open Opportunity and Add to Journey actions.");
 
 assert.ok(page.includes("OpportunityFilter"), "Discover page must render the redesigned filter experience.");
+assert.ok(filter.includes('view: "discover"'), "Discover must request bounded result windows instead of the full catalog.");
+assert.ok(filter.includes("AbortController"), "Discover must cancel stale search and filter requests.");
+assert.ok(filter.includes("catalogError"), "Discover must preserve a recoverable catalog error state.");
+assert.ok(api.includes("buildDiscoverCatalog"), "The opportunity API must provide the server-side Discover projection.");
+assert.ok(catalog.includes("sorted.slice(0, query.limit)"), "The Discover projection must enforce its visible result limit.");
 assert.ok(pkg.includes("check:discover"), "Package scripts must include the Discover regression check.");
 assert.doesNotMatch(filter, /Advanced filters|Best matches|divide-y divide-ink\/10/, "Discover must not use the old advanced-filter/list-row layout.");
 

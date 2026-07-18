@@ -38,14 +38,15 @@ for (const symbol of [
 
 for (const label of [
   "Your Journey",
-  "What matters now",
-  "Estimated effort",
-  "Expected impact",
-  "The moments that shaped your path",
+  "Your next step",
+  "What you have made real",
   "Manage applications",
 ]) {
   assert.ok(journeyEditorial.includes(label), `Journey editorial experience must render ${label}.`);
 }
+assert.ok(journeyEditorial.includes("data-journey-focus"), "Journey must expose one primary orientation region.");
+assert.ok(journeyEditorial.includes("data-journey-next-action"), "Journey must expose one canonical next-action region.");
+assert.ok(journeyEditorial.includes("data-journey-progress"), "Journey must explain how far the student has come.");
 assert.ok(!journeyDashboard.includes("buildRecommendationService"), "Journey dashboard must not bypass For You Pro gating with client-side recommendations.");
 assert.ok(recommendationService.includes("buildAdvisorBrain"), "Recommendation service must consume the Advisor Brain API instead of duplicating scoring logic.");
 assert.ok(journeyPage.includes("buildJourneyEditorialModel"), "Journey route must compose the editorial experience on the server.");
@@ -66,15 +67,16 @@ assert.ok(header.includes("/profile"), "Profile must remain available as seconda
 assert.ok(header.includes("Mobile navigation"), "Authenticated mobile users must have a simple bottom navigation.");
 
 for (const label of [
-  "Opportunities selected around you.",
-  "Your profile at a glance",
-  "Top recommendation",
-  "Recommended for you",
-  "Why these recommendations?",
+  "Your strongest matches, right now.",
+  "Best fit right now",
+  "Why it fits:",
+  "More strong matches",
+  "Not quite right?",
   "AddToJourneyButton",
 ]) {
   assert.ok(advisorPage.includes(label), `Advisor page must render ${label}.`);
 }
+assert.ok(!advisorPage.includes("Your activity at a glance"), "For You must not restore the retired activity dashboard.");
 assert.ok(!advisorPage.includes("What to do next."), "For You should not expose broad advisor dashboard framing.");
 assert.ok(advisorRoute.includes("requireCompletedOnboarding"), "Advisor route must remain protected by server-side auth.");
 assert.ok(advisorPage.includes("/api/advisor/for-you"), "Advisor page must consume the server-gated recommendation API.");

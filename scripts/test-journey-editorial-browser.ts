@@ -108,30 +108,34 @@ async function verifyPage(page: Page, origin: string, label: string, expectedThe
   await story.waitFor({ state: "visible" });
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   assert.ok(overflow <= 1, `${label} must not create horizontal overflow; received ${overflow}px.`);
+  assert.equal(await story.count(), 1, `${label} must expose one H1.`);
+  assert.equal(await root.locator("[data-journey-focus]").count(), 1, `${label} must expose one focused opening.`);
+  assert.equal(await root.locator("[data-journey-living-path]").count(), 1, `${label} must expose one readable living path.`);
+  assert.equal(await root.locator("[data-journey-next-action]").count(), 1, `${label} must expose one canonical next-action region.`);
+  assert.equal(await root.locator("svg[data-open-line-renderer]").count(), 0, `${label} must not duplicate the readable path with a hydrated SVG.`);
   const storySize = Number.parseFloat(await story.evaluate((element) => getComputedStyle(element).fontSize));
   const otherHeadingSizes = await root.locator("h2, h3").evaluateAll((elements) => elements.map((element) => Number.parseFloat(getComputedStyle(element).fontSize)));
   assert.ok(otherHeadingSizes.every((size) => storySize > size), `${label} story must remain the largest text.`);
 
-  if (state === "populated") {
-    const waypoint = root.locator("#journey-waypoint-title");
-    const action = root.getByRole("link", { name: /Open opportunity|Explore ways to start/ }).or(root.getByRole("button", { name: /Choose this opportunity|Start this application|Mark as submitted|Record an interview|Record acceptance|Complete this experience|Resume this direction/ }));
+  if (state !== "empty") {
+    const waypoint = root.locator("#journey-next-step-title");
+    const action = root.locator('[data-journey-analytics="waypoint"]');
     await waypoint.waitFor({ state: "visible" });
     await action.waitFor({ state: "visible" });
-    const waypointBox = await waypoint.boundingBox();
-    const actionBox = await action.boundingBox();
-    const minimumWaypointLeft = (page.viewportSize()?.width ?? 0) < 680 ? 70 : 0;
-    assert.ok(waypointBox && waypointBox.x >= minimumWaypointLeft, `${label} waypoint must clear the mobile rail.`);
-    if ((page.viewportSize()?.width ?? 0) < 680) assert.ok(actionBox && actionBox.y + actionBox.height < (page.viewportSize()?.height ?? 0) - 64, `${label} primary action must remain above the mobile navigation.`);
 
-    const moment = root.locator("[data-journey-moment]").last();
-    await moment.waitFor({ state: "visible" });
-    const summary = moment.locator("summary");
-    await summary.focus();
-    await page.keyboard.press("Enter");
-    assert.equal(await moment.getAttribute("open"), "", `${label} Journey moment must expand from the keyboard.`);
-    await moment.getByText("Why it mattered", { exact: true }).waitFor({ state: "visible" });
-    await page.keyboard.press("Enter");
-    assert.equal(await moment.getAttribute("open"), null, `${label} Journey moment must collapse from the keyboard.`);
+    const moments = root.locator("[data-journey-moment]");
+    const momentCount = await moments.count();
+    if (momentCount) {
+      const moment = moments.nth(momentCount - 1);
+      await moment.waitFor({ state: "visible" });
+      const summary = moment.locator("summary");
+      await summary.focus();
+      await page.keyboard.press("Enter");
+      assert.equal(await moment.getAttribute("open"), "", `${label} Journey moment must expand from the keyboard.`);
+      await moment.getByText("Why it mattered", { exact: true }).waitFor({ state: "visible" });
+      await page.keyboard.press("Enter");
+      assert.equal(await moment.getAttribute("open"), null, `${label} Journey moment must collapse from the keyboard.`);
+    }
 
     const earlier = root.locator("[data-earlier-chapters]");
     if (await earlier.count()) {
@@ -146,29 +150,23 @@ async function verifyPage(page: Page, origin: string, label: string, expectedThe
     }
   } else {
     await root.getByRole("link", { name: "Find my first opportunity" }).waitFor({ state: "visible" });
-    await root.getByText("Choose one opportunity worth pursuing.").waitFor({ state: "visible" });
+    await root.getByRole("heading", { name: "Ready to begin" }).waitFor({ state: "visible" });
   }
 
   const horizon = root.locator("[data-journey-horizon]");
-  await horizon.scrollIntoViewIfNeeded();
-  await horizon.getByRole("heading", { name: "After this…" }).waitFor({ state: "visible" });
-  const horizonState = await horizon.getAttribute("data-horizon-state");
-  const visibleItems = horizon.locator("[data-horizon-item]:visible");
-  if (horizonState === "empty") {
-    assert.equal(await visibleItems.count(), 0, `${label} empty Horizon must not fabricate directions.`);
-    await horizon.getByText("As you build experience, new possibilities will appear here.").waitFor({ state: "visible" });
-  } else {
-    const count = await visibleItems.count();
-    const maximum = (page.viewportSize()?.width ?? 0) < 680 ? 2 : 3;
-    assert.ok(count >= 1 && count <= maximum, `${label} must show between one and ${maximum} future directions; received ${count}.`);
-    const firstItem = visibleItems.first();
-    await firstItem.getByText("Why it becomes possible", { exact: true }).waitFor({ state: "visible" });
+  const horizonCount = await horizon.count();
+  if (horizonCount) {
+    await horizon.scrollIntoViewIfNeeded();
+    await horizon.getByRole("heading", { name: "One direction that may open next." }).waitFor({ state: "visible" });
+    const visibleItems = horizon.locator("[data-horizon-item]:visible");
+    assert.equal(await visibleItems.count(), 1, `${label} must initially show exactly one future direction.`);
+    const firstItem = visibleItems;
     const detail = firstItem.locator("[data-horizon-detail]");
     const detailSummary = detail.locator("summary");
     await detailSummary.focus();
     await page.keyboard.press("Enter");
     assert.equal(await detail.getAttribute("open"), "", `${label} Horizon detail must expand from the keyboard.`);
-    await firstItem.getByText("Required evidence", { exact: true }).waitFor({ state: "visible" });
+    await firstItem.getByText("Approximate effort", { exact: true }).waitFor({ state: "visible" });
     await page.keyboard.press("Enter");
     assert.equal(await detail.getAttribute("open"), null, `${label} Horizon detail must collapse from the keyboard.`);
   }

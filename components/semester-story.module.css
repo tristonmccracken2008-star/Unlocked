@@ -20,7 +20,7 @@
 .entry h2 {
   margin: 0;
   color: var(--journey-ink);
-  font: 700 clamp(1.65rem, 3vw, 2.45rem)/1.05 var(--font-editorial), Georgia, serif;
+  font: 700 2rem/1.05 var(--font-editorial), Georgia, serif;
   letter-spacing: 0;
 }
 
@@ -61,6 +61,7 @@
 
 @media (max-width: 680px) {
   .entry { align-items: stretch; flex-direction: column; gap: 1.15rem; }
+  .entry h2 { font-size: 1.65rem; }
   .entry button { align-self: flex-start; min-width: 0; text-align: left; }
 }
 

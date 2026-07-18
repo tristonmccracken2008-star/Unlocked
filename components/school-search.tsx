@@ -3,7 +3,7 @@
 import { FormEvent, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { schools, type School } from "@/data/seed";
+import { schoolDirectory as schools, type School } from "@/data/school-directory";
 import { findExactSchoolMatches, findSchoolMatches, normalizeSchoolQuery } from "@/data/school-search";
 import { SearchIcon } from "./icons";
 

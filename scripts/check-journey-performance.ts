@@ -24,7 +24,8 @@ assert.match(projectionSource, /const trackedValues = Object\.values\(trackedRec
 assert.match(projectionSource, /const identity = pathMomentIdentity\(/, "Path Moment and Semester Story exports must reuse one identity projection.");
 assert.doesNotMatch(projectionSource, /\[\.\.\.pathEvents\]\.sort/, "Moment selection cannot sort an event collection just to find one maximum.");
 
-assert.equal((journey.match(/<JourneyResponsiveLine/g) ?? []).length, 1, "Journey must mount one responsive Open Line boundary.");
+assert.equal((journey.match(/<JourneyResponsiveLine/g) ?? []).length, 0, "Journey must not hydrate an SVG renderer when the text path already communicates orientation.");
+assert.match(journey, /data-journey-living-path/);
 assert.doesNotMatch(journey, /path-moment-creator|path-moment-artwork/, "Heavy Path Moment modules cannot enter the initial Journey component graph.");
 assert.match(pathEntry, /import\("@\/components\/path-moment-creator"\)/);
 assert.match(pathEntry, /onPointerEnter=\{preload\}/);
@@ -111,7 +112,7 @@ assert.equal(projection.model.semesterStories.stories.length > 0, true);
 console.log(JSON.stringify({
   message: "Journey performance checks passed.",
   serverProjection: { averageMs: Number(average.toFixed(2)), p95Ms: Number(p95.toFixed(2)), maximumMs: Number(maximum.toFixed(2)) },
-  initialClientBoundary: ["responsive-open-line", "transition-control", "path-moment-entry", "semester-story-entry"],
+  initialClientBoundary: ["transition-control", "path-moment-entry", "semester-story-entry"],
   lazyModules: ["path-moment-creator", "path-moment-artwork", "semester-story-creator", "semester-story-artwork", "png-export", "clipboard", "native-share"],
-  renderer: { visibleSvgCount: 1, cache: "weak-map-by-geometry-and-options" },
+  renderer: { visibleSvgCount: 0, retainedForExportsAndDiagnostics: true, cache: "weak-map-by-geometry-and-options" },
 }, null, 2));

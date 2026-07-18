@@ -2,15 +2,15 @@
 
 import type { ReactElement, ReactNode } from "react";
 import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
-import { deadlineLabel, filterOpportunities, opportunityTypes, type Opportunity, type OpportunityDifficulty, type OpportunityType } from "@/data/opportunities";
-import { schools, type School } from "@/data/seed";
+import type { Opportunity, OpportunityDifficulty, OpportunityType } from "@/data/opportunities";
+import { listingOpportunityTypes, type DiscoverCatalogPayload, type DiscoverSortMode } from "@/data/opportunity-listing";
+import { schoolDirectory as schools, type School } from "@/data/school-directory";
 import { findSchoolMatches, normalizeSchoolQuery } from "@/data/school-search";
 import { opportunityTrackerStatuses, readStudentActivity, studentActivityEvent, type OpportunityTrackerStatus, type StudentActivity } from "@/data/student-activity";
 import { ArrowIcon, BookmarkIcon, CheckCircleIcon, HeartIcon, PenLineIcon, SearchIcon, SendIcon, TargetIcon, TrophyIcon, XCircleIcon } from "./icons";
 import { OpportunityCard } from "./opportunity-card";
 import { trackProductEvent } from "@/data/product-analytics";
 
-type SortMode = "Relevant" | "Newest" | "Deadline" | "Alphabetical";
 type FilterState = {
   query: string;
   type: OpportunityType | "All";
@@ -22,7 +22,7 @@ type FilterState = {
   difficulty: Exclude<OpportunityDifficulty, null> | "All";
   freshmanFriendly: boolean;
   deadline: string;
-  sort: SortMode;
+  sort: DiscoverSortMode;
 };
 type IconComponent = (props: { className?: string }) => ReactElement;
 
@@ -75,72 +75,94 @@ function valueLabel(item: Opportunity) {
   return item.metadata.studentOffer ?? "See details";
 }
 
-function relevanceScore(item: Opportunity) {
-  let score = 0;
-  if (item.featured) score += 40;
-  if (item.verification_status === "verified") score += 25;
-  if (item.academic_years.includes("Any Year") || item.academic_years.includes("First year") || item.category === "Freshman Programs") score += 12;
-  if (item.application_deadline) score += 8;
-  if (item.estimated_value) score += Math.min(12, Math.log10(Math.max(item.estimated_value, 1)) * 2);
-  if (item.verification_status === "needs_review") score -= 10;
-  if (item.verification_status === "archived") score -= 100;
-  return score;
-}
-
-function sortOpportunities(items: Opportunity[], sort: SortMode) {
-  const next = [...items];
-  if (sort === "Relevant") return next.sort((a, b) => relevanceScore(b) - relevanceScore(a) || b.date_added.localeCompare(a.date_added) || a.title.localeCompare(b.title));
-  if (sort === "Newest") return next.sort((a, b) => b.date_added.localeCompare(a.date_added) || a.title.localeCompare(b.title));
-  if (sort === "Deadline") return next.sort((a, b) => (a.application_deadline ?? "9999-12-31").localeCompare(b.application_deadline ?? "9999-12-31") || a.title.localeCompare(b.title));
-  if (sort === "Alphabetical") return next.sort((a, b) => a.title.localeCompare(b.title));
-  return next;
-}
-
 export function OpportunityFilter({ opportunities: initialOpportunities = [] }: { opportunities?: Opportunity[] }) {
   const [opportunities, setOpportunities] = useState<Opportunity[]>(initialOpportunities);
   const [loaded, setLoaded] = useState(initialOpportunities.length > 0);
+  const [refreshing, setRefreshing] = useState(false);
+  const [catalogError, setCatalogError] = useState("");
+  const [filtersReady, setFiltersReady] = useState(false);
   const [filters, setFilters] = useState<FilterState>(defaultFilters);
   const [visibleCount, setVisibleCount] = useState(16);
+  const [totalMatches, setTotalMatches] = useState(initialOpportunities.length);
+  const [categories, setCategories] = useState<string[]>(["All", ...new Set(initialOpportunities.map((item) => item.category).sort())]);
+  const [majors, setMajors] = useState<string[]>(["All", ...new Set(initialOpportunities.flatMap((item) => item.majors).filter((item) => item !== "Any Major").sort())]);
+  const [typeCounts, setTypeCounts] = useState<Record<string, number>>({});
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const [activity, setActivity] = useState<StudentActivity>({ viewed: [], saved: [], claimed: [], tracked: {} });
+  const [reloadToken, setReloadToken] = useState(0);
   const hydrated = useRef(false);
   const trackedFilters = useRef(false);
+  const loadedRef = useRef(initialOpportunities.length > 0);
   const deferredQuery = useDeferredValue(filters.query);
 
-  const majors = useMemo(() => ["All", ...new Set(opportunities.flatMap((item) => item.majors).filter((item) => item !== "Any Major"))], [opportunities]);
-  const categories = useMemo(() => ["All", ...new Set(opportunities.map((item) => item.category).sort())], [opportunities]);
-  const typeCounts = useMemo(() => Object.fromEntries(quickFilters.map((item) => [item.label, item.label === "All" ? opportunities.length : opportunities.filter((opportunity) => (!item.type || opportunity.type === item.type) && (!item.category || opportunity.category === item.category)).length])) as Record<string, number>, [opportunities]);
-
   useEffect(() => {
-    setFilters((current) => ({ ...current, ...readStoredFilters() }));
+    const params = new URLSearchParams(window.location.search);
+    const stored = readStoredFilters();
+    const nextQuery = params.get("query");
+    const nextCategory = params.get("category");
+    const nextType = params.get("type");
+    setFilters({
+      ...stored,
+      ...(nextQuery ? { query: nextQuery } : {}),
+      ...(nextCategory ? { category: nextCategory } : {}),
+      ...(nextType && listingOpportunityTypes.includes(nextType as OpportunityType) ? { type: nextType as OpportunityType } : {}),
+    });
     hydrated.current = true;
+    setFiltersReady(true);
     const update = () => setActivity(readStudentActivity());
     update();
     window.addEventListener(studentActivityEvent, update);
     return () => window.removeEventListener(studentActivityEvent, update);
   }, []);
 
-  useEffect(() => {
-    let active = true;
-    if (loaded) return;
-    fetch("/api/opportunities").then((response) => response.ok ? response.json() : Promise.reject()).then((body) => {
-      if (active) { setOpportunities(body.opportunities); setLoaded(true); }
-    }).catch(() => { if (active) setLoaded(true); });
-    return () => { active = false; };
-  }, [loaded]);
+  const requestKey = useMemo(() => {
+    const params = new URLSearchParams({ view: "discover", limit: String(visibleCount), sort: filters.sort });
+    const values: Record<string, string> = {
+      query: deferredQuery.trim(),
+      type: filters.type,
+      category: filters.category,
+      major: filters.major,
+      school: filters.school,
+      paid: filters.paid,
+      remote: filters.remote,
+      difficulty: filters.difficulty,
+      deadline: filters.deadline,
+    };
+    for (const [key, value] of Object.entries(values)) if (value && value !== "All") params.set(key, value);
+    if (filters.freshmanFriendly) params.set("freshmanFriendly", "true");
+    return params.toString();
+  }, [deferredQuery, filters.category, filters.deadline, filters.difficulty, filters.freshmanFriendly, filters.major, filters.paid, filters.remote, filters.school, filters.sort, filters.type, visibleCount]);
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const nextQuery = params.get("query");
-    const nextCategory = params.get("category");
-    const nextType = params.get("type");
-    setFilters((current) => ({
-      ...current,
-      ...(nextQuery ? { query: nextQuery } : {}),
-      ...(nextCategory && categories.includes(nextCategory) ? { category: nextCategory } : {}),
-      ...(nextType && opportunityTypes.includes(nextType as OpportunityType) ? { type: nextType as OpportunityType } : {}),
-    }));
-  }, [categories]);
+    if (!filtersReady) return;
+    const controller = new AbortController();
+    const delay = loadedRef.current ? 120 : 0;
+    const timer = window.setTimeout(async () => {
+      const startedAt = performance.now();
+      setCatalogError("");
+      if (loadedRef.current) setRefreshing(true);
+      try {
+        const response = await fetch(`/api/opportunities?${requestKey}`, { signal: controller.signal });
+        if (!response.ok) throw new Error(`catalog_${response.status}`);
+        const body = await response.json() as DiscoverCatalogPayload;
+        setOpportunities(body.opportunities);
+        setTotalMatches(body.total);
+        setCategories(["All", ...body.facets.categories]);
+        setMajors(["All", ...body.facets.majors]);
+        setTypeCounts(body.facets.typeCounts);
+        loadedRef.current = true;
+        setLoaded(true);
+        performance.measure("unlocked:discover:catalog", { start: startedAt, end: performance.now() });
+      } catch (error) {
+        if (error instanceof DOMException && error.name === "AbortError") return;
+        setCatalogError("We couldn’t refresh opportunities. Try again.");
+        if (!loadedRef.current) setLoaded(true);
+      } finally {
+        if (!controller.signal.aborted) setRefreshing(false);
+      }
+    }, delay);
+    return () => { window.clearTimeout(timer); controller.abort(); };
+  }, [filtersReady, reloadToken, requestKey]);
 
   useEffect(() => { trackProductEvent("discover_opened"); }, []);
   useEffect(() => {
@@ -148,23 +170,6 @@ export function OpportunityFilter({ opportunities: initialOpportunities = [] }: 
     sessionStorage.setItem(storageKey, JSON.stringify(filters));
   }, [filters]);
 
-  const visible = useMemo(() => {
-    const filtered = filterOpportunities({
-      query: deferredQuery,
-      types: filters.type === "All" ? undefined : [filters.type],
-      category: filters.category,
-      major: filters.major,
-      school: filters.school === "All" ? undefined : filters.school,
-      paid: filters.paid === "All" ? undefined : filters.paid === "Paid",
-      remote: filters.remote === "All" ? undefined : filters.remote === "Remote",
-      difficulty: filters.difficulty,
-      freshmanFriendly: filters.freshmanFriendly,
-      deadline: filters.deadline === "All" ? undefined : filters.deadline as "published" | "upcoming" | "rolling" | "not_announced",
-    }, opportunities);
-    return sortOpportunities(filtered, filters.sort);
-  }, [deferredQuery, filters, opportunities]);
-
-  useEffect(() => setVisibleCount(16), [filters]);
   useEffect(() => {
     if (filters.query.trim().length < 2) return;
     const timer = window.setTimeout(() => trackProductEvent("search_performed", { searchType: "opportunity", searchValue: filters.query.trim() }), 500);
@@ -175,15 +180,16 @@ export function OpportunityFilter({ opportunities: initialOpportunities = [] }: 
     trackProductEvent("filter_applied", { filterName: "discover", filterValue: JSON.stringify(filters) });
   }, [filters]);
 
-  const displayed = visible.slice(0, visibleCount);
   const activeFilters = [filters.type, filters.category, filters.major, filters.school, filters.deadline, filters.paid, filters.remote, filters.difficulty].filter((item) => item !== "All").length + (filters.freshmanFriendly ? 1 : 0) + (filters.query.trim() ? 1 : 0);
   const statusCounts = useMemo(() => Object.fromEntries(opportunityTrackerStatuses.map((status) => [status, Object.values(activity.tracked ?? {}).filter((record) => record.status === status).length])) as Record<OpportunityTrackerStatus, number>, [activity.tracked]);
 
   function update(partial: Partial<FilterState>) {
+    setVisibleCount(16);
     setFilters((current) => ({ ...current, ...partial }));
   }
 
   function clearFilters() {
+    setVisibleCount(16);
     setFilters(defaultFilters);
     setMobileFiltersOpen(false);
   }
@@ -234,18 +240,20 @@ export function OpportunityFilter({ opportunities: initialOpportunities = [] }: 
             <button type="button" onClick={() => setMobileFiltersOpen(true)} className="inline-flex min-h-11 items-center justify-center rounded-full border border-ink/12 bg-white px-4 text-sm font-bold text-ink/60 shadow-[0_10px_26px_rgba(43,33,26,.045)] lg:hidden">Filters{activeFilters ? ` · ${activeFilters}` : ""}</button>
             <label className="flex min-h-11 items-center gap-3 rounded-full border border-ink/12 bg-white px-4 text-sm font-bold text-ink/55 shadow-[0_10px_26px_rgba(43,33,26,.045)]">
               <span>Sort by</span>
-              <select value={filters.sort} onChange={(event) => update({ sort: event.target.value as SortMode })} className="bg-transparent text-forest outline-none">
+              <select value={filters.sort} onChange={(event) => update({ sort: event.target.value as DiscoverSortMode })} className="bg-transparent text-forest outline-none">
                 {(["Relevant", "Newest", "Deadline", "Alphabetical"] as const).map((option) => <option key={option} value={option}>{option === "Relevant" ? "Most relevant" : option}</option>)}
               </select>
             </label>
           </div>
         </div>
 
-        {!loaded ? <ResultSkeleton /> : visible.length ? <>
+        {refreshing ? <p className="mt-4 text-xs font-bold text-ink/40" role="status">Updating results…</p> : null}
+        {catalogError && opportunities.length ? <div className="mt-4 flex items-center justify-between gap-4 rounded-xl bg-white/70 px-4 py-3 text-sm text-ink/55" role="alert"><span>{catalogError}</span><button type="button" onClick={() => setReloadToken((value) => value + 1)} className="min-h-11 font-bold text-forest">Retry</button></div> : null}
+        {!loaded ? <ResultSkeleton /> : catalogError && !opportunities.length ? <CatalogUnavailable retry={() => setReloadToken((value) => value + 1)} /> : opportunities.length ? <>
           <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-            {displayed.map((item) => <OpportunityCard key={item.id} opportunity={item} />)}
+            {opportunities.map((item) => <OpportunityCard key={item.id} opportunity={item} />)}
           </div>
-          {visible.length > displayed.length && <div className="py-7 text-center"><button onClick={() => setVisibleCount((count) => Math.min(count + 16, visible.length))} className="min-h-12 rounded-full border border-ink/15 bg-white px-6 text-sm font-bold text-forest shadow-[0_10px_26px_rgba(43,33,26,.045)] hover:border-forest">Show more opportunities <ArrowIcon className="inline h-3.5 w-3.5" /></button></div>}
+          {totalMatches > opportunities.length && <div className="py-7 text-center"><button onClick={() => setVisibleCount((count) => Math.min(count + 16, totalMatches))} disabled={refreshing} className="min-h-12 rounded-full border border-ink/15 bg-white px-6 text-sm font-bold text-forest shadow-[0_10px_26px_rgba(43,33,26,.045)] hover:border-forest disabled:cursor-wait disabled:opacity-60">{refreshing ? "Loading…" : "Show more opportunities"} <ArrowIcon className="inline h-3.5 w-3.5" /></button></div>}
         </> : <EmptyResults clearFilters={clearFilters} />}
       </main>
     </div>
@@ -272,7 +280,7 @@ function FilterPanel({ filters, update, clearFilters, activeFilters, categories,
     <div className="flex items-center justify-between gap-3 border-b border-ink/10 pb-4"><p className="rule-label text-ink/45">Filters</p><button type="button" onClick={clearFilters} className="text-xs font-black text-forest hover:text-ink">{activeFilters ? "Clear all" : "Reset"}</button></div>
     <div className="mt-5 space-y-5">
       <FilterGroup title="Category">
-        <Select label="Type" value={filters.type} setValue={(value) => update({ type: value as OpportunityType | "All" })} options={["All", ...opportunityTypes]} />
+        <Select label="Type" value={filters.type} setValue={(value) => update({ type: value as OpportunityType | "All" })} options={["All", ...listingOpportunityTypes]} />
         <Select label="Category" value={filters.category} setValue={(value) => update({ category: value })} options={categories} />
       </FilterGroup>
       <FilterGroup title="Fit">
@@ -307,6 +315,14 @@ function EmptyResults({ clearFilters }: { clearFilters: () => void }) {
     <p className="mt-5 font-editorial text-3xl font-bold">No opportunities matched your filters.</p>
     <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-ink/50">Try a broader search, remove one filter, or browse everything available in UnlockED.</p>
     <button type="button" onClick={clearFilters} className="mt-7 min-h-12 rounded-full bg-forest px-6 text-sm font-bold text-white hover:bg-ink">Browse all opportunities</button>
+  </div>;
+}
+
+function CatalogUnavailable({ retry }: { retry: () => void }) {
+  return <div className="mt-6 rounded-[2rem] bg-white/70 px-6 py-14 text-center shadow-[0_18px_60px_rgba(43,33,26,.045)] ring-1 ring-ink/6" role="alert">
+    <p className="font-editorial text-3xl font-bold">Opportunities are temporarily unavailable.</p>
+    <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-ink/50">Your filters are still here. Retry when you’re ready.</p>
+    <button type="button" onClick={retry} className="mt-7 min-h-12 rounded-full bg-forest px-6 text-sm font-bold text-white hover:bg-ink">Retry</button>
   </div>;
 }
 

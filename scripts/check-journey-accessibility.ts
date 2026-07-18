@@ -13,9 +13,9 @@ const semesterCreator = read("components/semester-story-creator.tsx");
 const creatorStyles = read("components/path-moment.module.css");
 const loading = read("app/loading.tsx");
 
-const editorialRender = journey.slice(journey.indexOf("export function JourneyEditorial("), journey.indexOf("export function JourneyEditorialUnavailable("));
 const unavailableRender = journey.slice(journey.indexOf("export function JourneyEditorialUnavailable("));
-assert.equal((editorialRender.match(/<h1\b/g) ?? []).length, 1, "Journey must expose exactly one H1.");
+assert.equal((journey.match(/<h1\b/g) ?? []).length, 2, "Journey and its unavailable state must each define one H1.");
+assert.equal((journey.slice(0, journey.indexOf("export function JourneyEditorialUnavailable(")).match(/<h1\b/g) ?? []).length, 1, "Journey must expose exactly one H1.");
 assert.equal((unavailableRender.match(/<h1\b/g) ?? []).length, 1, "Journey error state must expose exactly one H1.");
 assert.match(journey, /<main[^>]+aria-labelledby="journey-story-title"/);
 assert.match(journey, /<section className=\{styles\.opening\} aria-labelledby="journey-story-title"/);
@@ -25,7 +25,8 @@ assert.match(journey, /<section className=\{styles\.horizon\} aria-labelledby="j
 assert.match(journey, /<ol className=\{styles\.momentList\}>/);
 assert.match(journey, /data-journey-text-timeline=""/);
 assert.match(journey, /momentMeaning\(item\)/, "Visual marker states need a text equivalent.");
-assert.match(journey, /className=\{styles\.lineField\} aria-hidden="true"/, "The visual Open Line must supplement the ordered text story.");
+assert.match(journey, /aria-label="Where you have been, where you are, and what comes next"/, "The living path needs an immediate semantic explanation.");
+assert.match(journey, /data-path-position="past"[\s\S]*data-path-position="current"[\s\S]*data-path-position="next"/, "The living path must remain in chronological DOM order.");
 
 assert.match(renderer, /tabIndex=\{interactive \? 0 : undefined\}/);
 assert.match(renderer, /focusable=\{interactive \? "true" : "false"\}/);
@@ -49,7 +50,7 @@ assert.match(pathCreator, /className=\{styles\.orderedStory\}>\{moment\.headline
 
 assert.match(journeyStyles, /\.disclosure summary \{[^}]*min-height:\s*2\.75rem/);
 assert.match(journeyStyles, /\.momentSummary \{[^}]*min-height:\s*3\.5rem/);
-assert.match(journeyStyles, /@media \(max-width: 22\.5rem\)[\s\S]*\.primaryAction \{ min-height: 2\.75rem/);
+assert.match(journeyStyles, /\.primaryAction \{[\s\S]*?min-height:\s*3rem/);
 assert.doesNotMatch(creatorStyles, /\.segmented button \{[\s\S]*?min-height:\s*40px/);
 assert.match(creatorStyles, /\.segmented button \{[\s\S]*?min-height:\s*44px/);
 assert.match(creatorStyles, /\.checks label \{[\s\S]*?min-height:\s*44px/);
@@ -89,7 +90,7 @@ for (const [name, value] of Object.entries(contrastChecks)) assert.ok(value >= 4
 
 console.log(JSON.stringify({
   message: "Journey accessibility checks passed.",
-  semantics: ["single-h1", "named-regions", "ordered-history", "text-equivalent-open-line", "described-dialogs"],
+  semantics: ["single-h1", "named-regions", "ordered-history", "plain-language-living-path", "described-dialogs"],
   interaction: ["44px-targets", "single-live-announcement", "focus-safe-svg", "error-semantics"],
   contrast: Object.fromEntries(Object.entries(contrastChecks).map(([key, value]) => [key, Number(value.toFixed(2))])),
 }, null, 2));

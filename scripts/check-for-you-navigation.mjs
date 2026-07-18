@@ -19,10 +19,10 @@ assert.match(header, /aria-label="Mobile navigation"/, "Mobile navigation must u
 assert.match(header, /active:scale-\[\.98\]/, "Header links must provide immediate pressed feedback without blocking navigation.");
 
 assert.match(loading, /aria-busy="true"/, "Cold route loading must be announced immediately.");
-assert.match(loading, /Preparing your recommendations/, "Cold starts and slow session stores need a bounded preparing state.");
+assert.match(loading, /Selecting your strongest verified matches/, "Cold starts and slow session stores need a bounded preparing state.");
 assert.match(advisorPage, /requireCompletedOnboarding\(\)/, "The destination must remain server-authenticated.");
-assert.match(advisorPage, /<AdvisorPage serverAuthenticated \/>/, "The destination must render immediately after server authentication.");
-assert.doesNotMatch(advisorPage, /resolveForYouState/, "The route document must not wait for recommendation generation.");
+assert.match(advisorPage, /<AdvisorPage initialState=\{initialState\} serverAuthenticated \/>/, "The destination must reuse safe server state immediately after authentication.");
+assert.match(advisorPage, /allowGeneration: false/, "The route document must not wait for recommendation generation.");
 
 const cookieSet = callback.indexOf("response.cookies.set(sessionCookieName");
 const callbackReturn = callback.indexOf("return response", cookieSet);

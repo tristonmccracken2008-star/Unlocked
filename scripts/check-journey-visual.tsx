@@ -31,23 +31,21 @@ for (const [foreground, background] of [
   ["#91c9ad", "#17120f"],
 ] as const) assert.ok(contrast(foreground, background) >= 4.5, `${foreground} on ${background} must preserve text contrast.`);
 
-assert.match(journeyStyles, /--journey-rail-x:\s*1\.5rem/);
-assert.match(journeyStyles, /storyFlow::before[\s\S]*left:\s*var\(--journey-rail-x\)/);
-assert.match(journeyStyles, /horizonOpenEnd[\s\S]*left:\s*var\(--journey-rail-x\)/);
-assert.match(journeyStyles, /@media \(max-width: 42rem\)[\s\S]*--journey-rail-x:\s*1\.25rem/);
+assert.match(journeyStyles, /\.livingPath[\s\S]*padding-left:\s*2\.5rem/);
+assert.match(journeyStyles, /\.pathConnection[\s\S]*left:\s*\.68rem/);
+assert.match(journeyStyles, /storyFlow::before[\s\S]*left:\s*1rem/);
 assert.match(journeyStyles, /@media \(max-width: 22\.5rem\)/, "Journey must explicitly support 320px screens.");
-assert.match(journeyStyles, /\.waypoint,\s*\n\s*\.emptyWaypoint \{ position: relative;/, "Mobile waypoints must participate in document flow.");
 assert.doesNotMatch(journeyStyles, /contain-intrinsic-size|repeating-linear-gradient/, "Journey cannot create synthetic blank space or decorative gradient rails.");
 assert.doesNotMatch(journeyStyles, /backdrop-filter/, "The primary Journey surface must not rely on expensive glass effects.");
 assert.match(journeyStyles, /\.moment\[data-moment-kind="validation"\][\s\S]*margin-block/, "Validation moments need deliberate breathing room.");
-assert.match(journeyStyles, /\.momentDetail[\s\S]*var\(--journey-green-soft\)/, "Progressive details need one quiet semantic surface.");
+assert.match(journeyStyles, /\.momentDetail[\s\S]*border-left:\s*1px solid var\(--journey-green\)/, "Progressive details need one quiet semantic rail rather than another card.");
 assert.match(journeyStyles, /editorial-arrive/);
-assert.match(journeyStyles, /\.loadingLabel,\s*\n\s*\.loadingIdentity \{ animation-delay: 0ms; \}/, "Identity must arrive first.");
-assert.match(journeyStyles, /\.loadingWaypoint,\s*\n\s*\.loadingLine \{ animation-delay: 190ms; \}/, "Waypoint and line must arrive second.");
-assert.match(journeyStyles, /\.loadingStatus \{ animation-delay: 320ms; \}/, "Later loading copy must arrive last.");
+assert.match(journeyStyles, /\.loadingWaypoint,\s*\n\s*\.loadingLine \{ animation-delay: 160ms; \}/, "Orientation and next action must arrive together.");
+assert.match(journeyStyles, /\.loadingStatus \{ animation-delay: 250ms; \}/, "Later loading copy must arrive last.");
 
 assert.ok(!journey.startsWith('"use client"'), "The editorial Journey must remain server-first.");
-assert.equal((journey.match(/<JourneyResponsiveLine/g) ?? []).length, 1, "Journey must render one responsive Open Line.");
+assert.equal((journey.match(/<JourneyResponsiveLine/g) ?? []).length, 0, "Journey must not duplicate its readable path with a hydrated SVG.");
+assert.match(journey, /data-journey-living-path/);
 assert.match(loading, /loadingIdentity[\s\S]*loadingComposition/, "Loading must preserve identity-before-waypoint DOM order.");
 assert.match(pathMomentEntry, /import\("@\/components\/path-moment-creator"\)/, "Path Moment artwork and export code must load on intent.");
 assert.doesNotMatch(journey, /path-moment-creator/, "Journey cannot hydrate the full Path Moment creator while it is closed.");

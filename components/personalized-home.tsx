@@ -1,9 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import dynamic from "next/dynamic";
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
-import { schools, type School } from "@/data/seed";
+import { schoolDirectory as schools, type School } from "@/data/school-directory";
 import { findExactSchoolMatches, findSchoolMatches, normalizeSchoolQuery } from "@/data/school-search";
 import { SearchIcon } from "./icons";
 import { readCompletedStudentProfile, writeStudentProfile, type StudentProfile } from "@/data/student-profile";
@@ -11,11 +10,6 @@ import { currentPriorityOptions, normalizedOpportunityInterests, opportunityInte
 import { accountSessionEvent, accountSyncErrorEvent, clearLocalDashboardState, hydrateAccountData } from "@/data/account-sync";
 import type { AccountSession } from "@/lib/account-types";
 import { trackProductEvent } from "@/data/product-analytics";
-
-const StudentDashboard = dynamic(() => import("./student-journey-dashboard").then((module) => module.StudentDashboard), {
-  ssr: false,
-  loading: () => <main className="bg-white px-5 py-12 sm:px-8 sm:py-16"><section className="mx-auto max-w-6xl"><p className="rule-label text-forest">Journey</p><div className="mt-5 h-14 max-w-2xl rounded-full bg-paper"/><div className="mt-10 grid gap-8 lg:grid-cols-[320px_minmax(0,1fr)]"><div className="h-44 rounded-[2rem] bg-paper"/><div className="h-44 rounded-[2rem] bg-paper"/></div></section></main>,
-});
 
 const graduationYears = Array.from({ length: 9 }, (_, index) => String(new Date().getFullYear() + index));
 const interestSuggestions = ["Scholarships", "Research", "Internships", "AI", "Software", "Startups", "Finance", "Medicine", "Engineering"];
@@ -102,7 +96,14 @@ export function PersonalizedHome() {
   if (!ready) return <WorkspaceLoading />;
   if (!session?.authenticated) return <LoggedOutLanding authIssue={authIssue} />;
   if (!profile) return <OnboardingRedirect />;
-  return <StudentDashboard profile={profile} session={session} syncError={syncError} />;
+  return <JourneyRedirect />;
+}
+
+function JourneyRedirect() {
+  useEffect(() => {
+    window.location.replace("/");
+  }, []);
+  return <main className="min-h-[64vh] px-5 py-20 sm:px-8"><div className="mx-auto max-w-5xl"><p className="rule-label text-forest">Journey</p><h1 className="mt-4 font-editorial text-5xl font-bold tracking-[-.04em]">Opening your Journey.</h1><p className="mt-4 text-sm text-ink/45">Your account and profile are ready.</p></div></main>;
 }
 
 function OnboardingRedirect() {

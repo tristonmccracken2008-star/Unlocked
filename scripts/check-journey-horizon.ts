@@ -74,12 +74,10 @@ assert.equal(buildJourneyEditorialModel({ user, account: account("Applying", tru
 const component = read("components/journey-editorial.tsx");
 const styles = read("components/journey-editorial.module.css");
 const model = read("lib/journey-editorial.ts");
-const liveLine = read("components/journey-live-line.tsx");
-for (const copy of ["What may open next.", "A direction taking shape", "See why this may fit", "Approximate effort", "Expected impact", "Preparation that helps", "Skills involved", "Expected preparation", "Explore another direction"]) {
+for (const copy of ["One direction that may open next.", "A direction taking shape", "Why this may fit", "Approximate effort", "Expected impact", "Preparation that helps", "Skills involved", "Consider another direction"]) {
   assert.ok(component.includes(copy), `Horizon must render ${copy}.`);
 }
-assert.ok(component.includes("JourneyResponsiveLine") && liveLine.includes("OpenLineMotionRenderer"), "Journey must keep one responsive Open Line renderer.");
-assert.ok(!component.includes("journey-horizon-desktop"), "Horizon must not mount a duplicate Open Line renderer.");
+assert.ok(!component.includes("JourneyResponsiveLine") && !component.includes("journey-horizon-desktop"), "Horizon must not mount a duplicate Open Line renderer.");
 assert.ok(component.includes("<details") && component.includes("<summary"), "Horizon detail must use keyboard-native inline disclosure.");
 assert.ok(component.includes('aria-label="Plausible future directions"'), "Horizon possibilities need a screen-reader label.");
 assert.ok(!component.includes("useState") && !component.includes("useMemo"), "Horizon must remain server-first without client recomputation.");

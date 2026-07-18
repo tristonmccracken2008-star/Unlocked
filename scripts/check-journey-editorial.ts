@@ -95,9 +95,8 @@ const page = read("app/page.tsx");
 const loading = read("app/loading.tsx");
 const model = read("lib/journey-editorial.ts");
 const narrative = read("data/open-line/narrative.ts");
-const liveLine = read("components/journey-live-line.tsx");
 
-for (const required of ["Your Journey", "What matters now", "Estimated effort", "Expected impact", "See why this matters", "Story so far", "The moments that shaped your path.", "See earlier moments", "Why it mattered", "What changed", "What this opens next", "Manage applications"]) {
+for (const required of ["Your Journey", "Right now", "Your next step", "About", "impact", "Why this step", "Proof of progress", "What you have made real.", "See earlier chapters", "Why it mattered", "What changed", "What this opens next", "Manage applications"]) {
   assert.ok(component.includes(required), `Journey editorial view must render ${required}.`);
 }
 for (const required of ["Find one opportunity worth pursuing.", "Find my first opportunity"]) {
@@ -113,22 +112,18 @@ assert.ok(!component.includes("createPathGeometry"), "React must not calculate O
 assert.ok(model.includes("canonicalJourneyStatement"), "The identity statement must be audited against canonical profile and progress data.");
 assert.ok(model.includes("narrative.moments"), "Historical meaning must continue to come from Prompt 7.");
 assert.ok(narrative.includes("buildEditorialStatement"), "Narrative Engine must own editorial statement selection.");
-assert.ok(component.includes("JourneyResponsiveLine") && liveLine.includes("OpenLineMotionRenderer"), "Journey must reuse Prompt 6 motion through one responsive live-line boundary.");
 assert.ok(component.includes("OPEN_LINE_MOTION.disclosure"), "Moment disclosure must reuse Prompt 6 timing tokens.");
-assert.ok(liveLine.includes('preference: "system"'), "Journey motion must respect system reduced-motion preference.");
 assert.ok(styles.includes("prefers-reduced-motion"), "Journey styles must explicitly preserve reduced motion.");
 assert.ok(styles.includes("prefers-contrast: more"), "Journey must support high contrast.");
-assert.ok(liveLine.includes("responsiveMode") && liveLine.includes("data-open-line-mode"), "One responsive renderer must select the active geometry.");
-assert.ok(styles.includes("grid-template-columns: 3.5rem minmax(0, 1fr)") && styles.includes("grid-column: 2"), "Mobile waypoint text must clear the Open Line rail through document flow.");
-assert.ok(styles.includes("--journey-rail-x: 1.25rem") && styles.includes("left: var(--journey-rail-x)"), "Mobile history and Horizon must share a stable Open Line rail.");
-assert.ok(styles.includes(".lineField { inset: 0 auto 0 0; width: 3.4rem;"), "Mobile Open Line content must remain clipped to its rail.");
+assert.ok(component.includes("data-journey-living-path") && !component.includes("JourneyResponsiveLine"), "Journey must use a readable three-part path instead of duplicating the story as abstract SVG geometry.");
+assert.ok(styles.includes("grid-template-columns: 1fr") && styles.includes(".nextStep { border-top"), "Mobile focus and next action must stack in natural reading order.");
 assert.ok(component.includes("<ol") && component.includes("aria-labelledby"), "History must keep chronological and accessible structure.");
 assert.ok(component.includes("<details") && component.includes("<summary"), "Moment and chapter disclosures must remain keyboard-native.");
 assert.ok(!component.includes("useState") && !component.includes("useMemo"), "Journey history must remain server-first without client recomputation.");
-assert.ok(loading.includes("loadingNarrative") && loading.includes("loadingLine") && !loading.includes("grid-cols"), "Loading must resemble unfinished editorial print, not a dashboard.");
+assert.ok(loading.includes("loadingNarrative") && loading.includes("loadingLine") && !loading.includes("grid-cols"), "Loading must resemble the focused Journey hierarchy, not a dashboard.");
 assert.ok(styles.includes("font-family: Iowan Old Style"), "Editorial serif must carry the student story.");
-assert.ok(styles.includes("width: min(100% - 2.5rem, 72rem)"), "Desktop composition must keep a calm editorial width.");
-assert.ok(styles.includes("max-width: 50rem"), "Narrative column must remain intentionally bounded.");
+assert.ok(styles.includes("width: min(100% - 2.5rem, 68rem)"), "Desktop composition must keep a calm editorial width.");
+assert.ok(styles.includes("max-width: 49rem"), "Narrative column must remain intentionally bounded.");
 
 const durations: number[] = [];
 for (let index = 0; index < 40; index += 1) {

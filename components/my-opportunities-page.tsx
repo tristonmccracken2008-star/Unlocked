@@ -3,7 +3,8 @@
 import Link from "next/link";
 import type { ReactElement } from "react";
 import { memo, useEffect, useMemo, useState } from "react";
-import { deadlineLabel, type Opportunity } from "@/data/opportunities";
+import type { Opportunity } from "@/data/opportunities";
+import { listingDeadlineLabel as deadlineLabel } from "@/data/opportunity-listing";
 import { opportunityTrackerStatuses, readStudentActivity, removeTrackedOpportunity, replaceStudentActivity, studentActivityEvent, type OpportunityTrackerStatus, type StudentActivity, type TrackedOpportunity } from "@/data/student-activity";
 import { getJourneyTransitionActions, transitionForTargetStatus } from "@/data/journey-transformations";
 import { authenticatedFetch } from "@/data/authenticated-request";

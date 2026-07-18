@@ -72,8 +72,8 @@ function localAccountData(): Partial<AccountData> {
 }
 
 export async function readAccountSession(force = false) {
+  if (sessionRequest) return sessionRequest;
   if (!force && sessionCache && Date.now() - sessionCacheAt < sessionCacheMs) return sessionCache;
-  if (!force && sessionRequest) return sessionRequest;
   sessionRequest = authenticatedFetch("/api/auth/session", { credentials: "same-origin", cache: "no-store" }).then(async (response) => {
     const session = response.ok ? await response.json() as AccountSession : { authenticated: false, user: null, data: null } as AccountSession;
     sessionCache = session;
@@ -82,16 +82,6 @@ export async function readAccountSession(force = false) {
     return session;
   }).finally(() => { sessionRequest = null; });
   return sessionRequest;
-}
-
-async function readAccountSessionUncached() {
-  const response = await authenticatedFetch("/api/auth/session", { credentials: "same-origin", cache: "no-store" });
-  if (!response.ok) return { authenticated: false, user: null, data: null } as AccountSession;
-  const session = await response.json() as AccountSession;
-  sessionCache = session;
-  sessionCacheAt = Date.now();
-  persistAccountSession(session);
-  return session;
 }
 
 export async function readCloudAccountData() {
@@ -150,7 +140,7 @@ export async function hydrateAccountData(): Promise<AccountSession> {
 }
 
 async function hydrateAccountDataInner(): Promise<AccountSession> {
-  const session = await readAccountSessionUncached();
+  const session = await readAccountSession(true);
   if (!session.authenticated || !session.user) return session;
   const cloudData = session.data;
   const local = localAccountData();

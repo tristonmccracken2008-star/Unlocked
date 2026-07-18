@@ -4,10 +4,10 @@ import { buildRecommendationService } from "@/data/recommendation-service";
 import { createAdvisorProfile } from "@/data/advisor-engine";
 import { buildOpportunityStudentContext, buildRecommendationCandidateFunnel } from "@/data/recommendation-engine";
 import { auditFinalOpportunityRecommendation, evaluateProfessionalRecommendationCandidate } from "@/data/recommendation-professional-pipeline";
-import { eligibilitySchemaVersion, normalizeOpportunityEligibility } from "@/data/opportunity-eligibility-model";
+import { eligibilitySchemaVersion } from "@/data/opportunity-eligibility-model";
 import { recommendationRulesVersion } from "@/data/recommendation-config";
 import { opportunities, type Opportunity } from "@/data/opportunities";
-import { schools, type School } from "@/data/seed";
+import { schoolDirectory as schools, type School } from "@/data/school-directory";
 import { inferApplicationsFromActivity } from "@/data/student-progress";
 import type { StudentActivity } from "@/data/student-activity";
 import type { StudentProfile } from "@/data/student-profile";
@@ -34,7 +34,6 @@ export const forYouCatalogVersion = crypto.createHash("sha256").update(JSON.stri
   item.metadata.eligibilityRules ?? null,
   item.verification_status,
   item.last_verified,
-  normalizeOpportunityEligibility(item).recommendationEligibilityStatus,
 ]))).digest("hex").slice(0, 20);
 const sourceSignalsVersion = `opportunities:${opportunities.length}:${forYouCatalogVersion}`;
 const generationByUser = new Map<string, Promise<ForYouRecommendationSnapshot>>();

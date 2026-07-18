@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { schools, type School } from "@/data/seed";
+import { schoolDirectory as schools, type School } from "@/data/school-directory";
 import { findExactSchoolMatches, findSchoolMatches, normalizeSchoolQuery } from "@/data/school-search";
 import { academicYearFromGraduationYear, canonicalMajors, careerGoalOptions, currentPriorityOptions, graduationYears, normalizedOpportunityInterests, opportunityInterestOptions, priorityToOpportunityType } from "@/data/profile-options";
 import { writeStudentProfile, type GpaStatus, type MinorStatus, type StudentProfile } from "@/data/student-profile";

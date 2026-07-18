@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { deadlineLabel } from "@/data/opportunities";
+import { listingDeadlineLabel as deadlineLabel } from "@/data/opportunity-listing";
 import type { RecommendationViewModel } from "@/data/recommendation-service";
 import type { School } from "@/data/seed";
 import type { StudentActivity } from "@/data/student-activity";
@@ -15,10 +15,11 @@ import { accountSessionEvent, readAccountSession } from "@/data/account-sync";
 import { authenticatedFetch } from "@/data/authenticated-request";
 import { rememberRecommendationAttribution, trackProductError, trackProductEvent } from "@/data/product-analytics";
 import { productIntelligenceEvents } from "@/lib/analytics-types";
-import { ArrowIcon, BookmarkIcon, CheckCircleIcon, SearchIcon, SendIcon, TargetIcon } from "./icons";
+import { ArrowIcon, CheckCircleIcon, SearchIcon } from "./icons";
 import { OrganizationLogo } from "./organization-logo";
 import { AddToJourneyButton } from "./opportunity-activity";
 import type { FeedbackType } from "@/lib/advisor/types";
+import styles from "./advisor-page.module.css";
 
 type ForYouPageState = "loading" | "pro_ready" | "free_preview" | "profile_incomplete" | "empty" | "preparing" | "error";
 type SessionReadiness = "checking" | "authenticated" | "unauthenticated" | "error";
@@ -75,10 +76,6 @@ export function normalizeForYouPayload(payload: unknown): { pageState: Exclude<F
 
 function displayFirstName(profile: StudentProfile, session: AccountSession | null) {
   return profile.firstName?.trim() || session?.user?.name?.split(" ")[0] || "there";
-}
-
-function profileInterests(profile: StudentProfile) {
-  return [...new Set([...(profile.advisorInterview?.interests ?? []), ...profile.interests.split(",").map((item) => item.trim()).filter(Boolean)])].slice(0, 3);
 }
 
 function transientForYouStatus(status: number) {
@@ -281,17 +278,21 @@ export function AdvisorPage({ initialState = null, serverAuthenticated = false }
       feedbackType,
       reason: label,
     };
-    const response = await authenticatedFetch("/api/advisor/feedback", { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
-    if (!response.ok) {
-      setFeedbackMessage("Could not save that signal.");
-      return;
+    try {
+      const response = await authenticatedFetch("/api/advisor/feedback", { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+      if (!response.ok) {
+        setFeedbackMessage("We couldn’t save that preference. Try again.");
+        return;
+      }
+      const event = feedbackType === "helpful" ? "recommendation_saved" : feedbackType === "already-applied" ? "recommendation_applied" : feedbackType === "already-completed" || feedbackType === "completed" ? "recommendation_completed" : feedbackType === "dismissed" ? "recommendation_dismissed" : "recommendation_ignored";
+      trackProductEvent(event, { recommendationId: view.recommendation.id, opportunityId: view.recommendation.relatedOpportunityId, section: "for-you-feedback" });
+      if (["dismissed", "not-interested", "already-completed", "completed"].includes(feedbackType)) {
+        setState((current) => current ? { ...current, recommendations: current.recommendations.filter((item) => item.recommendation.id !== view.recommendation.id) } : current);
+      }
+      setFeedbackMessage(label);
+    } catch {
+      setFeedbackMessage("We couldn’t save that preference. Try again.");
     }
-    const event = feedbackType === "helpful" ? "recommendation_saved" : feedbackType === "already-applied" ? "recommendation_applied" : feedbackType === "already-completed" || feedbackType === "completed" ? "recommendation_completed" : feedbackType === "dismissed" ? "recommendation_dismissed" : "recommendation_ignored";
-    trackProductEvent(event, { recommendationId: view.recommendation.id, opportunityId: view.recommendation.relatedOpportunityId, section: "for-you-feedback" });
-    if (["dismissed", "not-interested", "already-completed", "completed"].includes(feedbackType)) {
-      setState((current) => current ? { ...current, recommendations: current.recommendations.filter((item) => item.recommendation.id !== view.recommendation.id) } : current);
-    }
-    setFeedbackMessage(label);
   }
 
   if (sessionReadiness === "checking" || pageState === "loading") return <ForYouLoading />;
@@ -303,172 +304,161 @@ export function AdvisorPage({ initialState = null, serverAuthenticated = false }
   if (pageState === "free_preview" && !top) return <ForYouFreePreviewOnly totalMatches={state.totalMatches} shown={state.recommendations.length} />;
   if (pageState === "empty" || !top) return <ForYouEmptyState />;
 
-  return <main className="bg-[radial-gradient(circle_at_top_left,rgba(231,216,189,.45),transparent_34rem),#f6f0e6] px-5 py-10 sm:px-8 sm:py-14">
-    <section className="mx-auto max-w-[112rem] space-y-10">
-      <Hero state={state} firstName={firstName} />
+  return <main className={styles.page} data-for-you-page="premium-v1">
+    <section className={styles.container}>
+      <Hero state={state} firstName={firstName} count={recommended.length} />
       <TopRecommendation view={top} onFeedback={sendFeedback} />
+      {feedbackMessage ? <p role="status" aria-live="polite" className={styles.feedbackStatus}>{feedbackMessage}</p> : null}
       <RecommendedGrid recommendations={recommended.slice(1, 5)} onFeedback={sendFeedback} />
-      {feedbackMessage ? <p role="status" className="rounded-full bg-white/70 px-4 py-3 text-sm font-bold text-forest ring-1 ring-ink/8">{feedbackMessage}</p> : null}
       {pageState === "free_preview" ? <ForYouUpgradeGate totalMatches={state.totalMatches} shown={state.recommendations.length} /> : null}
-      <WhyRecommendations state={state} />
-      <ActivityGlance activity={state.activity} />
       <FooterNote />
     </section>
   </main>;
 }
 
-function Hero({ state }: { state: AdvisorState; firstName: string }) {
+function Hero({ state, firstName, count }: { state: AdvisorState; firstName: string; count: number }) {
   if (!state.profile || !state.school) return null;
-  return <header className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_460px] lg:items-start">
-    <div>
-      <p className="rule-label text-forest">For You</p>
-      <h1 className="mt-4 max-w-3xl font-editorial text-5xl font-bold leading-[.98] tracking-[-.055em] text-ink sm:text-7xl">Opportunities selected around you.</h1>
-      <p className="mt-6 max-w-2xl text-base leading-8 text-ink/58">Personalized matches from your profile, saved activity, eligibility signals, and the UnlockED opportunity database.</p>
+  const context = [state.profile.major, state.profile.year || state.profile.graduationYear, state.profile.careerGoal].filter(Boolean);
+  return <header className={styles.hero}>
+    <p className={styles.eyebrow}>For {firstName}</p>
+    <h1>Your strongest matches, right now.</h1>
+    <p className={styles.heroCopy}>{count === 1 ? "One opportunity" : `${count} opportunities`} cleared our eligibility and relevance checks for your profile.</p>
+    <div className={styles.profileContext} aria-label="Recommendation profile">
+      <span className={styles.contextLead}>Selected for</span>
+      <span>{state.school.name}</span>
+      {context.map((item) => <span key={item}>{item}</span>)}
+      <Link href="/profile">Adjust profile <ArrowIcon /></Link>
     </div>
-    <ProfileSummary state={state} />
   </header>;
 }
 
-function ProfileSummary({ state }: { state: AdvisorState }) {
-  if (!state.profile || !state.school) return null;
-  const rows = [
-    ["School", state.school.name],
-    ["Major", state.profile.major],
-    ["Class year", state.profile.graduationYear || state.profile.year],
-    ["Top interests", profileInterests(state.profile).join(", ")],
-    ["Career goals", state.profile.careerGoal],
-  ].filter(([, value]) => value);
-  return <aside className="rounded-[1.5rem] bg-white/86 p-6 shadow-[0_18px_60px_rgba(43,33,26,.055)] ring-1 ring-ink/7">
-    <div className="flex items-center justify-between gap-4"><h2 className="font-bold">Your profile at a glance</h2><Link href="/profile" className="text-sm font-black text-forest hover:text-ink">Edit profile <ArrowIcon className="inline h-3.5 w-3.5" /></Link></div>
-    <dl className="mt-6 space-y-4">{rows.map(([label, value]) => <div key={label} className="grid grid-cols-[110px_minmax(0,1fr)] gap-4 text-sm"><dt className="font-bold text-ink/50">{label}</dt><dd className="font-semibold text-ink/72">{value}</dd></div>)}</dl>
-    {rows.length < 5 && <Link href="/profile" className="mt-5 inline-flex text-sm font-bold text-forest hover:text-ink">Improve recommendations <ArrowIcon className="h-4 w-4" /></Link>}
-  </aside>;
+function cleanValueLabel(value: string) {
+  return /^unknown/i.test(value) ? "Not listed" : value;
 }
 
-function TopRecommendation({ view, onFeedback }: { view: RecommendationViewModel; onFeedback: (view: RecommendationViewModel, feedbackType: FeedbackType, label: string) => void }) {
+function recommendationSignals(view: RecommendationViewModel, limit = 4) {
   const opportunity = view.opportunity;
-  return <article className="rounded-[2rem] bg-white/48 p-6 shadow-[0_18px_60px_rgba(43,33,26,.045)] ring-1 ring-ink/6 sm:p-8">
-    <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_220px_250px] lg:items-center">
-      <div>{opportunity && <OrganizationLogo opportunity={opportunity} size="lg" className="mb-5 bg-white/70"/>}<p className="rule-label text-forest">Top recommendation · {view.recommendation.priority} priority</p><h2 className="mt-4 font-editorial text-4xl font-bold leading-tight tracking-[-.035em]">{opportunity?.title ?? view.recommendation.title}</h2><p className="mt-4 max-w-2xl text-sm leading-7 text-ink/62">{opportunity?.description ?? view.recommendation.description}</p>{view.chips.length ? <div className="mt-5 flex flex-wrap gap-2">{view.chips.map((chip) => <span key={chip} className="rounded-full bg-white px-3 py-1.5 text-xs font-bold text-ink/70">{chip}</span>)}</div> : null}</div>
-      <dl className="grid gap-5 border-ink/10 text-sm lg:border-l lg:pl-8"><div><dt className="text-ink/40">Deadline</dt><dd className="mt-1 font-black">{opportunity ? deadlineLabel(opportunity) : "Not announced"}</dd></div><div><dt className="text-ink/40">Est. effort</dt><dd className="mt-1 font-black">{view.recommendation.estimatedValueLabel === "Unknown" ? "Medium" : view.recommendation.estimatedValueLabel}</dd></div><div><dt className="text-ink/40">Match</dt><dd className="mt-1 font-black text-forest">{view.label}</dd></div></dl>
-      <div className="flex flex-col gap-3"><Link href={view.href} onClick={() => trackRecommendationOpen(view)} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-forest px-6 text-sm font-bold text-white shadow-[0_16px_34px_rgba(31,95,67,.18)] hover:bg-ink">Open Opportunity <ArrowIcon /></Link>{view.recommendation.relatedOpportunityId ? <AddToJourneyButton opportunityId={view.recommendation.relatedOpportunityId} recommendationId={view.recommendation.id} className="rounded-full border border-forest/35 bg-white px-6 text-forest hover:border-forest" /> : null}</div>
+  const reasons = view.reasons.join(" ");
+  const signals = [
+    /matches your major:/i.test(reasons) ? "Matches your major" : /open to students in any major/i.test(reasons) ? "Open to your major" : "",
+    /career goal/i.test(reasons) ? "Fits your goals" : "",
+    /opportunity interests?/i.test(reasons) ? "Matches your interests" : "",
+    view.chips.includes("Freshman eligible") ? "Freshman eligible" : "",
+    opportunity?.difficulty === "Open" ? "Beginner friendly" : "",
+    opportunity?.estimated_value && opportunity.estimated_value >= 5_000 ? "High estimated value" : "",
+    view.chips.includes("Paid") ? "Paid" : "",
+    view.chips.includes("Remote") ? "Remote" : "",
+    opportunity?.verification_status === "verified" ? "Source verified" : "",
+  ].filter(Boolean);
+  return [...new Set(signals)].slice(0, limit);
+}
+
+function strongestReason(view: RecommendationViewModel) {
+  return view.reasons.find((reason) => /career goal/i.test(reason))
+    ?? view.reasons.find((reason) => /opportunity interests?/i.test(reason))
+    ?? view.reasons.find((reason) => /matches your major:/i.test(reason))
+    ?? view.reasons.find((reason) => /you are a/i.test(reason))
+    ?? view.reasons[0]
+    ?? "It passed UnlockED’s eligibility and relevance checks for your profile.";
+}
+
+type RecommendationFeedbackHandler = (view: RecommendationViewModel, feedbackType: FeedbackType, label: string) => Promise<void>;
+
+function TopRecommendation({ view, onFeedback }: { view: RecommendationViewModel; onFeedback: RecommendationFeedbackHandler }) {
+  const opportunity = view.opportunity;
+  const signals = recommendationSignals(view);
+  return <article className={styles.featured} aria-labelledby={`recommendation-${view.recommendation.id}`}>
+    <div className={styles.featuredMain}>
+      <div className={styles.featuredIdentity}>
+        <div className={styles.featuredLabel}><span>Best fit right now</span><strong>{view.label}</strong></div>
+        <div className={styles.titleLockup}>
+          {opportunity ? <OrganizationLogo opportunity={opportunity} size="lg" className={styles.logo} /> : null}
+          <div><p>{opportunity?.organization ?? view.recommendation.kind}</p><h2 id={`recommendation-${view.recommendation.id}`}>{opportunity?.title ?? view.recommendation.title}</h2></div>
+        </div>
+        <p className={styles.featuredDescription}>{opportunity?.description ?? view.recommendation.description}</p>
+        <div className={styles.signals} aria-label="Why this matches">{signals.map((signal) => <span key={signal}><CheckCircleIcon />{signal}</span>)}</div>
+        <p className={styles.reason}><strong>Why it fits:</strong> {strongestReason(view)}</p>
+      </div>
+      <aside className={styles.featuredDecision} aria-label="Opportunity details and actions">
+        <dl className={styles.featuredMeta}>
+          <div><dt>Deadline</dt><dd>{opportunity ? deadlineLabel(opportunity) : "Not announced"}</dd></div>
+          <div><dt>Estimated value</dt><dd>{cleanValueLabel(view.recommendation.estimatedValueLabel)}</dd></div>
+        </dl>
+        <Link href={view.href} onClick={() => trackRecommendationOpen(view)} className={styles.primaryAction}>Review opportunity <ArrowIcon /></Link>
+        {view.recommendation.relatedOpportunityId ? <AddToJourneyButton opportunityId={view.recommendation.relatedOpportunityId} recommendationId={view.recommendation.id} className={styles.addAction} /> : null}
+      </aside>
     </div>
     <RecommendationFeedback view={view} onFeedback={onFeedback} />
   </article>;
 }
 
-function RecommendedGrid({ recommendations, onFeedback }: { recommendations: RecommendationViewModel[]; onFeedback: (view: RecommendationViewModel, feedbackType: FeedbackType, label: string) => void }) {
-  return <section>
-    <div className="mb-5 flex items-end justify-between gap-4"><h2 className="font-editorial text-3xl font-bold tracking-[-.025em]">Recommended for you</h2><span className="hidden rounded-full border border-ink/10 bg-white px-4 py-2 text-sm font-bold text-ink/55 sm:inline-flex">Most relevant</span></div>
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{recommendations.map((view) => <RecommendationCard key={view.recommendation.id} view={view} onFeedback={onFeedback} />)}</div>
-    <Link href="/opportunities" className="mt-4 flex min-h-12 items-center justify-center gap-2 rounded-full border border-ink/10 bg-white text-sm font-bold text-ink hover:border-forest hover:text-forest">View more opportunities <ArrowIcon /></Link>
+function RecommendedGrid({ recommendations, onFeedback }: { recommendations: RecommendationViewModel[]; onFeedback: RecommendationFeedbackHandler }) {
+  if (!recommendations.length) return null;
+  return <section className={styles.more} aria-labelledby="more-matches-title">
+    <div className={styles.sectionHeading}><div><p>Also selected for you</p><h2 id="more-matches-title">More strong matches</h2></div><span>{recommendations.length} to review</span></div>
+    <ol className={styles.recommendationList}>{recommendations.map((view, index) => <li key={view.recommendation.id}><RecommendationCard view={view} index={index + 2} onFeedback={onFeedback} /></li>)}</ol>
+    <Link href="/opportunities" className={styles.discoverLink}>Explore all opportunities in Discover <ArrowIcon /></Link>
   </section>;
 }
 
 function ForYouUpgradeGate({ totalMatches, shown }: { totalMatches: number; shown: number }) {
   const lockedCount = Math.max(totalMatches - shown, 0);
-  return <section className="overflow-hidden rounded-[1.5rem] bg-forest p-6 text-white shadow-[0_20px_60px_rgba(31,95,67,.18)] sm:p-8">
-    <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-center">
-      <div>
-        <p className="rule-label text-white/70">UnlockED Pro</p>
-        <h2 className="mt-3 font-editorial text-3xl font-bold tracking-[-.03em]">Unlock your full personalized feed</h2>
-        <p className="mt-3 max-w-2xl text-sm leading-7 text-white/72">We found {totalMatches} opportunities aligned with your profile. Free shows {shown}; Pro unlocks the remaining {lockedCount} matches, deeper explanations, roadmap guidance, and premium themes.</p>
-        <div className="mt-6 grid gap-3 text-sm sm:grid-cols-2">
-          <div className="rounded-2xl bg-white/10 p-4"><p className="font-black">Free</p><p className="mt-2 text-white/68">Discover, Journey, and a focused For You preview.</p></div>
-          <div className="rounded-2xl bg-white/14 p-4"><p className="font-black">Pro</p><p className="mt-2 text-white/68">Full feed, detailed match logic, adaptive learning, and career-roadmap guidance.</p></div>
-        </div>
-      </div>
-      <div className="rounded-[1.25rem] bg-white/10 p-4 ring-1 ring-white/15">
-        <div className="space-y-3">{Array.from({ length: 3 }, (_, index) => <div key={index} className="rounded-2xl bg-white/12 p-4"><div className="h-3 w-24 rounded-full bg-white/30" /><div className="mt-4 h-5 w-3/4 rounded-full bg-white/25" /><div className="mt-3 h-3 w-1/2 rounded-full bg-white/20" /></div>)}</div>
-        <Link href="/pricing" onClick={() => trackProductEvent("pro_upgrade_clicked", { section: "for-you" })} className="mt-5 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-white px-6 text-sm font-bold text-forest hover:bg-paper">Upgrade to Pro <ArrowIcon /></Link>
-        <Link href="/pricing" className="mt-3 inline-flex w-full justify-center text-sm font-bold text-white/76 hover:text-white">View pricing</Link>
-      </div>
-    </div>
+  return <section className={styles.upgrade} aria-labelledby="for-you-pro-title">
+    <div><p>UnlockED Pro</p><h2 id="for-you-pro-title">Keep the full shortlist working for you.</h2><span>Free shows {shown} of {totalMatches} eligible matches. Pro adds {lockedCount} more, with the same verified eligibility standard.</span></div>
+    <Link href="/pricing" onClick={() => trackProductEvent("pro_upgrade_clicked", { section: "for-you" })}>See Pro options <ArrowIcon /></Link>
   </section>;
 }
 
 function ForYouFreePreviewOnly({ totalMatches, shown }: { totalMatches: number; shown: number }) {
-  return <main className="min-h-[70vh] bg-[radial-gradient(circle_at_top_left,rgba(231,216,189,.45),transparent_34rem),#f6f0e6] px-5 py-16 sm:px-8">
-    <section className="mx-auto max-w-5xl space-y-8">
-      <div>
-        <p className="rule-label text-forest">For You</p>
-        <h1 className="mt-4 max-w-3xl font-editorial text-5xl font-bold leading-[.98] tracking-[-.055em] text-ink sm:text-7xl">Opportunities selected around you.</h1>
-        <p className="mt-6 max-w-2xl text-base leading-8 text-ink/58">UnlockED uses your school, major, graduation year, goals, interests, GPA status, and activity to find opportunities that fit you.</p>
-      </div>
+  return <main className={styles.page}>
+    <section className={`${styles.container} ${styles.stateContainer}`}>
+      <div className={styles.stateIntro}><p>For You</p><h1>Your personalized shortlist is ready.</h1><span>We found {totalMatches} eligible matches. Your current preview shows {shown}.</span></div>
       <ForYouUpgradeGate totalMatches={totalMatches} shown={shown} />
     </section>
   </main>;
 }
 
 function ForYouLoading() {
-  return <main className="min-h-[70vh] bg-paper px-5 py-16 sm:px-8"><section className="mx-auto max-w-6xl" aria-busy="true" aria-label="Loading For You recommendations"><p className="rule-label text-forest">For You</p><div className="mt-6 h-16 max-w-2xl animate-pulse rounded-2xl bg-white/70" /><div className="mt-10 h-52 animate-pulse rounded-[2rem] bg-white/70" /></section></main>;
+  return <main className={styles.page}><section className={styles.loading} aria-busy="true" aria-live="polite" aria-label="Loading For You recommendations"><p>For You</p><div className={`${styles.skeleton} ${styles.skeletonTitle}`} /><div className={`${styles.skeleton} ${styles.skeletonCopy}`} /><div className={styles.loadingContext}><span /><span /><span /></div><div className={styles.loadingFeature}><div /><div /><div /></div><span className={styles.srStatus}>Selecting your strongest verified matches.</span></section></main>;
 }
 
 function ForYouEmptyState() {
-  return <main className="min-h-[70vh] bg-paper px-5 py-16 sm:px-8">
-    <section className="mx-auto max-w-4xl rounded-[2rem] bg-white/62 p-8 shadow-[0_18px_60px_rgba(43,33,26,.045)] ring-1 ring-ink/6 sm:p-10">
-      <p className="rule-label text-forest">For You</p>
-      <h1 className="mt-4 font-editorial text-5xl font-bold tracking-[-.045em]">We could not find strong matches yet.</h1>
-      <p className="mt-4 max-w-2xl text-sm leading-7 text-ink/55">Your profile is ready, but no recommendations cleared the quality bar. Update your priority or browse Discover while new matches are verified.</p>
-      <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-        <Link href="/profile" className="inline-flex min-h-12 items-center justify-center rounded-full bg-forest px-6 text-sm font-bold text-white hover:bg-ink">Edit profile</Link>
-        <Link href="/opportunities" className="inline-flex min-h-12 items-center justify-center rounded-full border border-ink/15 bg-white px-6 text-sm font-bold text-ink hover:border-forest hover:text-forest">Browse Discover</Link>
-      </div>
-    </section>
-  </main>;
+  return <StateShell eyebrow="For You" title="No strong matches yet." text="Nothing cleared our eligibility and relevance checks today. Adjust your profile to sharpen the next selection." actionHref="/profile" actionLabel="Review your profile" secondaryHref="/opportunities" secondaryLabel="Browse Discover" Icon={SearchIcon} />;
 }
 
 function ForYouPreparingState() {
-  return <main className="min-h-[70vh] bg-paper px-5 py-16 sm:px-8">
-    <section className="mx-auto max-w-4xl rounded-[2rem] bg-white/62 p-8 shadow-[0_18px_60px_rgba(43,33,26,.045)] ring-1 ring-ink/6 sm:p-10" aria-busy="true">
-      <p className="rule-label text-forest">For You</p>
-      <h1 className="mt-4 font-editorial text-5xl font-bold tracking-[-.045em]">Preparing your personalized recommendations.</h1>
-      <p className="mt-4 max-w-2xl text-sm leading-7 text-ink/55">UnlockED is building your first snapshot. This should finish on its own in a moment.</p>
-      <div className="mt-8 h-2 overflow-hidden rounded-full bg-ink/8"><div className="h-full w-1/3 animate-pulse rounded-full bg-forest" /></div>
-    </section>
-  </main>;
+  return <main className={styles.page}><section className={`${styles.state} ${styles.preparing}`} aria-busy="true" aria-live="polite"><span className={styles.preparingMark} aria-hidden="true"><i /><i /><i /></span><p>For You</p><h1>Building your first shortlist.</h1><span>Checking verified opportunities against your profile. This page will update on its own.</span></section></main>;
 }
 
 function ForYouErrorState({ message, onRetry, retrying = false }: { message: string; onRetry: () => void; retrying?: boolean }) {
-  return <main className="min-h-[70vh] bg-paper px-5 py-16 sm:px-8">
-    <section className="mx-auto max-w-4xl rounded-[2rem] bg-white/62 p-8 shadow-[0_18px_60px_rgba(43,33,26,.045)] ring-1 ring-ink/6 sm:p-10">
-      <p className="rule-label text-forest">For You</p>
-      <h1 className="mt-4 font-editorial text-5xl font-bold tracking-[-.045em]">We couldn’t load your recommendations.</h1>
-      <p className="mt-4 max-w-2xl text-sm leading-7 text-ink/55">{message || "Something interrupted the request. Try again, or browse Discover while we sort it out."}</p>
-      <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-        <button type="button" onClick={onRetry} disabled={retrying} className="inline-flex min-h-12 items-center justify-center rounded-full bg-forest px-6 text-sm font-bold text-white hover:bg-ink disabled:cursor-not-allowed disabled:bg-ink/35">{retrying ? "Retrying..." : "Retry"}</button>
-        <Link href="/opportunities" className="inline-flex min-h-12 items-center justify-center rounded-full border border-ink/15 bg-white px-6 text-sm font-bold text-ink hover:border-forest hover:text-forest">Browse Discover</Link>
-        <Link href="/contact" className="inline-flex min-h-12 items-center justify-center rounded-full px-4 text-sm font-bold text-forest hover:text-ink">Contact support</Link>
-      </div>
-    </section>
-  </main>;
+  return <main className={styles.page}><section className={styles.state}><p>For You</p><h1>We couldn’t load your shortlist.</h1><span>{message || "The request was interrupted. Your profile and Journey are unchanged."}</span><div className={styles.stateActions}><button type="button" onClick={onRetry} disabled={retrying}>{retrying ? "Trying again…" : "Try again"}</button><Link href="/opportunities">Browse Discover</Link></div></section></main>;
 }
 
 function ForYouSetupState({ title, text, actionHref, actionLabel }: { title: string; text: string; actionHref: string; actionLabel: string }) {
-  return <main className="min-h-[70vh] bg-paper px-5 py-16 sm:px-8">
-    <section className="mx-auto max-w-4xl rounded-[2rem] bg-white/62 p-8 shadow-[0_18px_60px_rgba(43,33,26,.045)] ring-1 ring-ink/6 sm:p-10">
-      <p className="rule-label text-forest">For You</p>
-      <h1 className="mt-4 font-editorial text-5xl font-bold tracking-[-.045em]">{title}</h1>
-      <p className="mt-4 max-w-2xl text-sm leading-7 text-ink/55">{text}</p>
-      <Link href={actionHref} className="mt-8 inline-flex min-h-12 items-center justify-center rounded-full bg-forest px-6 text-sm font-bold text-white hover:bg-ink">{actionLabel}</Link>
-    </section>
-  </main>;
+  return <StateShell eyebrow="For You" title={title} text={text} actionHref={actionHref} actionLabel={actionLabel} />;
 }
 
-function RecommendationCard({ view, onFeedback }: { view: RecommendationViewModel; onFeedback: (view: RecommendationViewModel, feedbackType: FeedbackType, label: string) => void }) {
+function StateShell({ eyebrow, title, text, actionHref, actionLabel, secondaryHref, secondaryLabel, Icon }: { eyebrow: string; title: string; text: string; actionHref: string; actionLabel: string; secondaryHref?: string; secondaryLabel?: string; Icon?: typeof SearchIcon }) {
+  return <main className={styles.page}><section className={styles.state}>{Icon ? <span className={styles.stateIcon}><Icon /></span> : null}<p>{eyebrow}</p><h1>{title}</h1><span>{text}</span><div className={styles.stateActions}><Link href={actionHref}>{actionLabel}</Link>{secondaryHref && secondaryLabel ? <Link href={secondaryHref}>{secondaryLabel}</Link> : null}</div></section></main>;
+}
+
+function RecommendationCard({ view, index, onFeedback }: { view: RecommendationViewModel; index: number; onFeedback: RecommendationFeedbackHandler }) {
   const opportunity = view.opportunity;
-  return <article className="flex min-h-96 flex-col rounded-[1.35rem] bg-white/92 p-5 shadow-[0_14px_42px_rgba(43,33,26,.055)] ring-1 ring-ink/7">
-    <div className="flex items-start justify-between gap-3"><p className="rule-label text-forest">{opportunity?.type ?? view.recommendation.kind}</p><BookmarkIcon className="h-5 w-5 text-ink/45" /></div>
-    <div className="mt-7 flex items-start gap-4">{opportunity && <OrganizationLogo opportunity={opportunity} size="md"/>}<div className="min-w-0"><h3 className="font-editorial text-2xl font-bold leading-tight">{opportunity?.title ?? view.recommendation.title}</h3><p className="mt-2 text-xs font-bold text-ink/40">{opportunity?.organization ?? view.recommendation.kind}</p></div></div>
-    <div className="mt-4 flex-1"><p className="line-clamp-4 text-sm leading-6 text-ink/60">{opportunity?.description ?? view.recommendation.description}</p></div>
-    <div className="mt-5 flex flex-wrap gap-2">{view.chips.slice(0, 2).map((chip) => <span key={chip} className="rounded-full bg-paper px-3 py-1 text-xs font-bold text-ink/65">{chip}</span>)}</div>
-    <div className="mt-5 grid grid-cols-2 gap-3 border-t border-ink/8 pt-4 text-xs"><div><p className="text-ink/40">Deadline</p><p className="mt-1 font-black">{opportunity ? deadlineLabel(opportunity) : "Not announced"}</p></div><div className="text-right"><p className="text-ink/40">{view.label}</p><span className="mt-2 inline-block h-2 w-2 rounded-full bg-forest" /></div></div>
-    <div className="mt-5 grid gap-3"><Link href={view.href} onClick={() => trackRecommendationOpen(view)} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-forest text-sm font-bold text-white hover:bg-ink">Open Opportunity <ArrowIcon /></Link>{view.recommendation.relatedOpportunityId ? <AddToJourneyButton opportunityId={view.recommendation.relatedOpportunityId} recommendationId={view.recommendation.id} className="rounded-full border border-ink/15 text-ink hover:border-forest hover:text-forest" /> : null}</div>
-    <RecommendationFeedback view={view} onFeedback={onFeedback} compact />
+  const signals = recommendationSignals(view, 4);
+  return <article className={styles.recommendation} aria-labelledby={`recommendation-${view.recommendation.id}`}>
+    <span className={styles.rank} aria-hidden="true">{String(index).padStart(2, "0")}</span>
+    <div className={styles.recommendationBody}>
+      <div className={styles.recommendationTitle}>{opportunity ? <OrganizationLogo opportunity={opportunity} size="md" className={styles.logo} /> : null}<div><p>{opportunity?.organization ?? view.recommendation.kind}</p><h3 id={`recommendation-${view.recommendation.id}`}>{opportunity?.title ?? view.recommendation.title}</h3></div></div>
+      <p className={styles.recommendationReason}>{strongestReason(view)}</p>
+      <div className={styles.signals}>{signals.map((signal) => <span key={signal}><CheckCircleIcon />{signal}</span>)}</div>
+      <RecommendationFeedback view={view} onFeedback={onFeedback} compact />
+    </div>
+    <dl className={styles.rowMeta}><div><dt>Deadline</dt><dd>{opportunity ? deadlineLabel(opportunity) : "Not announced"}</dd></div><div><dt>Match</dt><dd>{view.label}</dd></div></dl>
+    <div className={styles.rowActions}><Link href={view.href} onClick={() => trackRecommendationOpen(view)}>Review <ArrowIcon /></Link>{view.recommendation.relatedOpportunityId ? <AddToJourneyButton opportunityId={view.recommendation.relatedOpportunityId} recommendationId={view.recommendation.id} className={styles.rowAddAction} /> : null}</div>
   </article>;
 }
 
-function RecommendationFeedback({ view, onFeedback, compact = false }: { view: RecommendationViewModel; onFeedback: (view: RecommendationViewModel, feedbackType: FeedbackType, label: string) => void; compact?: boolean }) {
+function RecommendationFeedback({ view, onFeedback, compact = false }: { view: RecommendationViewModel; onFeedback: RecommendationFeedbackHandler; compact?: boolean }) {
   const actions: Array<{ label: string; type: FeedbackType; eventLabel: string }> = [
     { label: "Interested", type: "helpful", eventLabel: "Saved interest signal." },
     { label: "Not interested", type: "not-interested", eventLabel: "We will show fewer like this." },
@@ -476,38 +466,24 @@ function RecommendationFeedback({ view, onFeedback, compact = false }: { view: R
     { label: "Already applied", type: "already-applied", eventLabel: "Marked as already applied." },
     { label: "Already completed", type: "already-completed", eventLabel: "Marked as already completed." },
   ];
-  return <details className={`${compact ? "mt-4" : "mt-6"} group`}>
-    <summary className="cursor-pointer text-xs font-black uppercase tracking-[.14em] text-ink/38 hover:text-forest">Improve recommendations</summary>
-    <div className="mt-3 flex flex-wrap gap-2">
-      {actions.map((action) => <button key={action.type} type="button" onClick={() => onFeedback(view, action.type, action.eventLabel)} className="min-h-9 rounded-full border border-ink/10 bg-white px-3 text-xs font-bold text-ink/55 hover:border-forest hover:text-forest">{action.label}</button>)}
-      <button type="button" onClick={() => onFeedback(view, "dismissed", "We will not show this again.")} className="min-h-9 rounded-full border border-ink/10 bg-paper px-3 text-xs font-bold text-ink/45 hover:border-forest hover:text-forest">Never show again</button>
+  const [pending, setPending] = useState<FeedbackType | null>(null);
+  async function choose(feedbackType: FeedbackType, label: string) {
+    if (pending) return;
+    setPending(feedbackType);
+    try {
+      await onFeedback(view, feedbackType, label);
+    } finally {
+      setPending(null);
+    }
+  }
+  return <details className={`${styles.feedback} ${compact ? styles.feedbackCompact : ""}`}>
+    <summary>Not quite right?</summary>
+    <div>
+      {actions.map((action) => <button key={action.type} type="button" disabled={Boolean(pending)} onClick={() => void choose(action.type, action.eventLabel)}>{pending === action.type ? "Saving…" : action.label}</button>)}
     </div>
   </details>;
 }
 
-function WhyRecommendations({ state }: { state: AdvisorState }) {
-  if (!state.profile) return null;
-  const reasons = [`${state.profile.major} major`, `${state.profile.year} eligibility`, ...profileInterests(state.profile).slice(0, 2), state.profile.careerGoal].filter(Boolean).slice(0, 4);
-  return <section className="rounded-[1.5rem] bg-white/48 p-6 ring-1 ring-ink/6">
-    <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between"><div><h2 className="font-editorial text-2xl font-bold">Why these recommendations?</h2><div className="mt-4 flex flex-wrap gap-5 text-sm text-ink/62">{reasons.map((reason) => <span key={reason} className="inline-flex items-center gap-2"><CheckCircleIcon className="h-4 w-4 text-forest" />{reason}</span>)}</div></div><Link href="/profile" className="text-sm font-black text-forest hover:text-ink">Edit profile <ArrowIcon className="inline h-3.5 w-3.5" /></Link></div>
-  </section>;
-}
-
-function ActivityGlance({ activity }: { activity: StudentActivity }) {
-  const records = Object.values(activity.tracked ?? {});
-  const saved = records.length;
-  const applied = records.filter((item) => ["Applying", "Submitted", "Interview", "Accepted", "Rejected", "Completed"].includes(item.status)).length;
-  const interviews = records.filter((item) => item.status === "Interview").length;
-  return <section>
-    <h2 className="font-editorial text-3xl font-bold tracking-[-.025em]">Your activity at a glance</h2>
-    <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4"><ActivityCard label="Saved" value={saved} Icon={BookmarkIcon} text="Keep exploring" /><ActivityCard label="Applied" value={applied} Icon={SendIcon} text="Take the next step" /><ActivityCard label="Interviews" value={interviews} Icon={TargetIcon} text="You’ve got this" /><div className="rounded-[1.35rem] bg-forest/8 p-6 ring-1 ring-forest/10"><h3 className="font-editorial text-2xl font-bold text-forest">Stay consistent</h3><p className="mt-3 text-sm leading-6 text-ink/60">Your recommendations improve as you add fitting opportunities to your Journey.</p><Link href="/opportunities" className="mt-5 inline-flex min-h-11 items-center rounded-full bg-forest px-5 text-sm font-bold text-white">Explore more</Link></div></div>
-  </section>;
-}
-
-function ActivityCard({ label, value, Icon, text }: { label: string; value: number; Icon: typeof BookmarkIcon; text: string }) {
-  return <div className="rounded-[1.35rem] bg-white/88 p-6 shadow-[0_14px_42px_rgba(43,33,26,.045)] ring-1 ring-ink/7"><span className="grid h-14 w-14 place-items-center rounded-full bg-forest/10 text-forest"><Icon className="h-6 w-6" /></span><p className="mt-4 font-editorial text-4xl font-bold text-ink">{value}</p><p className="font-bold text-ink/70">{label}</p><p className="mt-1 text-sm text-forest">{text}</p></div>;
-}
-
 function FooterNote() {
-  return <div className="flex flex-col gap-3 border-t border-ink/10 pt-6 text-sm text-ink/50 sm:flex-row sm:items-center sm:justify-between"><p>Recommendations update as your profile and activity grow.</p><Link href="/help" className="font-bold text-forest hover:text-ink">Learn how we match opportunities <ArrowIcon className="inline h-3.5 w-3.5" /></Link></div>;
+  return <footer className={styles.footerNote}><p>Recommendations change as your profile and Journey evolve.</p><Link href="/help">How matching works <ArrowIcon /></Link></footer>;
 }

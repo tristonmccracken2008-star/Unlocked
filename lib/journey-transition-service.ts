@@ -112,9 +112,10 @@ export async function transformJourneyProgress(user: Pick<AuthUser, "id" | "name
     const previousEventIds = new Set(previousProjection.pathprint.events.map((event) => event.id));
     const pathEvent = currentProjection.pathprint.events.find((event) => !previousEventIds.has(event.id) && event.opportunityId === mutation.opportunityId) ?? null;
     const previousMomentIds = new Set(historyMoments(previousProjection.model).map((moment) => moment.id));
-    const moment = historyMoments(currentProjection.model).find((item) => !previousMomentIds.has(item.id))
-      ?? historyMoments(currentProjection.model).at(-1);
-    if (!moment) throw new Error("The canonical narrative did not resolve a transition moment.");
+    const currentMoments = historyMoments(currentProjection.model);
+    const freshMoment = currentMoments.find((item) => !previousMomentIds.has(item.id));
+    const moment = freshMoment ?? (pathEvent ? undefined : currentMoments.at(-1));
+    if (!moment && !pathEvent) throw new Error("The canonical narrative did not resolve a transition event.");
     const motionPlan = createOpenLineMotionPlan(
       previousProjection.model.geometries.desktop.geometry,
       currentProjection.model.geometries.desktop.geometry,
@@ -127,10 +128,10 @@ export async function transformJourneyProgress(user: Pick<AuthUser, "id" | "name
       record: persistedRecord,
       pathEventCreated: pathEvent?.id ?? null,
       narrative: {
-        title: moment.title,
-        accomplishment: moment.body,
-        whatChanged: pathEvent?.whatChanged ?? moment.detail.whyItMattered,
-        storyType: moment.storyType,
+        title: moment?.title ?? pathEvent!.title,
+        accomplishment: moment?.body ?? pathEvent!.narrative,
+        whatChanged: pathEvent?.whatChanged ?? moment!.detail.whyItMattered,
+        storyType: moment?.storyType ?? pathEvent!.kind,
       },
       motionPlan,
       geometries: currentProjection.model.geometries,

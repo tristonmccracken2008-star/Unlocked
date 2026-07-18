@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { schools } from "@/data/seed";
+import { schoolDirectory as schools } from "@/data/school-directory";
 import { opportunities } from "@/data/opportunities";
 import { createAdvisorProfile } from "@/data/advisor-engine";
 import { buildAdvisorBrain, type AdvisorBrainDashboard } from "@/data/advisor-brain";
