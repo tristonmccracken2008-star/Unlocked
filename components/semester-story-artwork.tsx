@@ -1,5 +1,5 @@
 import { forwardRef } from "react";
-import { openLineAperturePath } from "@/components/open-line/open-line-marker-primitives";
+import { BrandMarkArtwork } from "@/components/brand-mark";
 import { OpenLineRenderer } from "@/components/open-line/open-line-renderer";
 import {
   semesterStoryLayouts,
@@ -121,8 +121,8 @@ export const SemesterStoryArtwork = forwardRef<SVGSVGElement, SemesterStoryArtwo
   >
     <rect width={dimensions.width} height={dimensions.height} fill={colors.canvas} />
     <g transform={`translate(${composition.margin} ${layout === "story" ? 108 : 70})`}>
-      <path d={openLineAperturePath} transform="scale(.72)" fill="none" stroke={colors.forestStrong} strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
-      <text x="28" y="1" fill={colors.forestStrong} fontFamily="Arial, Helvetica, sans-serif" fontSize={layout === "story" ? 24 : 18} fontWeight="700">UnlockED</text>
+      <BrandMarkArtwork x={0} y={-22} size={layout === "story" ? 42 : 34} tone={theme === "dark" ? "inverse" : "default"} />
+      <text x={layout === "story" ? 54 : 44} y="1" fill={colors.forestStrong} fontFamily="Georgia, 'Times New Roman', serif" fontSize={layout === "story" ? 24 : 18} fontWeight="700">UnlockED</text>
     </g>
     <text x={composition.margin} y={composition.headingY - (layout === "linkedin" ? 66 : 82)} fill={colors.forest} fontFamily="Arial, Helvetica, sans-serif" fontSize={layout === "story" ? 20 : 15} fontWeight="700" letterSpacing={layout === "story" ? 3.2 : 2.3}>{termLine.toUpperCase()}</text>
     <text x={composition.margin} y={composition.headingY} fill={colors.textPrimary} fontFamily="Georgia, 'Times New Roman', serif" fontSize={composition.headingSize} fontWeight="700">
@@ -168,8 +168,8 @@ export const SemesterStoryArtwork = forwardRef<SVGSVGElement, SemesterStoryArtwo
     {contextLine ? <text x={composition.margin} y={composition.footerY} fill={colors.textSecondary} fontFamily="Arial, Helvetica, sans-serif" fontSize={layout === "story" ? 18 : 14} fontWeight="600">{contextLine}</text> : null}
     {privacy.includeProfileLink && identity.profileHref ? <text x={composition.margin} y={composition.footerY + (layout === "story" ? 32 : 22)} fill={colors.forest} fontFamily="Arial, Helvetica, sans-serif" fontSize={layout === "story" ? 16 : 12}>unlockededu.com{identity.profileHref}</text> : null}
     <g transform={`translate(${dimensions.width - (layout === "story" ? 220 : 184)} ${composition.footerY - 8})`}>
-      <path d={openLineAperturePath} transform="scale(.56)" fill="none" stroke={colors.forest} strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
-      <text x="24" y="1" fill={colors.forest} fontFamily="Arial, Helvetica, sans-serif" fontSize={layout === "story" ? 18 : 14} fontWeight="700">Built with UnlockED</text>
+      <BrandMarkArtwork x={0} y={-13} size={layout === "story" ? 24 : 20} tone={theme === "dark" ? "inverse" : "default"} />
+      <text x="30" y="1" fill={colors.forest} fontFamily="Arial, Helvetica, sans-serif" fontSize={layout === "story" ? 18 : 14} fontWeight="700">Built with UnlockED</text>
     </g>
   </svg>;
 });

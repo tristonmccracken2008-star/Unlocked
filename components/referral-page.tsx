@@ -74,7 +74,7 @@ export function ReferralPage() {
             <p className="rule-label text-forest">Rewards</p>
             <h2 className="mt-2 font-editorial text-3xl font-bold">Built for early supporters.</h2>
           </div>
-          <Link href="/my-opportunities" className="inline-flex min-h-11 items-center gap-2 text-sm font-bold text-forest hover:text-ink">View Journey <ArrowIcon /></Link>
+          <Link href="/" className="inline-flex min-h-11 items-center gap-2 text-sm font-bold text-forest hover:text-ink">View Journey <ArrowIcon /></Link>
         </div>
         <div className="mt-6 grid gap-3 md:grid-cols-5">
           {referralRewards.map((reward) => {

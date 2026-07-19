@@ -6,8 +6,8 @@ const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), "utf
 const advisorBrain = read("data/advisor-brain.ts");
 const dashboard = read("components/personalized-home.tsx");
 const journeyDashboard = read("components/student-journey-dashboard.tsx");
-const journeyEditorial = read("components/journey-editorial.tsx");
-const journeyEditorialModel = read("lib/journey-editorial.ts");
+const journeyEditorial = read("components/journey-timeline.tsx");
+const journeyEditorialModel = read("lib/journey-timeline.ts");
 const journeyPage = read("app/page.tsx");
 const header = read("components/header.tsx");
 const advisorPage = read("components/advisor-page.tsx");
@@ -37,24 +37,22 @@ for (const symbol of [
 }
 
 for (const label of [
-  "Your Journey",
-  "Your next step",
-  "What you have made real",
-  "Manage applications",
+  "Journey",
+  "A timeline of the opportunities and milestones that have shaped your progress.",
+  "JourneyTimelineControl",
+  "JourneyCardEntry",
 ]) {
-  assert.ok(journeyEditorial.includes(label), `Journey editorial experience must render ${label}.`);
+  assert.ok(journeyEditorial.includes(label), `Journey timeline experience must render ${label}.`);
 }
-assert.ok(journeyEditorial.includes("data-journey-focus"), "Journey must expose one primary orientation region.");
-assert.ok(journeyEditorial.includes("data-journey-next-action"), "Journey must expose one canonical next-action region.");
-assert.ok(journeyEditorial.includes("data-journey-progress"), "Journey must explain how far the student has come.");
+assert.ok(journeyEditorial.includes("data-journey-timeline"), "Journey must expose one primary chronological region.");
 assert.ok(!journeyDashboard.includes("buildRecommendationService"), "Journey dashboard must not bypass For You Pro gating with client-side recommendations.");
 assert.ok(recommendationService.includes("buildAdvisorBrain"), "Recommendation service must consume the Advisor Brain API instead of duplicating scoring logic.");
-assert.ok(journeyPage.includes("buildJourneyEditorialModel"), "Journey route must compose the editorial experience on the server.");
-assert.ok(journeyEditorialModel.includes("createAdvisorProfile"), "Journey editorial model must derive student context from the canonical Advisor Profile.");
-assert.ok(journeyEditorialModel.includes("getRoadmap"), "Journey editorial model must derive its current waypoint from the Roadmap Engine.");
-assert.ok(journeyEditorialModel.includes("buildPathprint"), "Journey editorial model must use the canonical Pathprint narrative system.");
+assert.ok(journeyPage.includes("buildJourneyTimelineModel"), "Journey route must compose the timeline on the server.");
+assert.ok(journeyEditorialModel.includes("record.history"), "Journey timeline must derive events from canonical saved progress.");
+assert.doesNotMatch(journeyEditorialModel, /createAdvisorProfile|getRoadmap|buildPathprint/, "Journey timeline must not duplicate Advisor guidance or geometry work.");
 assert.ok(!journeyEditorial.includes("Journey progress"), "Journey must not restore the retired progress dashboard framing.");
 assert.ok(!journeyEditorial.includes("Active opportunities"), "Application management must remain behind progressive disclosure.");
+assert.doesNotMatch(journeyEditorial, /Your next step|Horizon|recommendation/i, "Journey must not compete with the Advisor experience.");
 assert.ok(!dashboard.includes("Today’s best opportunity"), "Dashboard should not keep the old generic best-opportunity hero.");
 assert.ok(!dashboard.includes("AdvisorBrainSection"), "Dashboard should not render the duplicate advisor recommendation panel.");
 assert.ok(!dashboard.includes("Today’s Mission"), "Journey should not keep the old mission dashboard framing.");

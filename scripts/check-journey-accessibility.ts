@@ -1,69 +1,56 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { journeyDarkTheme, journeyLightTheme } from "../lib/journey-theme";
 
 const read = (file: string) => readFileSync(file, "utf8");
-const journey = read("components/journey-editorial.tsx");
-const journeyStyles = read("components/journey-editorial.module.css");
-const liveLine = read("components/journey-live-line.tsx");
-const transition = read("components/journey-transition-control.tsx");
-const renderer = read("components/open-line/open-line-renderer.tsx");
-const pathCreator = read("components/path-moment-creator.tsx");
-const semesterCreator = read("components/semester-story-creator.tsx");
+const timeline = read("components/journey-timeline.tsx");
+const control = read("components/journey-timeline-control.tsx");
+const entry = read("components/journey-card-entry.tsx");
+const creator = read("components/journey-card-creator.tsx");
+const artwork = read("components/journey-card-artwork.tsx");
+const styles = read("components/journey-timeline.module.css");
 const creatorStyles = read("components/path-moment.module.css");
 const loading = read("app/loading.tsx");
 
-const unavailableRender = journey.slice(journey.indexOf("export function JourneyEditorialUnavailable("));
-assert.equal((journey.match(/<h1\b/g) ?? []).length, 2, "Journey and its unavailable state must each define one H1.");
-assert.equal((journey.slice(0, journey.indexOf("export function JourneyEditorialUnavailable(")).match(/<h1\b/g) ?? []).length, 1, "Journey must expose exactly one H1.");
-assert.equal((unavailableRender.match(/<h1\b/g) ?? []).length, 1, "Journey error state must expose exactly one H1.");
-assert.match(journey, /<main[^>]+aria-labelledby="journey-story-title"/);
-assert.match(journey, /<section className=\{styles\.opening\} aria-labelledby="journey-story-title"/);
-assert.match(journey, /<h1 id="journey-story-title">/);
-assert.match(journey, /<section className=\{styles\.history\} aria-labelledby="journey-history-title"/);
-assert.match(journey, /<section className=\{styles\.horizon\} aria-labelledby="journey-horizon-title"/);
-assert.match(journey, /<ol className=\{styles\.momentList\}>/);
-assert.match(journey, /data-journey-text-timeline=""/);
-assert.match(journey, /momentMeaning\(item\)/, "Visual marker states need a text equivalent.");
-assert.match(journey, /aria-label="Where you have been, where you are, and what comes next"/, "The living path needs an immediate semantic explanation.");
-assert.match(journey, /data-path-position="past"[\s\S]*data-path-position="current"[\s\S]*data-path-position="next"/, "The living path must remain in chronological DOM order.");
+const unavailable = timeline.slice(timeline.indexOf("export function JourneyTimelineUnavailable"));
+const primary = timeline.slice(0, timeline.indexOf("export function JourneyTimelineUnavailable"));
+assert.equal((primary.match(/<h1\b/g) ?? []).length, 1, "Journey must expose exactly one H1.");
+assert.equal((unavailable.match(/<h1\b/g) ?? []).length, 1, "Journey's unavailable state must expose exactly one H1.");
+assert.match(primary, /<main className=\{styles\.page\} data-journey-timeline=/);
+assert.match(primary, /<ol className=\{styles\.timeline\} aria-label="Journey events in chronological order">/);
+assert.match(primary, /<time dateTime=\{event\.occurredAt\}>/);
+assert.match(primary, /<section className=\{styles\.share\} aria-labelledby="journey-card-heading">/);
+assert.match(primary, /<section className=\{styles\.empty\} aria-labelledby="journey-empty-heading">/);
+assert.match(primary, /aria-hidden="true"/);
+assert.match(control, /<summary>Update status<\/summary>/);
+assert.match(control, /aria-busy=\{pending \? "true" : undefined\}/);
+assert.match(control, /role=\{error \? "alert" : "status"\} aria-live="polite"/);
+assert.match(entry, /aria-describedby=\{error \? "journey-card-load-error" : undefined\}/);
+assert.match(entry, /role="alert"/);
 
-assert.match(renderer, /tabIndex=\{interactive \? 0 : undefined\}/);
-assert.match(renderer, /focusable=\{interactive \? "true" : "false"\}/);
-assert.doesNotMatch(liveLine, /announcement=/, "Decorative Journey motion cannot create a duplicate live announcement.");
-assert.match(transition, /role="status" aria-live="polite" aria-atomic="true"/);
-assert.match(transition, /role="alert"/);
-assert.match(transition, /aria-busy=\{pending \? "true" : undefined\}/);
+assert.match(creator, /<dialog[^>]+aria-labelledby="journey-card-title" aria-describedby="journey-card-description"/);
+assert.match(creator, /aria-label="Journey Card preview"/);
+assert.match(creator, /role="img" aria-label=\{alt\}/);
+assert.match(creator, /aria-busy=\{busy \? "true" : undefined\}/);
+assert.match(creator, /role=\{messageIsError \? "alert" : "status"\}/);
+assert.match(creator, /aria-pressed=\{layout === item\}/);
+assert.match(creator, /aria-pressed=\{exportTheme === item\}/);
+assert.match(creator, /aria-pressed=\{privacy\.nameMode === mode\}/);
+assert.match(artwork, /aria-hidden="true" focusable="false"/);
 
-for (const [name, source, prefix] of [
-  ["Path Moment", pathCreator, "path-moment"],
-  ["Semester Story", semesterCreator, "semester-story"],
-] as const) {
-  assert.match(source, new RegExp(`aria-labelledby="${prefix}-title"`), `${name} dialog needs an accessible name.`);
-  assert.match(source, new RegExp(`aria-describedby="${prefix}-description"`), `${name} dialog needs an accessible description.`);
-  assert.match(source, /role="img" aria-label=\{alt\} aria-describedby=/, `${name} preview needs a readable image description.`);
-  assert.match(source, /aria-busy=\{busy \? "true" : undefined\}/);
-  assert.match(source, /role=\{messageIsError \? "alert" : "status"\}/);
-}
-assert.match(semesterCreator, /<ol>\{story\.moments\.map/, "Semester recap needs chronological list semantics.");
-assert.match(pathCreator, /className=\{styles\.orderedStory\}>\{moment\.headline\}/);
-
-assert.match(journeyStyles, /\.disclosure summary \{[^}]*min-height:\s*2\.75rem/);
-assert.match(journeyStyles, /\.momentSummary \{[^}]*min-height:\s*3\.5rem/);
-assert.match(journeyStyles, /\.primaryAction \{[\s\S]*?min-height:\s*3rem/);
-assert.doesNotMatch(creatorStyles, /\.segmented button \{[\s\S]*?min-height:\s*40px/);
+assert.match(styles, /\.eventFooter a \{[^}]*min-height:\s*44px/);
+assert.match(styles, /\.statusControl summary \{[^}]*min-height:\s*44px/);
+assert.match(styles, /\.statusActions button \{[^}]*min-height:\s*44px/);
 assert.match(creatorStyles, /\.segmented button \{[\s\S]*?min-height:\s*44px/);
 assert.match(creatorStyles, /\.checks label \{[\s\S]*?min-height:\s*44px/);
 assert.match(creatorStyles, /\.actions button \{[\s\S]*?min-height:\s*44px/);
-assert.match(journeyStyles, /@media \(prefers-reduced-motion: reduce\)/);
-assert.match(journeyStyles, /@media \(forced-colors: active\)/);
-assert.match(journeyStyles, /@media \(prefers-contrast: more\)/);
+assert.match(styles, /@media \(prefers-reduced-motion: reduce\)/);
+assert.match(styles, /@media \(prefers-contrast: more\)/);
 assert.match(creatorStyles, /@media \(forced-colors: active\)/);
 assert.match(creatorStyles, /@media \(prefers-contrast: more\)/);
 assert.match(loading, /role="status" aria-live="polite"/);
 
-for (const source of [journey, liveLine, transition, pathCreator, semesterCreator]) {
-  assert.doesNotMatch(source, /ResizeObserver|IntersectionObserver|getBoundingClientRect|requestIdleCallback/, "Journey accessibility cannot add measurement or observer overhead.");
+for (const source of [timeline, control, entry, creator, artwork]) {
+  assert.doesNotMatch(source, /ResizeObserver|IntersectionObserver|getBoundingClientRect|requestIdleCallback/, "Journey must not add client geometry or observer work.");
 }
 
 function channel(value: number) {
@@ -80,17 +67,18 @@ function contrast(foreground: string, background: string) {
 }
 
 const contrastChecks = {
-  lightPrimary: contrast(journeyLightTheme.textPrimary, journeyLightTheme.canvas),
-  lightSecondary: contrast(journeyLightTheme.textSecondary, journeyLightTheme.canvas),
-  darkPrimary: contrast(journeyDarkTheme.textPrimary, journeyDarkTheme.canvas),
-  darkSecondary: contrast(journeyDarkTheme.textSecondary, journeyDarkTheme.canvas),
-  darkFocus: contrast(journeyDarkTheme.focus, journeyDarkTheme.canvas),
+  lightPrimary: contrast("#2b211a", "#f6f0e6"),
+  lightSecondary: contrast("#6f675f", "#f6f0e6"),
+  lightGreen: contrast("#1f5f43", "#f6f0e6"),
+  darkPrimary: contrast("#fbf3e8", "#17120f"),
+  darkSecondary: contrast("#c2b7aa", "#17120f"),
+  darkGreen: contrast("#91c9ad", "#17120f"),
 };
 for (const [name, value] of Object.entries(contrastChecks)) assert.ok(value >= 4.5, `${name} must meet WCAG AA; received ${value.toFixed(2)}.`);
 
 console.log(JSON.stringify({
-  message: "Journey accessibility checks passed.",
-  semantics: ["single-h1", "named-regions", "ordered-history", "plain-language-living-path", "described-dialogs"],
-  interaction: ["44px-targets", "single-live-announcement", "focus-safe-svg", "error-semantics"],
+  message: "Unified Journey accessibility checks passed.",
+  semantics: ["single-h1", "chronological-list", "semantic-dates", "named-share-and-empty-regions", "named-dialog"],
+  interaction: ["44px-targets", "keyboard-details", "focus-return", "pending-and-error-semantics", "pressed-state-controls"],
   contrast: Object.fromEntries(Object.entries(contrastChecks).map(([key, value]) => [key, Number(value.toFixed(2))])),
 }, null, 2));

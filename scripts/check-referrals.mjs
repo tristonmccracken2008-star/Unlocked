@@ -9,7 +9,7 @@ const callback = read("app/api/auth/callback/google/route.ts");
 const captureRoute = read("app/r/[code]/route.ts");
 const accountRoute = read("app/api/account/data/route.ts");
 const referralPage = read("components/referral-page.tsx");
-const journey = read("components/my-opportunities-page.tsx");
+const journey = read("components/journey-timeline.tsx");
 const billing = read("lib/billing.ts");
 const analytics = read("lib/analytics-types.ts");
 const adminPage = read("app/admin/referrals/page.tsx");
@@ -50,7 +50,7 @@ for (const event of ["referral_link_opened", "referral_link_copied", "referral_c
 assert.ok(referralPage.includes("ReferralPage"), "Referral page component must exist.");
 assert.ok(referralPage.includes("Copy link"), "Referral page must support copying the referral link.");
 assert.ok(referralPage.includes("Share"), "Referral page must support sharing.");
-assert.ok(!journey.includes("Journey Card"), "Referral compatibility cannot keep the retired Journey Card exporter in application management.");
+assert.ok(journey.includes("JourneyCardEntry"), "Referral compatibility must preserve the unified Journey Card entry point.");
 assert.ok(referrals.includes("canUseReferralJourneyThemes") && referrals.includes("canShowFounderBadge"), "Legacy referral entitlements must remain readable for backward compatibility.");
 assert.ok(adminPage.includes("getAdminSession"), "Admin referral page must be protected server-side.");
 assert.ok(adminPage.includes("getReferralAdminSummary"), "Admin referral page must use referral admin summary data.");

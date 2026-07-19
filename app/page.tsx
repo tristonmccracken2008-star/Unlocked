@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
 import { PersonalizedHome } from "@/components/personalized-home";
-import { JourneyEditorial, JourneyEditorialUnavailable } from "@/components/journey-editorial";
-import { JourneyClientEffects } from "@/components/journey-client-effects";
+import { JourneyTimeline, JourneyTimelineUnavailable } from "@/components/journey-timeline";
 import { getServerSessionForProduct } from "@/lib/onboarding";
 import { accountHasCompletedOnboarding } from "@/lib/auth-store";
 import { listPublishedOpportunitiesByIds } from "@/lib/content-store";
-import { buildJourneyEditorialModel } from "@/lib/journey-editorial";
+import { buildJourneyTimelineModel } from "@/lib/journey-timeline";
 import { cookies } from "next/headers";
 import { isProUser } from "@/lib/billing";
 
@@ -33,18 +32,14 @@ export default async function Home() {
     const appearance = session.data.preferences?.appearance ?? "light";
     const systemScheme = (await cookies()).get("unlocked-color-scheme")?.value;
     const resolvedTheme = isProUser(session.data.billing) && (appearance === "midnight" || appearance === "forest" || (appearance === "system" && systemScheme === "dark")) ? "dark" as const : "light" as const;
-    const projectionStarted = performance.now();
-    const model = buildJourneyEditorialModel({ user: session.user, account: session.data, opportunities, resolvedTheme });
-    model.diagnostics.serverProjectionMs = Math.max(0, performance.now() - projectionStarted);
-    const showDiagnostics = process.env.NODE_ENV !== "production" && process.env.NEXT_PUBLIC_OPEN_LINE_DIAGNOSTICS === "1";
-    return <div data-unlocked-home="journey-editorial-v1">
-      <JourneyClientEffects />
-      <JourneyEditorial model={model} showDiagnostics={showDiagnostics} />
+    const model = buildJourneyTimelineModel({ user: session.user, account: session.data, opportunities, resolvedTheme });
+    return <div data-unlocked-home="journey-timeline-v1">
+      <JourneyTimeline model={model} />
     </div>;
   } catch (error) {
-    console.error("[UnlockED Journey] editorial composition failed", process.env.NODE_ENV === "production"
+    console.error("[UnlockED Journey] timeline composition failed", process.env.NODE_ENV === "production"
       ? { errorType: error instanceof Error ? error.name : "UnknownError" }
       : { errorType: error instanceof Error ? error.name : "UnknownError", message: error instanceof Error ? error.message : "Unknown Journey composition failure" });
-    return <JourneyEditorialUnavailable />;
+    return <JourneyTimelineUnavailable />;
   }
 }

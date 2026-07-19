@@ -59,6 +59,23 @@
   text-transform: none;
 }
 
+.compactTrigger {
+  min-height: 44px;
+  border: 0;
+  border-bottom: 1px solid currentColor;
+  background: transparent;
+  color: var(--journey-green, #1f5f43);
+  padding: .55rem 0;
+  font: 800 .81rem/1 var(--font-sans), system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.compactTrigger span { margin-left: .35rem; }
+.compactTrigger:hover { color: var(--journey-ink, #2b211a); }
+.compactTrigger:focus-visible { outline: 2px solid color-mix(in srgb, var(--journey-green, #1f5f43) 45%, transparent); outline-offset: 5px; }
+.compactTrigger:disabled { cursor: wait; opacity: .62; }
+.loadError { margin: .6rem 0 0; color: #9f3428; font-size: .8rem; font-weight: 700; }
+
 @media (max-width: 680px) {
   .entry { align-items: stretch; flex-direction: column; gap: 1.15rem; }
   .entry h2 { font-size: 1.65rem; }

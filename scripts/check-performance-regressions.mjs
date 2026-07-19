@@ -11,7 +11,8 @@ const opportunityFilter = read("components/opportunity-filter.tsx");
 const profilePage = read("components/profile-page.tsx");
 const personalizedHome = read("components/personalized-home.tsx");
 const accountSync = read("data/account-sync.ts");
-const tracker = read("components/my-opportunities-page.tsx");
+const journeyTimeline = read("components/journey-timeline.tsx");
+const journeyTimelineModel = read("lib/journey-timeline.ts");
 const journeyDashboard = read("components/student-journey-dashboard.tsx");
 const journeyPage = read("app/page.tsx");
 const journeyEditorial = read("components/journey-editorial.tsx");
@@ -47,12 +48,12 @@ assert.match(profilePage, /dynamic\(\(\) => import\("\.\/profile-career-tab"\)/,
 assert.doesNotMatch(personalizedHome, /student-journey-dashboard/, "The public/onboarding shell must not pull the retired client Journey dashboard into the root bundle.");
 assert.doesNotMatch(personalizedHome, /from "@\/data\/opportunities"/, "Landing/onboarding shell must not import the full opportunity catalog.");
 
-assert.doesNotMatch(tracker, /import \{[^}]*opportunities,/, "My Opportunities must not import the full catalog.");
-assert.match(tracker, /\/api\/opportunities\?ids=/, "My Opportunities should fetch only tracked opportunity records.");
+assert.doesNotMatch(journeyTimeline, /from "@\/data\/opportunities"/, "Journey UI must not import the full catalog.");
+assert.doesNotMatch(journeyTimelineModel, /buildRecommendationService|rankMilestoneRecommendations|createPathGeometry/, "Unified Journey must not execute recommendations or geometry work.");
 
 assert.doesNotMatch(journeyDashboard, /import \{[^}]*opportunities,/, "Journey dashboard must not statically import the full opportunity catalog.");
 assert.doesNotMatch(journeyDashboard, /buildRecommendationService/, "Journey dashboard must not bypass Pro gating with client-side recommendations.");
-assert.doesNotMatch(journeyEditorial, /fetch\(|createPathGeometry/, "Journey editorial rendering must not fetch data or calculate geometry on the client.");
+assert.doesNotMatch(journeyTimeline, /fetch\(|createPathGeometry/, "Journey timeline rendering must not fetch data or calculate geometry on the client.");
 assert.match(journeyPage, /listPublishedOpportunitiesByIds\(trackedIds\)/, "Journey should load only the tracked opportunity records on the server.");
 assert.match(journeyEditorialModel, /input\.opportunities\.filter\(\(opportunity\) => allTrackedIds\.has\(opportunity\.id\)\)/, "Journey composition must bound opportunity work to tracked records.");
 assert.match(journeyDashboard, /router\.refresh\(\)/, "The client recovery bridge should refresh into the server-composed Journey.");

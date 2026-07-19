@@ -11,9 +11,9 @@ const routeOutput = [
   ...await Promise.all(chunkPaths.map((chunkPath) => readFile(new URL(`../.next/${chunkPath}`, import.meta.url), "utf8"))),
 ].join("\n");
 const requiredSignatures = [
-  "journey-editorial-v1",
+  "journey-timeline-v1",
   "public-or-onboarding-v1",
-  "data-journey-editorial",
+  "data-journey-timeline",
 ];
 
 const missing = requiredSignatures.filter((signature) => !routeOutput.includes(signature));

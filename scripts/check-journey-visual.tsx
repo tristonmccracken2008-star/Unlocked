@@ -1,14 +1,14 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { pathMomentLayouts } from "../lib/path-moments";
+import { journeyCardLayouts } from "../lib/journey-timeline";
 
 const read = (file: string) => readFileSync(file, "utf8");
-const journey = read("components/journey-editorial.tsx");
-const journeyStyles = read("components/journey-editorial.module.css");
-const artwork = read("components/path-moment-artwork.tsx");
-const creator = read("components/path-moment-creator.tsx");
-const pathMomentEntry = read("components/path-moment-entry.tsx");
-const momentStyles = read("components/path-moment.module.css");
+const journey = read("components/journey-timeline.tsx");
+const journeyStyles = read("components/journey-timeline.module.css");
+const artwork = read("components/journey-card-artwork.tsx");
+const creator = read("components/journey-card-creator.tsx");
+const entry = read("components/journey-card-entry.tsx");
+const creatorStyles = read("components/path-moment.module.css");
 const loading = read("app/loading.tsx");
 
 function luminance(hex: string) {
@@ -18,62 +18,35 @@ function luminance(hex: string) {
     return sum + linear * [0.2126, 0.7152, 0.0722][index];
   }, 0);
 }
-
 function contrast(foreground: string, background: string) {
   const values = [luminance(foreground), luminance(background)].sort((left, right) => right - left);
   return (values[0] + 0.05) / (values[1] + 0.05);
 }
+for (const [foreground, background] of [["#2b211a", "#f6f0e6"], ["#1f5f43", "#f6f0e6"], ["#fbf3e8", "#17120f"], ["#91c9ad", "#17120f"]] as const) assert.ok(contrast(foreground, background) >= 4.5);
 
-for (const [foreground, background] of [
-  ["#2b211a", "#f6f0e6"],
-  ["#0e5b3e", "#f6f0e6"],
-  ["#fbf3e8", "#17120f"],
-  ["#91c9ad", "#17120f"],
-] as const) assert.ok(contrast(foreground, background) >= 4.5, `${foreground} on ${background} must preserve text contrast.`);
+assert.match(journey, /<ol className=\{styles\.timeline\} aria-label="Journey events in chronological order">/);
+assert.match(journey, /JourneyTimelineControl/);
+assert.match(journey, /JourneyCardEntry/);
+assert.doesNotMatch(journey, /Journey Board|Your next step|Horizon|OpenLineRenderer/);
+assert.match(journeyStyles, /grid-template-columns:\s*7rem 2\.9rem minmax\(0, 1fr\)/);
+assert.match(journeyStyles, /@media \(max-width: 640px\)[\s\S]*grid-template-columns:\s*2\.5rem minmax\(0, 1fr\)/);
+assert.match(journeyStyles, /min-height:\s*44px/);
+assert.match(journeyStyles, /@media \(prefers-reduced-motion: reduce\)/);
+assert.match(journeyStyles, /@media \(prefers-contrast: more\)/);
+assert.doesNotMatch(journeyStyles, /backdrop-filter|repeating-linear-gradient|contain-intrinsic-size/);
 
-assert.match(journeyStyles, /\.livingPath[\s\S]*padding-left:\s*2\.5rem/);
-assert.match(journeyStyles, /\.pathConnection[\s\S]*left:\s*\.68rem/);
-assert.match(journeyStyles, /storyFlow::before[\s\S]*left:\s*1rem/);
-assert.match(journeyStyles, /@media \(max-width: 22\.5rem\)/, "Journey must explicitly support 320px screens.");
-assert.doesNotMatch(journeyStyles, /contain-intrinsic-size|repeating-linear-gradient/, "Journey cannot create synthetic blank space or decorative gradient rails.");
-assert.doesNotMatch(journeyStyles, /backdrop-filter/, "The primary Journey surface must not rely on expensive glass effects.");
-assert.match(journeyStyles, /\.moment\[data-moment-kind="validation"\][\s\S]*margin-block/, "Validation moments need deliberate breathing room.");
-assert.match(journeyStyles, /\.momentDetail[\s\S]*border-left:\s*1px solid var\(--journey-green\)/, "Progressive details need one quiet semantic rail rather than another card.");
-assert.match(journeyStyles, /editorial-arrive/);
-assert.match(journeyStyles, /\.loadingWaypoint,\s*\n\s*\.loadingLine \{ animation-delay: 160ms; \}/, "Orientation and next action must arrive together.");
-assert.match(journeyStyles, /\.loadingStatus \{ animation-delay: 250ms; \}/, "Later loading copy must arrive last.");
-
-assert.ok(!journey.startsWith('"use client"'), "The editorial Journey must remain server-first.");
-assert.equal((journey.match(/<JourneyResponsiveLine/g) ?? []).length, 0, "Journey must not duplicate its readable path with a hydrated SVG.");
-assert.match(journey, /data-journey-living-path/);
-assert.match(loading, /loadingIdentity[\s\S]*loadingComposition/, "Loading must preserve identity-before-waypoint DOM order.");
-assert.match(pathMomentEntry, /import\("@\/components\/path-moment-creator"\)/, "Path Moment artwork and export code must load on intent.");
-assert.doesNotMatch(journey, /path-moment-creator/, "Journey cannot hydrate the full Path Moment creator while it is closed.");
-assert.doesNotMatch(creator, /const \[open, setOpen\]/, "The lazy creator must mount only while its dialog is open.");
-
-assert.deepEqual(Object.fromEntries(Object.entries(pathMomentLayouts).map(([key, value]) => [key, { width: value.width, height: value.height }])), {
+assert.match(entry, /import\("@\/components\/journey-card-creator"\)/, "Journey Card export code must load on intent.");
+assert.doesNotMatch(journey, /journey-card-creator|XMLSerializer|canvas\.toBlob/, "The timeline cannot hydrate export code before intent.");
+assert.deepEqual(Object.fromEntries(Object.entries(journeyCardLayouts).map(([key, value]) => [key, { width: value.width, height: value.height }])), {
   story: { width: 1080, height: 1920 },
   square: { width: 1080, height: 1080 },
   linkedin: { width: 1200, height: 627 },
 });
-assert.match(artwork, /momentLabel/);
-assert.match(artwork, /footerLines/);
-assert.doesNotMatch(artwork, /gradient|filter=|drop-shadow|confetti/i, "Path Moment exports must remain flat, print-safe, and restrained.");
-assert.match(momentStyles, /\.previewFrame\[data-preview-layout="story"\]/);
-assert.match(momentStyles, /\.previewFrame\[data-preview-layout="square"\]/);
-assert.match(momentStyles, /\.previewFrame\[data-preview-layout="linkedin"\]/);
-assert.match(momentStyles, /@media \(max-width: 480px\)[\s\S]*grid-auto-flow: column/, "Mobile export controls must avoid tall stacked segmented controls.");
-assert.match(momentStyles, /min-height: 44px/, "Interactive Path Moment controls must preserve accessible touch targets.");
+for (const token of ["BrandMarkArtwork", "MY JOURNEY", "MOMENTS", "Built with UnlockED", "unlockededu.com"]) assert.match(artwork, new RegExp(token));
+assert.doesNotMatch(artwork, /OpenLineRenderer|openLineAperturePath|gradient|filter=|drop-shadow|confetti/i);
+for (const token of ["Download PNG", "Copy image", "navigator.share", "Private until you share it", "role={messageIsError ?"]) assert.ok(creator.includes(token));
+assert.match(creatorStyles, /min-height:\s*44px/);
+assert.match(loading, /Loading your saved opportunities and progress\./);
+assert.doesNotMatch(loading, /loadingWaypoint|next step|story\./i);
 
-console.log(JSON.stringify({
-  message: "Journey visual checks passed.",
-  viewports: [320, 390, 820, 1440],
-  themes: ["light", "midnight"],
-  exports: pathMomentLayouts,
-  contrast: {
-    lightText: Number(contrast("#2b211a", "#f6f0e6").toFixed(2)),
-    lightForest: Number(contrast("#0e5b3e", "#f6f0e6").toFixed(2)),
-    darkText: Number(contrast("#fbf3e8", "#17120f").toFixed(2)),
-    darkForest: Number(contrast("#91c9ad", "#17120f").toFixed(2)),
-  },
-}, null, 2));
+console.log(JSON.stringify({ message: "Unified Journey visual checks passed.", viewports: [320, 390, 820, 1440], themes: ["cream", "forest"], exports: journeyCardLayouts }, null, 2));

@@ -1,5 +1,5 @@
 import { forwardRef } from "react";
-import { openLineAperturePath } from "@/components/open-line/open-line-marker-primitives";
+import { BrandMarkArtwork } from "@/components/brand-mark";
 import { OpenLineRenderer } from "@/components/open-line/open-line-renderer";
 import type { PathMoment, PathMomentLayout, PathMomentNameMode } from "@/lib/path-moments";
 import { pathMomentLayouts } from "@/lib/path-moments";
@@ -128,10 +128,8 @@ export const PathMomentArtwork = forwardRef<SVGSVGElement, PathMomentArtworkProp
     data-export-theme={theme}
   >
     <rect width={dimensions.width} height={dimensions.height} fill={colors.canvas} />
-    <g transform={`translate(${composition.brand.x} ${composition.brand.y})`} fill="none" stroke={colors.forestStrong} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <g transform="scale(0.78)"><path d={openLineAperturePath} /></g>
-    </g>
-    <text x={composition.brand.x + 30} y={composition.brand.y + 2} fill={colors.forestStrong} fontFamily="Arial, Helvetica, sans-serif" fontSize={layout === "story" ? 25 : 20} fontWeight="700">UnlockED</text>
+    <BrandMarkArtwork x={composition.brand.x} y={composition.brand.y - 22} size={layout === "story" ? 44 : 36} tone={theme === "dark" ? "inverse" : "default"} />
+    <text x={composition.brand.x + (layout === "story" ? 56 : 46)} y={composition.brand.y + 2} fill={colors.forestStrong} fontFamily="Georgia, 'Times New Roman', serif" fontSize={layout === "story" ? 25 : 20} fontWeight="700">UnlockED</text>
     <line x1={composition.brand.x} y1={composition.brand.y + 42} x2={composition.brand.x + (layout === "linkedin" ? 92 : 118)} y2={composition.brand.y + 42} stroke={colors.gold} strokeWidth="1.5" />
     <text x={composition.headline.x} y={composition.headline.y - (layout === "linkedin" ? 64 : 74)} fill={colors.forest} fontFamily="Arial, Helvetica, sans-serif" fontSize={layout === "story" ? 19 : 15} fontWeight="700" letterSpacing={layout === "story" ? 3 : 2.4}>{momentLabel}</text>
 
@@ -165,8 +163,8 @@ export const PathMomentArtwork = forwardRef<SVGSVGElement, PathMomentArtworkProp
       {footerLines.map((line, index) => <tspan key={`${index}-${line}`} x={composition.brand.x} dy={index ? (layout === "story" ? 29 : 22) : 0}>{line}</tspan>)}
     </text> : null}
     <g transform={`translate(${dimensions.width - (layout === "story" ? 220 : 186)} ${composition.footerY - 8})`}>
-      <path d={openLineAperturePath} transform="scale(.56)" fill="none" stroke={colors.forest} strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
-      <text x="24" y="1" fill={colors.forest} fontFamily="Arial, Helvetica, sans-serif" fontSize={layout === "story" ? 18 : 15} fontWeight="700">Built with UnlockED</text>
+      <BrandMarkArtwork x={0} y={-13} size={layout === "story" ? 24 : 20} tone={theme === "dark" ? "inverse" : "default"} />
+      <text x="30" y="1" fill={colors.forest} fontFamily="Arial, Helvetica, sans-serif" fontSize={layout === "story" ? 18 : 15} fontWeight="700">Built with UnlockED</text>
     </g>
   </svg>;
 });

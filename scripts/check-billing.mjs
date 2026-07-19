@@ -12,7 +12,8 @@ const forYouApi = read("app/api/advisor/for-you/route.ts");
 const forYouSnapshot = read("lib/for-you-snapshot.ts");
 const forYou = read("components/advisor-page.tsx");
 const profile = read("components/profile-page.tsx");
-const journey = read("components/my-opportunities-page.tsx");
+const journey = read("components/journey-timeline.tsx");
+const checkoutButton = read("components/billing-checkout-button.tsx");
 const accountApi = read("app/api/account/data/route.ts");
 const analytics = read("lib/analytics-types.ts");
 const pkg = read("package.json");
@@ -51,6 +52,8 @@ for (const token of [
   "isProUser",
   "priceIdForPlan",
   "already-pro",
+  "wantsJson",
+  "requestOrigin",
 ]) assert.ok(checkout.includes(token), `Checkout route must enforce ${token}.`);
 
 assert.doesNotMatch(checkout, /priceId\s*=.*body|STRIPE_PRICE_ID/i, "Checkout must not accept arbitrary client Price IDs.");
@@ -86,8 +89,12 @@ for (const token of ["UnlockED Free", "UnlockED Pro", "Manage subscription", "pa
   assert.ok(profile.includes(token), `Profile billing/appearance must include ${token}.`);
 }
 
-assert.ok(!journey.includes("journeyCardSvg"), "Billing must not preserve the retired Journey Card dashboard exporter.");
+assert.ok(journey.includes("JourneyCardEntry"), "Journey Card sharing must remain available from the unified Journey.");
 assert.ok(read("components/path-moment-creator.tsx").includes("Download PNG"), "Path Moment export must remain available without weakening core Free access.");
+for (const token of ["authenticatedFetch", "window.location.assign", "We couldn’t start checkout. Please try again.", "stripe.com", "checkout_started", "checkout_redirected"]) {
+  assert.ok(checkoutButton.includes(token), `Checkout client must include ${token}.`);
+}
+assert.doesNotMatch(checkout, /pendingCheckout/, "An incomplete Checkout Session must not block a legitimate retry.");
 
 assert.ok(accountApi.includes("!isProUser(session.data.billing)"), "Account API must enforce premium appearance server-side.");
 

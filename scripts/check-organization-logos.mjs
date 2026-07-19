@@ -7,7 +7,7 @@ const resolver = read("data/organization-logos.ts");
 const component = read("components/organization-logo.tsx");
 const opportunityCard = read("components/opportunity-card.tsx");
 const advisor = read("components/advisor-page.tsx");
-const tracker = read("components/my-opportunities-page.tsx");
+const tracker = read("components/journey-timeline.tsx");
 const detail = read("app/opportunities/[id]/page.tsx");
 const config = read("next.config.mjs");
 const pkg = read("package.json");
@@ -83,7 +83,7 @@ assert.ok(config.includes("logo.clearbit.com"), "Next image configuration must p
 for (const [path, source] of [
   ["components/opportunity-card.tsx", opportunityCard],
   ["components/advisor-page.tsx", advisor],
-  ["components/my-opportunities-page.tsx", tracker],
+  ["components/journey-timeline.tsx", tracker],
   ["app/opportunities/[id]/page.tsx", detail],
 ]) {
   assert.ok(source.includes("OrganizationLogo"), `${path} must render shared organization logos.`);

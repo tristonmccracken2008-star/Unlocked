@@ -1,138 +1,74 @@
 import assert from "node:assert/strict";
 import { performance } from "node:perf_hooks";
 import { readFileSync } from "node:fs";
-import { buildJourneyEditorialModel } from "../lib/journey-editorial";
-import { defaultBillingRecord } from "../lib/billing";
-import type { AccountData, AuthUser } from "../lib/account-types";
 import { opportunities } from "../data/opportunities";
 import { schools } from "../data/seed";
+import { defaultBillingRecord } from "../lib/billing";
+import type { AccountData, AuthUser } from "../lib/account-types";
+import { buildJourneyTimelineModel } from "../lib/journey-timeline";
 
 const read = (path: string) => readFileSync(path, "utf8");
 const now = "2026-07-14T12:00:00.000Z";
 const school = schools.find((item) => item.name.includes("University")) ?? schools[0];
-const opportunity = opportunities.find((item) => item.type === "Career") ?? opportunities[0];
-const user: AuthUser = { id: "journey-editorial-student", email: "student@example.test", name: "Jordan Rivera" };
+const selected = opportunities.filter((item) => ["Career", "Scholarship", "Research"].includes(item.type)).slice(0, 8);
+const user: AuthUser = { id: "journey-timeline-student", email: "student@example.test", name: "Jordan Rivera" };
 
-function account(populated: boolean, dark = false): AccountData {
-  const tracker = populated ? {
-    [opportunity.id]: { id: opportunity.id, status: "Applying" as const, savedAt: now, updatedAt: now },
-  } : {};
+function account(populated: boolean): AccountData {
+  const tracker = populated ? Object.fromEntries(selected.map((opportunity, index) => [opportunity.id, {
+    id: opportunity.id,
+    status: (["Saved", "Applying", "Submitted", "Interview", "Accepted", "Completed"] as const)[index % 6],
+    savedAt: `2026-01-${String(index + 1).padStart(2, "0")}T12:00:00.000Z`,
+    updatedAt: `2026-02-${String(index + 1).padStart(2, "0")}T12:00:00.000Z`,
+    version: 0,
+    history: [],
+  }])) : {};
   return {
-    profile: {
-      firstName: "Jordan",
-      lastName: "Rivera",
-      schoolSlug: school.slug,
-      major: "Mathematics",
-      graduationYear: "2030",
-      year: "First year",
-      interests: "Finance, Research",
-      careerGoal: "Quantitative Finance",
-      onboardingCompletedAt: now,
-      updatedAt: now,
-    },
+    profile: { firstName: "Jordan", lastName: "Rivera", schoolSlug: school.slug, major: "Mathematics", graduationYear: "2030", year: "First year", interests: "Finance, Research", careerGoal: "Quantitative Finance", onboardingCompletedAt: now, updatedAt: now },
     onboardingComplete: true,
-    billing: dark ? { ...defaultBillingRecord(), tier: "pro", status: "active" } : defaultBillingRecord(),
-    activity: populated ? { viewed: [opportunity.id], saved: [opportunity.id], claimed: [], tracked: tracker } : { viewed: [], saved: [], claimed: [], tracked: {} },
-    savedOpportunities: populated ? [{ opportunityId: opportunity.id, savedAt: now }] : [],
+    billing: defaultBillingRecord(),
+    activity: { viewed: [], saved: Object.keys(tracker), claimed: [], tracked: tracker },
+    savedOpportunities: Object.values(tracker).map((record) => ({ opportunityId: record.id, savedAt: record.savedAt })),
     tracker,
-    preferences: { appearance: dark ? "midnight" : "light", updatedAt: now },
-    journeyProgress: {},
+    preferences: { appearance: "light", updatedAt: now },
+    journeyProgress: populated ? { "first-resume": true } : {},
     advisor: null,
     referrals: null,
     updatedAt: now,
   };
 }
 
-const emptyModel = buildJourneyEditorialModel({ user, account: account(false), opportunities: [opportunity] });
-assert.equal(emptyModel.empty, true);
-assert.equal(emptyModel.story.text, "Every path begins with one meaningful choice.");
-assert.equal(emptyModel.story.source, "canonical_profile");
-assert.equal(emptyModel.waypoint, undefined);
-assert.equal(emptyModel.geometries.mobile.geometry.currentWaypointNodeId, undefined);
-assert.equal(emptyModel.geometries.mobile.geometry.nodes[0]?.kind, "origin");
+const empty = buildJourneyTimelineModel({ user, account: account(false), opportunities: [] });
+assert.equal(empty.events.length, 0);
+assert.equal(empty.card.headline, "My Journey starts here.");
 
-const populatedModel = buildJourneyEditorialModel({ user, account: account(true), opportunities: [opportunity] });
-assert.equal(populatedModel.empty, false);
-assert.match(populatedModel.story.text, /Quantitative Finance/i);
-assert.equal(populatedModel.story.source, "canonical_profile");
-assert.ok(populatedModel.waypoint?.title);
-assert.ok(populatedModel.waypoint?.whyItMatters);
-assert.ok(["roadmap_metadata", "opportunity_metadata", "event_type"].includes(populatedModel.waypoint?.explanationSource ?? ""));
-assert.equal(populatedModel.geometries.desktop.geometry.layoutMode, "desktop");
-assert.equal(populatedModel.geometries.tablet.geometry.layoutMode, "tablet");
-assert.equal(populatedModel.geometries.mobile.geometry.layoutMode, "mobile");
-assert.equal(populatedModel.geometries.mobile.geometry.nodes.find((node) => node.branchKey === "main")?.point.x, 40);
-assert.ok(populatedModel.geometries.mobile.waypointPosition?.yPercent && populatedModel.geometries.mobile.waypointPosition.yPercent > 0);
-assert.equal(populatedModel.theme, "light");
-assert.equal(buildJourneyEditorialModel({ user, account: account(true, true), opportunities: [opportunity] }).theme, "dark");
-assert.ok(populatedModel.history.totalMomentCount > 0);
-assert.ok(populatedModel.history.recentChapters.length > 0);
-assert.ok(populatedModel.history.recentChapters.flatMap((chapter) => chapter.moments).every((moment) => moment.detail.whyItMattered && moment.detail.whatChanged && moment.detail.nextConsequence));
-assert.ok(populatedModel.history.recentChapters.flatMap((chapter) => chapter.moments).some((moment) => moment.detail.relatedOpportunity?.id === opportunity.id));
+const populated = buildJourneyTimelineModel({ user, account: account(true), opportunities: selected });
+assert.ok(populated.events.length >= selected.length, "Every tracked opportunity must remain represented.");
+assert.deepEqual(populated.events.map((event) => event.occurredAt), populated.events.map((event) => event.occurredAt).toSorted(), "Timeline events must remain chronological.");
+assert.ok(populated.events.some((event) => event.type === "saved"));
+assert.ok(populated.events.some((event) => event.type === "milestone"));
+assert.ok(populated.events.some((event) => event.control), "Current records with valid transitions must remain editable.");
+assert.ok(populated.card.stats.some((stat) => stat.id === "saved" && stat.value === selected.length));
+assert.ok(populated.card.highlights.length > 0 && populated.card.highlights.length <= 4);
+assert.equal(populated.card.identity.firstName, "Jordan");
 
-const longHistoryOpportunities = opportunities.filter((item) => ["Career", "Research", "Scholarship"].includes(item.type)).slice(0, 8);
-const longHistoryTracker = Object.fromEntries(longHistoryOpportunities.map((item, index) => {
-  const day = String(index + 1).padStart(2, "0");
-  const statuses = ["Applying", "Submitted", "Interview", "Accepted", "Completed"] as const;
-  return [item.id, { id: item.id, status: statuses[index % statuses.length], savedAt: `2026-01-${day}T12:00:00.000Z`, updatedAt: `2026-02-${day}T12:00:00.000Z` }];
-}));
-const longHistoryAccount: AccountData = {
-  ...account(false),
-  activity: { viewed: [], saved: longHistoryOpportunities.map((item) => item.id), claimed: [], tracked: longHistoryTracker },
-  savedOpportunities: longHistoryOpportunities.map((item, index) => ({ opportunityId: item.id, savedAt: `2026-01-${String(index + 1).padStart(2, "0")}T12:00:00.000Z` })),
-  tracker: longHistoryTracker,
-};
-const longHistoryModel = buildJourneyEditorialModel({ user, account: longHistoryAccount, opportunities: longHistoryOpportunities });
-const recentMoments = longHistoryModel.history.recentChapters.flatMap((chapter) => chapter.moments);
-const earlierMoments = longHistoryModel.history.earlierChapters.flatMap((chapter) => chapter.moments);
-assert.equal(recentMoments.length, 4, "Long histories must initially expose exactly four meaningful moments.");
-assert.ok(earlierMoments.length > 0, "Long histories must preserve earlier chapters behind disclosure.");
-assert.deepEqual([...earlierMoments, ...recentMoments].map((moment) => moment.occurredAt), [...earlierMoments, ...recentMoments].map((moment) => moment.occurredAt).sort(), "Journey moments must remain in chronological DOM order.");
-
-const component = read("components/journey-editorial.tsx");
-const styles = read("components/journey-editorial.module.css");
+const component = read("components/journey-timeline.tsx");
+const styles = read("components/journey-timeline.module.css");
 const page = read("app/page.tsx");
 const loading = read("app/loading.tsx");
-const model = read("lib/journey-editorial.ts");
-const narrative = read("data/open-line/narrative.ts");
-
-for (const required of ["Your Journey", "Right now", "Your next step", "About", "impact", "Why this step", "Proof of progress", "What you have made real.", "See earlier chapters", "Why it mattered", "What changed", "What this opens next", "Manage applications"]) {
-  assert.ok(component.includes(required), `Journey editorial view must render ${required}.`);
-}
-for (const required of ["Find one opportunity worth pursuing.", "Find my first opportunity"]) {
-  assert.ok(component.includes(required), `Empty Journey must render ${required}.`);
-}
-for (const retired of ["SummaryGrid", "Journey progress", "completion percentage", "activity counter", "KPI"]) {
-  assert.ok(!component.includes(retired), `The first viewport must not include retired dashboard UI: ${retired}.`);
-}
-assert.ok(page.includes("getServerSessionForProduct"), "Journey must be composed from the server session.");
-assert.ok(page.includes("buildJourneyEditorialModel"), "Journey route must use the shared server composition model.");
-assert.ok(model.includes("createPathGeometry"), "The server model must precompute Prompt 2 geometry.");
-assert.ok(!component.includes("createPathGeometry"), "React must not calculate Open Line geometry.");
-assert.ok(model.includes("canonicalJourneyStatement"), "The identity statement must be audited against canonical profile and progress data.");
-assert.ok(model.includes("narrative.moments"), "Historical meaning must continue to come from Prompt 7.");
-assert.ok(narrative.includes("buildEditorialStatement"), "Narrative Engine must own editorial statement selection.");
-assert.ok(component.includes("OPEN_LINE_MOTION.disclosure"), "Moment disclosure must reuse Prompt 6 timing tokens.");
-assert.ok(styles.includes("prefers-reduced-motion"), "Journey styles must explicitly preserve reduced motion.");
-assert.ok(styles.includes("prefers-contrast: more"), "Journey must support high contrast.");
-assert.ok(component.includes("data-journey-living-path") && !component.includes("JourneyResponsiveLine"), "Journey must use a readable three-part path instead of duplicating the story as abstract SVG geometry.");
-assert.ok(styles.includes("grid-template-columns: 1fr") && styles.includes(".nextStep { border-top"), "Mobile focus and next action must stack in natural reading order.");
-assert.ok(component.includes("<ol") && component.includes("aria-labelledby"), "History must keep chronological and accessible structure.");
-assert.ok(component.includes("<details") && component.includes("<summary"), "Moment and chapter disclosures must remain keyboard-native.");
-assert.ok(!component.includes("useState") && !component.includes("useMemo"), "Journey history must remain server-first without client recomputation.");
-assert.ok(loading.includes("loadingNarrative") && loading.includes("loadingLine") && !loading.includes("grid-cols"), "Loading must resemble the focused Journey hierarchy, not a dashboard.");
-assert.ok(styles.includes("font-family: Iowan Old Style"), "Editorial serif must carry the student story.");
-assert.ok(styles.includes("width: min(100% - 2.5rem, 68rem)"), "Desktop composition must keep a calm editorial width.");
-assert.ok(styles.includes("max-width: 49rem"), "Narrative column must remain intentionally bounded.");
+for (const required of ["<h1>Journey</h1>", "A timeline of the opportunities and milestones that have shaped your progress.", "Your Journey starts here", "JourneyCardEntry"]) assert.ok(component.includes(required), `Unified Journey must render ${required}.`);
+for (const retired of ["Your next step", "Horizon", "Journey Board", "Move to...", "Right now", "recommendation"]) assert.ok(!component.includes(retired), `Unified Journey must retire ${retired}.`);
+assert.ok(page.includes("buildJourneyTimelineModel") && page.includes("JourneyTimeline"), "The signed-in home must use the server-built timeline.");
+assert.ok(styles.includes("grid-template-columns") && styles.includes("prefers-reduced-motion") && styles.includes("prefers-contrast: more"));
+assert.ok(loading.includes("Loading your saved opportunities and progress."), "Loading copy must match the final timeline.");
 
 const durations: number[] = [];
-for (let index = 0; index < 40; index += 1) {
+for (let index = 0; index < 80; index += 1) {
   const started = performance.now();
-  buildJourneyEditorialModel({ user, account: account(true), opportunities: [opportunity] });
+  buildJourneyTimelineModel({ user, account: account(true), opportunities: selected });
   durations.push(performance.now() - started);
 }
-durations.sort((a, b) => a - b);
+durations.sort((left, right) => left - right);
 const p95 = durations[Math.floor(durations.length * .95)];
-assert.ok(p95 < 80, `Journey editorial server composition p95 must remain under 80ms; received ${p95.toFixed(2)}ms.`);
+assert.ok(p95 < 20, `Journey timeline projection p95 must remain under 20ms; received ${p95.toFixed(2)}ms.`);
 
-console.log(`Journey editorial checks passed. Server composition p95 ${p95.toFixed(2)}ms.`);
+console.log(`Unified Journey editorial checks passed. Timeline projection p95 ${p95.toFixed(2)}ms.`);

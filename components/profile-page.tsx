@@ -9,6 +9,7 @@ import type { AccountSession } from "@/lib/account-types";
 import { AccountButton } from "./account-auth";
 import { StudentProfileForm } from "./personalized-home";
 import { isProUser, proPricing } from "@/lib/billing";
+import { BillingCheckoutButton } from "./billing-checkout-button";
 
 const AdvisorBrainProfileTab = dynamic(() => import("./profile-career-tab").then((module) => module.AdvisorBrainProfileTab), {
   ssr: false,
@@ -17,6 +18,7 @@ const AdvisorBrainProfileTab = dynamic(() => import("./profile-career-tab").then
 
 type BillingAvailability = {
   checkoutConfigured: boolean;
+  checkoutPlans?: { pro_monthly: boolean; pro_annual: boolean };
   portalConfigured: boolean;
   webhookConfigured: boolean;
   developmentWarning: string;
@@ -106,14 +108,14 @@ export function ProfilePage() {
           <div>
             <p className="rule-label text-forest">Billing</p>
             <h2 className="mt-2 font-editorial text-2xl font-bold">{pro ? `UnlockED Pro${interval ? ` — ${interval}` : ""}` : "UnlockED Free"}</h2>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-ink/50">{pro ? referralProLabel && !billing?.hasStripeSubscription ? `Referral-earned Pro is active until ${referralProLabel}.` : billing?.cancelAtPeriodEnd && renewalLabel ? `Cancels ${renewalLabel}. You’ll keep Pro access until then.` : renewalLabel ? `Renews ${renewalLabel}.` : "Your Pro subscription is active." : "Free includes Discover, Journey, Path Moment exports, and a limited For You preview."}</p>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-ink/50">{pro ? referralProLabel && !billing?.hasStripeSubscription ? `Referral-earned Pro is active until ${referralProLabel}.` : billing?.cancelAtPeriodEnd && renewalLabel ? `Cancels ${renewalLabel}. You’ll keep Pro access until then.` : renewalLabel ? `Renews ${renewalLabel}.` : "Your Pro subscription is active." : "Free includes Discover, Journey, Journey Card exports, and a limited For You preview."}</p>
             {billing?.status === "past_due" && <p className="mt-3 max-w-2xl rounded-2xl bg-amber-50 px-4 py-3 text-xs font-bold leading-5 text-amber-800">Payment needs attention. Update your payment method in Stripe to keep Pro active.</p>}
             {billing?.status && <p className="mt-2 text-xs font-bold uppercase tracking-wider text-ink/35">Subscription status: {billing.status.replaceAll("_"," ")}</p>}
             {billingAvailability?.developmentWarning && <p className="mt-3 max-w-2xl rounded-2xl bg-paper px-4 py-3 text-xs font-bold leading-5 text-ink/55">{billingAvailability.developmentWarning}</p>}
           </div>
           <div className="flex flex-col gap-3 sm:flex-row md:flex-col">
-            {!pro && billingAvailability?.checkoutConfigured ? <>
-              {(Object.keys(proPricing) as Array<keyof typeof proPricing>).map((planId) => <form key={planId} action="/api/billing/checkout" method="post"><input type="hidden" name="planId" value={planId} /><button className="min-h-11 w-full rounded-full bg-forest px-5 text-sm font-bold text-white hover:bg-ink">Upgrade {proPricing[planId].label}</button></form>)}
+            {!pro && billingAvailability ? <>
+              {(Object.keys(proPricing) as Array<keyof typeof proPricing>).map((planId) => <BillingCheckoutButton key={planId} planId={planId} configured={billingAvailability.checkoutPlans?.[planId] ?? billingAvailability.checkoutConfigured} source="profile" className="min-h-11 w-full rounded-full bg-forest px-5 text-sm font-bold text-white hover:bg-ink disabled:cursor-wait disabled:opacity-65">Upgrade {proPricing[planId].label}</BillingCheckoutButton>)}
               <Link href="/pricing" className="inline-flex min-h-11 items-center justify-center text-center text-xs font-bold text-forest hover:text-ink">Compare plans</Link>
             </> : null}
             {billing?.hasStripeCustomer && billingAvailability?.portalConfigured ? <form action="/api/billing/portal" method="post"><button className="min-h-11 w-full rounded-full border border-ink/15 px-5 text-sm font-bold text-ink/60 hover:border-forest hover:text-forest">Manage subscription</button></form> : null}

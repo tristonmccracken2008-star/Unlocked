@@ -17,6 +17,10 @@ export async function GET(request: Request) {
     const portalConfigured = stripePortalConfigured();
     return NextResponse.json({
       checkoutConfigured,
+      checkoutPlans: {
+        pro_monthly: stripeCheckoutConfigured("pro_monthly"),
+        pro_annual: stripeCheckoutConfigured("pro_annual"),
+      },
       portalConfigured,
       webhookConfigured: stripeBillingConfigured(),
       developmentWarning: process.env.NODE_ENV !== "production" && !stripeBillingConfigured()

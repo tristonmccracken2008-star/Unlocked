@@ -21,8 +21,9 @@ export function stripeBillingConfigured() {
   return Boolean(config.secretKey && config.webhookSecret && config.publishableKey && config.proMonthlyPriceId && config.proAnnualPriceId);
 }
 
-export function stripeCheckoutConfigured() {
+export function stripeCheckoutConfigured(planId?: ProPlanId) {
   const config = stripeConfig();
+  if (planId) return Boolean(config.secretKey && priceIdForPlan(planId));
   return Boolean(config.secretKey && config.proMonthlyPriceId && config.proAnnualPriceId);
 }
 
@@ -100,13 +101,13 @@ export function isConfiguredProPriceId(priceId: string | undefined | null) {
   return priceId === config.proMonthlyPriceId || priceId === config.proAnnualPriceId;
 }
 
-export async function createProCheckoutSession(user: AuthUser, planId: ProPlanId, stripeCustomerId?: string) {
+export async function createProCheckoutSession(user: AuthUser, planId: ProPlanId, stripeCustomerId?: string, returnOrigin = appUrl()) {
   const priceId = priceIdForPlan(planId);
   if (!priceId) throw new Error(`Stripe price is not configured for ${planId}.`);
   const params = new URLSearchParams({
     mode: "subscription",
-    success_url: `${appUrl()}/billing/success?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${appUrl()}/billing/cancel`,
+    success_url: `${returnOrigin}/billing/success?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${returnOrigin}/billing/cancel`,
     client_reference_id: user.id,
     "line_items[0][price]": priceId,
     "line_items[0][quantity]": "1",
@@ -123,10 +124,10 @@ export async function createProCheckoutSession(user: AuthUser, planId: ProPlanId
   return await stripeRequest<StripeCheckoutSession>("/checkout/sessions", params, idempotencyKey);
 }
 
-export async function createCustomerPortalSession(stripeCustomerId: string) {
+export async function createCustomerPortalSession(stripeCustomerId: string, returnOrigin = appUrl()) {
   return await stripeRequest<StripePortalSession>("/billing_portal/sessions", new URLSearchParams({
     customer: stripeCustomerId,
-    return_url: `${appUrl()}/profile?billing=returned`,
+    return_url: `${returnOrigin}/profile?billing=returned`,
   }));
 }
 

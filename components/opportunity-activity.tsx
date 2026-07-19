@@ -49,5 +49,5 @@ function JourneyAddedState({ className = "" }: { className?: string }) {
 }
 
 function LinkToJourney() {
-  return <a href="/my-opportunities" className="ml-2 border-b border-current pb-0.5 text-[11px] normal-case tracking-normal">View Journey</a>;
+  return <a href="/" className="ml-2 border-b border-current pb-0.5 text-[11px] normal-case tracking-normal">View Journey</a>;
 }

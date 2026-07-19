@@ -16,7 +16,7 @@ export async function POST(request: Request) {
     await enforceRateLimit(request, "billing-portal", 10, 10 * 60, session.user.id);
     const customerId = session.data.billing.stripeCustomerId;
     if (!stripePortalConfigured() || !customerId) return NextResponse.redirect(new URL("/profile?billing=portal-unavailable", appOrigin()), 303);
-    const portal = await createCustomerPortalSession(customerId);
+    const portal = await createCustomerPortalSession(customerId, new URL(request.url).origin);
     const portalUrl = validatedRedirectUrl(portal.url, ["stripe.com"]);
     if (!portalUrl) throw new Error("Stripe portal did not return a trusted URL.");
     return NextResponse.redirect(portalUrl, 303);
