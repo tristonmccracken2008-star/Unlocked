@@ -1,9 +1,11 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 
-const globalSearch = read("components/global-search.tsx");
+const globalSearchPath = new URL("../components/global-search.tsx", import.meta.url);
+const globalSearch = existsSync(globalSearchPath) ? read("components/global-search.tsx") : "";
+const header = read("components/header.tsx");
 const discoverPage = read("app/opportunities/page.tsx");
 const opportunityFilter = read("components/opportunity-filter.tsx");
 const profilePage = read("components/profile-page.tsx");
@@ -21,10 +23,14 @@ const discoverCatalog = read("lib/discover-catalog.ts");
 const opportunityApi = read("app/api/opportunities/route.ts");
 const advisorRoute = read("app/advisor/page.tsx");
 
-assert.doesNotMatch(globalSearch, /opportunities as seedOpportunities/, "Global search must not statically import the full opportunity catalog.");
-assert.match(globalSearch, /view:"discover"/, "Global search should request a bounded server-side result window.");
-assert.match(globalSearch, /trimmed\.length<2/, "Global search must not issue catalog requests before the query is meaningful.");
-assert.match(globalSearch, /AbortController/, "Global search must cancel superseded requests.");
+if (globalSearch) {
+  assert.doesNotMatch(globalSearch, /opportunities as seedOpportunities/, "Global search must not statically import the full opportunity catalog.");
+  assert.match(globalSearch, /view:"discover"/, "Global search should request a bounded server-side result window.");
+  assert.match(globalSearch, /trimmed\.length<2/, "Global search must not issue catalog requests before the query is meaningful.");
+  assert.match(globalSearch, /AbortController/, "Global search must cancel superseded requests.");
+} else {
+  assert.doesNotMatch(header, /GlobalSearch/, "The retired global search must not remain in the header bundle.");
+}
 
 assert.doesNotMatch(discoverPage, /listPublishedOpportunities/, "Discover must not serialize the full catalog through the route payload.");
 assert.match(opportunityFilter, /view: "discover"/, "Discover should request only a bounded server-side result window.");
@@ -57,7 +63,8 @@ assert.match(accountSync, /if \(sessionRequest\) return sessionRequest/, "Forced
 assert.match(accountSync, /let hydrateRequest/, "Account hydration requests should be deduped.");
 assert.match(accountSync, /resetAccountSessionCache/, "Account session cache should be explicitly reset for account switching.");
 assert.match(accountSync, /const cloudData = session\.data/, "Hydration should reuse session account data instead of fetching it again.");
-assert.match(accountSync, /!migrated \|\| !sameAccountData\(merged, cloudData\)/, "Hydration should skip account writes when merged data has not changed.");
+assert.match(accountSync, /const saved = !sameAccountData\(merged, cloudData\) \? await pushAccountData\(merged\) : cloudData/, "Hydration should skip account writes when merged data has not changed.");
+assert.doesNotMatch(accountSync, /!migrated \|\| !sameAccountData/, "A first hydration must not force an unchanged account write.");
 
 assert.match(authStore, /kvTimeoutMs/, "Production KV operations should have a bounded timeout.");
 assert.match(authStore, /AbortController/, "Production KV fetches should be abortable.");

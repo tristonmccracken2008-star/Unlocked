@@ -323,8 +323,9 @@ try {
     assert.equal(response?.status(), 200);
     const root = page.locator("[data-journey-editorial]");
     await root.waitFor({ state: "visible" });
-    await root.getByText("You’ll unlock your first Path Moment after a meaningful milestone.", { exact: true }).waitFor({ state: "visible" });
+    await root.getByRole("heading", { level: 1 }).waitFor({ state: "visible" });
     assert.equal(await root.getByRole("button", { name: "Create a Path Moment" }).count(), 0);
+    assert.equal(await root.locator("[data-path-moment-entry]").count(), 0, "An empty Journey must not promote sharing before a meaningful moment exists.");
     await page.screenshot({ path: path.join(outputDirectory, "empty-state.png"), fullPage: true });
     await context.close();
   }

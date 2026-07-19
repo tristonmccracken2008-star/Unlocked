@@ -9,16 +9,16 @@ import { ThemeBootstrapScript, ThemeController } from "@/components/theme-contro
 import { journeyThemeCss } from "@/lib/journey-theme";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://unlocked.education"),
-  title: { default: "UnlockED — Everything your student status unlocks", template: "%s | UnlockED" },
-  description: "Discover verified student benefits, free software, AI tools, discounts, and campus resources available through your student status.",
-  keywords: ["student discounts", ".edu email perks", "free student software", "student AI tools", "college discounts"],
+  metadataBase: new URL("https://www.unlockededu.com"),
+  title: { default: "UnlockED — Student opportunities, chosen for you", template: "%s | UnlockED" },
+  description: "Discover scholarships, internships, research, student benefits, and other opportunities from official sources.",
+  keywords: ["college scholarships", "student internships", "undergraduate research", "student opportunities", "student benefits"],
   applicationName: "UnlockED",
   authors: [{ name: "UnlockED" }],
   creator: "UnlockED",
   icons: { icon: "/icon", apple: "/apple-icon" },
-  openGraph: { type: "website", siteName: "UnlockED", title: "UnlockED — Everything your student status unlocks", description: "Find verified benefits, free software, AI tools, discounts, and campus resources.", url: "https://unlocked.education", images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "UnlockED student opportunity directory" }] },
-  twitter: { card: "summary_large_image", title: "UnlockED", description: "Everything your student status unlocks.", images: ["/opengraph-image"] },
+  openGraph: { type: "website", siteName: "UnlockED", title: "UnlockED — Student opportunities, chosen for you", description: "Discover scholarships, internships, research, student benefits, and other opportunities from official sources.", url: "https://www.unlockededu.com", images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "UnlockED student opportunity directory" }] },
+  twitter: { card: "summary_large_image", title: "UnlockED", description: "Student opportunities, chosen for you.", images: ["/opengraph-image"] },
   robots: { index: true, follow: true },
 };
 

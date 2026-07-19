@@ -512,6 +512,8 @@
   .identity { margin-top: .7rem; font-size: .78rem; line-height: 1.45; }
   .focusLayout,
   .loadingComposition { grid-template-columns: 1fr; gap: 3rem; margin-top: 2.5rem; padding-top: 1.75rem; }
+  .nextStep,
+  .loadingWaypoint { order: -1; }
   .orientation > h2 { font-size: 2rem; }
   .nextStep { border-top: 1px solid var(--unlocked-border); border-left: 0; padding: 2rem 0 0; }
   .nextStep h2 { font-size: 1.75rem; }
@@ -543,6 +545,16 @@
 
 @media (max-width: 22.5rem) {
   .article { width: min(100% - 1.5rem, 36rem); }
+  .opening { padding-top: 1.25rem; }
+  .storyHeader h1 { margin-top: .55rem; }
+  .identity { margin-top: .45rem; }
+  .focusLayout,
+  .loadingComposition { gap: 2rem; margin-top: 1.25rem; padding-top: .9rem; }
+  .nextStep,
+  .loadingWaypoint { padding-top: .8rem; }
+  .nextStep > p:not(.stepLabel) { margin-top: .55rem; }
+  .stepSignals { margin-top: .7rem; }
+  .primaryAction { margin-top: .8rem; }
   .storyHeader h1 { font-size: 2.15rem; }
   .orientation > h2 { font-size: 1.75rem; }
   .nextStep h2 { font-size: 1.5rem; }

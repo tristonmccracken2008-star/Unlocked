@@ -10,9 +10,10 @@ const api = read("app/api/opportunities/route.ts");
 const catalog = read("lib/discover-catalog.ts");
 const pkg = read("package.json");
 
-for (const label of ["Discover opportunities", "Find the right opportunity.", "Recommended for you", "Top opportunities", "Browse all opportunities"]) {
+for (const label of ["Discover opportunities", "Find the right opportunity.", "Search results", "Opportunities", "Browse all opportunities"]) {
   assert.ok(filter.includes(label), `Discover must render ${label}.`);
 }
+assert.doesNotMatch(filter, /Recommended for you|Personalized by search/, "Discover must not present the generic directory as the personalized For You experience.");
 
 for (const token of ["sessionStorage.setItem(storageKey", "readStoredFilters", "FilterPanel", "SchoolFilter", "ResultSkeleton", "EmptyResults"]) {
   assert.ok(filter.includes(token), `Discover must preserve ${token}.`);

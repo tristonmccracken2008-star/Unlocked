@@ -91,7 +91,7 @@ export default async function Page({params}:{params:Promise<{id:string}>}){
     {q:`When is the deadline?`,a:item.application_deadline?`The documented deadline is ${deadlineLabel(item)}.`:unknown("the current deadline")},
     {q:"Where should I apply or claim it?",a:`Use the official ${item.organization} source linked on this page. UnlockED does not accept applications or determine eligibility.`},
   ];
-  const jsonLd={"@context":"https://schema.org","@type":"Article",headline:item.title,description:item.description,dateModified:item.last_verified,author:{"@type":"Organization",name:"UnlockED"},publisher:{"@type":"Organization",name:"UnlockED"},mainEntityOfPage:`https://unlocked.education/opportunities/${item.id}`};
+  const jsonLd={"@context":"https://schema.org","@type":"Article",headline:item.title,description:item.description,dateModified:item.last_verified,author:{"@type":"Organization",name:"UnlockED"},publisher:{"@type":"Organization",name:"UnlockED"},mainEntityOfPage:`https://www.unlockededu.com/opportunities/${item.id}`};
   const faqLd={"@context":"https://schema.org","@type":"FAQPage",mainEntity:faq.map(({q,a})=>({"@type":"Question",name:q,acceptedAnswer:{"@type":"Answer",text:a}}))};
   return <>
     <OpportunityViewTracker opportunityId={item.id}/>

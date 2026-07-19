@@ -167,7 +167,7 @@ async function hydrateAccountDataInner(): Promise<AccountSession> {
   }
   localStorage.setItem(journeyProgressStorageKey, JSON.stringify(merged.journeyProgress ?? {}));
   localStorage.setItem(accountMigrationKey(session.user.id), "true");
-  const saved = !migrated || !sameAccountData(merged, cloudData) ? await pushAccountData(merged) : cloudData;
+  const saved = !sameAccountData(merged, cloudData) ? await pushAccountData(merged) : cloudData;
   const fallbackData: AccountData = { profile: merged.profile ?? null, onboardingComplete: Boolean(merged.onboardingComplete), billing: cloudData?.billing ?? defaultBillingRecord(), activity: merged.activity ?? null, savedOpportunities: merged.savedOpportunities ?? [], tracker: merged.tracker ?? {}, preferences: merged.preferences ?? null, journeyProgress: merged.journeyProgress ?? {}, advisor: merged.advisor ?? null, referrals: cloudData?.referrals ?? null, updatedAt: new Date().toISOString() };
   const syncedSession = { ...session, data: saved ?? fallbackData } satisfies AccountSession;
   sessionCache = syncedSession;

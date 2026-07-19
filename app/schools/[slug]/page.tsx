@@ -42,7 +42,7 @@ export default async function SchoolPage({ params }: { params: Promise<{ slug: s
     ["AI tools",eligibleOpportunities.filter((item)=>item.type==="AI"),"/ai"],
     ["Benefits",eligibleOpportunities.filter((item)=>item.type==="Benefit"),"/benefits"],
   ] as [string,Opportunity[],string][];
-  const jsonLd = { "@context": "https://schema.org", "@type": "CollectionPage", name: `${school.name} Student Discounts & .edu Benefits`, description: `National student benefits available to eligible ${school.name} students plus school-specific benefits verified from official university sources.`, url: `https://unlocked.education/schools/${school.slug}`, mainEntity: { "@type": "ItemList", numberOfItems: schoolBenefits.length, itemListElement: schoolBenefits.slice(0, 10).map((item, index) => ({ "@type": "ListItem", position: index + 1, url: `https://unlocked.education/benefits/${item.slug}`, name: item.name })) } };
+  const jsonLd = { "@context": "https://schema.org", "@type": "CollectionPage", name: `${school.name} Student Discounts & .edu Benefits`, description: `National student benefits available to eligible ${school.name} students plus school-specific benefits verified from official university sources.`, url: `https://www.unlockededu.com/schools/${school.slug}`, mainEntity: { "@type": "ItemList", numberOfItems: schoolBenefits.length, itemListElement: schoolBenefits.slice(0, 10).map((item, index) => ({ "@type": "ListItem", position: index + 1, url: `https://www.unlockededu.com/benefits/${item.slug}`, name: item.name })) } };
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }} />

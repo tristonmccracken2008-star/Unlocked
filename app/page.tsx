@@ -10,8 +10,8 @@ import { cookies } from "next/headers";
 import { isProUser } from "@/lib/billing";
 
 export const metadata: Metadata = {
-  title: { absolute: "UnlockED — Journey" },
-  description: "See the next meaningful step in your college journey and the path that brought you there.",
+  title: { absolute: "UnlockED — Student opportunities, chosen for you" },
+  description: "Discover scholarships, internships, research, student benefits, and other opportunities from official sources.",
 };
 
 export const dynamic = "force-dynamic";

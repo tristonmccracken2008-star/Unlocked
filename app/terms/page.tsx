@@ -1,11 +1,7 @@
-import type { Metadata } from "next";
 import { InfoPage } from "@/components/info-page";
+import { publicPageMetadata } from "@/lib/public-metadata";
 
-export const metadata: Metadata = {
-  title: "Terms of Service",
-  description: "Read the UnlockED terms for using the student opportunity directory and personalized dashboard.",
-  alternates: { canonical: "/terms" },
-};
+export const metadata = publicPageMetadata("Terms of Service", "Read the UnlockED terms for using the student opportunity directory and personalized recommendations.", "/terms");
 
 export default function Page() {
   return <InfoPage

@@ -235,7 +235,7 @@ export function OnboardingFlow({ session, initialProfile }: { session: AccountSe
   return <main className="min-h-[calc(100vh-80px)] bg-paper px-4 py-6 sm:px-8 sm:py-10" onKeyDown={onKeyDown}>
     <section className="mx-auto flex min-h-[68vh] max-w-5xl flex-col rounded-[2rem] border border-ink/10 bg-white/72 px-5 py-6 shadow-soft sm:px-8 sm:py-8">
       <div className="flex items-center justify-between gap-4">
-        {screen === "question" ? <button type="button" onClick={back} className="rounded-full px-3 py-2 text-sm font-bold text-ink/50 hover:bg-paper hover:text-forest" aria-label="Go back">Back</button> : <span />}
+        {screen === "question" ? <button type="button" onClick={back} className="inline-flex min-h-11 items-center rounded-full px-3 text-sm font-bold text-ink/50 hover:bg-paper hover:text-forest" aria-label="Go back">Back</button> : <span />}
         {screen === "question" ? <Progress step={step} /> : <p className="text-xs font-bold uppercase tracking-[.16em] text-ink/35">About one minute</p>}
       </div>
       <div className="flex flex-1 items-center justify-center py-10">
@@ -258,7 +258,7 @@ function majorMatchesFor(query: string) {
 }
 
 function Progress({ step }: { step: number }) {
-  return <div className="w-full max-w-xs" aria-label={`Step ${step + 1} of ${totalSteps}`}>
+  return <div className="w-full max-w-xs" role="progressbar" aria-label="Onboarding progress" aria-valuemin={1} aria-valuemax={totalSteps} aria-valuenow={step + 1} aria-valuetext={`Step ${step + 1} of ${totalSteps}`}>
     <div className="grid grid-cols-8 gap-1.5" aria-hidden="true">{Array.from({ length: totalSteps }, (_, index) => <span key={index} className={`h-1.5 rounded-full transition-all duration-300 ${index <= step ? "bg-forest" : "bg-ink/12"}`} />)}</div>
     <p className="mt-2 text-right text-xs font-bold text-ink/45">{step + 1} of {totalSteps}</p>
   </div>;
@@ -315,16 +315,16 @@ function Combobox({ id, value, selected, placeholder, matches, show, setShow, on
     <label htmlFor={id} className="sr-only">{placeholder}</label>
     <div className={`flex min-h-12 items-center gap-3 rounded-xl border bg-white px-4 ${selected ? "border-forest" : "border-ink/15"} focus-within:border-forest`}>
       <SearchIcon className="h-4 w-4 shrink-0 text-ink/35" />
-      <input id={id} value={value} onFocus={() => setShow(true)} onChange={(event) => { onChange(event.target.value); setShow(true); }} placeholder={placeholder} autoComplete="off" aria-expanded={show} aria-controls={`${id}-listbox`} className="min-w-0 flex-1 bg-transparent py-3 text-sm font-bold outline-none placeholder:text-ink/30" />
+      <input id={id} value={value} onFocus={() => setShow(true)} onChange={(event) => { onChange(event.target.value); setShow(true); }} placeholder={placeholder} autoComplete="off" role="combobox" aria-autocomplete="list" aria-expanded={show} aria-controls={`${id}-listbox`} className="min-w-0 flex-1 bg-transparent py-3 text-sm font-bold outline-none placeholder:text-ink/30" />
     </div>
     {show && <div id={`${id}-listbox`} role="listbox" className="absolute z-30 mt-2 max-h-72 w-full overflow-auto rounded-2xl border border-ink/10 bg-white py-2 shadow-soft">
-      {matches.length ? matches.map((item) => <button key={item.id} type="button" role="option" onMouseDown={(event) => event.preventDefault()} onClick={() => onChoose(item)} className="block w-full px-4 py-3 text-left hover:bg-paper"><span className="block text-sm font-bold">{item.label}</span>{item.meta && <span className="mt-1 block text-xs text-ink/40">{item.meta}</span>}</button>) : <p className="px-4 py-3 text-sm font-bold text-ink/45">No match found.</p>}
+      {matches.length ? matches.map((item) => <button key={item.id} type="button" role="option" aria-selected={item.value === value} onMouseDown={(event) => event.preventDefault()} onClick={() => onChoose(item)} className="block min-h-11 w-full px-4 py-3 text-left hover:bg-paper"><span className="block text-sm font-bold">{item.label}</span>{item.meta && <span className="mt-1 block text-xs text-ink/40">{item.meta}</span>}</button>) : <p className="px-4 py-3 text-sm font-bold text-ink/45">No match found.</p>}
     </div>}
   </div>;
 }
 
 function Choice({ selected, onClick, children }: { selected: boolean; onClick: () => void; children: React.ReactNode }) {
-  return <button type="button" onClick={onClick} className={`min-h-12 w-full rounded-xl border px-4 py-3 text-left text-sm font-bold transition ${selected ? "border-forest bg-forest text-white shadow-[0_12px_24px_rgba(31,95,67,.16)]" : "border-ink/12 bg-white text-ink/72 hover:border-forest hover:text-forest"}`}>{children}</button>;
+  return <button type="button" aria-pressed={selected} onClick={onClick} className={`min-h-12 w-full rounded-xl border px-4 py-3 text-left text-sm font-bold transition ${selected ? "border-forest bg-forest text-white shadow-[0_12px_24px_rgba(31,95,67,.16)]" : "border-ink/12 bg-white text-ink/72 hover:border-forest hover:text-forest"}`}>{children}</button>;
 }
 
 function ChoiceGrid({ options, values, onToggle }: { options: readonly string[]; values: string[]; onToggle: (value: string) => void }) {

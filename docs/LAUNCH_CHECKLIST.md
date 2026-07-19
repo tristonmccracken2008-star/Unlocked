@@ -36,7 +36,7 @@ Updated: 2026-07-13
 - Verify deployment WAF, rate-limit storage, log alerts, backups, secret rotation, and incident-response ownership.
 - Run a live OAuth sign-in/sign-out test against the production domain and Google OAuth callback URL.
 - Run test-mode Checkout, subscription update, cancellation, failed payment, duplicate webhook, and out-of-order webhook smoke tests in a staging deployment.
-- Confirm `hello@unlocked.education` is a working monitored inbox.
+- Confirm `support@unlockededu.com` is a working monitored inbox.
 - Replace baseline school-domain source URLs with precise office-level URLs where available, starting with the V1 priority subset.
-- Decide whether the report-outdated flow should remain local-only for V1 or be connected to an admin-visible backend before launch.
+- Confirm the report-outdated and community-submission email handoffs open correctly on production devices.
 - Review the residual risks and operational controls in `docs/PRODUCTION_SECURITY_AUDIT.md`.

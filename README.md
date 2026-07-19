@@ -38,9 +38,9 @@ Category pages are generated from the `categories` array at `/categories/[slug]`
 - `/free-student-software`
 - `/student-ai-tools`
 
-## Local submissions
+## Community submissions
 
-The submit-perk form stores records in browser `localStorage` under `unlocked-submissions` and logs each successful submission to the browser console. No data is sent to a server.
+The submit-opportunity form prepares a message to `support@unlockededu.com`. The student reviews and sends the message from their email app; the website never claims an unsent submission was received.
 
 ## Deploy to Vercel
 
@@ -48,6 +48,6 @@ The submit-perk form stores records in browser `localStorage` under `unlocked-su
 2. Import the repository in Vercel.
 3. If this project remains in a larger repository, set the Vercel root directory to this application directory.
 4. Keep the default Next.js build command (`npm run build`) and output settings.
-5. Point the production domain to the deployment. If the domain is not `unlocked.education`, update `metadataBase` in `app/layout.tsx` and `base` in `app/sitemap.ts`.
+5. Point `www.unlockededu.com` to the production deployment and redirect the apex domain to it.
 
 Production authentication, account sync, and aggregate analytics use the environment variables documented in `docs/AUTHENTICATION.md`. Set `ADMIN_EMAILS` to a comma-separated administrator allowlist for `/admin/analytics`. Vercel Analytics and Speed Insights are mounted in the root layout and should be enabled for the Vercel project.

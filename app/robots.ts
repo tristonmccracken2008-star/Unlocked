@@ -1,7 +1,41 @@
 import type { MetadataRoute } from "next";
 export default function robots(): MetadataRoute.Robots {
   return {
-    rules: { userAgent: "*", allow: "/", disallow: ["/admin/", "/api/", "/profile", "/my-opportunities"] },
-    sitemap: "https://unlocked.education/sitemap.xml",
+    rules: {
+      userAgent: "*",
+      allow: ["/", "/about", "/contact", "/help", "/privacy", "/terms", "/disclaimer", "/pricing"],
+      disallow: [
+        "/admin/",
+        "/api/",
+        "/advisor",
+        "/ai",
+        "/best-edu-email-perks",
+        "/benefits",
+        "/billing/",
+        "/build-career",
+        "/career",
+        "/categories",
+        "/financial",
+        "/free-student-software",
+        "/get-ahead",
+        "/local",
+        "/my-opportunities",
+        "/onboarding",
+        "/opportunities",
+        "/profile",
+        "/referral",
+        "/research",
+        "/save-money",
+        "/scholarships",
+        "/school-not-found",
+        "/schools",
+        "/software",
+        "/student-",
+        "/submit-perk",
+        "/university",
+        "/updates",
+      ],
+    },
+    sitemap: "https://www.unlockededu.com/sitemap.xml",
   };
 }

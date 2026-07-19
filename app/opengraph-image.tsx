@@ -20,7 +20,7 @@ export default function Image() {
         <div style={{ fontSize: 80, fontWeight: 900, letterSpacing: 0, lineHeight: 1.02, marginTop: 24, maxWidth: 960 }}>Find the opportunities college usually leaves scattered.</div>
         <div style={{ color: "rgba(43,33,26,.62)", fontSize: 30, lineHeight: 1.35, marginTop: 28, maxWidth: 920 }}>Scholarships, research, internships, AI tools, benefits, competitions, and career resources checked against official sources.</div>
       </div>
-      <div style={{ borderTop: "2px solid rgba(43,33,26,.18)", color: "rgba(43,33,26,.58)", fontSize: 24, paddingTop: 24 }}>unlocked.education</div>
+      <div style={{ borderTop: "2px solid rgba(43,33,26,.18)", color: "rgba(43,33,26,.58)", fontSize: 24, paddingTop: 24 }}>unlockededu.com</div>
     </div>,
     size,
   );

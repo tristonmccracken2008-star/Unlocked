@@ -30,12 +30,26 @@ export function ProfilePage() {
   const [saved, setSaved] = useState(false);
   const [activeTab, setActiveTab] = useState<"edit" | "advisor">("edit");
   const [appearanceMessage, setAppearanceMessage] = useState("");
+  const [appearanceSaving, setAppearanceSaving] = useState(false);
   useEffect(() => {
     setProfile(readStudentProfile());
     hydrateAccountData().then((nextSession) => { setProfile(readStudentProfile()); return nextSession; }).then(setSession).catch(() => { setAccountError("Account status could not be loaded."); setSession({ authenticated: false, user: null, data: null }); });
     fetch("/api/billing/config", { cache: "no-store" }).then((response)=>response.ok?response.json():null).then(setBillingAvailability).catch(()=>setBillingAvailability(null));
   }, []);
-  if (profile === undefined) return <div className="min-h-[60vh]" />;
+  useEffect(() => {
+    if (!saved) return;
+    const timeout = window.setTimeout(() => setSaved(false), 5000);
+    return () => window.clearTimeout(timeout);
+  }, [saved]);
+  if (profile === undefined) return <main aria-busy="true" aria-label="Loading profile" className="min-h-[60vh] px-5 py-10 sm:px-8">
+    <section className="mx-auto max-w-5xl animate-pulse">
+      <div className="h-3 w-28 rounded-full bg-forest/12" />
+      <div className="mt-4 h-10 max-w-sm rounded-xl bg-ink/8" />
+      <div className="mt-4 h-4 max-w-xl rounded-full bg-ink/8" />
+      <div className="mt-10 h-48 rounded-[2rem] bg-white shadow-soft ring-1 ring-ink/8" />
+      <p className="sr-only">Loading your account and saved profile.</p>
+    </section>
+  </main>;
   const billing = session?.data?.billing;
   const pro = isProUser(billing);
   const interval = billing?.billingInterval === "year" ? "Annual" : billing?.billingInterval === "month" ? "Monthly" : "";
@@ -47,8 +61,8 @@ export function ProfilePage() {
         <div>
           <p className="rule-label text-forest">UnlockED account</p>
           <h1 className="mt-2 font-editorial text-3xl font-bold">Edit profile</h1>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-ink/50">{!session ? "Loading your account..." : session.authenticated ? `Signed in as ${session.user?.email}. Changes save to your dashboard.` : "Your session has ended. Return home to sign in again."}</p>
-          {accountError && <p className="mt-2 text-xs font-bold text-red-700">{accountError}</p>}
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-ink/50">{!session ? "Loading your account…" : session.authenticated ? `Signed in as ${session.user?.email}. Changes save to your account.` : "Your session has ended. Return home to sign in again."}</p>
+          {accountError && <p role="alert" className="mt-2 text-xs font-bold text-red-700">{accountError}</p>}
         </div>
         <AccountButton />
       </div>
@@ -62,17 +76,25 @@ export function ProfilePage() {
           {(["light", "system", "midnight", "forest"] as const).map((appearance) => {
             const premium = appearance !== "light";
             const selected = (session?.data?.preferences?.appearance ?? "light") === appearance;
-            return <button key={appearance} type="button" onClick={async () => {
+            return <button key={appearance} type="button" disabled={appearanceSaving} aria-pressed={selected} onClick={async () => {
               if (premium && !pro) {
                 setAppearanceMessage("Premium appearance is included with UnlockED Pro.");
                 return;
               }
-              const preferences = { ...(session?.data?.preferences ?? { updatedAt: new Date().toISOString() }), appearance, updatedAt: new Date().toISOString() };
-              await pushAccountData({ preferences });
-              const next = await hydrateAccountData();
-              setSession(next);
-              setAppearanceMessage(`${appearance === "light" ? "Light" : appearance === "system" ? "System" : appearance === "midnight" ? "Midnight" : "Forest"} appearance saved.`);
-            }} className={`min-h-11 rounded-full px-5 text-sm font-bold capitalize ${selected ? "bg-forest text-white" : "border border-ink/15 bg-white text-ink/60 hover:border-forest hover:text-forest"}`}>{appearance === "light" ? "UnlockED Light" : appearance === "system" ? "Use system setting" : appearance}{premium ? " · Pro" : ""}</button>;
+              setAppearanceSaving(true);
+              setAppearanceMessage("");
+              try {
+                const preferences = { ...(session?.data?.preferences ?? { updatedAt: new Date().toISOString() }), appearance, updatedAt: new Date().toISOString() };
+                await pushAccountData({ preferences });
+                const next = await hydrateAccountData();
+                setSession(next);
+                setAppearanceMessage(`${appearance === "light" ? "Light" : appearance === "system" ? "System" : appearance === "midnight" ? "Midnight" : "Forest"} appearance saved.`);
+              } catch {
+                setAppearanceMessage("We couldn’t save that appearance. Your previous setting is unchanged.");
+              } finally {
+                setAppearanceSaving(false);
+              }
+            }} className={`min-h-11 rounded-full px-5 text-sm font-bold capitalize disabled:cursor-wait disabled:opacity-60 ${selected ? "bg-forest text-white" : "border border-ink/15 bg-white text-ink/60 hover:border-forest hover:text-forest"}`}>{appearance === "light" ? "UnlockED Light" : appearance === "system" ? "Use system setting" : appearance === "midnight" ? "Midnight" : "Forest"}{premium ? " · Pro" : ""}</button>;
           })}
         </div>
         {appearanceMessage && <p role="status" className="mt-3 text-sm font-bold text-forest">{appearanceMessage} {!pro && <Link href="/pricing" className="ml-2 border-b border-current">View Pro</Link>}</p>}
@@ -92,7 +114,7 @@ export function ProfilePage() {
           <div className="flex flex-col gap-3 sm:flex-row md:flex-col">
             {!pro && billingAvailability?.checkoutConfigured ? <>
               {(Object.keys(proPricing) as Array<keyof typeof proPricing>).map((planId) => <form key={planId} action="/api/billing/checkout" method="post"><input type="hidden" name="planId" value={planId} /><button className="min-h-11 w-full rounded-full bg-forest px-5 text-sm font-bold text-white hover:bg-ink">Upgrade {proPricing[planId].label}</button></form>)}
-              <Link href="/pricing" className="text-center text-xs font-bold text-forest hover:text-ink">Compare plans</Link>
+              <Link href="/pricing" className="inline-flex min-h-11 items-center justify-center text-center text-xs font-bold text-forest hover:text-ink">Compare plans</Link>
             </> : null}
             {billing?.hasStripeCustomer && billingAvailability?.portalConfigured ? <form action="/api/billing/portal" method="post"><button className="min-h-11 w-full rounded-full border border-ink/15 px-5 text-sm font-bold text-ink/60 hover:border-forest hover:text-forest">Manage subscription</button></form> : null}
           </div>
@@ -100,12 +122,14 @@ export function ProfilePage() {
       </div>
     </section>
     <section className="px-5 pt-6 sm:px-8">
-      <div className="mx-auto flex max-w-5xl gap-2 border-b border-ink/10">
-        <button type="button" onClick={()=>setActiveTab("edit")} className={`px-4 py-3 text-sm font-bold ${activeTab==="edit"?"border-b-2 border-forest text-forest":"text-ink/45 hover:text-forest"}`}>Edit Profile</button>
-        <button type="button" onClick={()=>setActiveTab("advisor")} className={`px-4 py-3 text-sm font-bold ${activeTab==="advisor"?"border-b-2 border-forest text-forest":"text-ink/45 hover:text-forest"}`}>Career Profile</button>
+      <div role="tablist" aria-label="Profile sections" className="mx-auto flex max-w-5xl gap-2 border-b border-ink/10">
+        <button id="profile-edit-tab" role="tab" aria-selected={activeTab === "edit"} aria-controls="profile-edit-panel" type="button" onClick={()=>setActiveTab("edit")} className={`min-h-11 px-4 py-3 text-sm font-bold ${activeTab==="edit"?"border-b-2 border-forest text-forest":"text-ink/45 hover:text-forest"}`}>Edit profile</button>
+        <button id="profile-career-tab" role="tab" aria-selected={activeTab === "advisor"} aria-controls="profile-career-panel" type="button" onClick={()=>setActiveTab("advisor")} className={`min-h-11 px-4 py-3 text-sm font-bold ${activeTab==="advisor"?"border-b-2 border-forest text-forest":"text-ink/45 hover:text-forest"}`}>Career profile</button>
       </div>
     </section>
-    {activeTab === "edit" ? <StudentProfileForm mode="edit" session={session} initialProfile={profile} onSave={async (next)=>{await writeStudentProfile(next);setProfile(next);setSaved(true)}}/> : <AdvisorBrainProfileTab profile={profile} session={session} />}
-    {saved&&<div role="status" className="fixed bottom-5 left-5 right-5 z-40 border-2 border-ink bg-white px-5 py-3 text-sm font-bold shadow-[4px_4px_0_#2b211a] sm:left-auto">Profile saved. <Link href="/" className="ml-2 border-b border-forest text-forest">Return to dashboard</Link></div>}
+    <div id={activeTab === "edit" ? "profile-edit-panel" : "profile-career-panel"} role="tabpanel" aria-labelledby={activeTab === "edit" ? "profile-edit-tab" : "profile-career-tab"}>
+      {activeTab === "edit" ? <StudentProfileForm mode="edit" session={session} initialProfile={profile} onSave={async (next)=>{await writeStudentProfile(next);setProfile(next);setSaved(true)}}/> : <AdvisorBrainProfileTab profile={profile} session={session} />}
+    </div>
+    {saved&&<div role="status" className="fixed bottom-24 left-5 right-5 z-40 border-2 border-ink bg-white px-5 py-3 text-sm font-bold shadow-[4px_4px_0_#2b211a] sm:bottom-5 sm:left-auto">Profile saved. <Link href="/" className="ml-2 border-b border-forest text-forest">Return to Journey</Link></div>}
   </div>;
 }

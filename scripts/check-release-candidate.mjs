@@ -22,6 +22,17 @@ const analytics = read("lib/analytics-types.ts");
 const authStore = read("lib/auth-store.ts");
 const recommendationEngine = read("data/recommendation-engine.ts");
 const discoverCatalog = read("lib/discover-catalog.ts");
+const rootLayout = read("app/layout.tsx");
+const sitemap = read("app/sitemap.ts");
+const robots = read("app/robots.ts");
+const submitPerk = read("components/submit-perk-form.tsx");
+
+for (const source of [rootLayout, sitemap, robots]) {
+  assert.match(source, /https:\/\/www\.unlockededu\.com/, "Public canonical metadata must use the live production hostname.");
+  assert.doesNotMatch(source, /unlocked\.education/, "Retired domain references must not return to public metadata.");
+}
+assert.match(submitPerk, /mailto:support@unlockededu\.com/, "Community submissions must open a real review handoff.");
+assert.doesNotMatch(submitPerk, /localStorage|console\.(info|log)/, "Community submissions must not claim browser-only data was delivered.");
 
 assert.match(googleOAuth, /prompt:\s*"select_account"/, "Google OAuth must request account selection.");
 assert.match(googleOAuth, /include_granted_scopes:\s*"false"/, "Google OAuth must not silently reuse granted scopes.");

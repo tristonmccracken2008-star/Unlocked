@@ -1,12 +1,8 @@
-import type { Metadata } from "next";
 import Link from "next/link";
 import { proPricing } from "@/lib/billing";
+import { publicPageMetadata } from "@/lib/public-metadata";
 
-export const metadata: Metadata = {
-  title: "UnlockED Pro",
-  description: "Compare UnlockED Free and Pro plans for personalized student opportunity recommendations.",
-  alternates: { canonical: "/pricing" },
-};
+export const metadata = publicPageMetadata("UnlockED Pro", "Compare UnlockED Free and Pro plans for personalized student opportunity recommendations.", "/pricing");
 
 export default function Page() {
   return <main className="bg-[radial-gradient(circle_at_top_left,rgba(231,216,189,.45),transparent_34rem),#f6f0e6] px-5 py-14 sm:px-8">

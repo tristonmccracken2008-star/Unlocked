@@ -2,10 +2,7 @@ import type { Opportunity, VerificationStatus } from "./opportunities";
 
 export type ReviewReason = "Verification older than 60 days" | "Deadline passed" | "Missing official source" | "Missing eligibility" | "Unknown value is not documented";
 export type ReviewOverride = { status: VerificationStatus | "archived"; reviewedAt: string };
-export type OpportunityReport = { id: string; opportunityId: string; reason: string; details: string; createdAt: string };
-
 export const reviewOverridesKey = "unlocked-opportunity-review-overrides-v1";
-export const opportunityReportsKey = "unlocked-opportunity-reports-v1";
 
 const day = 86_400_000;
 const validDate = (value: string | null | undefined) => Boolean(value && /^\d{4}-\d{2}-\d{2}$/.test(value));
@@ -41,12 +38,4 @@ export function saveReviewOverride(opportunityId: string, status: ReviewOverride
   const next = { ...readReviewOverrides(), [opportunityId]: { status, reviewedAt: new Date().toISOString() } };
   localStorage.setItem(reviewOverridesKey, JSON.stringify(next));
   return next;
-}
-
-export function saveOpportunityReport(opportunityId: string, reason: string, details: string) {
-  let reports: OpportunityReport[] = [];
-  try { reports = JSON.parse(localStorage.getItem(opportunityReportsKey) ?? "[]"); } catch {}
-  const report = { id: crypto.randomUUID(), opportunityId, reason, details, createdAt: new Date().toISOString() };
-  localStorage.setItem(opportunityReportsKey, JSON.stringify([report, ...reports]));
-  return report;
 }

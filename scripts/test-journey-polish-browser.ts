@@ -118,17 +118,18 @@ async function baseAssertions(page: Page, label: string) {
   const root = page.locator("[data-journey-editorial]");
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   assert.ok(overflow <= 1, `${label} must not create horizontal overflow; received ${overflow}px.`);
-  assert.equal(await root.locator("[data-responsive-open-line]").count(), 1, `${label} must mount one responsive Open Line.`);
-  assert.equal(await root.locator("svg[data-open-line-renderer]").count(), 1, `${label} must render one Open Line SVG rather than hidden responsive variants.`);
+  assert.equal(await root.locator("[data-journey-living-path]").count(), 1, `${label} must mount one concise living path.`);
+  assert.equal(await root.locator("[data-journey-living-path] [data-path-position]").count(), 3, `${label} must orient the student across past, current, and next states.`);
+  assert.equal(await root.locator("svg[data-open-line-renderer]").count(), 0, `${label} must not hydrate the retired decorative Open Line SVG.`);
   assert.equal(await root.locator("h1").count(), 1, `${label} must expose exactly one H1.`);
   assert.equal(await root.getAttribute("aria-labelledby"), "journey-story-title", `${label} main content must have an accessible name.`);
   assert.ok(await root.locator("section[aria-labelledby]").count() >= 2, `${label} must expose named Journey regions.`);
   const headingLevels = await root.locator("h1, h2, h3, h4, h5, h6").evaluateAll((nodes) => nodes.filter((node) => (node as HTMLElement).offsetParent !== null).map((node) => Number(node.tagName.slice(1))));
   assert.equal(headingLevels[0], 1, `${label} heading order must begin with H1.`);
   for (let index = 1; index < headingLevels.length; index += 1) assert.ok(headingLevels[index] - headingLevels[index - 1] <= 1, `${label} heading hierarchy cannot skip from H${headingLevels[index - 1]} to H${headingLevels[index]}.`);
-  const openLine = root.locator("svg[data-open-line-renderer]");
-  assert.equal(await openLine.getAttribute("tabindex"), null, `${label} decorative Open Line cannot enter keyboard order.`);
-  assert.equal(await openLine.evaluate((node) => node.closest('[aria-hidden="true"]') !== null), true, `${label} Open Line needs a visible text equivalent.`);
+  const livingPath = root.locator("[data-journey-living-path]");
+  assert.equal(await livingPath.getAttribute("tabindex"), null, `${label} living path cannot enter keyboard order.`);
+  assert.ok(await livingPath.getAttribute("aria-label"), `${label} living path needs an accessible text label.`);
   if (await root.locator("[data-journey-text-timeline]").count()) assert.ok(await root.locator("[data-journey-text-timeline] ol").count() >= 1, `${label} history must use ordered-list semantics.`);
   const targetSizes = await root.locator("a:visible, button:visible, summary:visible, select:visible").evaluateAll((nodes) => nodes.filter((node) => !(node as HTMLButtonElement).disabled).map((node) => {
     const bounds = (node as HTMLElement).getBoundingClientRect();
@@ -149,8 +150,8 @@ async function verifyPopulated(page: Page, origin: string, label: string, expect
   assert.ok(meaningfulMs < 2_500, `${label} warm meaningful content must appear under 2.5s; received ${meaningfulMs.toFixed(0)}ms.`);
   const state = await root.getAttribute("data-journey-state");
   assert.ok(state === "active" || state === "validated");
-  await root.getByRole("heading", { name: /you’re beginning to turn|you’re turning your work/i }).waitFor({ state: "visible" });
-  await root.locator("#journey-waypoint-title").waitFor({ state: "visible" });
+  await root.getByRole("heading", { level: 1 }).waitFor({ state: "visible" });
+  await root.locator("#journey-next-step-title").waitFor({ state: "visible" });
   const primary = root.getByRole("button", { name: /choose this opportunity|start this application|mark as submitted|record an interview|record acceptance|complete this experience|resume this direction/i });
   await primary.waitFor({ state: "visible" });
   assert.equal(await primary.count(), 1, `${label} must expose one dominant waypoint action.`);
@@ -158,7 +159,7 @@ async function verifyPopulated(page: Page, origin: string, label: string, expect
   assert.ok(initialMoments <= 4, `${label} must initially show at most four moments.`);
   assert.equal(await root.locator("[data-horizon-item]:visible").count(), 1, `${label} must initially show one Horizon direction.`);
   const actionBox = await primary.boundingBox();
-  if ((page.viewportSize()?.width ?? 0) <= 420) assert.ok(actionBox && actionBox.y + actionBox.height < (page.viewportSize()?.height ?? 0) - 60, `${label} primary action must remain above fixed navigation.`);
+  if ((page.viewportSize()?.width ?? 0) <= 420) assert.ok(actionBox && actionBox.y + actionBox.height < (page.viewportSize()?.height ?? 0) - 60, `${label} primary action must remain above fixed navigation: ${JSON.stringify({ actionBox, viewport: page.viewportSize() })}`);
   return { root, meaningfulMs };
 }
 
@@ -233,17 +234,17 @@ try {
     assert.equal(await primaryAction.evaluate((node) => node === document.activeElement), true, "The primary Journey action must be keyboard focusable.");
     await screenshot(page, "keyboard-focus-light");
 
-    const waypointDetail = result.root.locator(".does-not-exist").or(result.root.getByText("See why this matters", { exact: true }));
-    await result.root.locator("svg[data-open-line-renderer]").evaluate((node) => node.setAttribute("data-performance-identity", "stable"));
+    const waypointDetail = result.root.getByText("Why this step", { exact: true });
+    await result.root.locator("[data-journey-living-path]").evaluate((node) => node.setAttribute("data-performance-identity", "stable"));
     performanceResults.disclosureMs = await waypointDetail.evaluate(async (node) => {
       const started = performance.now();
       (node as HTMLElement).click();
       await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
       return performance.now() - started;
     });
-    await result.root.locator("details").filter({ hasText: "See why this matters" }).locator("p").waitFor({ state: "visible" });
+    await result.root.locator("details").filter({ hasText: "Why this step" }).locator("p").waitFor({ state: "visible" });
     assert.ok(performanceResults.disclosureMs < 100, `Waypoint disclosure must respond under 100ms; received ${performanceResults.disclosureMs.toFixed(1)}ms.`);
-    assert.equal(await result.root.locator('svg[data-open-line-renderer][data-performance-identity="stable"]').count(), 1, "Disclosure must not replace or duplicate the Open Line renderer.");
+    assert.equal(await result.root.locator('[data-journey-living-path][data-performance-identity="stable"]').count(), 1, "Disclosure must not replace or duplicate the living path.");
     await screenshot(page, "current-waypoint-expanded");
 
     const moment = result.root.locator("[data-journey-moment]:visible").last();
@@ -266,7 +267,7 @@ try {
     const contrast = await page.locator("[data-journey-editorial] h1").evaluate((node) => ({ color: getComputedStyle(node).color, background: getComputedStyle(document.querySelector("[data-journey-editorial]")!).backgroundColor }));
     assert.notEqual(contrast.color, contrast.background, "Dark mode text must remain distinguishable from its canvas.");
     await screenshot(page, "populated-desktop-dark");
-    await root.getByText("See why this matters", { exact: true }).click();
+    await root.getByText("Why this step", { exact: true }).click();
     await screenshot(page, "current-waypoint-dark");
     const moment = root.locator("[data-journey-moment]:visible").last();
     await moment.locator("summary").click();
@@ -291,7 +292,7 @@ try {
     const { root } = await openJourney(page, origin, "midnight");
     await baseAssertions(page, scenario.label);
     await screenshot(page, scenario.label);
-    assert.equal(await root.locator("svg[data-open-line-renderer]").getAttribute("data-theme"), "dark");
+    assert.equal(await page.evaluate(() => document.documentElement.dataset.theme), "midnight");
     await context.close();
   }
 
@@ -320,11 +321,11 @@ try {
     await openJourney(page, origin, "midnight");
     await page.reload({ waitUntil: "domcontentloaded" });
     await page.locator("[data-journey-editorial]").waitFor({ state: "visible" });
-    assert.equal(await page.locator("[data-journey-editorial] svg[data-open-line-renderer]").getAttribute("data-theme"), "dark", "System preference cookie and server projection must agree after preference is available.");
+    assert.equal(await page.evaluate(() => document.documentElement.dataset.theme), "midnight", "System preference cookie and server projection must agree after preference is available.");
     await installSession(context, origin, populatedSession.token);
     await page.reload({ waitUntil: "domcontentloaded" });
     await page.waitForFunction(() => document.documentElement.dataset.theme === "light");
-    assert.equal(await page.locator("[data-journey-editorial] svg[data-open-line-renderer]").getAttribute("data-theme"), "light", "Account switching cannot retain another account's dark theme.");
+    assert.equal(await page.evaluate(() => document.documentElement.dataset.theme), "light", "Account switching cannot retain another account's dark theme.");
     await page.evaluate(() => window.dispatchEvent(new CustomEvent("unlocked-account-session-change", { detail: { authenticated: false, user: null, data: null } })));
     await page.waitForFunction(() => document.documentElement.dataset.theme === "light");
     await context.close();
@@ -339,8 +340,7 @@ try {
     await installSession(context, origin, populatedSession.token);
     const page = await context.newPage();
     await verifyPopulated(page, origin, scenario.label);
-    const expectedMode = scenario.viewport.width <= 672 ? "mobile" : "tablet";
-    await page.waitForFunction((mode) => document.querySelector("[data-responsive-open-line]")?.getAttribute("data-open-line-mode") === mode, expectedMode);
+    await page.locator("[data-journey-living-path]").waitFor({ state: "visible" });
     await screenshot(page, scenario.label);
     if (scenario.viewport.width === 390) {
       await page.evaluate(() => {

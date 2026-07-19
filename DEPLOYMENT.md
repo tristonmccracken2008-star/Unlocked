@@ -68,14 +68,14 @@ Every push to `main` will create a new production deployment. Pull requests and 
 
 ## 5. Configure the production domain
 
-The application currently uses `https://unlocked.education` as its canonical URL. If that is the intended domain:
+The application uses `https://www.unlockededu.com` as its canonical URL:
 
 1. Open the Vercel project’s **Settings → Domains**.
-2. Add `unlocked.education` and optionally `www.unlocked.education`.
+2. Add `www.unlockededu.com` and `unlockededu.com`.
 3. Apply the DNS records shown by Vercel at the domain registrar.
 4. Choose one hostname as canonical and redirect the other to it.
 
-If a different domain will be used, update all three locations before launch:
+If a different domain will be used, update all canonical locations before launch:
 
 - `metadataBase` and Open Graph URL in `app/layout.tsx`
 - `base` in `app/sitemap.ts`

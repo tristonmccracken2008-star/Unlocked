@@ -124,7 +124,7 @@ function LoggedOutLanding({ authIssue }: { authIssue: string }) {
         <div className="max-w-5xl">
           <p className="rule-label text-forest">College opportunities, finally in one place</p>
           <h1 className="mt-6 max-w-5xl font-editorial text-6xl font-bold leading-[.96] tracking-[-.055em] text-ink sm:text-8xl">Find what college forgot to tell you about.</h1>
-          <p className="mt-8 max-w-2xl text-lg leading-8 text-ink/60">UnlockED turns scattered scholarships, research, internships, AI tools, student benefits, and career resources into a quiet dashboard built around you.</p>
+          <p className="mt-8 max-w-2xl text-lg leading-8 text-ink/60">UnlockED brings scattered scholarships, research, internships, AI tools, student benefits, and career resources into one calm place built around you.</p>
           <p className="mt-5 max-w-xl text-sm leading-7 text-ink/45">Sign in with Google, complete one short profile, and start with the opportunities most likely to matter.</p>
           {authIssue && <div role="alert" className="mt-7 max-w-2xl rounded-2xl border border-red-700/20 bg-white px-5 py-4 text-sm font-bold leading-6 text-red-700">{authIssue}</div>}
         </div>
@@ -143,144 +143,12 @@ function LoggedOutLanding({ authIssue }: { authIssue: string }) {
         </div>
       </div>
       <div className="mx-auto mt-16 grid max-w-7xl gap-8 border-t border-ink/10 pt-10 md:grid-cols-3">
-        <section><p className="rule-label text-forest">Simple</p><p className="mt-3 text-sm leading-7 text-ink/55">One dashboard. One best next step. No noisy checklist.</p></section>
+        <section><p className="rule-label text-forest">Simple</p><p className="mt-3 text-sm leading-7 text-ink/55">One clear place to discover, compare, and keep opportunities.</p></section>
         <section><p className="rule-label text-forest">Personal</p><p className="mt-3 text-sm leading-7 text-ink/55">Recommendations follow your school, major, graduation year, and goals.</p></section>
         <section><p className="rule-label text-forest">Sourced</p><p className="mt-3 text-sm leading-7 text-ink/55">Listings point to official sources with verification context.</p></section>
       </div>
     </section>
   </main>;
-}
-
-const interviewCareerGoals = ["Software Engineering", "Medicine", "Law", "Research", "Graduate School", "Investment Banking", "Consulting", "Entrepreneurship", "Undecided"];
-const interviewExperience = ["No experience", "Some projects", "Research", "Internship", "Leadership", "Work experience"];
-const interviewInterests = ["AI", "Finance", "Healthcare", "Robotics", "Climate", "Education", "Public Policy", "Startups"];
-const interviewGoals = ["Find internship", "Join research", "Win scholarships", "Build resume", "Network", "Learn skills", "Explore careers"];
-const interviewAvailability = ["1-2 hours/week", "3-5 hours/week", "6-10 hours/week", "10+ hours/week"];
-const interviewOpportunityTypes = ["Scholarships", "Research", "Internships", "Competitions", "Study Abroad", "Leadership", "Fellowships", "Campus Jobs"];
-
-function AdvisorInterview({ session, onSave }: { session: AccountSession | null; onSave: (profile: StudentProfile) => void | Promise<void> }) {
-  const nameParts = session?.user?.name?.split(" ").filter(Boolean) ?? [];
-  const [step, setStep] = useState(0);
-  const [firstName, setFirstName] = useState(nameParts[0] ?? "");
-  const [lastName, setLastName] = useState(nameParts.slice(1).join(" "));
-  const [schoolQuery, setSchoolQuery] = useState("");
-  const [selectedSchool, setSelectedSchool] = useState<School | null>(null);
-  const [major, setMajor] = useState("");
-  const [graduationYear, setGraduationYear] = useState("");
-  const [careerGoal, setCareerGoal] = useState("");
-  const [currentExperience, setCurrentExperience] = useState("");
-  const [interests, setInterests] = useState<string[]>([]);
-  const [primaryGoals, setPrimaryGoals] = useState<string[]>([]);
-  const [weeklyAvailability, setWeeklyAvailability] = useState("");
-  const [preferredOpportunityTypes, setPreferredOpportunityTypes] = useState<string[]>([]);
-  const [showSchoolSuggestions, setShowSchoolSuggestions] = useState(false);
-  const [showMajorSuggestions, setShowMajorSuggestions] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
-  const normalizedSchool = normalizeSchoolQuery(schoolQuery);
-  const schoolMatches = useMemo(() => findSchoolMatches(schools, schoolQuery, 5), [schoolQuery]);
-  const majorMatches = useMemo(() => opportunityMajors.filter((item) => item !== "All" && item !== "Any Major" && item.toLowerCase().includes(major.trim().toLowerCase())).slice(0, 6), [major]);
-  const totalSteps = 10;
-
-  function toggle(value: string, values: string[], update: (next: string[]) => void) {
-    update(values.includes(value) ? values.filter((item) => item !== value) : [...values, value]);
-  }
-
-  function valid(index = step) {
-    if (index === 0) return Boolean(firstName.trim());
-    if (index === 1) return Boolean(selectedSchool);
-    if (index === 2) return Boolean(major.trim());
-    if (index === 3) return Boolean(graduationYear);
-    if (index === 4) return Boolean(careerGoal);
-    if (index === 5) return Boolean(currentExperience);
-    if (index === 6) return interests.length > 0;
-    if (index === 7) return primaryGoals.length > 0;
-    if (index === 8) return Boolean(weeklyAvailability);
-    if (index === 9) return preferredOpportunityTypes.length > 0;
-    return true;
-  }
-
-  async function finish() {
-    if (!selectedSchool || !valid(9)) return;
-    setSaving(true);
-    await new Promise((resolve) => setTimeout(resolve, 700));
-    await onSave({
-      firstName: firstName.trim(),
-      lastName: lastName.trim() || undefined,
-      schoolSlug: selectedSchool.slug,
-      major: major.trim(),
-      graduationYear,
-      year: academicYearFromGraduationYear(graduationYear),
-      careerGoal,
-      interests: interests.join(", "),
-      currentExperience,
-      weeklyAvailability,
-      preferredOpportunityTypes,
-      goals: primaryGoals,
-      topics: interests,
-      advisorInterview: { careerGoal, currentExperience, interests, primaryGoals, weeklyAvailability, preferredOpportunityTypes, completedAt: new Date().toISOString() },
-    });
-  }
-
-  function next() {
-    if (!valid()) { setError("Answer this question to continue."); return; }
-    setError("");
-    if (step === totalSteps - 1) void finish();
-    else setStep((value) => Math.min(value + 1, totalSteps - 1));
-  }
-
-  function onKeyDown(event: React.KeyboardEvent) {
-    if (event.key === "Enter" && !(event.target instanceof HTMLTextAreaElement)) { event.preventDefault(); next(); }
-    if (event.key === "Escape" && step > 0) setStep((value) => value - 1);
-  }
-
-  const progress = ((step + 1) / totalSteps) * 100;
-
-  if (saving) return <main className="min-h-[68vh] px-5 py-20 sm:px-8"><section className="mx-auto max-w-3xl text-center"><p className="rule-label text-forest">Advisor Interview</p><h1 className="mt-5 font-editorial text-5xl font-bold tracking-[-.045em] sm:text-7xl">We&apos;re building your personalized advisor.</h1><div className="mx-auto mt-10 h-2 w-36 overflow-hidden rounded-full bg-paper"><div className="h-full w-1/2 animate-pulse rounded-full bg-forest" /></div><p className="mt-5 text-sm text-ink/45">Turning your answers into a focused dashboard.</p></section></main>;
-
-  return <main className="min-h-[72vh] px-5 py-10 sm:px-8 sm:py-14" onKeyDown={onKeyDown}>
-    <section className="mx-auto max-w-3xl">
-      <div className="flex items-center justify-between gap-4">
-        <p className="rule-label text-forest">Advisor Interview</p>
-        <p className="text-xs font-bold text-ink/35">{step + 1} / {totalSteps}</p>
-      </div>
-      <div className="mt-4 h-1 overflow-hidden rounded-full bg-paper"><div className="h-full rounded-full bg-forest transition-all duration-300" style={{ width: `${progress}%` }} /></div>
-      <div key={step} className="min-h-[430px] py-12 transition-opacity duration-300">
-        {step === 0 && <InterviewQuestion eyebrow="Your name" title="What should UnlockED call you?"><div className="grid gap-4 sm:grid-cols-2"><input autoFocus value={firstName} onChange={(event) => setFirstName(event.target.value)} placeholder="First name" className="min-h-14 border-b border-ink/20 bg-transparent text-2xl font-bold outline-none placeholder:text-ink/25 focus:border-forest"/><input value={lastName} onChange={(event) => setLastName(event.target.value)} placeholder="Last name optional" className="min-h-14 border-b border-ink/20 bg-transparent text-2xl font-bold outline-none placeholder:text-ink/25 focus:border-forest"/></div></InterviewQuestion>}
-        {step === 1 && <InterviewQuestion eyebrow="School" title="Where are you studying?"><div className="relative"><input autoFocus value={schoolQuery} onFocus={() => setShowSchoolSuggestions(true)} onChange={(event) => { setSchoolQuery(event.target.value); setSelectedSchool(null); setShowSchoolSuggestions(true); }} placeholder="Search your school" className="min-h-14 w-full border-b border-ink/20 bg-transparent text-2xl font-bold outline-none placeholder:text-ink/25 focus:border-forest"/>{showSchoolSuggestions && normalizedSchool && <div className="absolute z-20 mt-3 w-full rounded-2xl border border-ink/10 bg-white shadow-soft">{schoolMatches.length ? schoolMatches.map((school) => <button key={school.slug} type="button" onClick={() => { setSelectedSchool(school); setSchoolQuery(school.name); setShowSchoolSuggestions(false); }} className="block w-full border-b border-ink/10 px-5 py-4 text-left last:border-b-0 hover:bg-paper"><span className="block font-bold">{school.name}</span><span className="text-xs text-ink/40">{school.location} · {school.domain}</span></button>) : <p className="px-5 py-4 text-sm text-ink/45">No supported school found yet.</p>}</div>}</div></InterviewQuestion>}
-        {step === 2 && <InterviewQuestion eyebrow="Major" title="What are you studying?"><div className="relative"><input autoFocus value={major} onFocus={() => setShowMajorSuggestions(true)} onChange={(event) => { setMajor(event.target.value); setShowMajorSuggestions(true); }} placeholder="Computer Science, Finance, Biology..." className="min-h-14 w-full border-b border-ink/20 bg-transparent text-2xl font-bold outline-none placeholder:text-ink/25 focus:border-forest"/>{showMajorSuggestions && major.trim() && majorMatches.length > 0 && <div className="absolute z-20 mt-3 w-full rounded-2xl border border-ink/10 bg-white shadow-soft">{majorMatches.map((item) => <button key={item} type="button" onClick={() => { setMajor(item); setShowMajorSuggestions(false); }} className="block w-full border-b border-ink/10 px-5 py-4 text-left font-bold last:border-b-0 hover:bg-paper">{item}</button>)}</div>}</div></InterviewQuestion>}
-        {step === 3 && <InterviewQuestion eyebrow="Timeline" title="When do you expect to graduate?"><div className="grid gap-2 sm:grid-cols-3">{graduationYears.map((year) => <Choice key={year} selected={graduationYear === year} onClick={() => setGraduationYear(year)}>{year}</Choice>)}</div></InterviewQuestion>}
-        {step === 4 && <InterviewQuestion eyebrow="Direction" title="What career direction feels most relevant right now?"><ChoiceGrid options={interviewCareerGoals} value={careerGoal} setValue={setCareerGoal} /></InterviewQuestion>}
-        {step === 5 && <InterviewQuestion eyebrow="Experience" title="What experience are you bringing in?"><ChoiceGrid options={interviewExperience} value={currentExperience} setValue={setCurrentExperience} /></InterviewQuestion>}
-        {step === 6 && <InterviewQuestion eyebrow="Interests" title="What topics should your advisor pay attention to?"><MultiChoiceGrid options={interviewInterests} values={interests} toggle={(value) => toggle(value, interests, setInterests)} /></InterviewQuestion>}
-        {step === 7 && <InterviewQuestion eyebrow="This year" title="What do you want to make progress on first?"><MultiChoiceGrid options={interviewGoals} values={primaryGoals} toggle={(value) => toggle(value, primaryGoals, setPrimaryGoals)} /></InterviewQuestion>}
-        {step === 8 && <InterviewQuestion eyebrow="Time" title="How much time can you realistically spend each week?"><ChoiceGrid options={interviewAvailability} value={weeklyAvailability} setValue={setWeeklyAvailability} /></InterviewQuestion>}
-        {step === 9 && <InterviewQuestion eyebrow="Opportunities" title="What should UnlockED prioritize for you?"><MultiChoiceGrid options={interviewOpportunityTypes} values={preferredOpportunityTypes} toggle={(value) => toggle(value, preferredOpportunityTypes, setPreferredOpportunityTypes)} /></InterviewQuestion>}
-      </div>
-      {error && <p role="alert" className="mb-4 text-sm font-bold text-red-700">{error}</p>}
-      <div className="flex items-center justify-between border-t border-ink/10 pt-5">
-        <button type="button" onClick={() => setStep((value) => Math.max(0, value - 1))} disabled={step === 0} className="text-sm font-bold text-ink/45 hover:text-forest disabled:opacity-30">Back</button>
-        <button type="button" onClick={next} disabled={!valid()} className="min-h-12 rounded-full bg-forest px-6 text-sm font-bold text-white hover:bg-ink disabled:cursor-not-allowed disabled:opacity-35">{step === totalSteps - 1 ? "Build my advisor" : "Continue"}</button>
-      </div>
-      <p className="mt-4 text-xs text-ink/35">Press Enter to continue. Press Escape to go back.</p>
-    </section>
-  </main>;
-}
-
-function InterviewQuestion({ eyebrow, title, children }: { eyebrow: string; title: string; children: React.ReactNode }) {
-  return <div><p className="rule-label text-forest">{eyebrow}</p><h1 className="mt-4 font-editorial text-5xl font-bold leading-[1.02] tracking-[-.045em] sm:text-6xl">{title}</h1><div className="mt-10">{children}</div></div>;
-}
-
-function Choice({ selected, onClick, children }: { selected: boolean; onClick: () => void; children: React.ReactNode }) {
-  return <button type="button" onClick={onClick} className={`min-h-12 rounded-full px-5 text-left text-sm font-bold transition ${selected ? "bg-forest text-white" : "bg-paper text-ink/65 hover:bg-ink hover:text-white"}`}>{children}</button>;
-}
-
-function ChoiceGrid({ options, value, setValue }: { options: string[]; value: string; setValue: (value: string) => void }) {
-  return <div className="grid gap-2 sm:grid-cols-2">{options.map((option) => <Choice key={option} selected={value === option} onClick={() => setValue(option)}>{option}</Choice>)}</div>;
-}
-
-function MultiChoiceGrid({ options, values, toggle }: { options: string[]; values: string[]; toggle: (value: string) => void }) {
-  return <div className="grid gap-2 sm:grid-cols-2">{options.map((option) => <Choice key={option} selected={values.includes(option)} onClick={() => toggle(option)}>{option}</Choice>)}</div>;
 }
 
 export function StudentProfileForm({ mode, session, initialProfile, onSave, onCancel }: { mode: "onboarding" | "edit"; session: AccountSession | null; initialProfile?: StudentProfile | null; onSave: (profile: StudentProfile) => void | Promise<void>; onCancel?: () => void }) {
@@ -380,7 +248,7 @@ export function StudentProfileForm({ mode, session, initialProfile, onSave, onCa
     <section className="mx-auto max-w-3xl">
       <p className="rule-label text-forest">{mode === "edit" ? "Edit profile" : "First things first"}</p>
       <h1 className="mt-3 font-editorial text-4xl font-bold tracking-[-.03em] sm:text-5xl">{mode === "edit" ? "Update your profile." : "Tell UnlockED what fits you."}</h1>
-      <p className="mt-4 max-w-2xl text-sm leading-7 text-ink/55">{mode === "edit" ? "Change anything here. Your dashboard updates after you save." : "You only do this once. UnlockED uses these details to build your dashboard."}</p>
+      <p className="mt-4 max-w-2xl text-sm leading-7 text-ink/55">{mode === "edit" ? "Change anything here. UnlockED updates after you save." : "You only do this once. UnlockED uses these details to personalize your account."}</p>
       <form onSubmit={submit} className="mt-8 space-y-7 border-t border-ink/15 pt-8">
         <div className="grid gap-4 sm:grid-cols-[1fr_1fr]">
           <TextField id="first-name" label="First name" value={firstName} setValue={setFirstName} required />
@@ -390,7 +258,7 @@ export function StudentProfileForm({ mode, session, initialProfile, onSave, onCa
           <label htmlFor="profile-school" className="mb-2 block text-sm font-bold">School</label>
           <div className={`flex min-h-12 items-center gap-3 border bg-white px-4 focus-within:border-forest ${selectedSchool ? "border-forest" : "border-ink/20"}`}>
             <SearchIcon className="h-4 w-4 shrink-0 text-ink/35"/>
-            <input id="profile-school" value={schoolQuery} onFocus={() => setShowSuggestions(true)} onChange={(event) => { setSchoolQuery(event.target.value); setSelectedSchool(null); setShowSuggestions(true); }} placeholder="Search your university" autoComplete="off" aria-controls="profile-school-suggestions" aria-expanded={showSuggestions && Boolean(normalized)} className="min-w-0 flex-1 bg-transparent outline-none placeholder:text-ink/30"/>
+            <input id="profile-school" value={schoolQuery} onFocus={() => setShowSuggestions(true)} onChange={(event) => { setSchoolQuery(event.target.value); setSelectedSchool(null); setShowSuggestions(true); }} placeholder="Search your university" autoComplete="off" role="combobox" aria-autocomplete="list" aria-controls="profile-school-suggestions" aria-expanded={showSuggestions && Boolean(normalized)} className="min-w-0 flex-1 bg-transparent outline-none placeholder:text-ink/30"/>
           </div>
           {showSuggestions && normalized && matches.length > 0 && <div id="profile-school-suggestions" role="listbox" aria-label="Matching schools" className="absolute z-20 mt-1 w-full border border-ink/20 bg-white shadow-soft">{matches.map((school) => <button key={school.slug} type="button" role="option" aria-selected={school.slug === selectedSchool?.slug} onMouseDown={(event) => event.preventDefault()} onClick={() => chooseSchool(school)} className="block w-full border-b border-ink/10 px-4 py-3 text-left last:border-b-0 hover:bg-paper"><span className="block text-sm font-bold">{school.name}</span><span className="block text-xs text-ink/45">{school.domain} · {school.location}</span></button>)}</div>}
           {showSuggestions && normalized && matches.length === 0 && <div id="profile-school-suggestions" className="absolute z-20 mt-1 w-full border border-ink/20 bg-white p-4 shadow-soft"><p className="font-bold">School not found</p><Link href={`/contact?school=${encodeURIComponent(schoolQuery)}`} className="mt-2 inline-block border-b border-forest text-sm font-bold text-forest">Request this school</Link></div>}
@@ -398,37 +266,38 @@ export function StudentProfileForm({ mode, session, initialProfile, onSave, onCa
         <div className="grid gap-4 sm:grid-cols-[1fr_220px]">
           <div className="relative">
             <label htmlFor="profile-major" className="mb-2 block text-sm font-bold">Major</label>
-            <input id="profile-major" value={major} onFocus={() => setShowMajorSuggestions(true)} onChange={(event) => { setMajor(event.target.value); setShowMajorSuggestions(true); }} placeholder="Computer Science, Finance, Biology..." autoComplete="off" className="min-h-12 w-full border border-ink/20 bg-white px-4 outline-none focus:border-forest"/>
-            {showMajorSuggestions && majorMatches.length > 0 && <div className="absolute z-20 mt-1 w-full border border-ink/20 bg-white shadow-soft">{majorMatches.map((item) => <button key={item} type="button" onMouseDown={(event) => event.preventDefault()} onClick={() => { setMajor(item); setShowMajorSuggestions(false); }} className="block w-full border-b border-ink/10 px-4 py-3 text-left text-sm font-bold last:border-b-0 hover:bg-paper">{item}</button>)}</div>}
+            <input id="profile-major" value={major} onFocus={() => setShowMajorSuggestions(true)} onChange={(event) => { setMajor(event.target.value); setShowMajorSuggestions(true); }} placeholder="Computer Science, Finance, Biology..." autoComplete="off" role="combobox" aria-autocomplete="list" aria-controls="profile-major-suggestions" aria-expanded={showMajorSuggestions && majorMatches.length > 0} className="min-h-12 w-full border border-ink/20 bg-white px-4 outline-none focus:border-forest"/>
+            {showMajorSuggestions && majorMatches.length > 0 && <div id="profile-major-suggestions" role="listbox" aria-label="Matching majors" className="absolute z-20 mt-1 w-full border border-ink/20 bg-white shadow-soft">{majorMatches.map((item) => <button key={item} type="button" role="option" aria-selected={major === item} onMouseDown={(event) => event.preventDefault()} onClick={() => { setMajor(item); setShowMajorSuggestions(false); }} className="block min-h-11 w-full border-b border-ink/10 px-4 py-3 text-left text-sm font-bold last:border-b-0 hover:bg-paper">{item}</button>)}</div>}
           </div>
           <label className="block"><span className="mb-2 block text-sm font-bold">Graduation year</span><select value={graduationYear} onChange={(event) => setGraduationYear(event.target.value)} className="min-h-12 w-full border border-ink/20 bg-white px-4 outline-none focus:border-forest"><option value="">Choose year</option>{graduationYears.map((year) => <option key={year} value={year}>{year}</option>)}</select></label>
         </div>
         <div className="grid gap-4 sm:grid-cols-[1fr_1fr]">
-          <div>
-            <label className="mb-2 block text-sm font-bold">Minor</label>
+          <fieldset>
+            <legend className="mb-2 block text-sm font-bold">Minor</legend>
             <div className="grid gap-2">
-              <button type="button" onClick={() => { setMinorStatus("none"); setMinor(""); }} className={`min-h-11 border px-4 text-left text-sm font-bold ${minorStatus === "none" ? "border-forest bg-forest text-white" : "border-ink/20 bg-white text-ink/60 hover:border-forest hover:text-forest"}`}>No minor</button>
-              <button type="button" onClick={() => setMinorStatus("declared")} className={`min-h-11 border px-4 text-left text-sm font-bold ${minorStatus === "declared" ? "border-forest bg-forest text-white" : "border-ink/20 bg-white text-ink/60 hover:border-forest hover:text-forest"}`}>I have a minor</button>
+              <button type="button" aria-pressed={minorStatus === "none"} onClick={() => { setMinorStatus("none"); setMinor(""); }} className={`min-h-11 border px-4 text-left text-sm font-bold ${minorStatus === "none" ? "border-forest bg-forest text-white" : "border-ink/20 bg-white text-ink/60 hover:border-forest hover:text-forest"}`}>No minor</button>
+              <button type="button" aria-pressed={minorStatus === "declared"} onClick={() => setMinorStatus("declared")} className={`min-h-11 border px-4 text-left text-sm font-bold ${minorStatus === "declared" ? "border-forest bg-forest text-white" : "border-ink/20 bg-white text-ink/60 hover:border-forest hover:text-forest"}`}>I have a minor</button>
             </div>
-            {minorStatus === "declared" && <div className="relative mt-3"><input value={minor} onFocus={() => setShowMinorSuggestions(true)} onChange={(event) => { setMinor(event.target.value); setShowMinorSuggestions(true); }} placeholder="Search for your minor" autoComplete="off" className="min-h-12 w-full border border-ink/20 bg-white px-4 outline-none focus:border-forest"/>{showMinorSuggestions && minorMatches.length > 0 && <div className="absolute z-20 mt-1 w-full border border-ink/20 bg-white shadow-soft">{minorMatches.map((item) => <button key={item} type="button" onMouseDown={(event) => event.preventDefault()} onClick={() => { setMinor(item); setShowMinorSuggestions(false); }} className="block w-full border-b border-ink/10 px-4 py-3 text-left text-sm font-bold last:border-b-0 hover:bg-paper">{item}</button>)}</div>}</div>}
-          </div>
-          <div>
-            <label className="mb-2 block text-sm font-bold">GPA</label>
-            <select value={gpaStatus} onChange={(event) => setGpaStatus(event.target.value as "reported" | "none_yet" | "nonstandard")} className="min-h-12 w-full border border-ink/20 bg-white px-4 outline-none focus:border-forest">
+            {minorStatus === "declared" && <div className="relative mt-3"><label htmlFor="profile-minor" className="sr-only">Minor</label><input id="profile-minor" value={minor} onFocus={() => setShowMinorSuggestions(true)} onChange={(event) => { setMinor(event.target.value); setShowMinorSuggestions(true); }} placeholder="Search for your minor" autoComplete="off" role="combobox" aria-autocomplete="list" aria-controls="profile-minor-suggestions" aria-expanded={showMinorSuggestions && minorMatches.length > 0} className="min-h-12 w-full border border-ink/20 bg-white px-4 outline-none focus:border-forest"/>{showMinorSuggestions && minorMatches.length > 0 && <div id="profile-minor-suggestions" role="listbox" aria-label="Matching minors" className="absolute z-20 mt-1 w-full border border-ink/20 bg-white shadow-soft">{minorMatches.map((item) => <button key={item} type="button" role="option" aria-selected={minor === item} onMouseDown={(event) => event.preventDefault()} onClick={() => { setMinor(item); setShowMinorSuggestions(false); }} className="block min-h-11 w-full border-b border-ink/10 px-4 py-3 text-left text-sm font-bold last:border-b-0 hover:bg-paper">{item}</button>)}</div>}</div>}
+          </fieldset>
+          <fieldset>
+            <legend className="mb-2 block text-sm font-bold">GPA</legend>
+            <label htmlFor="profile-gpa-status" className="sr-only">GPA reporting option</label>
+            <select id="profile-gpa-status" value={gpaStatus} onChange={(event) => setGpaStatus(event.target.value as "reported" | "none_yet" | "nonstandard")} className="min-h-12 w-full border border-ink/20 bg-white px-4 outline-none focus:border-forest">
               <option value="none_yet">I do not have a college GPA yet</option>
               <option value="reported">Enter my GPA</option>
               <option value="nonstandard">My school does not use a standard GPA</option>
             </select>
-            {gpaStatus === "reported" && <input inputMode="decimal" value={gpa} onChange={(event) => setGpa(event.target.value.replace(/[^0-9.]/g, ""))} placeholder="Example: 3.75" className="mt-3 min-h-12 w-full border border-ink/20 bg-white px-4 outline-none focus:border-forest"/>}
-          </div>
+            {gpaStatus === "reported" && <><label htmlFor="profile-gpa" className="sr-only">GPA on a 4.0 scale</label><input id="profile-gpa" inputMode="decimal" value={gpa} onChange={(event) => setGpa(event.target.value.replace(/[^0-9.]/g, ""))} placeholder="Example: 3.75" className="mt-3 min-h-12 w-full border border-ink/20 bg-white px-4 outline-none focus:border-forest"/></>}
+          </fieldset>
         </div>
         <TokenField id="profile-interests" label="Interests" value={interests} setValue={setInterests} suggestions={interestSuggestions} onAdd={addToken} placeholder="AI, research, scholarships" />
         <TokenField id="profile-goals" label="Career goals" value={careerGoal} setValue={setCareerGoal} suggestions={careerGoalSuggestions} onAdd={addToken} placeholder="Get an internship, join a lab" />
         <label className="block"><span className="mb-2 block text-sm font-bold">Current priority</span><select value={currentPriority} onChange={(event) => setCurrentPriority(event.target.value)} className="min-h-12 w-full border border-ink/20 bg-white px-4 outline-none focus:border-forest">{currentPriorityOptions.map((option) => <option key={option} value={option}>{option}</option>)}</select></label>
-        <div><p className="mb-2 text-sm font-bold">Opportunity interests</p><div className="flex flex-wrap gap-2">{opportunityInterestOptions.map((item) => <button key={item} type="button" onClick={() => addToken(item, interests, setInterests)} className="border border-ink/15 px-3 py-1.5 text-xs font-bold text-ink/55 hover:border-forest hover:text-forest">{item}</button>)}</div></div>
+        <div><p className="mb-2 text-sm font-bold">Opportunity interests</p><div className="flex flex-wrap gap-2">{opportunityInterestOptions.map((item) => <button key={item} type="button" onClick={() => addToken(item, interests, setInterests)} className="inline-flex min-h-11 items-center border border-ink/15 px-3 text-xs font-bold text-ink/55 hover:border-forest hover:text-forest">{item}</button>)}</div></div>
         {error && <p role="alert" className="text-sm font-bold text-red-700">{error}</p>}
         <div className="flex flex-col gap-3 border-t border-ink/15 pt-6 sm:flex-row">
-          <button type="submit" disabled={saving} className="inline-flex min-h-12 items-center justify-center bg-forest px-6 text-sm font-bold uppercase tracking-wider text-white hover:bg-ink disabled:opacity-60">{saving ? "Saving..." : mode === "edit" ? "Save profile" : "Open dashboard"}</button>
+          <button type="submit" disabled={saving} className="inline-flex min-h-12 items-center justify-center bg-forest px-6 text-sm font-bold uppercase tracking-wider text-white hover:bg-ink disabled:opacity-60">{saving ? "Saving…" : mode === "edit" ? "Save profile" : "Open UnlockED"}</button>
           {onCancel && <button type="button" onClick={onCancel} className="inline-flex min-h-12 items-center justify-center border border-ink/20 px-6 text-sm font-bold uppercase tracking-wider text-ink/60 hover:border-forest hover:text-forest">Cancel</button>}
         </div>
       </form>
@@ -441,5 +310,5 @@ function TextField({ id, label, value, setValue, required = false }: { id: strin
 }
 
 function TokenField({ id, label, value, setValue, suggestions, onAdd, placeholder }: { id: string; label: string; value: string; setValue: (value: string) => void; suggestions: string[]; onAdd: (value: string, current: string, update: (next: string) => void) => void; placeholder: string }) {
-  return <div><label htmlFor={id} className="mb-2 block text-sm font-bold">{label}</label><input id={id} value={value} onChange={(event) => setValue(event.target.value)} placeholder={placeholder} className="min-h-12 w-full border border-ink/20 bg-white px-4 outline-none placeholder:text-ink/30 focus:border-forest"/><div className="mt-3 flex flex-wrap gap-2">{suggestions.map((item) => <button key={item} type="button" onClick={() => onAdd(item, value, setValue)} className="border border-ink/15 px-3 py-1.5 text-xs font-bold text-ink/55 hover:border-forest hover:text-forest">{item}</button>)}</div></div>;
+  return <div><label htmlFor={id} className="mb-2 block text-sm font-bold">{label}</label><input id={id} value={value} onChange={(event) => setValue(event.target.value)} placeholder={placeholder} className="min-h-12 w-full border border-ink/20 bg-white px-4 outline-none placeholder:text-ink/30 focus:border-forest"/><div className="mt-3 flex flex-wrap gap-2">{suggestions.map((item) => <button key={item} type="button" onClick={() => onAdd(item, value, setValue)} className="inline-flex min-h-11 items-center border border-ink/15 px-3 text-xs font-bold text-ink/55 hover:border-forest hover:text-forest">{item}</button>)}</div></div>;
 }

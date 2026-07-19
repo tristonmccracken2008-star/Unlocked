@@ -232,9 +232,9 @@ export function OpportunityFilter({ opportunities: initialOpportunities = [] }: 
       <main>
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="rule-label text-forest">Recommended for you</p>
-            <h2 className="mt-2 font-editorial text-3xl font-bold tracking-[-.025em]">Top opportunities</h2>
-            <p className="mt-1 text-sm text-ink/50">Personalized by search, filters, and real opportunity ranking.</p>
+            <p className="rule-label text-forest">Search results</p>
+            <h2 className="mt-2 font-editorial text-3xl font-bold tracking-[-.025em]">Opportunities</h2>
+            <p className="mt-1 text-sm text-ink/50">Ranked by your search and filters.</p>
           </div>
           <div className="flex items-center gap-3">
             <button type="button" onClick={() => setMobileFiltersOpen(true)} className="inline-flex min-h-11 items-center justify-center rounded-full border border-ink/12 bg-white px-4 text-sm font-bold text-ink/60 shadow-[0_10px_26px_rgba(43,33,26,.045)] lg:hidden">Filters{activeFilters ? ` · ${activeFilters}` : ""}</button>

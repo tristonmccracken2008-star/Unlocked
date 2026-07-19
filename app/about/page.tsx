@@ -1,11 +1,7 @@
-import type { Metadata } from "next";
 import { InfoPage } from "@/components/info-page";
+import { publicPageMetadata } from "@/lib/public-metadata";
 
-export const metadata: Metadata = {
-  title: "About UnlockED",
-  description: "Learn why UnlockED was built and how it helps students discover verified scholarships, internships, research, AI tools, benefits, and career resources.",
-  alternates: { canonical: "/about" },
-};
+export const metadata = publicPageMetadata("About UnlockED", "Learn why UnlockED was built and how it helps students discover verified scholarships, internships, research, AI tools, benefits, and career resources.", "/about");
 
 export default function Page() {
   return <InfoPage

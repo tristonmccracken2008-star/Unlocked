@@ -53,7 +53,9 @@ assert.match(button, /abortAuthenticatedRequests\(\)/, "Sign-out must abort in-f
 assert.match(button, /resetAccountSessionCache\(\)/, "Sign-out must clear the client session cache.");
 assert.match(button, /clearLocalDashboardState\(\)/, "Sign-out must clear account-specific local state.");
 assert.match(button, /window\.location\.replace\("\/"\)/, "Sign-out must replace private history with the public homepage.");
-assert.match(button, /Sign out was blocked \(\$\{category\}\)\. Try again\./, "Rejected logout must expose a safe error category.");
+assert.doesNotMatch(button, /dispatchEvent\(new CustomEvent\(accountSessionEvent[\s\S]*signedOut/, "Sign-out must not race its full-page redirect with an AuthBoundary client redirect.");
+assert.match(button, /Sign out was blocked\. Please try again\./, "Rejected logout must provide a clear recovery message.");
+assert.doesNotMatch(button, /setError\(`[^`]*\$\{category\}/, "Logout errors must not expose internal rejection categories in the browser.");
 assert.match(button, /new AbortController\(\)/, "Logout must own a fresh controller outside the authenticated-request registry.");
 assert.match(requestRegistry, /activeControllers/, "Authenticated requests must share an abort registry.");
 assert.match(accountSync, /studentProgressStorageKey/, "Logout cache clearing must include milestone and application state.");

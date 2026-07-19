@@ -55,8 +55,8 @@ export function Header() {
       href={href}
       aria-current={active ? "page" : undefined}
       className={mobile
-        ? `relative rounded-full px-3 py-3 text-center transition duration-200 active:scale-[.98] ${active ? "bg-white text-forest" : "text-white/70 hover:text-white"}`
-        : `relative rounded-full px-4 py-2 transition duration-200 active:scale-[.98] ${active ? "bg-white text-forest shadow-[0_8px_20px_rgba(43,33,26,.08)]" : "hover:bg-white/75 hover:text-forest"}`}
+        ? `relative inline-flex min-h-11 items-center justify-center rounded-full px-3 text-center transition duration-200 active:scale-[.98] ${active ? "bg-white text-forest" : "text-white/70 hover:text-white"}`
+        : `relative inline-flex min-h-11 items-center rounded-full px-4 transition duration-200 active:scale-[.98] ${active ? "bg-white text-forest shadow-[0_8px_20px_rgba(43,33,26,.08)]" : "hover:bg-white/75 hover:text-forest"}`}
     >
       {label}
     </a>;
@@ -70,7 +70,7 @@ export function Header() {
           {destinations.map(([label, href]) => navigationLink(label, href))}
         </nav>
         <div className="flex items-center gap-3">
-          <a href="/profile" className={`rounded-full px-3 py-2 text-xs font-bold transition duration-200 active:scale-[.98] ${pathname?.startsWith("/profile") ? "bg-white text-forest shadow-[0_8px_20px_rgba(43,33,26,.08)]" : "text-ink/45 hover:bg-white/75 hover:text-forest"}`}>Profile</a>
+          <a href="/profile" className={`inline-flex min-h-11 items-center rounded-full px-3 text-xs font-bold transition duration-200 active:scale-[.98] ${pathname?.startsWith("/profile") ? "bg-white text-forest shadow-[0_8px_20px_rgba(43,33,26,.08)]" : "text-ink/45 hover:bg-white/75 hover:text-forest"}`}>Profile</a>
           <AccountButton compact />
         </div>
       </div>

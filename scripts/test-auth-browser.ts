@@ -166,12 +166,14 @@ async function verifyNavigation(page: Page, origin: string, label: string, targe
   assert.equal(hitTest.receivesClick, true, `${label} must receive its own click without an overlay.`);
   assert.equal(hitTest.pointerEvents, "auto");
   assert.equal(hitTest.ariaDisabled, null);
+  assert.ok(hitTest.rect.height >= 44, `${label} must preserve a 44px touch target.`);
   const startedAt = performance.now();
   const destinationRequest = page.waitForRequest((request) => new URL(request.url()).pathname === target && request.isNavigationRequest(), { timeout: 250 });
   await link.click({ noWaitAfter: true });
   await destinationRequest;
   const duration = Math.round(performance.now() - startedAt);
   await page.waitForURL((url) => url.pathname === target, { waitUntil: "commit", timeout: 8000 });
+  await page.waitForLoadState("load");
   return duration;
 }
 
@@ -179,9 +181,9 @@ async function runBrowser(browserType: BrowserType, engine: string, origin: stri
   const browser = await browserType.launch({ headless: true });
   const context = await browser.newContext({ ignoreHTTPSErrors: true, viewport });
   const consoleErrors: string[] = [];
-  const observeConsole = (page: Page) => page.on("console", (message) => {
+  const observeConsole = (page: Page, surface: string) => page.on("console", (message) => {
       if (message.type() !== "error") return;
-      const detail = `${message.text()} ${message.location().url}`;
+      const detail = `[${surface} @ ${page.url()}] ${message.text()} ${message.location().url}`;
       if (detail.includes("/_vercel/insights/") || detail.includes("/_vercel/speed-insights/")) return;
       consoleErrors.push(detail.trim());
     });
@@ -192,7 +194,7 @@ async function runBrowser(browserType: BrowserType, engine: string, origin: stri
   const navigationMs: Record<string, number> = {};
   for (const [label, target] of [["Discover", "/opportunities"], ["For You", "/advisor"], ["Journey", "/"], ["Refer", "/referral"]] as const) {
     const navigationPage = await context.newPage();
-    observeConsole(navigationPage);
+    observeConsole(navigationPage, `navigation:${label}`);
     navigationMs[label] = await verifyNavigation(navigationPage, origin, label, target, viewportName);
     await navigationPage.close();
   }
@@ -200,7 +202,7 @@ async function runBrowser(browserType: BrowserType, engine: string, origin: stri
   const logoutSession = await newAuthenticatedSession(`${engine}-${viewportName}-logout`);
   await context.clearCookies();
   const page = await context.newPage();
-  observeConsole(page);
+  observeConsole(page, "logout-lifecycle");
   await installSession(page, origin, logoutSession.token);
   await page.goto(`${origin}/about`, { waitUntil: "domcontentloaded" });
   let releaseAccount!: () => void;
@@ -262,7 +264,7 @@ async function runBrowser(browserType: BrowserType, engine: string, origin: stri
   await page.waitForURL((url) => url.pathname !== "/profile", { waitUntil: "domcontentloaded", timeout: 8000 }).catch(() => null);
   assert.notEqual(new URL(page.url()).pathname, "/profile", "Browser Back must not restore the private profile page.");
   const repeatedPage = await context.newPage();
-  observeConsole(repeatedPage);
+  observeConsole(repeatedPage, "repeated-logout");
   await repeatedPage.goto(origin, { waitUntil: "domcontentloaded" });
   const repeated = await repeatedPage.evaluate(async () => {
     const response = await fetch("/api/auth/logout", { method: "POST", credentials: "same-origin" });
@@ -272,7 +274,7 @@ async function runBrowser(browserType: BrowserType, engine: string, origin: stri
   assert.deepEqual(repeated, { status: 200, body: { ok: true } }, "A second logout must be idempotent.");
   const switchedSession = await newAuthenticatedSession(`${engine}-${viewportName}-switch`);
   const switchedPage = await context.newPage();
-  observeConsole(switchedPage);
+  observeConsole(switchedPage, "account-switch");
   await installSession(switchedPage, origin, switchedSession.token);
   await switchedPage.goto(`${origin}/profile`, { waitUntil: "domcontentloaded" });
   assert.equal(new URL(switchedPage.url()).pathname, "/profile", "A different account must authenticate after logout without restoring the previous session.");
