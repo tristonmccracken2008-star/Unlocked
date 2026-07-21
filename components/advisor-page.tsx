@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { listingDeadlineLabel as deadlineLabel } from "@/data/opportunity-listing";
-import type { RecommendationViewModel } from "@/data/recommendation-service";
+import type { RecommendationDisplaySignal, RecommendationViewModel } from "@/data/recommendation-service";
 import type { School } from "@/data/seed";
 import type { StudentActivity } from "@/data/student-activity";
 import type { StudentProfile } from "@/data/student-profile";
@@ -301,7 +301,7 @@ export function AdvisorPage({ initialState = null, serverAuthenticated = false }
   if (pageState === "error") return <ForYouErrorState message={errorMessage} onRetry={() => void loadForYou({ allowAutoRetry: false })} retrying={requestActive} />;
   if (pageState === "profile_incomplete" || !state?.profile || !state.school) return <ForYouSetupState title="Complete your profile first." text="UnlockED needs your school, major, year, goals, and activity before it can recommend fitting opportunities." actionHref="/profile" actionLabel="Open profile" />;
   if (pageState === "preparing") return <ForYouPreparingState />;
-  if (pageState === "free_preview" && !top) return <ForYouFreePreviewOnly totalMatches={state.totalMatches} shown={state.recommendations.length} />;
+  if (pageState === "free_preview" && !top) return <ForYouFreePreviewOnly />;
   if (pageState === "empty" || !top) return <ForYouEmptyState />;
 
   return <main className={styles.page} data-for-you-page="premium-v1">
@@ -337,24 +337,27 @@ function cleanValueLabel(value: string) {
 }
 
 function recommendationSignals(view: RecommendationViewModel, limit = 4) {
+  if (view.signals?.length) return view.signals.slice(0, limit);
   const opportunity = view.opportunity;
   const reasons = view.reasons.join(" ");
-  const signals = [
-    /matches your major:/i.test(reasons) ? "Matches your major" : /open to students in any major/i.test(reasons) ? "Open to your major" : "",
-    /career goal/i.test(reasons) ? "Fits your goals" : "",
-    /opportunity interests?/i.test(reasons) ? "Matches your interests" : "",
-    view.chips.includes("Freshman eligible") ? "Freshman eligible" : "",
-    opportunity?.difficulty === "Open" ? "Beginner friendly" : "",
-    opportunity?.estimated_value && opportunity.estimated_value >= 5_000 ? "High estimated value" : "",
-    view.chips.includes("Paid") ? "Paid" : "",
-    view.chips.includes("Remote") ? "Remote" : "",
-    opportunity?.verification_status === "verified" ? "Source verified" : "",
-  ].filter(Boolean);
-  return [...new Set(signals)].slice(0, limit);
+  const candidates: Array<RecommendationDisplaySignal | null> = [
+    /matches your major:/i.test(reasons) ? { kind: "major", label: "Matches your major" } : /open to students in any major/i.test(reasons) ? { kind: "eligibility", label: "Open to your major" } : null,
+    /career goal/i.test(reasons) ? { kind: "career", label: "Fits your goals" } : null,
+    /opportunity interests?/i.test(reasons) ? { kind: "interest", label: "Matches your interests" } : null,
+    view.chips.includes("Freshman eligible") ? { kind: "eligibility", label: "Freshman eligible" } : null,
+    opportunity?.difficulty === "Open" ? { kind: "eligibility", label: "Beginner friendly" } : null,
+    (opportunity?.estimated_value ?? 0) >= 5_000 ? { kind: "value", label: "High documented value" } : null,
+    view.chips.includes("Paid") ? { kind: "format", label: "Paid" } : null,
+    view.chips.includes("Remote") ? { kind: "format", label: "Remote" } : null,
+    opportunity?.verification_status === "verified" ? { kind: "trust", label: "Official source verified" } : null,
+  ];
+  const signals = candidates.filter((signal): signal is RecommendationDisplaySignal => Boolean(signal));
+  return [...new Map(signals.map((signal) => [signal.label, signal])).values()].slice(0, limit);
 }
 
 function strongestReason(view: RecommendationViewModel) {
-  return view.reasons.find((reason) => /career goal/i.test(reason))
+  return view.summaryReason
+    ?? view.reasons.find((reason) => /career goal/i.test(reason))
     ?? view.reasons.find((reason) => /opportunity interests?/i.test(reason))
     ?? view.reasons.find((reason) => /matches your major:/i.test(reason))
     ?? view.reasons.find((reason) => /you are a/i.test(reason))
@@ -376,7 +379,7 @@ function TopRecommendation({ view, onFeedback }: { view: RecommendationViewModel
           <div><p>{opportunity?.organization ?? view.recommendation.kind}</p><h2 id={`recommendation-${view.recommendation.id}`}>{opportunity?.title ?? view.recommendation.title}</h2></div>
         </div>
         <p className={styles.featuredDescription}>{opportunity?.description ?? view.recommendation.description}</p>
-        <div className={styles.signals} aria-label="Why this matches">{signals.map((signal) => <span key={signal}><CheckCircleIcon />{signal}</span>)}</div>
+        <div className={styles.signals} aria-label="Why this matches">{signals.map((signal) => <span key={signal.label} data-signal-kind={signal.kind}><CheckCircleIcon />{signal.label}</span>)}</div>
         <p className={styles.reason}><strong>Why it fits:</strong> {strongestReason(view)}</p>
       </div>
       <aside className={styles.featuredDecision} aria-label="Opportunity details and actions">
@@ -409,11 +412,14 @@ function ForYouUpgradeGate({ totalMatches, shown }: { totalMatches: number; show
   </section>;
 }
 
-function ForYouFreePreviewOnly({ totalMatches, shown }: { totalMatches: number; shown: number }) {
+function ForYouFreePreviewOnly() {
   return <main className={styles.page}>
     <section className={`${styles.container} ${styles.stateContainer}`}>
-      <div className={styles.stateIntro}><p>For You</p><h1>Your personalized shortlist is ready.</h1><span>We found {totalMatches} eligible matches. Your current preview shows {shown}.</span></div>
-      <ForYouUpgradeGate totalMatches={totalMatches} shown={shown} />
+      <div className={styles.stateIntro}><p>For You</p><h1>Opportunities selected around you.</h1><span>UnlockED Pro compares your profile and Journey with verified eligibility rules, then keeps only the strongest matches.</span></div>
+      <section className={styles.upgrade} aria-labelledby="for-you-pro-title">
+        <div><p>UnlockED Pro</p><h2 id="for-you-pro-title">A shorter list. Better reasons.</h2><span>See a focused shortlist with a clear explanation for every recommendation.</span></div>
+        <Link href="/pricing" onClick={() => trackProductEvent("pro_upgrade_clicked", { section: "for-you" })}>See Pro options <ArrowIcon /></Link>
+      </section>
     </section>
   </main>;
 }
@@ -450,7 +456,7 @@ function RecommendationCard({ view, index, onFeedback }: { view: RecommendationV
     <div className={styles.recommendationBody}>
       <div className={styles.recommendationTitle}>{opportunity ? <OrganizationLogo opportunity={opportunity} size="md" className={styles.logo} /> : null}<div><p>{opportunity?.organization ?? view.recommendation.kind}</p><h3 id={`recommendation-${view.recommendation.id}`}>{opportunity?.title ?? view.recommendation.title}</h3></div></div>
       <p className={styles.recommendationReason}>{strongestReason(view)}</p>
-      <div className={styles.signals}>{signals.map((signal) => <span key={signal}><CheckCircleIcon />{signal}</span>)}</div>
+      <div className={styles.signals} aria-label="Why this matches">{signals.map((signal) => <span key={signal.label} data-signal-kind={signal.kind}><CheckCircleIcon />{signal.label}</span>)}</div>
       <RecommendationFeedback view={view} onFeedback={onFeedback} compact />
     </div>
     <dl className={styles.rowMeta}><div><dt>Deadline</dt><dd>{opportunity ? deadlineLabel(opportunity) : "Not announced"}</dd></div><div><dt>Match</dt><dd>{view.label}</dd></div></dl>
@@ -460,8 +466,8 @@ function RecommendationCard({ view, index, onFeedback }: { view: RecommendationV
 
 function RecommendationFeedback({ view, onFeedback, compact = false }: { view: RecommendationViewModel; onFeedback: RecommendationFeedbackHandler; compact?: boolean }) {
   const actions: Array<{ label: string; type: FeedbackType; eventLabel: string }> = [
-    { label: "Interested", type: "helpful", eventLabel: "Saved interest signal." },
-    { label: "Not interested", type: "not-interested", eventLabel: "We will show fewer like this." },
+    { label: "Show me more like this", type: "helpful", eventLabel: "Preference saved. We’ll use it to improve future matches." },
+    { label: "Not interested", type: "not-interested", eventLabel: "Got it. We’ll show fewer opportunities like this." },
     { label: "Hide", type: "dismissed", eventLabel: "Hidden from your recommendations." },
     { label: "Already applied", type: "already-applied", eventLabel: "Marked as already applied." },
     { label: "Already completed", type: "already-completed", eventLabel: "Marked as already completed." },

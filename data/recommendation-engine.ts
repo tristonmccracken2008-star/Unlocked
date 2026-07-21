@@ -217,6 +217,7 @@ export function buildOpportunityStudentContext(profile: AdvisorProfile): Opportu
     dismissedOpportunityIds,
     ignoredCategories,
     careerRoadmapCategories: stagePlan.categories,
+    preferredCategories: profile.goals.preferredOpportunityTypes,
     careerRoadmapSignals: stagePlan.opportunitySignals,
     careerTargetOrganizations: stagePlan.targetOrganizations,
     skillPriorities: stagePlan.skills,
@@ -225,11 +226,15 @@ export function buildOpportunityStudentContext(profile: AdvisorProfile): Opportu
 }
 
 function contextWithLearning(context: OpportunityStudentContext, source: readonly Opportunity[]) {
-  const categoryFor = (id: string) => source.find((item) => item.id === id)?.category;
+  const opportunityById = new Map(source.map((item) => [item.id, item]));
+  const categoryFor = (id: string) => opportunityById.get(id)?.category;
+  const organizationFor = (id: string) => opportunityById.get(id)?.organization;
   return {
     ...context,
     savedCategories: unique((context.savedOpportunityIds ?? []).map(categoryFor).filter((item): item is string => Boolean(item))),
+    viewedCategories: unique((context.viewedOpportunityIds ?? []).map(categoryFor).filter((item): item is string => Boolean(item))),
     completedCategories: unique((context.completedOpportunityIds ?? []).map(categoryFor).filter((item): item is string => Boolean(item))),
+    interactedOrganizations: unique((context.viewedOpportunityIds ?? []).map(organizationFor).filter((item): item is string => Boolean(item))),
   };
 }
 
@@ -442,6 +447,7 @@ function shouldExcludeOpportunity(profile: AdvisorProfile, opportunity: Opportun
   if (!isSchoolEligible(opportunity, context)) return true;
   if (!opportunity.organization.trim() || !opportunity.eligibility.trim() || !opportunity.official_source_url.startsWith("https://")) return true;
   if (profile.experience.claimedOpportunityIds.includes(opportunity.id)) return true;
+  if (profile.experience.savedOpportunityIds.includes(opportunity.id)) return true;
   if ((profile.future.hiddenOpportunityIds ?? []).includes(opportunity.id)) return true;
   if ((profile.future.dismissedOpportunityIds ?? []).includes(opportunity.id)) return true;
   if ((profile.future.recommendationFeedback ?? []).some((record) => record.recommendationId === `recommendation-opportunity-${opportunity.id}` && ["dismissed", "not-interested", "already-completed", "completed"].includes(record.feedbackType))) return true;

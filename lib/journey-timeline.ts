@@ -92,12 +92,12 @@ function eventCopy(status: OpportunityTrackerStatus, opportunity: Opportunity, r
   if (resumed) return { type: "resumed" as const, label: "Resumed", title: `Resumed ${opportunity.title}`, description: "This opportunity is active in your Journey again." };
   if (status === "Saved") return { type: "saved" as const, label: "Saved", title: `Saved ${opportunity.title}`, description: "Added this opportunity to your Journey." };
   if (status === "Interested") return { type: "interested" as const, label: "Interested", title: `Chose to explore ${opportunity.title}`, description: "Marked this opportunity as worth pursuing." };
-  if (status === "Applying") return { type: "application_started" as const, label: "Application started", title: `Started ${opportunity.title}`, description: "Began preparing an application." };
-  if (status === "Submitted") return { type: "application_submitted" as const, label: "Submitted", title: `Submitted ${opportunity.title}`, description: "Recorded the application as submitted." };
-  if (status === "Interview") return { type: "interview" as const, label: "Interview", title: `Interviewed for ${opportunity.title}`, description: "Recorded that the application reached an interview." };
+  if (status === "Applying") return { type: "application_started" as const, label: "Application started", title: `Started ${opportunity.title}`, description: "A possibility became active work." };
+  if (status === "Submitted") return { type: "application_submitted" as const, label: "Submitted", title: `Submitted ${opportunity.title}`, description: "You now have real application experience to build on." };
+  if (status === "Interview") return { type: "interview" as const, label: "Interview", title: `Interviewed for ${opportunity.title}`, description: "Your work received a response from outside UnlockED." };
   if (status === "Accepted" && opportunity.type === "Scholarship") return { type: "scholarship_awarded" as const, label: "Scholarship awarded", title: `Earned ${opportunity.title}`, description: "Recorded this scholarship as awarded." };
-  if (status === "Accepted") return { type: "accepted" as const, label: "Accepted", title: `Accepted into ${opportunity.title}`, description: "Recorded that the opportunity was received." };
-  if (status === "Completed") return { type: "completed" as const, label: "Completed", title: `Completed ${opportunity.title}`, description: "Recorded this opportunity as completed." };
+  if (status === "Accepted") return { type: "accepted" as const, label: "Accepted", title: `Accepted into ${opportunity.title}`, description: "A direction you pursued became a real opportunity." };
+  if (status === "Completed") return { type: "completed" as const, label: "Completed", title: `Completed ${opportunity.title}`, description: "This experience is now evidence you can use in future applications." };
   if (status === "Paused") return { type: "paused" as const, label: "Paused", title: `Paused ${opportunity.title}`, description: "Paused this opportunity without removing its history." };
   return { type: "closed" as const, label: "Closed", title: `Closed ${opportunity.title}`, description: "Closed this opportunity while keeping it in the Journey record." };
 }

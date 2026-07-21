@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import { JourneyCardArtwork, journeyCardAltDescription } from "@/components/journey-card-artwork";
 import { journeyCardLayouts, type JourneyCardData, type JourneyCardLayout, type JourneyCardPrivacy } from "@/lib/journey-timeline";
+import { productIntelligenceEvents } from "@/lib/analytics-types";
+import { trackProductError, trackProductEvent } from "@/data/product-analytics";
 import styles from "./path-moment.module.css";
 
 function fileName(layout: JourneyCardLayout) {
@@ -23,11 +25,26 @@ export function JourneyCardCreator({ card, theme, onClose }: { card: JourneyCard
   useEffect(() => {
     setCanCopy(Boolean(navigator.clipboard && "ClipboardItem" in window));
     setCanShare(typeof navigator.share === "function");
-    dialogRef.current?.showModal();
   }, []);
 
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => {
+      const dialog = dialogRef.current;
+      if (!dialog) return;
+      try {
+        if (!dialog.open && typeof dialog.showModal === "function") dialog.showModal();
+        else dialog.setAttribute("open", "");
+      } catch {
+        dialog.setAttribute("open", "");
+      }
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [canCopy, canShare]);
+
   function close() {
-    dialogRef.current?.close();
+    const dialog = dialogRef.current;
+    if (dialog && typeof dialog.close === "function") dialog.close();
+    else dialog?.removeAttribute("open");
     setBusy(null);
     setMessage("");
     onClose();
@@ -75,8 +92,10 @@ export function JourneyCardCreator({ card, theme, onClose }: { card: JourneyCard
       link.remove();
       window.setTimeout(() => URL.revokeObjectURL(url), 1_000);
       setMessage("Journey Card downloaded.");
+      trackProductEvent(productIntelligenceEvents.journeyCardDownloaded, { format: layout });
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "The Journey Card could not be downloaded.");
+      trackProductError("journey_card", "export", "download");
     } finally {
       setBusy(null);
     }
@@ -90,8 +109,10 @@ export function JourneyCardCreator({ card, theme, onClose }: { card: JourneyCard
       const blob = await imageBlob();
       await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
       setMessage("Journey Card copied as an image.");
+      trackProductEvent(productIntelligenceEvents.journeyCardCopied, { format: layout });
     } catch {
       setMessage("This browser could not copy the image. Download is still available.");
+      trackProductError("journey_card", "export", "copy");
     } finally {
       setBusy(null);
     }
@@ -108,8 +129,10 @@ export function JourneyCardCreator({ card, theme, onClose }: { card: JourneyCard
       if (navigator.canShare && !navigator.canShare(payload)) throw new Error("File sharing is not available.");
       await navigator.share(payload);
       setMessage("Share sheet opened.");
+      trackProductEvent(productIntelligenceEvents.journeyCardShared, { format: layout });
     } catch (error) {
       setMessage(error instanceof DOMException && error.name === "AbortError" ? "Share canceled." : "This browser could not open sharing. Download is still available.");
+      if (!(error instanceof DOMException && error.name === "AbortError")) trackProductError("journey_card", "export", "share");
     } finally {
       setBusy(null);
     }

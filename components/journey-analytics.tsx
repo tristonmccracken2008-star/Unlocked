@@ -19,11 +19,11 @@ export function JourneyAnalytics({ state, serverProjectionMs }: { state: string;
     let historyFullyExplored = false;
     const toggle = (event: Event) => {
       const details = event.target instanceof HTMLDetailsElement ? event.target : null;
-      if (!details?.open || !details.closest("[data-journey-editorial]")) return;
+      if (!details?.open || !details.closest("[data-journey-editorial], [data-journey-timeline]")) return;
       if (details.matches("[data-journey-moment]")) {
         expandedMoments.add(details);
         trackProductEvent(productIntelligenceEvents.historyExpanded);
-        const allMoments = [...document.querySelectorAll("[data-journey-editorial] [data-journey-moment]")];
+        const allMoments = [...document.querySelectorAll("[data-journey-editorial] [data-journey-moment], [data-journey-timeline] [data-journey-moment]")];
         if (!historyFullyExplored && allMoments.length > 0 && allMoments.every((item) => expandedMoments.has(item))) {
           historyFullyExplored = true;
           trackProductEvent(productIntelligenceEvents.historyExplored);

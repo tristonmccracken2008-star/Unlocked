@@ -228,6 +228,11 @@
   line-height: 1.25;
 }
 
+.signals > span[data-signal-kind="exploration"] {
+  border-color: rgb(var(--color-gold) / .24);
+  background: rgb(var(--color-gold) / .08);
+}
+
 .signals svg {
   width: 13px;
   height: 13px;
@@ -459,6 +464,11 @@
 
 .recommendation:hover {
   background: var(--unlocked-surface-muted);
+}
+
+.recommendation:focus-within {
+  background: var(--unlocked-surface-muted);
+  box-shadow: inset 3px 0 0 rgb(var(--color-forest) / .55);
 }
 
 .rank {

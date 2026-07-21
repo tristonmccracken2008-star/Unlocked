@@ -77,6 +77,8 @@ await recordAnalyticsEnvelope(envelope(productIntelligenceEvents.transitionStart
 await recordAnalyticsEnvelope(envelope(productIntelligenceEvents.transitionCompleted, { opportunityId: "opportunity-safe-1", transition: "submit" }));
 await recordAnalyticsEnvelope(envelope(productIntelligenceEvents.pathMomentCreatorOpened, { format: "story" }));
 await recordAnalyticsEnvelope(envelope(productIntelligenceEvents.pathMomentDownloaded, { format: "story" }));
+await recordAnalyticsEnvelope(envelope(productIntelligenceEvents.journeyCardCreatorOpened, { format: "story" }));
+await recordAnalyticsEnvelope(envelope(productIntelligenceEvents.journeyCardDownloaded, { format: "story" }));
 await recordAnalyticsEnvelope(envelope(productIntelligenceEvents.recommendationOpened, { opportunityId: "opportunity-safe-1", recommendationId: "recommendation-safe-1" }));
 await recordAnalyticsEnvelope(envelope(productIntelligenceEvents.recommendationSaved, { opportunityId: "opportunity-safe-1", recommendationId: "recommendation-safe-1" }));
 await recordAnalyticsEnvelope(envelope(productIntelligenceEvents.productHealthTiming, { component: "journey", metric: "server_projection", durationMs: 24 }));
@@ -97,6 +99,7 @@ const journey = source("components/journey-analytics.tsx");
 const transition = source("components/journey-transition-control.tsx");
 const pathMoment = source("components/path-moment-creator.tsx");
 const semesterStory = source("components/semester-story-creator.tsx");
+const journeyCard = source("components/journey-card-creator.tsx");
 const recommendations = source("components/advisor-page.tsx");
 const account = source("components/account-auth.tsx");
 const layout = source("app/layout.tsx");
@@ -108,6 +111,7 @@ for (const token of ["trackJourneyView", "waypointClicked", "historyExpanded", "
 for (const token of ["transitionStarted", "transitionCompleted", "transitionFailed", "waypointCompleted", "transition_latency"]) assert.ok(transition.includes(token), `Transition analytics must emit ${token}.`);
 for (const token of ["pathMomentCreatorOpened", "pathMomentPrivacyChanged", "pathMomentAppearanceChanged", "pathMomentPreviewRendered", "pathMomentDownloaded", "pathMomentShared", "pathMomentCopied", "pathMomentCanceled"]) assert.ok(pathMoment.includes(token), `Path Moment analytics must emit ${token}.`);
 for (const token of ["semesterStoryCreatorOpened", "semesterStoryPreviousViewed", "semesterStoryComparisonViewed", "semesterStoryPrivacyChanged", "semesterStoryDownloaded", "semesterStoryShared", "semesterStoryCanceled"]) assert.ok(semesterStory.includes(token), `Semester Story analytics must emit ${token}.`);
+for (const token of ["journeyCardDownloaded", "journeyCardShared", "journeyCardCopied"]) assert.ok(journeyCard.includes(token), `Journey Card analytics must emit ${token}.`);
 for (const token of ["recommendationOpened", "recommendationSaved"]) assert.ok(`${recommendations}\n${source("components/opportunity-activity.tsx")}`.includes(token), `Recommendation analytics must emit ${token}.`);
 assert.ok(account.includes("clearProductAnalyticsSession"), "Logout must clear queued analytics and recommendation attribution.");
 assert.doesNotMatch(layout, /@vercel\/analytics|@vercel\/speed-insights/, "The app must have one analytics transport rather than parallel third-party collectors.");

@@ -169,7 +169,7 @@ async function verifyDiscover(page: Page, origin: string, screenshotLabel: strin
 async function verifyPrimaryRoutes(page: Page, origin: string, screenshotLabel: string) {
   const forYouStartedAt = performance.now();
   await page.goto(`${origin}/advisor`, { waitUntil: "domcontentloaded", timeout: 45_000 });
-  await page.getByRole("heading", { name: /Your personalized shortlist is ready|Your strongest matches, right now|No strong matches yet/ }).waitFor({ state: "visible", timeout: 45_000 });
+  await page.getByRole("heading", { name: /Opportunities selected around you|Your strongest matches, right now|No strong matches yet/ }).waitFor({ state: "visible", timeout: 45_000 });
   const forYouReadyMs = Math.round(performance.now() - forYouStartedAt);
   assert.equal(await page.getByRole("heading", { name: "We couldn’t load your shortlist." }).count(), 0, "For You must not enter an error state on the first authenticated visit.");
   await assertStableLayout(page, `${screenshotLabel} For You`);
@@ -177,7 +177,7 @@ async function verifyPrimaryRoutes(page: Page, origin: string, screenshotLabel: 
 
   const journeyStartedAt = performance.now();
   await page.goto(origin, { waitUntil: "domcontentloaded", timeout: 45_000 });
-  await page.locator("[data-journey-editorial]").waitFor({ state: "visible", timeout: 45_000 });
+  await page.locator("[data-journey-timeline]").waitFor({ state: "visible", timeout: 45_000 });
   const journeyReadyMs = Math.round(performance.now() - journeyStartedAt);
   await assertStableLayout(page, `${screenshotLabel} Journey`);
   await page.screenshot({ path: path.join(outputDirectory, `${screenshotLabel}-journey.png`), fullPage: true });

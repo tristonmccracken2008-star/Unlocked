@@ -66,7 +66,7 @@ assert.match(engine, /const prefiltered = source\.filter\(\(opportunity\) => !sh
 assert.match(engine, /rankOpportunity\(profile, opportunity, context/, "Ranking must happen only after the hard prefilter.");
 assert.match(intelligence, /schoolEligible \? item\.school_scope === "School Specific" \? "School-specific eligibility matches" : "Available nationally" : "Not eligible for this school"/, "School match signals must come from canonical eligibility.");
 assert.match(intelligence, /if \(schoolEligible\) reasons\.push\(item\.school_scope === "National" \? "Available nationally\." : `Available at \$\{context\.schoolName \?\? "your school"\}\.`\);/, "School-match explanations must only appear after verified eligibility.");
-assert.match(snapshot, /forYouSnapshotEngineVersion = "for-you-snapshot-v3-canonical-eligibility"/, "Snapshot engine version must invalidate previous wrong-school snapshots.");
+assert.match(snapshot, /forYouSnapshotEngineVersion = "for-you-snapshot-v4-behavior-signals"/, "Snapshot engine version must invalidate previous wrong-school and pre-behavior snapshots.");
 assert.match(snapshot, /item\.school_scope,[\s\S]*\[\.\.\.item\.schools\]\.sort\(\),[\s\S]*item\.metadata\.eligibilityRules \?\? null,[\s\S]*item\.verification_status,[\s\S]*item\.last_verified/, "Snapshot source version must include school eligibility and verification metadata without normalizing the full catalog during a request cold start.");
 assert.doesNotMatch(snapshot, /normalizeOpportunityEligibility\(item\)/, "For You route initialization must not normalize all opportunities before it can read an existing snapshot or free state.");
 assert.match(card, /enrollment required/, "Discover cards must clearly label school-specific eligibility.");

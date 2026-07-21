@@ -31,6 +31,7 @@ All Journey action aggregates are retained for 90 days.
 | --- | --- | --- |
 | `journey_viewed_v1` | `status` | Did students reach Journey in a meaningful state? |
 | `journey_returned_v1` | none | Did a student return on a later UTC day? |
+| `journey_opportunity_added_v1` | `opportunityId`, `source` | Did an opportunity enter Journey from Discover or For You? |
 | `journey_waypoint_clicked_v1` | `source` | Was the current next step clear enough to act on? |
 | `journey_waypoint_completed_v1` | `transition` | Did the presented step reach a canonical completion? |
 | `journey_history_expanded_v1` | none | Did students ask for historical detail? |
@@ -40,6 +41,12 @@ All Journey action aggregates are retained for 90 days.
 | `journey_transition_completed_v1` | `opportunityId`, `transition` | Did the canonical transition succeed? |
 | `journey_transition_failed_v1` | `component`, `errorType`, `action`, browser/theme/device | Which safe failure category blocked progress? |
 | `journey_application_management_opened_v1` | none | Did students need the operational workspace? |
+| `journey_card_creator_opened_v1` | `format` | Did students open the privacy-controlled Journey Card creator? |
+| `journey_card_downloaded_v1` | `format` | Did a Journey Card download complete? |
+| `journey_card_shared_v1` | `format` | Did a native Journey Card share complete? |
+| `journey_card_copied_v1` | `format` | Did an image copy complete? |
+
+Journey Card events never include the card headline, identity choice, school, dates, statistics, highlights, image bytes, or share destination.
 
 ## Path Moment Events
 

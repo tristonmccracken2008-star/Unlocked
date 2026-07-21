@@ -137,8 +137,23 @@ async function assertRich(page: Page, origin: string, label: string, minimumEven
 }
 
 async function assertCard(page: Page, root: Locator, label: string) {
-  await root.getByRole("button", { name: "Create a Journey Card" }).click();
-  const dialog = page.getByRole("dialog", { name: "Share the progress you made." });
+  const trigger = root.getByRole("button", { name: "Create a Journey Card" });
+  await trigger.waitFor({ state: "visible" });
+  await page.waitForFunction(() => document.querySelector('[data-hydration-ready="true"]'));
+  if (label.startsWith("WebKit")) await trigger.press("Enter");
+  else await trigger.click();
+  const dialog = page.locator('dialog[aria-labelledby="journey-card-title"]');
+  const loadError = root.locator("#journey-card-load-error");
+  try {
+    await page.waitForFunction(() => {
+      const target = document.querySelector<HTMLDialogElement>('dialog[aria-labelledby="journey-card-title"]');
+      const error = document.querySelector("#journey-card-load-error");
+      return Boolean(target?.open || error);
+    }, undefined, { timeout: 12_000 });
+  } catch {
+    throw new Error(`${label} Journey Card did not settle: ${JSON.stringify({ triggerText: await trigger.textContent(), disabled: await trigger.isDisabled(), hydrationReady: await trigger.getAttribute("data-hydration-ready"), dialogCount: await dialog.count(), dialogOpen: await dialog.count() ? await dialog.getAttribute("open") : null, loadError: await loadError.textContent().catch(() => null) })}`);
+  }
+  if (await loadError.count()) throw new Error(`${label} Journey Card failed to load: ${await loadError.textContent()}`);
   await dialog.waitFor({ state: "visible" });
   const artwork = dialog.locator("svg[data-journey-card-artwork]");
   assert.equal(await artwork.getAttribute("width"), "1080");

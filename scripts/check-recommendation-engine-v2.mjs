@@ -64,9 +64,10 @@ for (const relationship of ["prerequisites", "followUps", "alternatives", "easie
 
 assert.ok(weekly.includes("deadlineCount") && weekly.includes("bestNextStep"), "Weekly strategy must summarize deadlines and next step.");
 
-for (const label of ["Interested", "Not interested", "Hide", "Already applied", "Already completed"]) {
+for (const label of ["Show me more like this", "Not interested", "Hide", "Already applied", "Already completed"]) {
   assert.ok(advisor.includes(label), `For You feedback UI must include ${label}.`);
 }
+assert.ok(advisor.includes('type: "helpful"'), "The positive preference action must retain the canonical helpful signal.");
 assert.ok(advisor.includes('type: "dismissed"'), "The concise Hide action must persist the canonical dismissed signal.");
 assert.ok(feedbackApi.includes("already-applied"), "Feedback API must accept already-applied.");
 assert.ok(adminDiagnostics.includes("getAdminSession"), "Recommendation diagnostics must be admin protected.");

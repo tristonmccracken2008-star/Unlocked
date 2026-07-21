@@ -5,6 +5,7 @@ import { ArrowIcon, BookmarkIcon, CheckCircleIcon, HeartIcon, PenLineIcon, SendI
 import { OrganizationLogo } from "@/components/organization-logo";
 import { JourneyTimelineControl } from "@/components/journey-timeline-control";
 import { JourneyCardEntry } from "@/components/journey-card-entry";
+import { JourneyAnalytics } from "@/components/journey-analytics";
 import styles from "./journey-timeline.module.css";
 
 type Icon = ComponentType<{ className?: string }>;
@@ -28,16 +29,21 @@ function formatDate(value: string) {
   return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" }).format(new Date(value));
 }
 
+function formatMonth(value: string) {
+  return new Intl.DateTimeFormat("en-US", { month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(value));
+}
+
 function statusLabel(status: JourneyTimelineEvent["status"]) {
   if (status === "Interview") return "Interviewing";
   if (status === "Rejected") return "Closed";
   return status;
 }
 
-function TimelineEvent({ event, theme }: { event: JourneyTimelineEvent; theme: JourneyTimelineModel["theme"] }) {
+function TimelineEvent({ event, theme, chapter }: { event: JourneyTimelineEvent; theme: JourneyTimelineModel["theme"]; chapter?: string }) {
   const Icon = eventIcons[event.type];
   const important = ["interview", "accepted", "scholarship_awarded", "completed", "milestone"].includes(event.type);
-  return <li className={styles.event} data-event-type={event.type} data-event-emphasis={important ? "strong" : "standard"}>
+  return <li className={styles.event} data-event-type={event.type} data-event-emphasis={important ? "strong" : "standard"} data-has-chapter={chapter ? "true" : "false"}>
+    {chapter ? <p className={styles.chapter}>{chapter}</p> : null}
     <div className={styles.date}><time dateTime={event.occurredAt}>{formatDate(event.occurredAt)}</time></div>
     <div className={styles.marker} aria-hidden="true"><Icon /></div>
     <article className={styles.eventBody}>
@@ -50,6 +56,14 @@ function TimelineEvent({ event, theme }: { event: JourneyTimelineEvent; theme: J
         <span className={styles.status}>{statusLabel(event.status)}</span>
         {event.opportunity ? <Link href={`/opportunities/${event.opportunity.id}`}>View opportunity <ArrowIcon /></Link> : null}
       </div>
+      {event.opportunity ? <details className={styles.eventDetails} data-journey-moment="">
+        <summary>Details</summary>
+        <dl>
+          <div><dt>Organization</dt><dd>{event.opportunity.organization}</dd></div>
+          <div><dt>Category</dt><dd>{event.opportunity.category}</dd></div>
+          <div><dt>Recorded</dt><dd>{formatDate(event.occurredAt)}</dd></div>
+        </dl>
+      </details> : null}
       {event.control ? <JourneyTimelineControl control={event.control} /> : null}
     </article>
   </li>;
@@ -57,7 +71,9 @@ function TimelineEvent({ event, theme }: { event: JourneyTimelineEvent; theme: J
 
 export function JourneyTimeline({ model }: { model: JourneyTimelineModel }) {
   const hasEvents = model.events.length > 0;
+  const analyticsState = !hasEvents ? "empty" : model.events.some((event) => ["interview", "accepted", "scholarship_awarded", "completed"].includes(event.type)) ? "validated" : model.events.length < 3 ? "sparse" : "active";
   return <main className={styles.page} data-journey-timeline="" data-theme={model.theme}>
+    <JourneyAnalytics state={analyticsState} />
     <article className={styles.container}>
       <header className={styles.header}>
         <h1>Journey</h1>
@@ -66,7 +82,11 @@ export function JourneyTimeline({ model }: { model: JourneyTimelineModel }) {
 
       {hasEvents ? <>
         <ol className={styles.timeline} aria-label="Journey events in chronological order">
-          {model.events.map((event) => <TimelineEvent key={event.id} event={event} theme={model.theme} />)}
+          {model.events.map((event, index) => {
+            const month = formatMonth(event.occurredAt);
+            const priorMonth = index > 0 ? formatMonth(model.events[index - 1].occurredAt) : "";
+            return <TimelineEvent key={event.id} event={event} theme={model.theme} chapter={month !== priorMonth ? month : undefined} />;
+          })}
         </ol>
         <section className={styles.share} aria-labelledby="journey-card-heading">
           <div><p>Journey Card</p><h2 id="journey-card-heading">Keep or share a snapshot of your progress.</h2><span>Only the details visible in your preview are included.</span></div>

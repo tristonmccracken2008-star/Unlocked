@@ -45,7 +45,10 @@ export type OpportunityStudentContext = {
   rejectedOpportunityIds?: string[];
   acceptedOpportunityIds?: string[];
   savedCategories?: string[];
+  viewedCategories?: string[];
   completedCategories?: string[];
+  preferredCategories?: string[];
+  interactedOrganizations?: string[];
   ignoredCategories?: string[];
   dismissedOpportunityIds?: string[];
   hiddenOpportunityIds?: string[];
@@ -516,6 +519,18 @@ export function scoreOpportunityIntelligence(item: Opportunity, context: Opportu
     score += weights.savedSimilarCategory;
     addSignal(`Similar to saved ${item.category} opportunities`, "positive", weights.savedSimilarCategory);
   }
+  if (context.preferredCategories?.some((category) => category === item.category || category === item.type || category === intelligence.category)) {
+    score += weights.preferredCategory;
+    addSignal(`Matches your preferred ${item.category} category`, "positive", weights.preferredCategory);
+  }
+  if (context.viewedCategories?.includes(item.category)) {
+    score += weights.viewedSimilarCategory;
+    addSignal(`Similar to viewed ${item.category} opportunities`, "positive", weights.viewedSimilarCategory);
+  }
+  if (context.interactedOrganizations?.includes(item.organization)) {
+    score += weights.interactedOrganization;
+    addSignal("From an organization you explored", "positive", weights.interactedOrganization);
+  }
   if (context.completedCategories?.includes(item.category)) {
     score += weights.completedSimilarCategory;
     addSignal(`Similar to completed ${item.category} opportunities`, "positive", weights.completedSimilarCategory);
@@ -584,6 +599,11 @@ export function getRecommendationReasons(item: Opportunity, context: Opportunity
   if (matchingCareerGoals.length) reasons.push(`Matches your career goal: ${matchingCareerGoals.slice(0, 2).join(", ")}.`);
   if (matchingInterests.length) reasons.push(`Matches your opportunity interests: ${matchingInterests.slice(0, 2).join(", ")}.`);
   if (matchingCurrentPriority && context.currentPriority) reasons.push(`Supports your current priority: ${context.currentPriority}.`);
+  if (context.preferredCategories?.some((category) => category === item.category || category === item.type)) reasons.push(`Matches your preferred opportunity type: ${item.category}.`);
+  if (context.savedCategories?.includes(item.category)) reasons.push(`Similar to ${item.category.toLowerCase()} opportunities you saved.`);
+  if (context.viewedCategories?.includes(item.category)) reasons.push(`Similar to ${item.category.toLowerCase()} opportunities you viewed.`);
+  if (context.interactedOrganizations?.includes(item.organization)) reasons.push(`From an organization you explored: ${item.organization}.`);
+  if (context.underusedCategories?.includes(item.category) || context.underusedCategories?.includes(item.type)) reasons.push(`Adds variety to your opportunity mix with ${item.category.toLowerCase()}.`);
   if (matchingYears.length) reasons.push(matchingYears.includes("Any Year") ? "Accepts students in any class year." : `Accepts ${matchingYears[0].toLowerCase()} students.`);
   if (schoolEligible) reasons.push(item.school_scope === "National" ? "Available nationally." : `Available at ${context.schoolName ?? "your school"}.`);
   if (requirement !== null && meetsGpa === true) reasons.push(`Your GPA meets the listed ${requirement.toFixed(1)} requirement.`);

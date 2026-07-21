@@ -152,10 +152,10 @@ async function productIntelligenceSummary(days: readonly string[]): Promise<Prod
   const views = count(productIntelligenceEvents.journeyViewed);
   const transitionStarts = count(productIntelligenceEvents.transitionStarted);
   const transitionCompletions = count(productIntelligenceEvents.transitionCompleted);
-  const creatorOpens = count(productIntelligenceEvents.pathMomentCreatorOpened) + count(productIntelligenceEvents.semesterStoryCreatorOpened);
-  const downloads = count(productIntelligenceEvents.pathMomentDownloaded) + count(productIntelligenceEvents.semesterStoryDownloaded);
-  const shares = count(productIntelligenceEvents.pathMomentShared) + count(productIntelligenceEvents.semesterStoryShared);
-  const copies = count(productIntelligenceEvents.pathMomentCopied);
+  const creatorOpens = count(productIntelligenceEvents.pathMomentCreatorOpened) + count(productIntelligenceEvents.semesterStoryCreatorOpened) + count(productIntelligenceEvents.journeyCardCreatorOpened);
+  const downloads = count(productIntelligenceEvents.pathMomentDownloaded) + count(productIntelligenceEvents.semesterStoryDownloaded) + count(productIntelligenceEvents.journeyCardDownloaded);
+  const shares = count(productIntelligenceEvents.pathMomentShared) + count(productIntelligenceEvents.semesterStoryShared) + count(productIntelligenceEvents.journeyCardShared);
+  const copies = count(productIntelligenceEvents.pathMomentCopied) + count(productIntelligenceEvents.journeyCardCopied);
   const cancellations = count(productIntelligenceEvents.pathMomentCanceled) + count(productIntelligenceEvents.semesterStoryCanceled);
   const recommendationOpens = count(productIntelligenceEvents.recommendationOpened);
   const recommendationSaves = count(productIntelligenceEvents.recommendationSaved);

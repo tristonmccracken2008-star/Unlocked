@@ -18,7 +18,7 @@ import type { AdvisorAccessState } from "@/lib/advisor-access";
 import { nextAdvisorData } from "@/lib/advisor/api";
 import type { ForYouRecommendationSnapshot, ForYouSnapshotState } from "@/lib/advisor/types";
 
-export const forYouSnapshotEngineVersion = "for-you-snapshot-v3-canonical-eligibility";
+export const forYouSnapshotEngineVersion = "for-you-snapshot-v4-behavior-signals";
 export const forYouSnapshotTtlMs = 1000 * 60 * 60 * 6;
 const generationTimeoutMs = 2800;
 const globalIndexTimeoutMs = 1000;
@@ -119,6 +119,7 @@ export function forYouProfileVersion(profile: StudentProfile, data: AccountData)
       year: profile.year,
       careerGoal: profile.careerGoal,
       interests: profile.interests,
+      preferredOpportunityTypes: [...(profile.preferredOpportunityTypes ?? [])].sort(),
       advisorInterview: profile.advisorInterview,
       institutionType: profile.institutionType,
       enrollmentStatus: profile.enrollmentStatus,
@@ -134,6 +135,8 @@ export function forYouProfileVersion(profile: StudentProfile, data: AccountData)
     },
     tracked,
     saved: [...(activity.saved ?? [])].sort(),
+    viewed: [...(activity.viewed ?? [])].slice(-50),
+    preferredTypes: [...(data.preferences?.preferredTypes ?? [])].sort(),
     hidden: [...(data.preferences?.hiddenDismissedIds ?? [])].sort(),
     feedback,
     billing: { tier: data.billing.tier, status: data.billing.status },

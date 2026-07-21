@@ -37,6 +37,7 @@ export function AddToJourneyButton({ opportunityId, recommendationId, className 
     setAdded(true);
     trackProductEvent("opportunity_added_to_journey",{opportunityId});
     const attribution = recommendationId ?? recommendationAttributionFor(opportunityId);
+    trackProductEvent(productIntelligenceEvents.journeyOpportunityAdded, { opportunityId, source: attribution ? "for_you" : "discover" });
     if (attribution) {
       rememberRecommendationAttribution(opportunityId, attribution);
       trackProductEvent(productIntelligenceEvents.recommendationSaved, { opportunityId, recommendationId: attribution });
