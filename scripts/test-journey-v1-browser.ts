@@ -55,16 +55,16 @@ function createKvServer() {
   });
 }
 
-async function seedSession(label: string, state: "empty" | "sparse" | "rich", dark = false) {
+async function seedSession(label: string, state: "empty" | "sparse" | "rich" | "heavy", dark = false) {
   const { createSession, mergeAccountData, updateAccountBilling, upsertUser } = await import("../lib/auth-store");
   const { opportunities } = await import("../data/opportunities");
-  const selected = state === "empty" ? [] : opportunities.slice(0, state === "sparse" ? 1 : 10);
+  const selected = state === "empty" ? [] : state === "sparse" ? opportunities.slice(0, 1) : state === "heavy" ? opportunities.slice(0, 120) : ["Career", "Research", "Scholarship", "Benefit", "AI"].flatMap((type) => opportunities.filter((item) => item.type === type).slice(0, 2));
   const statuses = ["Saved", "Interested", "Applying", "Submitted", "Interview", "Accepted", "Completed", "Paused", "Rejected", "Submitted"] as const;
   const tracker = Object.fromEntries(selected.map((opportunity, index) => {
-    const day = String(index + 1).padStart(2, "0");
+    const day = String((index % 28) + 1).padStart(2, "0");
     return [opportunity.id, {
       id: opportunity.id,
-      status: state === "sparse" ? "Saved" as const : statuses[index],
+      status: state === "sparse" ? "Saved" as const : statuses[index % statuses.length],
       savedAt: `2026-01-${day}T12:00:00.000Z`,
       updatedAt: `2026-02-${day}T12:00:00.000Z`,
       version: 0,
@@ -80,7 +80,7 @@ async function seedSession(label: string, state: "empty" | "sparse" | "rich", da
     savedOpportunities: selected.map((item, index) => ({ opportunityId: item.id, savedAt: `2026-01-${String(index + 1).padStart(2, "0")}T12:00:00.000Z` })),
     tracker,
     preferences: { appearance: dark ? "midnight" : "light", updatedAt: now },
-    journeyProgress: state === "rich" ? { "milestone-first-application": true } : {},
+    journeyProgress: state === "rich" || state === "heavy" ? { "milestone-first-application": true } : {},
   });
   if (dark) await updateAccountBilling(user.id, { tier: "pro", status: "active", billingInterval: "month", cancelAtPeriodEnd: false });
   return await createSession(user);
@@ -228,6 +228,7 @@ const requestedAppPort = await freePort();
 process.env.NEXT_PUBLIC_APP_URL = `http://127.0.0.1:${requestedAppPort}`;
 
 const richSession = await seedSession("Rich", "rich");
+const heavySession = await seedSession("Heavy", "heavy");
 const sparseSession = await seedSession("Sparse", "sparse");
 const emptySession = await seedSession("Empty", "empty");
 const darkSession = await seedSession("Dark", "rich", true);
@@ -248,12 +249,41 @@ try {
     const page = await context.newPage();
     const assertNoErrors = watchConsole(page, "Chromium desktop");
     const root = await assertRich(page, origin, "Chromium desktop");
+    assert.ok(await root.locator("[data-journey-summary] dd").count() > 0, "A populated Journey must show factual non-zero summary metrics.");
+    assert.ok(await root.locator("[data-journey-highlights] li").count() > 0, "A rich Journey must surface recorded highlights.");
+    const applicationsFilter = root.getByRole("button", { name: /^Applications/ });
+    await applicationsFilter.click();
+    assert.equal(await root.getAttribute("data-active-filter"), "applications");
+    const visibleFilters = await root.locator("ol[aria-label='Journey events in chronological order'] > li:visible").evaluateAll((nodes) => nodes.map((node) => node.getAttribute("data-event-filters") ?? ""));
+    assert.ok(visibleFilters.length > 0 && visibleFilters.every((value) => value.split(" ").includes("applications")), "Applications filter must only expose matching recorded events.");
+    await page.reload({ waitUntil: "domcontentloaded" });
+    await page.waitForFunction(() => document.querySelector('[data-journey-timeline-tools][data-hydration-ready="true"]'));
+    assert.equal(await root.getByRole("button", { name: /^Applications/ }).getAttribute("aria-pressed"), "true", "Journey must restore the last selected filter.");
+    await root.getByRole("button", { name: /^Everything/ }).click();
     await assertCard(page, root, "Chromium desktop");
     const legacy = await page.goto(`${origin}/my-opportunities`, { waitUntil: "domcontentloaded" });
     assert.equal(legacy?.status(), 200);
     await page.locator("[data-journey-timeline]").waitFor({ state: "visible" });
     assert.equal(new URL(page.url()).pathname, "/", "Legacy Journey board route must resolve to the unified Journey.");
     await page.screenshot({ path: path.join(outputDirectory, "journey-desktop.png"), fullPage: true });
+    assertNoErrors();
+    await context.close();
+  }
+  {
+    const context = await chromiumBrowser.newContext({ viewport: { width: 820, height: 1180 } });
+    await installSession(context, origin, heavySession.token);
+    const page = await context.newPage();
+    const assertNoErrors = watchConsole(page, "Chromium tablet heavy history");
+    const root = await assertRich(page, origin, "Chromium tablet heavy history", 200);
+    const moments = root.locator("ol[aria-label='Journey events in chronological order'] > li");
+    const visibleMoments = root.locator("ol[aria-label='Journey events in chronological order'] > li:visible");
+    assert.ok(await moments.count() >= 200, "Heavy history must preserve hundreds of canonical events in the DOM.");
+    assert.ok(await visibleMoments.count() <= 18, "Heavy history must initially disclose no more than 18 recent moments.");
+    await root.getByRole("button", { name: /See earlier chapters/ }).click();
+    assert.equal(await root.getAttribute("data-timeline-expanded"), "true");
+    assert.ok(await visibleMoments.count() > 18, "Earlier chapters must expand without a route change.");
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+    assert.ok(overflow <= 1, `Heavy tablet history created ${overflow}px horizontal overflow.`);
     assertNoErrors();
     await context.close();
   }
@@ -344,7 +374,8 @@ try {
 console.log(JSON.stringify({
   message: "Journey V1 browser checks passed.",
   browsers: ["Chromium", "WebKit"],
-  viewports: ["1440x1000", "1280x900", "390x844"],
-  states: ["empty", "sparse", "rich", "dark", "reduced-motion", "signed-out-checkout", "monthly-checkout", "annual-checkout", "malformed-checkout", "checkout-api-failure"],
+  viewports: ["1440x1000", "1280x900", "820x1180", "390x844"],
+  states: ["empty", "sparse", "rich", "heavy", "dark", "reduced-motion", "signed-out-checkout", "monthly-checkout", "annual-checkout", "malformed-checkout", "checkout-api-failure"],
   screenshots: outputDirectory,
 }, null, 2));
+process.exit(0);

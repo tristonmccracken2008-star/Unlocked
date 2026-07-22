@@ -37,6 +37,24 @@ export type JourneyTimelineEvent = {
   status: OpportunityTrackerStatus | "Milestone";
   opportunity?: Opportunity;
   control?: JourneyTimelineControl;
+  filters: JourneyTimelineFilterKey[];
+};
+
+export type JourneyTimelineFilterKey = "everything" | "applications" | "interviews" | "offers" | "scholarships" | "research" | "competitions" | "benefits" | "milestones";
+
+export type JourneySummaryMetric = {
+  id: "saved" | "submitted" | "interviewed" | "offers" | "scholarships" | "research" | "competitions" | "milestones";
+  label: string;
+  value: number;
+};
+
+export type JourneyHighlight = {
+  id: string;
+  label: string;
+  title: string;
+  description: string;
+  occurredAt: string;
+  opportunity?: Opportunity;
 };
 
 export type JourneyCardStat = {
@@ -49,8 +67,9 @@ export type JourneyCardData = {
   identity: { firstName: string; fullName: string; school?: string };
   dateRange: string;
   headline: string;
+  periodTitle: string;
   stats: JourneyCardStat[];
-  highlights: Array<{ id: string; date: string; title: string; label: string }>;
+  highlights: Array<{ id: string; date: string; title: string; label: string; organization?: string }>;
 };
 
 export const journeyCardLayouts = {
@@ -68,6 +87,10 @@ export type JourneyCardPrivacy = {
 
 export type JourneyTimelineModel = {
   events: JourneyTimelineEvent[];
+  summary: JourneySummaryMetric[];
+  highlights: JourneyHighlight[];
+  filterCounts: Record<JourneyTimelineFilterKey, number>;
+  story: { title: string; description: string };
   card: JourneyCardData;
   theme: "light" | "dark";
 };
@@ -102,6 +125,24 @@ function eventCopy(status: OpportunityTrackerStatus, opportunity: Opportunity, r
   return { type: "closed" as const, label: "Closed", title: `Closed ${opportunity.title}`, description: "Closed this opportunity while keeping it in the Journey record." };
 }
 
+function isApplicationOpportunity(opportunity?: Opportunity): opportunity is Opportunity {
+  return Boolean(opportunity && opportunity.type !== "Benefit" && opportunity.type !== "AI" && opportunity.category !== "Software");
+}
+
+function filtersFor(type: JourneyTimelineEventType, opportunity?: Opportunity): JourneyTimelineFilterKey[] {
+  const filters: JourneyTimelineFilterKey[] = ["everything"];
+  const applicationOpportunity = isApplicationOpportunity(opportunity);
+  if (applicationOpportunity && ["application_started", "application_submitted", "interview", "accepted", "scholarship_awarded", "completed"].includes(type)) filters.push("applications");
+  if (type === "interview" && applicationOpportunity) filters.push("interviews");
+  if (["accepted", "completed"].includes(type) && applicationOpportunity && opportunity?.type !== "Scholarship") filters.push("offers");
+  if (type === "scholarship_awarded" || opportunity?.type === "Scholarship") filters.push("scholarships");
+  if (opportunity?.type === "Research") filters.push("research");
+  if (/competition/i.test(opportunity?.category ?? "") || /competition/i.test(opportunity?.type ?? "")) filters.push("competitions");
+  if (opportunity?.type === "Benefit" || opportunity?.type === "AI" || ["Benefits", "Software"].includes(opportunity?.category ?? "")) filters.push("benefits");
+  if (type === "milestone") filters.push("milestones");
+  return [...new Set(filters)];
+}
+
 function controlFor(record: TrackedOpportunity, opportunity: Opportunity): JourneyTimelineControl | undefined {
   const actions = getJourneyTransitionActions(record);
   if (!actions.length) return undefined;
@@ -118,19 +159,19 @@ function recordEvents(record: TrackedOpportunity, opportunity: Opportunity, fall
   const events: JourneyTimelineEvent[] = [];
   const savedAt = safeDate(record.savedAt, fallbackDate);
   const savedCopy = eventCopy("Saved", opportunity);
-  events.push({ id: `saved:${record.id}`, occurredAt: savedAt, ...savedCopy, status: "Saved", opportunity });
+  events.push({ id: `saved:${record.id}`, occurredAt: savedAt, ...savedCopy, status: "Saved", opportunity, filters: filtersFor(savedCopy.type, opportunity) });
 
   const history = [...(record.history ?? [])].sort((left, right) => left.occurredAt.localeCompare(right.occurredAt));
   for (const item of history) {
     const status = item.resultingStatus ?? statusFromTransition[item.transition];
     const copy = eventCopy(status, opportunity, item.transition === "resume");
-    events.push({ id: `transition:${record.id}:${item.id}`, occurredAt: safeDate(item.occurredAt, record.updatedAt), ...copy, status, opportunity });
+    events.push({ id: `transition:${record.id}:${item.id}`, occurredAt: safeDate(item.occurredAt, record.updatedAt), ...copy, status, opportunity, filters: filtersFor(copy.type, opportunity) });
   }
 
   const finalHistoryStatus = history.at(-1)?.resultingStatus;
   if (record.status !== "Saved" && finalHistoryStatus !== record.status) {
     const copy = eventCopy(record.status, opportunity);
-    events.push({ id: `legacy-status:${record.id}:${record.status}`, occurredAt: safeDate(record.updatedAt, fallbackDate), ...copy, status: record.status, opportunity });
+    events.push({ id: `legacy-status:${record.id}:${record.status}`, occurredAt: safeDate(record.updatedAt, fallbackDate), ...copy, status: record.status, opportunity, filters: filtersFor(copy.type, opportunity) });
   }
 
   const last = events.at(-1);
@@ -163,6 +204,54 @@ function cardDateRange(events: readonly JourneyTimelineEvent[]) {
   return years.length === 1 ? String(years[0]) : `${years[0]}–${years.at(-1)}`;
 }
 
+function journeyPeriodTitle(events: readonly JourneyTimelineEvent[]) {
+  if (!events.length) return "My Journey";
+  const dates = events.map((event) => new Date(event.occurredAt)).filter((date) => Number.isFinite(date.getTime()));
+  const years = [...new Set(dates.map((date) => date.getUTCFullYear()))];
+  if (years.length !== 1) return "My Journey";
+  const months = dates.map((date) => date.getUTCMonth());
+  const year = years[0];
+  if (months.every((month) => month >= 5 && month <= 7)) return `Summer ${year}`;
+  if (months.every((month) => month >= 8)) return `Fall ${year}`;
+  if (months.every((month) => month <= 4)) return `Spring ${year}`;
+  return `My ${year}`;
+}
+
+function buildHighlights(events: readonly JourneyTimelineEvent[], records: readonly TrackedOpportunity[], opportunityById: ReadonlyMap<string, Opportunity>, fallbackDate: string): JourneyHighlight[] {
+  const candidates: JourneyHighlight[] = [];
+  const firstApplication = events.find((event) => event.type === "application_submitted" && isApplicationOpportunity(event.opportunity));
+  if (firstApplication) candidates.push({ id: "first-application", label: "First application", title: firstApplication.title, description: "The first submitted application recorded in your Journey.", occurredAt: firstApplication.occurredAt, opportunity: firstApplication.opportunity });
+  const firstInterview = events.find((event) => event.type === "interview" && isApplicationOpportunity(event.opportunity));
+  if (firstInterview) candidates.push({ id: "first-interview", label: "First interview", title: firstInterview.title, description: "The first interview-stage opportunity recorded in your Journey.", occurredAt: firstInterview.occurredAt, opportunity: firstInterview.opportunity });
+  const firstOffer = events.find((event) => event.type === "scholarship_awarded" || (event.type === "accepted" && isApplicationOpportunity(event.opportunity)));
+  if (firstOffer) candidates.push({ id: "first-offer", label: firstOffer.type === "scholarship_awarded" ? "First scholarship" : "First offer", title: firstOffer.title, description: firstOffer.type === "scholarship_awarded" ? "The first awarded scholarship recorded in your Journey." : "The first accepted opportunity recorded in your Journey.", occurredAt: firstOffer.occurredAt, opportunity: firstOffer.opportunity });
+
+  const wonScholarships = records
+    .filter((record) => ["Accepted", "Completed"].includes(record.status))
+    .map((record) => ({ record, opportunity: opportunityById.get(record.id) }))
+    .filter((item): item is { record: TrackedOpportunity; opportunity: Opportunity } => item.opportunity?.type === "Scholarship" && typeof item.opportunity.estimated_value === "number")
+    .sort((left, right) => (right.opportunity.estimated_value ?? 0) - (left.opportunity.estimated_value ?? 0));
+  const largestScholarship = wonScholarships[0];
+  if (largestScholarship) candidates.push({ id: "largest-scholarship", label: "Largest scholarship", title: largestScholarship.opportunity.title, description: `${new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(largestScholarship.opportunity.estimated_value ?? 0)} recorded value.`, occurredAt: safeDate(largestScholarship.record.updatedAt, fallbackDate), opportunity: largestScholarship.opportunity });
+
+  const competitive = records
+    .filter((record) => ["Submitted", "Interview", "Accepted", "Completed"].includes(record.status))
+    .map((record) => ({ record, opportunity: opportunityById.get(record.id) }))
+    .find((item) => item.opportunity?.difficulty === "Highly Competitive");
+  if (competitive?.opportunity) candidates.push({ id: "competitive-opportunity", label: "Competitive pursuit", title: competitive.opportunity.title, description: "Recorded as highly competitive in the verified opportunity catalog.", occurredAt: safeDate(competitive.record.updatedAt, fallbackDate), opportunity: competitive.opportunity });
+
+  const newest = [...events].reverse().find((event) => event.type === "milestone" || event.type === "scholarship_awarded" || (["application_submitted", "interview", "accepted", "completed"].includes(event.type) && isApplicationOpportunity(event.opportunity)));
+  if (newest) candidates.push({ id: "newest-achievement", label: "Newest achievement", title: newest.title, description: newest.description, occurredAt: newest.occurredAt, opportunity: newest.opportunity });
+
+  const seenEvents = new Set<string>();
+  return candidates.filter((highlight) => {
+    const key = `${highlight.title}|${highlight.occurredAt}`;
+    if (seenEvents.has(key)) return false;
+    seenEvents.add(key);
+    return true;
+  }).slice(0, 4);
+}
+
 export function buildJourneyTimelineModel(input: {
   user: Pick<AuthUser, "name">;
   account: AccountData;
@@ -188,17 +277,19 @@ export function buildJourneyTimelineModel(input: {
       title,
       description: "Recorded as a completed personal milestone.",
       status: "Milestone",
+      filters: filtersFor("milestone"),
     });
   }
 
   events.sort((left, right) => left.occurredAt.localeCompare(right.occurredAt) || left.id.localeCompare(right.id));
   const records = Object.values(recordsById);
+  const applicationRecords = records.filter((record) => isApplicationOpportunity(opportunityById.get(record.id)));
   const acceptedStatuses: OpportunityTrackerStatus[] = ["Accepted", "Completed"];
   const values: Record<JourneyCardStat["id"], number> = {
     saved: records.length,
-    submitted: countAtOrBeyond(records, ["Submitted", "Interview", "Accepted", "Completed"]),
-    interviewed: countAtOrBeyond(records, ["Interview", "Accepted", "Completed"]),
-    accepted: countAtOrBeyond(records, acceptedStatuses),
+    submitted: countAtOrBeyond(applicationRecords, ["Submitted", "Interview", "Accepted", "Completed"]),
+    interviewed: countAtOrBeyond(applicationRecords, ["Interview", "Accepted", "Completed"]),
+    accepted: countAtOrBeyond(applicationRecords, acceptedStatuses),
     completed: countAtOrBeyond(records, ["Completed"]),
     scholarships: records.filter((record) => acceptedStatuses.includes(record.status) && opportunityById.get(record.id)?.type === "Scholarship").length,
     milestones: Object.values(input.account.journeyProgress ?? {}).filter(Boolean).length,
@@ -216,9 +307,32 @@ export function buildJourneyTimelineModel(input: {
     .filter((id) => values[id] > 0)
     .slice(0, 6)
     .map((id) => ({ id, label: labels[id], value: values[id] }));
+  const summaryValues: Record<JourneySummaryMetric["id"], number> = {
+    saved: records.length,
+    submitted: values.submitted,
+    interviewed: values.interviewed,
+    offers: applicationRecords.filter((record) => acceptedStatuses.includes(record.status) && opportunityById.get(record.id)?.type !== "Scholarship").length,
+    scholarships: values.scholarships,
+    research: records.filter((record) => record.status === "Completed" && opportunityById.get(record.id)?.type === "Research").length,
+    competitions: records.filter((record) => ["Accepted", "Completed"].includes(record.status) && /competition/i.test(opportunityById.get(record.id)?.category ?? "")).length,
+    milestones: Object.values(input.account.journeyProgress ?? {}).filter(Boolean).length,
+  };
+  const summaryLabels: Record<JourneySummaryMetric["id"], string> = {
+    saved: "Saved opportunities",
+    submitted: "Applications submitted",
+    interviewed: "Interviews earned",
+    offers: "Offers received",
+    scholarships: "Scholarships won",
+    research: "Research experiences",
+    competitions: "Competitions completed",
+    milestones: "Personal milestones",
+  };
+  const summary = (Object.keys(summaryValues) as JourneySummaryMetric["id"][]).filter((id) => summaryValues[id] > 0).map((id) => ({ id, label: summaryLabels[id], value: summaryValues[id] }));
+  const filterCounts = Object.fromEntries((["everything", "applications", "interviews", "offers", "scholarships", "research", "competitions", "benefits", "milestones"] as JourneyTimelineFilterKey[]).map((key) => [key, key === "everything" ? events.length : events.filter((event) => event.filters.includes(key)).length])) as Record<JourneyTimelineFilterKey, number>;
+  const highlights = buildHighlights(events, records, opportunityById, fallbackDate);
   const meaningfulTypes = new Set<JourneyTimelineEventType>(["application_submitted", "interview", "accepted", "scholarship_awarded", "completed", "milestone"]);
   const meaningful = events.filter((event) => meaningfulTypes.has(event.type));
-  const highlights = (meaningful.length ? meaningful : events).slice(-4).map((event) => ({ id: event.id, date: event.occurredAt, title: event.title, label: event.label }));
+  const cardHighlights = (meaningful.length ? meaningful : events).slice(-4).map((event) => ({ id: event.id, date: event.occurredAt, title: event.title, label: event.label, organization: event.opportunity?.organization }));
   const profile = input.account.profile;
   const firstName = profile?.firstName?.trim() || input.user.name.trim().split(/\s+/)[0] || "Student";
   const profileName = [profile?.firstName, profile?.lastName].map((part) => part?.trim()).filter(Boolean).join(" ");
@@ -228,13 +342,21 @@ export function buildJourneyTimelineModel(input: {
 
   return {
     events,
+    summary,
+    highlights,
+    filterCounts,
+    story: {
+      title: `${firstName}'s story`,
+      description: highlights[0]?.description ?? (events.length === 1 ? "One recorded moment marks the beginning of this Journey." : "A factual record of the opportunities and milestones that shaped your progress."),
+    },
     theme,
     card: {
       identity: { firstName, fullName: profileName || input.user.name.trim() || firstName, school },
       dateRange: cardDateRange(events),
       headline: cardHeadline(values),
+      periodTitle: journeyPeriodTitle(events),
       stats,
-      highlights,
+      highlights: cardHighlights,
     },
   };
 }

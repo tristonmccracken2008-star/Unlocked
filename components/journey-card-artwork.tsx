@@ -83,6 +83,7 @@ export const JourneyCardArtwork = forwardRef<SVGSVGElement, JourneyCardArtworkPr
   const momentsWidth = layout === "linkedin" ? 340 : dimensions.width - c.margin * 2;
   const identity = [displayName(card, privacy.nameMode), privacy.includeSchool ? card.identity.school : ""].filter(Boolean).join("  ·  ");
   const period = privacy.includeDates ? card.dateRange : "My Journey";
+  const periodTitle = card.periodTitle?.toUpperCase() || "MY JOURNEY";
 
   return <svg ref={ref} xmlns="http://www.w3.org/2000/svg" width={dimensions.width} height={dimensions.height} viewBox={`0 0 ${dimensions.width} ${dimensions.height}`} aria-hidden="true" focusable="false" data-journey-card-artwork="" data-journey-card-layout={layout} data-export-theme={theme}>
     <rect width={dimensions.width} height={dimensions.height} fill={canvas} />
@@ -90,7 +91,7 @@ export const JourneyCardArtwork = forwardRef<SVGSVGElement, JourneyCardArtworkPr
 
     <BrandMarkArtwork x={c.margin} y={c.brandY} size={layout === "story" ? 48 : 38} tone={dark ? "inverse" : "default"} />
     <text x={c.margin + (layout === "story" ? 62 : 50)} y={c.brandY + (layout === "story" ? 34 : 28)} fill={primary} fontFamily="Georgia, 'Times New Roman', serif" fontSize={layout === "story" ? 29 : 22} fontWeight="700">UnlockED</text>
-    <text x={dimensions.width - c.margin} y={c.brandY + (layout === "story" ? 32 : 27)} textAnchor="end" fill={accent} fontFamily="Arial, Helvetica, sans-serif" fontSize={layout === "story" ? 17 : 13} fontWeight="700" letterSpacing={layout === "story" ? 3.2 : 2.4}>MY JOURNEY</text>
+    <text x={dimensions.width - c.margin} y={c.brandY + (layout === "story" ? 32 : 27)} textAnchor="end" fill={accent} fontFamily="Arial, Helvetica, sans-serif" fontSize={layout === "story" ? 17 : 13} fontWeight="700" letterSpacing={layout === "story" ? 3.2 : 2.4}>{periodTitle}</text>
     <line x1={c.margin} y1={c.brandY + (layout === "story" ? 76 : 58)} x2={dimensions.width - c.margin} y2={c.brandY + (layout === "story" ? 76 : 58)} stroke={line} strokeWidth="2" />
 
     <text x={c.margin} y={c.identityY} fill={secondary} fontFamily="Arial, Helvetica, sans-serif" fontSize={layout === "story" ? 22 : 16} fontWeight="600">{identity}</text>
@@ -124,6 +125,7 @@ export const JourneyCardArtwork = forwardRef<SVGSVGElement, JourneyCardArtworkPr
             {lines.map((lineText, lineIndex) => <tspan key={`${lineIndex}-${lineText}`} x={layout === "story" ? 34 : 25} dy={lineIndex ? (layout === "story" ? 32 : 23) : 0}>{lineText}</tspan>)}
           </text>
           <text x={momentsWidth} y="0" textAnchor="end" fill={muted} fontFamily="Arial, Helvetica, sans-serif" fontSize={layout === "story" ? 16 : 12}>{privacy.includeDates ? shortDate(moment.date) : moment.label}</text>
+          {moment.organization ? <text x={layout === "story" ? 34 : 25} y={layout === "story" ? 54 : 38} fill={muted} fontFamily="Arial, Helvetica, sans-serif" fontSize={layout === "story" ? 15 : 11} fontWeight="600">{wrapText(moment.organization, 28, 1)[0]}</text> : null}
         </g>;
       })}
     </g>
