@@ -452,12 +452,11 @@ function qualityGateFailures(ranked: RankedOpportunity) {
   return failures;
 }
 
-function toOpportunityRecommendation(profile: AdvisorProfile, ranked: RankedOpportunity, forcedTier?: RecommendationTier): RecommendationV1 {
+function toOpportunityRecommendation(profile: AdvisorProfile, ranked: RankedOpportunity, context: OpportunityStudentContext, forcedTier?: RecommendationTier): RecommendationV1 {
   const opportunity = ranked.opportunity;
   const application = progressForOpportunity(profile, opportunity.id);
   const priority = recommendationPriority(ranked.finalScore, ranked.score.priority);
   const reasons = opportunityReasons(profile, ranked);
-  const context = buildOpportunityStudentContext(profile);
   const eligibility = evaluateOpportunityEligibility(opportunity, context);
   const recommendationConfidence = clamp((ranked.score.confidence + ranked.finalScore) / 2);
   const confidenceBreakdown = buildOpportunityConfidence(opportunity, context, recommendationConfidence, eligibility);
@@ -527,20 +526,19 @@ function shouldExcludeOpportunity(profile: AdvisorProfile, opportunity: Opportun
   return Boolean(application && terminalApplicationStatuses.has(application.status));
 }
 
-function rankAllOpportunities(input: RecommendationEngineInput) {
+function rankAllOpportunities(input: RecommendationEngineInput, context: OpportunityStudentContext) {
   const { advisorProfile: profile, progress } = input;
   const requestedSource = input.opportunities ?? catalogOpportunities;
   const source = requestedSource === catalogOpportunities ? defaultProfessionalCandidateIndex : requestedSource;
   const roadmap = getRoadmap(profile, progress);
   const activeMilestones = roadmap.upcomingMilestones.slice(0, 4).map((milestone) => toMilestone(milestone, progress));
-  const context = contextWithLearning(buildOpportunityStudentContext(profile), requestedSource);
   const prefiltered = source.filter((opportunity) => !shouldExcludeOpportunity(profile, opportunity, context));
   return prefiltered
     .map((opportunity) => rankOpportunity(profile, opportunity, context, activeMilestones, roadmap.opportunityPriorities, source))
     .sort((a, b) => b.finalScore - a.finalScore || priorityWeight[b.score.priority] - priorityWeight[a.score.priority] || a.opportunity.title.localeCompare(b.opportunity.title));
 }
 
-function diversityAdjustedOpportunityRecommendations(profile: AdvisorProfile, ranked: RankedOpportunity[], limit: number, forcedTier?: RecommendationTier) {
+function diversityAdjustedOpportunityRecommendations(profile: AdvisorProfile, ranked: RankedOpportunity[], context: OpportunityStudentContext, limit: number, forcedTier?: RecommendationTier) {
   const config = recommendationConfig.diversity;
   const selected: RankedOpportunity[] = [];
   const remaining = [...ranked];
@@ -598,7 +596,7 @@ function diversityAdjustedOpportunityRecommendations(profile: AdvisorProfile, ra
     semanticClusterCounts.set(next.semanticCluster, (semanticClusterCounts.get(next.semanticCluster) ?? 0) + 1);
   }
   const selectedSource = ranked.map((item) => item.opportunity);
-  return selected.map((item) => toOpportunityRecommendation(profile, { ...item, relationship: getOpportunityRelationship(item.opportunity, selectedSource) }, forcedTier));
+  return selected.map((item) => toOpportunityRecommendation(profile, { ...item, relationship: getOpportunityRelationship(item.opportunity, selectedSource) }, context, forcedTier));
 }
 
 function balancedRecommendationPortfolio(profile: AdvisorProfile, candidates: RecommendationV1[], source: readonly Opportunity[], limit: number, primaryId?: string) {
@@ -679,9 +677,9 @@ function balancedRecommendationPortfolio(profile: AdvisorProfile, candidates: Re
   });
 }
 
-function exploreGateFailures(ranked: RankedOpportunity, profile: AdvisorProfile) {
+function exploreGateFailures(ranked: RankedOpportunity, context: OpportunityStudentContext) {
   const failures: string[] = [];
-  const eligibility = evaluateOpportunityEligibility(ranked.opportunity, buildOpportunityStudentContext(profile));
+  const eligibility = evaluateOpportunityEligibility(ranked.opportunity, context);
   const canonical = normalizeOpportunityEligibility(ranked.opportunity);
   if (!eligibility.eligible) failures.push(...eligibility.failures);
   if (canonical.recommendationEligibilityStatus !== "eligible_for_ranking") failures.push(`Recommendation eligibility status is ${canonical.recommendationEligibilityStatus}.`);
@@ -693,23 +691,25 @@ function exploreGateFailures(ranked: RankedOpportunity, profile: AdvisorProfile)
 
 export function rankOpportunityRecommendations(input: RecommendationEngineInput): RecommendationV1[] {
   const limit = input.limit ?? 24;
-  const context = contextWithLearning(buildOpportunityStudentContext(input.advisorProfile), input.opportunities ?? catalogOpportunities);
-  const allRanked = rankAllOpportunities(input);
+  const source = input.opportunities ?? catalogOpportunities;
+  const context = contextWithLearning(buildOpportunityStudentContext(input.advisorProfile), source);
+  const allRanked = rankAllOpportunities(input, context);
   const strict = allRanked.filter((item) => qualityGateFailures(item).length === 0 && evaluateOpportunityEligibility(item.opportunity, context).actionable);
-  const strictRecommendations = diversityAdjustedOpportunityRecommendations(input.advisorProfile, strict, limit);
+  const strictRecommendations = diversityAdjustedOpportunityRecommendations(input.advisorProfile, strict, context, limit);
   const strictIds = new Set(strictRecommendations.map((item) => item.relatedOpportunityId));
-  const explore = allRanked.filter((item) => !strictIds.has(item.opportunity.id) && exploreGateFailures(item, input.advisorProfile).length === 0);
-  const exploreRecommendations = diversityAdjustedOpportunityRecommendations(input.advisorProfile, explore, limit, "explore");
+  const explore = allRanked.filter((item) => !strictIds.has(item.opportunity.id) && exploreGateFailures(item, context).length === 0);
+  const exploreRecommendations = diversityAdjustedOpportunityRecommendations(input.advisorProfile, explore, context, limit, "explore");
   const portfolio = balancedRecommendationPortfolio(
     input.advisorProfile,
     [...strictRecommendations, ...exploreRecommendations],
-    input.opportunities ?? catalogOpportunities,
+    source,
     limit,
     strictRecommendations[0]?.id,
   );
+  const opportunityById = new Map(source.map((opportunity) => [opportunity.id, opportunity]));
   return portfolio
     .filter((recommendation) => {
-      const opportunity = (input.opportunities ?? catalogOpportunities).find((item) => item.id === recommendation.relatedOpportunityId);
+      const opportunity = recommendation.relatedOpportunityId ? opportunityById.get(recommendation.relatedOpportunityId) : undefined;
       return opportunity ? auditFinalOpportunityRecommendation(recommendation, opportunity, context).approved : true;
     });
 }
@@ -740,13 +740,13 @@ function reviewRecord(ranked: RankedOpportunity, finalRank: number | null, conte
 export function buildRecommendationDiagnosticReport(input: RecommendationEngineInput): RecommendationDiagnosticReport {
   const started = typeof performance !== "undefined" ? performance.now() : Date.now();
   const context = contextWithLearning(buildOpportunityStudentContext(input.advisorProfile), input.opportunities ?? catalogOpportunities);
-  const allRanked = rankAllOpportunities(input);
+  const allRanked = rankAllOpportunities(input, context);
   const eligibleRanked = allRanked.filter((item) => qualityGateFailures(item).length === 0);
   const diversified = rankOpportunityRecommendations(input);
   const finalIds = new Map(diversified.map((item, index) => [item.relatedOpportunityId, index + 1]));
   const finalRankingOrder = allRanked.filter((item) => finalIds.has(item.opportunity.id)).sort((a, b) => (finalIds.get(a.opportunity.id) ?? 999) - (finalIds.get(b.opportunity.id) ?? 999)).map((item) => reviewRecord(item, finalIds.get(item.opportunity.id) ?? null, context));
-  const filteredRecommendations = allRanked.filter((item) => qualityGateFailures(item).length > 0 && exploreGateFailures(item, input.advisorProfile).length > 0).slice(0, 20).map((item) => reviewRecord(item, null, context));
-  const competingOpportunities = allRanked.filter((item) => !finalIds.has(item.opportunity.id) && (qualityGateFailures(item).length === 0 || exploreGateFailures(item, input.advisorProfile).length === 0)).slice(0, 10).map((item) => reviewRecord(item, null, context));
+  const filteredRecommendations = allRanked.filter((item) => qualityGateFailures(item).length > 0 && exploreGateFailures(item, context).length > 0).slice(0, 20).map((item) => reviewRecord(item, null, context));
+  const competingOpportunities = allRanked.filter((item) => !finalIds.has(item.opportunity.id) && (qualityGateFailures(item).length === 0 || exploreGateFailures(item, context).length === 0)).slice(0, 10).map((item) => reviewRecord(item, null, context));
   const elapsedMs = Math.round((typeof performance !== "undefined" ? performance.now() : Date.now()) - started);
   return {
     generatedAt: new Date().toISOString(),
@@ -791,8 +791,8 @@ export function buildRecommendationCandidateFunnel(input: RecommendationEngineIn
       && (deadlineDays === null || deadlineDays >= 0);
   });
   const confidenceEligible = statusDeadlineEligible.filter((opportunity) => evaluateProfessionalRecommendationCandidate(opportunity, context).allowed);
-  const ranked = rankAllOpportunities(input);
-  const rankingEligible = ranked.filter((item) => qualityGateFailures(item).length === 0 || exploreGateFailures(item, input.advisorProfile).length === 0);
+  const ranked = rankAllOpportunities(input, context);
+  const rankingEligible = ranked.filter((item) => qualityGateFailures(item).length === 0 || exploreGateFailures(item, context).length === 0);
   const selected = rankOpportunityRecommendations(input);
   const tierCounts = selected.reduce<Record<RecommendationTier, number>>((counts, item) => {
     counts[item.tier] += 1;

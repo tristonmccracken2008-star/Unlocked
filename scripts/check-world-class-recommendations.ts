@@ -4,7 +4,7 @@ import { buildOpportunityStudentContext } from "../data/recommendation-engine";
 import { buildRecommendationService } from "../data/recommendation-service";
 import { getDeadlineDays, getOpportunityIntelligence } from "../data/opportunity-intelligence";
 import { evaluateOpportunityEligibility } from "../data/opportunity-eligibility";
-import { evaluateProfessionalRecommendationCandidate } from "../data/recommendation-professional-pipeline";
+import { evaluateProfessionalRecommendationCandidate, validateOpportunityData } from "../data/recommendation-professional-pipeline";
 import { opportunities } from "../data/opportunities";
 import { schools } from "../data/seed";
 import type { StudentActivity } from "../data/student-activity";
@@ -16,6 +16,10 @@ const school = fixtureSchool as NonNullable<typeof fixtureSchool>;
 
 const activity: StudentActivity = { viewed: [], saved: [], claimed: [], tracked: {} };
 const progress = { milestones: {}, applications: {} };
+const cacheFixture = opportunities.find((opportunity) => validateOpportunityData(opportunity).allowed);
+assert.ok(cacheFixture, "The catalog must contain a professionally valid cache fixture.");
+assert.equal(getOpportunityIntelligence(cacheFixture), getOpportunityIntelligence(cacheFixture), "Catalog intelligence must be memoized by immutable opportunity record.");
+assert.equal(validateOpportunityData(cacheFixture), validateOpportunityData(cacheFixture), "Static professional validation must be memoized by immutable opportunity record.");
 
 function profile(major: string, careerGoal: string, interests: string, currentPriority: string, minor?: string): StudentProfile {
   return {
@@ -125,6 +129,12 @@ const rotated = buildRecommendationService({
 }).recommendations.slice(0, 8);
 assert.deepEqual(rotated.slice(0, 2).map((view) => view.opportunity?.id), initial.slice(0, 2).map((view) => view.opportunity?.id), "The two strongest recommendations must retain continuity.");
 assert.notDeepEqual(rotated.slice(2).map((view) => view.opportunity?.id), initial.slice(2).map((view) => view.opportunity?.id), "Repeated lower slots must rotate deterministically.");
+const repeatedInitial = buildRecommendationService({ profile: quantProfile, school, activity, progress, source: opportunities, feedRotationKey: "rotation-a" }).recommendations.slice(0, 8);
+assert.deepEqual(
+  repeatedInitial.map((view) => [view.recommendation.id, view.recommendation.score, view.recommendation.reasons, view.recommendation.portfolio]),
+  initial.map((view) => [view.recommendation.id, view.recommendation.score, view.recommendation.reasons, view.recommendation.portfolio]),
+  "Warm catalog caches must preserve ranking, explanations, scores, and portfolio metadata.",
+);
 
 const sortedDurations = [...durations].sort((left, right) => left - right);
 const p95 = sortedDurations[Math.max(0, Math.ceil(sortedDurations.length * 0.95) - 1)];

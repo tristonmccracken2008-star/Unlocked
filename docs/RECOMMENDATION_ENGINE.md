@@ -187,7 +187,7 @@ Recommendation generation is deterministic and in-memory over the local opportun
 
 The engine avoids frontend ranking work by keeping personalized recommendation generation behind server-gated For You APIs. Discover uses lightweight local ordering after search/filter narrowing so browsing remains responsive without duplicating Advisor Brain work in the browser.
 
-Relationship inference is cached by opportunity id and catalog size. Advisor Brain results keep the existing bounded in-memory cache. The ranking pass remains deterministic and avoids client-side recomputation.
+Relationship inference is cached by opportunity id and catalog size. Immutable catalog normalization, opportunity intelligence, and static professional validation are memoized by opportunity object. A recommendation run creates one learned student context and reuses it through eligibility gating, scoring, tier selection, explanation, and final audit so the context-scoped eligibility cache remains effective. Advisor Brain results keep the existing bounded in-memory cache. The ranking pass remains deterministic and avoids client-side recomputation.
 
 `npm run check:world-class-recommendations` verifies final-feed category, organization, and semantic diversity; the 15–25% exploration range; top-slot continuity; lower-slot rotation; documented premium signals; positive eligibility; and representative undergraduate performance.
 

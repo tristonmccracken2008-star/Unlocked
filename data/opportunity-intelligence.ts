@@ -274,11 +274,16 @@ export function getOpportunityImpactProfile(item: Opportunity): OpportunityImpac
   return { score: Math.min(100, score), signals: unique(signals) };
 }
 
+const opportunityIntelligenceCache = new WeakMap<Opportunity, { day: string; intelligence: OpportunityIntelligence }>();
+
 export function getOpportunityIntelligence(item: Opportunity): OpportunityIntelligence {
+  const day = new Date().toISOString().slice(0, 10);
+  const cached = opportunityIntelligenceCache.get(item);
+  if (cached?.day === day) return cached.intelligence;
   const canonical = canonicalOpportunity(item);
   const requiredSkills = inferSkills(item);
   const impact = getOpportunityImpactProfile(item);
-  return {
+  const intelligence: OpportunityIntelligence = {
     id: item.id,
     title: item.title,
     organization: item.organization,
@@ -309,6 +314,8 @@ export function getOpportunityIntelligence(item: Opportunity): OpportunityIntell
     freshness: getOpportunityFreshness(item),
     semanticCluster: getOpportunitySemanticCluster(item),
   };
+  opportunityIntelligenceCache.set(item, { day, intelligence });
+  return intelligence;
 }
 
 export function getMatchingMajors(item: Opportunity, context: OpportunityStudentContext) {

@@ -53,7 +53,11 @@ function hasUsableSource(opportunity: Opportunity) {
   return opportunity.official_source_url.startsWith("https://") && Boolean(opportunity.organization.trim()) && Boolean(opportunity.eligibility.trim());
 }
 
+const opportunityValidationCache = new WeakMap<Opportunity, CandidateGateResult>();
+
 export function validateOpportunityData(opportunity: Opportunity): CandidateGateResult {
+  const cached = opportunityValidationCache.get(opportunity);
+  if (cached) return cached;
   const reasons: string[] = [];
   const canonical = normalizeOpportunityEligibility(opportunity);
   if (!hasUsableSource(opportunity)) reasons.push("Missing usable source, organization, or eligibility.");
@@ -69,12 +73,14 @@ export function validateOpportunityData(opportunity: Opportunity): CandidateGate
   if (rawEligibilityText(opportunity).trim().length < 24) reasons.push("Eligibility detail is too thin to prove fit.");
   if (opportunityEligibilityDataConfidence(opportunity) < recommendationConfig.confidence.professionalMinimum) reasons.push("Eligibility evidence confidence is below the Pro threshold.");
   if (opportunityVerificationConfidence(opportunity) < recommendationConfig.confidence.professionalMinimum) reasons.push("Verification confidence is below the Pro threshold.");
-  return {
+  const result: CandidateGateResult = {
     allowed: reasons.length === 0,
     stage: "data_validation",
     reasons,
     confidenceImpact: reasons.length ? "medium" : "none",
   };
+  opportunityValidationCache.set(opportunity, result);
+  return result;
 }
 
 export function evaluateEligibility(opportunity: Opportunity, context: OpportunityStudentContext): CandidateGateResult {

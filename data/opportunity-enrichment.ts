@@ -199,14 +199,18 @@ export function opportunityDuplicateKey(item: Opportunity) {
   return normalize([item.title, item.organization, item.official_source_url, item.application_deadline ?? item.metadata.deadlineType ?? ""].join(" "));
 }
 
+const canonicalOpportunityCache = new WeakMap<Opportunity, CanonicalOpportunity>();
+
 export function canonicalOpportunity(item: Opportunity): CanonicalOpportunity {
+  const cached = canonicalOpportunityCache.get(item);
+  if (cached) return cached;
   const org = organizationIdentity(item);
   const logo = resolveOrganizationLogo(item);
   const fields = careerFields(item);
   const tags = enrichedTags(item, fields);
   const officialWebsite = item.official_source_url || item.official_source || null;
   const quality = dataQualityScore(item);
-  return {
+  const canonical: CanonicalOpportunity = {
     id: item.id,
     title: item.title.trim(),
     organization: org.displayName || item.organization.trim(),
@@ -240,6 +244,8 @@ export function canonicalOpportunity(item: Opportunity): CanonicalOpportunity {
     duplicateKey: opportunityDuplicateKey(item),
     searchText: normalize([item.title, org.displayName, item.organization, item.type, item.category, canonicalCategory(item), item.description, item.eligibility, item.location, ...item.majors, ...tags, ...fields].join(" ")),
   };
+  canonicalOpportunityCache.set(item, canonical);
+  return canonical;
 }
 
 export function dataQualityScore(item: Opportunity) {
