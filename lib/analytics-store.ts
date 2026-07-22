@@ -79,6 +79,8 @@ function dailyKeys(date: string) {
 
 const recommendationCategoryKeys = ["internship", "scholarship", "research", "fellowship", "competition", "conference", "student_benefit", "software", "certification", "campus_job", "mentorship", "program", "workshop"] as const;
 const recommendationPhases = ["impression", "open", "save", "application", "dismiss"] as const;
+const opportunityFeedbackPhases = ["shown", "opened", "saved", "applied", "dismissed", "accepted"] as const;
+export type OpportunityEngagementSignal = Record<(typeof opportunityFeedbackPhases)[number], number>;
 const recommendationExposureBuckets = ["first", "repeat", "frequent"] as const;
 
 function recommendationPhase(name: AnalyticsEventName) {
@@ -122,6 +124,12 @@ export async function recordAnalyticsEnvelope(envelope: AnalyticsEnvelope) {
     operations.push(command(["ZINCRBY", `analytics:errors:${date}`, 1, properties.component]));
   }
   const phase = recommendationPhase(envelope.name);
+  const opportunityId = safe(properties.opportunityId);
+  const feedbackPhase = phase === "impression" ? "shown" : phase === "open" ? "opened" : phase === "save" ? "saved" : phase === "application" ? "applied" : phase === "dismiss" ? "dismissed" : null;
+  if (feedbackPhase && opportunityId) operations.push(command(["ZINCRBY", `analytics:opportunity-feedback:${feedbackPhase}`, 1, opportunityId]));
+  if (envelope.name === productIntelligenceEvents.transitionCompleted && opportunityId && properties.transition === "accept") {
+    operations.push(command(["ZINCRBY", "analytics:opportunity-feedback:accepted", 1, opportunityId]));
+  }
   if (phase && properties.category && recommendationCategoryKeys.includes(properties.category as never)) {
     operations.push(command(["HINCRBY", `analytics:recommendation-categories:${date}`, `${properties.category}:${phase}`, 1]));
   }
@@ -149,6 +157,19 @@ export async function recordAnalyticsEvent(name: AnalyticsEventName, visitorId: 
     occurredAt: new Date().toISOString(),
     properties: sanitizeAnalyticsProperties(name, properties),
   });
+}
+
+export async function getOpportunityEngagementSignals(limit = 6_000) {
+  const rows = await Promise.all(opportunityFeedbackPhases.map((phase) => command<string[]>(["ZREVRANGE", `analytics:opportunity-feedback:${phase}`, 0, limit - 1, "WITHSCORES"])));
+  const result = new Map<string, OpportunityEngagementSignal>();
+  opportunityFeedbackPhases.forEach((phase, index) => {
+    for (const [opportunityId, count] of pairs(rows[index])) {
+      const signal = result.get(opportunityId) ?? { shown: 0, opened: 0, saved: 0, applied: 0, dismissed: 0, accepted: 0 };
+      signal[phase] = count;
+      result.set(opportunityId, signal);
+    }
+  });
+  return result;
 }
 
 const pairs = (values: string[]) => { const result: [string, number][] = []; for (let index = 0; index < values.length; index += 2) result.push([values[index], Number(values[index + 1])]); return result; };

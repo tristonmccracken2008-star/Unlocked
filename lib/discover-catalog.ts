@@ -1,5 +1,6 @@
 import "server-only";
 
+import { isCanonicalCatalogOpportunity } from "@/data/opportunity-catalog-canonical";
 import { filterOpportunities, type Opportunity, type OpportunityDifficulty, type OpportunityType } from "@/data/opportunities";
 import type { DiscoverCatalogPayload, DiscoverSortMode } from "@/data/opportunity-listing";
 
@@ -35,6 +36,15 @@ const quickFilters: { label: string; type?: OpportunityType; category?: string }
 ];
 
 const indexBySource = new WeakMap<readonly Opportunity[], DiscoverIndex>();
+const canonicalSourceBySource = new WeakMap<readonly Opportunity[], readonly Opportunity[]>();
+
+function canonicalSource(source: readonly Opportunity[]) {
+  const cached = canonicalSourceBySource.get(source);
+  if (cached) return cached;
+  const canonical = source.filter((item) => isCanonicalCatalogOpportunity(item.id));
+  canonicalSourceBySource.set(source, canonical);
+  return canonical;
+}
 
 function normalizedSearchText(item: Opportunity) {
   const metadata = item.metadata;
@@ -98,7 +108,8 @@ function sortOpportunities(items: Opportunity[], sort: DiscoverSortMode) {
 }
 
 export function buildDiscoverCatalog(source: readonly Opportunity[], query: DiscoverCatalogQuery): DiscoverCatalogPayload {
-  const index = discoverIndex(source);
+  const visibleSource = canonicalSource(source);
+  const index = discoverIndex(visibleSource);
   const normalizedQuery = query.query.trim().toLowerCase();
   const structuredMatches = filterOpportunities({
     types: query.type === "All" ? undefined : [query.type],
@@ -110,7 +121,7 @@ export function buildDiscoverCatalog(source: readonly Opportunity[], query: Disc
     difficulty: query.difficulty,
     freshmanFriendly: query.freshmanFriendly,
     deadline: query.deadline === "All" ? undefined : query.deadline as "published" | "upcoming" | "rolling" | "not_announced",
-  }, source);
+  }, visibleSource);
   const filtered = normalizedQuery ? structuredMatches.filter((item) => index.searchTextById.get(item.id)?.includes(normalizedQuery)) : structuredMatches;
   const sorted = sortOpportunities(filtered, query.sort);
   return {

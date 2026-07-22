@@ -1,4 +1,5 @@
 import type { AdvisorProfile } from "./advisor-engine";
+import { duplicateCanonicalId } from "./opportunity-catalog-canonical";
 import { buildOpportunityConfidence, isProfessionalConfidence, opportunityEligibilityDataConfidence, opportunityVerificationConfidence } from "./opportunity-confidence";
 import { evaluateOpportunityEligibility, hasUnknownEligibilityLanguage, rawEligibilityText } from "./opportunity-eligibility";
 import { normalizeOpportunityEligibility } from "./opportunity-eligibility-model";
@@ -60,6 +61,8 @@ export function validateOpportunityData(opportunity: Opportunity): CandidateGate
   if (cached) return cached;
   const reasons: string[] = [];
   const canonical = normalizeOpportunityEligibility(opportunity);
+  const duplicateOf = duplicateCanonicalId(opportunity.id);
+  if (duplicateOf) reasons.push(`Superseded by canonical opportunity ${duplicateOf}.`);
   if (!hasUsableSource(opportunity)) reasons.push("Missing usable source, organization, or eligibility.");
   if (recommendationConfig.verificationQuality.excludedStatuses.includes(opportunity.verification_status as never)) reasons.push(`Verification status is ${opportunity.verification_status}.`);
   if (hasKnownDeadlineProblem(opportunity)) reasons.push("Deadline has passed.");

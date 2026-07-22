@@ -1,0 +1,138 @@
+{
+  "version": "opportunity-intelligence-platform-v1",
+  "groups": [
+    {
+      "canonicalId": "career--goldman-sachs-summer-analyst",
+      "ids": [
+        "career--goldman-sachs-summer-analyst",
+        "national-curated-2026--goldman-sachs--goldman-sachs-summer-analyst-program"
+      ],
+      "similarity": 80,
+      "reasons": [
+        "same organization",
+        "high title similarity",
+        "compatible deadline"
+      ]
+    },
+    {
+      "canonicalId": "career--grace-hopper-celebration",
+      "ids": [
+        "career--grace-hopper-celebration",
+        "national-curated-2026--anitab-org--grace-hopper-celebration"
+      ],
+      "similarity": 88,
+      "reasons": [
+        "same organization",
+        "high title similarity",
+        "same official source",
+        "compatible deadline"
+      ]
+    },
+    {
+      "canonicalId": "national-curated-2026--adobe--adobe-creative-cloud-student-plan",
+      "ids": [
+        "benefit--adobe-student-discount",
+        "national-curated-2026--adobe--adobe-creative-cloud-student-plan"
+      ],
+      "similarity": 66,
+      "reasons": [
+        "same organization",
+        "same official source",
+        "compatible deadline"
+      ]
+    },
+    {
+      "canonicalId": "national-curated-2026--icpc-foundation--icpc-programming-contest",
+      "ids": [
+        "career--icpc",
+        "national-curated-2026--icpc-foundation--icpc-programming-contest"
+      ],
+      "similarity": 56,
+      "reasons": [
+        "same organization",
+        "same official source",
+        "compatible deadline"
+      ]
+    },
+    {
+      "canonicalId": "national-curated-2026--nvidia--nvidia-internships",
+      "ids": [
+        "career--nvidia-university-internships",
+        "national-curated-2026--nvidia--nvidia-internships"
+      ],
+      "similarity": 56,
+      "reasons": [
+        "same organization",
+        "same official source",
+        "compatible deadline"
+      ]
+    },
+    {
+      "canonicalId": "research--jhu-undergraduate-research",
+      "ids": [
+        "research--jhu-undergraduate-research",
+        "v1-school-resource--johns-hopkins-university--undergraduate-research"
+      ],
+      "similarity": 80,
+      "reasons": [
+        "same organization",
+        "high title similarity",
+        "compatible deadline"
+      ]
+    },
+    {
+      "canonicalId": "research--stanford-undergraduate-research",
+      "ids": [
+        "research--stanford-undergraduate-research",
+        "v1-school-resource--stanford-university--undergraduate-research"
+      ],
+      "similarity": 80,
+      "reasons": [
+        "same organization",
+        "high title similarity",
+        "compatible deadline"
+      ]
+    },
+    {
+      "canonicalId": "scholarship--dod-smart-scholarship",
+      "ids": [
+        "national-curated-2026--u-s-department-of-defense--smart-scholarship-for-service-program",
+        "scholarship--dod-smart-scholarship"
+      ],
+      "similarity": 88,
+      "reasons": [
+        "same organization",
+        "high title similarity",
+        "same official source",
+        "compatible deadline"
+      ]
+    },
+    {
+      "canonicalId": "scholarship--gilman-scholarship",
+      "ids": [
+        "national-curated-2026--u-s-department-of-state--gilman-international-scholarship",
+        "scholarship--gilman-scholarship"
+      ],
+      "similarity": 72,
+      "reasons": [
+        "same organization",
+        "high title similarity",
+        "same official source",
+        "compatible deadline"
+      ]
+    },
+    {
+      "canonicalId": "scholarship--hsf-scholar-program",
+      "ids": [
+        "national-curated-2026--hispanic-scholarship-fund--hispanic-scholarship-fund-scholar-program",
+        "scholarship--hsf-scholar-program"
+      ],
+      "similarity": 56,
+      "reasons": [
+        "same organization",
+        "same official source",
+        "compatible deadline"
+      ]
+    }
+  ]
+}

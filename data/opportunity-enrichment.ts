@@ -202,6 +202,11 @@ export function opportunityDuplicateKey(item: Opportunity) {
 const canonicalOpportunityCache = new WeakMap<Opportunity, CanonicalOpportunity>();
 
 export function canonicalOpportunity(item: Opportunity): CanonicalOpportunity {
+  const embedded = (item as Opportunity & { canonical?: CanonicalOpportunity }).canonical;
+  if (embedded?.id === item.id) {
+    canonicalOpportunityCache.set(item, embedded);
+    return embedded;
+  }
   const cached = canonicalOpportunityCache.get(item);
   if (cached) return cached;
   const org = organizationIdentity(item);
@@ -249,6 +254,8 @@ export function canonicalOpportunity(item: Opportunity): CanonicalOpportunity {
 }
 
 export function dataQualityScore(item: Opportunity) {
+  const embedded = (item as Opportunity & { canonical?: CanonicalOpportunity }).canonical;
+  if (embedded?.id === item.id) return embedded.dataQualityScore;
   const org = organizationIdentity(item);
   const logo = resolveOrganizationLogo(item);
   let score = 0;

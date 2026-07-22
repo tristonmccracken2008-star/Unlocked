@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { performance } from "node:perf_hooks";
+import { isCanonicalCatalogOpportunity } from "@/data/opportunity-catalog-canonical";
 import { opportunities } from "@/data/opportunities";
 import { buildDiscoverCatalog, type DiscoverCatalogQuery } from "@/lib/discover-catalog";
 
@@ -57,9 +58,10 @@ const sortedSearchSamples = [...searchSamples].sort((left, right) => left - righ
 const searchP95 = sortedSearchSamples[Math.min(sortedSearchSamples.length - 1, Math.ceil(sortedSearchSamples.length * 0.95) - 1)];
 const fullPayloadBytes = Buffer.byteLength(JSON.stringify({ opportunities }));
 const boundedPayloadBytes = Buffer.byteLength(JSON.stringify(result));
+const canonicalCatalogCount = opportunities.filter((item) => isCanonicalCatalogOpportunity(item.id)).length;
 
 assert.equal(result.opportunities.length, 16, "Discover should return only its visible first window.");
-assert.equal(result.total, opportunities.length, "Discover must preserve the complete result count.");
+assert.equal(result.total, canonicalCatalogCount, "Discover must preserve the complete canonical result count without duplicate source records.");
 assert.ok(boundedPayloadBytes < 1_000_000, `The first Discover payload must stay below 1 MB; received ${boundedPayloadBytes} bytes.`);
 assert.ok(boundedPayloadBytes < fullPayloadBytes * 0.05, "The first Discover payload must be at least 95% smaller than the old full-catalog response.");
 assert.ok(p95 < 500, `Discover server projection exceeded the catastrophic 500 ms p95 ceiling: ${p95.toFixed(2)} ms.`);
@@ -83,6 +85,7 @@ assert.ok(opportunityApi.indexOf("listPublishedOpportunitiesByIds(ids)") < oppor
 console.log(JSON.stringify({
   message: "Full-app performance architecture checks passed.",
   catalogRecords: opportunities.length,
+  canonicalCatalogRecords: canonicalCatalogCount,
   oldFullPayloadBytes: fullPayloadBytes,
   boundedFirstPayloadBytes: boundedPayloadBytes,
   payloadReductionPercent: Number(((1 - boundedPayloadBytes / fullPayloadBytes) * 100).toFixed(2)),
