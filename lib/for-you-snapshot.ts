@@ -18,7 +18,7 @@ import type { AdvisorAccessState } from "@/lib/advisor-access";
 import { nextAdvisorData } from "@/lib/advisor/api";
 import type { ForYouRecommendationSnapshot, ForYouSnapshotState } from "@/lib/advisor/types";
 
-export const forYouSnapshotEngineVersion = "for-you-snapshot-v4-behavior-signals";
+export const forYouSnapshotEngineVersion = "for-you-snapshot-v5-best-mix";
 export const forYouSnapshotTtlMs = 1000 * 60 * 60 * 6;
 const generationTimeoutMs = 2800;
 const globalIndexTimeoutMs = 1000;
@@ -34,6 +34,13 @@ export const forYouCatalogVersion = crypto.createHash("sha256").update(JSON.stri
   item.metadata.eligibilityRules ?? null,
   item.verification_status,
   item.last_verified,
+  item.date_added,
+  item.prestige,
+  item.featured,
+  item.hidden_gem,
+  item.paid,
+  item.metadata.applicationSeason ?? null,
+  item.metadata.semesters ?? [],
 ]))).digest("hex").slice(0, 20);
 const sourceSignalsVersion = `opportunities:${opportunities.length}:${forYouCatalogVersion}`;
 const generationByUser = new Map<string, Promise<ForYouRecommendationSnapshot>>();
@@ -149,6 +156,25 @@ function latestSnapshot(data: AccountData, userId: string) {
   return snapshots.filter((snapshot) => snapshot.userId === userId).sort((a, b) => b.generatedAt.localeCompare(a.generatedAt))[0] ?? null;
 }
 
+function previousFeedContext(data: AccountData, userId: string, now: Date) {
+  const snapshots = (data.advisor?.forYouSnapshots ?? [])
+    .filter((snapshot) => snapshot.userId === userId)
+    .sort((left, right) => right.generatedAt.localeCompare(left.generatedAt))
+    .slice(0, 3);
+  const exposureCounts: Record<string, number> = {};
+  for (const snapshot of snapshots) {
+    for (const view of snapshot.recommendations) {
+      const id = view.recommendation.relatedOpportunityId;
+      if (id) exposureCounts[id] = (exposureCounts[id] ?? 0) + 1;
+    }
+  }
+  return {
+    exposureCounts,
+    previousTopOpportunityIds: snapshots[0]?.recommendations.slice(0, 2).map((view) => view.recommendation.relatedOpportunityId).filter((id): id is string => Boolean(id)) ?? [],
+    feedRotationKey: `${now.toISOString().slice(0, 10)}-${Math.floor(now.getUTCHours() / 6)}`,
+  };
+}
+
 export function isForYouSnapshotCompatible(snapshot: ForYouRecommendationSnapshot, version: string, userId: string) {
   return snapshot.userId === userId
     && snapshot.profileVersion === version
@@ -187,6 +213,8 @@ async function persistSnapshot(userId: string, data: AccountData, snapshot: ForY
 
 async function generateSnapshot(user: AuthUser, data: AccountData, profile: StudentProfile, school: School, entitlements: Entitlements) {
   await withTimeout(getForYouGlobalIndex(), "global recommendation index", globalIndexTimeoutMs);
+  const now = new Date();
+  const priorFeed = previousFeedContext(data, user.id, now);
   const activity = data.activity ?? emptyActivity();
   const progress = inferApplicationsFromActivity(activity, opportunities, { milestones: {}, applications: {} });
   const service = buildRecommendationService({
@@ -199,6 +227,9 @@ async function generateSnapshot(user: AuthUser, data: AccountData, profile: Stud
     hiddenOpportunityIds: data.preferences?.hiddenDismissedIds ?? [],
     dismissedOpportunityIds: data.advisor?.feedbackRecords?.filter((record) => ["dismissed", "not-interested", "already-completed", "completed"].includes(record.feedbackType)).map((record) => record.recommendationId.replace("recommendation-opportunity-", "")) ?? [],
     referralActivity: data.referrals,
+    recommendationExposureCounts: priorFeed.exposureCounts,
+    previousTopOpportunityIds: priorFeed.previousTopOpportunityIds,
+    feedRotationKey: priorFeed.feedRotationKey,
   });
   const pro = entitlements.canUseFullForYou;
   if (pro && service.recommendations.length === 0) {
@@ -225,7 +256,6 @@ async function generateSnapshot(user: AuthUser, data: AccountData, profile: Stud
     });
   }
   const allowed = pro ? service.recommendations.slice(0, 8) : [];
-  const now = new Date();
   const snapshot: ForYouRecommendationSnapshot = {
     userId: user.id,
     profileVersion: forYouProfileVersion(profile, data),

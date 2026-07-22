@@ -43,6 +43,8 @@ Weights are centralized in `recommendationConfig`.
 - GPA handling: GPA is used only when an opportunity publishes a requirement. Unknown GPA fails that opportunity's eligibility gate.
 - Deadline timing: near deadlines are boosted. Passed deadlines are suppressed.
 - Verification and quality: verified, complete, official-source opportunities rank higher.
+- Documented impact: verified value, paid experience, established prestige, school exclusivity, and explicit editorial selection contribute a bounded impact score. Impact never overrides eligibility.
+- Catalog freshness: newly and recently added opportunities receive small, date-derived boosts. The engine does not infer popularity or trends.
 - Activity learning: saved and completed categories receive small boosts; already active Journey records are suppressed from For You.
 - Career roadmap fit: destination careers such as quantitative finance, software engineering, medicine, investment banking, and data science add stage-specific category, skill, signal, and organization boosts.
 - Skill alignment: opportunities that build roadmap skills receive additional weight.
@@ -83,15 +85,20 @@ The engine does not fabricate reasons for unavailable data.
 
 ## Diversity
 
-After base scoring, the engine applies deterministic diversity penalties and hard per-organization, category, and type caps so the ranked list cannot be padded with near-identical items.
+After base scoring, the engine builds a deterministic `Best Mix` portfolio. Hard limits are enforced across the final combined feed, including actionable and safe Explore candidates, so independently ranked candidate groups cannot create category dominance after merging.
 
 The diversity pass balances:
 
 - organization
-- category
+- canonical category
 - opportunity type
+- semantic cluster
 
-Diversity can lower an otherwise strong duplicate, but it does not introduce randomness.
+Diversity can lower an otherwise strong duplicate, but it does not introduce randomness. Approximately 20% of an eight-item feed is reserved for eligible category-level exploration when the candidate pool supports it. The top two positions favor continuity; lower positions use a bounded deterministic rotation and repeat-exposure penalty so a stable profile does not receive an identical feed forever.
+
+## Premium Signals
+
+Recommendation cards may show at most two catalog-backed signals. `New` comes from `date_added`; `Editor's Pick` requires the curated `featured` flag; `Deadline Soon` requires a verified live date; `High Impact` requires the documented impact threshold; competitive labels use the opportunity's difficulty field; and `Worth Discovering` marks a bounded exploration slot. UnlockED does not claim that an opportunity is popular, trending, or successful with similar students because the catalog does not contain evidence for those claims.
 
 ## Quality Gates
 
@@ -170,6 +177,7 @@ Recommendations regenerate when inputs change:
 - advisor feedback records
 - hidden or dismissed opportunities
 - referral activity for future recommendation rules
+- bounded feed exposure and the six-hour lower-slot rotation window
 
 Advisor profile fingerprints include minor, GPA status/value, current priority, goals, interests, and preferred opportunity types so cached Advisor Brain snapshots invalidate when meaningful recommendation inputs change.
 
@@ -180,6 +188,8 @@ Recommendation generation is deterministic and in-memory over the local opportun
 The engine avoids frontend ranking work by keeping personalized recommendation generation behind server-gated For You APIs. Discover uses lightweight local ordering after search/filter narrowing so browsing remains responsive without duplicating Advisor Brain work in the browser.
 
 Relationship inference is cached by opportunity id and catalog size. Advisor Brain results keep the existing bounded in-memory cache. The ranking pass remains deterministic and avoids client-side recomputation.
+
+`npm run check:world-class-recommendations` verifies final-feed category, organization, and semantic diversity; the 15–25% exploration range; top-slot continuity; lower-slot rotation; documented premium signals; positive eligibility; and representative undergraduate performance.
 
 ## Career Roadmaps
 

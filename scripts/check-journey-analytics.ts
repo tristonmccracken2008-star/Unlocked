@@ -79,8 +79,10 @@ await recordAnalyticsEnvelope(envelope(productIntelligenceEvents.pathMomentCreat
 await recordAnalyticsEnvelope(envelope(productIntelligenceEvents.pathMomentDownloaded, { format: "story" }));
 await recordAnalyticsEnvelope(envelope(productIntelligenceEvents.journeyCardCreatorOpened, { format: "story" }));
 await recordAnalyticsEnvelope(envelope(productIntelligenceEvents.journeyCardDownloaded, { format: "story" }));
-await recordAnalyticsEnvelope(envelope(productIntelligenceEvents.recommendationOpened, { opportunityId: "opportunity-safe-1", recommendationId: "recommendation-safe-1" }));
-await recordAnalyticsEnvelope(envelope(productIntelligenceEvents.recommendationSaved, { opportunityId: "opportunity-safe-1", recommendationId: "recommendation-safe-1" }));
+await recordAnalyticsEnvelope(envelope(productIntelligenceEvents.recommendationFeedViewed, { diversityScore: 80 }));
+await recordAnalyticsEnvelope(envelope(productIntelligenceEvents.recommendationImpression, { opportunityId: "opportunity-safe-1", recommendationId: "recommendation-safe-1", category: "internship", feedRole: "core", exposureCount: 0 }));
+await recordAnalyticsEnvelope(envelope(productIntelligenceEvents.recommendationOpened, { opportunityId: "opportunity-safe-1", recommendationId: "recommendation-safe-1", category: "internship", exposureCount: 0 }));
+await recordAnalyticsEnvelope(envelope(productIntelligenceEvents.recommendationSaved, { opportunityId: "opportunity-safe-1", recommendationId: "recommendation-safe-1", category: "internship", exposureCount: 0 }));
 await recordAnalyticsEnvelope(envelope(productIntelligenceEvents.productHealthTiming, { component: "journey", metric: "server_projection", durationMs: 24 }));
 await recordAnalyticsEnvelope(envelope(productIntelligenceEvents.operationalError, { component: "path_moment", errorType: "export", action: "download" }));
 const summary = await getAnalyticsSummary();
@@ -89,6 +91,9 @@ assert.ok(summary.productIntelligence.journey.transitionSuccessRate > 0);
 assert.ok(summary.productIntelligence.journey.horizonEngagementRate > 0);
 assert.ok(summary.productIntelligence.exports.exportRate > 0);
 assert.ok(summary.productIntelligence.recommendations.saveRate > 0);
+assert.equal(summary.productIntelligence.recommendations.averageDiversityScore, 80);
+assert.equal(summary.productIntelligence.recommendations.byCategory[0]?.category, "internship");
+assert.equal(summary.productIntelligence.recommendations.byExposure[0]?.exposure, "first");
 assert.equal(summary.productIntelligence.performance["journey.server_projection"]?.averageMs, 24);
 assert.ok(summary.productIntelligence.errors.byComponent.some(([component]) => component === "path_moment"));
 

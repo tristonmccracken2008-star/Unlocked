@@ -90,13 +90,34 @@ function wait(ms: number) {
   return new Promise((resolve) => window.setTimeout(resolve, ms));
 }
 
+function analyticsCategory(view: RecommendationViewModel) {
+  return (view.recommendation.portfolio?.canonicalCategory ?? view.opportunity?.category ?? "program")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_|_$/g, "")
+    .slice(0, 64);
+}
+
+function recommendationDiversityScore(views: readonly RecommendationViewModel[]) {
+  if (!views.length) return 0;
+  const ratio = (values: string[]) => new Set(values).size / views.length;
+  const categoryRatio = ratio(views.map(analyticsCategory));
+  const organizationRatio = ratio(views.map((view) => view.opportunity?.organization ?? view.recommendation.id));
+  const semanticRatio = ratio(views.map((view) => view.recommendation.portfolio?.semanticCluster ?? view.recommendation.id));
+  return Math.round((categoryRatio * 0.4 + organizationRatio * 0.3 + semanticRatio * 0.3) * 100);
+}
+
 function trackRecommendationOpen(view: RecommendationViewModel) {
   const opportunityId = view.recommendation.relatedOpportunityId;
   if (!opportunityId) return;
-  rememberRecommendationAttribution(opportunityId, view.recommendation.id);
+  const category = analyticsCategory(view);
+  const exposureCount = view.recommendation.portfolio?.exposureCount ?? 0;
+  rememberRecommendationAttribution(opportunityId, view.recommendation.id, category, exposureCount);
   trackProductEvent(productIntelligenceEvents.recommendationOpened, {
     opportunityId,
     recommendationId: view.recommendation.id,
+    category,
+    exposureCount,
   });
 }
 
@@ -109,6 +130,8 @@ export function AdvisorPage({ initialState = null, serverAuthenticated = false }
   const [feedbackMessage, setFeedbackMessage] = useState("");
   const [requestActive, setRequestActive] = useState(false);
   const trackedRecommendation = useRef("");
+  const trackedImpressions = useRef(new Set<string>());
+  const trackedFeedSignature = useRef("");
   const requestId = useRef(0);
   const sessionKey = useRef(serverAuthenticated ? "server-authenticated" : "");
   const activeRequestKey = useRef("");
@@ -120,6 +143,8 @@ export function AdvisorPage({ initialState = null, serverAuthenticated = false }
       if (sessionKey.current !== nextSessionKey) {
         requestId.current += 1;
         trackedRecommendation.current = "";
+        trackedImpressions.current.clear();
+        trackedFeedSignature.current = "";
         setState(null);
         setPageState("loading");
       }
@@ -264,6 +289,26 @@ export function AdvisorPage({ initialState = null, serverAuthenticated = false }
   const firstName = state?.profile ? displayFirstName(state.profile, state.session) : "there";
 
   useEffect(() => {
+    if (!recommended.length) return;
+    const signature = recommended.map((view) => view.recommendation.id).join("|");
+    if (trackedFeedSignature.current !== signature) {
+      trackedFeedSignature.current = signature;
+      trackProductEvent(productIntelligenceEvents.recommendationFeedViewed, { diversityScore: recommendationDiversityScore(recommended) }, { dedupeKey: `recommendation-feed:${signature}`, dedupeWindowMs: 30_000 });
+    }
+    recommended.forEach((view) => {
+      if (trackedImpressions.current.has(view.recommendation.id) || !view.recommendation.relatedOpportunityId) return;
+      trackedImpressions.current.add(view.recommendation.id);
+      trackProductEvent(productIntelligenceEvents.recommendationImpression, {
+        opportunityId: view.recommendation.relatedOpportunityId,
+        recommendationId: view.recommendation.id,
+        category: analyticsCategory(view),
+        feedRole: view.recommendation.portfolio?.role ?? "core",
+        exposureCount: view.recommendation.portfolio?.exposureCount ?? 0,
+      });
+    });
+  }, [recommended]);
+
+  useEffect(() => {
     if (!top || trackedRecommendation.current === top.recommendation.id) return;
     trackedRecommendation.current = top.recommendation.id;
     trackProductEvent("recommendation_viewed", { recommendationId: top.recommendation.id, section: "for-you" });
@@ -286,6 +331,14 @@ export function AdvisorPage({ initialState = null, serverAuthenticated = false }
       }
       const event = feedbackType === "helpful" ? "recommendation_saved" : feedbackType === "already-applied" ? "recommendation_applied" : feedbackType === "already-completed" || feedbackType === "completed" ? "recommendation_completed" : feedbackType === "dismissed" ? "recommendation_dismissed" : "recommendation_ignored";
       trackProductEvent(event, { recommendationId: view.recommendation.id, opportunityId: view.recommendation.relatedOpportunityId, section: "for-you-feedback" });
+      if (["dismissed", "not-interested"].includes(feedbackType) && view.recommendation.relatedOpportunityId) {
+        trackProductEvent(productIntelligenceEvents.recommendationDismissed, {
+          recommendationId: view.recommendation.id,
+          opportunityId: view.recommendation.relatedOpportunityId,
+          category: analyticsCategory(view),
+          exposureCount: view.recommendation.portfolio?.exposureCount ?? 0,
+        });
+      }
       if (["dismissed", "not-interested", "already-completed", "completed"].includes(feedbackType)) {
         setState((current) => current ? { ...current, recommendations: current.recommendations.filter((item) => item.recommendation.id !== view.recommendation.id) } : current);
       }
@@ -388,7 +441,7 @@ function TopRecommendation({ view, onFeedback }: { view: RecommendationViewModel
           <div><dt>Estimated value</dt><dd>{cleanValueLabel(view.recommendation.estimatedValueLabel)}</dd></div>
         </dl>
         <Link href={view.href} onClick={() => trackRecommendationOpen(view)} className={styles.primaryAction}>Review opportunity <ArrowIcon /></Link>
-        {view.recommendation.relatedOpportunityId ? <AddToJourneyButton opportunityId={view.recommendation.relatedOpportunityId} recommendationId={view.recommendation.id} className={styles.addAction} /> : null}
+        {view.recommendation.relatedOpportunityId ? <AddToJourneyButton opportunityId={view.recommendation.relatedOpportunityId} recommendationId={view.recommendation.id} recommendationCategory={analyticsCategory(view)} recommendationExposureCount={view.recommendation.portfolio?.exposureCount ?? 0} className={styles.addAction} /> : null}
       </aside>
     </div>
     <RecommendationFeedback view={view} onFeedback={onFeedback} />
@@ -460,7 +513,7 @@ function RecommendationCard({ view, index, onFeedback }: { view: RecommendationV
       <RecommendationFeedback view={view} onFeedback={onFeedback} compact />
     </div>
     <dl className={styles.rowMeta}><div><dt>Deadline</dt><dd>{opportunity ? deadlineLabel(opportunity) : "Not announced"}</dd></div><div><dt>Match</dt><dd>{view.label}</dd></div></dl>
-    <div className={styles.rowActions}><Link href={view.href} onClick={() => trackRecommendationOpen(view)}>Review <ArrowIcon /></Link>{view.recommendation.relatedOpportunityId ? <AddToJourneyButton opportunityId={view.recommendation.relatedOpportunityId} recommendationId={view.recommendation.id} className={styles.rowAddAction} /> : null}</div>
+    <div className={styles.rowActions}><Link href={view.href} onClick={() => trackRecommendationOpen(view)}>Review <ArrowIcon /></Link>{view.recommendation.relatedOpportunityId ? <AddToJourneyButton opportunityId={view.recommendation.relatedOpportunityId} recommendationId={view.recommendation.id} recommendationCategory={analyticsCategory(view)} recommendationExposureCount={view.recommendation.portfolio?.exposureCount ?? 0} className={styles.rowAddAction} /> : null}</div>
   </article>;
 }
 

@@ -44,6 +44,14 @@ export type RecommendationV1 = {
   categories: string[];
   score: number;
   tier: RecommendationTier;
+  portfolio?: {
+    role: "core" | "exploration";
+    canonicalCategory: string;
+    semanticCluster: string;
+    impactScore: number;
+    exposureCount: number;
+    premiumSignals: string[];
+  };
   knowledgeReferences: KnowledgeReferences;
   explainability: {
     whyThisUser: string;
@@ -78,6 +86,13 @@ type RankedOpportunity = {
   relationshipBoost: number;
   relationship: OpportunityRelationship | null;
   finalScore: number;
+  canonicalCategory: string;
+  semanticCluster: string;
+  explorationCandidate: boolean;
+  exposureCount: number;
+  previousTop: boolean;
+  rotationBoost: number;
+  feedRole: "core" | "exploration";
 };
 
 export type RecommendationReviewRecord = {
@@ -151,6 +166,15 @@ const terminalApplicationStatuses = new Set(["accepted", "completed", "rejected"
 const defaultProfessionalCandidateIndex = catalogOpportunities.filter((opportunity) => validateOpportunityData(opportunity).allowed);
 
 const unique = <T,>(items: T[]) => [...new Set(items.filter(Boolean))];
+
+function deterministicRotationBoost(id: string, key: string) {
+  let hash = 2166136261;
+  for (const character of `${key}:${id}`) {
+    hash ^= character.charCodeAt(0);
+    hash = Math.imul(hash, 16777619);
+  }
+  return Math.abs(hash) % (recommendationConfig.diversity.rotationRange + 1);
+}
 
 function clamp(value: number, min = 0, max = 100) {
   return Math.min(max, Math.max(min, Math.round(value)));
@@ -379,7 +403,36 @@ function rankOpportunity(profile: AdvisorProfile, opportunity: Opportunity, cont
   const connectionBoost = Math.min(12, milestoneReasons.length * 6);
   const advisorBoost = advisorFit.shouldDoNext ? 6 : 0;
   const finalScore = Math.max(0, score.rawScore + roadmapBoost + careerRoadmapBoost + advisorBoost + relationshipBoost + savedBoost + activeApplicationBoost + connectionBoost);
-  return { opportunity, score, milestoneReasons, roadmapBoost, careerRoadmapBoost, relationshipBoost, relationship, progressBoost: savedBoost + activeApplicationBoost, finalScore };
+  const learnedCategory = [...(context.savedCategories ?? []), ...(context.viewedCategories ?? []), ...(context.preferredCategories ?? [])]
+    .some((category) => [opportunity.category, opportunity.type, intelligence.category].includes(category));
+  // Exploration is category-level discovery, not weak personalization. A candidate can
+  // still match the student's major or goals while broadening beyond their stated mix.
+  const directlyAligned = score.breakdown.matchingCurrentPriority || roadmapBoost > 0;
+  const explorationCandidate = !learnedCategory
+    && !directlyAligned
+    && score.personalizedSignalCount >= 1
+    && score.positiveSignalCount >= recommendationConfig.qualityGates.minimumPositiveSignals;
+  const exposureCount = profile.future.recommendationExposureCounts?.[opportunity.id] ?? 0;
+  const previousTop = (profile.future.previousTopOpportunityIds ?? []).includes(opportunity.id);
+  const rotationBoost = deterministicRotationBoost(opportunity.id, profile.future.feedRotationKey ?? "stable");
+  return {
+    opportunity,
+    score,
+    milestoneReasons,
+    roadmapBoost,
+    careerRoadmapBoost,
+    relationshipBoost,
+    relationship,
+    progressBoost: savedBoost + activeApplicationBoost,
+    finalScore,
+    canonicalCategory: intelligence.category,
+    semanticCluster: intelligence.semanticCluster,
+    explorationCandidate,
+    exposureCount,
+    previousTop,
+    rotationBoost,
+    feedRole: "core",
+  };
 }
 
 function qualityGateFailures(ranked: RankedOpportunity) {
@@ -409,6 +462,15 @@ function toOpportunityRecommendation(profile: AdvisorProfile, ranked: RankedOppo
   const recommendationConfidence = clamp((ranked.score.confidence + ranked.finalScore) / 2);
   const confidenceBreakdown = buildOpportunityConfidence(opportunity, context, recommendationConfidence, eligibility);
   const applicableEvidence = eligibility.checks.filter((check) => check.applicable && check.proven).map((check) => check.evidence).filter(Boolean);
+  const intelligence = getOpportunityIntelligence(opportunity);
+  const premiumSignals = unique([
+    intelligence.freshness === "New" ? "New" : "",
+    opportunity.featured ? "Editor's Pick" : "",
+    ranked.score.breakdown.deadlineDays !== null && ranked.score.breakdown.deadlineDays >= 0 && ranked.score.breakdown.deadlineDays <= 14 ? "Deadline Soon" : "",
+    intelligence.impactScore >= 45 ? "High Impact" : "",
+    opportunity.difficulty === "Highly Competitive" ? "Highly Selective" : opportunity.difficulty === "Competitive" ? "Competitive" : "",
+    ranked.feedRole === "exploration" ? "Worth Discovering" : "",
+  ]).slice(0, 2);
   return {
     id: `recommendation-opportunity-${opportunity.id}`,
     kind: "Opportunity",
@@ -427,6 +489,14 @@ function toOpportunityRecommendation(profile: AdvisorProfile, ranked: RankedOppo
     categories: unique([opportunity.category, opportunity.type]),
     score: ranked.finalScore,
     tier: forcedTier ?? (eligibility.actionable && ranked.finalScore >= recommendationConfig.thresholds.excellent ? "excellent" : eligibility.actionable ? "strong" : "explore"),
+    portfolio: {
+      role: ranked.feedRole,
+      canonicalCategory: ranked.canonicalCategory,
+      semanticCluster: ranked.semanticCluster,
+      impactScore: intelligence.impactScore,
+      exposureCount: ranked.exposureCount,
+      premiumSignals,
+    },
     knowledgeReferences: mergeKnowledgeReferences(
       opportunityKnowledgeReferences(opportunity),
       advisorRuleKnowledgeReference("opportunity_recommendation_v1"),
@@ -435,7 +505,7 @@ function toOpportunityRecommendation(profile: AdvisorProfile, ranked: RankedOppo
       whyThisUser: reasons.find((reason) => /major|class year|school|priority|career goal/i.test(reason)) ?? reasons[0],
       whyNow: reasons.find((reason) => /deadline|current priority|roadmap|current stage/i.test(reason)) ?? `It supports the ${profile.academics.timelineStage.toLowerCase()} stage of your roadmap.`,
       whyThisOpportunity: reasons.find((reason) => /verified|available|matches|accepts/i.test(reason)) ?? "It passed every applicable eligibility and data-quality check.",
-      whyAboveAlternatives: `It passed every applicable eligibility gate and earned a structured quality score of ${ranked.finalScore}.`,
+      whyAboveAlternatives: `It passed every applicable eligibility gate and strengthened the feed's mix of value, relevance, and variety with a structured score of ${ranked.finalScore}.`,
       evidence: applicableEvidence.slice(0, 8),
     },
   };
@@ -477,33 +547,136 @@ function diversityAdjustedOpportunityRecommendations(profile: AdvisorProfile, ra
   const organizationCounts = new Map<string, number>();
   const categoryCounts = new Map<string, number>();
   const typeCounts = new Map<string, number>();
+  const semanticClusterCounts = new Map<string, number>();
+  const explorationTarget = Math.min(limit, Math.max(1, Math.round(limit * config.explorationShare)));
+  let explorationCount = 0;
   while (selected.length < limit && remaining.length) {
-    let bestIndex = -1;
-    let bestScore = -Infinity;
-    for (let index = 0; index < remaining.length; index += 1) {
-      const candidate = remaining[index];
-      const orgCount = organizationCounts.get(candidate.opportunity.organization) ?? 0;
-      const categoryCount = categoryCounts.get(candidate.opportunity.category) ?? 0;
-      const typeCount = typeCounts.get(candidate.opportunity.type) ?? 0;
-      if (orgCount >= config.maxSameOrganization || categoryCount >= config.maxSameCategory || typeCount >= config.maxSameType) continue;
-      let adjusted = candidate.finalScore;
-      if (orgCount >= config.maxSameOrganizationBeforePenalty) adjusted -= config.organizationPenalty * orgCount;
-      if (categoryCount >= config.maxSameCategoryBeforePenalty) adjusted -= config.categoryPenalty * categoryCount;
-      if (typeCount >= config.maxSameTypeBeforePenalty) adjusted -= config.typePenalty * typeCount;
-      if (adjusted > bestScore || (adjusted === bestScore && (bestIndex < 0 || candidate.opportunity.title.localeCompare(remaining[bestIndex].opportunity.title) < 0))) {
-        bestScore = adjusted;
-        bestIndex = index;
+    const choose = (allowSemanticRepeat: boolean) => {
+      let bestIndex = -1;
+      let bestScore = -Infinity;
+      const slotsLeft = limit - selected.length;
+      const explorationNeeded = Math.max(0, explorationTarget - explorationCount);
+      const canForceExploration = slotsLeft <= explorationNeeded && remaining.some((candidate) => candidate.explorationCandidate);
+      for (let index = 0; index < remaining.length; index += 1) {
+        const candidate = remaining[index];
+        const orgCount = organizationCounts.get(candidate.opportunity.organization) ?? 0;
+        const categoryCount = categoryCounts.get(candidate.canonicalCategory) ?? 0;
+        const typeCount = typeCounts.get(candidate.opportunity.type) ?? 0;
+        const semanticCount = semanticClusterCounts.get(candidate.semanticCluster) ?? 0;
+        if (orgCount >= config.maxSameOrganization || categoryCount >= config.maxSameCategory || typeCount >= config.maxSameType) continue;
+        if (!allowSemanticRepeat && semanticCount >= config.maxSameSemanticCluster) continue;
+        if (canForceExploration && !candidate.explorationCandidate) continue;
+        const stableTop = selected.length < config.stableTopSlots;
+        let adjusted = candidate.finalScore;
+        if (orgCount >= config.maxSameOrganizationBeforePenalty) adjusted -= config.organizationPenalty * orgCount;
+        if (categoryCount >= config.maxSameCategoryBeforePenalty) adjusted -= config.categoryPenalty * categoryCount;
+        if (typeCount >= config.maxSameTypeBeforePenalty) adjusted -= config.typePenalty * typeCount;
+        if (semanticCount) adjusted -= config.semanticClusterPenalty * semanticCount;
+        if (stableTop && candidate.previousTop) adjusted += config.previousTopContinuityBoost;
+        if (!stableTop) {
+          adjusted -= Math.min(15, candidate.exposureCount * config.repeatExposurePenalty);
+          adjusted += candidate.rotationBoost;
+          if (explorationCount < explorationTarget && candidate.explorationCandidate) adjusted += config.explorationBoost;
+        }
+        if (adjusted > bestScore || (adjusted === bestScore && (bestIndex < 0 || candidate.opportunity.title.localeCompare(remaining[bestIndex].opportunity.title) < 0))) {
+          bestScore = adjusted;
+          bestIndex = index;
+        }
       }
-    }
+      return bestIndex;
+    };
+    let bestIndex = choose(false);
+    if (bestIndex < 0) bestIndex = choose(true);
     if (bestIndex < 0) break;
     const [next] = remaining.splice(bestIndex, 1);
-    selected.push(next);
+    const feedRole = selected.length >= config.stableTopSlots && next.explorationCandidate && explorationCount < explorationTarget ? "exploration" : "core";
+    selected.push({ ...next, feedRole });
+    if (feedRole === "exploration") explorationCount += 1;
     organizationCounts.set(next.opportunity.organization, (organizationCounts.get(next.opportunity.organization) ?? 0) + 1);
-    categoryCounts.set(next.opportunity.category, (categoryCounts.get(next.opportunity.category) ?? 0) + 1);
+    categoryCounts.set(next.canonicalCategory, (categoryCounts.get(next.canonicalCategory) ?? 0) + 1);
     typeCounts.set(next.opportunity.type, (typeCounts.get(next.opportunity.type) ?? 0) + 1);
+    semanticClusterCounts.set(next.semanticCluster, (semanticClusterCounts.get(next.semanticCluster) ?? 0) + 1);
   }
   const selectedSource = ranked.map((item) => item.opportunity);
   return selected.map((item) => toOpportunityRecommendation(profile, { ...item, relationship: getOpportunityRelationship(item.opportunity, selectedSource) }, forcedTier));
+}
+
+function balancedRecommendationPortfolio(profile: AdvisorProfile, candidates: RecommendationV1[], source: readonly Opportunity[], limit: number, primaryId?: string) {
+  const config = recommendationConfig.diversity;
+  const opportunityById = new Map(source.map((opportunity) => [opportunity.id, opportunity]));
+  const remaining = [...candidates];
+  const selected: RecommendationV1[] = [];
+  const organizations = new Map<string, number>();
+  const categories = new Map<string, number>();
+  const types = new Map<string, number>();
+  const semanticClusters = new Map<string, number>();
+
+  const selectCandidate = (candidate: RecommendationV1) => {
+    selected.push(candidate);
+    const opportunity = candidate.relatedOpportunityId ? opportunityById.get(candidate.relatedOpportunityId) : undefined;
+    if (!opportunity || !candidate.portfolio) return;
+    organizations.set(opportunity.organization, (organizations.get(opportunity.organization) ?? 0) + 1);
+    categories.set(candidate.portfolio.canonicalCategory, (categories.get(candidate.portfolio.canonicalCategory) ?? 0) + 1);
+    types.set(opportunity.type, (types.get(opportunity.type) ?? 0) + 1);
+    semanticClusters.set(candidate.portfolio.semanticCluster, (semanticClusters.get(candidate.portfolio.semanticCluster) ?? 0) + 1);
+  };
+
+  const primaryIndex = primaryId ? remaining.findIndex((candidate) => candidate.id === primaryId) : -1;
+  if (primaryIndex >= 0) selectCandidate(remaining.splice(primaryIndex, 1)[0]);
+
+  while (selected.length < limit && remaining.length) {
+    const choose = (allowSemanticRepeat: boolean) => {
+      let bestIndex = -1;
+      let bestScore = -Infinity;
+      for (let index = 0; index < remaining.length; index += 1) {
+        const candidate = remaining[index];
+        const opportunity = candidate.relatedOpportunityId ? opportunityById.get(candidate.relatedOpportunityId) : undefined;
+        const portfolio = candidate.portfolio;
+        if (!opportunity || !portfolio) continue;
+        const organizationCount = organizations.get(opportunity.organization) ?? 0;
+        const categoryCount = categories.get(portfolio.canonicalCategory) ?? 0;
+        const typeCount = types.get(opportunity.type) ?? 0;
+        const semanticCount = semanticClusters.get(portfolio.semanticCluster) ?? 0;
+        if (organizationCount >= config.maxSameOrganization || categoryCount >= config.maxSameCategory || typeCount >= config.maxSameType) continue;
+        if (!allowSemanticRepeat && semanticCount >= config.maxSameSemanticCluster) continue;
+        const stableTop = selected.length < config.stableTopSlots;
+        const previousTop = (profile.future.previousTopOpportunityIds ?? []).includes(opportunity.id);
+        let adjusted = candidate.score;
+        if (stableTop && previousTop) adjusted += config.previousTopContinuityBoost;
+        if (!stableTop) {
+          adjusted -= Math.min(15, portfolio.exposureCount * config.repeatExposurePenalty);
+          adjusted += deterministicRotationBoost(opportunity.id, profile.future.feedRotationKey ?? "stable");
+        }
+        adjusted -= categoryCount * config.categoryPenalty;
+        adjusted -= semanticCount * config.semanticClusterPenalty;
+        if (adjusted > bestScore || (adjusted === bestScore && (bestIndex < 0 || candidate.title.localeCompare(remaining[bestIndex].title) < 0))) {
+          bestIndex = index;
+          bestScore = adjusted;
+        }
+      }
+      return bestIndex;
+    };
+    let bestIndex = choose(false);
+    if (bestIndex < 0) bestIndex = choose(true);
+    if (bestIndex < 0) break;
+    selectCandidate(remaining.splice(bestIndex, 1)[0]);
+  }
+
+  const explorationTarget = Math.min(Math.max(0, selected.length - config.stableTopSlots), Math.round(selected.length * config.explorationShare));
+  const preferredExploration = selected.map((candidate, index) => ({ candidate, index }))
+    .filter(({ candidate, index }) => index >= config.stableTopSlots && candidate.portfolio?.role === "exploration");
+  const fallbackExploration = selected.map((candidate, index) => ({ candidate, index }))
+    .filter(({ candidate, index }) => index >= config.stableTopSlots && candidate.tier === "explore" && candidate.portfolio?.role !== "exploration");
+  const explorationIndexes = new Set([...preferredExploration, ...fallbackExploration].slice(0, explorationTarget).map(({ index }) => index));
+  return selected.map((candidate, index) => {
+    if (!candidate.portfolio) return candidate;
+    const role: "core" | "exploration" = explorationIndexes.has(index) ? "exploration" : "core";
+    const premiumSignals = unique([
+      role === "exploration" ? "Worth Discovering" : "",
+      ...candidate.portfolio.premiumSignals.filter((signal) => signal !== "Worth Discovering"),
+    ]).slice(0, 2);
+    return { ...candidate, portfolio: { ...candidate.portfolio, role, premiumSignals } };
+  });
 }
 
 function exploreGateFailures(ranked: RankedOpportunity, profile: AdvisorProfile) {
@@ -526,10 +699,15 @@ export function rankOpportunityRecommendations(input: RecommendationEngineInput)
   const strictRecommendations = diversityAdjustedOpportunityRecommendations(input.advisorProfile, strict, limit);
   const strictIds = new Set(strictRecommendations.map((item) => item.relatedOpportunityId));
   const explore = allRanked.filter((item) => !strictIds.has(item.opportunity.id) && exploreGateFailures(item, input.advisorProfile).length === 0);
-  const exploreRecommendations = strictRecommendations.length < limit
-    ? diversityAdjustedOpportunityRecommendations(input.advisorProfile, explore, limit - strictRecommendations.length, "explore")
-    : [];
-  return [...strictRecommendations, ...exploreRecommendations]
+  const exploreRecommendations = diversityAdjustedOpportunityRecommendations(input.advisorProfile, explore, limit, "explore");
+  const portfolio = balancedRecommendationPortfolio(
+    input.advisorProfile,
+    [...strictRecommendations, ...exploreRecommendations],
+    input.opportunities ?? catalogOpportunities,
+    limit,
+    strictRecommendations[0]?.id,
+  );
+  return portfolio
     .filter((recommendation) => {
       const opportunity = (input.opportunities ?? catalogOpportunities).find((item) => item.id === recommendation.relatedOpportunityId);
       return opportunity ? auditFinalOpportunityRecommendation(recommendation, opportunity, context).approved : true;

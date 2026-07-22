@@ -74,7 +74,20 @@ async function acceptOnce(eventId: string) {
 }
 
 function dailyKeys(date: string) {
-  return [`analytics:users:${date}`, `analytics:funnel:${date}`, `analytics:events:${date}`, `analytics:timings:${date}`, `analytics:errors:${date}`];
+  return [`analytics:users:${date}`, `analytics:funnel:${date}`, `analytics:events:${date}`, `analytics:timings:${date}`, `analytics:errors:${date}`, `analytics:recommendation-categories:${date}`, `analytics:recommendation-exposures:${date}`, `analytics:recommendation-diversity:${date}`];
+}
+
+const recommendationCategoryKeys = ["internship", "scholarship", "research", "fellowship", "competition", "conference", "student_benefit", "software", "certification", "campus_job", "mentorship", "program", "workshop"] as const;
+const recommendationPhases = ["impression", "open", "save", "application", "dismiss"] as const;
+const recommendationExposureBuckets = ["first", "repeat", "frequent"] as const;
+
+function recommendationPhase(name: AnalyticsEventName) {
+  if (name === productIntelligenceEvents.recommendationImpression) return "impression";
+  if (name === productIntelligenceEvents.recommendationOpened) return "open";
+  if (name === productIntelligenceEvents.recommendationSaved) return "save";
+  if (name === productIntelligenceEvents.recommendationStarted || name === productIntelligenceEvents.recommendationSubmitted) return "application";
+  if (name === productIntelligenceEvents.recommendationDismissed) return "dismiss";
+  return null;
 }
 
 async function retainDailyKeys(date: string) {
@@ -108,6 +121,20 @@ export async function recordAnalyticsEnvelope(envelope: AnalyticsEnvelope) {
   if ((envelope.name === productIntelligenceEvents.operationalError || envelope.name === productIntelligenceEvents.transitionFailed) && properties.component) {
     operations.push(command(["ZINCRBY", `analytics:errors:${date}`, 1, properties.component]));
   }
+  const phase = recommendationPhase(envelope.name);
+  if (phase && properties.category && recommendationCategoryKeys.includes(properties.category as never)) {
+    operations.push(command(["HINCRBY", `analytics:recommendation-categories:${date}`, `${properties.category}:${phase}`, 1]));
+  }
+  if (phase && typeof properties.exposureCount === "number") {
+    const exposure = properties.exposureCount === 0 ? "first" : properties.exposureCount === 1 ? "repeat" : "frequent";
+    operations.push(command(["HINCRBY", `analytics:recommendation-exposures:${date}`, `${exposure}:${phase}`, 1]));
+  }
+  if (envelope.name === productIntelligenceEvents.recommendationFeedViewed && typeof properties.diversityScore === "number") {
+    operations.push(
+      command(["HINCRBY", `analytics:recommendation-diversity:${date}`, "count", 1]),
+      command(["HINCRBY", `analytics:recommendation-diversity:${date}`, "total", properties.diversityScore]),
+    );
+  }
   await Promise.all(operations);
   await retainDailyKeys(date);
   return true;
@@ -132,9 +159,14 @@ const intelligenceFields = Object.values(productIntelligenceEvents).filter((name
 const timingBuckets = ["under_100", "100_499", "500_999", "1000_2499", "2500_plus"] as const;
 
 async function productIntelligenceSummary(days: readonly string[]): Promise<ProductIntelligenceSummary> {
-  const [eventRows, metricNames, ...errorRows] = await Promise.all([
+  const categoryFields = recommendationCategoryKeys.flatMap((category) => recommendationPhases.map((phase) => `${category}:${phase}`));
+  const exposureFields = recommendationExposureBuckets.flatMap((exposure) => recommendationPhases.map((phase) => `${exposure}:${phase}`));
+  const [eventRows, metricNames, categoryRows, exposureRows, diversityRows, ...errorRows] = await Promise.all([
     Promise.all(days.map((date) => command<(number | string | null)[]>(["HMGET", `analytics:events:${date}`, ...intelligenceFields]))),
     command<string[]>(["ZREVRANGE", "analytics:timing-metrics", 0, 19, "WITHSCORES"]),
+    Promise.all(days.map((date) => command<(number | string | null)[]>(["HMGET", `analytics:recommendation-categories:${date}`, ...categoryFields]))),
+    Promise.all(days.map((date) => command<(number | string | null)[]>(["HMGET", `analytics:recommendation-exposures:${date}`, ...exposureFields]))),
+    Promise.all(days.map((date) => command<(number | string | null)[]>(["HMGET", `analytics:recommendation-diversity:${date}`, "count", "total"]))),
     ...days.map((date) => command<string[]>(["ZREVRANGE", `analytics:errors:${date}`, 0, 19, "WITHSCORES"])),
   ]);
   const counts = sumRows(eventRows, intelligenceFields);
@@ -158,8 +190,28 @@ async function productIntelligenceSummary(days: readonly string[]): Promise<Prod
   const copies = count(productIntelligenceEvents.pathMomentCopied) + count(productIntelligenceEvents.journeyCardCopied);
   const cancellations = count(productIntelligenceEvents.pathMomentCanceled) + count(productIntelligenceEvents.semesterStoryCanceled);
   const recommendationOpens = count(productIntelligenceEvents.recommendationOpened);
+  const recommendationImpressions = count(productIntelligenceEvents.recommendationImpression);
   const recommendationSaves = count(productIntelligenceEvents.recommendationSaved);
   const recommendationCompletions = count(productIntelligenceEvents.recommendationCompleted);
+  const recommendationApplications = count(productIntelligenceEvents.recommendationStarted) + count(productIntelligenceEvents.recommendationSubmitted);
+  const recommendationDismissals = count(productIntelligenceEvents.recommendationDismissed);
+  const categoryTotals = sumRows(categoryRows, categoryFields);
+  const exposureTotals = sumRows(exposureRows, exposureFields);
+  const diversityTotals = sumRows(diversityRows, ["count", "total"]);
+  const byCategory = recommendationCategoryKeys.map((category) => {
+    const impressions = categoryTotals[`${category}:impression`] ?? 0;
+    const opens = categoryTotals[`${category}:open`] ?? 0;
+    const saves = categoryTotals[`${category}:save`] ?? 0;
+    const applications = categoryTotals[`${category}:application`] ?? 0;
+    const dismissals = categoryTotals[`${category}:dismiss`] ?? 0;
+    return { category, impressions, opens, saves, applications, dismissals, openRate: ratio(opens, impressions), saveRate: ratio(saves, impressions), applicationRate: ratio(applications, impressions) };
+  }).filter((item) => item.impressions + item.opens + item.saves + item.applications + item.dismissals > 0);
+  const byExposure = recommendationExposureBuckets.map((exposure) => {
+    const impressions = exposureTotals[`${exposure}:impression`] ?? 0;
+    const opens = exposureTotals[`${exposure}:open`] ?? 0;
+    const saves = exposureTotals[`${exposure}:save`] ?? 0;
+    return { exposure, impressions, opens, saves, openRate: ratio(opens, impressions), saveRate: ratio(saves, impressions) };
+  }).filter((item) => item.impressions + item.opens + item.saves > 0);
   const totalErrors = [...errors.values()].reduce((sum, value) => sum + value, 0);
   return {
     journey: {
@@ -182,13 +234,20 @@ async function productIntelligenceSummary(days: readonly string[]): Promise<Prod
     },
     exports: { creatorOpens, downloads, shares, copies, cancellations, exportRate: ratio(downloads + shares + copies, creatorOpens) },
     recommendations: {
+      impressions: recommendationImpressions,
       opens: recommendationOpens,
       saves: recommendationSaves,
       starts: count(productIntelligenceEvents.recommendationStarted),
       submissions: count(productIntelligenceEvents.recommendationSubmitted),
       completions: recommendationCompletions,
-      saveRate: ratio(recommendationSaves, recommendationOpens),
+      dismissals: recommendationDismissals,
+      openRate: ratio(recommendationOpens, recommendationImpressions),
+      saveRate: ratio(recommendationSaves, recommendationImpressions),
+      applicationRate: ratio(recommendationApplications, recommendationImpressions),
       completionRate: ratio(recommendationCompletions, recommendationSaves),
+      averageDiversityScore: diversityTotals.count ? Number((diversityTotals.total / diversityTotals.count).toFixed(1)) : 0,
+      byCategory,
+      byExposure,
     },
     errors: { total: totalErrors, errorRate: ratio(totalErrors, Math.max(views, 1)), byComponent: [...errors.entries()].sort((left, right) => right[1] - left[1]).slice(0, 10) },
     performance: Object.fromEntries(performanceEntries),

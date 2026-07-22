@@ -21,7 +21,7 @@ Schema changes require a new event suffix and `analyticsSchemaVersion`. Existing
 | `occurredAt` | Daily aggregation | ISO timestamp accepted only within a bounded 25-hour window |
 | `properties` | Minimal event context | Per-event allowlist; free-form text is rejected |
 
-Optional context fields are limited to opaque opportunity/recommendation IDs; bounded status, action, transition, source, format, appearance, privacy-control, and semester-relation tokens; safe browser/theme/device classes; error categories; and clamped timing values. Position, prose, URLs, names, email, school profile data, GPA, citizenship, financial data, essays, notes, explanations, narrative text, private branches, and exported content are prohibited.
+Optional context fields are limited to opaque opportunity/recommendation IDs; coarse canonical recommendation category, feed role, and repeat-exposure count; bounded status, action, transition, source, format, appearance, privacy-control, and semester-relation tokens; safe browser/theme/device classes; error categories; and clamped timing values. Position, prose, URLs, names, email, school profile data, GPA, citizenship, financial data, essays, notes, explanations, narrative text, private branches, and exported content are prohibited.
 
 ## Journey Events
 
@@ -84,15 +84,18 @@ No story text, comparison prose, dates, schools, majors, opportunities, organiza
 
 ## Recommendation Conversion
 
-These 90-day events measure outcomes without changing ranking and intentionally omit recommendation position.
+These 90-day events measure outcomes without changing ranking and intentionally omit recommendation position. Category and exposure are coarse bounded values used only in aggregate conversion analysis.
 
 | Event | Allowed fields | Product question |
 | --- | --- | --- |
-| `recommendation_opportunity_opened_v1` | `opportunityId`, `recommendationId` | Did a recommendation lead to review? |
-| `recommendation_opportunity_saved_v1` | `opportunityId`, `recommendationId` | Did it enter Journey? |
-| `recommendation_opportunity_started_v1` | `opportunityId`, `recommendationId` | Did it become active work? |
-| `recommendation_opportunity_submitted_v1` | `opportunityId`, `recommendationId` | Did it reach submission? |
-| `recommendation_opportunity_completed_v1` | `opportunityId`, `recommendationId` | Did the recommended opportunity complete? |
+| `recommendation_feed_viewed_v1` | `diversityScore` | Did the visible shortlist maintain a healthy mix? |
+| `recommendation_impression_v1` | `opportunityId`, `recommendationId`, `category`, `feedRole`, `exposureCount` | Which coarse recommendation cohort was shown? |
+| `recommendation_opportunity_opened_v1` | `opportunityId`, `recommendationId`, `category`, `exposureCount` | Did a recommendation lead to review? |
+| `recommendation_opportunity_saved_v1` | `opportunityId`, `recommendationId`, `category`, `exposureCount` | Did it enter Journey? |
+| `recommendation_opportunity_started_v1` | `opportunityId`, `recommendationId`, `category`, `exposureCount` | Did it become active work? |
+| `recommendation_opportunity_submitted_v1` | `opportunityId`, `recommendationId`, `category`, `exposureCount` | Did it reach submission? |
+| `recommendation_opportunity_completed_v1` | `opportunityId`, `recommendationId`, `category`, `exposureCount` | Did the recommended opportunity complete? |
+| `recommendation_dismissed_v1` | `opportunityId`, `recommendationId`, `category`, `exposureCount` | Did the student explicitly reject it? |
 
 Attribution is browser-session scoped and cleared on logout or account switch.
 
@@ -104,7 +107,7 @@ Attribution is browser-session scoped and cleared on logout or account switch.
 
 ## Aggregate Model
 
-`getAnalyticsSummary()` provides deterministic inputs for a future internal dashboard: Journey views and returns; waypoint, history, Horizon, transition, and application-management counts and rates; creator and export rates; recommendation open-to-save and save-to-completion conversion; component-level error counts/rate; and aggregate timing samples, averages, and buckets. No admin UI is part of this sprint.
+`getAnalyticsSummary()` provides deterministic inputs for a future internal dashboard: Journey views and returns; waypoint, history, Horizon, transition, and application-management counts and rates; creator and export rates; recommendation impression-to-open/save/application conversion, dismissals, category conversion, repeat-exposure performance, and average feed diversity; component-level error counts/rate; and aggregate timing samples, averages, and buckets. No admin UI is part of this sprint.
 
 ## Operations
 

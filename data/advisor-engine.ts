@@ -80,6 +80,9 @@ export type AdvisorProfile = {
     hiddenOpportunityIds?: string[];
     dismissedOpportunityIds?: string[];
     opportunityCategoriesUsed?: string[];
+    recommendationExposureCounts?: Record<string, number>;
+    previousTopOpportunityIds?: string[];
+    feedRotationKey?: string;
     referralActivity?: Record<string, unknown>;
   };
 };

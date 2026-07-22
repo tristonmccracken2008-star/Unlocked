@@ -34,10 +34,13 @@ export const productIntelligenceEvents = {
   semesterStoryShared: "semester_story_shared_v1",
   semesterStoryCanceled: "semester_story_canceled_v1",
   recommendationOpened: "recommendation_opportunity_opened_v1",
+  recommendationFeedViewed: "recommendation_feed_viewed_v1",
+  recommendationImpression: "recommendation_impression_v1",
   recommendationSaved: "recommendation_opportunity_saved_v1",
   recommendationStarted: "recommendation_opportunity_started_v1",
   recommendationSubmitted: "recommendation_opportunity_submitted_v1",
   recommendationCompleted: "recommendation_opportunity_completed_v1",
+  recommendationDismissed: "recommendation_dismissed_v1",
   productHealthTiming: "product_health_timing_v1",
   operationalError: "product_operational_error_v1",
 } as const;
@@ -92,6 +95,10 @@ export type AnalyticsEventProperties = {
   theme?: string;
   deviceClass?: string;
   durationMs?: number;
+  exposureCount?: number;
+  diversityScore?: number;
+  category?: string;
+  feedRole?: string;
   searchType?: "school" | "major" | "global" | "opportunity";
   searchValue?: string;
   filterName?: string;
@@ -151,11 +158,14 @@ export const productIntelligenceDefinitions: Record<ProductIntelligenceEventName
   semester_story_downloaded_v1: action("Measure completed Semester Story downloads.", ["format"]),
   semester_story_shared_v1: action("Measure completed Semester Story shares.", ["format"]),
   semester_story_canceled_v1: action("Measure Semester Story abandonment without inspecting content."),
-  recommendation_opportunity_opened_v1: action("Measure whether a recommendation leads to opportunity review.", ["opportunityId", "recommendationId"]),
-  recommendation_opportunity_saved_v1: action("Measure whether a recommendation enters Journey.", ["opportunityId", "recommendationId"]),
-  recommendation_opportunity_started_v1: action("Measure whether a recommended opportunity becomes active work.", ["opportunityId", "recommendationId"]),
-  recommendation_opportunity_submitted_v1: action("Measure whether a recommended opportunity reaches submission.", ["opportunityId", "recommendationId"]),
-  recommendation_opportunity_completed_v1: action("Measure completed recommended opportunities.", ["opportunityId", "recommendationId"]),
+  recommendation_opportunity_opened_v1: action("Measure whether a recommendation leads to opportunity review.", ["opportunityId", "recommendationId", "category", "exposureCount"]),
+  recommendation_feed_viewed_v1: action("Measure bounded feed variety without recording recommendation content.", ["diversityScore"]),
+  recommendation_impression_v1: action("Measure recommendation exposure using opaque IDs and coarse portfolio metadata.", ["opportunityId", "recommendationId", "category", "feedRole", "exposureCount"]),
+  recommendation_opportunity_saved_v1: action("Measure whether a recommendation enters Journey.", ["opportunityId", "recommendationId", "category", "exposureCount"]),
+  recommendation_opportunity_started_v1: action("Measure whether a recommended opportunity becomes active work.", ["opportunityId", "recommendationId", "category", "exposureCount"]),
+  recommendation_opportunity_submitted_v1: action("Measure whether a recommended opportunity reaches submission.", ["opportunityId", "recommendationId", "category", "exposureCount"]),
+  recommendation_opportunity_completed_v1: action("Measure completed recommended opportunities.", ["opportunityId", "recommendationId", "category", "exposureCount"]),
+  recommendation_dismissed_v1: action("Measure explicit recommendation rejection without storing the user's explanation.", ["opportunityId", "recommendationId", "category", "exposureCount"]),
   product_health_timing_v1: timing("Aggregate bounded performance timings without retaining individual traces."),
   product_operational_error_v1: error("Aggregate safe error categories without messages, content, or stack traces."),
 };
@@ -180,7 +190,7 @@ function safeString(key: PropertyKey, value: unknown) {
   if (key === "deviceClass") return safeDevice.test(cleaned) ? cleaned : undefined;
   if (key === "browser") return safeBrowser.test(cleaned) ? cleaned : undefined;
   if (key === "errorType") return safeError.test(cleaned) ? cleaned : undefined;
-  if (["component", "metric", "source", "action", "transition", "control", "semesterRelation", "section"].includes(key)) return safeToken.test(cleaned) ? cleaned : undefined;
+  if (["component", "metric", "source", "action", "transition", "control", "semesterRelation", "section", "category", "feedRole"].includes(key)) return safeToken.test(cleaned) ? cleaned : undefined;
   if (key === "searchType") return ["school", "major", "global", "opportunity"].includes(cleaned) ? cleaned : undefined;
   if (["stepId", "stepIndex", "stepCount", "filterName", "referralReward"].includes(key)) return safeToken.test(cleaned) ? cleaned : undefined;
   if (key === "searchValue") return cleaned;
@@ -199,9 +209,12 @@ export function sanitizeAnalyticsProperties(name: AnalyticsEventName, properties
   for (const [rawKey, rawValue] of Object.entries(properties).sort(([left], [right]) => left.localeCompare(right)).slice(0, 16)) {
     const key = rawKey as PropertyKey;
     if (!allowed.has(key)) continue;
-    if (key === "durationMs") {
+    if (["durationMs", "exposureCount", "diversityScore"].includes(key)) {
       const duration = typeof rawValue === "number" ? rawValue : Number.NaN;
-      if (Number.isFinite(duration) && duration >= 0) result.durationMs = Math.min(120_000, Math.round(duration));
+      if (Number.isFinite(duration) && duration >= 0) {
+        const maximum = key === "durationMs" ? 120_000 : key === "exposureCount" ? 20 : 100;
+        (result as Record<string, number>)[key] = Math.min(maximum, Math.round(duration));
+      }
       continue;
     }
     const value = safeString(key, rawValue);
@@ -224,7 +237,22 @@ export type AnalyticsEnvelope = {
 export type ProductIntelligenceSummary = {
   journey: { views: number; returns: number; waypointClicks: number; waypointCompletions: number; historyExpansions: number; historyExplorations: number; horizonOpens: number; transitionStarts: number; transitionCompletions: number; transitionFailures: number; applicationManagementOpens: number; transitionSuccessRate: number; waypointCompletionRate: number; historyExpansionRate: number; horizonEngagementRate: number; returnRate: number };
   exports: { creatorOpens: number; downloads: number; shares: number; copies: number; cancellations: number; exportRate: number };
-  recommendations: { opens: number; saves: number; starts: number; submissions: number; completions: number; saveRate: number; completionRate: number };
+  recommendations: {
+    impressions: number;
+    opens: number;
+    saves: number;
+    starts: number;
+    submissions: number;
+    completions: number;
+    dismissals: number;
+    openRate: number;
+    saveRate: number;
+    applicationRate: number;
+    completionRate: number;
+    averageDiversityScore: number;
+    byCategory: { category: string; impressions: number; opens: number; saves: number; applications: number; dismissals: number; openRate: number; saveRate: number; applicationRate: number }[];
+    byExposure: { exposure: string; impressions: number; opens: number; saves: number; openRate: number; saveRate: number }[];
+  };
   errors: { total: number; errorRate: number; byComponent: [string, number][] };
   performance: Record<string, { samples: number; averageMs: number; buckets: Record<string, number> }>;
 };

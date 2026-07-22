@@ -5,7 +5,7 @@ import type { OpportunityType } from "@/data/opportunities";
 import { readStudentActivity, saveOpportunity, studentActivityEvent, trackOpportunityView } from "@/data/student-activity";
 import { ArrowIcon, CheckIcon } from "./icons";
 import { productIntelligenceEvents } from "@/lib/analytics-types";
-import { recommendationAttributionFor, rememberRecommendationAttribution, trackProductEvent } from "@/data/product-analytics";
+import { recommendationAttributionDetailsFor, rememberRecommendationAttribution, trackProductEvent } from "@/data/product-analytics";
 
 export function OpportunityViewTracker({ opportunityId }: { opportunityId: string }) {
   useEffect(() => { trackOpportunityView(opportunityId); trackProductEvent("opportunity_view", { opportunityId }); }, [opportunityId]);
@@ -28,7 +28,7 @@ export function OpportunityActivityActions({ opportunityId, type, officialSource
   </div>;
 }
 
-export function AddToJourneyButton({ opportunityId, recommendationId, className = "" }: { opportunityId: string; recommendationId?: string; className?: string }) {
+export function AddToJourneyButton({ opportunityId, recommendationId, recommendationCategory, recommendationExposureCount, className = "" }: { opportunityId: string; recommendationId?: string; recommendationCategory?: string; recommendationExposureCount?: number; className?: string }) {
   const [added,setAdded]=useState(false);
   useEffect(()=>{const update=()=>{const activity=readStudentActivity();setAdded(Boolean(activity.tracked?.[opportunityId]||activity.saved.includes(opportunityId)))};update();window.addEventListener(studentActivityEvent,update);return()=>window.removeEventListener(studentActivityEvent,update)},[opportunityId]);
   if (added) return <JourneyAddedState className={className} />;
@@ -36,11 +36,14 @@ export function AddToJourneyButton({ opportunityId, recommendationId, className 
     saveOpportunity(opportunityId,"Saved");
     setAdded(true);
     trackProductEvent("opportunity_added_to_journey",{opportunityId});
-    const attribution = recommendationId ?? recommendationAttributionFor(opportunityId);
+    const remembered = recommendationAttributionDetailsFor(opportunityId);
+    const attribution = recommendationId ?? remembered?.recommendationId;
+    const category = recommendationCategory ?? remembered?.category;
+    const exposureCount = recommendationExposureCount ?? remembered?.exposureCount;
     trackProductEvent(productIntelligenceEvents.journeyOpportunityAdded, { opportunityId, source: attribution ? "for_you" : "discover" });
     if (attribution) {
-      rememberRecommendationAttribution(opportunityId, attribution);
-      trackProductEvent(productIntelligenceEvents.recommendationSaved, { opportunityId, recommendationId: attribution });
+      rememberRecommendationAttribution(opportunityId, attribution, category, exposureCount);
+      trackProductEvent(productIntelligenceEvents.recommendationSaved, { opportunityId, recommendationId: attribution, category, exposureCount });
     }
   }} className={`inline-flex min-h-11 items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider ${className}`}>Add to Journey</button>;
 }

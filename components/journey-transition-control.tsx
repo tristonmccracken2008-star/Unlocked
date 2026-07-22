@@ -10,7 +10,7 @@ import type { JourneyEditorialModel } from "@/lib/journey-editorial";
 import { ArrowIcon } from "@/components/icons";
 import { journeyTransformationEvent } from "./journey-live-line";
 import { productIntelligenceEvents } from "@/lib/analytics-types";
-import { recommendationAttributionFor, trackProductEvent, trackProductTiming } from "@/data/product-analytics";
+import { recommendationAttributionDetailsFor, trackProductEvent, trackProductTiming } from "@/data/product-analytics";
 import styles from "./journey-editorial.module.css";
 
 type TransitionResponse = {
@@ -118,10 +118,16 @@ export function JourneyTransitionControl({ control }: { control: NonNullable<Jou
       trackProductEvent(productIntelligenceEvents.transitionCompleted, { opportunityId: control.opportunityId, transition: action.transition });
       trackProductEvent(productIntelligenceEvents.waypointCompleted, { transition: action.transition });
       trackProductTiming("journey_transition", "transition_latency", latency);
-      const recommendationId = recommendationAttributionFor(control.opportunityId);
-      if (recommendationId && action.transition === "start") trackProductEvent(productIntelligenceEvents.recommendationStarted, { opportunityId: control.opportunityId, recommendationId });
-      if (recommendationId && action.transition === "submit") trackProductEvent(productIntelligenceEvents.recommendationSubmitted, { opportunityId: control.opportunityId, recommendationId });
-      if (recommendationId && action.transition === "complete") trackProductEvent(productIntelligenceEvents.recommendationCompleted, { opportunityId: control.opportunityId, recommendationId });
+      const attribution = recommendationAttributionDetailsFor(control.opportunityId);
+      const recommendationProperties = attribution ? {
+        opportunityId: control.opportunityId,
+        recommendationId: attribution.recommendationId,
+        category: attribution.category,
+        exposureCount: attribution.exposureCount,
+      } : null;
+      if (recommendationProperties && action.transition === "start") trackProductEvent(productIntelligenceEvents.recommendationStarted, recommendationProperties);
+      if (recommendationProperties && action.transition === "submit") trackProductEvent(productIntelligenceEvents.recommendationSubmitted, recommendationProperties);
+      if (recommendationProperties && action.transition === "complete") trackProductEvent(productIntelligenceEvents.recommendationCompleted, recommendationProperties);
       setActions([]);
       setResult(body);
       const activity = readStudentActivity();

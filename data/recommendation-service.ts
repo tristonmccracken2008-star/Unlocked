@@ -8,10 +8,11 @@ import type { StudentProfile } from "./student-profile";
 import { inferApplicationsFromActivity, type StudentProgress } from "./student-progress";
 import type { AdvisorFeedbackRecord } from "@/lib/advisor/types";
 import type { ReferralAccountData } from "@/lib/referrals";
+import { getOpportunityIntelligence } from "./opportunity-intelligence";
 
 export type RecommendationMatchLabel = "Excellent Match" | "Strong Match" | "Good Match" | "Worth Reviewing" | "Limited Match" | "Explore";
 export type RecommendationDisplaySignal = {
-  kind: "career" | "interest" | "major" | "behavior" | "timing" | "eligibility" | "value" | "trust" | "format" | "exploration";
+  kind: "career" | "interest" | "major" | "behavior" | "timing" | "eligibility" | "value" | "trust" | "format" | "exploration" | "impact";
   label: string;
 };
 export type RecommendationServiceInput = {
@@ -24,6 +25,9 @@ export type RecommendationServiceInput = {
   hiddenOpportunityIds?: string[];
   dismissedOpportunityIds?: string[];
   referralActivity?: ReferralAccountData | null;
+  recommendationExposureCounts?: Record<string, number>;
+  previousTopOpportunityIds?: string[];
+  feedRotationKey?: string;
 };
 export type RecommendationViewModel = {
   recommendation: RecommendationV1;
@@ -89,6 +93,7 @@ function recommendationSummaryReason(recommendation: RecommendationV1) {
     ?? capturedReason(reasons, /current priority/i)
     ?? capturedReason(reasons, /matches your major/i)
     ?? capturedReason(reasons, /deadline in/i)
+    ?? capturedReason(reasons, /high-impact signals|newly added/i)
     ?? capturedReason(reasons, /accepts .*students|available at|available nationally/i)
     ?? reasons.find((reason) => !/^You are a /i.test(reason))
     ?? "It passed UnlockED's eligibility and relevance checks for your profile.";
@@ -97,6 +102,7 @@ function recommendationSummaryReason(recommendation: RecommendationV1) {
 
 function recommendationDisplaySignals(recommendation: RecommendationV1, opportunity: Opportunity | null): RecommendationDisplaySignal[] {
   const reasons = recommendation.reasons;
+  const intelligence = opportunity ? getOpportunityIntelligence(opportunity) : null;
   const candidates: Array<RecommendationDisplaySignal | null> = [
     capturedReason(reasons, /career goal/i) ? { kind: "career", label: "Fits your career goal" } : null,
     capturedReason(reasons, /opportunity interests?/i) ? { kind: "interest", label: "Matches your interests" } : null,
@@ -105,10 +111,15 @@ function recommendationDisplaySignals(recommendation: RecommendationV1, opportun
     capturedReason(reasons, /opportunities you viewed|organization you explored/i) ? { kind: "behavior", label: "Based on what you explored" } : null,
     capturedReason(reasons, /preferred opportunity type/i) ? { kind: "interest", label: "Preferred opportunity type" } : null,
     capturedReason(reasons, /adds variety to your opportunity mix/i) ? { kind: "exploration", label: "Broadens your mix" } : null,
+    recommendation.portfolio?.role === "exploration" ? { kind: "exploration", label: "Worth discovering" } : null,
     capturedReason(reasons, /deadline in/i) ? { kind: "timing", label: capturedReason(reasons, /deadline in/i)!.replace(/\.$/, "") } : null,
+    recommendation.portfolio?.premiumSignals.includes("New") ? { kind: "impact", label: "New" } : null,
+    recommendation.portfolio?.premiumSignals.includes("Editor's Pick") ? { kind: "impact", label: "Editor's pick" } : null,
+    recommendation.portfolio?.premiumSignals.includes("High Impact") ? { kind: "impact", label: "High impact" } : null,
     capturedReason(reasons, /accepts .*students/i) ? { kind: "eligibility", label: capturedReason(reasons, /accepts .*students/i)!.replace(/\.$/, "") } : null,
     opportunity?.difficulty === "Open" ? { kind: "eligibility", label: "Beginner friendly" } : null,
     (opportunity?.estimated_value ?? 0) >= 5_000 ? { kind: "value", label: "High documented value" } : null,
+    intelligence && intelligence.impactScore >= 45 ? { kind: "impact", label: "High impact" } : null,
     opportunity?.verification_status === "verified" ? { kind: "trust", label: "Official source verified" } : null,
     opportunity?.paid ? { kind: "format", label: "Paid" } : null,
     opportunity?.remote ? { kind: "format", label: "Remote" } : null,
@@ -126,6 +137,9 @@ export function buildRecommendationService(input: RecommendationServiceInput): R
   advisorProfile.future.recommendationFeedback = input.feedbackRecords ?? [];
   advisorProfile.future.hiddenOpportunityIds = input.hiddenOpportunityIds ?? [];
   advisorProfile.future.dismissedOpportunityIds = input.dismissedOpportunityIds ?? [];
+  advisorProfile.future.recommendationExposureCounts = input.recommendationExposureCounts ?? {};
+  advisorProfile.future.previousTopOpportunityIds = input.previousTopOpportunityIds ?? [];
+  advisorProfile.future.feedRotationKey = input.feedRotationKey;
   advisorProfile.future.referralActivity = input.referralActivity ? { completed: input.referralActivity.completed.length, pending: input.referralActivity.pending.length, rewards: input.referralActivity.rewardHistory.map((reward) => reward.rewardKey) } : undefined;
   advisorProfile.future.opportunityCategoriesUsed = [...new Set(Object.keys(input.activity.tracked ?? {}).flatMap((id) => {
     const item = opportunityById.get(id);

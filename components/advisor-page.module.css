@@ -228,7 +228,8 @@
   line-height: 1.25;
 }
 
-.signals > span[data-signal-kind="exploration"] {
+.signals > span[data-signal-kind="exploration"],
+.signals > span[data-signal-kind="impact"] {
   border-color: rgb(var(--color-gold) / .24);
   background: rgb(var(--color-gold) / .08);
 }

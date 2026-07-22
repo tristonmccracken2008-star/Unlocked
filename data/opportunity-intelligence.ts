@@ -85,6 +85,15 @@ export type OpportunityIntelligence = {
   tags: string[];
   verificationStatus: VerificationStatus;
   qualityScore: number;
+  impactScore: number;
+  impactSignals: string[];
+  freshness: "New" | "Recent" | "Established";
+  semanticCluster: string;
+};
+
+export type OpportunityImpactProfile = {
+  score: number;
+  signals: string[];
 };
 
 export type OpportunityMatchBreakdown = {
@@ -225,9 +234,50 @@ function qualityScore(item: Opportunity) {
   return Math.max(enriched, Math.min(100, score));
 }
 
+function daysSince(value: string, now = new Date()) {
+  const timestamp = new Date(`${value}T00:00:00Z`).getTime();
+  return Number.isFinite(timestamp) ? Math.max(0, Math.floor((now.getTime() - timestamp) / 86_400_000)) : Number.POSITIVE_INFINITY;
+}
+
+export function getOpportunityFreshness(item: Opportunity, now = new Date()): OpportunityIntelligence["freshness"] {
+  const age = daysSince(item.date_added, now);
+  if (age <= 30) return "New";
+  if (age <= 120) return "Recent";
+  return "Established";
+}
+
+export function getOpportunitySemanticCluster(item: Opportunity) {
+  const canonical = canonicalOpportunity(item);
+  const focus = canonical.careerFields[0]
+    ?? item.metadata.bestUseCases?.[0]
+    ?? item.metadata.researchArea
+    ?? item.metadata.department
+    ?? canonical.subcategory
+    ?? item.category;
+  return normalize(`${canonical.category} ${focus}`).replace(/\s+/g, "-");
+}
+
+export function getOpportunityImpactProfile(item: Opportunity): OpportunityImpactProfile {
+  const signals: string[] = [];
+  let score = 0;
+  if (item.prestige === "Very High") { score += 24; signals.push("Very high documented prestige"); }
+  else if (item.prestige === "High") { score += 17; signals.push("High documented prestige"); }
+  else if (item.prestige === "Established") { score += 9; signals.push("Established opportunity"); }
+  if ((item.estimated_value ?? 0) >= 10_000) { score += 22; signals.push("Exceptional documented value"); }
+  else if ((item.estimated_value ?? 0) >= 5_000) { score += 16; signals.push("High documented value"); }
+  else if ((item.estimated_value ?? 0) >= 1_000) { score += 9; signals.push("Meaningful documented value"); }
+  if (item.featured) { score += 14; signals.push("UnlockED editor selection"); }
+  if (item.hidden_gem) { score += 10; signals.push("Less obvious opportunity"); }
+  if (item.paid === true && ["Career", "Research"].includes(item.type)) { score += 10; signals.push("Paid experience"); }
+  if (item.school_scope === "School Specific") { score += 7; signals.push("Exclusive campus opportunity"); }
+  if (item.verification_status === "verified") { score += 8; signals.push("Official source verified"); }
+  return { score: Math.min(100, score), signals: unique(signals) };
+}
+
 export function getOpportunityIntelligence(item: Opportunity): OpportunityIntelligence {
   const canonical = canonicalOpportunity(item);
   const requiredSkills = inferSkills(item);
+  const impact = getOpportunityImpactProfile(item);
   return {
     id: item.id,
     title: item.title,
@@ -254,6 +304,10 @@ export function getOpportunityIntelligence(item: Opportunity): OpportunityIntell
     tags: canonical.tags,
     verificationStatus: item.verification_status,
     qualityScore: qualityScore(item),
+    impactScore: impact.score,
+    impactSignals: impact.signals,
+    freshness: getOpportunityFreshness(item),
+    semanticCluster: getOpportunitySemanticCluster(item),
   };
 }
 
@@ -483,6 +537,9 @@ export function scoreOpportunityIntelligence(item: Opportunity, context: Opportu
   const qualityWeight = Math.round(intelligence.qualityScore * weights.qualityMultiplier);
   score += qualityWeight;
   addSignal(`Opportunity quality score ${intelligence.qualityScore}`, qualityWeight >= 10 ? "positive" : "neutral", qualityWeight);
+  const impactWeight = Math.round(intelligence.impactScore * weights.impactMultiplier);
+  score += impactWeight;
+  if (impactWeight > 0) addSignal(`Documented impact: ${intelligence.impactSignals.slice(0, 2).join(", ")}`, "positive", impactWeight);
   if (item.verification_status === "verified") {
     score += weights.verified;
     addSignal("Verified from official source", "positive", weights.verified);
@@ -546,6 +603,20 @@ export function scoreOpportunityIntelligence(item: Opportunity, context: Opportu
   if (item.last_verified && new Date(item.last_verified).getTime() > Date.now() - 1000 * 60 * 60 * 24 * 120) {
     score += weights.freshnessRecent;
     addSignal("Recently verified", "positive", weights.freshnessRecent);
+  }
+  if (intelligence.freshness === "New") {
+    score += weights.newlyAdded;
+    addSignal("Newly added to UnlockED", "positive", weights.newlyAdded);
+  } else if (intelligence.freshness === "Recent") {
+    score += weights.recentlyAdded;
+    addSignal("Recently added to UnlockED", "positive", weights.recentlyAdded);
+  }
+  const currentMonth = new Intl.DateTimeFormat("en-US", { month: "long", timeZone: "UTC" }).format(new Date());
+  const currentSeason = ["December", "January", "February"].includes(currentMonth) ? "Winter" : ["March", "April", "May"].includes(currentMonth) ? "Spring" : ["June", "July", "August"].includes(currentMonth) ? "Summer" : "Fall";
+  const seasonalTerms = [item.metadata.applicationSeason ?? "", ...(item.metadata.semesters ?? [])];
+  if (seasonalTerms.some((term) => normalize(term).includes(normalize(currentSeason)))) {
+    score += weights.seasonalRelevance;
+    addSignal(`Relevant for ${currentSeason}`, "positive", weights.seasonalRelevance);
   }
   if (item.metadata.deadlineType === "not_announced" || item.metadata.verification?.deadlineVerified === false) {
     score += weights.weakDeadlineConfidencePenalty;
@@ -611,6 +682,11 @@ export function getRecommendationReasons(item: Opportunity, context: Opportunity
   if (deadlineDays !== null && deadlineDays >= 0 && (item.metadata.verification?.deadlineVerified === true || item.verification_status === "verified")) reasons.push(`Deadline is in ${deadlineDays} day${deadlineDays === 1 ? "" : "s"}.`);
   if (item.verification_status === "temporarily_closed") reasons.push("Applications are currently closed or awaiting the next cycle.");
   if (item.verification_status === "verified") reasons.push("Verified from an official source.");
+  const intelligence = getOpportunityIntelligence(item);
+  if (intelligence.freshness === "New") reasons.push("Newly added to UnlockED.");
+  if (item.featured) reasons.push("Selected by UnlockED editors using documented opportunity quality.");
+  if (intelligence.impactScore >= 45) reasons.push(`High-impact signals: ${intelligence.impactSignals.slice(0, 2).join(" and ").toLowerCase()}.`);
+  if (item.difficulty === "Highly Competitive") reasons.push("Highly competitive based on the documented application profile.");
   if (item.verification_status === "needs_review") reasons.push("Details need review on the official source before acting.");
   if (!reasons.length) reasons.push("Included for review because it is in the opportunity catalog, but profile-specific matches are limited.");
   return reasons;

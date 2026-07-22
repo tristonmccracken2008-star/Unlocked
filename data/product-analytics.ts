@@ -236,21 +236,49 @@ export function trackJourneyView(status: string) {
   local?.setItem(analyticsJourneyDayKey, today);
 }
 
-export function rememberRecommendationAttribution(opportunityId: string, recommendationId: string) {
+export type RecommendationAttributionDetails = {
+  recommendationId: string;
+  category?: string;
+  exposureCount?: number;
+};
+
+export function rememberRecommendationAttribution(opportunityId: string, recommendationId: string, category?: string, exposureCount?: number) {
   if (!/^[A-Za-z0-9][A-Za-z0-9._:-]{0,119}$/.test(opportunityId) || !/^[A-Za-z0-9][A-Za-z0-9._:-]{0,119}$/.test(recommendationId)) return;
   const session = sessionStorageSafe();
   if (!session) return;
   try {
-    const current = JSON.parse(session.getItem(recommendationAttributionKey) ?? "{}") as Record<string, string>;
-    session.setItem(recommendationAttributionKey, JSON.stringify({ ...current, [opportunityId]: recommendationId }));
+    const current = JSON.parse(session.getItem(recommendationAttributionKey) ?? "{}") as Record<string, unknown>;
+    const safeCategory = typeof category === "string" && /^[a-z0-9][a-z0-9_-]{0,63}$/.test(category) ? category : undefined;
+    const safeExposureCount = typeof exposureCount === "number" && Number.isFinite(exposureCount)
+      ? Math.min(20, Math.max(0, Math.round(exposureCount)))
+      : undefined;
+    const attribution: RecommendationAttributionDetails = {
+      recommendationId,
+      ...(safeCategory ? { category: safeCategory } : {}),
+      ...(safeExposureCount !== undefined ? { exposureCount: safeExposureCount } : {}),
+    };
+    session.setItem(recommendationAttributionKey, JSON.stringify({ ...current, [opportunityId]: attribution }));
   } catch { session.removeItem(recommendationAttributionKey); }
 }
 
-export function recommendationAttributionFor(opportunityId: string) {
+export function recommendationAttributionDetailsFor(opportunityId: string): RecommendationAttributionDetails | undefined {
   try {
     const value = JSON.parse(sessionStorageSafe()?.getItem(recommendationAttributionKey) ?? "{}") as Record<string, unknown>;
-    return typeof value[opportunityId] === "string" ? value[opportunityId] as string : undefined;
+    const attribution = value[opportunityId];
+    if (typeof attribution === "string") return { recommendationId: attribution };
+    if (!attribution || typeof attribution !== "object" || Array.isArray(attribution)) return undefined;
+    const candidate = attribution as Partial<RecommendationAttributionDetails>;
+    if (typeof candidate.recommendationId !== "string" || !/^[A-Za-z0-9][A-Za-z0-9._:-]{0,119}$/.test(candidate.recommendationId)) return undefined;
+    return {
+      recommendationId: candidate.recommendationId,
+      ...(typeof candidate.category === "string" && /^[a-z0-9][a-z0-9_-]{0,63}$/.test(candidate.category) ? { category: candidate.category } : {}),
+      ...(typeof candidate.exposureCount === "number" && Number.isFinite(candidate.exposureCount) ? { exposureCount: Math.min(20, Math.max(0, Math.round(candidate.exposureCount))) } : {}),
+    };
   } catch { return undefined; }
+}
+
+export function recommendationAttributionFor(opportunityId: string) {
+  return recommendationAttributionDetailsFor(opportunityId)?.recommendationId;
 }
 
 export function clearProductAnalyticsSession() {

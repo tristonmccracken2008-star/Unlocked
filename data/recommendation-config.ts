@@ -1,6 +1,6 @@
 import type { RecommendationMatchLabel } from "./recommendation-service";
 
-export const recommendationRulesVersion = "professional-recommendations-v4-tiered-eligibility";
+export const recommendationRulesVersion = "professional-recommendations-v5-best-mix";
 
 export const recommendationConfig = {
   weights: {
@@ -28,6 +28,7 @@ export const recommendationConfig = {
     temporarilyClosed: -28,
     excludedVerificationStatus: -100,
     qualityMultiplier: 0.18,
+    impactMultiplier: 0.16,
     highValue: 8,
     openDifficulty: 5,
     highlyCompetitivePenalty: -4,
@@ -48,6 +49,9 @@ export const recommendationConfig = {
     dismissedOpportunityPenalty: -100,
     completedOpportunityPenalty: -100,
     freshnessRecent: 6,
+    newlyAdded: 7,
+    recentlyAdded: 3,
+    seasonalRelevance: 4,
     weakDeadlineConfidencePenalty: -6,
     expectedRoiHigh: 7,
     estimatedTimeLow: 5,
@@ -62,12 +66,20 @@ export const recommendationConfig = {
     organizationPenalty: 14,
     categoryPenalty: 9,
     typePenalty: 5,
+    semanticClusterPenalty: 18,
+    explorationBoost: 14,
+    repeatExposurePenalty: 5,
+    previousTopContinuityBoost: 6,
+    rotationRange: 5,
     maxSameOrganizationBeforePenalty: 1,
     maxSameCategoryBeforePenalty: 2,
     maxSameTypeBeforePenalty: 3,
     maxSameOrganization: 1,
     maxSameCategory: 2,
     maxSameType: 3,
+    maxSameSemanticCluster: 1,
+    explorationShare: 0.2,
+    stableTopSlots: 2,
   },
   qualityGates: {
     minimumPositiveSignals: 2,
