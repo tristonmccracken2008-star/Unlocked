@@ -58,7 +58,7 @@ function createKvServer() {
 async function seedSession(label: string, state: "empty" | "sparse" | "rich" | "heavy", dark = false) {
   const { createSession, mergeAccountData, updateAccountBilling, upsertUser } = await import("../lib/auth-store");
   const { opportunities } = await import("../data/opportunities");
-  const selected = state === "empty" ? [] : state === "sparse" ? opportunities.slice(0, 1) : state === "heavy" ? opportunities.slice(0, 120) : ["Career", "Research", "Scholarship", "Benefit", "AI"].flatMap((type) => opportunities.filter((item) => item.type === type).slice(0, 2));
+  const selected = state === "empty" ? [] : state === "sparse" ? opportunities.slice(0, 1) : state === "heavy" ? opportunities.slice(0, 300) : ["Career", "Research", "Scholarship", "Benefit", "AI"].flatMap((type) => opportunities.filter((item) => item.type === type).slice(0, 2));
   const statuses = ["Saved", "Interested", "Applying", "Submitted", "Interview", "Accepted", "Completed", "Paused", "Rejected", "Submitted"] as const;
   const tracker = Object.fromEntries(selected.map((opportunity, index) => {
     const day = String((index % 28) + 1).padStart(2, "0");
@@ -77,7 +77,7 @@ async function seedSession(label: string, state: "empty" | "sparse" | "rich" | "
     profile: { firstName: "Jordan", lastName: label, schoolSlug: "university-of-chicago", major: "Mathematics", graduationYear: "2030", year: "First year", careerGoal: "Quantitative Finance", interests: "Finance, Research", onboardingCompletedAt: now },
     onboardingComplete: true,
     activity: { viewed: selected.map((item) => item.id), saved: selected.map((item) => item.id), claimed: [], tracked: tracker },
-    savedOpportunities: selected.map((item, index) => ({ opportunityId: item.id, savedAt: `2026-01-${String(index + 1).padStart(2, "0")}T12:00:00.000Z` })),
+    savedOpportunities: selected.map((item, index) => ({ opportunityId: item.id, savedAt: `2026-01-${String((index % 28) + 1).padStart(2, "0")}T12:00:00.000Z` })),
     tracker,
     preferences: { appearance: dark ? "midnight" : "light", updatedAt: now },
     journeyProgress: state === "rich" || state === "heavy" ? { "milestone-first-application": true } : {},
@@ -274,10 +274,10 @@ try {
     await installSession(context, origin, heavySession.token);
     const page = await context.newPage();
     const assertNoErrors = watchConsole(page, "Chromium tablet heavy history");
-    const root = await assertRich(page, origin, "Chromium tablet heavy history", 200);
+    const root = await assertRich(page, origin, "Chromium tablet heavy history", 500);
     const moments = root.locator("ol[aria-label='Journey events in chronological order'] > li");
     const visibleMoments = root.locator("ol[aria-label='Journey events in chronological order'] > li:visible");
-    assert.ok(await moments.count() >= 200, "Heavy history must preserve hundreds of canonical events in the DOM.");
+    assert.ok(await moments.count() >= 500, "Heavy history must preserve 500+ canonical events in the DOM.");
     assert.ok(await visibleMoments.count() <= 18, "Heavy history must initially disclose no more than 18 recent moments.");
     await root.getByRole("button", { name: /See earlier chapters/ }).click();
     assert.equal(await root.getAttribute("data-timeline-expanded"), "true");
@@ -293,7 +293,7 @@ try {
     const page = await context.newPage();
     const assertNoErrors = watchConsole(page, "Chromium mobile reduced motion");
     const root = await assertRich(page, origin, "Chromium mobile reduced motion", 1);
-    assert.equal(await root.locator("ol > li").count(), 1);
+    assert.equal(await root.locator('ol[aria-label="Journey events in chronological order"] > li').count(), 1);
     await page.screenshot({ path: path.join(outputDirectory, "journey-mobile.png"), fullPage: true });
     assertNoErrors();
     await context.close();

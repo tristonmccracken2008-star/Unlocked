@@ -10,12 +10,30 @@ export type OpportunityTrackerStatus = (typeof opportunityTrackerStatuses)[numbe
 export const journeyProgressTransitions = ["choose", "start", "submit", "interview", "accept", "complete", "pause", "resume", "close"] as const;
 export type JourneyProgressTransition = (typeof journeyProgressTransitions)[number];
 
+export type JourneyMilestoneDocumentReference = {
+  id: string;
+  name: string;
+  mimeType?: string;
+  size?: number;
+  stored: false;
+};
+
+export type JourneyMilestoneDetails = {
+  notes?: string;
+  milestoneDate?: string;
+  reminderAt?: string;
+  documents?: JourneyMilestoneDocumentReference[];
+  source: "student_reported";
+};
+
 export type JourneyTransitionHistoryRecord = {
   id: string;
   transition: JourneyProgressTransition;
   priorStatus: OpportunityTrackerStatus;
   resultingStatus: OpportunityTrackerStatus;
   occurredAt: string;
+  professionalStageId?: string;
+  details?: JourneyMilestoneDetails;
 };
 
 export type TrackedOpportunity = {
@@ -25,6 +43,8 @@ export type TrackedOpportunity = {
   updatedAt: string;
   version?: number;
   pausedFrom?: OpportunityTrackerStatus;
+  professionalStageId?: string;
+  pausedFromProfessionalStageId?: string;
   history?: JourneyTransitionHistoryRecord[];
 };
 
@@ -57,11 +77,13 @@ export function readStudentActivity(): StudentActivity {
         updatedAt: typeof value.updatedAt === "string" ? value.updatedAt : fallbackDate,
         version: typeof value.version === "number" && Number.isInteger(value.version) && value.version >= 0 ? value.version : 0,
         pausedFrom: value.pausedFrom ? normalizeStatus(value.pausedFrom) : undefined,
+        professionalStageId: typeof value.professionalStageId === "string" ? value.professionalStageId : undefined,
+        pausedFromProfessionalStageId: typeof value.pausedFromProfessionalStageId === "string" ? value.pausedFromProfessionalStageId : undefined,
         history: Array.isArray(value.history) ? value.history : [],
       }];
     }));
     for (const id of saved) {
-      if (!tracked[id]) tracked[id] = { id, status: "Saved", savedAt: new Date().toISOString(), updatedAt: new Date().toISOString(), version: 0, pausedFrom: undefined, history: [] };
+      if (!tracked[id]) tracked[id] = { id, status: "Saved", savedAt: new Date().toISOString(), updatedAt: new Date().toISOString(), version: 0, pausedFrom: undefined, professionalStageId: undefined, pausedFromProfessionalStageId: undefined, history: [] };
     }
     return {
       viewed: uniqueStrings(parsed?.viewed),
@@ -107,6 +129,8 @@ export function saveOpportunity(id: string, status: OpportunityTrackerStatus = "
     updatedAt: new Date().toISOString(),
     version: existing?.version ?? 0,
     pausedFrom: existing?.pausedFrom,
+    professionalStageId: existing?.professionalStageId,
+    pausedFromProfessionalStageId: existing?.pausedFromProfessionalStageId,
     history: existing?.history ?? [],
   };
   activity.tracked = tracked;

@@ -21,9 +21,11 @@ assert.match(primary, /<time dateTime=\{event\.occurredAt\}>/);
 assert.match(primary, /<section className=\{styles\.share\} aria-labelledby="journey-card-heading">/);
 assert.match(primary, /<section className=\{styles\.empty\} aria-labelledby="journey-empty-heading">/);
 assert.match(primary, /aria-hidden="true"/);
-assert.match(control, /<summary>Update status<\/summary>/);
-assert.match(control, /aria-busy=\{pending \? "true" : undefined\}/);
-assert.match(control, /role=\{error \? "alert" : "status"\} aria-live="polite"/);
+assert.match(control, /<dialog[\s\S]*?aria-labelledby=/);
+assert.match(control, /aria-label="Close Update Journey"/);
+assert.match(control, /data-journey-update-confirmation/);
+assert.match(control, /aria-live="polite"/);
+assert.match(control, /role="alert"/);
 assert.match(entry, /aria-describedby=\{error \? "journey-card-load-error" : undefined\}/);
 assert.match(entry, /role="alert"/);
 
@@ -38,8 +40,9 @@ assert.match(creator, /aria-pressed=\{privacy\.nameMode === mode\}/);
 assert.match(artwork, /aria-hidden="true" focusable="false"/);
 
 assert.match(styles, /\.eventFooter a \{[^}]*min-height:\s*44px/);
-assert.match(styles, /\.statusControl summary \{[^}]*min-height:\s*44px/);
-assert.match(styles, /\.statusActions button \{[^}]*min-height:\s*44px/);
+assert.match(styles, /\.updateJourneyButton \{[^}]*min-height:\s*45px/);
+assert.match(styles, /\.updateClose \{[^}]*width:\s*44px;[^}]*height:\s*44px/);
+assert.match(styles, /\.updateActions button \{[^}]*min-height:\s*45px/);
 assert.match(creatorStyles, /\.segmented button \{[\s\S]*?min-height:\s*44px/);
 assert.match(creatorStyles, /\.checks label \{[\s\S]*?min-height:\s*44px/);
 assert.match(creatorStyles, /\.actions button \{[\s\S]*?min-height:\s*44px/);

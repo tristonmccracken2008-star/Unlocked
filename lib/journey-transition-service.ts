@@ -4,13 +4,17 @@ import type { AccountData, AuthUser } from "./account-types";
 import { mergeAccountData, readAccountData, withSecurityLock } from "./auth-store";
 import { listPublishedOpportunitiesByIds } from "./content-store";
 import { buildJourneyEditorialProjection } from "./journey-editorial";
-import { applyJourneyTransition, JourneyTransitionError, type JourneyTransitionRequest } from "@/data/journey-transformations";
+import { applyJourneyProfessionalUpdate, applyJourneyTransition, JourneyTransitionError, type JourneyTransitionRequest } from "@/data/journey-transformations";
+import { getJourneyProfessionalWorkflow, professionalStageById, resolveJourneyProfessionalStage } from "@/data/journey-professional";
 import { createOpenLineMotionPlan, type OpenLineMotionPlan } from "@/data/open-line";
-import type { JourneyProgressTransition, OpportunityTrackerStatus, TrackedOpportunity } from "@/data/student-activity";
+import type { JourneyMilestoneDetails, JourneyProgressTransition, OpportunityTrackerStatus, TrackedOpportunity } from "@/data/student-activity";
+import { buildJourneyTimelineModel } from "./journey-timeline";
 
 export type JourneyTransitionMutation = {
   opportunityId: string;
-  transition: JourneyProgressTransition;
+  transition?: JourneyProgressTransition;
+  professionalStageId?: string;
+  details?: JourneyMilestoneDetails;
   expectedStatus: OpportunityTrackerStatus;
   expectedVersion: number;
   idempotencyKey: string;
@@ -20,6 +24,8 @@ export type JourneyTransformationResponse = {
   ok: true;
   duplicate: boolean;
   transition: JourneyProgressTransition;
+  professionalStage?: { id: string; label: string; major: boolean };
+  stageChange?: { before: string; after: string };
   record: TrackedOpportunity;
   pathEventCreated: string | null;
   narrative: {
@@ -40,6 +46,7 @@ export type JourneyTransformationResponse = {
     removed: string[];
     preserved: string[];
   };
+  summaryChanges: Array<{ id: string; label: string; before: number; after: number }>;
 };
 
 function trackedRecord(account: AccountData, opportunityId: string) {
@@ -81,17 +88,38 @@ export async function transformJourneyProgress(user: Pick<AuthUser, "id" | "name
     const previousAccount = await readAccountData(user.id);
     const previousRecord = trackedRecord(previousAccount, mutation.opportunityId);
     if (!previousRecord) throw new JourneyTransitionError("This opportunity is not part of your Journey.", "invalid_request");
-    const request: JourneyTransitionRequest = {
-      transition: mutation.transition,
-      expectedStatus: mutation.expectedStatus,
-      expectedVersion: mutation.expectedVersion,
-      idempotencyKey: mutation.idempotencyKey,
-      occurredAt: nextOccurredAt(previousRecord.updatedAt),
-    };
-    const applied = applyJourneyTransition(previousRecord, request);
     const ids = trackedIds(previousAccount);
     const opportunities = await listPublishedOpportunitiesByIds(ids);
+    const opportunity = opportunities.find((item) => item.id === mutation.opportunityId);
+    if (!opportunity) throw new JourneyTransitionError("This opportunity is no longer available.", "invalid_request");
+    const occurredAt = nextOccurredAt(previousRecord.updatedAt);
+    const workflow = getJourneyProfessionalWorkflow(opportunity);
+    const applied = mutation.professionalStageId
+      ? applyJourneyProfessionalUpdate(previousRecord, workflow, {
+        targetStageId: mutation.professionalStageId,
+        expectedStatus: mutation.expectedStatus,
+        expectedVersion: mutation.expectedVersion,
+        idempotencyKey: mutation.idempotencyKey,
+        occurredAt,
+        details: mutation.details ?? { source: "student_reported" },
+      })
+      : applyJourneyTransition(previousRecord, {
+        transition: mutation.transition!,
+        expectedStatus: mutation.expectedStatus,
+        expectedVersion: mutation.expectedVersion,
+        idempotencyKey: mutation.idempotencyKey,
+        occurredAt,
+      } satisfies JourneyTransitionRequest);
+    const resolvedTransition = applied.historyRecord.transition;
+    const professionalStage = mutation.professionalStageId ? professionalStageById(workflow, mutation.professionalStageId) : undefined;
+    const previousProfessionalStage = resolveJourneyProfessionalStage(previousRecord, workflow);
+    const resultingStageLabel = mutation.professionalStageId === "paused"
+      ? "Paused"
+      : mutation.professionalStageId === "resume"
+        ? resolveJourneyProfessionalStage(applied.record, workflow).label
+        : professionalStage?.label;
     const previousProjection = buildJourneyEditorialProjection({ user, account: previousAccount, opportunities });
+    const previousTimeline = buildJourneyTimelineModel({ user, account: previousAccount, opportunities });
 
     let persistedAccount = previousAccount;
     if (!applied.duplicate) {
@@ -109,6 +137,7 @@ export async function transformJourneyProgress(user: Pick<AuthUser, "id" | "name
       throw new JourneyTransitionError("The Journey changed before this update was saved.", "stale_state");
     }
     const currentProjection = buildJourneyEditorialProjection({ user, account: persistedAccount, opportunities });
+    const currentTimeline = buildJourneyTimelineModel({ user, account: persistedAccount, opportunities });
     const previousEventIds = new Set(previousProjection.pathprint.events.map((event) => event.id));
     const pathEvent = currentProjection.pathprint.events.find((event) => !previousEventIds.has(event.id) && event.opportunityId === mutation.opportunityId) ?? null;
     const previousMomentIds = new Set(historyMoments(previousProjection.model).map((moment) => moment.id));
@@ -124,13 +153,15 @@ export async function transformJourneyProgress(user: Pick<AuthUser, "id" | "name
     const result: JourneyTransformationResponse = {
       ok: true,
       duplicate: applied.duplicate,
-      transition: mutation.transition,
+      transition: resolvedTransition,
+      professionalStage: professionalStage ? { id: professionalStage.id, label: professionalStage.label, major: professionalStage.major } : undefined,
+      stageChange: resultingStageLabel ? { before: previousRecord.status === "Paused" ? "Paused" : previousProfessionalStage.label, after: resultingStageLabel } : undefined,
       record: persistedRecord,
       pathEventCreated: pathEvent?.id ?? null,
       narrative: {
-        title: moment?.title ?? pathEvent!.title,
-        accomplishment: moment?.body ?? pathEvent!.narrative,
-        whatChanged: pathEvent?.whatChanged ?? moment!.detail.whyItMattered,
+        title: professionalStage?.milestoneTitle ?? moment?.title ?? pathEvent!.title,
+        accomplishment: professionalStage?.description ?? moment?.body ?? pathEvent!.narrative,
+        whatChanged: professionalStage?.description ?? pathEvent?.whatChanged ?? moment!.detail.whyItMattered,
         storyType: moment?.storyType ?? pathEvent!.kind,
       },
       motionPlan,
@@ -141,10 +172,17 @@ export async function transformJourneyProgress(user: Pick<AuthUser, "id" | "name
         after: currentProjection.model.waypoint?.title ?? null,
       },
       horizon: horizonDelta(previousProjection.model, currentProjection.model),
+      summaryChanges: [...new Set([...previousTimeline.summary.map((item) => item.id), ...currentTimeline.summary.map((item) => item.id)])].flatMap((id) => {
+        const previous = previousTimeline.summary.find((item) => item.id === id);
+        const current = currentTimeline.summary.find((item) => item.id === id);
+        const before = previous?.value ?? 0;
+        const after = current?.value ?? 0;
+        return after !== before ? [{ id, label: current?.label ?? previous!.label, before, after }] : [];
+      }),
     };
     if (process.env.NODE_ENV !== "production" && process.env.OPEN_LINE_TRANSITION_DIAGNOSTICS === "1") {
       console.info("[UnlockED Journey transition]", {
-        transition: mutation.transition,
+        transition: resolvedTransition,
         priorStatus: previousRecord.status,
         resultingStatus: persistedRecord.status,
         serverResult: "accepted",

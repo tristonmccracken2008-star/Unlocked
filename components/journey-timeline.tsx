@@ -53,8 +53,9 @@ function TimelineEvent({ event, theme, chapter, initiallyHidden }: { event: Jour
         <div><p>{event.label}</p><h2>{event.title}</h2></div>
       </div>
       <p className={styles.description}>{event.description}</p>
+      {event.notes ? <blockquote className={styles.eventNote}>{event.notes}</blockquote> : null}
       <div className={styles.eventFooter}>
-        <span className={styles.status}>{statusLabel(event.status)}</span>
+        <span className={styles.status}>{event.attribution ?? statusLabel(event.status)}</span>
         {event.opportunity ? <Link href={`/opportunities/${event.opportunity.id}`}>View opportunity <ArrowIcon /></Link> : null}
       </div>
       {event.opportunity ? <details className={styles.eventDetails} data-journey-moment="">
@@ -63,11 +64,30 @@ function TimelineEvent({ event, theme, chapter, initiallyHidden }: { event: Jour
           <div><dt>Organization</dt><dd>{event.opportunity.organization}</dd></div>
           <div><dt>Category</dt><dd>{event.opportunity.category}</dd></div>
           <div><dt>Recorded</dt><dd>{formatDate(event.occurredAt)}</dd></div>
+          {event.reminderAt ? <div><dt>Reminder</dt><dd>{formatDate(event.reminderAt)}</dd></div> : null}
+          {event.documentNames?.length ? <div><dt>Document references</dt><dd>{event.documentNames.join(", ")}</dd></div> : null}
+          {event.attribution ? <div><dt>Source</dt><dd>{event.attribution}. Not verified by UnlockED.</dd></div> : null}
         </dl>
       </details> : null}
       {event.control ? <JourneyTimelineControl control={event.control} /> : null}
     </article>
   </li>;
+}
+
+function AnnualArchives({ model }: { model: JourneyTimelineModel }) {
+  if (!model.annualArchives.length) return null;
+  return <section className={styles.archives} aria-labelledby="journey-archives-heading">
+    <header><p>Annual archive</p><h2 id="journey-archives-heading">Your record, year by year.</h2></header>
+    <div>
+      {model.annualArchives.map((archive, index) => <details key={archive.id} open={index === 0}>
+        <summary><span>{archive.label}</span><small>{archive.metrics.reduce((total, metric) => total + metric.value, 0)} recorded moments</small></summary>
+        <div className={styles.archiveBody}>
+          <dl>{archive.metrics.map((metric) => <div key={metric.id}><dd>{metric.value}</dd><dt>{metric.label}</dt></div>)}</dl>
+          {archive.largestAchievement ? <section><p>Largest recorded achievement</p><h3>{archive.largestAchievement.title}</h3><span>{archive.largestAchievement.label} · {formatDate(archive.largestAchievement.occurredAt)}</span></section> : null}
+        </div>
+      </details>)}
+    </div>
+  </section>;
 }
 
 function ProgressSnapshot({ model }: { model: JourneyTimelineModel }) {
@@ -142,6 +162,7 @@ export function JourneyTimeline({ model }: { model: JourneyTimelineModel }) {
           })}
         </ol>
         </section>
+        <AnnualArchives model={model} />
         <section className={styles.share} aria-labelledby="journey-card-heading">
           <div><p>{model.card.periodTitle}</p><h2 id="journey-card-heading">Your progress, ready to keep.</h2><span>Create a polished Journey Card. Nothing is shared until you choose to share it.</span></div>
           <JourneyCardEntry card={model.card} theme={model.theme} />

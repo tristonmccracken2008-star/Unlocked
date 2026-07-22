@@ -1,9 +1,11 @@
 import type {
+  JourneyMilestoneDetails,
   JourneyProgressTransition,
   JourneyTransitionHistoryRecord,
   OpportunityTrackerStatus,
   TrackedOpportunity,
 } from "./student-activity";
+import { getJourneyProfessionalActions, resolveJourneyProfessionalStage, type JourneyProfessionalWorkflow } from "./journey-professional";
 
 export type JourneyTransitionAction = {
   transition: JourneyProgressTransition;
@@ -25,6 +27,15 @@ export type JourneyTransitionResult = {
   record: TrackedOpportunity;
   historyRecord: JourneyTransitionHistoryRecord;
   duplicate: boolean;
+};
+
+export type JourneyProfessionalUpdateRequest = {
+  targetStageId: string;
+  expectedStatus: OpportunityTrackerStatus;
+  expectedVersion: number;
+  idempotencyKey: string;
+  occurredAt: string;
+  details?: JourneyMilestoneDetails;
 };
 
 export class JourneyTransitionError extends Error {
@@ -104,10 +115,53 @@ export function applyJourneyTransition(record: TrackedOpportunity, request: Jour
   return { record: next, historyRecord, duplicate: false };
 }
 
+export function applyJourneyProfessionalUpdate(
+  record: TrackedOpportunity,
+  workflow: JourneyProfessionalWorkflow,
+  request: JourneyProfessionalUpdateRequest,
+): JourneyTransitionResult {
+  if (!validIdempotencyKey(request.idempotencyKey) || !Number.isInteger(request.expectedVersion) || request.expectedVersion < 0 || Number.isNaN(Date.parse(request.occurredAt))) {
+    throw new JourneyTransitionError("The Journey update is malformed.", "invalid_request");
+  }
+  const history = record.history ?? [];
+  const existing = history.find((item) => item.id === request.idempotencyKey);
+  if (existing) return { record, historyRecord: existing, duplicate: true };
+  const currentVersion = record.version ?? 0;
+  if (record.status !== request.expectedStatus || currentVersion !== request.expectedVersion) {
+    throw new JourneyTransitionError("The Journey changed before this update was saved.", "stale_state");
+  }
+  const action = getJourneyProfessionalActions(record, workflow).find((item) => item.id === request.targetStageId);
+  if (!action) throw new JourneyTransitionError("That Journey stage is not available from the current stage.", "invalid_transition");
+  const currentStage = resolveJourneyProfessionalStage(record, workflow);
+  const targetStageId = action.id === "paused" ? "paused" : action.stage?.id ?? currentStage.id;
+  const historyRecord: JourneyTransitionHistoryRecord = {
+    id: request.idempotencyKey,
+    transition: action.transition,
+    priorStatus: record.status,
+    resultingStatus: action.resultingStatus,
+    occurredAt: request.occurredAt,
+    professionalStageId: targetStageId,
+    details: request.details,
+  };
+  const next: TrackedOpportunity = {
+    ...record,
+    status: action.resultingStatus,
+    updatedAt: request.occurredAt,
+    version: currentVersion + 1,
+    professionalStageId: action.id === "paused" ? currentStage.id : action.stage?.id ?? currentStage.id,
+    pausedFrom: action.transition === "pause" ? record.status : action.transition === "resume" ? undefined : record.pausedFrom,
+    pausedFromProfessionalStageId: action.transition === "pause" ? currentStage.id : action.transition === "resume" ? undefined : record.pausedFromProfessionalStageId,
+    history: [...history, historyRecord].slice(-100),
+  };
+  return { record: next, historyRecord, duplicate: false };
+}
+
 export function accountSyncPreservesJourneyState(current: TrackedOpportunity | undefined, incoming: TrackedOpportunity) {
   if (!current) return incoming.status === "Saved" && (incoming.version ?? 0) === 0 && (incoming.history?.length ?? 0) === 0;
   return incoming.status === current.status
     && (incoming.version ?? 0) === (current.version ?? 0)
     && incoming.pausedFrom === current.pausedFrom
+    && incoming.professionalStageId === current.professionalStageId
+    && incoming.pausedFromProfessionalStageId === current.pausedFromProfessionalStageId
     && JSON.stringify(incoming.history ?? []) === JSON.stringify(current.history ?? []);
 }

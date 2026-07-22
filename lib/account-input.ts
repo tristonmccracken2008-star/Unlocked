@@ -1,4 +1,4 @@
-import { journeyProgressTransitions, opportunityTrackerStatuses, type JourneyTransitionHistoryRecord, type StudentActivity, type TrackedOpportunity } from "@/data/student-activity";
+import { journeyProgressTransitions, opportunityTrackerStatuses, type JourneyMilestoneDetails, type JourneyTransitionHistoryRecord, type StudentActivity, type TrackedOpportunity } from "@/data/student-activity";
 import type { StudentProfile } from "@/data/student-profile";
 import type { AccountData, SavedOpportunityRecord, UserPreferencesRecord } from "./account-types";
 
@@ -30,6 +30,14 @@ function safeTimestamp(value: unknown) {
   const latest = Date.now() + 5 * 60 * 1000;
   if (date.getTime() < earliest || date.getTime() > latest) return null;
   return date.toISOString();
+}
+
+function safeReminderTimestamp(value: unknown) {
+  if (typeof value !== "string") return undefined;
+  const date = new Date(value);
+  const earliest = Date.UTC(2000, 0, 1);
+  const latest = Date.now() + 5 * 365 * 24 * 60 * 60 * 1000;
+  return Number.isFinite(date.getTime()) && date.getTime() >= earliest && date.getTime() <= latest ? date.toISOString() : undefined;
 }
 
 export function cleanStudentProfile(value: unknown): StudentProfile | undefined {
@@ -131,16 +139,47 @@ function cleanTracker(value: unknown) {
         const priorStatus = enumValue(item.priorStatus, opportunityTrackerStatuses);
         const resultingStatus = enumValue(item.resultingStatus, opportunityTrackerStatuses);
         const occurredAt = safeTimestamp(item.occurredAt);
-        if (historyId && transition && priorStatus && resultingStatus && occurredAt) history.push({ id: historyId, transition, priorStatus, resultingStatus, occurredAt });
+        const professionalStageId = safeId(item.professionalStageId) ?? undefined;
+        const details = cleanJourneyMilestoneDetails(item.details);
+        if (historyId && transition && priorStatus && resultingStatus && occurredAt) history.push({ id: historyId, transition, priorStatus, resultingStatus, occurredAt, professionalStageId, details });
       }
     }
     const version = typeof record.version === "number" && Number.isInteger(record.version) && record.version >= 0
       ? Math.min(record.version, Number.MAX_SAFE_INTEGER)
       : history.length;
     const pausedFrom = enumValue(record.pausedFrom, opportunityTrackerStatuses);
-    entries.push([id, { id, status, savedAt, updatedAt, version, pausedFrom: pausedFrom === "Paused" ? undefined : pausedFrom, history }]);
+    entries.push([id, {
+      id,
+      status,
+      savedAt,
+      updatedAt,
+      version,
+      pausedFrom: pausedFrom === "Paused" ? undefined : pausedFrom,
+      professionalStageId: safeId(record.professionalStageId) ?? undefined,
+      pausedFromProfessionalStageId: safeId(record.pausedFromProfessionalStageId) ?? undefined,
+      history,
+    }]);
   }
   return Object.fromEntries(entries);
+}
+
+function cleanJourneyMilestoneDetails(value: unknown): JourneyMilestoneDetails | undefined {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return undefined;
+  const input = value as Partial<JourneyMilestoneDetails>;
+  const notes = typeof input.notes === "string" ? input.notes.trim().slice(0, 1200) : undefined;
+  const milestoneTime = typeof input.milestoneDate === "string" && /^\d{4}-\d{2}-\d{2}$/.test(input.milestoneDate) ? Date.parse(`${input.milestoneDate}T12:00:00.000Z`) : Number.NaN;
+  const milestoneDate = Number.isFinite(milestoneTime) && milestoneTime >= Date.UTC(2000, 0, 1) && milestoneTime <= Date.now() + 86_400_000 ? input.milestoneDate : undefined;
+  const reminderAt = safeReminderTimestamp(input.reminderAt);
+  const documents = Array.isArray(input.documents) ? input.documents.slice(0, 3).flatMap((document) => {
+    if (!document || typeof document !== "object") return [];
+    const candidate = document as Record<string, unknown>;
+    const id = safeId(candidate.id);
+    const name = typeof candidate.name === "string" ? candidate.name.trim().slice(0, 120) : "";
+    if (!id || !name) return [];
+    return [{ id, name, mimeType: typeof candidate.mimeType === "string" ? candidate.mimeType.slice(0, 100) : undefined, size: typeof candidate.size === "number" && Number.isFinite(candidate.size) ? Math.max(0, Math.min(candidate.size, 25_000_000)) : undefined, stored: false as const }];
+  }) : undefined;
+  if (!notes && !milestoneDate && !reminderAt && !documents?.length) return undefined;
+  return { notes, milestoneDate, reminderAt, documents, source: "student_reported" };
 }
 
 function cleanSavedOpportunities(value: unknown): SavedOpportunityRecord[] | undefined {

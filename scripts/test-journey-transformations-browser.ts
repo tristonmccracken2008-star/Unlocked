@@ -111,77 +111,87 @@ async function installSession(context: BrowserContext, origin: string, token: st
   await context.addCookies([{ name: "unlocked_session", value: token, url: origin, httpOnly: true, sameSite: "Lax", expires: Math.floor(Date.now() / 1000) + 3600 }]);
 }
 
-async function waitForAction(page: Page, name: RegExp) {
-  const action = page.getByRole("button", { name });
-  await action.waitFor({ state: "visible", timeout: 10_000 });
-  return action;
+async function openUpdate(page: Page) {
+  const action = page.getByRole("button", { name: "Update Journey" }).first();
+  await action.waitFor({ state: "visible", timeout: 12_000 });
+  await action.click();
+  const dialog = page.locator("dialog[data-journey-update-dialog][open]");
+  await dialog.waitFor({ state: "visible" });
+  return dialog;
+}
+
+async function saveUpdate(page: Page, option?: RegExp, duplicate = false) {
+  const dialog = page.locator("dialog[data-journey-update-dialog][open]");
+  if (option) await dialog.getByText(option).first().click();
+  let requestCount = 0;
+  const count = (request: { url(): string }) => { if (request.url().includes("/api/journey/transition")) requestCount += 1; };
+  page.on("request", count);
+  const save = dialog.getByRole("button", { name: /Save milestone|Archive opportunity/ });
+  if (duplicate) await save.evaluate((element) => { (element as HTMLButtonElement).click(); (element as HTMLButtonElement).click(); });
+  else await save.click();
+  const result = dialog.locator("[data-journey-update-confirmation]");
+  await result.waitFor({ state: "visible", timeout: 12_000 });
+  assert.equal(requestCount, 1, "A duplicate click must create only one server mutation.");
+  page.off("request", count);
+  return result;
+}
+
+async function returnToJourney(page: Page) {
+  const dialog = page.locator("dialog[data-journey-update-dialog][open]");
+  await dialog.getByRole("button", { name: "Return to Journey" }).click();
+  await dialog.waitFor({ state: "hidden" });
 }
 
 async function completeForwardSequence(page: Page) {
-  const sequence = [
-    [/Choose this opportunity/, "direction_chosen", "Chose"],
-    [/Start this application/, "application_started", "Started"],
-    [/Mark as submitted/, "application_submitted", "Submitted"],
-    [/Record an interview/, "validation_received", "Interviewed"],
-    [/Record acceptance/, "opportunity_accepted", "Accepted"],
-    [/Complete this experience/, "experience_completed", "Completed"],
-  ] as const;
-  for (let index = 0; index < sequence.length; index += 1) {
-    const [label, motion, resultTitle] = sequence[index];
-    const action = await waitForAction(page, label);
-    let requestCount = 0;
-    const count = (request: { url(): string }) => { if (request.url().includes("/api/journey/transition")) requestCount += 1; };
-    page.on("request", count);
-    if (motion === "direction_chosen") {
-      await action.evaluate((element) => { (element as HTMLButtonElement).click(); (element as HTMLButtonElement).click(); });
-    } else {
-      await action.click();
-    }
-    const result = page.locator("[data-journey-transformation-result]");
-    await result.waitFor({ state: "visible", timeout: 12_000 });
-    await result.getByText(new RegExp(resultTitle, "i")).first().waitFor({ state: "visible" });
-    await page.waitForFunction((expected) => document.querySelector("[data-open-line-motion-root]")?.getAttribute("data-motion-transition") === expected, motion).catch(() => undefined);
-    assert.equal(requestCount, 1, "A duplicate click must create only one server mutation.");
-    page.off("request", count);
-    if (index < sequence.length - 1) await waitForAction(page, sequence[index + 1][0]);
+  const stages = [
+    /Preparing application/,
+    /Application submitted/,
+    /Interview received/,
+    /Final round interview/,
+    /Offer received/,
+    /^Accepted$/,
+    /Completed program/,
+  ];
+  for (const [index, stage] of stages.entries()) {
+    await openUpdate(page);
+    const result = await saveUpdate(page, stage, index === 0);
+    await result.getByText(stage).first().waitFor({ state: "visible" });
+    await returnToJourney(page);
   }
-  const progress = page.locator("[data-journey-progress]");
-  await progress.waitFor({ state: "visible" });
-  assert.match(await progress.innerText(), /meaningful moments/i, "Completed progress must remain visibly reflected after the canonical refresh.");
+  await page.getByText("Completed program", { exact: true }).first().waitFor({ state: "visible" });
+  await page.getByRole("heading", { name: "Your record, year by year." }).waitFor({ state: "visible" });
 }
 
 async function verifyPauseResumeClose(page: Page) {
-  const manage = page.getByText("Manage applications", { exact: true }).first();
-  await manage.click();
-  await page.getByRole("button", { name: "Pause this direction" }).click();
-  await page.getByText(/paused/i).first().waitFor({ state: "visible" });
-  await waitForAction(page, /Resume this direction/);
-  await page.getByRole("button", { name: /Resume this direction/ }).click();
-  await page.locator("[data-journey-transformation-result]").waitFor({ state: "visible" });
-  await page.waitForTimeout(2_800);
-  await page.getByText("Manage applications", { exact: true }).first().click();
-  const close = page.getByRole("button", { name: "Close this opportunity" });
-  await close.click();
-  await page.getByRole("button", { name: "Confirm close" }).click();
-  await page.getByText(/broader direction remains open/i).first().waitFor({ state: "visible" });
+  await openUpdate(page);
+  await saveUpdate(page, /Pause this opportunity/);
+  await returnToJourney(page);
+  const resumeDialog = await openUpdate(page);
+  await resumeDialog.getByText(/Resume at Preparing application/).waitFor({ state: "visible" });
+  await saveUpdate(page, /Resume at Preparing application/);
+  await returnToJourney(page);
+  await openUpdate(page);
+  const result = await saveUpdate(page, /^Archived$/);
+  await result.getByText(/Archived the opportunity/).waitFor({ state: "visible" });
 }
 
 async function verifyFailures(page: Page, origin: string) {
   const stale = await page.evaluate(async () => {
-    const opportunity = document.querySelector<HTMLElement>("[data-journey-transition-control]")?.dataset.opportunityId;
+    const opportunity = document.querySelector<HTMLElement>("[data-journey-update-control]")?.dataset.opportunityId;
     const response = await fetch("/api/journey/transition", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ opportunityId: opportunity, transition: "choose", expectedStatus: "Saved", expectedVersion: 99, idempotencyKey: "journey:browser:stale" }) });
     return response.status;
   });
   assert.equal(stale, 409, "Stale browser state must receive a conflict response.");
 
   await page.route("**/api/journey/transition", (route) => route.abort("failed"), { times: 1 });
-  await (await waitForAction(page, /Choose this opportunity/)).click();
-  await page.getByText(/couldn’t reach UnlockED/i).waitFor({ state: "visible" });
-  assert.ok(await page.getByRole("button", { name: /Choose this opportunity/ }).isEnabled(), "Network failure must restore the actionable prior state.");
+  const dialog = await openUpdate(page);
+  await dialog.getByRole("button", { name: "Save milestone" }).click();
+  await dialog.getByText(/couldn’t reach UnlockED/i).waitFor({ state: "visible" });
+  assert.ok(await dialog.getByRole("button", { name: "Save milestone" }).isEnabled(), "Network failure must restore the actionable prior state.");
 
   await page.context().clearCookies();
-  await page.getByRole("button", { name: /Choose this opportunity/ }).click();
-  await page.getByText(/session has ended/i).waitFor({ state: "visible" });
+  await dialog.getByRole("button", { name: "Save milestone" }).click();
+  await dialog.getByText(/session ended/i).waitFor({ state: "visible" });
   assert.equal(new URL(page.url()).origin, origin);
 }
 
@@ -190,8 +200,8 @@ async function runBrowser(browser: Browser, origin: string, sessions: Awaited<Re
   await installSession(context, origin, sessions[0].token);
   const page = await context.newPage();
   await page.goto(origin, { waitUntil: "domcontentloaded", timeout: 45_000 });
-  await page.locator("[data-journey-editorial]").waitFor({ state: "visible" });
-  await page.waitForTimeout(1_500);
+  await page.locator("[data-journey-timeline]").waitFor({ state: "visible" });
+  await page.waitForLoadState("networkidle");
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   assert.ok(overflow <= 1, `Journey transformation UI must not overflow; received ${overflow}px.`);
   if (full) {
@@ -201,34 +211,38 @@ async function runBrowser(browser: Browser, origin: string, sessions: Awaited<Re
     await page.evaluate(() => localStorage.clear());
     await installSession(context, origin, sessions[1].token);
     await page.goto(origin, { waitUntil: "domcontentloaded" });
-    await page.waitForTimeout(700);
+    await page.waitForLoadState("networkidle");
     await verifyPauseResumeClose(page);
 
     await context.clearCookies();
     await page.evaluate(() => localStorage.clear());
     await installSession(context, origin, sessions[2].token);
     await page.goto(origin, { waitUntil: "domcontentloaded" });
-    await page.waitForTimeout(700);
+    await page.waitForLoadState("networkidle");
     await verifyFailures(page, origin);
 
     await context.clearCookies();
     await page.evaluate(() => localStorage.clear());
     await installSession(context, origin, sessions[3].token);
     await page.goto(origin, { waitUntil: "domcontentloaded" });
-    await page.waitForTimeout(700);
+    await page.waitForLoadState("networkidle");
     await page.route("**/api/journey/transition", async (route) => { await new Promise((resolve) => setTimeout(resolve, 600)); await route.continue(); }, { times: 1 });
-    await (await waitForAction(page, /Choose this opportunity/)).click();
+    const dialog = await openUpdate(page);
+    await dialog.getByRole("button", { name: "Save milestone" }).click();
     await page.evaluate(() => window.dispatchEvent(new CustomEvent("unlocked-account-session-change", { detail: { authenticated: false, user: null, data: null } })));
     await page.waitForTimeout(900);
-    assert.equal(await page.locator("[data-journey-transformation-result]").count(), 0, "Account changes must discard stale completion UI.");
+    assert.equal(await page.locator("dialog[data-journey-update-dialog][open]").count(), 0, "Account changes must discard stale completion UI.");
   } else {
-    const action = await waitForAction(page, /Choose this opportunity/);
+    const action = page.getByRole("button", { name: "Update Journey" }).first();
+    await action.waitFor({ state: "visible" });
     const minimum = await action.boundingBox();
     assert.ok(minimum && minimum.height >= 44, "Mobile primary actions must be at least 44px high.");
     await action.focus();
     await page.keyboard.press("Enter");
-    await page.locator("[data-journey-transformation-result]").waitFor({ state: "visible", timeout: 12_000 });
-    assert.equal(await page.locator("svg[data-open-line-renderer]").count(), 0, "Mobile must not hydrate duplicate path geometry.");
+    const dialog = page.locator("dialog[data-journey-update-dialog][open]");
+    await dialog.waitFor({ state: "visible" });
+    await dialog.getByRole("button", { name: "Save milestone" }).click();
+    await dialog.locator("[data-journey-update-confirmation]").waitFor({ state: "visible", timeout: 12_000 });
     assert.equal(await page.evaluate(() => matchMedia("(prefers-reduced-motion: reduce)").matches), true, "WebKit mobile must retain reduced-motion preference.");
   }
   await context.close();
