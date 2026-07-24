@@ -6,9 +6,9 @@ export default function Loading() {
       <p>For You</p>
       <div className={`${styles.skeleton} ${styles.skeletonTitle}`} />
       <div className={`${styles.skeleton} ${styles.skeletonCopy}`} />
-      <div className={styles.loadingContext}><span /><span /><span /></div>
+      <div className={styles.loadingSteps} aria-hidden="true"><span>Checking eligibility</span><span>Ranking fit and quality</span><span>Confirming sources</span></div>
       <div className={styles.loadingFeature}><div /><div /><div /></div>
-      <span className={styles.srStatus}>Selecting your strongest verified matches.</span>
+      <span className={styles.srStatus}>Checking eligibility, quality, and verified sources.</span>
     </section>
   </main>;
 }

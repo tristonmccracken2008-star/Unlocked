@@ -18,7 +18,7 @@ import type { AdvisorAccessState } from "@/lib/advisor-access";
 import { nextAdvisorData } from "@/lib/advisor/api";
 import type { ForYouRecommendationSnapshot, ForYouSnapshotState } from "@/lib/advisor/types";
 
-export const forYouSnapshotEngineVersion = "for-you-snapshot-v5-best-mix";
+export const forYouSnapshotEngineVersion = "for-you-snapshot-v6-opportunity-intelligence";
 export const forYouSnapshotTtlMs = 1000 * 60 * 60 * 6;
 const generationTimeoutMs = 2800;
 const globalIndexTimeoutMs = 1000;

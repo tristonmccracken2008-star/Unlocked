@@ -14,12 +14,16 @@ const service = read("data/recommendation-service.ts");
 const pkg = read("package.json");
 
 for (const label of [
-  "Your strongest matches, right now.",
-  "Best fit right now",
+  "Opportunities worth your attention.",
+  "Highest-priority match",
   "Why it fits:",
+  "Why this opportunity?",
+  "Why now",
+  "Opportunity Score",
+  "Related paths",
   "Review opportunity",
   "AddToJourneyButton",
-  "More strong matches",
+  "More opportunities selected for you",
   "Not quite right?",
   "Adjust profile",
 ]) {
@@ -30,8 +34,10 @@ for (const removed of ["Your profile at a glance", "Your activity at a glance", 
   assert.ok(!advisor.includes(removed), `For You must not restore the removed ${removed} dashboard section.`);
 }
 
-assert.ok(advisor.includes('data-for-you-page="premium-v1"'), "For You must expose the focused premium layout for browser QA.");
+assert.ok(advisor.includes('data-for-you-page="premium-v2"'), "For You must expose the premium intelligence layout for browser QA.");
 assert.ok(advisor.includes("recommendationSignals") && advisor.includes("strongestReason"), "Recommendation presentation must use concise structured signals and reasons.");
+assert.ok(advisor.includes("RecommendationIntelligence") && advisor.includes("similarOpportunities"), "For You must use progressive disclosure for factual reasoning and related paths.");
+assert.ok(advisor.includes("scoreFor") && advisor.includes("opportunityScore"), "For You must surface the proprietary bounded Opportunity Score.");
 assert.ok(advisor.includes('opportunity?.verification_status === "verified"'), "For You must surface verified-source trust signals from opportunity data.");
 assert.ok(advisor.includes("Estimated value") && !advisor.includes("Est. effort"), "For You must label recommendation value truthfully.");
 assert.ok(advisor.includes("<ol") && advisor.includes("RecommendationCard"), "Secondary recommendations must use a calm ordered shortlist.");
@@ -90,6 +96,7 @@ assert.ok(advisor.includes("Free") && advisor.includes("Pro"), "Free For You sho
 assert.doesNotMatch(advisor, /% confidence|Evidence and confidence|Alternatives/, "For You primary UI must not expose old confidence/debug framing.");
 assert.doesNotMatch(advisor, /markMilestoneCompleted/, "For You should not use separate milestone completion logic for opportunity recommendations.");
 assert.doesNotMatch(advisor, /Track this|Tracked as active interest|updateApplicationStatus/, "For You must use Add to Journey instead of Track/status terminology.");
+assert.doesNotMatch(advisor, /Historically fills early|Limited seats|Students interested in this also viewed/i, "For You must not fabricate aggregate behavior or urgency.");
 assert.ok(pkg.includes("check:for-you"), "Package scripts must include the For You redesign check.");
 
 console.log("For You redesign checks passed.");

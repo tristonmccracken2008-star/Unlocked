@@ -65,7 +65,7 @@ function createKvServer() {
 }
 
 async function seedSession() {
-  const { createSession, mergeAccountData, upsertUser } = await import("../lib/auth-store");
+  const { createSession, mergeAccountData, updateAccountBilling, upsertUser } = await import("../lib/auth-store");
   const now = "2026-07-18T12:00:00.000Z";
   const user = await upsertUser({ googleSub: "app-performance-browser", email: "performance@example.test", name: "Performance Student" });
   await mergeAccountData(user.id, {
@@ -87,6 +87,7 @@ async function seedSession() {
     savedOpportunities: [],
     tracker: {},
   });
+  await updateAccountBilling(user.id, { tier: "pro", status: "active", billingInterval: "month", cancelAtPeriodEnd: false });
   return createSession(user);
 }
 
@@ -169,9 +170,34 @@ async function verifyDiscover(page: Page, origin: string, screenshotLabel: strin
 async function verifyPrimaryRoutes(page: Page, origin: string, screenshotLabel: string) {
   const forYouStartedAt = performance.now();
   await page.goto(`${origin}/advisor`, { waitUntil: "domcontentloaded", timeout: 45_000 });
-  await page.getByRole("heading", { name: /Opportunities selected around you|Your strongest matches, right now|No strong matches yet/ }).waitFor({ state: "visible", timeout: 45_000 });
+  await page.getByRole("heading", { name: /A shortlist built around you|Opportunities worth your attention|No strong matches yet/ }).waitFor({ state: "visible", timeout: 45_000 });
   const forYouReadyMs = Math.round(performance.now() - forYouStartedAt);
   assert.equal(await page.getByRole("heading", { name: "We couldn’t load your shortlist." }).count(), 0, "For You must not enter an error state on the first authenticated visit.");
+  const intelligenceDisclosures = page.getByText("Why this opportunity?", { exact: true });
+  const disclosureCount = await intelligenceDisclosures.count();
+  if (disclosureCount) {
+    await intelligenceDisclosures.first().click();
+    const openIntelligence = page.locator("details[open]").filter({ hasText: "Why it fits" });
+    await openIntelligence.first().waitFor({ state: "visible" });
+    assert.ok(await openIntelligence.getByText("Related paths", { exact: true }).count(), "Expanded recommendation intelligence must expose eligible related paths.");
+    await intelligenceDisclosures.first().click();
+  }
+  if (screenshotLabel === "narrow-desktop") {
+    await page.evaluate(() => {
+      document.documentElement.dataset.theme = "midnight";
+      document.documentElement.style.colorScheme = "dark";
+    });
+    const colorScheme = await page.evaluate(() => getComputedStyle(document.documentElement).colorScheme);
+    assert.equal(colorScheme, "dark", "For You must honor the premium dark theme.");
+  }
+  if (screenshotLabel === "mobile") {
+    const undersizedControls = await page.evaluate(() => [...document.querySelectorAll<HTMLElement>("[data-for-you-page] summary, [data-for-you-page] .rowActions a, [data-for-you-page] .rowActions button")]
+      .filter((element) => {
+        const rect = element.getBoundingClientRect();
+        return rect.width > 0 && rect.height > 0 && rect.height < 44;
+      }).length);
+    assert.equal(undersizedControls, 0, "Mobile recommendation controls must preserve 44px touch targets.");
+  }
   await assertStableLayout(page, `${screenshotLabel} For You`);
   await page.screenshot({ path: path.join(outputDirectory, `${screenshotLabel}-for-you.png`), fullPage: true });
 
@@ -211,7 +237,10 @@ const browser = await chromium.launch({ headless: true });
 const results = [];
 try {
   for (const viewport of viewports) {
-    const context = await browser.newContext({ viewport: { width: viewport.width, height: viewport.height } });
+    const context = await browser.newContext({
+      viewport: { width: viewport.width, height: viewport.height },
+      reducedMotion: viewport.label === "mobile" ? "reduce" : "no-preference",
+    });
     await installSession(context, origin, session.token);
     const page = await context.newPage();
     const observed = observePage(page);

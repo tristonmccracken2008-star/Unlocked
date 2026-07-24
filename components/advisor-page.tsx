@@ -285,7 +285,7 @@ export function AdvisorPage({ initialState = null, serverAuthenticated = false }
   }, [pageState]);
 
   const top = state?.recommendations[0] ?? null;
-  const recommended = state?.recommendations.slice(0, 5) ?? [];
+  const recommended = state?.recommendations.slice(0, 8) ?? [];
   const firstName = state?.profile ? displayFirstName(state.profile, state.session) : "there";
 
   useEffect(() => {
@@ -357,12 +357,12 @@ export function AdvisorPage({ initialState = null, serverAuthenticated = false }
   if (pageState === "free_preview" && !top) return <ForYouFreePreviewOnly />;
   if (pageState === "empty" || !top) return <ForYouEmptyState />;
 
-  return <main className={styles.page} data-for-you-page="premium-v1">
+  return <main className={styles.page} data-for-you-page="premium-v2">
     <section className={styles.container}>
       <Hero state={state} firstName={firstName} count={recommended.length} />
       <TopRecommendation view={top} onFeedback={sendFeedback} />
       {feedbackMessage ? <p role="status" aria-live="polite" className={styles.feedbackStatus}>{feedbackMessage}</p> : null}
-      <RecommendedGrid recommendations={recommended.slice(1, 5)} onFeedback={sendFeedback} />
+      <RecommendedGrid recommendations={recommended.slice(1)} onFeedback={sendFeedback} />
       {pageState === "free_preview" ? <ForYouUpgradeGate totalMatches={state.totalMatches} shown={state.recommendations.length} /> : null}
       <FooterNote />
     </section>
@@ -372,16 +372,23 @@ export function AdvisorPage({ initialState = null, serverAuthenticated = false }
 function Hero({ state, firstName, count }: { state: AdvisorState; firstName: string; count: number }) {
   if (!state.profile || !state.school) return null;
   const context = [state.profile.major, state.profile.year || state.profile.graduationYear, state.profile.careerGoal].filter(Boolean);
+  const trackedCount = Object.keys(state.activity.tracked ?? {}).length;
+  const updateNote = trackedCount
+    ? "Updated using your profile and Journey activity."
+    : state.activity.viewed.length
+      ? "Updated using opportunities you recently explored."
+      : "Selected using your profile and verified eligibility.";
   return <header className={styles.hero}>
     <p className={styles.eyebrow}>For {firstName}</p>
-    <h1>Your strongest matches, right now.</h1>
-    <p className={styles.heroCopy}>{count === 1 ? "One opportunity" : `${count} opportunities`} cleared our eligibility and relevance checks for your profile.</p>
+    <h1>Opportunities worth your attention.</h1>
+    <p className={styles.heroCopy}>{count === 1 ? "One opportunity" : `${count} opportunities`} passed UnlockED’s eligibility, quality, and relevance checks.</p>
     <div className={styles.profileContext} aria-label="Recommendation profile">
       <span className={styles.contextLead}>Selected for</span>
       <span>{state.school.name}</span>
       {context.map((item) => <span key={item}>{item}</span>)}
       <Link href="/profile">Adjust profile <ArrowIcon /></Link>
     </div>
+    <p className={styles.updateNote}>{updateNote}{state.isRefreshing ? " A refreshed shortlist is being prepared." : ""}</p>
   </header>;
 }
 
@@ -420,13 +427,33 @@ function strongestReason(view: RecommendationViewModel) {
 
 type RecommendationFeedbackHandler = (view: RecommendationViewModel, feedbackType: FeedbackType, label: string) => Promise<void>;
 
+function scoreFor(view: RecommendationViewModel) {
+  return view.opportunityScore ?? {
+    value: Math.min(99, Math.max(72, Math.round(view.recommendation.confidence))),
+    label: view.label === "Excellent Match" ? "Excellent Fit" : view.label === "Explore" ? "Worth Exploring" : "Strong Match",
+  };
+}
+
+function timingFor(view: RecommendationViewModel) {
+  return view.whyApplyNow ?? {
+    label: "No artificial urgency",
+    detail: "No near-term verified deadline is listed.",
+    urgency: "low" as const,
+  };
+}
+
 function TopRecommendation({ view, onFeedback }: { view: RecommendationViewModel; onFeedback: RecommendationFeedbackHandler }) {
   const opportunity = view.opportunity;
   const signals = recommendationSignals(view);
+  const score = scoreFor(view);
+  const timing = timingFor(view);
   return <article className={styles.featured} aria-labelledby={`recommendation-${view.recommendation.id}`}>
     <div className={styles.featuredMain}>
       <div className={styles.featuredIdentity}>
-        <div className={styles.featuredLabel}><span>Best fit right now</span><strong>{view.label}</strong></div>
+        <div className={styles.featuredLabel}>
+          <span>Highest-priority match</span>
+          {view.freshnessLabel ? <strong>{view.freshnessLabel}</strong> : view.historyLabel ? <strong>{view.historyLabel}</strong> : null}
+        </div>
         <div className={styles.titleLockup}>
           {opportunity ? <OrganizationLogo opportunity={opportunity} size="lg" className={styles.logo} /> : null}
           <div><p>{opportunity?.organization ?? view.recommendation.kind}</p><h2 id={`recommendation-${view.recommendation.id}`}>{opportunity?.title ?? view.recommendation.title}</h2></div>
@@ -436,14 +463,21 @@ function TopRecommendation({ view, onFeedback }: { view: RecommendationViewModel
         <p className={styles.reason}><strong>Why it fits:</strong> {strongestReason(view)}</p>
       </div>
       <aside className={styles.featuredDecision} aria-label="Opportunity details and actions">
+        <div className={styles.score} aria-label={`UnlockED Opportunity Score: ${score.value}, ${score.label}`}>
+          <strong>{score.value}</strong>
+          <span>{score.label}</span>
+          <small>Opportunity Score</small>
+        </div>
         <dl className={styles.featuredMeta}>
           <div><dt>Deadline</dt><dd>{opportunity ? deadlineLabel(opportunity) : "Not announced"}</dd></div>
           <div><dt>Estimated value</dt><dd>{cleanValueLabel(view.recommendation.estimatedValueLabel)}</dd></div>
         </dl>
+        <p className={styles.timing} data-urgency={timing.urgency}><strong>{timing.label}</strong><span>{timing.detail}</span></p>
         <Link href={view.href} onClick={() => trackRecommendationOpen(view)} className={styles.primaryAction}>Review opportunity <ArrowIcon /></Link>
         {view.recommendation.relatedOpportunityId ? <AddToJourneyButton opportunityId={view.recommendation.relatedOpportunityId} recommendationId={view.recommendation.id} recommendationCategory={analyticsCategory(view)} recommendationExposureCount={view.recommendation.portfolio?.exposureCount ?? 0} className={styles.addAction} /> : null}
       </aside>
     </div>
+    <RecommendationIntelligence view={view} />
     <RecommendationFeedback view={view} onFeedback={onFeedback} />
   </article>;
 }
@@ -451,7 +485,7 @@ function TopRecommendation({ view, onFeedback }: { view: RecommendationViewModel
 function RecommendedGrid({ recommendations, onFeedback }: { recommendations: RecommendationViewModel[]; onFeedback: RecommendationFeedbackHandler }) {
   if (!recommendations.length) return null;
   return <section className={styles.more} aria-labelledby="more-matches-title">
-    <div className={styles.sectionHeading}><div><p>Also selected for you</p><h2 id="more-matches-title">More strong matches</h2></div><span>{recommendations.length} to review</span></div>
+    <div className={styles.sectionHeading}><div><p>Your shortlist</p><h2 id="more-matches-title">More opportunities selected for you</h2></div><span>{recommendations.length} to review</span></div>
     <ol className={styles.recommendationList}>{recommendations.map((view, index) => <li key={view.recommendation.id}><RecommendationCard view={view} index={index + 2} onFeedback={onFeedback} /></li>)}</ol>
     <Link href="/opportunities" className={styles.discoverLink}>Explore all opportunities in Discover <ArrowIcon /></Link>
   </section>;
@@ -468,9 +502,14 @@ function ForYouUpgradeGate({ totalMatches, shown }: { totalMatches: number; show
 function ForYouFreePreviewOnly() {
   return <main className={styles.page}>
     <section className={`${styles.container} ${styles.stateContainer}`}>
-      <div className={styles.stateIntro}><p>For You</p><h1>Opportunities selected around you.</h1><span>UnlockED Pro compares your profile and Journey with verified eligibility rules, then keeps only the strongest matches.</span></div>
+      <div className={styles.stateIntro}><p>For You</p><h1>A shortlist built around you.</h1><span>UnlockED Pro checks eligibility first, then ranks verified opportunities by fit, quality, timing, and value.</span></div>
+      <ol className={styles.previewChecks} aria-label="How Pro recommendations are selected">
+        <li><span>01</span><div><strong>Eligibility confirmed</strong><p>School, year, major, and other known requirements are checked before ranking.</p></div></li>
+        <li><span>02</span><div><strong>Fit and quality ranked</strong><p>Your goals and interests are balanced with source quality and documented value.</p></div></li>
+        <li><span>03</span><div><strong>Reasons made visible</strong><p>Every recommendation shows the factual signals that put it on your shortlist.</p></div></li>
+      </ol>
       <section className={styles.upgrade} aria-labelledby="for-you-pro-title">
-        <div><p>UnlockED Pro</p><h2 id="for-you-pro-title">A shorter list. Better reasons.</h2><span>See a focused shortlist with a clear explanation for every recommendation.</span></div>
+        <div><p>UnlockED Pro</p><h2 id="for-you-pro-title">Find the opportunities you would otherwise miss.</h2><span>See a focused, rotating shortlist with fit, timing, trust, and related alternatives explained.</span></div>
         <Link href="/pricing" onClick={() => trackProductEvent("pro_upgrade_clicked", { section: "for-you" })}>See Pro options <ArrowIcon /></Link>
       </section>
     </section>
@@ -478,7 +517,7 @@ function ForYouFreePreviewOnly() {
 }
 
 function ForYouLoading() {
-  return <main className={styles.page}><section className={styles.loading} aria-busy="true" aria-live="polite" aria-label="Loading For You recommendations"><p>For You</p><div className={`${styles.skeleton} ${styles.skeletonTitle}`} /><div className={`${styles.skeleton} ${styles.skeletonCopy}`} /><div className={styles.loadingContext}><span /><span /><span /></div><div className={styles.loadingFeature}><div /><div /><div /></div><span className={styles.srStatus}>Selecting your strongest verified matches.</span></section></main>;
+  return <main className={styles.page}><section className={styles.loading} aria-busy="true" aria-live="polite" aria-label="Loading For You recommendations"><p>For You</p><div className={`${styles.skeleton} ${styles.skeletonTitle}`} /><div className={`${styles.skeleton} ${styles.skeletonCopy}`} /><div className={styles.loadingSteps} aria-hidden="true"><span>Checking eligibility</span><span>Ranking fit and quality</span><span>Confirming sources</span></div><div className={styles.loadingFeature}><div /><div /><div /></div><span className={styles.srStatus}>Checking eligibility, quality, and verified sources.</span></section></main>;
 }
 
 function ForYouEmptyState() {
@@ -504,17 +543,49 @@ function StateShell({ eyebrow, title, text, actionHref, actionLabel, secondaryHr
 function RecommendationCard({ view, index, onFeedback }: { view: RecommendationViewModel; index: number; onFeedback: RecommendationFeedbackHandler }) {
   const opportunity = view.opportunity;
   const signals = recommendationSignals(view, 4);
+  const score = scoreFor(view);
+  const timing = timingFor(view);
   return <article className={styles.recommendation} aria-labelledby={`recommendation-${view.recommendation.id}`}>
     <span className={styles.rank} aria-hidden="true">{String(index).padStart(2, "0")}</span>
     <div className={styles.recommendationBody}>
-      <div className={styles.recommendationTitle}>{opportunity ? <OrganizationLogo opportunity={opportunity} size="md" className={styles.logo} /> : null}<div><p>{opportunity?.organization ?? view.recommendation.kind}</p><h3 id={`recommendation-${view.recommendation.id}`}>{opportunity?.title ?? view.recommendation.title}</h3></div></div>
+      <div className={styles.recommendationTitle}>{opportunity ? <OrganizationLogo opportunity={opportunity} size="md" className={styles.logo} /> : null}<div><p>{opportunity?.organization ?? view.recommendation.kind}</p><h3 id={`recommendation-${view.recommendation.id}`}>{opportunity?.title ?? view.recommendation.title}</h3>{view.freshnessLabel || view.historyLabel ? <span className={styles.trace}>{view.freshnessLabel ?? view.historyLabel}</span> : null}</div></div>
       <p className={styles.recommendationReason}>{strongestReason(view)}</p>
       <div className={styles.signals} aria-label="Why this matches">{signals.map((signal) => <span key={signal.label} data-signal-kind={signal.kind}><CheckCircleIcon />{signal.label}</span>)}</div>
+      <RecommendationIntelligence view={view} compact />
       <RecommendationFeedback view={view} onFeedback={onFeedback} compact />
     </div>
-    <dl className={styles.rowMeta}><div><dt>Deadline</dt><dd>{opportunity ? deadlineLabel(opportunity) : "Not announced"}</dd></div><div><dt>Match</dt><dd>{view.label}</dd></div></dl>
+    <dl className={styles.rowMeta}><div className={styles.rowScore}><dt>Opportunity Score</dt><dd><strong>{score.value}</strong> {score.label}</dd></div><div><dt>Why now</dt><dd>{timing.label}</dd></div><div><dt>Deadline</dt><dd>{opportunity ? deadlineLabel(opportunity) : "Not announced"}</dd></div></dl>
     <div className={styles.rowActions}><Link href={view.href} onClick={() => trackRecommendationOpen(view)}>Review <ArrowIcon /></Link>{view.recommendation.relatedOpportunityId ? <AddToJourneyButton opportunityId={view.recommendation.relatedOpportunityId} recommendationId={view.recommendation.id} recommendationCategory={analyticsCategory(view)} recommendationExposureCount={view.recommendation.portfolio?.exposureCount ?? 0} className={styles.rowAddAction} /> : null}</div>
   </article>;
+}
+
+function RecommendationIntelligence({ view, compact = false }: { view: RecommendationViewModel; compact?: boolean }) {
+  const reasons = view.whyThisOpportunity?.length
+    ? view.whyThisOpportunity
+    : [{ kind: "impact" as const, label: "Verified fit", detail: strongestReason(view) }];
+  const timing = timingFor(view);
+  const score = scoreFor(view);
+  const trustSignals = view.trustSignals ?? [];
+  const similar = view.similarOpportunities ?? [];
+  return <details className={`${styles.intelligence} ${compact ? styles.intelligenceCompact : ""}`}>
+    <summary>Why this opportunity?</summary>
+    <div className={styles.intelligencePanel}>
+      <section aria-labelledby={`why-fit-${view.recommendation.id}`}>
+        <h4 id={`why-fit-${view.recommendation.id}`}>Why it fits</h4>
+        <p className={styles.scoreMethod}><strong>{score.value} {score.label}.</strong> Fit, verified eligibility, source quality, and documented impact shape this score.</p>
+        <ul>{reasons.map((reason) => <li key={`${reason.label}-${reason.detail}`}><span data-signal-kind={reason.kind}>{reason.label}</span><p>{reason.detail}</p></li>)}</ul>
+      </section>
+      <section aria-labelledby={`why-now-${view.recommendation.id}`}>
+        <h4 id={`why-now-${view.recommendation.id}`}>Why now</h4>
+        <p className={styles.intelligenceCopy}><strong>{timing.label}.</strong> {timing.detail}</p>
+        {trustSignals.length ? <div className={styles.trustSignals} aria-label="Verification signals">{trustSignals.map((signal) => <span key={signal.label} title={signal.detail}><CheckCircleIcon />{signal.label}</span>)}</div> : null}
+      </section>
+      {similar.length ? <section className={styles.similar} aria-labelledby={`similar-${view.recommendation.id}`}>
+        <h4 id={`similar-${view.recommendation.id}`}>Related paths</h4>
+        <ul>{similar.map((item) => <li key={item.opportunityId}><Link href={item.href}><span>{item.relationship}</span><strong>{item.title}</strong><small>{item.organization}</small></Link></li>)}</ul>
+      </section> : null}
+    </div>
+  </details>;
 }
 
 function RecommendationFeedback({ view, onFeedback, compact = false }: { view: RecommendationViewModel; onFeedback: RecommendationFeedbackHandler; compact?: boolean }) {
@@ -536,7 +607,7 @@ function RecommendationFeedback({ view, onFeedback, compact = false }: { view: R
     }
   }
   return <details className={`${styles.feedback} ${compact ? styles.feedbackCompact : ""}`}>
-    <summary>Not quite right?</summary>
+    <summary>{compact ? "Refine this match" : "Not quite right?"}</summary>
     <div>
       {actions.map((action) => <button key={action.type} type="button" disabled={Boolean(pending)} onClick={() => void choose(action.type, action.eventLabel)}>{pending === action.type ? "Saving…" : action.label}</button>)}
     </div>

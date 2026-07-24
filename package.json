@@ -77,7 +77,7 @@
     "check:journey-redesign": "node scripts/check-journey-redesign.mjs",
     "check:journey-signature": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-journey-signature.ts",
     "check:journey-professional": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-journey-professional.ts",
-    "check:for-you": "node scripts/check-for-you-redesign.mjs && node scripts/check-for-you-client-contract.mjs",
+    "check:for-you": "node scripts/check-for-you-redesign.mjs && node scripts/check-for-you-client-contract.mjs && node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-for-you-intelligence.ts",
     "check:for-you-reliability": "node scripts/check-for-you-reliability.mjs",
     "check:for-you-first-request": "node scripts/check-for-you-first-request.mjs",
     "check:for-you-navigation": "node scripts/check-for-you-navigation.mjs",
