@@ -41,6 +41,7 @@ export const productIntelligenceEvents = {
   recommendationSubmitted: "recommendation_opportunity_submitted_v1",
   recommendationCompleted: "recommendation_opportunity_completed_v1",
   recommendationDismissed: "recommendation_dismissed_v1",
+  recommendationFeedback: "recommendation_feedback_v1",
   productHealthTiming: "product_health_timing_v1",
   operationalError: "product_operational_error_v1",
 } as const;
@@ -166,6 +167,7 @@ export const productIntelligenceDefinitions: Record<ProductIntelligenceEventName
   recommendation_opportunity_submitted_v1: action("Measure whether a recommended opportunity reaches submission.", ["opportunityId", "recommendationId", "category", "exposureCount"]),
   recommendation_opportunity_completed_v1: action("Measure completed recommended opportunities.", ["opportunityId", "recommendationId", "category", "exposureCount"]),
   recommendation_dismissed_v1: action("Measure explicit recommendation rejection without storing the user's explanation.", ["opportunityId", "recommendationId", "category", "exposureCount"]),
+  recommendation_feedback_v1: action("Measure bounded recommendation feedback and undo actions.", ["opportunityId", "recommendationId", "category", "feedRole", "exposureCount", "action"]),
   product_health_timing_v1: timing("Aggregate bounded performance timings without retaining individual traces."),
   product_operational_error_v1: error("Aggregate safe error categories without messages, content, or stack traces."),
 };

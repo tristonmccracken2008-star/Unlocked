@@ -284,26 +284,17 @@
 
 .score {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: center;
-  gap: 0 10px;
+  gap: 5px;
   padding-bottom: 22px;
   border-bottom: 1px solid var(--unlocked-border);
 }
 
 .score strong {
-  grid-row: 1 / span 2;
   color: rgb(var(--color-forest));
   font-family: Iowan Old Style, Baskerville, Georgia, "Times New Roman", serif;
-  font-size: 46px;
+  font-size: 24px;
   font-weight: 700;
-  line-height: .9;
-}
-
-.score span {
-  color: var(--unlocked-text);
-  font-size: 13px;
-  font-weight: 800;
+  line-height: 1.15;
 }
 
 .score small {
@@ -668,11 +659,25 @@
 }
 
 .feedbackStatus {
+  display: inline-flex;
+  min-height: 38px;
+  align-items: center;
+  gap: 12px;
   width: fit-content;
   margin: -32px 0 -18px;
   color: rgb(var(--color-forest));
   font-size: 12px;
   font-weight: 750;
+}
+
+.feedbackStatus button {
+  min-height: 38px;
+  border: 0;
+  border-bottom: 1px solid currentColor;
+  background: transparent;
+  padding: 0 2px;
+  color: inherit;
+  font: inherit;
 }
 
 .more {
@@ -789,12 +794,8 @@
   font-size: 12px;
 }
 
-.rowScore dd strong {
-  margin-right: 3px;
+.rowScore dd {
   color: rgb(var(--color-forest));
-  font-family: Iowan Old Style, Baskerville, Georgia, "Times New Roman", serif;
-  font-size: 22px;
-  line-height: 1;
 }
 
 .rowActions {
@@ -824,6 +825,40 @@
   margin-top: 22px;
   color: rgb(var(--color-forest));
   font-size: 13px;
+  font-weight: 800;
+}
+
+.limitedInventory {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 5px 24px;
+  align-items: center;
+  padding: 24px 0;
+  border-top: 1px solid var(--unlocked-border);
+  border-bottom: 1px solid var(--unlocked-border);
+}
+
+.limitedInventory strong {
+  color: var(--unlocked-text);
+  font-family: Iowan Old Style, Baskerville, Georgia, "Times New Roman", serif;
+  font-size: 20px;
+}
+
+.limitedInventory span {
+  color: var(--unlocked-muted);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.limitedInventory a {
+  display: inline-flex;
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  min-height: 44px;
+  align-items: center;
+  gap: 7px;
+  color: rgb(var(--color-forest));
+  font-size: 12px;
   font-weight: 800;
 }
 
@@ -1299,6 +1334,15 @@
     flex-direction: column;
     gap: 24px;
     padding: 26px 22px;
+  }
+
+  .limitedInventory {
+    grid-template-columns: 1fr;
+  }
+
+  .limitedInventory a {
+    grid-column: 1;
+    grid-row: auto;
   }
 
   .upgrade > a {

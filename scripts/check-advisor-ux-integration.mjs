@@ -66,7 +66,7 @@ assert.ok(header.includes("Mobile navigation"), "Authenticated mobile users must
 
 for (const label of [
   "Opportunities worth your attention.",
-  "Highest-priority match",
+  "portfolioRole",
   "Why it fits:",
   "More opportunities selected for you",
   "Not quite right?",

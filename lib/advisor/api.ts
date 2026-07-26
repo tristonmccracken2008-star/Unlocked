@@ -62,11 +62,12 @@ export function cleanFeedback(input: unknown, userId: string): AdvisorFeedbackRe
   const recommendationId = cleanId(body.recommendationId);
   const actionId = cleanId(body.actionId);
   if (!recommendationId || !actionId || !body.feedbackType) return null;
-  if (!["helpful", "not-relevant", "already-completed", "already-applied", "too-expensive", "too-time-consuming", "completed", "dismissed", "dont-enjoy-this", "prefer-research", "prefer-industry", "not-interested"].includes(body.feedbackType)) return null;
+  if (!["helpful", "not-relevant", "already-completed", "already-applied", "too-expensive", "too-time-consuming", "completed", "dismissed", "dont-enjoy-this", "prefer-research", "prefer-industry", "not-interested", "show-fewer", "not-eligible", "undo"].includes(body.feedbackType)) return null;
   return {
     recommendationId,
     studentId: userId,
     actionId,
+    requestId: cleanId(body.requestId) ?? undefined,
     signal: typeof body.signal === "string" ? body.signal.trim().slice(0, 160) : undefined,
     feedbackType: body.feedbackType,
     reason: typeof body.reason === "string" ? body.reason.trim().slice(0, 500) : undefined,

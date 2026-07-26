@@ -177,7 +177,7 @@ Recommendations regenerate when inputs change:
 - advisor feedback records
 - hidden or dismissed opportunities
 - referral activity for future recommendation rules
-- bounded feed exposure and the six-hour lower-slot rotation window
+- bounded feed exposure and the daily lower-slot rotation window
 
 Advisor profile fingerprints include minor, GPA status/value, current priority, goals, interests, and preferred opportunity types so cached Advisor Brain snapshots invalidate when meaningful recommendation inputs change.
 
@@ -223,14 +223,14 @@ The For You page stores feedback through `/api/advisor/feedback`.
 
 Supported user signals:
 
-- Interested
-- Not interested
-- Hide
+- More like this
+- Not for me
+- Show fewer like this
+- Not eligible
 - Already applied
-- Already completed
-- Never show again
+- Undo
 
-Feedback records are server-side Advisor data. React components do not rank opportunities. The recommendation service passes feedback into the Advisor Profile, and the engine suppresses or penalizes opportunities according to structured rules.
+Feedback records are append-only server-side Advisor data. Request IDs make replays idempotent, undo retracts the latest effective preference, and persistence occurs under the account feedback lock. React components do not rank opportunities. One passive view does not change ranking; repeated category or organization views are required, and category-level negative preference requires repeated explicit evidence.
 
 ## Confidence Model
 
@@ -260,7 +260,9 @@ The performance guard measures ranking time separately from test assertions and 
 
 ## Premium Behavior
 
-Free users receive two genuine recommendations as a preview. Pro users receive the full ranked feed, complete explanations, adaptive learning, career roadmap intelligence, opportunity relationships, and future weekly strategy surfaces. Core Discover and Journey behavior remains available to free users.
+Free users receive an honest explanation of the premium recommendation standard without receiving hidden recommendation records. Pro users receive the complete approved portfolio, evidence-based explanations, bounded adaptive learning, and related opportunity paths. Core Discover and Journey behavior remains available to free users.
+
+The student UI uses qualitative match labels instead of displaying internal numeric scores as false precision. See `docs/FOR_YOU_PREMIUM.md` for portfolio roles, timing rules, feedback integrity, and validation coverage.
 
 ## Recommendation Quality Audit
 

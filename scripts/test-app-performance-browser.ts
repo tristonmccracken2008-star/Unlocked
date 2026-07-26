@@ -4,7 +4,7 @@ import http from "node:http";
 import net from "node:net";
 import path from "node:path";
 import next from "next";
-import { chromium, type BrowserContext, type Page, type Route } from "playwright";
+import { chromium, webkit, type BrowserContext, type Page, type Route } from "playwright";
 
 type StoredValue = { value: unknown; expiresAt?: number };
 type ViewportScenario = { label: string; width: number; height: number };
@@ -95,9 +95,51 @@ async function installSession(context: BrowserContext, origin: string, token: st
   await context.addCookies([{ name: "unlocked_session", value: token, url: origin, httpOnly: true, sameSite: "Lax", expires: Math.floor(Date.now() / 1000) + 3600 }]);
 }
 
+async function preserveLocalHttpForProductionWebkit(context: BrowserContext, origin: string) {
+  const transparentPixel = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=", "base64");
+  const secureOrigin = origin.replace(/^http:/, "https:");
+  await context.route("https://logo.clearbit.com/**", async (route) => {
+    await route.fulfill({ status: 200, contentType: "image/png", body: transparentPixel });
+  });
+  await context.route(`${origin}/**`, async (route) => {
+    const url = new URL(route.request().url());
+    if (url.pathname === "/api/analytics/event") {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({ ok: true, acceptedIds: [] }),
+      });
+      return;
+    }
+    if (route.request().resourceType() !== "document") {
+      if (url.pathname.startsWith("/api/") && route.request().method() !== "GET") {
+        const headers = await route.request().allHeaders();
+        headers.origin = secureOrigin;
+        if (headers.referer) headers.referer = headers.referer.replace(origin, secureOrigin);
+        await route.continue({ headers });
+      } else {
+        await route.continue();
+      }
+      return;
+    }
+    const response = await route.fetch();
+    const headers = response.headers();
+    const policy = headers["content-security-policy"];
+    if (policy) {
+      headers["content-security-policy"] = policy
+        .split(";")
+        .map((directive) => directive.trim())
+        .filter((directive) => directive !== "upgrade-insecure-requests")
+        .join("; ");
+    }
+    await route.fulfill({ response, headers });
+  });
+}
+
 function observePage(page: Page) {
   const consoleErrors: string[] = [];
   const requestFailures: string[] = [];
+  const apiResponses: string[] = [];
   page.on("console", (message) => {
     if (message.type() !== "error") return;
     const detail = message.text();
@@ -109,7 +151,13 @@ function observePage(page: Page) {
     if (request.resourceType() === "image" && new URL(request.url()).origin !== new URL(page.url()).origin) return;
     requestFailures.push(`${request.method()} ${request.url()} ${request.failure()?.errorText ?? "failed"}`);
   });
-  return { consoleErrors, requestFailures };
+  page.on("response", (response) => {
+    const url = new URL(response.url());
+    if (url.origin === new URL(page.url()).origin && url.pathname.startsWith("/api/")) {
+      apiResponses.push(`${response.request().method()} ${url.pathname} ${response.status()}`);
+    }
+  });
+  return { consoleErrors, requestFailures, apiResponses };
 }
 
 async function assertStableLayout(page: Page, label: string) {
@@ -170,7 +218,17 @@ async function verifyDiscover(page: Page, origin: string, screenshotLabel: strin
 async function verifyPrimaryRoutes(page: Page, origin: string, screenshotLabel: string) {
   const forYouStartedAt = performance.now();
   await page.goto(`${origin}/advisor`, { waitUntil: "domcontentloaded", timeout: 45_000 });
-  await page.getByRole("heading", { name: /A shortlist built around you|Opportunities worth your attention|No strong matches yet/ }).waitFor({ state: "visible", timeout: 45_000 });
+  try {
+    await page.getByRole("heading", { name: /A shortlist built around you|Opportunities worth your attention|No strong matches yet/ }).waitFor({ state: "visible", timeout: 45_000 });
+  } catch (error) {
+    await page.screenshot({ path: path.join(outputDirectory, `${screenshotLabel}-for-you-failure.png`), fullPage: true });
+    console.error("For You browser readiness failure", {
+      browser: screenshotLabel,
+      url: page.url(),
+      body: (await page.locator("body").innerText()).slice(0, 600),
+    });
+    throw error;
+  }
   const forYouReadyMs = Math.round(performance.now() - forYouStartedAt);
   assert.equal(await page.getByRole("heading", { name: "We couldn’t load your shortlist." }).count(), 0, "For You must not enter an error state on the first authenticated visit.");
   const intelligenceDisclosures = page.getByText("Why this opportunity?", { exact: true });
@@ -181,6 +239,16 @@ async function verifyPrimaryRoutes(page: Page, origin: string, screenshotLabel: 
     await openIntelligence.first().waitFor({ state: "visible" });
     assert.ok(await openIntelligence.getByText("Related paths", { exact: true }).count(), "Expanded recommendation intelligence must expose eligible related paths.");
     await intelligenceDisclosures.first().click();
+  }
+  if (screenshotLabel === "desktop") {
+    const firstRecommendation = page.locator("[data-for-you-page] article").first();
+    const firstTitle = (await firstRecommendation.locator("h2").textContent())?.trim();
+    assert.ok(firstTitle, "The premium portfolio must render a top recommendation title.");
+    await firstRecommendation.getByText("Not quite right?", { exact: true }).click();
+    await firstRecommendation.getByRole("button", { name: "Not for me", exact: true }).click();
+    await page.getByRole("button", { name: "Undo", exact: true }).waitFor({ state: "visible" });
+    await page.getByRole("button", { name: "Undo", exact: true }).click();
+    await page.getByRole("heading", { name: firstTitle, exact: true }).waitFor({ state: "visible" });
   }
   if (screenshotLabel === "narrow-desktop") {
     await page.evaluate(() => {
@@ -215,11 +283,19 @@ const kvPort = await listen(kvServer);
 process.env.AUTH_SECRET = "app-performance-browser-secret-with-at-least-thirty-two-bytes";
 process.env.KV_REST_API_URL = `http://127.0.0.1:${kvPort}`;
 process.env.KV_REST_API_TOKEN = "app-performance-browser-token";
+process.env.UNLOCKED_ANALYTICS_STORE = "memory";
 const appPort = await freePort();
-process.env.NEXT_PUBLIC_APP_URL = `http://127.0.0.1:${appPort}`;
+const productionWebkit = process.env.UNLOCKED_TEST_PRODUCTION_WEBKIT === "1";
+process.env.NEXT_PUBLIC_APP_URL = `${productionWebkit ? "https" : "http"}://127.0.0.1:${appPort}`;
 const session = await seedSession();
-rmSync(testDistDirectory, { recursive: true, force: true });
-const app = next({ dev: true, dir: process.cwd(), hostname: "127.0.0.1", port: appPort, conf: { distDir: testDistDirectory } });
+if (!productionWebkit) rmSync(testDistDirectory, { recursive: true, force: true });
+const app = next({
+  dev: !productionWebkit,
+  dir: process.cwd(),
+  hostname: "127.0.0.1",
+  port: appPort,
+  ...(productionWebkit ? {} : { conf: { distDir: testDistDirectory } }),
+});
 await app.prepare();
 const server = http.createServer((request, response) => app.getRequestHandler()(request, response));
 await listen(server, appPort);
@@ -233,30 +309,59 @@ const viewports: ViewportScenario[] = [
   { label: "mobile", width: 390, height: 844 },
 ];
 
-const browser = await chromium.launch({ headless: true });
+const browser = productionWebkit ? await webkit.launch({ headless: true }) : await chromium.launch({ headless: true });
 const results = [];
+let browserFailure: unknown = null;
 try {
-  for (const viewport of viewports) {
-    const context = await browser.newContext({
-      viewport: { width: viewport.width, height: viewport.height },
-      reducedMotion: viewport.label === "mobile" ? "reduce" : "no-preference",
-    });
+  if (productionWebkit) {
+    const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, reducedMotion: "reduce" });
+    await preserveLocalHttpForProductionWebkit(context, origin);
     await installSession(context, origin, session.token);
     const page = await context.newPage();
     const observed = observePage(page);
-    const discover = await verifyDiscover(page, origin, viewport.label);
-    const primaryRoutes = await verifyPrimaryRoutes(page, origin, viewport.label);
-    assert.deepEqual(observed.consoleErrors, [], `${viewport.label} browser console errors: ${observed.consoleErrors.join(" | ")}`);
-    assert.deepEqual(observed.requestFailures, [], `${viewport.label} request failures: ${observed.requestFailures.join(" | ")}`);
-    results.push({ viewport: viewport.label, ...discover, ...primaryRoutes });
+    let primaryRoutes;
+    try {
+      primaryRoutes = await verifyPrimaryRoutes(page, origin, "webkit");
+    } catch (error) {
+      console.error("WebKit browser diagnostics", observed);
+      throw error;
+    }
+    assert.deepEqual(observed.consoleErrors, [], `WebKit browser console errors: ${observed.consoleErrors.join(" | ")}`);
+    assert.deepEqual(observed.requestFailures, [], `WebKit request failures: ${observed.requestFailures.join(" | ")}`);
+    results.push({ browser: "webkit", viewport: "desktop", ...primaryRoutes });
     await context.close();
+  } else {
+    for (const viewport of viewports) {
+      const context = await browser.newContext({
+        viewport: { width: viewport.width, height: viewport.height },
+        reducedMotion: viewport.label === "mobile" ? "reduce" : "no-preference",
+      });
+      await installSession(context, origin, session.token);
+      const page = await context.newPage();
+      const observed = observePage(page);
+      const discover = await verifyDiscover(page, origin, viewport.label);
+      const primaryRoutes = await verifyPrimaryRoutes(page, origin, viewport.label);
+      assert.deepEqual(observed.consoleErrors, [], `${viewport.label} browser console errors: ${observed.consoleErrors.join(" | ")}`);
+      assert.deepEqual(observed.requestFailures, [], `${viewport.label} request failures: ${observed.requestFailures.join(" | ")}`);
+      results.push({ browser: "chromium", viewport: viewport.label, ...discover, ...primaryRoutes });
+      await context.close();
+    }
   }
+} catch (error) {
+  browserFailure = error;
 } finally {
   await browser.close();
+  server.closeAllConnections();
   await new Promise<void>((resolve) => server.close(() => resolve()));
-  await app.close();
+  await Promise.race([app.close(), new Promise<void>((resolve) => setTimeout(resolve, 5_000))]);
+  kvServer.closeAllConnections();
   await new Promise<void>((resolve) => kvServer.close(() => resolve()));
-  rmSync(testDistDirectory, { recursive: true, force: true });
+  if (!productionWebkit) rmSync(testDistDirectory, { recursive: true, force: true });
 }
 
-console.log(JSON.stringify({ message: "Full-app browser performance checks passed.", screenshots: outputDirectory, results }, null, 2));
+if (browserFailure) {
+  console.error(browserFailure);
+  process.exitCode = 1;
+} else {
+  console.log(JSON.stringify({ message: "Full-app browser performance checks passed.", screenshots: outputDirectory, results }, null, 2));
+}

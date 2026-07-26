@@ -14,9 +14,11 @@ import { getRoadmap, type RoadmapImportance, type RoadmapMilestone } from "./roa
 import { buildRecommendationWeeklyStrategy, type RecommendationWeeklyStrategy } from "./recommendation-weekly-strategy";
 import { labelForRecommendationScore, recommendationConfig } from "./recommendation-config";
 import type { ApplicationRecord, StudentProgress } from "./student-progress";
+import { activeRecommendationFeedback } from "@/lib/advisor/feedback";
 
 export type RecommendationKind = "Opportunity" | "Milestone" | "Next Action";
 export type RecommendationTier = "excellent" | "strong" | "explore";
+export type RecommendationPortfolioRole = "Best Overall Match" | "High-Impact Opportunity" | "Deadline Approaching" | "Newly Available" | "Worth Exploring" | "Strong Alternative" | "Reach Opportunity";
 
 export type RecommendationEngineInput = {
   advisorProfile: AdvisorProfile;
@@ -46,6 +48,7 @@ export type RecommendationV1 = {
   tier: RecommendationTier;
   portfolio?: {
     role: "core" | "exploration";
+    selectionRole?: RecommendationPortfolioRole;
     canonicalCategory: string;
     semanticCluster: string;
     impactScore: number;
@@ -195,8 +198,8 @@ function confidenceLevel(confidence: number): RecommendationV1["confidenceLevel"
 
 export function buildOpportunityStudentContext(profile: AdvisorProfile): OpportunityStudentContext {
   const trackedRecords = Object.values(profile.experience.tracked);
-  const feedbackRecords = profile.future.recommendationFeedback ?? [];
-  const negativeFeedback = feedbackRecords.filter((record) => ["not-relevant", "dismissed", "dont-enjoy-this", "not-interested", "too-expensive", "too-time-consuming"].includes(record.feedbackType));
+  const feedbackRecords = activeRecommendationFeedback(profile.future.recommendationFeedback ?? []);
+  const negativeFeedback = feedbackRecords.filter((record) => ["not-relevant", "dismissed", "dont-enjoy-this", "not-interested", "show-fewer", "not-eligible", "too-expensive", "too-time-consuming"].includes(record.feedbackType));
   const hiddenOpportunityIds = unique([
     ...(profile.future.hiddenOpportunityIds ?? []),
     ...negativeFeedback.flatMap((record) => record.actionId.startsWith("opportunity:") ? [record.actionId.replace("opportunity:", "")] : []),
@@ -205,7 +208,16 @@ export function buildOpportunityStudentContext(profile: AdvisorProfile): Opportu
     ...(profile.future.dismissedOpportunityIds ?? []),
     ...negativeFeedback.flatMap((record) => record.recommendationId.startsWith("recommendation-opportunity-") ? [record.recommendationId.replace("recommendation-opportunity-", "")] : []),
   ]);
-  const ignoredCategories = unique(negativeFeedback.map((record) => record.signal ?? "").filter((signal) => signal.startsWith("category:")).map((signal) => signal.replace("category:", "")));
+  const categoryPreferenceCounts = negativeFeedback
+    .filter((record) => ["show-fewer", "not-interested"].includes(record.feedbackType))
+    .reduce((counts, record) => {
+      if (record.signal?.startsWith("category:")) {
+        const category = record.signal.replace("category:", "");
+        counts.set(category, (counts.get(category) ?? 0) + 1);
+      }
+      return counts;
+    }, new Map<string, number>());
+  const ignoredCategories = [...categoryPreferenceCounts].filter(([, count]) => count >= 2).map(([category]) => category);
   const { stagePlan } = careerRoadmapForStage(profile.goals.careerGoal, profile.academics.timelineStage);
   const categoryCounts = trackedRecords.reduce((counts, record) => counts.set(record.status, (counts.get(record.status) ?? 0) + 1), new Map<string, number>());
   const underusedCategories = stagePlan.categories.filter((category) => !(profile.future.opportunityCategoriesUsed ?? []).includes(category) && (categoryCounts.get(category) ?? 0) === 0).slice(0, 3);
@@ -253,12 +265,20 @@ function contextWithLearning(context: OpportunityStudentContext, source: readonl
   const opportunityById = new Map(source.map((item) => [item.id, item]));
   const categoryFor = (id: string) => opportunityById.get(id)?.category;
   const organizationFor = (id: string) => opportunityById.get(id)?.organization;
+  const repeatedValues = (values: Array<string | undefined>, minimumEvidence = 2) => {
+    const counts = values.reduce((result, value) => {
+      if (value) result.set(value, (result.get(value) ?? 0) + 1);
+      return result;
+    }, new Map<string, number>());
+    return [...counts].filter(([, count]) => count >= minimumEvidence).map(([value]) => value);
+  };
+  const boundedViews = (context.viewedOpportunityIds ?? []).slice(-50);
   return {
     ...context,
     savedCategories: unique((context.savedOpportunityIds ?? []).map(categoryFor).filter((item): item is string => Boolean(item))),
-    viewedCategories: unique((context.viewedOpportunityIds ?? []).map(categoryFor).filter((item): item is string => Boolean(item))),
+    viewedCategories: repeatedValues(boundedViews.map(categoryFor)),
     completedCategories: unique((context.completedOpportunityIds ?? []).map(categoryFor).filter((item): item is string => Boolean(item))),
-    interactedOrganizations: unique((context.viewedOpportunityIds ?? []).map(organizationFor).filter((item): item is string => Boolean(item))),
+    interactedOrganizations: repeatedValues(boundedViews.map(organizationFor)),
   };
 }
 
@@ -519,7 +539,7 @@ function shouldExcludeOpportunity(profile: AdvisorProfile, opportunity: Opportun
   if (profile.experience.savedOpportunityIds.includes(opportunity.id)) return true;
   if ((profile.future.hiddenOpportunityIds ?? []).includes(opportunity.id)) return true;
   if ((profile.future.dismissedOpportunityIds ?? []).includes(opportunity.id)) return true;
-  if ((profile.future.recommendationFeedback ?? []).some((record) => record.recommendationId === `recommendation-opportunity-${opportunity.id}` && ["dismissed", "not-interested", "already-completed", "completed"].includes(record.feedbackType))) return true;
+  if (activeRecommendationFeedback(profile.future.recommendationFeedback ?? []).some((record) => record.recommendationId === `recommendation-opportunity-${opportunity.id}` && ["dismissed", "not-interested", "show-fewer", "not-eligible", "already-applied", "already-completed", "completed"].includes(record.feedbackType))) return true;
   const trackerRecord = profile.experience.tracked[opportunity.id];
   if (trackerRecord && ["Saved", "Interested", "Applying", "Submitted", "Interview", "Accepted", "Rejected", "Completed"].includes(trackerRecord.status)) return true;
   const application = progressForOpportunity(profile, opportunity.id);
@@ -608,10 +628,23 @@ function balancedRecommendationPortfolio(profile: AdvisorProfile, candidates: Re
   const categories = new Map<string, number>();
   const types = new Map<string, number>();
   const semanticClusters = new Map<string, number>();
+  const selectionRoles = new Set<RecommendationPortfolioRole>();
+
+  const roleFor = (candidate: RecommendationV1, opportunity: Opportunity | undefined, index: number): RecommendationPortfolioRole => {
+    if (index === 0) return "Best Overall Match";
+    if (candidate.portfolio?.premiumSignals.includes("Deadline Soon")) return "Deadline Approaching";
+    if (candidate.portfolio?.premiumSignals.includes("New")) return "Newly Available";
+    if (candidate.portfolio?.role === "exploration" || candidate.tier === "explore") return "Worth Exploring";
+    if (candidate.portfolio?.premiumSignals.includes("High Impact")) return "High-Impact Opportunity";
+    if (opportunity?.difficulty === "Highly Competitive") return "Reach Opportunity";
+    return "Strong Alternative";
+  };
 
   const selectCandidate = (candidate: RecommendationV1) => {
-    selected.push(candidate);
     const opportunity = candidate.relatedOpportunityId ? opportunityById.get(candidate.relatedOpportunityId) : undefined;
+    const selectionRole = roleFor(candidate, opportunity, selected.length);
+    selected.push(candidate.portfolio ? { ...candidate, portfolio: { ...candidate.portfolio, selectionRole } } : candidate);
+    selectionRoles.add(selectionRole);
     if (!opportunity || !candidate.portfolio) return;
     organizations.set(opportunity.organization, (organizations.get(opportunity.organization) ?? 0) + 1);
     categories.set(candidate.portfolio.canonicalCategory, (categories.get(candidate.portfolio.canonicalCategory) ?? 0) + 1);
@@ -645,6 +678,8 @@ function balancedRecommendationPortfolio(profile: AdvisorProfile, candidates: Re
           adjusted -= Math.min(15, portfolio.exposureCount * config.repeatExposurePenalty);
           adjusted += deterministicRotationBoost(opportunity.id, profile.future.feedRotationKey ?? "stable");
         }
+        const candidateRole = roleFor(candidate, opportunity, selected.length);
+        if (candidateRole !== "Strong Alternative" && !selectionRoles.has(candidateRole)) adjusted += 3;
         adjusted -= categoryCount * config.categoryPenalty;
         adjusted -= semanticCount * config.semanticClusterPenalty;
         if (adjusted > bestScore || (adjusted === bestScore && (bestIndex < 0 || candidate.title.localeCompare(remaining[bestIndex].title) < 0))) {
@@ -673,7 +708,16 @@ function balancedRecommendationPortfolio(profile: AdvisorProfile, candidates: Re
       role === "exploration" ? "Worth Discovering" : "",
       ...candidate.portfolio.premiumSignals.filter((signal) => signal !== "Worth Discovering"),
     ]).slice(0, 2);
-    return { ...candidate, portfolio: { ...candidate.portfolio, role, premiumSignals } };
+    const roleCandidate = { ...candidate, portfolio: { ...candidate.portfolio, role, premiumSignals } };
+    return {
+      ...roleCandidate,
+      portfolio: {
+        ...roleCandidate.portfolio,
+        selectionRole: role === "exploration"
+          ? "Worth Exploring"
+          : candidate.portfolio.selectionRole ?? roleFor(roleCandidate, candidate.relatedOpportunityId ? opportunityById.get(candidate.relatedOpportunityId) : undefined, index),
+      },
+    };
   });
 }
 

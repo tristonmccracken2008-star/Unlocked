@@ -15,11 +15,11 @@ const pkg = read("package.json");
 
 for (const label of [
   "Opportunities worth your attention.",
-  "Highest-priority match",
+  "portfolioRole",
   "Why it fits:",
   "Why this opportunity?",
   "Why now",
-  "Opportunity Score",
+  "Match quality",
   "Related paths",
   "Review opportunity",
   "AddToJourneyButton",
@@ -37,7 +37,8 @@ for (const removed of ["Your profile at a glance", "Your activity at a glance", 
 assert.ok(advisor.includes('data-for-you-page="premium-v2"'), "For You must expose the premium intelligence layout for browser QA.");
 assert.ok(advisor.includes("recommendationSignals") && advisor.includes("strongestReason"), "Recommendation presentation must use concise structured signals and reasons.");
 assert.ok(advisor.includes("RecommendationIntelligence") && advisor.includes("similarOpportunities"), "For You must use progressive disclosure for factual reasoning and related paths.");
-assert.ok(advisor.includes("scoreFor") && advisor.includes("opportunityScore"), "For You must surface the proprietary bounded Opportunity Score.");
+assert.ok(advisor.includes("scoreFor") && advisor.includes("opportunityScore"), "For You must derive bounded qualitative match language from the internal Opportunity Score.");
+assert.ok(!advisor.includes("<strong>{score.value}</strong>") && !advisor.includes("Opportunity Score:"), "For You must not present internal scores as false precision.");
 assert.ok(advisor.includes('opportunity?.verification_status === "verified"'), "For You must surface verified-source trust signals from opportunity data.");
 assert.ok(advisor.includes("Estimated value") && !advisor.includes("Est. effort"), "For You must label recommendation value truthfully.");
 assert.ok(advisor.includes("<ol") && advisor.includes("RecommendationCard"), "Secondary recommendations must use a calm ordered shortlist.");

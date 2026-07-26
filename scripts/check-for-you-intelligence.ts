@@ -41,7 +41,7 @@ assert.equal(shortlist.length, 8, "Pro intelligence should provide a focused eig
 assert.ok(shortlist.every((view) => view.opportunityScore.value >= 72 && view.opportunityScore.value <= 99), "Opportunity Scores must remain bounded and must not masquerade as percentages.");
 assert.ok(shortlist.every((view) => view.opportunityScore.label === opportunityScoreLabel(view.opportunityScore.value)), "Opportunity Score labels must follow the canonical scale.");
 assert.ok(shortlist.every((view) => view.whyThisOpportunity.length >= 2 && view.whyThisOpportunity.length <= 4), "Every recommendation must provide a concise factual explanation set.");
-assert.ok(shortlist.every((view) => view.whyApplyNow.detail.length > 0), "Every recommendation must explain timing without inventing urgency.");
+assert.ok(shortlist.every((view) => !view.whyApplyNow || view.whyApplyNow.detail.length > 0), "Timing explanations must be omitted or supported by factual detail.");
 assert.ok(shortlist.every((view) => view.similarOpportunities.length <= 2), "Related paths must remain bounded.");
 
 const eligibleIds = new Set(baseline.recommendations.map((view) => view.opportunity?.id).filter(Boolean));
@@ -52,7 +52,7 @@ for (const view of shortlist) {
   }
   const copy = [
     ...view.whyThisOpportunity.map((reason) => reason.detail),
-    view.whyApplyNow.detail,
+    view.whyApplyNow?.detail ?? "",
     ...view.trustSignals.map((signal) => signal.detail),
   ].join(" ");
   assert.doesNotMatch(copy, /historically fills early|limited seats|students with similar profiles|students interested in this also viewed/i, "Recommendation intelligence cannot fabricate demand or aggregate behavior.");

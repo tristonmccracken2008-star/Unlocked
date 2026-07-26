@@ -23,6 +23,7 @@ import styles from "./advisor-page.module.css";
 
 type ForYouPageState = "loading" | "pro_ready" | "free_preview" | "profile_incomplete" | "empty" | "preparing" | "error";
 type SessionReadiness = "checking" | "authenticated" | "unauthenticated" | "error";
+type UndoableFeedback = { view: RecommendationViewModel; index: number };
 
 type AdvisorState = {
   pageState: Exclude<ForYouPageState, "loading">;
@@ -128,6 +129,7 @@ export function AdvisorPage({ initialState = null, serverAuthenticated = false }
   const [sessionReadiness, setSessionReadiness] = useState<SessionReadiness>(initialState || serverAuthenticated ? "authenticated" : "checking");
   const [errorMessage, setErrorMessage] = useState("");
   const [feedbackMessage, setFeedbackMessage] = useState("");
+  const [undoableFeedback, setUndoableFeedback] = useState<UndoableFeedback | null>(null);
   const [requestActive, setRequestActive] = useState(false);
   const trackedRecommendation = useRef("");
   const trackedImpressions = useRef(new Set<string>());
@@ -147,6 +149,7 @@ export function AdvisorPage({ initialState = null, serverAuthenticated = false }
         trackedFeedSignature.current = "";
         setState(null);
         setPageState("loading");
+        setUndoableFeedback(null);
       }
       sessionKey.current = nextSessionKey;
       setSessionReadiness("authenticated");
@@ -158,6 +161,7 @@ export function AdvisorPage({ initialState = null, serverAuthenticated = false }
     setRequestActive(false);
     setState(null);
     lastValidResponse.current = null;
+    setUndoableFeedback(null);
     setSessionReadiness("unauthenticated");
     setPageState("error");
     setErrorMessage("Please sign in to load your recommendations.");
@@ -316,22 +320,31 @@ export function AdvisorPage({ initialState = null, serverAuthenticated = false }
 
   async function sendFeedback(view: RecommendationViewModel, feedbackType: FeedbackType, label: string) {
     setFeedbackMessage("");
+    const currentIndex = state?.recommendations.findIndex((item) => item.recommendation.id === view.recommendation.id) ?? -1;
     const body = {
       recommendationId: view.recommendation.id,
       actionId: view.recommendation.relatedOpportunityId ? `opportunity:${view.recommendation.relatedOpportunityId}` : view.recommendation.id,
       signal: view.opportunity ? `category:${view.opportunity.category}` : view.recommendation.categories[0],
       feedbackType,
-      reason: label,
+      requestId: typeof crypto.randomUUID === "function" ? crypto.randomUUID() : `${Date.now()}-${view.recommendation.id}`,
     };
     try {
       const response = await authenticatedFetch("/api/advisor/feedback", { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
       if (!response.ok) {
         setFeedbackMessage("We couldn’t save that preference. Try again.");
-        return;
+        return false;
       }
       const event = feedbackType === "helpful" ? "recommendation_saved" : feedbackType === "already-applied" ? "recommendation_applied" : feedbackType === "already-completed" || feedbackType === "completed" ? "recommendation_completed" : feedbackType === "dismissed" ? "recommendation_dismissed" : "recommendation_ignored";
       trackProductEvent(event, { recommendationId: view.recommendation.id, opportunityId: view.recommendation.relatedOpportunityId, section: "for-you-feedback" });
-      if (["dismissed", "not-interested"].includes(feedbackType) && view.recommendation.relatedOpportunityId) {
+      trackProductEvent(productIntelligenceEvents.recommendationFeedback, {
+        recommendationId: view.recommendation.id,
+        opportunityId: view.recommendation.relatedOpportunityId,
+        category: analyticsCategory(view),
+        feedRole: portfolioRoleSlug(view),
+        exposureCount: view.recommendation.portfolio?.exposureCount ?? 0,
+        action: feedbackType,
+      });
+      if (["dismissed", "not-interested", "show-fewer", "not-eligible"].includes(feedbackType) && view.recommendation.relatedOpportunityId) {
         trackProductEvent(productIntelligenceEvents.recommendationDismissed, {
           recommendationId: view.recommendation.id,
           opportunityId: view.recommendation.relatedOpportunityId,
@@ -339,13 +352,34 @@ export function AdvisorPage({ initialState = null, serverAuthenticated = false }
           exposureCount: view.recommendation.portfolio?.exposureCount ?? 0,
         });
       }
-      if (["dismissed", "not-interested", "already-completed", "completed"].includes(feedbackType)) {
+      const removesFromFeed = ["dismissed", "not-interested", "show-fewer", "not-eligible", "already-applied", "already-completed", "completed"].includes(feedbackType);
+      if (removesFromFeed) {
         setState((current) => current ? { ...current, recommendations: current.recommendations.filter((item) => item.recommendation.id !== view.recommendation.id) } : current);
+        setUndoableFeedback({ view, index: Math.max(0, currentIndex) });
+      } else {
+        setUndoableFeedback(null);
       }
       setFeedbackMessage(label);
+      return true;
     } catch {
       setFeedbackMessage("We couldn’t save that preference. Try again.");
+      return false;
     }
+  }
+
+  async function undoFeedback() {
+    const undo = undoableFeedback;
+    if (!undo) return;
+    setFeedbackMessage("Restoring this recommendation…");
+    const restored = await sendFeedback(undo.view, "undo", "Recommendation restored.");
+    if (!restored) return;
+    setState((current) => {
+      if (!current || current.recommendations.some((item) => item.recommendation.id === undo.view.recommendation.id)) return current;
+      const recommendations = [...current.recommendations];
+      recommendations.splice(Math.min(undo.index, recommendations.length), 0, undo.view);
+      return { ...current, recommendations };
+    });
+    setUndoableFeedback(null);
   }
 
   if (sessionReadiness === "checking" || pageState === "loading") return <ForYouLoading />;
@@ -361,8 +395,9 @@ export function AdvisorPage({ initialState = null, serverAuthenticated = false }
     <section className={styles.container}>
       <Hero state={state} firstName={firstName} count={recommended.length} />
       <TopRecommendation view={top} onFeedback={sendFeedback} />
-      {feedbackMessage ? <p role="status" aria-live="polite" className={styles.feedbackStatus}>{feedbackMessage}</p> : null}
+      {feedbackMessage ? <div role="status" aria-live="polite" className={styles.feedbackStatus}><span>{feedbackMessage}</span>{undoableFeedback ? <button type="button" onClick={() => void undoFeedback()}>Undo</button> : null}</div> : null}
       <RecommendedGrid recommendations={recommended.slice(1)} onFeedback={sendFeedback} />
+      {recommended.length < 4 ? <LimitedInventoryNote /> : null}
       {pageState === "free_preview" ? <ForYouUpgradeGate totalMatches={state.totalMatches} shown={state.recommendations.length} /> : null}
       <FooterNote />
     </section>
@@ -425,7 +460,7 @@ function strongestReason(view: RecommendationViewModel) {
     ?? "It passed UnlockED’s eligibility and relevance checks for your profile.";
 }
 
-type RecommendationFeedbackHandler = (view: RecommendationViewModel, feedbackType: FeedbackType, label: string) => Promise<void>;
+type RecommendationFeedbackHandler = (view: RecommendationViewModel, feedbackType: FeedbackType, label: string) => Promise<boolean>;
 
 function scoreFor(view: RecommendationViewModel) {
   return view.opportunityScore ?? {
@@ -435,11 +470,16 @@ function scoreFor(view: RecommendationViewModel) {
 }
 
 function timingFor(view: RecommendationViewModel) {
-  return view.whyApplyNow ?? {
-    label: "No artificial urgency",
-    detail: "No near-term verified deadline is listed.",
-    urgency: "low" as const,
-  };
+  return view.whyApplyNow;
+}
+
+function portfolioRole(view: RecommendationViewModel) {
+  return view.recommendation.portfolio?.selectionRole
+    ?? (view.recommendation.portfolio?.role === "exploration" ? "Worth Exploring" : "Strong Alternative");
+}
+
+function portfolioRoleSlug(view: RecommendationViewModel) {
+  return portfolioRole(view).toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "");
 }
 
 function TopRecommendation({ view, onFeedback }: { view: RecommendationViewModel; onFeedback: RecommendationFeedbackHandler }) {
@@ -451,7 +491,7 @@ function TopRecommendation({ view, onFeedback }: { view: RecommendationViewModel
     <div className={styles.featuredMain}>
       <div className={styles.featuredIdentity}>
         <div className={styles.featuredLabel}>
-          <span>Highest-priority match</span>
+          <span>{portfolioRole(view)}</span>
           {view.freshnessLabel ? <strong>{view.freshnessLabel}</strong> : view.historyLabel ? <strong>{view.historyLabel}</strong> : null}
         </div>
         <div className={styles.titleLockup}>
@@ -463,16 +503,15 @@ function TopRecommendation({ view, onFeedback }: { view: RecommendationViewModel
         <p className={styles.reason}><strong>Why it fits:</strong> {strongestReason(view)}</p>
       </div>
       <aside className={styles.featuredDecision} aria-label="Opportunity details and actions">
-        <div className={styles.score} aria-label={`UnlockED Opportunity Score: ${score.value}, ${score.label}`}>
-          <strong>{score.value}</strong>
-          <span>{score.label}</span>
-          <small>Opportunity Score</small>
+        <div className={styles.score} aria-label={`UnlockED match quality: ${score.label}`}>
+          <strong>{score.label}</strong>
+          <small>Match quality</small>
         </div>
         <dl className={styles.featuredMeta}>
           <div><dt>Deadline</dt><dd>{opportunity ? deadlineLabel(opportunity) : "Not announced"}</dd></div>
           <div><dt>Estimated value</dt><dd>{cleanValueLabel(view.recommendation.estimatedValueLabel)}</dd></div>
         </dl>
-        <p className={styles.timing} data-urgency={timing.urgency}><strong>{timing.label}</strong><span>{timing.detail}</span></p>
+        {timing ? <p className={styles.timing} data-urgency={timing.urgency}><strong>{timing.label}</strong><span>{timing.detail}</span></p> : null}
         <Link href={view.href} onClick={() => trackRecommendationOpen(view)} className={styles.primaryAction}>Review opportunity <ArrowIcon /></Link>
         {view.recommendation.relatedOpportunityId ? <AddToJourneyButton opportunityId={view.recommendation.relatedOpportunityId} recommendationId={view.recommendation.id} recommendationCategory={analyticsCategory(view)} recommendationExposureCount={view.recommendation.portfolio?.exposureCount ?? 0} className={styles.addAction} /> : null}
       </aside>
@@ -521,7 +560,11 @@ function ForYouLoading() {
 }
 
 function ForYouEmptyState() {
-  return <StateShell eyebrow="For You" title="No strong matches yet." text="Nothing cleared our eligibility and relevance checks today. Adjust your profile to sharpen the next selection." actionHref="/profile" actionLabel="Review your profile" secondaryHref="/opportunities" secondaryLabel="Browse Discover" Icon={SearchIcon} />;
+  return <StateShell eyebrow="For You" title="No strong matches yet." text="Nothing cleared our eligibility, source-quality, and relevance checks today. We’d rather show fewer results than questionable ones." actionHref="/opportunities" actionLabel="Browse Discover" secondaryHref="/profile" secondaryLabel="Review your profile" Icon={SearchIcon} />;
+}
+
+function LimitedInventoryNote() {
+  return <aside className={styles.limitedInventory} aria-label="Recommendation inventory note"><strong>A focused shortlist, by design.</strong><span>Only opportunities that cleared UnlockED’s eligibility and quality checks appear here. Discover has more options to browse.</span><Link href="/opportunities">Browse Discover <ArrowIcon /></Link></aside>;
 }
 
 function ForYouPreparingState() {
@@ -548,13 +591,13 @@ function RecommendationCard({ view, index, onFeedback }: { view: RecommendationV
   return <article className={styles.recommendation} aria-labelledby={`recommendation-${view.recommendation.id}`}>
     <span className={styles.rank} aria-hidden="true">{String(index).padStart(2, "0")}</span>
     <div className={styles.recommendationBody}>
-      <div className={styles.recommendationTitle}>{opportunity ? <OrganizationLogo opportunity={opportunity} size="md" className={styles.logo} /> : null}<div><p>{opportunity?.organization ?? view.recommendation.kind}</p><h3 id={`recommendation-${view.recommendation.id}`}>{opportunity?.title ?? view.recommendation.title}</h3>{view.freshnessLabel || view.historyLabel ? <span className={styles.trace}>{view.freshnessLabel ?? view.historyLabel}</span> : null}</div></div>
+      <div className={styles.recommendationTitle}>{opportunity ? <OrganizationLogo opportunity={opportunity} size="md" className={styles.logo} /> : null}<div><p>{opportunity?.organization ?? view.recommendation.kind}</p><h3 id={`recommendation-${view.recommendation.id}`}>{opportunity?.title ?? view.recommendation.title}</h3><span className={styles.trace}>{portfolioRole(view)}{view.freshnessLabel ? ` · ${view.freshnessLabel}` : ""}</span></div></div>
       <p className={styles.recommendationReason}>{strongestReason(view)}</p>
       <div className={styles.signals} aria-label="Why this matches">{signals.map((signal) => <span key={signal.label} data-signal-kind={signal.kind}><CheckCircleIcon />{signal.label}</span>)}</div>
       <RecommendationIntelligence view={view} compact />
       <RecommendationFeedback view={view} onFeedback={onFeedback} compact />
     </div>
-    <dl className={styles.rowMeta}><div className={styles.rowScore}><dt>Opportunity Score</dt><dd><strong>{score.value}</strong> {score.label}</dd></div><div><dt>Why now</dt><dd>{timing.label}</dd></div><div><dt>Deadline</dt><dd>{opportunity ? deadlineLabel(opportunity) : "Not announced"}</dd></div></dl>
+    <dl className={styles.rowMeta}><div className={styles.rowScore}><dt>Match quality</dt><dd>{score.label}</dd></div>{timing ? <div><dt>Why now</dt><dd>{timing.label}</dd></div> : null}<div><dt>Deadline</dt><dd>{opportunity ? deadlineLabel(opportunity) : "Not announced"}</dd></div></dl>
     <div className={styles.rowActions}><Link href={view.href} onClick={() => trackRecommendationOpen(view)}>Review <ArrowIcon /></Link>{view.recommendation.relatedOpportunityId ? <AddToJourneyButton opportunityId={view.recommendation.relatedOpportunityId} recommendationId={view.recommendation.id} recommendationCategory={analyticsCategory(view)} recommendationExposureCount={view.recommendation.portfolio?.exposureCount ?? 0} className={styles.rowAddAction} /> : null}</div>
   </article>;
 }
@@ -572,14 +615,14 @@ function RecommendationIntelligence({ view, compact = false }: { view: Recommend
     <div className={styles.intelligencePanel}>
       <section aria-labelledby={`why-fit-${view.recommendation.id}`}>
         <h4 id={`why-fit-${view.recommendation.id}`}>Why it fits</h4>
-        <p className={styles.scoreMethod}><strong>{score.value} {score.label}.</strong> Fit, verified eligibility, source quality, and documented impact shape this score.</p>
+        <p className={styles.scoreMethod}><strong>{score.label}.</strong> This label reflects verified eligibility, relevance, source quality, and documented impact.</p>
         <ul>{reasons.map((reason) => <li key={`${reason.label}-${reason.detail}`}><span data-signal-kind={reason.kind}>{reason.label}</span><p>{reason.detail}</p></li>)}</ul>
       </section>
-      <section aria-labelledby={`why-now-${view.recommendation.id}`}>
+      {timing ? <section aria-labelledby={`why-now-${view.recommendation.id}`}>
         <h4 id={`why-now-${view.recommendation.id}`}>Why now</h4>
         <p className={styles.intelligenceCopy}><strong>{timing.label}.</strong> {timing.detail}</p>
         {trustSignals.length ? <div className={styles.trustSignals} aria-label="Verification signals">{trustSignals.map((signal) => <span key={signal.label} title={signal.detail}><CheckCircleIcon />{signal.label}</span>)}</div> : null}
-      </section>
+      </section> : trustSignals.length ? <section aria-labelledby={`trust-${view.recommendation.id}`}><h4 id={`trust-${view.recommendation.id}`}>Source checks</h4><div className={styles.trustSignals} aria-label="Verification signals">{trustSignals.map((signal) => <span key={signal.label} title={signal.detail}><CheckCircleIcon />{signal.label}</span>)}</div></section> : null}
       {similar.length ? <section className={styles.similar} aria-labelledby={`similar-${view.recommendation.id}`}>
         <h4 id={`similar-${view.recommendation.id}`}>Related paths</h4>
         <ul>{similar.map((item) => <li key={item.opportunityId}><Link href={item.href}><span>{item.relationship}</span><strong>{item.title}</strong><small>{item.organization}</small></Link></li>)}</ul>
@@ -590,11 +633,11 @@ function RecommendationIntelligence({ view, compact = false }: { view: Recommend
 
 function RecommendationFeedback({ view, onFeedback, compact = false }: { view: RecommendationViewModel; onFeedback: RecommendationFeedbackHandler; compact?: boolean }) {
   const actions: Array<{ label: string; type: FeedbackType; eventLabel: string }> = [
-    { label: "Show me more like this", type: "helpful", eventLabel: "Preference saved. We’ll use it to improve future matches." },
-    { label: "Not interested", type: "not-interested", eventLabel: "Got it. We’ll show fewer opportunities like this." },
-    { label: "Hide", type: "dismissed", eventLabel: "Hidden from your recommendations." },
+    { label: "More like this", type: "helpful", eventLabel: "Preference saved. Future matches can reflect it." },
+    { label: "Not for me", type: "not-interested", eventLabel: "Removed from this shortlist." },
+    { label: "Show fewer like this", type: "show-fewer", eventLabel: "Removed. Similar feedback over time will refine your feed." },
+    { label: "Not eligible", type: "not-eligible", eventLabel: "Removed and marked as ineligible for you." },
     { label: "Already applied", type: "already-applied", eventLabel: "Marked as already applied." },
-    { label: "Already completed", type: "already-completed", eventLabel: "Marked as already completed." },
   ];
   const [pending, setPending] = useState<FeedbackType | null>(null);
   async function choose(feedbackType: FeedbackType, label: string) {

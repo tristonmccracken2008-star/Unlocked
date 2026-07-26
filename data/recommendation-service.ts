@@ -7,6 +7,7 @@ import type { StudentActivity } from "./student-activity";
 import type { StudentProfile } from "./student-profile";
 import { inferApplicationsFromActivity, type StudentProgress } from "./student-progress";
 import type { AdvisorFeedbackRecord } from "@/lib/advisor/types";
+import { activeRecommendationFeedback } from "@/lib/advisor/feedback";
 import type { ReferralAccountData } from "@/lib/referrals";
 import { getDeadlineDays, getOpportunityIntelligence } from "./opportunity-intelligence";
 
@@ -66,7 +67,7 @@ export type RecommendationViewModel = {
     label: OpportunityScoreLabel;
   };
   whyThisOpportunity: RecommendationReasonDetail[];
-  whyApplyNow: RecommendationTiming;
+  whyApplyNow?: RecommendationTiming;
   trustSignals: RecommendationTrustSignal[];
   freshnessLabel?: "New this week" | "Recently added" | "Recently verified";
   historyLabel?: "Viewed before" | "Previously recommended" | "Preference noted";
@@ -213,7 +214,7 @@ function opportunityValueLabel(opportunity: Opportunity) {
   return opportunity.metadata.valueLabel ?? opportunity.metadata.awardAmountLabel ?? opportunity.estimated_value_note ?? "Unknown";
 }
 
-export function recommendationTiming(opportunity: Opportunity, now = new Date()): RecommendationTiming {
+export function recommendationTiming(opportunity: Opportunity, now = new Date()): RecommendationTiming | undefined {
   const deadlineDays = getDeadlineDays(opportunity, now);
   const deadlineVerified = opportunity.metadata.verification?.deadlineVerified === true || opportunity.verification_status === "verified";
   if (deadlineVerified && deadlineDays !== null && deadlineDays >= 0 && deadlineDays <= 14) {
@@ -239,7 +240,7 @@ export function recommendationTiming(opportunity: Opportunity, now = new Date())
   if ((opportunity.estimated_value ?? 0) >= 5_000) {
     return { label: "High documented value", detail: `The listed value is ${opportunityValueLabel(opportunity)}.`, urgency: "low" };
   }
-  return { label: "No artificial urgency", detail: "No near-term verified deadline is listed.", urgency: "low" };
+  return undefined;
 }
 
 function recommendationTrustSignals(opportunity: Opportunity, now = new Date()): RecommendationTrustSignal[] {
@@ -359,10 +360,11 @@ function recommendationDisplaySignals(recommendation: RecommendationV1, opportun
 
 export function buildRecommendationService(input: RecommendationServiceInput): RecommendationServiceResult {
   const source = input.source ?? opportunities;
+  const activeFeedback = activeRecommendationFeedback(input.feedbackRecords ?? []);
   const opportunityById = new Map(source.map((opportunity) => [opportunity.id, opportunity]));
   const inferredProgress = inferApplicationsFromActivity(input.activity, source, input.progress);
   const advisorProfile = createAdvisorProfile({ profile: input.profile, school: input.school, activity: input.activity, progress: inferredProgress });
-  advisorProfile.future.recommendationFeedback = input.feedbackRecords ?? [];
+  advisorProfile.future.recommendationFeedback = activeFeedback;
   advisorProfile.future.hiddenOpportunityIds = input.hiddenOpportunityIds ?? [];
   advisorProfile.future.dismissedOpportunityIds = input.dismissedOpportunityIds ?? [];
   advisorProfile.future.recommendationExposureCounts = input.recommendationExposureCounts ?? {};
@@ -394,7 +396,7 @@ export function buildRecommendationService(input: RecommendationServiceInput): R
         whyApplyNow: recommendationTiming(opportunity),
         trustSignals: recommendationTrustSignals(opportunity),
         freshnessLabel: recommendationFreshnessLabel(opportunity),
-        historyLabel: recommendationHistoryLabel(recommendation, opportunity, input),
+        historyLabel: recommendationHistoryLabel(recommendation, opportunity, { ...input, feedbackRecords: activeFeedback }),
         similarOpportunities: [],
       };
     })

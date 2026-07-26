@@ -17,8 +17,9 @@ import { getEntitlementsForBilling, type Entitlements } from "@/lib/billing";
 import type { AdvisorAccessState } from "@/lib/advisor-access";
 import { nextAdvisorData } from "@/lib/advisor/api";
 import type { ForYouRecommendationSnapshot, ForYouSnapshotState } from "@/lib/advisor/types";
+import { activeRecommendationFeedback } from "@/lib/advisor/feedback";
 
-export const forYouSnapshotEngineVersion = "for-you-snapshot-v6-opportunity-intelligence";
+export const forYouSnapshotEngineVersion = "for-you-snapshot-v7-premium-portfolio";
 export const forYouSnapshotTtlMs = 1000 * 60 * 60 * 6;
 const generationTimeoutMs = 2800;
 const globalIndexTimeoutMs = 1000;
@@ -171,7 +172,7 @@ function previousFeedContext(data: AccountData, userId: string, now: Date) {
   return {
     exposureCounts,
     previousTopOpportunityIds: snapshots[0]?.recommendations.slice(0, 2).map((view) => view.recommendation.relatedOpportunityId).filter((id): id is string => Boolean(id)) ?? [],
-    feedRotationKey: `${now.toISOString().slice(0, 10)}-${Math.floor(now.getUTCHours() / 6)}`,
+    feedRotationKey: now.toISOString().slice(0, 10),
   };
 }
 
@@ -193,7 +194,7 @@ function isFresh(snapshot: ForYouRecommendationSnapshot) {
 function snapshotPassesSafetyAudit(snapshot: ForYouRecommendationSnapshot, profile: StudentProfile, school: School, activity: StudentActivity, data: AccountData) {
   const progress = inferApplicationsFromActivity(activity, opportunities, { milestones: {}, applications: {} });
   const advisorProfile = createAdvisorProfile({ profile, school, activity, progress });
-  advisorProfile.future.recommendationFeedback = data.advisor?.feedbackRecords ?? [];
+  advisorProfile.future.recommendationFeedback = activeRecommendationFeedback(data.advisor?.feedbackRecords ?? []);
   advisorProfile.future.hiddenOpportunityIds = data.preferences?.hiddenDismissedIds ?? [];
   const context = buildOpportunityStudentContext(advisorProfile);
   return snapshot.recommendations.every((view) => {
@@ -215,6 +216,7 @@ async function generateSnapshot(user: AuthUser, data: AccountData, profile: Stud
   await withTimeout(getForYouGlobalIndex(), "global recommendation index", globalIndexTimeoutMs);
   const now = new Date();
   const priorFeed = previousFeedContext(data, user.id, now);
+  const activeFeedback = activeRecommendationFeedback(data.advisor?.feedbackRecords ?? []);
   const activity = data.activity ?? emptyActivity();
   const progress = inferApplicationsFromActivity(activity, opportunities, { milestones: {}, applications: {} });
   const service = buildRecommendationService({
@@ -223,9 +225,9 @@ async function generateSnapshot(user: AuthUser, data: AccountData, profile: Stud
     activity,
     progress,
     source: opportunities,
-    feedbackRecords: data.advisor?.feedbackRecords ?? [],
+    feedbackRecords: activeFeedback,
     hiddenOpportunityIds: data.preferences?.hiddenDismissedIds ?? [],
-    dismissedOpportunityIds: data.advisor?.feedbackRecords?.filter((record) => ["dismissed", "not-interested", "already-completed", "completed"].includes(record.feedbackType)).map((record) => record.recommendationId.replace("recommendation-opportunity-", "")) ?? [],
+    dismissedOpportunityIds: activeFeedback.filter((record) => ["dismissed", "not-interested", "show-fewer", "not-eligible", "already-applied", "already-completed", "completed"].includes(record.feedbackType)).map((record) => record.recommendationId.replace("recommendation-opportunity-", "")),
     referralActivity: data.referrals,
     recommendationExposureCounts: priorFeed.exposureCounts,
     previousTopOpportunityIds: priorFeed.previousTopOpportunityIds,

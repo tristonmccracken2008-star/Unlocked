@@ -96,6 +96,7 @@ These 90-day events measure outcomes without changing ranking and intentionally 
 | `recommendation_opportunity_submitted_v1` | `opportunityId`, `recommendationId`, `category`, `exposureCount` | Did it reach submission? |
 | `recommendation_opportunity_completed_v1` | `opportunityId`, `recommendationId`, `category`, `exposureCount` | Did the recommended opportunity complete? |
 | `recommendation_dismissed_v1` | `opportunityId`, `recommendationId`, `category`, `exposureCount` | Did the student explicitly reject it? |
+| `recommendation_feedback_v1` | `opportunityId`, `recommendationId`, `category`, `feedRole`, `exposureCount`, `action` | Which bounded feedback or undo action refined the feed? |
 
 Attribution is browser-session scoped and cleared on logout or account switch.
 
