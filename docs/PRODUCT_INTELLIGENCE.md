@@ -32,6 +32,8 @@ All Journey action aggregates are retained for 90 days.
 | `journey_viewed_v1` | `status` | Did students reach Journey in a meaningful state? |
 | `journey_returned_v1` | none | Did a student return on a later UTC day? |
 | `journey_opportunity_added_v1` | `opportunityId`, `source` | Did an opportunity enter Journey from Discover or For You? |
+| `first_opportunity_saved_v1` | `source` | Did the account complete its first server-confirmed save? |
+| `activation_achieved_v1` | `source` | Did the account reach the first-session activation definition? |
 | `journey_waypoint_clicked_v1` | `source` | Was the current next step clear enough to act on? |
 | `journey_waypoint_completed_v1` | `transition` | Did the presented step reach a canonical completion? |
 | `journey_history_expanded_v1` | none | Did students ask for historical detail? |
@@ -47,6 +49,8 @@ All Journey action aggregates are retained for 90 days.
 | `journey_card_copied_v1` | `format` | Did an image copy complete? |
 
 Journey Card events never include the card headline, identity choice, school, dates, statistics, highlights, image bytes, or share destination.
+
+First-save and activation events are emitted only by the authenticated Journey-add service after persistence succeeds. Replayed requests and opportunities already present in Journey do not increment them. They contain no profile answers, recommendation content, or account identifiers in their properties.
 
 ## Path Moment Events
 

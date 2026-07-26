@@ -92,7 +92,7 @@ assert.ok(advisor.includes("ForYouErrorState") && advisor.includes("Retry"), "Fo
 assert.ok(advisor.includes("ForYouPreparingState"), "For You client must show a preparing state instead of normal retry during first snapshot generation.");
 assert.ok(advisor.includes("ForYouFreePreviewOnly"), "Free users with no previews must still see the Pro conversion page.");
 assert.ok(!journey.includes("buildRecommendationService"), "Journey must not build recommendations or bypass For You Pro gating.");
-assert.ok(advisor.includes("Keep the full shortlist working for you"), "Free For You should render a clear Pro preview instead of an empty state.");
+assert.ok(advisor.includes("See your complete personalized shortlist"), "Free For You should render a clear Pro preview instead of an empty state.");
 assert.ok(advisor.includes("Free") && advisor.includes("Pro"), "Free For You should explain the Free vs Pro difference.");
 assert.doesNotMatch(advisor, /% confidence|Evidence and confidence|Alternatives/, "For You primary UI must not expose old confidence/debug framing.");
 assert.doesNotMatch(advisor, /markMilestoneCompleted/, "For You should not use separate milestone completion logic for opportunity recommendations.");

@@ -43,11 +43,12 @@ expect("components/personalized-home.tsx", "onboarding save must wait for accoun
 );
 
 expect("components/onboarding-flow.tsx", "new onboarding must be one question per screen with required steps", (source) =>
-  ["What school do you attend?", "When do you expect to graduate?", "What is your major?", "Do you have a minor?", "What is your current GPA?", "What are you interested in working toward?", "What kinds of opportunities matter most to you?", "What matters most to you right now?"].every((snippet) => source.includes(snippet)) && source.includes("const totalSteps = 8"),
+  ["What school do you attend?", "When do you expect to graduate?", "What is your major?", "What are you interested in working toward?", "What kinds of opportunities matter most to you?", "What matters most to you right now?"].every((snippet) => source.includes(snippet)) && source.includes("const totalSteps = 6"),
 );
 
-expect("components/onboarding-flow.tsx", "onboarding must support no-minor and GPA unavailable states", (source) =>
-  source.includes("\"none\"") && source.includes("\"none_yet\"") && source.includes("\"nonstandard\"") && source.includes("Enter a GPA from 0.00 to 4.00."),
+expect("components/onboarding-flow.tsx", "minor and GPA must be safely deferred instead of required during cold start", (source) =>
+  source.includes('const minorStatus: MinorStatus = draft.minorStatus || (draft.minor ? "declared" : "none")')
+    && source.includes('const gpaStatus: GpaStatus = draft.gpaStatus || "none_yet"'),
 );
 
 expect("components/onboarding-flow.tsx", "onboarding must persist through the canonical profile writer and route to For You", (source) =>
@@ -55,7 +56,7 @@ expect("components/onboarding-flow.tsx", "onboarding must persist through the ca
 );
 
 expect("components/onboarding-flow.tsx", "onboarding analytics must avoid answer values and use step identifiers", (source) =>
-  ["onboarding_started", "onboarding_step_viewed", "onboarding_step_completed", "onboarding_back_clicked", "onboarding_validation_failed", "onboarding_completed", "onboarding_save_failed"].every((event) => source.includes(event)) && source.includes("stepId") && source.includes("stepIndex"),
+  ["onboarding_started", "onboarding_step_viewed", "onboarding_step_completed", "onboarding_back_clicked", "onboarding_validation_failed", "onboarding_abandoned", "onboarding_completed", "onboarding_save_failed"].every((event) => source.includes(event)) && source.includes("stepId") && source.includes("stepIndex"),
 );
 
 expect("components/profile-page.tsx", "edit profile must pass the saved profile into the form", (source) =>

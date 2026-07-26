@@ -413,9 +413,10 @@ function Hero({ state, firstName, count }: { state: AdvisorState; firstName: str
     : state.activity.viewed.length
       ? "Updated using opportunities you recently explored."
       : "Selected using your profile and verified eligibility.";
+  const firstSession = trackedCount === 0 && state.activity.saved.length === 0 && Boolean(state.profile.onboardingCompletedAt);
   return <header className={styles.hero}>
     <p className={styles.eyebrow}>For {firstName}</p>
-    <h1>Opportunities worth your attention.</h1>
+    <h1>{firstSession ? "Your opportunities are ready." : "Opportunities worth your attention."}</h1>
     <p className={styles.heroCopy}>{count === 1 ? "One opportunity" : `${count} opportunities`} passed UnlockED’s eligibility, quality, and relevance checks.</p>
     <div className={styles.profileContext} aria-label="Recommendation profile">
       <span className={styles.contextLead}>Selected for</span>
@@ -533,7 +534,7 @@ function RecommendedGrid({ recommendations, onFeedback }: { recommendations: Rec
 function ForYouUpgradeGate({ totalMatches, shown }: { totalMatches: number; shown: number }) {
   const lockedCount = Math.max(totalMatches - shown, 0);
   return <section className={styles.upgrade} aria-labelledby="for-you-pro-title">
-    <div><p>UnlockED Pro</p><h2 id="for-you-pro-title">Keep the full shortlist working for you.</h2><span>Free shows {shown} of {totalMatches} eligible matches. Pro adds {lockedCount} more, with the same verified eligibility standard.</span></div>
+    <div><p>UnlockED Pro</p><h2 id="for-you-pro-title">See your complete personalized shortlist.</h2><span>Free shows {shown} verified match{shown === 1 ? "" : "es"}. Pro adds {lockedCount} more with deeper reasoning and continuously refined discovery.</span></div>
     <Link href="/pricing" onClick={() => trackProductEvent("pro_upgrade_clicked", { section: "for-you" })}>See Pro options <ArrowIcon /></Link>
   </section>;
 }

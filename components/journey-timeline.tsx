@@ -133,6 +133,7 @@ function EmptyJourneyArtwork() {
 
 export function JourneyTimeline({ model }: { model: JourneyTimelineModel }) {
   const hasEvents = model.events.length > 0;
+  const hasRecordedProgress = model.events.some((event) => event.type !== "saved");
   const visibleMomentLimit = 18;
   const hiddenMomentCount = Math.max(0, model.events.length - visibleMomentLimit);
   const analyticsState = !hasEvents ? "empty" : model.events.some((event) => ["interview", "accepted", "scholarship_awarded", "completed"].includes(event.type)) ? "validated" : model.events.length < 3 ? "sparse" : "active";
@@ -148,6 +149,11 @@ export function JourneyTimeline({ model }: { model: JourneyTimelineModel }) {
       </header>
 
       {hasEvents ? <>
+        {!hasRecordedProgress ? <section className={styles.savedContext} aria-labelledby="journey-saved-context-title">
+          <p>Saved to Journey</p>
+          <h2 id="journey-saved-context-title">Saved is not the same as applied.</h2>
+          <span>These opportunities are here so you can find them again. Nothing moves forward automatically. When something actually changes, use <strong>Update Journey</strong> to record it.</span>
+        </section> : null}
         <ProgressSnapshot model={model} />
         <Highlights model={model} />
         <section className={styles.timelineSection} aria-labelledby="journey-timeline-heading">

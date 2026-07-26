@@ -76,13 +76,13 @@ for (const token of ["getSession", "session.data.billing.stripeCustomerId", "cre
 }
 
 assert.ok(forYouApi.includes("resolveForYouState"), "For You API must use the server-gated snapshot resolver.");
-for (const token of ["getEntitlementsForBilling", "slice(0, 8)", "canViewRecommendationExplanations"]) {
+for (const token of ["getEntitlementsForBilling", "canViewRecommendationExplanations"]) {
   assert.ok(forYouSnapshot.includes(token), `For You snapshot resolver must server-gate ${token}.`);
 }
-assert.ok(forYouSnapshot.includes("const allowed = pro ? service.recommendations.slice(0, 8) : []"), "Free For You must not require paid recommendation generation.");
+assert.ok(forYouSnapshot.includes("const allowed = service.recommendations.slice(0, pro ? 8 : 1)"), "For You must expose one Free preview recommendation and no more than eight Pro recommendations.");
 
 assert.ok(forYou.includes("pro_gate_viewed"), "For You must show a Pro gate for Free preview.");
-assert.ok(forYou.includes("Keep the full shortlist working for you"), "For You must explain the preview gate.");
+assert.ok(forYou.includes("See your complete personalized shortlist"), "For You must explain the preview gate.");
 assert.ok(!forYou.includes("buildRecommendationService"), "For You client must not build the full recommendation feed.");
 
 for (const token of ["UnlockED Free", "UnlockED Pro", "Manage subscription", "past_due", "Appearance", "Premium appearance"]) {

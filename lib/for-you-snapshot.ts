@@ -19,7 +19,7 @@ import { nextAdvisorData } from "@/lib/advisor/api";
 import type { ForYouRecommendationSnapshot, ForYouSnapshotState } from "@/lib/advisor/types";
 import { activeRecommendationFeedback } from "@/lib/advisor/feedback";
 
-export const forYouSnapshotEngineVersion = "for-you-snapshot-v7-premium-portfolio";
+export const forYouSnapshotEngineVersion = "for-you-snapshot-v8-first-session-preview";
 export const forYouSnapshotTtlMs = 1000 * 60 * 60 * 6;
 const generationTimeoutMs = 2800;
 const globalIndexTimeoutMs = 1000;
@@ -257,7 +257,7 @@ async function generateSnapshot(user: AuthUser, data: AccountData, profile: Stud
       topRejectionReasons: funnel.topRejectionReasons,
     });
   }
-  const allowed = pro ? service.recommendations.slice(0, 8) : [];
+  const allowed = service.recommendations.slice(0, pro ? 8 : 1);
   const snapshot: ForYouRecommendationSnapshot = {
     userId: user.id,
     profileVersion: forYouProfileVersion(profile, data),
@@ -313,9 +313,6 @@ export async function resolveForYouState(user: AuthUser, data: AccountData, opti
   const access: AdvisorAccessState = entitlements.canUseFullForYou ? "pro" : "preview";
   if (!profile || !school) {
     return { pageState: "profile_incomplete", access: "unavailable", entitlements, profile: profile ?? null, school, activity, session: null, recommendations: [], totalMatches: 0, snapshotStatus: "missing", isRefreshing: false, errorCode: "profile_incomplete" };
-  }
-  if (!entitlements.canUseFullForYou) {
-    return { pageState: "free_preview", access, entitlements, profile, school, activity, session: null, recommendations: [], totalMatches: 0, snapshotStatus: "missing", isRefreshing: false };
   }
   const version = forYouProfileVersion(profile, data);
   const snapshot = latestSnapshot(data, user.id);

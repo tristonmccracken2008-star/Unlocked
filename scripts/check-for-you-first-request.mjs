@@ -21,9 +21,8 @@ assert.match(authStore, /forYouSnapshots: Array\.isArray\(value\.forYouSnapshots
 assert.match(advisorApi, /forYouSnapshots: \[\.\.\.\(existing\.forYouSnapshots \?\? \[\]\), \.\.\.\(patch\.forYouSnapshots \?\? \[\]\)\]\.slice\(-3\)/, "Advisor data writes must append For You snapshots without replacing unrelated advisor data.");
 
 assert.match(advisorRoute, /const session = await requireCompletedOnboarding\(\)/, "The For You route must authenticate and verify onboarding on the server.");
-assert.match(advisorRoute, /resolveForYouState\(session\.user, session\.data, \{ allowGeneration: false \}\)/, "The route should reuse safe existing state without starting recommendation generation.");
+assert.match(advisorRoute, /resolveForYouState\(session\.user, session\.data, \{ allowGeneration: false \}\)/, "The route should reuse safe existing state without blocking the first document on recommendation generation.");
 assert.match(advisorRoute, /await import\("@\/lib\/for-you-snapshot"\)/, "The route must not initialize the full recommendation stack for users whose server state can be resolved without it.");
-assert.match(advisorRoute, /if \(!entitlements\.canUseFullForYou\)/, "Free and incomplete For You states should be resolved before loading the Pro recommendation stack.");
 assert.match(advisorRoute, /serverState\.pageState === "preparing" \? null : serverState/, "Missing snapshots must preserve the immediate client generation path.");
 assert.match(advisorRoute, /<AdvisorPage initialState=\{initialState\} serverAuthenticated \/>/, "The client must begin from server-authenticated reusable state when available.");
 assert.match(api, /resolveForYouState/, "The API route must reuse the snapshot resolver.");
@@ -43,7 +42,7 @@ assert.match(snapshot, /generationByUser\.delete\(user\.id\)/, "Failed or comple
 assert.match(snapshot, /withTimeout\(generateSingleFlight\(user, data, profile, school, entitlements\), "initial recommendation snapshot", generationTimeoutMs\)/, "Initial generation must be bounded.");
 assert.match(snapshot, /withTimeout\(active, "active recommendation snapshot"/, "Concurrent missing-snapshot requests must wait only briefly.");
 assert.match(snapshot, /entitlements\.canUseFullForYou/, "Pro and Free states must be decided server-side.");
-assert.match(snapshot, /const allowed = pro \? service\.recommendations\.slice\(0,\s*8\) : \[\]/, "Free users must not require expensive preview generation and Pro should prioritize a short precision-first feed.");
+assert.match(snapshot, /const allowed = service\.recommendations\.slice\(0, pro \? 8 : 1\)/, "Free users must receive one safe preview while Pro receives the bounded precision-first portfolio.");
 assert.match(snapshot, /getForYouGlobalIndex/, "Global opportunity indexes must be initialized through a shared helper.");
 assert.match(snapshot, /globalIndexPromise/, "Global index initialization must be single-flight.");
 assert.match(snapshot, /sourceSignalsVersion/, "Opportunity database changes must affect snapshot freshness.");

@@ -37,6 +37,12 @@
 
 .srOnly { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; clip-path: inset(50%); }
 
+.savedContext { display: grid; grid-template-columns: minmax(10rem, .55fr) minmax(14rem, .9fr) minmax(18rem, 1.5fr); gap: clamp(1rem, 4vw, 3rem); align-items: baseline; border-bottom: 1px solid var(--journey-line); padding: clamp(2rem, 5vw, 3.25rem) 0; }
+.savedContext > p { margin: 0; color: var(--journey-green); font-size: .68rem; font-weight: 850; letter-spacing: .12em; text-transform: uppercase; }
+.savedContext h2 { margin: 0; color: var(--journey-ink); font: 700 clamp(1.45rem, 3vw, 2rem)/1.08 var(--font-editorial), Georgia, serif; letter-spacing: 0; }
+.savedContext > span { color: var(--journey-muted); font-size: .84rem; line-height: 1.65; }
+.savedContext strong { color: var(--journey-ink); }
+
 .snapshot { display: grid; grid-template-columns: minmax(15rem, .8fr) minmax(0, 1.7fr); gap: clamp(2rem, 6vw, 5rem); align-items: end; padding: clamp(2.5rem, 6vw, 4.25rem) 0; border-bottom: 1px solid var(--journey-line); }
 .snapshotHeading h2,
 .highlights h2,
@@ -262,6 +268,8 @@
 @media (max-width: 640px) {
   .page { padding-inline: 1rem; padding-bottom: calc(7rem + env(safe-area-inset-bottom)); }
   .header h1 { font-size: clamp(2.8rem, 15vw, 4rem); }
+  .savedContext { grid-template-columns: 1fr; gap: .65rem; }
+  .savedContext > span { margin-top: .35rem; }
   .snapshot { grid-template-columns: 1fr; gap: 1.6rem; }
   .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.4rem 1rem; }
   .highlights ol { grid-template-columns: 1fr; }

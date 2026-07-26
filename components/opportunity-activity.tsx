@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { OpportunityType } from "@/data/opportunities";
-import { readStudentActivity, saveOpportunity, studentActivityEvent, trackOpportunityView } from "@/data/student-activity";
+import { readStudentActivity, replaceStudentActivity, studentActivityEvent, trackOpportunityView, type TrackedOpportunity } from "@/data/student-activity";
+import { authenticatedFetch } from "@/data/authenticated-request";
+import { accountSessionEvent } from "@/data/account-sync";
 import { ArrowIcon, CheckIcon } from "./icons";
 import { productIntelligenceEvents } from "@/lib/analytics-types";
 import { recommendationAttributionDetailsFor, rememberRecommendationAttribution, trackProductEvent } from "@/data/product-analytics";
@@ -29,23 +31,93 @@ export function OpportunityActivityActions({ opportunityId, type, officialSource
 }
 
 export function AddToJourneyButton({ opportunityId, recommendationId, recommendationCategory, recommendationExposureCount, className = "" }: { opportunityId: string; recommendationId?: string; recommendationCategory?: string; recommendationExposureCount?: number; className?: string }) {
-  const [added,setAdded]=useState(false);
-  useEffect(()=>{const update=()=>{const activity=readStudentActivity();setAdded(Boolean(activity.tracked?.[opportunityId]||activity.saved.includes(opportunityId)))};update();window.addEventListener(studentActivityEvent,update);return()=>window.removeEventListener(studentActivityEvent,update)},[opportunityId]);
-  if (added) return <JourneyAddedState className={className} />;
-  return <button type="button" onClick={()=>{
-    saveOpportunity(opportunityId,"Saved");
-    setAdded(true);
-    trackProductEvent("opportunity_added_to_journey",{opportunityId});
+  const [added, setAdded] = useState(false);
+  const [pending, setPending] = useState(false);
+  const [firstSave, setFirstSave] = useState(false);
+  const [error, setError] = useState("");
+  const controllerRef = useRef<AbortController | null>(null);
+  const pendingRef = useRef(false);
+  useEffect(() => {
+    const update = () => {
+      const activity = readStudentActivity();
+      setAdded(Boolean(activity.tracked?.[opportunityId] || activity.saved.includes(opportunityId)));
+    };
+    const reset = () => {
+      controllerRef.current?.abort("account-changed");
+      pendingRef.current = false;
+      setPending(false);
+      setFirstSave(false);
+      setError("");
+      update();
+    };
+    update();
+    window.addEventListener(studentActivityEvent, update);
+    window.addEventListener(accountSessionEvent, reset);
+    return () => {
+      controllerRef.current?.abort("unmounted");
+      window.removeEventListener(studentActivityEvent, update);
+      window.removeEventListener(accountSessionEvent, reset);
+    };
+  }, [opportunityId]);
+
+  async function add() {
+    if (pendingRef.current || added) return;
+    pendingRef.current = true;
+    setPending(true);
+    setError("");
+    const controller = new AbortController();
+    controllerRef.current = controller;
+    const timeout = window.setTimeout(() => controller.abort("timeout"), 8_000);
     const remembered = recommendationAttributionDetailsFor(opportunityId);
     const attribution = recommendationId ?? remembered?.recommendationId;
     const category = recommendationCategory ?? remembered?.category;
     const exposureCount = recommendationExposureCount ?? remembered?.exposureCount;
-    trackProductEvent(productIntelligenceEvents.journeyOpportunityAdded, { opportunityId, source: attribution ? "for_you" : "discover" });
-    if (attribution) {
-      rememberRecommendationAttribution(opportunityId, attribution, category, exposureCount);
-      trackProductEvent(productIntelligenceEvents.recommendationSaved, { opportunityId, recommendationId: attribution, category, exposureCount });
+    const source = attribution ? "for_you" : "discover";
+    try {
+      const response = await authenticatedFetch("/api/journey/add", {
+        method: "POST",
+        credentials: "same-origin",
+        cache: "no-store",
+        headers: { "Content-Type": "application/json" },
+        signal: controller.signal,
+        body: JSON.stringify({
+          opportunityId,
+          source,
+          idempotencyKey: `journey-add:${crypto.randomUUID()}`,
+        }),
+      });
+      const body = await response.json().catch(() => null) as { ok?: boolean; duplicate?: boolean; firstSave?: boolean; record?: TrackedOpportunity; error?: string } | null;
+      if (!response.ok || !body?.ok || !body.record) {
+        setError(response.status === 401 ? "Sign in again to add this opportunity." : response.status === 423 ? "Another Journey update is still saving. Try again." : body?.error || "We couldn’t add this opportunity. Try again.");
+        return;
+      }
+      const activity = readStudentActivity();
+      activity.tracked = { ...(activity.tracked ?? {}), [opportunityId]: body.record };
+      activity.saved = [...new Set([...activity.saved, opportunityId])];
+      replaceStudentActivity(activity);
+      setAdded(true);
+      setFirstSave(Boolean(body.firstSave));
+      trackProductEvent("opportunity_added_to_journey", { opportunityId });
+      if (attribution) {
+        rememberRecommendationAttribution(opportunityId, attribution, category, exposureCount);
+        trackProductEvent(productIntelligenceEvents.recommendationSaved, { opportunityId, recommendationId: attribution, category, exposureCount });
+      }
+    } catch {
+      if (controller.signal.reason === "account-changed" || controller.signal.reason === "unmounted") return;
+      setError(controller.signal.reason === "timeout" ? "Saving took too long. Try again." : "We couldn’t reach UnlockED. Try again.");
+    } finally {
+      window.clearTimeout(timeout);
+      if (controllerRef.current === controller) controllerRef.current = null;
+      pendingRef.current = false;
+      if (controller.signal.reason !== "account-changed" && controller.signal.reason !== "unmounted") setPending(false);
     }
-  }} className={`inline-flex min-h-11 items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider ${className}`}>Add to Journey</button>;
+  }
+
+  if (added) return <div className="grid gap-2"><JourneyAddedState className={className} />{firstSave ? <p className="max-w-sm text-xs font-medium leading-5 text-ink/55" role="status">Saved to your Journey. Return there when you have a real update, such as starting or submitting an application.</p> : null}</div>;
+  return <div className="grid gap-2">
+    <button type="button" onClick={() => void add()} disabled={pending} aria-describedby={error ? `journey-add-error-${opportunityId}` : undefined} className={`inline-flex min-h-11 items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider disabled:cursor-wait disabled:opacity-60 ${className}`}>{pending ? "Adding…" : "Add to Journey"}</button>
+    {error ? <p id={`journey-add-error-${opportunityId}`} role="alert" className="max-w-sm text-xs font-bold leading-5 text-red-700">{error}</p> : null}
+  </div>;
 }
 
 function JourneyAddedState({ className = "" }: { className?: string }) {

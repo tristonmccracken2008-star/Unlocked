@@ -42,6 +42,8 @@ export const productIntelligenceEvents = {
   recommendationCompleted: "recommendation_opportunity_completed_v1",
   recommendationDismissed: "recommendation_dismissed_v1",
   recommendationFeedback: "recommendation_feedback_v1",
+  firstOpportunitySaved: "first_opportunity_saved_v1",
+  activationAchieved: "activation_achieved_v1",
   productHealthTiming: "product_health_timing_v1",
   operationalError: "product_operational_error_v1",
 } as const;
@@ -69,7 +71,7 @@ export const legacyAnalyticsEvents = [
   "premium_theme_upgrade_clicked", "premium_journey_theme_selected", "milestone_completed", "milestone_unlocked",
   "journey_filter_changed", "sign_in", "sign_out", "onboarding_started", "onboarding_step_viewed",
   "onboarding_step_completed", "onboarding_back_clicked", "onboarding_validation_failed", "onboarding_completed",
-  "onboarding_save_failed", "report_outdated", "referral_link_opened", "referral_link_copied",
+  "onboarding_abandoned", "onboarding_save_failed", "report_outdated", "referral_link_opened", "referral_link_copied",
   "referral_code_copied", "referral_share_started", "referral_completed", "referral_reward_unlocked",
 ] as const;
 
@@ -168,6 +170,8 @@ export const productIntelligenceDefinitions: Record<ProductIntelligenceEventName
   recommendation_opportunity_completed_v1: action("Measure completed recommended opportunities.", ["opportunityId", "recommendationId", "category", "exposureCount"]),
   recommendation_dismissed_v1: action("Measure explicit recommendation rejection without storing the user's explanation.", ["opportunityId", "recommendationId", "category", "exposureCount"]),
   recommendation_feedback_v1: action("Measure bounded recommendation feedback and undo actions.", ["opportunityId", "recommendationId", "category", "feedRole", "exposureCount", "action"]),
+  first_opportunity_saved_v1: action("Measure the first server-confirmed opportunity save.", ["source"]),
+  activation_achieved_v1: action("Measure server-confirmed first-session activation.", ["source"]),
   product_health_timing_v1: timing("Aggregate bounded performance timings without retaining individual traces."),
   product_operational_error_v1: error("Aggregate safe error categories without messages, content, or stack traces."),
 };

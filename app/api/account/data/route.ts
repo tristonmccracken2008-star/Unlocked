@@ -35,10 +35,19 @@ export async function PUT(request: Request) {
     if (!Object.values(body).some((value) => value !== undefined)) return NextResponse.json({ error: "No valid account fields were provided" }, { status: 400, headers: { "Cache-Control": "no-store, max-age=0" } });
     if (body.preferences?.appearance && body.preferences.appearance !== "light" && !isProUser(session.data.billing)) body.preferences.appearance = "light";
     const incomingTracker = body.tracker ?? body.activity?.tracked;
-    if (incomingTracker) {
+    if (incomingTracker || body.activity?.saved?.length) {
       const current = await readAccountData(session.user.id);
       const currentTracker = { ...(current.activity?.tracked ?? {}), ...(current.tracker ?? {}) };
-      for (const [id, record] of Object.entries(incomingTracker)) {
+      const currentSaved = new Set([
+        ...(current.activity?.saved ?? []),
+        ...Object.keys(currentTracker),
+        ...current.savedOpportunities.map((item) => item.opportunityId),
+      ]);
+      for (const id of body.activity?.saved ?? []) {
+        if (!currentSaved.has(id)) throw new SecurityError("New opportunities require the Add to Journey endpoint.", 409, "journey_add_required");
+      }
+      for (const [id, record] of Object.entries(incomingTracker ?? {})) {
+        if (!currentSaved.has(id)) throw new SecurityError("New opportunities require the Add to Journey endpoint.", 409, "journey_add_required");
         if (!accountSyncPreservesJourneyState(currentTracker[id], record)) {
           throw new SecurityError("Journey status changes require the Journey transition endpoint.", 409, "journey_transition_required");
         }
