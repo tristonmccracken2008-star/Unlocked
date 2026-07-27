@@ -26,7 +26,9 @@ Discover is the opportunity database.
 
 It preserves the existing search, browse, filters, saved opportunities, and opportunity detail behavior. Categories such as scholarships, research, internships, benefits, AI tools, and career resources live inside search/filter controls rather than top-level navigation.
 
-Advisor handoffs open Discover through URL parameters such as `query`, `category`, or `type`. `OpportunityFilter` reads those parameters on load and applies them to the existing filter state.
+Discover stores query, category, type, major, school, value, format, difficulty, class-year eligibility, deadline, sort, and loaded-result state in URL parameters. `OpportunityFilter` validates those parameters on load, and session storage is used only as a fallback when a URL does not contain Discover state.
+
+Search and ranking run through the bounded server projection in `lib/discover-catalog.ts`. The deterministic index and quality model are documented in `docs/DISCOVER_SEARCH.md`.
 
 ## For You
 

@@ -3,24 +3,52 @@ import type { Opportunity } from "@/data/opportunities";
 import { listingDeadlineLabel as deadlineLabel } from "@/data/opportunity-listing";
 import { ArrowIcon } from "./icons";
 import { AddToJourneyButton } from "./opportunity-activity";
+import { DiscoverOpportunityLink } from "./discover-opportunity-link";
 import { OrganizationLogo } from "./organization-logo";
 import { StatusBadge } from "./status-badge";
 
-function schoolRestrictionLabel(opportunity: Opportunity) {
-  if (opportunity.school_scope === "National") return "Open broadly";
+function eligibilityLabel(opportunity: Opportunity) {
+  if (opportunity.school_scope === "National") {
+    const years = opportunity.academic_years.filter((year) => year !== "Any Year");
+    return years.length ? years.slice(0, 2).join(", ") : "Open broadly";
+  }
   const school = opportunity.schools[0];
   if (!school) return "School eligibility unclear";
   return `${school.split("-").map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join(" ")} enrollment required`;
 }
 
-export function OpportunityCard({ opportunity, reasons }: { opportunity: Opportunity; reasons?: string[] }) {
-  const secondary = opportunity.type === "Career" || opportunity.type === "Research" ? deadlineLabel(opportunity) : opportunity.type === "Scholarship" ? opportunity.metadata.awardAmountLabel ?? "Amount varies" : opportunity.type === "Benefit" ? opportunity.metadata.valueLabel ?? "See official source" : opportunity.metadata.studentOffer ?? "See official source";
-  const secondaryLabel = opportunity.type === "Career" || opportunity.type === "Research" ? "Deadline" : opportunity.type === "Scholarship" ? "Award amount" : opportunity.type === "Benefit" ? "Estimated value" : "Student access";
-  return <article className="flex h-full flex-col rounded-[1.5rem] bg-white/92 p-5 shadow-[0_16px_42px_rgba(43,33,26,.055)] ring-1 ring-ink/7 transition duration-200 hover:-translate-y-0.5 hover:bg-white hover:shadow-[0_22px_55px_rgba(43,33,26,.095)] motion-reduce:hover:translate-y-0">
-    <div className="flex flex-wrap items-center gap-2"><span className="rule-label text-forest">{opportunity.type}</span><StatusBadge status={opportunity.verification_status}/></div>
-    <div className="mt-5 flex items-start gap-4"><OrganizationLogo opportunity={opportunity} size="md"/><div className="min-w-0 flex-1"><h3 className="font-editorial text-2xl font-bold leading-[1.08] tracking-[-.025em]"><Link href={`/opportunities/${opportunity.id}`} className="rounded-sm hover:text-forest focus:outline-none focus:ring-2 focus:ring-forest/30">{opportunity.title}</Link></h3><p className="mt-2 text-xs font-bold uppercase tracking-[.08em] text-ink/35">{opportunity.organization}</p></div></div>
-    <div className="mt-4 min-w-0 flex-1"><p className="line-clamp-3 text-sm leading-6 text-ink/58">{opportunity.description}</p>{reasons?.length ? <details className="mt-4 rounded-2xl bg-paper/70 px-4 py-3"><summary className="cursor-pointer text-xs font-bold text-ink/58">Why this matches</summary><ul className="mt-2 space-y-1 text-xs leading-5 text-ink/55">{reasons.map((reason)=><li key={reason}>{reason}</li>)}</ul></details> : null}</div>
-    <div className="mt-5 grid grid-cols-2 gap-3 text-xs"><div><p className="font-bold text-ink/35">{secondaryLabel}</p><p className="mt-1 font-black text-forest">{secondary}</p></div><div className="text-right"><p className="font-bold text-ink/35">Eligibility</p><p className="mt-1 font-black text-ink/65">{schoolRestrictionLabel(opportunity)}</p></div></div>
-    <div className="mt-5 grid gap-3"><Link href={`/opportunities/${opportunity.id}`} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-forest px-4 text-sm font-bold text-white shadow-[0_12px_26px_rgba(31,95,67,.14)] hover:bg-ink">Open Opportunity <ArrowIcon /></Link><AddToJourneyButton opportunityId={opportunity.id} className="rounded-xl border border-forest/30 bg-white px-4 text-forest hover:border-forest"/></div>
+export function OpportunityCard({ opportunity, reasons, source }: { opportunity: Opportunity; reasons?: string[]; source?: "discover" | "for_you" }) {
+  return <OpportunityCardContent opportunity={opportunity} reasons={reasons} source={source} />;
+}
+
+export function OpportunityCardContent({ opportunity, reasons, source }: { opportunity: Opportunity; reasons?: string[]; source?: "discover" | "for_you" }) {
+  const publishedDeadline = deadlineLabel(opportunity);
+  const deadline = opportunity.application_deadline && opportunity.application_deadline < new Date().toISOString().slice(0, 10)
+    ? `Closed · ${publishedDeadline}`
+    : publishedDeadline;
+  const value = opportunity.type === "Scholarship"
+    ? opportunity.metadata.awardAmountLabel ?? opportunity.estimated_value_note
+    : opportunity.type === "Benefit"
+      ? opportunity.metadata.valueLabel ?? "See official source"
+      : opportunity.metadata.compensation ?? opportunity.metadata.studentOffer ?? "See official source";
+  const format = opportunity.remote === true ? "Remote" : opportunity.remote === false ? opportunity.location || "In person" : opportunity.location || "Format varies";
+  const cardType = opportunity.type === "Career" || opportunity.type === "Benefit" ? opportunity.category : opportunity.type;
+  const detailHref = `/opportunities/${opportunity.id}`;
+  const titleClass = "rounded-sm hover:text-forest focus:outline-none focus:ring-2 focus:ring-forest/30";
+  return <article data-discover-opportunity={source === "discover" ? opportunity.id : undefined} style={{ color: "var(--unlocked-text)", background: "var(--unlocked-surface)", borderColor: "var(--unlocked-border)" }} className="flex h-full flex-col rounded-[1.25rem] border p-5 shadow-[0_14px_40px_rgba(43,33,26,.05)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_20px_48px_rgba(43,33,26,.085)] motion-reduce:hover:translate-y-0">
+    <div className="flex flex-wrap items-center gap-2"><span className="rule-label text-forest">{cardType}</span><StatusBadge status={opportunity.verification_status}/></div>
+    <div className="mt-5 flex items-start gap-4"><OrganizationLogo opportunity={opportunity} size="md"/><div className="min-w-0 flex-1"><h3 className="font-editorial text-2xl font-bold leading-[1.08] tracking-[-.025em]">{source === "discover" ? <DiscoverOpportunityLink href={detailHref} opportunityId={opportunity.id} category={opportunity.category} className={titleClass}>{opportunity.title}</DiscoverOpportunityLink> : <Link href={detailHref} className={titleClass}>{opportunity.title}</Link>}</h3><p className="mt-2 text-xs font-bold uppercase tracking-[.08em] text-ink/35">{opportunity.organization}</p></div></div>
+    <div className="mt-4 min-w-0 flex-1"><p style={{ color: "var(--unlocked-muted)" }} className="line-clamp-2 text-sm leading-6">{opportunity.description}</p>{reasons?.length ? <details className="mt-4 rounded-xl bg-paper/70 px-4 py-3"><summary className="cursor-pointer text-xs font-bold text-ink/60">Why this matches</summary><ul className="mt-2 space-y-1 text-xs leading-5 text-ink/55">{reasons.map((reason)=><li key={reason}>{reason}</li>)}</ul></details> : null}</div>
+    <dl className="mt-5 grid gap-x-4 gap-y-3 border-t border-ink/10 pt-4 text-xs sm:grid-cols-2">
+      <CardFact label="Deadline" value={deadline} emphasis />
+      <CardFact label="Value" value={value} />
+      <CardFact label="Eligibility" value={eligibilityLabel(opportunity)} />
+      <CardFact label="Format" value={format} />
+    </dl>
+    <div className="mt-5 grid gap-3">{source === "discover" ? <DiscoverOpportunityLink href={detailHref} opportunityId={opportunity.id} category={opportunity.category} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-forest px-4 text-sm font-bold text-white shadow-[0_10px_24px_rgba(31,95,67,.13)] hover:bg-ink">Open Opportunity <ArrowIcon /></DiscoverOpportunityLink> : <Link href={detailHref} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-forest px-4 text-sm font-bold text-white shadow-[0_10px_24px_rgba(31,95,67,.13)] hover:bg-ink">Open Opportunity <ArrowIcon /></Link>}<AddToJourneyButton opportunityId={opportunity.id} className="rounded-xl border border-forest/30 bg-white px-4 text-forest hover:border-forest"/></div>
   </article>;
+}
+
+function CardFact({ label, value, emphasis = false }: { label: string; value: string; emphasis?: boolean }) {
+  return <div className="min-w-0"><dt className="font-bold text-ink/35">{label}</dt><dd className={`mt-1 line-clamp-2 font-bold leading-5 ${emphasis ? "text-forest" : "text-ink/65"}`}>{value}</dd></div>;
 }

@@ -34,7 +34,8 @@ if (globalSearch) {
 }
 
 assert.doesNotMatch(discoverPage, /listPublishedOpportunities/, "Discover must not serialize the full catalog through the route payload.");
-assert.match(opportunityFilter, /view: "discover"/, "Discover should request only a bounded server-side result window.");
+assert.match(opportunityFilter, /params\.set\("view", "discover"\)/, "Discover should identify its bounded server-side result window.");
+assert.match(opportunityFilter, /params\.set\("limit", String\(visibleCount\)\)/, "Discover should bound server results to the visible window.");
 assert.match(opportunityFilter, /useDeferredValue/, "Discover search input should defer request work.");
 assert.match(opportunityFilter, /AbortController/, "Discover must cancel superseded filter requests.");
 assert.match(opportunityFilter, /ResultSkeleton/, "Discover should show stable skeleton rows while the catalog loads.");

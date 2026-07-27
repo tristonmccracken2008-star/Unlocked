@@ -6,10 +6,17 @@ export const listingDifficultyOptions = ["Open", "Competitive", "Highly Competit
 
 export type DiscoverSortMode = "Relevant" | "Newest" | "Deadline" | "Alphabetical";
 
+export type DiscoverRecovery = {
+  filter: "type" | "category" | "major" | "school" | "paid" | "remote" | "difficulty" | "freshmanFriendly" | "deadline";
+  label: string;
+  resultCount: number;
+};
+
 export type DiscoverCatalogPayload = {
   opportunities: Opportunity[];
   total: number;
   limit: number;
+  recovery: DiscoverRecovery | null;
   facets: {
     categories: string[];
     majors: string[];
@@ -29,4 +36,3 @@ export function listingDeadlineLabel(item: Pick<Opportunity, "application_deadli
   if (item.metadata.deadlineType === "unknown") return "Deadline unknown";
   return "Not announced";
 }
-

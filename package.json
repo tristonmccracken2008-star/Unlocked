@@ -76,7 +76,7 @@
     "preview:open-line-renderer": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/render-open-line-preview.tsx",
     "preview:open-line-markers": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/render-open-line-marker-gallery.tsx",
     "preview:open-line-motion": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/render-open-line-motion-laboratory.tsx",
-    "check:discover": "node scripts/check-discover-redesign.mjs",
+    "check:discover": "node scripts/check-discover-redesign.mjs && node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-discover-search.ts && node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-opportunity-report.ts",
     "check:journey-redesign": "node scripts/check-journey-redesign.mjs",
     "check:journey-signature": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-journey-signature.ts",
     "check:journey-professional": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-journey-professional.ts",

@@ -286,7 +286,7 @@ Current behavior:
 
 - For You consumes `buildRecommendationService()` through the server-gated recommendation API.
 - Journey uses tracked opportunity records and journey milestones only; it does not generate recommendations.
-- Discover uses search, filters, and lightweight local relevance sorting for manual browsing.
+- Discover uses bounded server-side search, filters, and deterministic non-personalized relevance sorting for manual browsing.
 
 This preserves the product model:
 

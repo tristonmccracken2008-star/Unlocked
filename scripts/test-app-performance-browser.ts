@@ -115,8 +115,10 @@ async function preserveLocalHttpForProductionWebkit(context: BrowserContext, ori
       if (url.pathname.startsWith("/api/") && route.request().method() !== "GET") {
         const headers = await route.request().allHeaders();
         headers.origin = secureOrigin;
+        headers["sec-fetch-site"] = "same-origin";
         if (headers.referer) headers.referer = headers.referer.replace(origin, secureOrigin);
-        await route.continue({ headers });
+        const response = await route.fetch({ headers });
+        await route.fulfill({ response });
       } else {
         await route.continue();
       }
@@ -147,7 +149,12 @@ function observePage(page: Page) {
     consoleErrors.push(detail);
   });
   page.on("requestfailed", (request) => {
-    if (request.failure()?.errorText === "net::ERR_ABORTED") return;
+    const failure = request.failure()?.errorText.toLowerCase() ?? "";
+    const url = new URL(request.url());
+    const expectedCancellation = failure.includes("cancel")
+      && request.method() === "GET"
+      && (url.pathname === "/api/opportunities" || url.searchParams.has("_rsc"));
+    if (failure === "net::err_aborted" || expectedCancellation) return;
     if (request.resourceType() === "image" && new URL(request.url()).origin !== new URL(page.url()).origin) return;
     requestFailures.push(`${request.method()} ${request.url()} ${request.failure()?.errorText ?? "failed"}`);
   });
@@ -175,7 +182,7 @@ async function verifyDiscover(page: Page, origin: string, screenshotLabel: strin
     if (url.pathname === "/api/opportunities") catalogRequests.push(url.search);
   });
   await page.goto(`${origin}/opportunities`, { waitUntil: "domcontentloaded", timeout: 45_000 });
-  await page.getByRole("heading", { name: "Find the right opportunity." }).waitFor({ state: "visible" });
+  await page.getByRole("heading", { name: "Find what’s out there." }).waitFor({ state: "visible" });
   await page.getByRole("link", { name: "Open Opportunity" }).first().waitFor({ state: "visible", timeout: 45_000 });
   const coldReadyMs = Math.round(performance.now() - startedAt);
   assert.equal(catalogRequests.filter((search) => !new URLSearchParams(search).has("view")).length, 0, "Discover must never request the unbounded catalog.");
@@ -197,7 +204,7 @@ async function verifyDiscover(page: Page, origin: string, screenshotLabel: strin
     }
     await route.continue();
   });
-  const search = page.getByPlaceholder("Search scholarships, internships, research, benefits...");
+  const search = page.getByPlaceholder("Try “first-year software internship” or “Chicago scholarship”");
   await search.fill("engineering");
   await Promise.race([searchRequest, new Promise((_, reject) => setTimeout(() => reject(new Error("Discover search request did not start.")), 5000))]);
   assert.equal(await page.getByRole("link", { name: "Open Opportunity" }).count(), cardsBefore, "Discover must retain existing results while a refresh is pending.");
@@ -205,6 +212,33 @@ async function verifyDiscover(page: Page, origin: string, screenshotLabel: strin
   releaseSearch();
   await page.getByText("Updating results…", { exact: true }).waitFor({ state: "hidden", timeout: 10_000 });
   await page.unroute("**/api/opportunities?*");
+  assert.equal(new URL(page.url()).searchParams.get("query"), "engineering", "Discover search must synchronize with the URL.");
+  await page.getByLabel("Sort").selectOption("Newest");
+  assert.equal(new URL(page.url()).searchParams.get("sort"), "Newest", "Discover sorting must synchronize with the URL.");
+  if (screenshotLabel === "mobile") {
+    await page.getByRole("button", { name: "Filters" }).click();
+    const dialog = page.getByRole("dialog", { name: "Filter opportunities" });
+    await dialog.waitFor({ state: "visible" });
+    await dialog.press("Escape");
+    await dialog.waitFor({ state: "hidden" });
+  }
+  if (screenshotLabel === "narrow-desktop") {
+    const themeSaveStatus = await page.evaluate(async () => (await fetch("/api/account/data", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ preferences: { appearance: "midnight", updatedAt: new Date().toISOString() } }),
+    })).status);
+    assert.equal(themeSaveStatus, 200, "The browser fixture must persist the dark-theme preference.");
+    await page.reload({ waitUntil: "domcontentloaded" });
+    await page.getByRole("link", { name: "Open Opportunity" }).first().waitFor({ state: "visible", timeout: 20_000 });
+    await page.waitForFunction(() => document.documentElement.dataset.theme === "midnight");
+    const cardTextColors = await page.locator("[data-discover-opportunity]").first().evaluate((card) => ({
+      title: getComputedStyle(card.querySelector("h3 a")!).color,
+      description: getComputedStyle(card.querySelector("p[class*='line-clamp']")!).color,
+    }));
+    assert.match(cardTextColors.title, /251,\s*243,\s*232/, "Discover card titles must use the readable dark-theme text token.");
+    assert.match(cardTextColors.description, /251,\s*243,\s*232/, "Discover card descriptions must use the readable dark-theme text token.");
+  }
   await assertStableLayout(page, screenshotLabel);
   await page.screenshot({ path: path.join(outputDirectory, `${screenshotLabel}-discover.png`), fullPage: true });
 
@@ -212,6 +246,36 @@ async function verifyDiscover(page: Page, origin: string, screenshotLabel: strin
   await page.reload({ waitUntil: "domcontentloaded" });
   await page.getByRole("link", { name: "Open Opportunity" }).first().waitFor({ state: "visible", timeout: 20_000 });
   const warmReadyMs = Math.round(performance.now() - warmStartedAt);
+  const stateUrl = page.url();
+  await page.evaluate(() => window.scrollTo(0, Math.min(500, document.documentElement.scrollHeight - innerHeight)));
+  const previousScroll = await page.evaluate(() => window.scrollY);
+  await page.getByRole("link", { name: "Open Opportunity" }).first().click();
+  await page.getByText("Official next step", { exact: true }).waitFor({ state: "visible", timeout: 20_000 });
+  if (screenshotLabel === "desktop") {
+    await page.getByRole("button", { name: "Report incorrect information" }).click();
+    await page.getByLabel("What needs attention?").selectOption("incorrect_deadline");
+    await page.getByRole("button", { name: "Send report" }).click();
+    await page.getByText("Thank you. Our team will review this listing.", { exact: true }).waitFor({ state: "visible" });
+  }
+  await page.goBack({ waitUntil: "domcontentloaded" });
+  await page.getByRole("heading", { name: "Find what’s out there." }).waitFor({ state: "visible" });
+  await page.getByRole("link", { name: "Open Opportunity" }).first().waitFor({ state: "visible", timeout: 20_000 });
+  assert.equal(page.url(), stateUrl, "Returning from a detail page must restore the complete Discover URL.");
+  assert.equal(await search.evaluate((element) => (element as HTMLInputElement).value), "engineering", "Returning from a detail page must restore the search query.");
+  if (previousScroll > 0) assert.ok(await page.evaluate(() => window.scrollY) > 0, "Returning from a detail page must restore scroll position.");
+
+  await page.goto(`${origin}/opportunities?type=AI&category=Scholarships`, { waitUntil: "domcontentloaded" });
+  await page.getByText("No exact matches yet.", { exact: true }).waitFor({ state: "visible" });
+  await page.getByRole("button", { name: "Use Any category" }).click();
+  await page.getByRole("link", { name: "Open Opportunity" }).first().waitFor({ state: "visible", timeout: 20_000 });
+  if (screenshotLabel === "narrow-desktop") {
+    const themeResetStatus = await page.evaluate(async () => (await fetch("/api/account/data", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ preferences: { appearance: "light", updatedAt: new Date().toISOString() } }),
+    })).status);
+    assert.equal(themeResetStatus, 200, "The browser fixture must restore the light-theme preference.");
+  }
   return { coldReadyMs, warmReadyMs, sessionRequests, catalogRequests: catalogRequests.length };
 }
 
@@ -219,7 +283,7 @@ async function verifyPrimaryRoutes(page: Page, origin: string, screenshotLabel: 
   const forYouStartedAt = performance.now();
   await page.goto(`${origin}/advisor`, { waitUntil: "domcontentloaded", timeout: 45_000 });
   try {
-    await page.getByRole("heading", { name: /A shortlist built around you|Opportunities worth your attention|No strong matches yet/ }).waitFor({ state: "visible", timeout: 45_000 });
+    await page.getByRole("heading", { name: /Your opportunities are ready|A shortlist built around you|Opportunities worth your attention|No strong matches yet/ }).waitFor({ state: "visible", timeout: 45_000 });
   } catch (error) {
     await page.screenshot({ path: path.join(outputDirectory, `${screenshotLabel}-for-you-failure.png`), fullPage: true });
     console.error("For You browser readiness failure", {
@@ -319,8 +383,10 @@ try {
     await installSession(context, origin, session.token);
     const page = await context.newPage();
     const observed = observePage(page);
+    let discover;
     let primaryRoutes;
     try {
+      discover = await verifyDiscover(page, origin, "webkit");
       primaryRoutes = await verifyPrimaryRoutes(page, origin, "webkit");
     } catch (error) {
       console.error("WebKit browser diagnostics", observed);
@@ -328,7 +394,7 @@ try {
     }
     assert.deepEqual(observed.consoleErrors, [], `WebKit browser console errors: ${observed.consoleErrors.join(" | ")}`);
     assert.deepEqual(observed.requestFailures, [], `WebKit request failures: ${observed.requestFailures.join(" | ")}`);
-    results.push({ browser: "webkit", viewport: "desktop", ...primaryRoutes });
+    results.push({ browser: "webkit", viewport: "desktop", ...discover, ...primaryRoutes });
     await context.close();
   } else {
     for (const viewport of viewports) {
@@ -361,7 +427,8 @@ try {
 
 if (browserFailure) {
   console.error(browserFailure);
-  process.exitCode = 1;
+  process.exit(1);
 } else {
   console.log(JSON.stringify({ message: "Full-app browser performance checks passed.", screenshots: outputDirectory, results }, null, 2));
+  process.exit(0);
 }

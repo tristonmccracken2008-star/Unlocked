@@ -44,9 +44,11 @@ assert.match(accountAuth, /resetAccountSessionCache\(\)/, "Sign-in/sign-out UI m
 
 assert.doesNotMatch(discover, /buildRecommendationService|hydrateAccountData|recommendation_refresh/, "Discover must not perform browser-side Advisor recommendation generation.");
 assert.match(discover, /useDeferredValue/, "Discover search must defer expensive filtering.");
-assert.match(discover, /view: "discover"/, "Discover must request bounded server-side result windows.");
+assert.match(discover, /params\.set\("view", "discover"\)/, "Discover must identify its bounded server-side result windows.");
+assert.match(discover, /params\.set\("limit", String\(visibleCount\)\)/, "Discover must bound server results to the visible window.");
 assert.doesNotMatch(discover, /filterOpportunities/, "Discover must not filter the full catalog on the browser main thread.");
-assert.match(discoverCatalog, /relevanceScore/, "Discover should preserve its lightweight relevance sort on the server.");
+assert.match(discoverCatalog, /searchScore\(query, index\.documentsById\.get\(item\.id\)!\) \+ qualityScore\(item, today, cutoff\)/, "Discover should combine indexed search relevance with catalog quality on the server.");
+assert.match(discoverCatalog, /const scores = new Map/, "Discover should compute ranking scores once before sorting.");
 
 assert.doesNotMatch(journeyDashboard, /import \{[^}]*opportunities,/, "Journey dashboard must not statically import the full catalog.");
 assert.doesNotMatch(journeyDashboard, /buildRecommendationService|NextToReview|JourneyRecapCard/, "Journey must not include retired recommendations or recap sharing.");

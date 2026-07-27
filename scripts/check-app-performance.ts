@@ -58,10 +58,15 @@ const sortedSearchSamples = [...searchSamples].sort((left, right) => left - righ
 const searchP95 = sortedSearchSamples[Math.min(sortedSearchSamples.length - 1, Math.ceil(sortedSearchSamples.length * 0.95) - 1)];
 const fullPayloadBytes = Buffer.byteLength(JSON.stringify({ opportunities }));
 const boundedPayloadBytes = Buffer.byteLength(JSON.stringify(result));
-const canonicalCatalogCount = opportunities.filter((item) => isCanonicalCatalogOpportunity(item.id)).length;
+const canonicalCatalogCount = opportunities.filter(
+  (item) =>
+    isCanonicalCatalogOpportunity(item.id) &&
+    item.verification_status !== "archived" &&
+    item.verification_status !== "broken_source",
+).length;
 
 assert.equal(result.opportunities.length, 16, "Discover should return only its visible first window.");
-assert.equal(result.total, canonicalCatalogCount, "Discover must preserve the complete canonical result count without duplicate source records.");
+assert.equal(result.total, canonicalCatalogCount, "Discover must preserve the complete public canonical result count without duplicate or unpublished source records.");
 assert.ok(boundedPayloadBytes < 1_000_000, `The first Discover payload must stay below 1 MB; received ${boundedPayloadBytes} bytes.`);
 assert.ok(boundedPayloadBytes < fullPayloadBytes * 0.05, "The first Discover payload must be at least 95% smaller than the old full-catalog response.");
 assert.ok(p95 < 500, `Discover server projection exceeded the catastrophic 500 ms p95 ceiling: ${p95.toFixed(2)} ms.`);

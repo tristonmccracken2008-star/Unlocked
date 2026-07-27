@@ -104,6 +104,19 @@ These 90-day events measure outcomes without changing ranking and intentionally 
 
 Attribution is browser-session scoped and cleared on logout or account switch.
 
+## Discover Events
+
+These 90-day events measure search usefulness and catalog quality without collecting search queries, filter values, URLs, or student profile data.
+
+| Event | Allowed fields | Product question |
+| --- | --- | --- |
+| `discover_result_impression_v1` | `opportunityId`, `category`, `source` | Which bounded catalog cohorts were visible? |
+| `discover_result_opened_v1` | `opportunityId`, `category`, `source` | Did a visible result lead to a detail review? |
+| `discover_zero_result_v1` | `source` | How often did Discover return no results? |
+| `discover_report_submitted_v1` | `opportunityId`, `action`, `source` | Which bounded catalog-quality issue was reported? |
+
+Discover events intentionally omit raw search text and serialized filters. `action` on a submitted report is restricted to the documented issue taxonomy.
+
 ## Product Health And Errors
 
 `product_health_timing_v1` accepts only `component`, `metric`, clamped `durationMs`, browser, theme, and device class. It measures server projection, initial Open Line render, hydration, dialog open, transition, PNG generation, copy, and share latency. Only count, total, and broad duration buckets are retained for 30 days; individual traces are not retained.
