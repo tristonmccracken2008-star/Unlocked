@@ -121,6 +121,10 @@ Analytics include bounded notification type, priority, channel, suppression reas
 
 ## Validation
 
+`npm run check:notifications` remains deployment-blocking. It covers correctness, privacy, security, account isolation, idempotency, and a broad two-second ceiling for a complete 250-item notification-generation batch. That ceiling catches severe algorithmic regressions without treating shared build-worker scheduling as product failure.
+
+`npm run benchmark:notifications` is the controlled performance suite. It warms the runtime and enforces strict average, p95, and maximum budgets for schedule generation, material-change detection, email rendering, preference normalization, notification-center reads, mutations, deduplication, and due-queue access. Run it during performance work and scheduled CI; millisecond-level percentile gates do not run in Vercel's deployment-blocking build because shared workers have variable CPU scheduling and garbage collection.
+
 ```bash
 npm run check:notifications
 npm run benchmark:notifications

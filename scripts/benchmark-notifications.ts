@@ -127,6 +127,17 @@ started = performance.now();
 for (let index = 0; index < 30; index += 1) await readDueNotificationSchedules(now, 100);
 asyncTimings.schedulerDueBatchAverageMs = Number(((performance.now() - started) / 30).toFixed(3));
 
-for (const timing of pure) assert.ok(timing.p95Ms < 500, `${timing.name} exceeded the catastrophic p95 ceiling.`);
+const strictPureBudgets: Record<string, { averageMs: number; p95Ms: number; worstMs: number }> = {
+  notification_generation_250: { averageMs: 150, p95Ms: 250, worstMs: 500 },
+  change_detection_1000: { averageMs: 50, p95Ms: 100, worstMs: 250 },
+  email_render_500: { averageMs: 25, p95Ms: 50, worstMs: 150 },
+  preference_normalization_1000: { averageMs: 50, p95Ms: 100, worstMs: 250 },
+};
+for (const timing of pure) {
+  const budget = strictPureBudgets[timing.name]!;
+  assert.ok(timing.averageMs < budget.averageMs, `${timing.name} exceeded the strict average budget.`);
+  assert.ok(timing.p95Ms < budget.p95Ms, `${timing.name} exceeded the strict p95 budget.`);
+  assert.ok(timing.worstMs < budget.worstMs, `${timing.name} exceeded the strict maximum budget.`);
+}
 for (const [name, value] of Object.entries(asyncTimings)) assert.ok(value < 100, `${name} exceeded the catastrophic average ceiling.`);
 console.log("Notification performance benchmark passed", { pure, storeAndScheduler: asyncTimings });
