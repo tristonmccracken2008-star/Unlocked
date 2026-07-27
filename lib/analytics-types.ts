@@ -48,6 +48,17 @@ export const productIntelligenceEvents = {
   discoverReportSubmitted: "discover_report_submitted_v1",
   firstOpportunitySaved: "first_opportunity_saved_v1",
   activationAchieved: "activation_achieved_v1",
+  notificationGenerated: "notification_generated_v1",
+  notificationSuppressed: "notification_suppressed_v1",
+  notificationDelivered: "notification_delivered_v1",
+  notificationViewed: "notification_viewed_v1",
+  notificationRead: "notification_read_v1",
+  notificationDismissed: "notification_dismissed_v1",
+  notificationActed: "notification_acted_v1",
+  notificationPreferenceChanged: "notification_preference_changed_v1",
+  notificationDigestGenerated: "notification_digest_generated_v1",
+  notificationDigestSkipped: "notification_digest_skipped_v1",
+  notificationEmailBounced: "notification_email_bounced_v1",
   productHealthTiming: "product_health_timing_v1",
   operationalError: "product_operational_error_v1",
 } as const;
@@ -117,6 +128,10 @@ export type AnalyticsEventProperties = {
   reason?: string;
   referralCode?: string;
   referralReward?: string;
+  channel?: string;
+  priority?: string;
+  suppressionReason?: string;
+  bundled?: string;
 };
 
 type PropertyKey = keyof AnalyticsEventProperties;
@@ -180,6 +195,17 @@ export const productIntelligenceDefinitions: Record<ProductIntelligenceEventName
   discover_report_submitted_v1: action("Measure submitted catalog-quality reports by bounded issue type.", ["opportunityId", "action", "source"]),
   first_opportunity_saved_v1: action("Measure the first server-confirmed opportunity save.", ["source"]),
   activation_achieved_v1: action("Measure server-confirmed first-session activation.", ["source"]),
+  notification_generated_v1: action("Measure notification generation by bounded category.", ["category", "priority", "channel", "bundled"]),
+  notification_suppressed_v1: action("Measure safe suppression reasons without storing notification content.", ["category", "channel", "suppressionReason"]),
+  notification_delivered_v1: action("Measure confirmed channel delivery.", ["category", "channel", "priority"]),
+  notification_viewed_v1: action("Measure notification-center use without retaining notification contents.", ["category", "channel"]),
+  notification_read_v1: action("Measure notification usefulness through explicit reads.", ["category"]),
+  notification_dismissed_v1: action("Measure explicit dismissal without storing notification content.", ["category"]),
+  notification_acted_v1: action("Measure notification primary-action use.", ["category"]),
+  notification_preference_changed_v1: action("Measure bounded preference changes without storing settings values.", ["category", "action"]),
+  notification_digest_generated_v1: action("Measure useful digest generation.", ["bundled"]),
+  notification_digest_skipped_v1: action("Measure empty digests without storing account context.", ["suppressionReason"]),
+  notification_email_bounced_v1: error("Measure provider bounce and complaint categories."),
   product_health_timing_v1: timing("Aggregate bounded performance timings without retaining individual traces."),
   product_operational_error_v1: error("Aggregate safe error categories without messages, content, or stack traces."),
 };
@@ -204,7 +230,7 @@ function safeString(key: PropertyKey, value: unknown) {
   if (key === "deviceClass") return safeDevice.test(cleaned) ? cleaned : undefined;
   if (key === "browser") return safeBrowser.test(cleaned) ? cleaned : undefined;
   if (key === "errorType") return safeError.test(cleaned) ? cleaned : undefined;
-  if (["component", "metric", "source", "action", "transition", "control", "semesterRelation", "section", "category", "feedRole"].includes(key)) return safeToken.test(cleaned) ? cleaned : undefined;
+  if (["component", "metric", "source", "action", "transition", "control", "semesterRelation", "section", "category", "feedRole", "channel", "priority", "suppressionReason", "bundled"].includes(key)) return safeToken.test(cleaned) ? cleaned : undefined;
   if (key === "searchType") return ["school", "major", "global", "opportunity"].includes(cleaned) ? cleaned : undefined;
   if (["stepId", "stepIndex", "stepCount", "filterName", "referralReward"].includes(key)) return safeToken.test(cleaned) ? cleaned : undefined;
   if (key === "searchValue") return cleaned;

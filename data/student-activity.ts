@@ -22,6 +22,7 @@ export type JourneyMilestoneDetails = {
   notes?: string;
   milestoneDate?: string;
   reminderAt?: string;
+  reminderText?: string;
   documents?: JourneyMilestoneDocumentReference[];
   source: "student_reported";
 };

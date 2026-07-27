@@ -58,6 +58,7 @@ export function JourneyTimelineControl({ control }: { control: JourneyTimelineCo
   const [notes, setNotes] = useState("");
   const [milestoneDate, setMilestoneDate] = useState("");
   const [reminderAt, setReminderAt] = useState("");
+  const [reminderText, setReminderText] = useState("");
   const [documents, setDocuments] = useState<JourneyMilestoneDocumentReference[]>([]);
   const [error, setError] = useState("");
   const [result, setResult] = useState<TransitionResponse | null>(null);
@@ -117,6 +118,7 @@ export function JourneyTimelineControl({ control }: { control: JourneyTimelineCo
             notes: notes.trim() || undefined,
             milestoneDate: milestoneDate || undefined,
             reminderAt: reminderAt ? new Date(reminderAt).toISOString() : undefined,
+            reminderText: reminderAt ? reminderText.trim() || undefined : undefined,
             documents,
           },
         }),
@@ -200,6 +202,7 @@ export function JourneyTimelineControl({ control }: { control: JourneyTimelineCo
                   <label>Milestone date<input type="date" value={milestoneDate} onChange={(event) => setMilestoneDate(event.target.value)} /></label>
                   <label>Reminder<input type="datetime-local" value={reminderAt} onChange={(event) => setReminderAt(event.target.value)} /></label>
                 </div>
+                {reminderAt ? <label>Reminder note<input type="text" maxLength={160} value={reminderText} onChange={(event) => setReminderText(event.target.value)} placeholder="For example, request a recommendation letter" /></label> : null}
                 <label>Document references<input type="file" multiple onChange={(event) => setDocuments(documentsFrom(event.target.files))} /></label>
                 <p className={styles.documentNotice}>For privacy, UnlockED records filenames only. The files are not uploaded or verified.</p>
                 {documents.length ? <ul className={styles.documentList}>{documents.map((document) => <li key={document.id}>{document.name}</li>)}</ul> : null}

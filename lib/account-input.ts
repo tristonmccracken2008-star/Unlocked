@@ -1,6 +1,7 @@
 import { journeyProgressTransitions, opportunityTrackerStatuses, type JourneyMilestoneDetails, type JourneyTransitionHistoryRecord, type StudentActivity, type TrackedOpportunity } from "@/data/student-activity";
 import type { StudentProfile } from "@/data/student-profile";
 import type { AccountData, SavedOpportunityRecord, UserPreferencesRecord } from "./account-types";
+import { normalizeNotificationPreferences } from "./notification-engine";
 
 const maxTrackedOpportunities = 1_000;
 const safeIdPattern = /^[A-Za-z0-9][A-Za-z0-9._:-]{0,159}$/;
@@ -170,6 +171,7 @@ function cleanJourneyMilestoneDetails(value: unknown): JourneyMilestoneDetails |
   const milestoneTime = typeof input.milestoneDate === "string" && /^\d{4}-\d{2}-\d{2}$/.test(input.milestoneDate) ? Date.parse(`${input.milestoneDate}T12:00:00.000Z`) : Number.NaN;
   const milestoneDate = Number.isFinite(milestoneTime) && milestoneTime >= Date.UTC(2000, 0, 1) && milestoneTime <= Date.now() + 86_400_000 ? input.milestoneDate : undefined;
   const reminderAt = safeReminderTimestamp(input.reminderAt);
+  const reminderText = stringValue(input.reminderText, 160);
   const documents = Array.isArray(input.documents) ? input.documents.slice(0, 3).flatMap((document) => {
     if (!document || typeof document !== "object") return [];
     const candidate = document as Record<string, unknown>;
@@ -178,8 +180,8 @@ function cleanJourneyMilestoneDetails(value: unknown): JourneyMilestoneDetails |
     if (!id || !name) return [];
     return [{ id, name, mimeType: typeof candidate.mimeType === "string" ? candidate.mimeType.slice(0, 100) : undefined, size: typeof candidate.size === "number" && Number.isFinite(candidate.size) ? Math.max(0, Math.min(candidate.size, 25_000_000)) : undefined, stored: false as const }];
   }) : undefined;
-  if (!notes && !milestoneDate && !reminderAt && !documents?.length) return undefined;
-  return { notes, milestoneDate, reminderAt, documents, source: "student_reported" };
+  if (!notes && !milestoneDate && !reminderAt && !reminderText && !documents?.length) return undefined;
+  return { notes, milestoneDate, reminderAt, reminderText, documents, source: "student_reported" };
 }
 
 function cleanSavedOpportunities(value: unknown): SavedOpportunityRecord[] | undefined {
@@ -206,6 +208,9 @@ function cleanPreferences(value: unknown): UserPreferencesRecord | undefined {
       ? input.hiddenDismissedIds.map(safeId).filter((item): item is string => Boolean(item)).slice(0, maxTrackedOpportunities)
       : undefined,
     appearance: enumValue(input.appearance, ["light", "midnight", "forest", "system"] as const) ?? "light",
+    notifications: input.notifications && typeof input.notifications === "object" && !Array.isArray(input.notifications)
+      ? normalizeNotificationPreferences(input.notifications, updatedAt)
+      : undefined,
     updatedAt,
   };
 }

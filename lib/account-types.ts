@@ -4,6 +4,7 @@ import type { StudentProfile } from "@/data/student-profile";
 import type { AdvisorAccountData } from "./advisor/types";
 import type { BillingRecord } from "./billing";
 import type { ReferralAccountData } from "./referrals";
+import type { NotificationPreferences } from "./notification-types";
 
 export type AuthUser = {
   id: string;
@@ -34,6 +35,7 @@ export type UserPreferencesRecord = {
   preferredTypes?: string[];
   hiddenDismissedIds?: string[];
   appearance?: "light" | "midnight" | "forest" | "system";
+  notifications?: NotificationPreferences;
   updatedAt: string;
 };
 

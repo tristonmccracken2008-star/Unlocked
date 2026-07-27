@@ -23,6 +23,24 @@ Schema changes require a new event suffix and `analyticsSchemaVersion`. Existing
 
 Optional context fields are limited to opaque opportunity/recommendation IDs; coarse canonical recommendation category, feed role, and repeat-exposure count; bounded status, action, transition, source, format, appearance, privacy-control, and semester-relation tokens; safe browser/theme/device classes; error categories; and clamped timing values. Position, prose, URLs, names, email, school profile data, GPA, citizenship, financial data, essays, notes, explanations, narrative text, private branches, and exported content are prohibited.
 
+## Notification events
+
+Notification analytics use the same aggregate-only contract. They may retain a bounded notification category, priority, channel, suppression reason, action, and bundled yes/no or capped count. They never retain titles, organizations, email addresses, private reminder wording, Journey notes, opportunity-change values, provider identifiers, or email contents.
+
+- `notification_generated_v1`: a canonical notification record was created.
+- `notification_suppressed_v1`: an event was ineligible or blocked for a bounded operational reason.
+- `notification_delivered_v1`: a provider webhook confirmed channel delivery.
+- `notification_viewed_v1`: the authenticated notification center was loaded.
+- `notification_read_v1`: one or all notifications were marked read.
+- `notification_dismissed_v1`: a notification was explicitly dismissed.
+- `notification_acted_v1`: the primary notification action was selected.
+- `notification_preference_changed_v1`: notification settings were saved.
+- `notification_digest_generated_v1`: a non-empty optional digest was created.
+- `notification_digest_skipped_v1`: an optional digest had no meaningful content.
+- `notification_email_bounced_v1`: a provider reported a bounce or complaint using a safe error category.
+
+Provider acceptance is not counted as delivery. Only the signed delivery webhook emits `notification_delivered_v1`.
+
 ## Journey Events
 
 All Journey action aggregates are retained for 90 days.

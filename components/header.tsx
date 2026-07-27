@@ -6,12 +6,14 @@ import { Logo } from "./logo";
 import { AccountButton } from "./account-auth";
 import { accountSessionEvent, readAccountSession } from "@/data/account-sync";
 import type { AccountSession } from "@/lib/account-types";
+import { NotificationNavButton } from "./notification-nav-button";
 
 const destinations = [["Discover", "/opportunities"], ["For You", "/advisor"], ["Journey", "/"], ["Refer", "/referral"]] as const;
 
 function isServerProtectedProductPath(pathname: string) {
   return pathname === "/advisor"
     || pathname === "/profile"
+    || pathname === "/notifications"
     || pathname === "/referral"
     || pathname === "/my-opportunities"
     || pathname.startsWith("/opportunities")
@@ -70,6 +72,7 @@ export function Header() {
           {destinations.map(([label, href]) => navigationLink(label, href))}
         </nav>
         <div className="flex items-center gap-3">
+          <NotificationNavButton active={pathname?.startsWith("/notifications")} />
           <a href="/profile" className={`inline-flex min-h-11 items-center rounded-full px-3 text-xs font-bold transition duration-200 active:scale-[.98] ${pathname?.startsWith("/profile") ? "bg-white text-forest shadow-[0_8px_20px_rgba(43,33,26,.08)]" : "text-ink/45 hover:bg-white/75 hover:text-forest"}`}>Profile</a>
           <AccountButton compact />
         </div>

@@ -1,9 +1,10 @@
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
 import { getAdminSession } from "@/lib/admin-auth";
 import { validateOpportunityInput } from "@/lib/content-validation";
 import { deleteManagedOpportunity, getManagedRecord, saveManagedOpportunity, setManagedArchive } from "@/lib/content-store";
 import type { Opportunity } from "@/data/opportunities";
 import { assertSameOrigin, enforceRateLimit, readBoundedJson, securityErrorResponse } from "@/lib/security";
+import { queueMaterialOpportunityChanges } from "@/lib/notification-service";
 
 export const dynamic = "force-dynamic";
 const noStoreHeaders = { "Cache-Control": "no-store, max-age=0" };
@@ -51,7 +52,13 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     };
     const previous = { title: current.opportunity.title, organization: current.opportunity.organization, type: current.opportunity.type, category: current.opportunity.category, description: current.opportunity.description, eligibility: current.opportunity.eligibility, school_scope: current.opportunity.school_scope, schools: current.opportunity.schools, tags: current.opportunity.tags, estimated_value: current.opportunity.estimated_value, deadline: current.opportunity.deadline, official_source_url: current.opportunity.official_source_url, verification_status: current.opportunity.verification_status, last_verified: current.opportunity.last_verified };
     const changed = (Object.keys(input) as (keyof typeof input)[]).filter((field) => JSON.stringify(previous[field as keyof typeof previous]) !== JSON.stringify(input[field]));
-    return NextResponse.json({ record: await saveManagedOpportunity(next, auth.session!.user.email, changed) }, { headers: noStoreHeaders });
+    const record = await saveManagedOpportunity(next, auth.session!.user.email, changed);
+    after(async () => {
+      await queueMaterialOpportunityChanges(current.opportunity, next).catch((error) => {
+        console.warn("[UnlockED notifications] Opportunity change queue failed", { errorCategory: error instanceof Error ? error.name : "unknown" });
+      });
+    });
+    return NextResponse.json({ record }, { headers: noStoreHeaders });
   } catch (error) {
     console.error("[UnlockED CMS] update failed", { errorCategory: error instanceof Error ? error.name : "unknown" });
     return securityErrorResponse(error, "Unable to update opportunity.");
@@ -64,7 +71,17 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     if (auth.response) return auth.response;
     const body = await readBoundedJson<{ archived?: unknown }>(request, 2 * 1024);
     if (typeof body.archived !== "boolean") return NextResponse.json({ error: "Archive state is required" }, { status: 400, headers: noStoreHeaders });
-    return NextResponse.json({ record: await setManagedArchive(auth.id!, body.archived, auth.session!.user.email) }, { headers: noStoreHeaders });
+    const current = await getManagedRecord(auth.id!);
+    if (!current || current.deleted) return NextResponse.json({ error: "Opportunity not found" }, { status: 404, headers: noStoreHeaders });
+    const record = await setManagedArchive(auth.id!, body.archived, auth.session!.user.email);
+    const beforeOpportunity: Opportunity = current.archived ? { ...current.opportunity, verification_status: "archived" } : current.opportunity;
+    const changedOpportunity: Opportunity = body.archived ? { ...current.opportunity, verification_status: "archived" } : current.opportunity;
+    after(async () => {
+      await queueMaterialOpportunityChanges(beforeOpportunity, changedOpportunity).catch((error) => {
+        console.warn("[UnlockED notifications] Archive change queue failed", { errorCategory: error instanceof Error ? error.name : "unknown" });
+      });
+    });
+    return NextResponse.json({ record }, { headers: noStoreHeaders });
   } catch (error) {
     console.error("[UnlockED CMS] archive failed", { errorCategory: error instanceof Error ? error.name : "unknown" });
     return securityErrorResponse(error, "Unable to archive opportunity.");
@@ -75,7 +92,14 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
   try {
     const auth = await authorizedMutation(request, params);
     if (auth.response) return auth.response;
+    const current = await getManagedRecord(auth.id!);
+    if (!current || current.deleted) return NextResponse.json({ error: "Opportunity not found" }, { status: 404, headers: noStoreHeaders });
     await deleteManagedOpportunity(auth.id!, auth.session!.user.email);
+    after(async () => {
+      await queueMaterialOpportunityChanges(current.opportunity, { ...current.opportunity, verification_status: "archived" }).catch((error) => {
+        console.warn("[UnlockED notifications] Delete change queue failed", { errorCategory: error instanceof Error ? error.name : "unknown" });
+      });
+    });
     return NextResponse.json({ ok: true }, { headers: noStoreHeaders });
   } catch (error) {
     console.error("[UnlockED CMS] delete failed", { errorCategory: error instanceof Error ? error.name : "unknown" });

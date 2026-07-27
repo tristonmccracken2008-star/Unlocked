@@ -10,6 +10,7 @@ import { AccountButton } from "./account-auth";
 import { StudentProfileForm } from "./personalized-home";
 import { isProUser, proPricing } from "@/lib/billing";
 import { BillingCheckoutButton } from "./billing-checkout-button";
+import { NotificationSettings } from "./notification-settings";
 
 const AdvisorBrainProfileTab = dynamic(() => import("./profile-career-tab").then((module) => module.AdvisorBrainProfileTab), {
   ssr: false,
@@ -69,6 +70,7 @@ export function ProfilePage() {
         <AccountButton />
       </div>
     </section>
+    <NotificationSettings />
     <section className="px-5 pt-6 sm:px-8">
       <div className="mx-auto max-w-5xl rounded-[2rem] bg-white p-5 shadow-soft ring-1 ring-ink/8 sm:p-6">
         <p className="rule-label text-forest">Appearance</p>

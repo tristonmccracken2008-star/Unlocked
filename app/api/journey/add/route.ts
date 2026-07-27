@@ -1,9 +1,10 @@
 import { cookies } from "next/headers";
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
 import { getSession, sessionCookieName } from "@/lib/auth-store";
 import { recordAnalyticsEvent } from "@/lib/analytics-store";
 import { productIntelligenceEvents } from "@/lib/analytics-types";
 import { addJourneyOpportunity } from "@/lib/journey-add-service";
+import { syncUserNotificationSchedules } from "@/lib/notification-service";
 import { assertSameOrigin, enforceRateLimit, readBoundedJson, SecurityError, securityErrorResponse } from "@/lib/security";
 
 export const dynamic = "force-dynamic";
@@ -31,6 +32,11 @@ export async function POST(request: Request) {
     await enforceRateLimit(request, "journey-add", 40, 60, session.user.id);
     const mutation = parseBody(await readBoundedJson(request, 4 * 1024));
     const result = await addJourneyOpportunity(session.user, mutation);
+    after(async () => {
+      await syncUserNotificationSchedules(session.user.id).catch((error) => {
+        console.warn("[UnlockED notifications] Journey schedule sync failed", { errorCategory: error instanceof Error ? error.name : "unknown" });
+      });
+    });
     if (!result.duplicate) {
       const events = [
         recordAnalyticsEvent(productIntelligenceEvents.journeyOpportunityAdded, session.user.id, { opportunityId: mutation.opportunityId, source: mutation.source }),

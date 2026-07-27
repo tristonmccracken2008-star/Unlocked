@@ -289,6 +289,12 @@ export async function getSession(token: string | undefined) {
   return { user, data: await readAccountData(user.id) };
 }
 
+export async function readAccountUser(userId: string) {
+  const databaseUser = await dbGet<DatabaseUser>(userKey(userId));
+  if (!databaseUser) return null;
+  return { id: databaseUser.id, email: databaseUser.email, name: databaseUser.name, image: databaseUser.image } satisfies AuthUser;
+}
+
 export async function deleteSession(token: string | undefined) {
   if (!token) return;
   const signed = verifySignedSession(token);

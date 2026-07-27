@@ -1,10 +1,11 @@
 import { cookies } from "next/headers";
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
 import { journeyProgressTransitions, opportunityTrackerStatuses, type JourneyMilestoneDetails, type JourneyProgressTransition, type OpportunityTrackerStatus } from "@/data/student-activity";
 import { isJourneyProfessionalStageId } from "@/data/journey-professional";
 import { JourneyTransitionError } from "@/data/journey-transformations";
 import { getSession, sessionCookieName } from "@/lib/auth-store";
 import { transformJourneyProgress } from "@/lib/journey-transition-service";
+import { syncUserNotificationSchedules } from "@/lib/notification-service";
 import { assertSameOrigin, enforceRateLimit, readBoundedJson, SecurityError, securityErrorResponse } from "@/lib/security";
 
 export const dynamic = "force-dynamic";
@@ -40,6 +41,7 @@ function cleanDetails(value: unknown): JourneyMilestoneDetails | undefined {
   const milestoneDate = Number.isFinite(milestoneTime) && milestoneTime >= Date.UTC(2000, 0, 1) && milestoneTime <= Date.now() + 86_400_000 ? input.milestoneDate as string : undefined;
   const reminderTime = typeof input.reminderAt === "string" ? Date.parse(input.reminderAt) : Number.NaN;
   const reminderAt = Number.isFinite(reminderTime) && reminderTime >= Date.now() - 86_400_000 && reminderTime <= Date.now() + 5 * 365 * 86_400_000 ? new Date(reminderTime).toISOString() : undefined;
+  const reminderText = typeof input.reminderText === "string" ? input.reminderText.replace(/\s+/g, " ").trim().slice(0, 160) : undefined;
   const documents = Array.isArray(input.documents) ? input.documents.slice(0, 3).flatMap((document) => {
     if (!document || typeof document !== "object" || Array.isArray(document)) return [];
     const candidate = document as Record<string, unknown>;
@@ -48,8 +50,8 @@ function cleanDetails(value: unknown): JourneyMilestoneDetails | undefined {
     if (!id || !name) return [];
     return [{ id, name, mimeType: typeof candidate.mimeType === "string" ? candidate.mimeType.slice(0, 100) : undefined, size: typeof candidate.size === "number" && Number.isFinite(candidate.size) ? Math.max(0, Math.min(candidate.size, 25_000_000)) : undefined, stored: false as const }];
   }) : undefined;
-  if (!notes && !milestoneDate && !reminderAt && !documents?.length) return undefined;
-  return { notes, milestoneDate, reminderAt, documents, source: "student_reported" };
+  if (!notes && !milestoneDate && !reminderAt && !reminderText && !documents?.length) return undefined;
+  return { notes, milestoneDate, reminderAt, reminderText, documents, source: "student_reported" };
 }
 
 export async function POST(request: Request) {
@@ -61,6 +63,11 @@ export async function POST(request: Request) {
     await enforceRateLimit(request, "journey-transition", 60, 60, session.user.id);
     const mutation = parseBody(await readBoundedJson(request, 8 * 1024));
     const result = await transformJourneyProgress(session.user, mutation);
+    after(async () => {
+      await syncUserNotificationSchedules(session.user.id).catch((error) => {
+        console.warn("[UnlockED notifications] Journey schedule sync failed", { errorCategory: error instanceof Error ? error.name : "unknown" });
+      });
+    });
     return NextResponse.json(result, { headers: { "Cache-Control": "no-store, max-age=0" } });
   } catch (error) {
     if (error instanceof JourneyTransitionError) {

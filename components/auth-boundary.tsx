@@ -8,7 +8,7 @@ import type { AccountSession } from "@/lib/account-types";
 
 export function AuthBoundary({children}:{children:React.ReactNode}){
   const pathname=usePathname();const router=useRouter();const[session,setSession]=useState<AccountSession|null>(null);
-  const protectedExact = ["/profile", "/my-opportunities", "/scholarships", "/research", "/career", "/build-career", "/ai", "/student-ai-tools", "/university", "/software", "/student-discounts", "/best-edu-email-perks", "/free-student-software", "/save-money", "/get-ahead", "/local", "/financial", "/updates", "/submit-perk", "/school-not-found"];
+  const protectedExact = ["/profile", "/notifications", "/my-opportunities", "/scholarships", "/research", "/career", "/build-career", "/ai", "/student-ai-tools", "/university", "/software", "/student-discounts", "/best-edu-email-perks", "/free-student-software", "/save-money", "/get-ahead", "/local", "/financial", "/updates", "/submit-perk", "/school-not-found"];
   const requiresAuth = protectedExact.includes(pathname) || pathname.startsWith("/admin") || pathname.startsWith("/opportunities") || pathname.startsWith("/benefits") || pathname.startsWith("/schools") || pathname.startsWith("/categories");
   const requiresProfile = pathname === "/my-opportunities";
   useEffect(()=>{let active=true;readAccountSession().then((next)=>{if(active)setSession(next)}).catch(()=>{if(active)setSession({authenticated:false,user:null,data:null})});const update=(event:Event)=>setSession((event as CustomEvent<AccountSession>).detail);window.addEventListener(accountSessionEvent,update);return()=>{active=false;window.removeEventListener(accountSessionEvent,update)}},[]);

@@ -13,7 +13,7 @@ export default function Page() {
       <h2>Information UnlockED collects</h2>
       <p>If you sign in with Google, UnlockED receives basic Google account information such as your name, email address, and profile picture when Google provides one. Google authentication is handled through Google's OAuth services.</p>
       <p>UnlockED also stores the profile information you choose to provide: school, major, graduation year, interests, and career goals. This information is used to personalize your dashboard and recommend opportunities that better match your situation.</p>
-      <p>When you save opportunities, UnlockED stores those saved items so you can return to them later. UnlockED may also collect usage analytics such as page visits, searches, saves, and onboarding completion to understand what is working and improve the product.</p>
+      <p>When you save opportunities, UnlockED stores those saved items, application stages, and reminders so you can return to them later. If you enable notification email, UnlockED uses your account email to deliver the categories you selected. UnlockED may also collect usage analytics such as page visits, searches, saves, onboarding completion, and bounded notification delivery events to understand what is working and improve the product.</p>
     </section>
 
     <section>
@@ -35,7 +35,7 @@ export default function Page() {
 
     <section>
       <h2>Data sharing</h2>
-      <p>UnlockED does not sell personal data. UnlockED may use trusted service providers for hosting, authentication, analytics, storage, and security. These providers are used only to operate and improve UnlockED.</p>
+      <p>UnlockED does not sell personal data. UnlockED may use trusted service providers for hosting, authentication, transactional email, analytics, storage, and security. These providers are used only to operate and improve UnlockED.</p>
     </section>
 
     <section>
