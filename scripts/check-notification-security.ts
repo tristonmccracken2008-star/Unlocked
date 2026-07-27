@@ -36,6 +36,13 @@ assert.match(store, /ZRANGEBYSCORE/);
 assert.match(store, /timed out/);
 assert.doesNotMatch(store, /console\.(log|info).*(record|userId|providerId)/);
 
+for (const testFile of ["scripts/check-notifications.ts", "scripts/benchmark-notifications.ts"]) {
+  const testSource = source(testFile);
+  assert.match(testSource, /Reflect\.set\(process\.env, "NODE_ENV", "test"\)/, `${testFile} must force its isolated test store.`);
+  assert.match(testSource, /delete process\.env\.KV_REST_API_URL/, `${testFile} must not use production KV during builds.`);
+  assert.match(testSource, /delete process\.env\.UPSTASH_REDIS_REST_URL/, `${testFile} must not use production Upstash during builds.`);
+}
+
 const email = source("lib/notification-email.ts");
 assert.match(email, /timingSafeEqual/);
 assert.match(email, /Idempotency-Key/);

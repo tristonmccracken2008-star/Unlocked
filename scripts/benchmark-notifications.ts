@@ -11,6 +11,11 @@ import {
 
 process.env.AUTH_SECRET = "notification-benchmark-secret-with-at-least-thirty-two-bytes";
 process.env.NEXT_PUBLIC_APP_URL = "https://www.unlockededu.com";
+Reflect.set(process.env, "NODE_ENV", "test");
+delete process.env.KV_REST_API_URL;
+delete process.env.KV_REST_API_TOKEN;
+delete process.env.UPSTASH_REDIS_REST_URL;
+delete process.env.UPSTASH_REDIS_REST_TOKEN;
 const { renderNotificationEmail } = await import("../lib/notification-email");
 const {
   readDueNotificationSchedules,

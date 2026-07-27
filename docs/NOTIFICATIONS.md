@@ -125,6 +125,8 @@ Analytics include bounded notification type, priority, channel, suppression reas
 
 `npm run benchmark:notifications` is the controlled performance suite. It warms the runtime and enforces strict average, p95, and maximum budgets for schedule generation, material-change detection, email rendering, preference normalization, notification-center reads, mutations, deduplication, and due-queue access. Run it during performance work and scheduled CI; millisecond-level percentile gates do not run in Vercel's deployment-blocking build because shared workers have variable CPU scheduling and garbage collection.
 
+Both notification test processes explicitly remove inherited KV/Upstash credentials and use the in-memory adapter. Vercel build checks therefore cannot write deterministic fixtures, claims, or webhook replay keys into production storage.
+
 ```bash
 npm run check:notifications
 npm run benchmark:notifications

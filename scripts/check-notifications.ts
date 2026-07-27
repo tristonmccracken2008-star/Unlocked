@@ -14,6 +14,11 @@ import {
 } from "../lib/notification-engine";
 
 process.env.AUTH_SECRET = "notification-regression-secret-with-at-least-thirty-two-bytes";
+Reflect.set(process.env, "NODE_ENV", "test");
+delete process.env.KV_REST_API_URL;
+delete process.env.KV_REST_API_TOKEN;
+delete process.env.UPSTASH_REDIS_REST_URL;
+delete process.env.UPSTASH_REDIS_REST_TOKEN;
 const now = new Date("2026-03-01T12:00:00.000Z");
 const base = opportunities[0]!;
 
