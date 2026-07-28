@@ -53,7 +53,12 @@ export function cleanStudentProfile(value: unknown): StudentProfile | undefined 
 
   const minorStatus = enumValue(input.minorStatus, ["declared", "none"] as const);
   const gpaStatus = enumValue(input.gpaStatus, ["reported", "none_yet", "nonstandard"] as const);
-  const rawGpa = typeof input.gpa === "number" && Number.isFinite(input.gpa) ? Math.min(4, Math.max(0, input.gpa)) : undefined;
+  const gpaScale = enumValue(input.gpaScale, ["4.0", "5.0", "100"] as const) ?? "4.0";
+  const maximumGpa = gpaScale === "100" ? 100 : Number(gpaScale);
+  const rawGpa = typeof input.gpa === "number" && Number.isFinite(input.gpa) ? Math.min(maximumGpa, Math.max(0, input.gpa)) : undefined;
+  const graduationYear = /^\d{4}$/.test(String(input.graduationYear ?? "")) ? Number(input.graduationYear) : 0;
+  const currentYear = new Date().getUTCFullYear();
+  if (graduationYear && (graduationYear < currentYear - 2 || graduationYear > currentYear + 10)) return undefined;
   const advisorInput = input.advisorInterview && typeof input.advisorInterview === "object" && !Array.isArray(input.advisorInterview)
     ? input.advisorInterview as Record<string, unknown>
     : null;
@@ -71,8 +76,10 @@ export function cleanStudentProfile(value: unknown): StudentProfile | undefined 
     firstName: stringValue(input.firstName, 80),
     lastName: stringValue(input.lastName, 100),
     schoolSlug,
+    schoolName: stringValue(input.schoolName, 200),
     major,
-    graduationYear: /^\d{4}$/.test(String(input.graduationYear ?? "")) ? String(input.graduationYear) : undefined,
+    secondaryMajor: stringValue(input.secondaryMajor, 160),
+    graduationYear: graduationYear ? String(graduationYear) : undefined,
     year,
     careerGoal,
     interests,
@@ -84,7 +91,7 @@ export function cleanStudentProfile(value: unknown): StudentProfile | undefined 
     minorStatus,
     gpaStatus,
     gpa: gpaStatus === "reported" ? rawGpa : undefined,
-    gpaScale: gpaStatus === "reported" ? "4.0" : undefined,
+    gpaScale: gpaStatus === "reported" ? gpaScale : undefined,
     currentPriority: stringValue(input.currentPriority, 300),
     onboardingCompletedAt: safeTimestamp(input.onboardingCompletedAt) ?? undefined,
     goals: stringList(input.goals),
@@ -207,11 +214,38 @@ function cleanPreferences(value: unknown): UserPreferencesRecord | undefined {
     hiddenDismissedIds: Array.isArray(input.hiddenDismissedIds)
       ? input.hiddenDismissedIds.map(safeId).filter((item): item is string => Boolean(item)).slice(0, maxTrackedOpportunities)
       : undefined,
+    useActivityForRecommendations: typeof input.useActivityForRecommendations === "boolean" ? input.useActivityForRecommendations : true,
+    recommendationSignalsResetAt: safeTimestamp(input.recommendationSignalsResetAt) ?? undefined,
     appearance: enumValue(input.appearance, ["light", "midnight", "forest", "system"] as const) ?? "light",
+    reducedMotion: enumValue(input.reducedMotion, ["system", "reduce", "full"] as const) ?? "system",
+    privacy: cleanPrivacyPreferences(input.privacy),
     notifications: input.notifications && typeof input.notifications === "object" && !Array.isArray(input.notifications)
       ? normalizeNotificationPreferences(input.notifications, updatedAt)
       : undefined,
     updatedAt,
+  };
+}
+
+function cleanPrivacyPreferences(value: unknown): UserPreferencesRecord["privacy"] {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return undefined;
+  const input = value as Record<string, unknown>;
+  const card = input.journeyCard && typeof input.journeyCard === "object" && !Array.isArray(input.journeyCard)
+    ? input.journeyCard as Record<string, unknown>
+    : {};
+  return {
+    journeyVisibility: "private",
+    analyticsPersonalization: typeof input.analyticsPersonalization === "boolean" ? input.analyticsPersonalization : false,
+    journeyCard: {
+      format: enumValue(card.format, ["story", "square", "linkedin"] as const) ?? "story",
+      theme: enumValue(card.theme, ["light", "dark"] as const) ?? "light",
+      nameMode: enumValue(card.nameMode, ["anonymous", "first_name", "full_name"] as const) ?? "first_name",
+      includeSchool: typeof card.includeSchool === "boolean" ? card.includeSchool : false,
+      includeOrganization: typeof card.includeOrganization === "boolean" ? card.includeOrganization : false,
+      includeDate: typeof card.includeDate === "boolean" ? card.includeDate : true,
+      includeAward: typeof card.includeAward === "boolean" ? card.includeAward : false,
+      includeBranding: typeof card.includeBranding === "boolean" ? card.includeBranding : true,
+      visibility: "private",
+    },
   };
 }
 

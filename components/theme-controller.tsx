@@ -13,6 +13,7 @@ function applyTheme(session: AccountSession | null, systemDark = window.matchMed
   const theme = resolvedAppearance(preference, isProUser(session?.data?.billing), systemDark);
   document.documentElement.dataset.theme = theme;
   document.documentElement.dataset.appearance = preference;
+  document.documentElement.dataset.motion = session?.data?.preferences?.reducedMotion ?? "system";
   document.documentElement.style.colorScheme = theme === "light" ? "light" : "dark";
   document.cookie = `${systemThemeCookie}=${systemDark ? "dark" : "light"}; Path=/; Max-Age=31536000; SameSite=Lax`;
 }

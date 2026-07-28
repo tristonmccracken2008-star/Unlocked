@@ -88,6 +88,9 @@ export const legacyAnalyticsEvents = [
   "onboarding_step_completed", "onboarding_back_clicked", "onboarding_validation_failed", "onboarding_completed",
   "onboarding_abandoned", "onboarding_save_failed", "report_outdated", "referral_link_opened", "referral_link_copied",
   "referral_code_copied", "referral_share_started", "referral_completed", "referral_reward_unlocked",
+  "account_center_viewed", "profile_updated", "interests_updated", "recommendation_learning_changed",
+  "recommendation_signals_reset", "privacy_settings_updated", "appearance_changed", "data_export_requested",
+  "account_deletion_started", "account_deletion_completed",
 ] as const;
 
 export const analyticsEvents = [...legacyAnalyticsEvents, ...Object.values(productIntelligenceEvents)] as const;

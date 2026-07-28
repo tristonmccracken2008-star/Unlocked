@@ -121,6 +121,7 @@ const scheduleKey = (scheduleId: string) => keyed("schedule", scheduleId);
 const trackedKey = (opportunityId: string) => keyed("tracked", opportunityId);
 const emailRecordKey = (providerId: string) => keyed("email", providerId);
 const emailSuppressionKey = (userId: string) => keyed("email-suppressed", userId);
+const userScheduleIndexKey = (userId: string) => keyed("user-schedules", userId);
 const webhookKey = (eventId: string) => keyed("webhook", eventId);
 
 async function readAll(userId: string) {
@@ -198,17 +199,37 @@ export async function markAllNotificationsRead(userId: string, now = new Date())
   });
 }
 
+export async function deleteUserNotificationData(userId: string) {
+  const scheduleIds = parse<string[]>(await command<string>(["GET", userScheduleIndexKey(userId)]), []);
+  await Promise.all(scheduleIds.map(async (scheduleId) => {
+    await command(["ZREM", dueKey, scheduleId]);
+    await command(["DEL", scheduleKey(scheduleId)]);
+  }));
+  await Promise.all([
+    command(["DEL", userHistoryKey(userId)]),
+    command(["DEL", emailSuppressionKey(userId)]),
+    command(["DEL", userScheduleIndexKey(userId)]),
+  ]);
+}
+
 export async function scheduleNotification(schedule: NotificationSchedule) {
   const existing = await command<string>(["GET", scheduleKey(schedule.id)]);
   if (existing) return false;
   await command(["SET", scheduleKey(schedule.id), JSON.stringify(schedule), "EX", String(60 * 60 * 24 * 400)]);
   await command(["ZADD", dueKey, String(Date.parse(schedule.scheduledFor)), schedule.id]);
+  const userSchedules = parse<string[]>(await command<string>(["GET", userScheduleIndexKey(schedule.userId)]), []);
+  await command(["SET", userScheduleIndexKey(schedule.userId), JSON.stringify([...new Set([...userSchedules, schedule.id])].slice(-500)), "EX", String(60 * 60 * 24 * 400)]);
   return true;
 }
 
 export async function cancelNotificationSchedule(scheduleId: string) {
+  const schedule = parse<NotificationSchedule | null>(await command<string>(["GET", scheduleKey(scheduleId)]), null);
   await command(["ZREM", dueKey, scheduleId]);
   await command(["DEL", scheduleKey(scheduleId)]);
+  if (schedule?.userId) {
+    const userSchedules = parse<string[]>(await command<string>(["GET", userScheduleIndexKey(schedule.userId)]), []);
+    await command(["SET", userScheduleIndexKey(schedule.userId), JSON.stringify(userSchedules.filter((id) => id !== scheduleId)), "EX", String(60 * 60 * 24 * 400)]);
+  }
 }
 
 export async function readDueNotificationSchedules(now: Date, limit = 100) {

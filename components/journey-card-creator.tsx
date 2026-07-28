@@ -5,6 +5,7 @@ import { JourneyCardArtwork, journeyCardAltDescription } from "@/components/jour
 import { journeyCardLayouts, type JourneyCardData, type JourneyCardLayout, type JourneyCardPrivacy } from "@/lib/journey-timeline";
 import { productIntelligenceEvents } from "@/lib/analytics-types";
 import { trackProductError, trackProductEvent } from "@/data/product-analytics";
+import { readAccountSession } from "@/data/account-sync";
 import styles from "./path-moment.module.css";
 
 function fileName(layout: JourneyCardLayout) {
@@ -25,7 +26,20 @@ export function JourneyCardCreator({ card, theme, onClose }: { card: JourneyCard
   useEffect(() => {
     setCanCopy(Boolean(navigator.clipboard && "ClipboardItem" in window));
     setCanShare(typeof navigator.share === "function");
-  }, []);
+    void readAccountSession().then((session) => {
+      const defaults = session.data?.preferences?.privacy?.journeyCard;
+      if (!defaults) return;
+      setLayout(defaults.format);
+      setExportTheme(defaults.theme);
+      setPrivacy({
+        nameMode: defaults.nameMode,
+        includeSchool: defaults.includeSchool && Boolean(card.identity.school),
+        includeDates: defaults.includeDate,
+        includeOrganization: defaults.includeOrganization,
+        includeBranding: defaults.includeBranding,
+      });
+    }).catch(() => undefined);
+  }, [card.identity.school]);
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => {
@@ -160,6 +174,8 @@ export function JourneyCardCreator({ card, theme, onClose }: { card: JourneyCard
           <fieldset className={styles.group}><legend>Optional details</legend><div className={styles.checks}>
             <PrivacyCheck label="School" checked={privacy.includeSchool} disabled={!card.identity.school} onChange={(includeSchool) => setPrivacy((current) => ({ ...current, includeSchool }))} />
             <PrivacyCheck label="Dates" checked={privacy.includeDates} onChange={(includeDates) => setPrivacy((current) => ({ ...current, includeDates }))} />
+            <PrivacyCheck label="Organizations" checked={privacy.includeOrganization ?? true} onChange={(includeOrganization) => setPrivacy((current) => ({ ...current, includeOrganization }))} />
+            <PrivacyCheck label="UnlockED branding" checked={privacy.includeBranding !== false} onChange={(includeBranding) => setPrivacy((current) => ({ ...current, includeBranding }))} />
           </div></fieldset>
           <div className={styles.privacyNote}><strong>Private until you share it.</strong><p>The card includes only the details shown in this preview. It never includes email, GPA, profile answers, application notes, or internal account data.</p></div>
           <div className={styles.actions}>

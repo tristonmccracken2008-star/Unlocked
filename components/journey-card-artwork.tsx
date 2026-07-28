@@ -125,13 +125,13 @@ export const JourneyCardArtwork = forwardRef<SVGSVGElement, JourneyCardArtworkPr
             {lines.map((lineText, lineIndex) => <tspan key={`${lineIndex}-${lineText}`} x={layout === "story" ? 34 : 25} dy={lineIndex ? (layout === "story" ? 32 : 23) : 0}>{lineText}</tspan>)}
           </text>
           <text x={momentsWidth} y="0" textAnchor="end" fill={muted} fontFamily="Arial, Helvetica, sans-serif" fontSize={layout === "story" ? 16 : 12}>{privacy.includeDates ? shortDate(moment.date) : moment.label}</text>
-          {moment.organization ? <text x={layout === "story" ? 34 : 25} y={layout === "story" ? 54 : 38} fill={muted} fontFamily="Arial, Helvetica, sans-serif" fontSize={layout === "story" ? 15 : 11} fontWeight="600">{wrapText(moment.organization, 28, 1)[0]}</text> : null}
+          {privacy.includeOrganization !== false && moment.organization ? <text x={layout === "story" ? 34 : 25} y={layout === "story" ? 54 : 38} fill={muted} fontFamily="Arial, Helvetica, sans-serif" fontSize={layout === "story" ? 15 : 11} fontWeight="600">{wrapText(moment.organization, 28, 1)[0]}</text> : null}
         </g>;
       })}
     </g>
 
     <line x1={c.margin} y1={c.footerY - (layout === "story" ? 60 : 42)} x2={dimensions.width - c.margin} y2={c.footerY - (layout === "story" ? 60 : 42)} stroke={line} strokeWidth="2" />
-    <text x={c.margin} y={c.footerY} fill={secondary} fontFamily="Arial, Helvetica, sans-serif" fontSize={layout === "story" ? 18 : 14} fontWeight="600">Built with UnlockED</text>
-    <text x={dimensions.width - c.margin} y={c.footerY} textAnchor="end" fill={accent} fontFamily="Arial, Helvetica, sans-serif" fontSize={layout === "story" ? 18 : 14} fontWeight="700">unlockededu.com</text>
+    {privacy.includeBranding !== false ? <><text x={c.margin} y={c.footerY} fill={secondary} fontFamily="Arial, Helvetica, sans-serif" fontSize={layout === "story" ? 18 : 14} fontWeight="600">Built with UnlockED</text>
+    <text x={dimensions.width - c.margin} y={c.footerY} textAnchor="end" fill={accent} fontFamily="Arial, Helvetica, sans-serif" fontSize={layout === "story" ? 18 : 14} fontWeight="700">unlockededu.com</text></> : null}
   </svg>;
 });

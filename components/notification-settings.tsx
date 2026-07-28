@@ -26,7 +26,7 @@ function Toggle({ checked, label, description, onChange }: { checked: boolean; l
   </label>;
 }
 
-export function NotificationSettings() {
+export function NotificationSettings({ embedded = false }: { embedded?: boolean }) {
   const [preferences, setPreferences] = useState<NotificationPreferences | null>(null);
   const [message, setMessage] = useState("");
   const [saving, setSaving] = useState(false);
@@ -58,15 +58,13 @@ export function NotificationSettings() {
   const detected = typeof Intl !== "undefined" ? Intl.DateTimeFormat().resolvedOptions().timeZone : "";
   const timezones = [...new Set([detected, ...commonTimezones].filter(Boolean))];
 
-  if (!preferences) return <section id="notifications" aria-busy="true" className="px-5 pt-6 sm:px-8"><div className="mx-auto h-48 max-w-5xl animate-pulse rounded-[2rem] bg-[var(--unlocked-surface)] shadow-soft ring-1 ring-ink/8"><span className="sr-only">Loading notification settings</span></div></section>;
+  if (!preferences) return <section id="notifications" aria-busy="true" className={embedded ? "pt-7" : "px-5 pt-6 sm:px-8"}><div className={`${embedded ? "" : "mx-auto max-w-5xl rounded-[2rem] shadow-soft ring-1 ring-ink/8"} h-48 animate-pulse bg-[var(--unlocked-surface)]`}><span className="sr-only">Loading notification settings</span></div></section>;
 
   const update = <K extends keyof NotificationPreferences>(key: K, value: NotificationPreferences[K]) => setPreferences((current) => current ? { ...current, [key]: value } : current);
 
-  return <section id="notifications" className="scroll-mt-28 px-5 pt-6 sm:px-8">
-    <div className="mx-auto max-w-5xl rounded-[2rem] bg-[var(--unlocked-surface)] p-5 shadow-soft ring-1 ring-ink/8 sm:p-6">
-      <p className="rule-label text-forest">Notifications</p>
-      <h2 className="mt-2 font-editorial text-2xl font-bold">Choose what deserves your attention.</h2>
-      <p className="mt-2 max-w-2xl text-sm leading-6 text-ink/50">Essential deadline protection remains available on Free. Weekly and recommendation emails are off unless you choose them.</p>
+  return <section id="notifications" className={embedded ? "scroll-mt-28 pt-7" : "scroll-mt-28 px-5 pt-6 sm:px-8"}>
+    <div className={embedded ? "" : "mx-auto max-w-5xl rounded-[2rem] bg-[var(--unlocked-surface)] p-5 shadow-soft ring-1 ring-ink/8 sm:p-6"}>
+      {!embedded ? <><p className="rule-label text-forest">Notifications</p><h2 className="mt-2 font-editorial text-2xl font-bold">Choose what deserves your attention.</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-ink/50">Essential deadline protection remains available on Free. Weekly and recommendation emails are off unless you choose them.</p></> : <p className="max-w-2xl text-sm leading-6 text-ink/50">Deadline protection remains available on Free. Weekly and recommendation email are off unless you choose them.</p>}
 
       <div className="mt-5 border-y border-ink/10">
         <Toggle checked={preferences.inAppEnabled} label="In-app notifications" description="Show timely updates inside UnlockED." onChange={(checked) => update("inAppEnabled", checked)} />

@@ -31,7 +31,7 @@ expect("data/student-profile.ts", "profile completion must require first name an
 );
 
 expect("data/student-profile.ts", "profile saves must mark the account as onboarded", (source) =>
-  source.includes("body: JSON.stringify({ profile: normalized, onboardingComplete: true })"),
+  source.includes("body: JSON.stringify({ profile: normalized, onboardingComplete: true, expectedUpdatedAt })"),
 );
 
 expect("lib/auth-store.ts", "account merge must preserve existing profile data when login sends no profile", (source) =>
@@ -60,7 +60,7 @@ expect("components/onboarding-flow.tsx", "onboarding analytics must avoid answer
 );
 
 expect("components/profile-page.tsx", "edit profile must pass the saved profile into the form", (source) =>
-  source.includes("initialProfile={profile}") && source.includes("await writeStudentProfile(next)"),
+  source.includes("initialProfile={profile}") && source.includes("await writeStudentProfile(nextProfile, session.data?.updatedAt)"),
 );
 
 expect("components/personalized-home.tsx", "edit form fields must initialize from the saved profile", (source) =>

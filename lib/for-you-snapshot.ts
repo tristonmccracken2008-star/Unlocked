@@ -112,15 +112,37 @@ function emptyActivity(): StudentActivity {
   return { viewed: [], saved: [], claimed: [], tracked: {} };
 }
 
-export function forYouProfileVersion(profile: StudentProfile, data: AccountData) {
+function recommendationActivity(data: AccountData): StudentActivity {
   const activity = data.activity ?? emptyActivity();
+  if (data.preferences?.useActivityForRecommendations !== false) return activity;
+  return { ...activity, viewed: [], claimed: [] };
+}
+
+function recommendationFeedback(data: AccountData) {
+  return data.preferences?.useActivityForRecommendations === false
+    ? []
+    : activeRecommendationFeedback(data.advisor?.feedbackRecords ?? []);
+}
+
+function profileForRecommendations(profile: StudentProfile, data: AccountData): StudentProfile {
+  const explicit = data.preferences?.preferredTypes ?? [];
+  if (!explicit.length) return profile;
+  return {
+    ...profile,
+    preferredOpportunityTypes: [...new Set([...(profile.preferredOpportunityTypes ?? []), ...explicit])],
+  };
+}
+
+export function forYouProfileVersion(profile: StudentProfile, data: AccountData) {
+  const activity = recommendationActivity(data);
   const tracked = Object.values(activity.tracked ?? {}).map((item) => [item.id, item.status, item.updatedAt]).sort();
-  const feedback = (data.advisor?.feedbackRecords ?? []).map((item) => [item.recommendationId, item.feedbackType, item.createdAt]).sort();
+  const feedback = recommendationFeedback(data).map((item) => [item.recommendationId, item.feedbackType, item.createdAt]).sort();
   return stableHash({
     profile: {
       firstName: profile.firstName,
       schoolSlug: profile.schoolSlug,
       major: profile.major,
+      secondaryMajor: profile.secondaryMajor,
       minor: profile.minor,
       gpaStatus: profile.gpaStatus,
       graduationYear: profile.graduationYear,
@@ -145,7 +167,8 @@ export function forYouProfileVersion(profile: StudentProfile, data: AccountData)
     saved: [...(activity.saved ?? [])].sort(),
     viewed: [...(activity.viewed ?? [])].slice(-50),
     preferredTypes: [...(data.preferences?.preferredTypes ?? [])].sort(),
-    hidden: [...(data.preferences?.hiddenDismissedIds ?? [])].sort(),
+    hidden: data.preferences?.useActivityForRecommendations === false ? [] : [...(data.preferences?.hiddenDismissedIds ?? [])].sort(),
+    useActivityForRecommendations: data.preferences?.useActivityForRecommendations !== false,
     feedback,
     billing: { tier: data.billing.tier, status: data.billing.status },
     sourceSignalsVersion,
@@ -193,9 +216,9 @@ function isFresh(snapshot: ForYouRecommendationSnapshot) {
 
 function snapshotPassesSafetyAudit(snapshot: ForYouRecommendationSnapshot, profile: StudentProfile, school: School, activity: StudentActivity, data: AccountData) {
   const progress = inferApplicationsFromActivity(activity, opportunities, { milestones: {}, applications: {} });
-  const advisorProfile = createAdvisorProfile({ profile, school, activity, progress });
-  advisorProfile.future.recommendationFeedback = activeRecommendationFeedback(data.advisor?.feedbackRecords ?? []);
-  advisorProfile.future.hiddenOpportunityIds = data.preferences?.hiddenDismissedIds ?? [];
+  const advisorProfile = createAdvisorProfile({ profile: profileForRecommendations(profile, data), school, activity, progress });
+  advisorProfile.future.recommendationFeedback = recommendationFeedback(data);
+  advisorProfile.future.hiddenOpportunityIds = data.preferences?.useActivityForRecommendations === false ? [] : data.preferences?.hiddenDismissedIds ?? [];
   const context = buildOpportunityStudentContext(advisorProfile);
   return snapshot.recommendations.every((view) => {
     const id = view.recommendation.relatedOpportunityId;
@@ -216,17 +239,17 @@ async function generateSnapshot(user: AuthUser, data: AccountData, profile: Stud
   await withTimeout(getForYouGlobalIndex(), "global recommendation index", globalIndexTimeoutMs);
   const now = new Date();
   const priorFeed = previousFeedContext(data, user.id, now);
-  const activeFeedback = activeRecommendationFeedback(data.advisor?.feedbackRecords ?? []);
-  const activity = data.activity ?? emptyActivity();
+  const activeFeedback = recommendationFeedback(data);
+  const activity = recommendationActivity(data);
   const progress = inferApplicationsFromActivity(activity, opportunities, { milestones: {}, applications: {} });
   const service = buildRecommendationService({
-    profile,
+    profile: profileForRecommendations(profile, data),
     school,
     activity,
     progress,
     source: opportunities,
     feedbackRecords: activeFeedback,
-    hiddenOpportunityIds: data.preferences?.hiddenDismissedIds ?? [],
+    hiddenOpportunityIds: data.preferences?.useActivityForRecommendations === false ? [] : data.preferences?.hiddenDismissedIds ?? [],
     dismissedOpportunityIds: activeFeedback.filter((record) => ["dismissed", "not-interested", "show-fewer", "not-eligible", "already-applied", "already-completed", "completed"].includes(record.feedbackType)).map((record) => record.recommendationId.replace("recommendation-opportunity-", "")),
     referralActivity: data.referrals,
     recommendationExposureCounts: priorFeed.exposureCounts,
@@ -307,8 +330,16 @@ function stateFromSnapshot(snapshot: ForYouRecommendationSnapshot, access: Advis
 
 export async function resolveForYouState(user: AuthUser, data: AccountData, options: { allowGeneration?: boolean; waitForActiveGenerationMs?: number } = {}): Promise<ForYouServerState> {
   const profile = data.profile;
-  const school = schools.find((item) => item.slug === profile?.schoolSlug) ?? null;
-  const activity = data.activity ?? emptyActivity();
+  const school = schools.find((item) => item.slug === profile?.schoolSlug) ?? (profile?.schoolName ? {
+    slug: profile.schoolSlug,
+    name: profile.schoolName,
+    aliases: [],
+    domain: "",
+    location: "",
+    initials: profile.schoolName.split(/\s+/).map((part) => part[0]).join("").slice(0, 5).toUpperCase(),
+    benefitSlugs: [],
+  } : null);
+  const activity = recommendationActivity(data);
   const entitlements = getEntitlementsForBilling(data.billing);
   const access: AdvisorAccessState = entitlements.canUseFullForYou ? "pro" : "preview";
   if (!profile || !school) {

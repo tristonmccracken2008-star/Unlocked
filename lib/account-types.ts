@@ -20,6 +20,24 @@ export type DatabaseUser = AuthUser & {
   updatedAt: string;
 };
 
+export type JourneyCardDefaults = {
+  format: "story" | "square" | "linkedin";
+  theme: "light" | "dark";
+  nameMode: "anonymous" | "first_name" | "full_name";
+  includeSchool: boolean;
+  includeOrganization: boolean;
+  includeDate: boolean;
+  includeAward: boolean;
+  includeBranding: boolean;
+  visibility: "private";
+};
+
+export type AccountPrivacyPreferences = {
+  journeyVisibility: "private";
+  analyticsPersonalization: boolean;
+  journeyCard: JourneyCardDefaults;
+};
+
 export type ProfileRecord = StudentProfile & {
   updatedAt?: string;
 };
@@ -34,7 +52,11 @@ export type OpportunityTrackerRecord = Record<string, TrackedOpportunity>;
 export type UserPreferencesRecord = {
   preferredTypes?: string[];
   hiddenDismissedIds?: string[];
+  useActivityForRecommendations?: boolean;
+  recommendationSignalsResetAt?: string;
   appearance?: "light" | "midnight" | "forest" | "system";
+  reducedMotion?: "system" | "reduce" | "full";
+  privacy?: AccountPrivacyPreferences;
   notifications?: NotificationPreferences;
   updatedAt: string;
 };

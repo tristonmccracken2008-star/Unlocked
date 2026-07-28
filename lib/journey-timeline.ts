@@ -101,6 +101,8 @@ export type JourneyCardPrivacy = {
   nameMode: "anonymous" | "first_name" | "full_name";
   includeSchool: boolean;
   includeDates: boolean;
+  includeOrganization?: boolean;
+  includeBranding?: boolean;
 };
 
 export type JourneyTimelineModel = {

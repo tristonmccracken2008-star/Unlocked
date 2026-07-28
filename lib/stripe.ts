@@ -68,6 +68,21 @@ async function stripeRequest<T>(path: string, params: URLSearchParams, idempoten
   return parsed as T;
 }
 
+export async function cancelStripeSubscription(subscriptionId: string, userId: string) {
+  if (!/^sub_[A-Za-z0-9]{8,}$/.test(subscriptionId)) throw new Error("Subscription ID is invalid.");
+  const secretKey = stripeConfig().secretKey;
+  if (!secretKey) throw new Error("Stripe is not configured.");
+  const response = await stripeFetch(`${stripeApiBase}/subscriptions/${encodeURIComponent(subscriptionId)}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${secretKey}`,
+      "Idempotency-Key": crypto.createHash("sha256").update(`delete-account:${userId}:${subscriptionId}`).digest("hex"),
+    },
+  });
+  if (!response.ok) throw new Error(`Stripe subscription cancellation failed: ${response.status}`);
+  return await response.json() as StripeSubscription;
+}
+
 async function stripeGet<T>(path: string) {
   const secretKey = stripeConfig().secretKey;
   if (!secretKey) throw new Error("Stripe is not configured.");

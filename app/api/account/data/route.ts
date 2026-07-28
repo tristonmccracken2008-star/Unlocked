@@ -31,9 +31,14 @@ export async function PUT(request: Request) {
     const session = await getSession(cookieStore.get(sessionCookieName)?.value);
     if (!session) return NextResponse.json({ error: "Not authenticated" }, { status: 401, headers: { "Cache-Control": "no-store, max-age=0" } });
     await enforceRateLimit(request, "account-write", 120, 60, session.user.id);
-    const body = cleanAccountDataInput(await readBoundedJson(request, 256 * 1024));
+    const raw = await readBoundedJson<Record<string, unknown>>(request, 256 * 1024);
+    const body = cleanAccountDataInput(raw);
     if (!Object.values(body).some((value) => value !== undefined)) return NextResponse.json({ error: "No valid account fields were provided" }, { status: 400, headers: { "Cache-Control": "no-store, max-age=0" } });
     if (body.preferences?.appearance && body.preferences.appearance !== "light" && !isProUser(session.data.billing)) body.preferences.appearance = "light";
+    if (body.profile && typeof raw.expectedUpdatedAt === "string") {
+      const current = await readAccountData(session.user.id);
+      if (current.updatedAt !== raw.expectedUpdatedAt) throw new SecurityError("Your profile changed elsewhere. Refresh before saving.", 409, "stale_profile");
+    }
     const incomingTracker = body.tracker ?? body.activity?.tracked;
     if (incomingTracker || body.activity?.saved?.length) {
       const current = await readAccountData(session.user.id);

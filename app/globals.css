@@ -76,3 +76,5 @@ button, input, select, textarea { font: inherit; }
 .input { min-height: 2.75rem; width: 100%; border: 1px solid var(--unlocked-border); background: var(--unlocked-surface); color: var(--unlocked-text); padding-inline: .75rem; font-size: .875rem; outline: none; }
 .input:focus { border-color: var(--journey-focus); }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { transition-duration: 0.01ms !important; } }
+html[data-motion="reduce"] { scroll-behavior: auto; }
+html[data-motion="reduce"] *, html[data-motion="reduce"] *::before, html[data-motion="reduce"] *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }

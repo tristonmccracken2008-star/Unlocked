@@ -11,7 +11,9 @@ export type StudentProfile = {
   firstName?: string;
   lastName?: string;
   schoolSlug: string;
+  schoolName?: string;
   major: string;
+  secondaryMajor?: string;
   graduationYear?: string;
   year: string;
   careerGoal: string;
@@ -32,7 +34,7 @@ export type StudentProfile = {
   minorStatus?: MinorStatus;
   gpaStatus?: GpaStatus;
   gpa?: number;
-  gpaScale?: "4.0";
+  gpaScale?: "4.0" | "5.0" | "100";
   currentPriority?: string;
   onboardingCompletedAt?: string;
   goals?: string[];
@@ -68,7 +70,9 @@ export function normalizeStudentProfile(profile: StudentProfile): StudentProfile
   const goalTokens = profile.goals?.length ? profile.goals : profile.careerGoal.split(",").map((item) => item.trim()).filter(Boolean);
   const minorStatus: MinorStatus = profile.minor?.trim() ? "declared" : profile.minorStatus === "declared" ? "declared" : "none";
   const gpaStatus: GpaStatus = profile.gpaStatus ?? "none_yet";
-  const gpa = gpaStatus === "reported" && typeof profile.gpa === "number" && Number.isFinite(profile.gpa) ? Math.min(4, Math.max(0, profile.gpa)) : undefined;
+  const gpaScale = profile.gpaScale === "5.0" || profile.gpaScale === "100" ? profile.gpaScale : "4.0";
+  const maximumGpa = gpaScale === "100" ? 100 : Number(gpaScale);
+  const gpa = gpaStatus === "reported" && typeof profile.gpa === "number" && Number.isFinite(profile.gpa) ? Math.min(maximumGpa, Math.max(0, profile.gpa)) : undefined;
   const currentPriority = profile.currentPriority ?? profile.preferredOpportunityTypes?.[0] ?? profile.goals?.[0] ?? "Exploring opportunities";
   return {
     ...profile,
@@ -76,7 +80,7 @@ export function normalizeStudentProfile(profile: StudentProfile): StudentProfile
     minorStatus,
     gpaStatus,
     gpa,
-    gpaScale: gpaStatus === "reported" ? "4.0" : undefined,
+    gpaScale: gpaStatus === "reported" ? gpaScale : undefined,
     currentPriority,
     goals: goalTokens,
     topics: topicTokens,
@@ -139,6 +143,7 @@ function advisorFingerprint(profile: StudentProfile | null | undefined) {
   if (!profile) return "";
   return JSON.stringify({
     major: profile.major?.trim().toLowerCase() ?? "",
+    secondaryMajor: profile.secondaryMajor?.trim().toLowerCase() ?? "",
     minor: profile.minor?.trim().toLowerCase() ?? "",
     minorStatus: profile.minorStatus ?? "",
     gpaStatus: profile.gpaStatus ?? "",
@@ -165,25 +170,27 @@ function advisorFingerprint(profile: StudentProfile | null | undefined) {
   });
 }
 
-export async function writeStudentProfile(profile: StudentProfile) {
+export async function writeStudentProfile(profile: StudentProfile, expectedUpdatedAt?: string) {
   const normalized = normalizeStudentProfile(profile);
   const previous = readCompletedStudentProfile();
   const changedForAdvisor = Boolean(previous && advisorFingerprint(previous) !== advisorFingerprint(normalized));
-  localStorage.setItem(studentProfileStorageKey, JSON.stringify(normalized));
-  localStorage.setItem(studentProfileCompleteStorageKey, "true");
-  if (changedForAdvisor) localStorage.setItem(advisorProfileUpdatedMessageKey, normalized.careerGoal ? `Your plan was updated for your interest in ${normalized.careerGoal}.` : "Your plan was updated based on your new profile.");
   if (typeof window !== "undefined") {
-    const response = await authenticatedFetch("/api/account/data", { method: "PUT", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ profile: normalized, onboardingComplete: true }) });
+    const response = await authenticatedFetch("/api/account/data", { method: "PUT", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ profile: normalized, onboardingComplete: true, expectedUpdatedAt }) });
     if (response.status === 401) return null;
+    if (response.status === 409) throw new Error("Your profile changed elsewhere. Refresh before saving again.");
     if (!response.ok) throw new Error("Profile could not be saved.");
-    return await response.json();
+    const result = await response.json();
+    localStorage.setItem(studentProfileStorageKey, JSON.stringify(normalized));
+    localStorage.setItem(studentProfileCompleteStorageKey, "true");
+    if (changedForAdvisor) localStorage.setItem(advisorProfileUpdatedMessageKey, normalized.careerGoal ? `Your plan was updated for your interest in ${normalized.careerGoal}.` : "Your plan was updated based on your new profile.");
+    return result;
   }
   return null;
 }
 
 export function profileSummary(profile: StudentProfile) {
   const normalized = normalizeStudentProfile(profile);
-  const study = normalized.minor ? `${normalized.major} + ${normalized.minor}` : normalized.major;
+  const study = normalized.secondaryMajor ? `${normalized.major} + ${normalized.secondaryMajor}` : normalized.minor ? `${normalized.major} + ${normalized.minor}` : normalized.major;
   const year = normalized.graduationYear ? `class of ${normalized.graduationYear}` : normalized.year === "First year" ? "freshman" : normalized.year === "Second year" ? "sophomore" : normalized.year === "Third year" ? "junior" : normalized.year === "Fourth year" ? "senior" : normalized.year.toLowerCase();
   const interest = normalized.interests.split(",")[0]?.trim();
   return `${study} ${year}${interest ? ` interested in ${interest}` : ""}`;

@@ -108,6 +108,10 @@ function referralAdminSummaryKey() {
   return "unlocked:referral-admin-summary";
 }
 
+function deletedAccountKey(userId: string) {
+  return `unlocked:deleted-account:${hash(userId).slice(0, 24)}`;
+}
+
 function shouldRetryKvCommand(error: unknown) {
   if (!(error instanceof Error)) return false;
   return error.name === "AbortError" || error.message.includes("timed out") || error.message.includes("fetch failed");
@@ -408,6 +412,60 @@ export async function mergeAccountData(userId: string, incoming: Partial<Account
     return await readAccountData(userId);
   }
   return next;
+}
+
+export async function resetRecommendationSignals(userId: string) {
+  return await withSecurityLock("recommendation-reset", userId, async () => {
+    const current = await readAccountData(userId);
+    const resetAt = new Date().toISOString();
+    const next: AccountData = {
+      ...current,
+      activity: current.activity ? { ...current.activity, viewed: [] } : null,
+      preferences: {
+        ...(current.preferences ?? { updatedAt: resetAt }),
+        hiddenDismissedIds: [],
+        recommendationSignalsResetAt: resetAt,
+        updatedAt: resetAt,
+      },
+      advisor: current.advisor ? {
+        ...current.advisor,
+        recommendationSnapshots: [],
+        forYouSnapshots: [],
+        feedbackRecords: [],
+        updatedAt: resetAt,
+      } : null,
+      updatedAt: resetAt,
+    };
+    await writeAccountData(userId, next);
+    return next;
+  });
+}
+
+export async function deleteAccount(userId: string) {
+  return await withSecurityLock("account-deletion", userId, async () => {
+    const user = await dbGet<DatabaseUser>(userKey(userId));
+    if (!user) return { deleted: false, alreadyDeleted: true };
+    const data = await readAccountData(userId);
+    const deletedAt = new Date().toISOString();
+    await dbSet(deletedAccountKey(userId), {
+      deletedAt,
+      billing: {
+        tier: data.billing.tier,
+        status: data.billing.status,
+        billingInterval: data.billing.billingInterval,
+        currentPeriodEnd: data.billing.currentPeriodEnd,
+      },
+    });
+    await Promise.all([
+      dbDelete(accountDataKey(userId)),
+      dbDelete(accountBillingKey(userId)),
+      dbDelete(userKey(userId)),
+      dbDelete(emailKey(user.email)),
+      data.billing.stripeCustomerId ? dbDelete(stripeCustomerKey(data.billing.stripeCustomerId)) : Promise.resolve(),
+      data.referrals?.code ? dbDelete(referralCodeKey(data.referrals.code)) : Promise.resolve(),
+    ]);
+    return { deleted: true, alreadyDeleted: false, deletedAt };
+  });
 }
 
 export async function updateAccountBilling(userId: string, billing: Partial<BillingRecord>) {

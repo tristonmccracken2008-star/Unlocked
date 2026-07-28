@@ -6,26 +6,13 @@ import { schoolDirectory as schools, type School } from "@/data/school-directory
 import { findExactSchoolMatches, findSchoolMatches, normalizeSchoolQuery } from "@/data/school-search";
 import { SearchIcon } from "./icons";
 import { readCompletedStudentProfile, writeStudentProfile, type StudentProfile } from "@/data/student-profile";
-import { currentPriorityOptions, normalizedOpportunityInterests, opportunityInterestOptions, priorityToOpportunityType } from "@/data/profile-options";
+import { academicYearFromGraduationYear, canonicalMajors, currentPriorityOptions, graduationYears, normalizedOpportunityInterests, opportunityInterestOptions, priorityToOpportunityType } from "@/data/profile-options";
 import { accountSessionEvent, accountSyncErrorEvent, clearLocalDashboardState, hydrateAccountData } from "@/data/account-sync";
 import type { AccountSession } from "@/lib/account-types";
 import { trackProductEvent } from "@/data/product-analytics";
 
-const graduationYears = Array.from({ length: 9 }, (_, index) => String(new Date().getFullYear() + index));
 const interestSuggestions = ["Scholarships", "Research", "Internships", "AI", "Software", "Startups", "Finance", "Medicine", "Engineering"];
 const careerGoalSuggestions = ["Get an internship", "Find funding", "Join a research lab", "Build technical skills", "Prepare for graduate school", "Explore careers"];
-const opportunityMajors = ["Accounting", "Architecture", "Biology", "Business", "Chemistry", "Communications", "Computer Science", "Cybersecurity", "Data Science", "Design", "Economics", "Education", "Engineering", "English", "Environmental Science", "Finance", "Fine Arts", "History", "Information Systems", "Journalism", "Marketing", "Mathematics", "Music", "Nursing", "Physics", "Political Science", "Pre-med", "Psychology", "Public Health", "Research", "Software Engineering", "Statistics"];
-
-function academicYearFromGraduationYear(value: string) {
-  const gradYear = Number(value);
-  if (!Number.isFinite(gradYear)) return "Graduate student";
-  const yearsUntilGraduation = gradYear - new Date().getFullYear();
-  if (yearsUntilGraduation >= 4) return "First year";
-  if (yearsUntilGraduation === 3) return "Second year";
-  if (yearsUntilGraduation === 2) return "Third year";
-  if (yearsUntilGraduation === 1) return "Fourth year";
-  return "Graduate student";
-}
 
 export function PersonalizedHome() {
   const [ready, setReady] = useState(false);
@@ -45,7 +32,7 @@ export function PersonalizedHome() {
         setSession(nextSession);
         if (nextSession.authenticated) {
           const parsed = readCompletedStudentProfile();
-          setProfile(parsed && schools.some((school) => school.slug === parsed.schoolSlug) ? parsed : null);
+          setProfile(parsed && (schools.some((school) => school.slug === parsed.schoolSlug) || Boolean(parsed.schoolName)) ? parsed : null);
         } else setProfile(null);
       } catch {
         if (!active) return;
@@ -65,7 +52,7 @@ export function PersonalizedHome() {
         return;
       }
       const parsed = readCompletedStudentProfile();
-      setProfile(parsed && schools.some((school) => school.slug === parsed.schoolSlug) ? parsed : null);
+      setProfile(parsed && (schools.some((school) => school.slug === parsed.schoolSlug) || Boolean(parsed.schoolName)) ? parsed : null);
     };
     const onSyncError = (event: Event) => setSyncError((event as CustomEvent<string>).detail);
     window.addEventListener(accountSessionEvent, onSession);
@@ -156,9 +143,11 @@ export function StudentProfileForm({ mode, session, initialProfile, onSave, onCa
   const nameParts = session?.user?.name?.split(" ").filter(Boolean) ?? [];
   const [firstName, setFirstName] = useState(initialProfile?.firstName ?? nameParts[0] ?? "");
   const [lastName, setLastName] = useState(initialProfile?.lastName ?? nameParts.slice(1).join(" "));
-  const [schoolQuery, setSchoolQuery] = useState(initialSchool?.name ?? "");
+  const [schoolQuery, setSchoolQuery] = useState(initialSchool?.name ?? initialProfile?.schoolName ?? "");
   const [selectedSchool, setSelectedSchool] = useState<School | null>(initialSchool);
+  const [useCustomSchool, setUseCustomSchool] = useState(Boolean(initialProfile?.schoolName && !initialSchool));
   const [major, setMajor] = useState(initialProfile?.major ?? "");
+  const [secondaryMajor, setSecondaryMajor] = useState(initialProfile?.secondaryMajor ?? "");
   const [graduationYear, setGraduationYear] = useState(initialProfile?.graduationYear ?? "");
   const [interests, setInterests] = useState(initialProfile?.interests ?? "");
   const [careerGoal, setCareerGoal] = useState(initialProfile?.careerGoal ?? "");
@@ -166,6 +155,7 @@ export function StudentProfileForm({ mode, session, initialProfile, onSave, onCa
   const [minor, setMinor] = useState(initialProfile?.minor ?? "");
   const [gpaStatus, setGpaStatus] = useState<"reported" | "none_yet" | "nonstandard">(initialProfile?.gpaStatus ?? "none_yet");
   const [gpa, setGpa] = useState(typeof initialProfile?.gpa === "number" ? String(initialProfile.gpa) : "");
+  const [gpaScale, setGpaScale] = useState<"4.0" | "5.0" | "100">(initialProfile?.gpaScale ?? "4.0");
   const [currentPriority, setCurrentPriority] = useState(initialProfile?.currentPriority ?? currentPriorityOptions[4]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [showMajorSuggestions, setShowMajorSuggestions] = useState(false);
@@ -174,13 +164,14 @@ export function StudentProfileForm({ mode, session, initialProfile, onSave, onCa
   const [saving, setSaving] = useState(false);
   const normalized = normalizeSchoolQuery(schoolQuery);
   const matches = useMemo(() => findSchoolMatches(schools, schoolQuery, 6), [schoolQuery]);
-  const majorMatches = useMemo(() => opportunityMajors.filter((item) => item !== "All" && item !== "Any Major" && item.toLowerCase().includes(major.trim().toLowerCase())).slice(0, 6), [major]);
-  const minorMatches = useMemo(() => opportunityMajors.filter((item) => item !== "All" && item !== "Any Major" && item.toLowerCase().includes(minor.trim().toLowerCase())).slice(0, 6), [minor]);
+  const majorMatches = useMemo(() => canonicalMajors.filter((item) => item.toLowerCase().includes(major.trim().toLowerCase())).slice(0, 6), [major]);
+  const minorMatches = useMemo(() => canonicalMajors.filter((item) => item.toLowerCase().includes(minor.trim().toLowerCase())).slice(0, 6), [minor]);
 
   function chooseSchool(school: School) {
     setSelectedSchool(school);
     setSchoolQuery(school.name);
     setShowSuggestions(false);
+    setUseCustomSchool(false);
   }
 
   function addToken(value: string, current: string, update: (next: string) => void) {
@@ -193,13 +184,14 @@ export function StudentProfileForm({ mode, session, initialProfile, onSave, onCa
     const exact = findExactSchoolMatches(schools, schoolQuery);
     const school = selectedSchool ?? (exact.length === 1 ? exact[0] : undefined);
     if (!firstName.trim()) { setError("Add your first name so UnlockED can personalize your workspace."); return; }
-    if (!school) { setError("Choose your school from the suggestions."); setShowSuggestions(true); return; }
+    if (!school && (!useCustomSchool || schoolQuery.trim().length < 2)) { setError("Choose a school or use the name you entered."); setShowSuggestions(true); return; }
     if (!major.trim()) { setError("Add your major."); return; }
     if (!graduationYear) { setError("Choose your graduation year."); return; }
     if (minorStatus === "declared" && !minor.trim()) { setError("Choose your minor or select no minor."); return; }
     if (gpaStatus === "reported") {
       const numericGpa = Number(gpa);
-      if (!Number.isFinite(numericGpa) || numericGpa < 0 || numericGpa > 4) { setError("Enter a GPA from 0.00 to 4.00."); return; }
+      const maximum = gpaScale === "100" ? 100 : Number(gpaScale);
+      if (!Number.isFinite(numericGpa) || numericGpa < 0 || numericGpa > maximum) { setError(`Enter a GPA from 0 to ${gpaScale}.`); return; }
     }
     if (!interests.trim()) { setError("Add at least one interest."); return; }
     if (!careerGoal.trim()) { setError("Add one career goal."); return; }
@@ -213,15 +205,17 @@ export function StudentProfileForm({ mode, session, initialProfile, onSave, onCa
       ...initialProfile,
       firstName: firstName.trim(),
       lastName: lastName.trim() || undefined,
-      schoolSlug: school.slug,
+      schoolSlug: school?.slug ?? `custom-${normalizeSchoolQuery(schoolQuery).replaceAll(" ", "-").slice(0, 120)}`,
+      schoolName: school ? undefined : schoolQuery.trim(),
       major: major.trim(),
+      secondaryMajor: secondaryMajor.trim() && secondaryMajor.trim().toLowerCase() !== major.trim().toLowerCase() ? secondaryMajor.trim() : undefined,
       graduationYear,
       year: academicYearFromGraduationYear(graduationYear),
       minorStatus,
       minor: minorStatus === "declared" ? minor.trim() : undefined,
       gpaStatus,
       gpa: gpaStatus === "reported" ? Number(Number(gpa).toFixed(2)) : undefined,
-      gpaScale: gpaStatus === "reported" ? "4.0" : undefined,
+      gpaScale: gpaStatus === "reported" ? gpaScale : undefined,
       careerGoal: careerGoal.trim(),
       interests: interests.trim(),
       preferredOpportunityTypes,
@@ -237,14 +231,14 @@ export function StudentProfileForm({ mode, session, initialProfile, onSave, onCa
         completedAt: initialProfile?.advisorInterview?.completedAt ?? initialProfile?.onboardingCompletedAt,
       },
       });
-    } catch {
-      setError("Your profile could not be saved. Please try again.");
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "Your profile could not be saved. Please try again.");
     } finally {
       setSaving(false);
     }
   }
 
-  return <main className="px-5 py-10 sm:px-8 sm:py-14">
+  return <section className={mode === "edit" ? "py-8" : "px-5 py-10 sm:px-8 sm:py-14"}>
     <section className="mx-auto max-w-3xl">
       <p className="rule-label text-forest">{mode === "edit" ? "Edit profile" : "First things first"}</p>
       <h1 className="mt-3 font-editorial text-4xl font-bold tracking-[-.03em] sm:text-5xl">{mode === "edit" ? "Update your profile." : "Tell UnlockED what fits you."}</h1>
@@ -261,7 +255,8 @@ export function StudentProfileForm({ mode, session, initialProfile, onSave, onCa
             <input id="profile-school" value={schoolQuery} onFocus={() => setShowSuggestions(true)} onChange={(event) => { setSchoolQuery(event.target.value); setSelectedSchool(null); setShowSuggestions(true); }} placeholder="Search your university" autoComplete="off" role="combobox" aria-autocomplete="list" aria-controls="profile-school-suggestions" aria-expanded={showSuggestions && Boolean(normalized)} className="min-w-0 flex-1 bg-transparent outline-none placeholder:text-ink/30"/>
           </div>
           {showSuggestions && normalized && matches.length > 0 && <div id="profile-school-suggestions" role="listbox" aria-label="Matching schools" className="absolute z-20 mt-1 w-full border border-ink/20 bg-white shadow-soft">{matches.map((school) => <button key={school.slug} type="button" role="option" aria-selected={school.slug === selectedSchool?.slug} onMouseDown={(event) => event.preventDefault()} onClick={() => chooseSchool(school)} className="block w-full border-b border-ink/10 px-4 py-3 text-left last:border-b-0 hover:bg-paper"><span className="block text-sm font-bold">{school.name}</span><span className="block text-xs text-ink/45">{school.domain} · {school.location}</span></button>)}</div>}
-          {showSuggestions && normalized && matches.length === 0 && <div id="profile-school-suggestions" className="absolute z-20 mt-1 w-full border border-ink/20 bg-white p-4 shadow-soft"><p className="font-bold">School not found</p><Link href={`/contact?school=${encodeURIComponent(schoolQuery)}`} className="mt-2 inline-block border-b border-forest text-sm font-bold text-forest">Request this school</Link></div>}
+          {showSuggestions && normalized && matches.length === 0 && <div id="profile-school-suggestions" className="absolute z-20 mt-1 w-full border border-ink/20 bg-white p-4 shadow-soft"><p className="font-bold">School not listed</p><button type="button" onClick={() => { setUseCustomSchool(true); setShowSuggestions(false); }} className="mt-3 min-h-11 border border-forest px-4 text-sm font-bold text-forest">Use “{schoolQuery.trim()}”</button><p className="mt-2 text-xs leading-5 text-ink/45">You can continue now. School-specific matches may be limited until it joins the catalog.</p></div>}
+          {useCustomSchool ? <p className="mt-2 text-xs font-bold text-forest">Using the school name you entered.</p> : null}
         </div>
         <div className="grid gap-4 sm:grid-cols-[1fr_220px]">
           <div className="relative">
@@ -269,7 +264,11 @@ export function StudentProfileForm({ mode, session, initialProfile, onSave, onCa
             <input id="profile-major" value={major} onFocus={() => setShowMajorSuggestions(true)} onChange={(event) => { setMajor(event.target.value); setShowMajorSuggestions(true); }} placeholder="Computer Science, Finance, Biology..." autoComplete="off" role="combobox" aria-autocomplete="list" aria-controls="profile-major-suggestions" aria-expanded={showMajorSuggestions && majorMatches.length > 0} className="min-h-12 w-full border border-ink/20 bg-white px-4 outline-none focus:border-forest"/>
             {showMajorSuggestions && majorMatches.length > 0 && <div id="profile-major-suggestions" role="listbox" aria-label="Matching majors" className="absolute z-20 mt-1 w-full border border-ink/20 bg-white shadow-soft">{majorMatches.map((item) => <button key={item} type="button" role="option" aria-selected={major === item} onMouseDown={(event) => event.preventDefault()} onClick={() => { setMajor(item); setShowMajorSuggestions(false); }} className="block min-h-11 w-full border-b border-ink/10 px-4 py-3 text-left text-sm font-bold last:border-b-0 hover:bg-paper">{item}</button>)}</div>}
           </div>
-          <label className="block"><span className="mb-2 block text-sm font-bold">Graduation year</span><select value={graduationYear} onChange={(event) => setGraduationYear(event.target.value)} className="min-h-12 w-full border border-ink/20 bg-white px-4 outline-none focus:border-forest"><option value="">Choose year</option>{graduationYears.map((year) => <option key={year} value={year}>{year}</option>)}</select></label>
+          <label className="block"><span className="mb-2 block text-sm font-bold">Graduation year</span><select value={graduationYear} onChange={(event) => setGraduationYear(event.target.value)} className="min-h-12 w-full border border-ink/20 bg-white px-4 outline-none focus:border-forest"><option value="">Choose year</option>{graduationYears().map((year) => <option key={year} value={year}>{year}</option>)}</select></label>
+        </div>
+        <div className="relative">
+          <label htmlFor="profile-secondary-major" className="mb-2 block text-sm font-bold">Second major <span className="font-normal text-ink/40">(optional)</span></label>
+          <input id="profile-secondary-major" value={secondaryMajor} onChange={(event) => setSecondaryMajor(event.target.value)} placeholder="Add another major" className="min-h-12 w-full border border-ink/20 bg-white px-4 outline-none focus:border-forest"/>
         </div>
         <div className="grid gap-4 sm:grid-cols-[1fr_1fr]">
           <fieldset>
@@ -288,7 +287,7 @@ export function StudentProfileForm({ mode, session, initialProfile, onSave, onCa
               <option value="reported">Enter my GPA</option>
               <option value="nonstandard">My school does not use a standard GPA</option>
             </select>
-            {gpaStatus === "reported" && <><label htmlFor="profile-gpa" className="sr-only">GPA on a 4.0 scale</label><input id="profile-gpa" inputMode="decimal" value={gpa} onChange={(event) => setGpa(event.target.value.replace(/[^0-9.]/g, ""))} placeholder="Example: 3.75" className="mt-3 min-h-12 w-full border border-ink/20 bg-white px-4 outline-none focus:border-forest"/></>}
+            {gpaStatus === "reported" && <div className="mt-3 grid grid-cols-[1fr_7rem] gap-2"><label htmlFor="profile-gpa" className="sr-only">GPA</label><input id="profile-gpa" inputMode="decimal" value={gpa} onChange={(event) => setGpa(event.target.value.replace(/[^0-9.]/g, ""))} placeholder="Example: 3.75" className="min-h-12 w-full border border-ink/20 bg-white px-4 outline-none focus:border-forest"/><label className="sr-only" htmlFor="profile-gpa-scale">GPA scale</label><select id="profile-gpa-scale" value={gpaScale} onChange={(event) => setGpaScale(event.target.value as "4.0" | "5.0" | "100")} className="min-h-12 border border-ink/20 bg-white px-3"><option value="4.0">4.0 scale</option><option value="5.0">5.0 scale</option><option value="100">100 scale</option></select></div>}
           </fieldset>
         </div>
         <TokenField id="profile-interests" label="Interests" value={interests} setValue={setInterests} suggestions={interestSuggestions} onAdd={addToken} placeholder="AI, research, scholarships" />
@@ -302,7 +301,7 @@ export function StudentProfileForm({ mode, session, initialProfile, onSave, onCa
         </div>
       </form>
     </section>
-  </main>;
+  </section>;
 }
 
 function TextField({ id, label, value, setValue, required = false }: { id: string; label: string; value: string; setValue: (value: string) => void; required?: boolean }) {

@@ -14,6 +14,7 @@ type OnboardingDraft = {
   lastName: string;
   schoolQuery: string;
   schoolSlug: string;
+  schoolName: string;
   graduationYear: string;
   major: string;
   minorStatus: MinorStatus | "";
@@ -36,8 +37,9 @@ function profileToDraft(session: AccountSession, profile: StudentProfile | null 
   return {
     firstName: profile?.firstName ?? nameParts[0] ?? emailName ?? "Student",
     lastName: profile?.lastName ?? nameParts.slice(1).join(" "),
-    schoolQuery: school?.name ?? "",
-    schoolSlug: school?.slug ?? "",
+    schoolQuery: school?.name ?? profile?.schoolName ?? "",
+    schoolSlug: school?.slug ?? profile?.schoolSlug ?? "",
+    schoolName: school ? "" : profile?.schoolName ?? "",
     graduationYear: profile?.graduationYear ?? "",
     major: profile?.major ?? "",
     minorStatus: profile?.minorStatus ?? (profile?.minor ? "declared" : ""),
@@ -133,17 +135,24 @@ export function OnboardingFlow({ session, initialProfile }: { session: AccountSe
   }
 
   function chooseSchool(school: School) {
-    update({ schoolSlug: school.slug, schoolQuery: school.name });
+    update({ schoolSlug: school.slug, schoolQuery: school.name, schoolName: "" });
+    setShowSchoolSuggestions(false);
+  }
+
+  function chooseCustomSchool() {
+    const name = draft.schoolQuery.trim();
+    if (name.length < 2) return;
+    update({ schoolSlug: `custom-${normalizeSchoolQuery(name).replaceAll(" ", "-").slice(0, 120)}`, schoolName: name });
     setShowSchoolSuggestions(false);
   }
 
   function validation(index = step) {
     if (index === 0) {
       const exact = findExactSchoolMatches(schools, draft.schoolQuery);
-      if (!draft.schoolSlug && exact.length !== 1) return "Choose your school from the suggestions.";
+      if (!draft.schoolSlug && exact.length !== 1) return "Choose a school or use the name you entered.";
     }
     if (index === 1 && !graduationYears().includes(draft.graduationYear)) return "Choose your expected graduation year.";
-    if (index === 2 && !canonicalMajors.includes(draft.major as (typeof canonicalMajors)[number])) return "Choose your major from the suggestions.";
+    if (index === 2 && draft.major.trim().length < 2) return "Enter your major or choose Undeclared.";
     if (index === 3 && !careerGoalOptions.includes(draft.careerGoal as (typeof careerGoalOptions)[number])) return "Choose the career direction closest to you.";
     if (index === 4 && draft.interests.length < 1) return "Choose at least one opportunity type.";
     if (index === 5 && !currentPriorityOptions.includes(draft.currentPriority as (typeof currentPriorityOptions)[number])) return "Choose what matters most right now.";
@@ -159,8 +168,8 @@ export function OnboardingFlow({ session, initialProfile }: { session: AccountSe
   async function finish() {
     const issue = validation(totalSteps - 1);
     const school = currentSchool();
-    if (issue || !school) {
-      const reason = issue || "Choose your school from the suggestions.";
+    if (issue || (!school && !draft.schoolName)) {
+      const reason = issue || "Choose a school or use the name you entered.";
       setError(reason);
       trackProductEvent("onboarding_validation_failed", { stepId: stepIds[step], stepIndex: String(step + 1), reason });
       return;
@@ -175,7 +184,8 @@ export function OnboardingFlow({ session, initialProfile }: { session: AccountSe
       ...initialProfile,
       firstName: draft.firstName.trim() || "Student",
       lastName: draft.lastName.trim() || undefined,
-      schoolSlug: school.slug,
+      schoolSlug: school?.slug ?? draft.schoolSlug,
+      schoolName: school ? undefined : draft.schoolName,
       graduationYear: draft.graduationYear,
       year: academicYearFromGraduationYear(draft.graduationYear),
       major: draft.major,
@@ -255,7 +265,7 @@ export function OnboardingFlow({ session, initialProfile }: { session: AccountSe
         {screen === "question" ? <Progress step={step} /> : <p className="text-xs font-bold uppercase tracking-[.16em] text-ink/35">About one minute</p>}
       </div>
       <div className="flex flex-1 items-center justify-center py-10">
-        {screen === "welcome" ? <Welcome /> : <Question step={step} draft={draft} update={update} schoolMatches={schoolMatches} showSchoolSuggestions={showSchoolSuggestions} setShowSchoolSuggestions={setShowSchoolSuggestions} chooseSchool={chooseSchool} selectedSchool={selectedSchool} majorMatches={majorMatches} showMajorSuggestions={showMajorSuggestions} setShowMajorSuggestions={setShowMajorSuggestions} />}
+        {screen === "welcome" ? <Welcome /> : <Question step={step} draft={draft} update={update} schoolMatches={schoolMatches} showSchoolSuggestions={showSchoolSuggestions} setShowSchoolSuggestions={setShowSchoolSuggestions} chooseSchool={chooseSchool} chooseCustomSchool={chooseCustomSchool} selectedSchool={selectedSchool} majorMatches={majorMatches} showMajorSuggestions={showMajorSuggestions} setShowMajorSuggestions={setShowMajorSuggestions} />}
       </div>
       <div className="mx-auto w-full max-w-xl">
         {error && <p role="alert" aria-live="polite" className="mb-3 rounded-2xl bg-red-50 px-4 py-3 text-sm font-bold leading-5 text-red-700">{error}</p>}
@@ -297,13 +307,14 @@ function Question(props: {
   showSchoolSuggestions: boolean;
   setShowSchoolSuggestions: (value: boolean) => void;
   chooseSchool: (school: School) => void;
+  chooseCustomSchool: () => void;
   selectedSchool: School | null;
   majorMatches: readonly string[];
   showMajorSuggestions: boolean;
   setShowMajorSuggestions: (value: boolean) => void;
 }) {
   const { step, draft, update } = props;
-  if (step === 0) return <QuestionShell eyebrow="School" title="What school do you attend?" helper="This helps us find opportunities specific to your school."><Combobox id="onboarding-school" value={draft.schoolQuery} placeholder="Search for your school" selected={props.selectedSchool?.name} matches={props.schoolMatches.map((school) => ({ id: school.slug, label: school.name, meta: `${school.location} · ${school.domain}`, value: school.name, source: school }))} show={props.showSchoolSuggestions && Boolean(normalizeSchoolQuery(draft.schoolQuery))} setShow={props.setShowSchoolSuggestions} onChange={(value) => update({ schoolQuery: value, schoolSlug: "" })} onChoose={(item) => props.chooseSchool(item.source as School)} /></QuestionShell>;
+  if (step === 0) return <QuestionShell eyebrow="School" title="What school do you attend?" helper="This helps us find opportunities specific to your school."><Combobox id="onboarding-school" value={draft.schoolQuery} placeholder="Search for your school" selected={props.selectedSchool?.name ?? draft.schoolName} matches={props.schoolMatches.map((school) => ({ id: school.slug, label: school.name, meta: `${school.location} · ${school.domain}`, value: school.name, source: school }))} show={props.showSchoolSuggestions && Boolean(normalizeSchoolQuery(draft.schoolQuery))} setShow={props.setShowSchoolSuggestions} onChange={(value) => update({ schoolQuery: value, schoolSlug: "", schoolName: "" })} onChoose={(item) => props.chooseSchool(item.source as School)} emptyAction={draft.schoolQuery.trim().length >= 2 ? { label: `Use “${draft.schoolQuery.trim()}”`, onChoose: props.chooseCustomSchool } : undefined} /></QuestionShell>;
   if (step === 1) return <QuestionShell eyebrow="Graduation Year" title="When do you expect to graduate?" helper="Helps us show programs you are currently eligible for."><select aria-label="Select year" value={draft.graduationYear} onChange={(event) => update({ graduationYear: event.target.value })} className="min-h-12 w-full rounded-xl border border-ink/15 bg-white px-4 text-sm font-bold outline-none focus:border-forest"><option value="">Select year</option>{graduationYears().map((year) => <option key={year} value={year}>{year}</option>)}</select></QuestionShell>;
   if (step === 2) return <QuestionShell eyebrow="Major" title="What is your major?" helper="Helps us check field-specific eligibility and relevance."><Combobox id="onboarding-major" value={draft.major} placeholder="Search for your major" matches={props.majorMatches.map((major) => ({ id: major, label: major, value: major }))} show={props.showMajorSuggestions} setShow={props.setShowMajorSuggestions} onChange={(value) => update({ major: value })} onChoose={(item) => { update({ major: item.value }); props.setShowMajorSuggestions(false); }} /></QuestionShell>;
   if (step === 3) return <QuestionShell eyebrow="Direction" title="What are you interested in working toward?" helper="Used to rank opportunities that support your current direction."><ChoiceGrid options={careerGoalOptions} values={[draft.careerGoal]} onToggle={(value) => update({ careerGoal: value })} /></QuestionShell>;
@@ -321,7 +332,7 @@ function QuestionShell({ eyebrow, title, helper, children }: { eyebrow: string; 
 }
 
 type ComboItem = { id: string; label: string; value: string; meta?: string; source?: unknown };
-function Combobox({ id, value, selected, placeholder, matches, show, setShow, onChange, onChoose }: { id: string; value: string; selected?: string; placeholder: string; matches: ComboItem[]; show: boolean; setShow: (value: boolean) => void; onChange: (value: string) => void; onChoose: (item: ComboItem) => void }) {
+function Combobox({ id, value, selected, placeholder, matches, show, setShow, onChange, onChoose, emptyAction }: { id: string; value: string; selected?: string; placeholder: string; matches: ComboItem[]; show: boolean; setShow: (value: boolean) => void; onChange: (value: string) => void; onChoose: (item: ComboItem) => void; emptyAction?: { label: string; onChoose: () => void } }) {
   return <div className="relative" onBlur={(event) => {
     if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setShow(false);
   }}>
@@ -336,7 +347,7 @@ function Combobox({ id, value, selected, placeholder, matches, show, setShow, on
       }} onChange={(event) => { onChange(event.target.value); setShow(true); }} placeholder={placeholder} autoComplete="off" role="combobox" aria-autocomplete="list" aria-expanded={show} aria-controls={`${id}-listbox`} className="min-w-0 flex-1 bg-transparent py-3 text-sm font-bold outline-none placeholder:text-ink/30" />
     </div>
     {show && <div id={`${id}-listbox`} role="listbox" className="absolute z-30 mt-2 max-h-72 w-full overflow-auto rounded-2xl border border-ink/10 bg-white py-2 shadow-soft">
-      {matches.length ? matches.map((item) => <button key={item.id} type="button" role="option" aria-selected={item.value === value} onMouseDown={(event) => event.preventDefault()} onClick={() => onChoose(item)} className="block min-h-11 w-full px-4 py-3 text-left hover:bg-paper"><span className="block text-sm font-bold">{item.label}</span>{item.meta && <span className="mt-1 block text-xs text-ink/40">{item.meta}</span>}</button>) : <p className="px-4 py-3 text-sm font-bold text-ink/45">No match found.</p>}
+      {matches.length ? matches.map((item) => <button key={item.id} type="button" role="option" aria-selected={item.value === value} onMouseDown={(event) => event.preventDefault()} onClick={() => onChoose(item)} className="block min-h-11 w-full px-4 py-3 text-left hover:bg-paper"><span className="block text-sm font-bold">{item.label}</span>{item.meta && <span className="mt-1 block text-xs text-ink/40">{item.meta}</span>}</button>) : emptyAction ? <button type="button" role="option" aria-selected="false" onMouseDown={(event) => event.preventDefault()} onClick={emptyAction.onChoose} className="block min-h-11 w-full px-4 py-3 text-left text-sm font-bold text-forest hover:bg-paper">{emptyAction.label}<span className="mt-1 block text-xs font-normal leading-5 text-ink/45">School-specific matches may be limited until it joins the catalog.</span></button> : <p className="px-4 py-3 text-sm font-bold text-ink/45">No match found.</p>}
     </div>}
   </div>;
 }
