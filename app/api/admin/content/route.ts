@@ -3,6 +3,7 @@ import { getAdminSession } from "@/lib/admin-auth";
 import { createOpportunity, validateOpportunityInput } from "@/lib/content-validation";
 import { listManagedRecords, readContentAuditLog, saveManagedOpportunity } from "@/lib/content-store";
 import { assertSameOrigin, enforceRateLimit, readBoundedJson, securityErrorResponse } from "@/lib/security";
+import { applyOpportunityLifecycleReview } from "@/data/opportunity-lifecycle";
 
 export const dynamic = "force-dynamic";
 const noStoreHeaders = { "Cache-Control": "no-store, max-age=0" };
@@ -33,7 +34,17 @@ export async function POST(request: Request) {
     let id = base;
     let index = 2;
     while (existing.some((item) => item.opportunity.id === id)) id = `${base}-${index++}`;
-    const opportunity = createOpportunity(id, result.data);
+    const draft = createOpportunity(id, result.data);
+    const opportunity = applyOpportunityLifecycleReview(draft, draft, {
+      state: result.data.lifecycle_state,
+      confidence: result.data.lifecycle_confidence,
+      reason: result.data.lifecycle_reason,
+      reviewedAt: result.data.last_verified,
+      reviewer: session.user.email,
+      note: result.data.lifecycle_review_note,
+      openingDate: result.data.opening_date,
+      recurrence: result.data.recurrence_type ? { type: result.data.recurrence_type, confidence: result.data.lifecycle_confidence } : null,
+    });
     const record = await saveManagedOpportunity(opportunity, session.user.email, Object.keys(result.data), true);
     return NextResponse.json({ record }, { status: 201, headers: noStoreHeaders });
   } catch (error) {

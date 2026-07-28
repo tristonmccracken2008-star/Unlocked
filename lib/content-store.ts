@@ -1,4 +1,5 @@
 import { opportunities as seedOpportunities, type Opportunity } from "@/data/opportunities";
+import { applyOpportunityLifecycleReview } from "@/data/opportunity-lifecycle";
 
 export type ManagedOpportunity = { opportunity: Opportunity; archived: boolean; deleted: boolean; createdAt: string; updatedAt: string };
 export type ContentAuditLog = { id: string; opportunityId: string; timestamp: string; adminEmail: string; action: "create" | "update" | "archive" | "restore" | "delete"; fieldsChanged: string[] };
@@ -59,20 +60,20 @@ export async function listPublishedOpportunities() {
     .finally(() => { publishedRequest = null; });
   return publishedRequest;
 }
-export async function listPublishedOpportunitiesByIds(ids: readonly string[]) {
+export async function listPublishedOpportunitiesByIds(ids: readonly string[], options: { includeArchived?: boolean } = {}) {
   const uniqueIds = [...new Set(ids.filter(Boolean))];
   const records = await Promise.all(uniqueIds.map(async (id) => {
     const managed = parse<ManagedOpportunity>(await command<string>(["GET", recordKey(id)]));
-    if (managed) return managed.archived || managed.deleted ? undefined : managed.opportunity;
+    if (managed) return managed.deleted || managed.archived && !options.includeArchived ? undefined : managed.opportunity;
     return seedOpportunities.find((opportunity) => opportunity.id === id);
   }));
   return records.filter((opportunity): opportunity is Opportunity => Boolean(opportunity));
 }
-export async function getManagedOpportunity(id:string){return (await listManagedRecords()).find((item)=>item.opportunity.id===id&&!item.archived&&!item.deleted)?.opportunity}
+export async function getManagedOpportunity(id:string,options:{includeArchived?:boolean}={}){return (await listManagedRecords()).find((item)=>item.opportunity.id===id&&(options.includeArchived||!item.archived)&&!item.deleted)?.opportunity}
 export async function getManagedRecord(id:string){return (await listManagedRecords()).find((item)=>item.opportunity.id===id)}
 
 async function logEdit(entry:Omit<ContentAuditLog,"id"|"timestamp">){const log:ContentAuditLog={...entry,id:crypto.randomUUID(),timestamp:new Date().toISOString()};await command(["LPUSH",auditKey,JSON.stringify(log)]);await command(["LTRIM",auditKey,"0","499"])}
 export async function saveManagedOpportunity(opportunity:Opportunity,adminEmail:string,fieldsChanged:string[],isCreate=false){requireWritableStore();const current=await getManagedRecord(opportunity.id);const now=new Date().toISOString();const record:ManagedOpportunity={opportunity,archived:current?.archived??false,deleted:false,createdAt:current?.createdAt??now,updatedAt:now};await command(["SET",recordKey(opportunity.id),JSON.stringify(record)]);await command(["SADD",indexKey,opportunity.id]);await logEdit({opportunityId:opportunity.id,adminEmail,action:isCreate?"create":"update",fieldsChanged});invalidatePublishedCache();return record}
-export async function setManagedArchive(id:string,archived:boolean,adminEmail:string){requireWritableStore();const current=await getManagedRecord(id);if(!current)throw new Error("Opportunity not found");const record={...current,archived,deleted:false,updatedAt:new Date().toISOString()};await command(["SET",recordKey(id),JSON.stringify(record)]);await command(["SADD",indexKey,id]);await logEdit({opportunityId:id,adminEmail,action:archived?"archive":"restore",fieldsChanged:["archived"]});invalidatePublishedCache();return record}
+export async function setManagedArchive(id:string,archived:boolean,adminEmail:string){requireWritableStore();const current=await getManagedRecord(id);if(!current)throw new Error("Opportunity not found");const reviewedAt=new Date().toISOString().slice(0,10);const opportunity=applyOpportunityLifecycleReview(current.opportunity,current.opportunity,{state:archived?"archived":"unknown",confidence:archived?"confirmed":"limited",reason:archived?"record_archived":"insufficient_current_evidence",reviewedAt,reviewer:adminEmail,note:archived?"Authorized reviewer archived this record while preserving historical references.":"Authorized reviewer restored this record for current-evidence review.",recurrence:current.opportunity.metadata.lifecycle?.recurrence??null,openingDate:current.opportunity.metadata.lifecycle?.openingDate?.normalizedValue?.slice(0,10)});const record={...current,opportunity,archived,deleted:false,updatedAt:new Date().toISOString()};await command(["SET",recordKey(id),JSON.stringify(record)]);await command(["SADD",indexKey,id]);await logEdit({opportunityId:id,adminEmail,action:archived?"archive":"restore",fieldsChanged:["archived","metadata.lifecycle"]});invalidatePublishedCache();return record}
 export async function deleteManagedOpportunity(id:string,adminEmail:string){requireWritableStore();const current=await getManagedRecord(id);if(!current)throw new Error("Opportunity not found");const record={...current,archived:true,deleted:true,updatedAt:new Date().toISOString()};await command(["SET",recordKey(id),JSON.stringify(record)]);await command(["SADD",indexKey,id]);await logEdit({opportunityId:id,adminEmail,action:"delete",fieldsChanged:["deleted"]});invalidatePublishedCache()}
 export async function readContentAuditLog(){const values=await command<string[]>(["LRANGE",auditKey,"0","99"])??[];return values.map((value)=>parse<ContentAuditLog>(value)).filter((item):item is ContentAuditLog=>Boolean(item))}

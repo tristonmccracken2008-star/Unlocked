@@ -4,6 +4,7 @@ import { normalizeOpportunityEligibility } from "./opportunity-eligibility-model
 import { getOpportunityIntelligence } from "./opportunity-intelligence";
 import { auditOpportunity } from "./opportunity-quality";
 import type { Opportunity } from "./opportunities";
+import { resolveOpportunityLifecycle } from "./opportunity-lifecycle";
 
 export const opportunityPlatformVersion = "opportunity-intelligence-platform-v1";
 
@@ -139,12 +140,13 @@ function nextReviewDate(item: Opportunity, ageDays: number | null) {
 export function assessOpportunityFreshness(item: Opportunity, now = new Date()): OpportunityFreshnessAssessment {
   const verifiedAge = daysBetween(dateValue(item.last_verified), now);
   const deadlineDays = item.application_deadline ? -daysBetween(dateValue(item.application_deadline, true), now)! : null;
+  const lifecycle = resolveOpportunityLifecycle(item, now);
   const reviewReasons: string[] = [];
   let state: OpportunityFreshnessState = "current";
-  if (item.verification_status === "archived") state = "archived";
-  else if (item.verification_status === "broken_source" || item.metadata.verification?.sourceReachable === false) state = "broken";
-  else if (item.verification_status === "expired" || deadlineDays !== null && deadlineDays < 0) state = "expired";
-  else if (item.verification_status === "temporarily_closed" || item.metadata.deadlineType === "current_cycle_closed") state = "temporarily_closed";
+  if (lifecycle.state === "archived") state = "archived";
+  else if (item.verification_status === "broken_source" || item.metadata.verification?.sourceReachable === false || lifecycle.issues.some((issue) => issue.severity === "broken_source")) state = "broken";
+  else if (lifecycle.state === "closed" || lifecycle.state === "canceled") state = "expired";
+  else if (lifecycle.state === "temporarily_closed") state = "temporarily_closed";
   else if (verifiedAge === null || verifiedAge > 180) state = "stale";
   else if (verifiedAge > 120) state = "review_due";
   if (state === "expired") reviewReasons.push("Application deadline has passed.");
@@ -159,7 +161,7 @@ export function assessOpportunityFreshness(item: Opportunity, now = new Date()):
     state,
     ageDays: verifiedAge,
     deadlineDays,
-    rankable: state === "current" || state === "review_due",
+    rankable: lifecycle.recommendationEligible && (state === "current" || state === "review_due"),
     reviewReasons: unique(reviewReasons),
     nextReviewAt: nextReviewDate(item, verifiedAge),
   };

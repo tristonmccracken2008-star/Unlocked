@@ -2,6 +2,7 @@ import catalogJson from "./db/opportunities.json";
 import { canonicalOpportunity } from "./opportunity-enrichment";
 import { auditOpportunity } from "./opportunity-quality";
 import { academicYears, opportunityCategories, opportunityMajors, opportunityTypes, type OpportunityCategory, type OpportunityType } from "./opportunity-taxonomy";
+import type { OpportunityLifecycleMetadata } from "./opportunity-lifecycle-types";
 
 export { academicYears, opportunityCategories, opportunityMajors, opportunityTypes } from "./opportunity-taxonomy";
 export type { OpportunityCategory, OpportunityType } from "./opportunity-taxonomy";
@@ -107,6 +108,7 @@ export type OpportunityMetadata = {
   bestUseCases?: string[];
   eligibilityRules?: OpportunityEligibilityRules;
   verification?: OpportunityVerification;
+  lifecycle?: OpportunityLifecycleMetadata;
 };
 
 export type Opportunity = {
@@ -159,7 +161,7 @@ export type OpportunityFilters = {
   academicYear?: string;
   paid?: boolean | null;
   remote?: boolean | null;
-  deadline?: "published" | "upcoming" | "rolling" | "not_announced";
+  deadline?: "published" | "upcoming" | "rolling" | "not_announced" | "open" | "closed" | "recurring";
   difficulty?: Exclude<OpportunityDifficulty, null> | "All";
   freshmanFriendly?: boolean;
   featured?: boolean;

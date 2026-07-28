@@ -107,6 +107,9 @@ const validOpportunity = {
   description: "Official description", eligibility: "Current students", school_scope: "National", schools: [],
   verification_status: "verified", last_verified: "2026-07-13", tags: ["verified"],
   official_source_url: "https://example.edu/opportunity", deadline: "2026-12-01", estimated_value: 1000,
+  lifecycle_state: "open", lifecycle_confidence: "confirmed", lifecycle_reason: "manually_verified",
+  lifecycle_review_note: "The official source confirms that applications are currently open.",
+  opening_date: null, recurrence_type: null,
 };
 assert.ok(validateOpportunityInput(validOpportunity).data);
 assert.ok(validateOpportunityInput({ ...validOpportunity, official_source_url: "javascript:alert(1)" }).errors.length);

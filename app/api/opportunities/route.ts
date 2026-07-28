@@ -6,7 +6,7 @@ import { enforceRateLimit, securityErrorResponse } from "@/lib/security";
 
 export const dynamic = "force-dynamic";
 const idPattern = /^[A-Za-z0-9][A-Za-z0-9._:-]{0,159}$/;
-const deadlineOptions = new Set(["All", "published", "upcoming", "rolling", "not_announced"]);
+const deadlineOptions = new Set(["All", "open", "upcoming", "rolling", "closed", "recurring"]);
 const sortOptions = new Set<DiscoverSortMode>(["Relevant", "Newest", "Deadline", "Alphabetical"]);
 
 function boundedParam(params: URLSearchParams, key: string, fallback = "All", maxLength = 120) {

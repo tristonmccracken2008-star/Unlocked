@@ -46,6 +46,9 @@ async function command<T>(args: string[]): Promise<T | null> {
       memoryReports.splice(Number(args[3]) + 1);
       return "OK" as T;
     }
+    if (operation === "LRANGE" && key === reportKey) {
+      return memoryReports.slice(Number(value), Number(args[3]) + 1).map((report) => JSON.stringify(report)) as T;
+    }
     throw new Error(`Unsupported opportunity report store operation: ${operation}`);
   }
 
@@ -88,4 +91,37 @@ export async function saveOpportunityReport(input: Omit<OpportunityReport, "id" 
   await command(["LPUSH", reportKey, JSON.stringify(report)]);
   await command(["LTRIM", reportKey, "0", "1999"]);
   return { duplicate: false, report };
+}
+
+export async function readOpportunityReports(limit = 500) {
+  const bounded = Math.min(2_000, Math.max(1, Math.floor(limit)));
+  const values = await command<string[]>(["LRANGE", reportKey, "0", String(bounded - 1)]) ?? [];
+  return values.flatMap((value) => {
+    try {
+      const report = JSON.parse(value) as OpportunityReport;
+      return report?.id && report?.opportunityId && opportunityReportIssueTypes.includes(report.issue) ? [report] : [];
+    } catch {
+      return [];
+    }
+  });
+}
+
+export async function opportunityReportSummary(limit = 2_000) {
+  const reports = await readOpportunityReports(limit);
+  const grouped = new Map<string, { total: number; reporters: Set<string>; issues: Map<OpportunityReportIssue, number>; latestAt: string }>();
+  for (const report of reports) {
+    const current = grouped.get(report.opportunityId) ?? { total: 0, reporters: new Set<string>(), issues: new Map<OpportunityReportIssue, number>(), latestAt: report.createdAt };
+    current.total += 1;
+    current.reporters.add(report.reporterHash);
+    current.issues.set(report.issue, (current.issues.get(report.issue) ?? 0) + 1);
+    if (report.createdAt > current.latestAt) current.latestAt = report.createdAt;
+    grouped.set(report.opportunityId, current);
+  }
+  return [...grouped.entries()].map(([opportunityId, value]) => ({
+    opportunityId,
+    total: value.total,
+    independentReporters: value.reporters.size,
+    issues: [...value.issues.entries()].sort((left, right) => right[1] - left[1]),
+    latestAt: value.latestAt,
+  })).sort((left, right) => right.independentReporters - left.independentReporters || right.total - left.total || right.latestAt.localeCompare(left.latestAt));
 }

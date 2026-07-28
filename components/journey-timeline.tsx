@@ -63,6 +63,7 @@ function TimelineEvent({ event, theme, chapter, initiallyHidden }: { event: Jour
         <dl>
           <div><dt>Organization</dt><dd>{event.opportunity.organization}</dd></div>
           <div><dt>Category</dt><dd>{event.opportunity.category}</dd></div>
+          {event.publicLifecycle ? <div><dt>Public listing</dt><dd>{event.publicLifecycle.label}{event.publicLifecycle.actionable?"":" · Your Journey status is unchanged"}</dd></div> : null}
           <div><dt>Recorded</dt><dd>{formatDate(event.occurredAt)}</dd></div>
           {event.reminderAt ? <div><dt>Reminder</dt><dd>{formatDate(event.reminderAt)}</dd></div> : null}
           {event.documentNames?.length ? <div><dt>Document references</dt><dd>{event.documentNames.join(", ")}</dd></div> : null}

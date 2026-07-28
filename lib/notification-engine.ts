@@ -1,5 +1,6 @@
 import crypto from "node:crypto";
 import type { Opportunity } from "@/data/opportunities";
+import { createOpportunityLifecycleEvents, resolveOpportunityLifecycle } from "@/data/opportunity-lifecycle";
 import type { TrackedOpportunity } from "@/data/student-activity";
 import {
   defaultNotificationPreferences,
@@ -119,6 +120,8 @@ function deadlineOffsets(record: TrackedOpportunity) {
 }
 
 export function opportunityDeadlineIsTrustworthy(opportunity: Opportunity, now = new Date()) {
+  const lifecycle = resolveOpportunityLifecycle(opportunity, now);
+  if (!lifecycle.actionable || lifecycle.state === "rolling" || !["confirmed", "strong"].includes(lifecycle.confidence)) return false;
   if (!opportunity.application_deadline || opportunity.metadata.deadlineType !== "fixed") return false;
   if (!trustworthyDeadlineStatuses.has(opportunity.verification_status)) return false;
   if (!/^\d{4}-\d{2}-\d{2}$/.test(opportunity.application_deadline)) return false;
@@ -228,9 +231,13 @@ export function detectMaterialOpportunityChanges(before: Opportunity, after: Opp
   if (normalizeText(before.application_deadline) !== normalizeText(after.application_deadline)) {
     add("deadline", displayValue(before.application_deadline, "Not announced"), displayValue(after.application_deadline, "Not announced"), "The deadline changed");
   }
-  const beforeClosed = ["temporarily_closed", "expired", "archived"].includes(before.verification_status) || before.metadata.deadlineType === "current_cycle_closed";
-  const afterClosed = ["temporarily_closed", "expired", "archived"].includes(after.verification_status) || after.metadata.deadlineType === "current_cycle_closed";
-  if (beforeClosed !== afterClosed) add("application_status", beforeClosed ? "Closed" : "Open", afterClosed ? "Closed" : "Open", afterClosed ? "Applications closed" : "Applications reopened");
+  const lifecycleEvents = createOpportunityLifecycleEvents(before, after);
+  const statusEvent = lifecycleEvents.find((event) => ["application_opened", "application_reopened", "application_closed", "opportunity_canceled", "cycle_archived"].includes(event.type));
+  if (statusEvent) {
+    const beforeLifecycle = resolveOpportunityLifecycle(before);
+    const afterLifecycle = resolveOpportunityLifecycle(after);
+    add("application_status", beforeLifecycle.label, afterLifecycle.label, statusEvent.type === "application_reopened" ? "Applications reopened" : afterLifecycle.label);
+  }
   if (normalizeUrl(before.official_source_url) !== normalizeUrl(after.official_source_url)) {
     add("application_url", displayValue(before.official_source_url), displayValue(after.official_source_url), "The official application link changed");
   }

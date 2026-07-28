@@ -28,7 +28,7 @@ export default async function Home() {
     ...session.data.savedOpportunities.map((record) => record.opportunityId),
   ])];
   try {
-    const opportunities = await listPublishedOpportunitiesByIds(trackedIds);
+    const opportunities = await listPublishedOpportunitiesByIds(trackedIds, { includeArchived: true });
     const appearance = session.data.preferences?.appearance ?? "light";
     const systemScheme = (await cookies()).get("unlocked-color-scheme")?.value;
     const resolvedTheme = isProUser(session.data.billing) && (appearance === "midnight" || appearance === "forest" || (appearance === "system" && systemScheme === "dark")) ? "dark" as const : "light" as const;

@@ -18,6 +18,7 @@ import type { AdvisorAccessState } from "@/lib/advisor-access";
 import { nextAdvisorData } from "@/lib/advisor/api";
 import type { ForYouRecommendationSnapshot, ForYouSnapshotState } from "@/lib/advisor/types";
 import { activeRecommendationFeedback } from "@/lib/advisor/feedback";
+import { listPublishedOpportunities } from "@/lib/content-store";
 
 export const forYouSnapshotEngineVersion = "for-you-snapshot-v8-first-session-preview";
 export const forYouSnapshotTtlMs = 1000 * 60 * 60 * 6;
@@ -61,8 +62,9 @@ export type ForYouServerState = {
   errorCode?: "not_authenticated" | "profile_incomplete" | "snapshot_generation_pending" | "snapshot_generation_failed" | "session_store_unavailable" | "unexpected";
 };
 
-let globalIndex: { opportunityCount: number; opportunityById: Map<string, Opportunity> } | null = null;
-let globalIndexPromise: Promise<{ opportunityCount: number; opportunityById: Map<string, Opportunity> }> | null = null;
+type ForYouGlobalIndex = { opportunityCount: number; opportunityById: Map<string, Opportunity>; source: Opportunity[]; expiresAt: number };
+let globalIndex: ForYouGlobalIndex | null = null;
+let globalIndexPromise: Promise<ForYouGlobalIndex> | null = null;
 
 function timeoutError(label: string, ms: number) {
   const error = new Error(`${label} timed out after ${ms}ms`);
@@ -85,12 +87,14 @@ export function getForYouGlobalIndexStatus() {
 }
 
 export async function getForYouGlobalIndex() {
-  if (globalIndex) return globalIndex;
+  if (globalIndex && globalIndex.expiresAt > Date.now()) return globalIndex;
   if (!globalIndexPromise) {
-    globalIndexPromise = Promise.resolve().then(() => {
+    globalIndexPromise = listPublishedOpportunities().then((source) => {
       const built = {
-        opportunityCount: opportunities.length,
-        opportunityById: new Map(opportunities.map((opportunity) => [opportunity.id, opportunity])),
+        opportunityCount: source.length,
+        opportunityById: new Map(source.map((opportunity) => [opportunity.id, opportunity])),
+        source,
+        expiresAt: Date.now() + 60_000,
       };
       globalIndex = built;
       return built;
@@ -236,18 +240,19 @@ async function persistSnapshot(userId: string, data: AccountData, snapshot: ForY
 }
 
 async function generateSnapshot(user: AuthUser, data: AccountData, profile: StudentProfile, school: School, entitlements: Entitlements) {
-  await withTimeout(getForYouGlobalIndex(), "global recommendation index", globalIndexTimeoutMs);
+  const index = await withTimeout(getForYouGlobalIndex(), "global recommendation index", globalIndexTimeoutMs);
+  const source = index.source;
   const now = new Date();
   const priorFeed = previousFeedContext(data, user.id, now);
   const activeFeedback = recommendationFeedback(data);
   const activity = recommendationActivity(data);
-  const progress = inferApplicationsFromActivity(activity, opportunities, { milestones: {}, applications: {} });
+  const progress = inferApplicationsFromActivity(activity, source, { milestones: {}, applications: {} });
   const service = buildRecommendationService({
     profile: profileForRecommendations(profile, data),
     school,
     activity,
     progress,
-    source: opportunities,
+    source,
     feedbackRecords: activeFeedback,
     hiddenOpportunityIds: data.preferences?.useActivityForRecommendations === false ? [] : data.preferences?.hiddenDismissedIds ?? [],
     dismissedOpportunityIds: activeFeedback.filter((record) => ["dismissed", "not-interested", "show-fewer", "not-eligible", "already-applied", "already-completed", "completed"].includes(record.feedbackType)).map((record) => record.recommendationId.replace("recommendation-opportunity-", "")),
@@ -258,7 +263,7 @@ async function generateSnapshot(user: AuthUser, data: AccountData, profile: Stud
   });
   const pro = entitlements.canUseFullForYou;
   if (pro && service.recommendations.length === 0) {
-    const funnel = buildRecommendationCandidateFunnel({ advisorProfile: service.advisorProfile, progress, opportunities, limit: 8 });
+    const funnel = buildRecommendationCandidateFunnel({ advisorProfile: service.advisorProfile, progress, opportunities: source, limit: 8 });
     const stages = [
       ["total_catalog", funnel.totalCatalog],
       ["verification", funnel.verificationEligible],
@@ -329,6 +334,7 @@ function stateFromSnapshot(snapshot: ForYouRecommendationSnapshot, access: Advis
 }
 
 export async function resolveForYouState(user: AuthUser, data: AccountData, options: { allowGeneration?: boolean; waitForActiveGenerationMs?: number } = {}): Promise<ForYouServerState> {
+  await withTimeout(getForYouGlobalIndex(), "global recommendation index", globalIndexTimeoutMs);
   const profile = data.profile;
   const school = schools.find((item) => item.slug === profile?.schoolSlug) ?? (profile?.schoolName ? {
     slug: profile.schoolSlug,

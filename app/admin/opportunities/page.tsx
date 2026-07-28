@@ -22,6 +22,9 @@ export default async function OpportunityIntelligencePage() {
     ["Missing eligibility", report.totals.missingEligibility],
     ["Missing deadlines", report.totals.missingDeadlines],
     ["Missing logos", report.totals.missingLogos],
+    ["Lifecycle stale", report.totals.lifecycleStale],
+    ["Lifecycle conflicts", report.totals.lifecycleConflicts],
+    ["User reports", report.totals.lifecycleReports],
   ] as const;
   return <main className="px-5 py-10 sm:px-8 sm:py-14">
     <div className="mx-auto max-w-7xl">
@@ -32,11 +35,17 @@ export default async function OpportunityIntelligencePage() {
         {metrics.map(([label, value]) => <div key={label} className="bg-white p-5"><dt className="rule-label text-ink/35">{label}</dt><dd className="mt-3 font-editorial text-3xl font-bold">{value.toLocaleString()}</dd></div>)}
       </dl>
       <div className="mt-12 grid gap-10 lg:grid-cols-2">
+        <Coverage title="Lifecycle states" rows={Object.entries(report.totals.lifecycle) as [string, number][]} />
         <Coverage title="Coverage by category" rows={report.coverage.byCategory.slice(0, 18)} />
         <Coverage title="Coverage by class year" rows={report.coverage.byYear} />
         <Coverage title="Largest quality gaps" rows={report.gaps} />
         <Coverage title="Coverage by major" rows={report.coverage.byMajor.slice(0, 18)} />
       </div>
+      <section className="mt-12 border-t border-ink/15 pt-7">
+        <h2 className="font-editorial text-3xl font-bold">Lifecycle review</h2>
+        <p className="mt-2 text-sm leading-6 text-ink/50">Ambiguous records remain non-actionable until an authorized review confirms current evidence. User reports are review signals and never change public state directly.</p>
+        <div className="mt-5 divide-y divide-ink/10 border-y border-ink/15">{report.lifecycleReviewQueue.slice(0,20).map((item) => <article key={item.id} className="grid gap-3 py-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"><div><Link href={`/opportunities/${item.id}`} className="font-bold hover:text-forest">{item.id}</Link><p className="mt-1 text-xs text-ink/45">{item.organization} · {item.state.replaceAll("_"," ")} · {item.confidence}</p><p className="mt-2 text-sm text-ink/55">{item.issues.map((issue) => issue.message).join(" · ") || "Current state is not confirmed."}</p>{item.reports?<p className="mt-2 text-xs font-bold text-amber-800">{item.reports.total} report{item.reports.total===1?"":"s"} from {item.reports.independentReporters} independent account{item.reports.independentReporters===1?"":"s"}</p>:null}</div><Link href="/admin/content" className="text-xs font-bold uppercase tracking-wider text-forest">Review record</Link></article>)}</div>
+      </section>
       <section className="mt-12 border-t border-ink/15 pt-7">
         <h2 className="font-editorial text-3xl font-bold">Duplicate review</h2>
         <p className="mt-2 text-sm leading-6 text-ink/50">Secondary records are suppressed from Discover and Pro recommendations while source metadata remains available for review.</p>

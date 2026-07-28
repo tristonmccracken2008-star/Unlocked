@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import type { OpportunityType, VerificationStatus } from "@/data/opportunities";
+import type { OpportunityType } from "@/data/opportunities";
+import type { OpportunityLifecyclePresentation } from "@/data/opportunity-listing";
 import { readStudentActivity, replaceStudentActivity, studentActivityEvent, trackOpportunityView, type TrackedOpportunity } from "@/data/student-activity";
 import { authenticatedFetch } from "@/data/authenticated-request";
 import { accountSessionEvent } from "@/data/account-sync";
@@ -14,7 +15,7 @@ export function OpportunityViewTracker({ opportunityId }: { opportunityId: strin
   return null;
 }
 
-export function OpportunityActivityActions({ opportunityId, type, officialSource, verificationStatus }: { opportunityId: string; type: OpportunityType; officialSource: string; verificationStatus?: VerificationStatus }) {
+export function OpportunityActivityActions({ opportunityId, type, officialSource, lifecycle }: { opportunityId: string; type: OpportunityType; officialSource: string; lifecycle: OpportunityLifecyclePresentation }) {
   const [activity, setActivity] = useState(() => readStudentActivity());
   useEffect(() => {
     setActivity(trackOpportunityView(opportunityId));
@@ -23,10 +24,11 @@ export function OpportunityActivityActions({ opportunityId, type, officialSource
     return () => window.removeEventListener(studentActivityEvent, update);
   }, [opportunityId]);
   const added = Boolean(activity.tracked?.[opportunityId] || activity.saved.includes(opportunityId));
-  const unavailable = verificationStatus ? ["temporarily_closed", "expired", "broken_source"].includes(verificationStatus) : false;
-  const primaryLabel = unavailable ? "Check current status" : type === "Benefit" || type === "AI" ? "Claim on official site" : type === "Scholarship" ? "Apply on official site" : type === "Career" || type === "Research" ? "View application" : "Learn more";
+  const primaryLabel = lifecycle.actionable
+    ? type === "Benefit" || type === "AI" ? "View official offer" : lifecycle.actionLabel
+    : "View official source";
   return <div className="mt-6 space-y-3">
-    <a href={officialSource} target="_blank" rel="noreferrer" className="flex min-h-12 items-center justify-center gap-2 bg-ink px-5 text-center font-bold text-white hover:bg-forest">{primaryLabel} <ArrowIcon/></a>
+    {lifecycle.actionAllowed ? <a href={officialSource} target="_blank" rel="noreferrer" className="flex min-h-12 items-center justify-center gap-2 bg-ink px-5 text-center font-bold text-white hover:bg-forest">{primaryLabel} <ArrowIcon/></a> : <p className="border border-amber-700/25 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900">The official link needs review. UnlockED is not presenting an application action.</p>}
     {added ? <JourneyAddedState className="w-full border border-forest/25 px-4 text-forest" /> : <AddToJourneyButton opportunityId={opportunityId} className="w-full border border-ink/20 px-4 text-ink/65 hover:border-forest hover:text-forest" />}
   </div>;
 }

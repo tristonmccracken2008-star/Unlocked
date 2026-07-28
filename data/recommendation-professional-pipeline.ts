@@ -7,6 +7,7 @@ import { getDeadlineDays, isSchoolEligible, type OpportunityStudentContext } fro
 import { recommendationConfig } from "./recommendation-config";
 import type { RecommendationV1 } from "./recommendation-engine";
 import type { Opportunity } from "./opportunities";
+import { resolveOpportunityLifecycle } from "./opportunity-lifecycle";
 
 export type RecommendationPipelineStage =
   | "data_validation"
@@ -62,7 +63,9 @@ export function validateOpportunityData(opportunity: Opportunity): CandidateGate
   const reasons: string[] = [];
   const canonical = normalizeOpportunityEligibility(opportunity);
   const duplicateOf = duplicateCanonicalId(opportunity.id);
+  const lifecycle = resolveOpportunityLifecycle(opportunity);
   if (duplicateOf) reasons.push(`Superseded by canonical opportunity ${duplicateOf}.`);
+  if (!lifecycle.recommendationEligible) reasons.push(`Lifecycle is not currently recommendation eligible: ${lifecycle.state} (${lifecycle.confidence}).`);
   if (!hasUsableSource(opportunity)) reasons.push("Missing usable source, organization, or eligibility.");
   if (recommendationConfig.verificationQuality.excludedStatuses.includes(opportunity.verification_status as never)) reasons.push(`Verification status is ${opportunity.verification_status}.`);
   if (hasKnownDeadlineProblem(opportunity)) reasons.push("Deadline has passed.");

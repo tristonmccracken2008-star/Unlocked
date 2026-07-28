@@ -55,7 +55,11 @@ assert.doesNotMatch(journeyTimelineModel, /buildRecommendationService|rankMilest
 assert.doesNotMatch(journeyDashboard, /import \{[^}]*opportunities,/, "Journey dashboard must not statically import the full opportunity catalog.");
 assert.doesNotMatch(journeyDashboard, /buildRecommendationService/, "Journey dashboard must not bypass Pro gating with client-side recommendations.");
 assert.doesNotMatch(journeyTimeline, /fetch\(|createPathGeometry/, "Journey timeline rendering must not fetch data or calculate geometry on the client.");
-assert.match(journeyPage, /listPublishedOpportunitiesByIds\(trackedIds\)/, "Journey should load only the tracked opportunity records on the server.");
+assert.match(
+  journeyPage,
+  /listPublishedOpportunitiesByIds\(trackedIds, \{ includeArchived: true \}\)/,
+  "Journey should load only tracked opportunity records, including retained historical records, on the server.",
+);
 assert.match(journeyEditorialModel, /input\.opportunities\.filter\(\(opportunity\) => allTrackedIds\.has\(opportunity\.id\)\)/, "Journey composition must bound opportunity work to tracked records.");
 assert.match(journeyDashboard, /router\.refresh\(\)/, "The client recovery bridge should refresh into the server-composed Journey.");
 assert.doesNotMatch(journeyDashboard, /JourneyRecapCard|NextToReview/, "Journey dashboard should not load retired share/recommendation experiences.");

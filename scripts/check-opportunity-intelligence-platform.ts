@@ -12,6 +12,7 @@ import {
 } from "../data/opportunity-platform";
 import { buildOpportunityRelationshipIndex, getOpportunityRelationship } from "../data/opportunity-relationships";
 import { validateOpportunityData } from "../data/recommendation-professional-pipeline";
+import { resolveOpportunityLifecycle } from "../data/opportunity-lifecycle";
 
 const startedAt = performance.now();
 const index = buildOpportunityCatalogIndex(opportunities, { now: new Date("2026-07-22T12:00:00Z") });
@@ -37,7 +38,9 @@ for (const profile of profiles) {
 
 const eligibleProfiles = profiles.filter((profile) => profile.recommendationEligible);
 const partialProfiles = profiles.filter((profile) => profile.confidence.tier === "partially_verified");
-assert.ok(eligibleProfiles.length >= 130, `Verified unique recommendation inventory regressed: ${eligibleProfiles.length}.`);
+const lifecycleEligible = opportunities.filter((opportunity) => isCanonicalCatalogOpportunity(opportunity.id) && resolveOpportunityLifecycle(opportunity, new Date("2026-07-22T12:00:00Z")).recommendationEligible);
+assert.ok(eligibleProfiles.length >= 50, `Proven-current unique recommendation inventory regressed: ${eligibleProfiles.length}.`);
+assert.ok(eligibleProfiles.length <= lifecycleEligible.length, "Opportunity intelligence cannot create recommendation inventory beyond the lifecycle-eligible catalog.");
 assert.ok(partialProfiles.length > 0, "Uncertain records must remain distinguishable as partially verified.");
 assert.ok(partialProfiles.every((profile) => !profile.recommendationEligible), "Partially verified records must fail closed for Pro.");
 

@@ -5,6 +5,7 @@ import { deleteManagedOpportunity, getManagedRecord, saveManagedOpportunity, set
 import type { Opportunity } from "@/data/opportunities";
 import { assertSameOrigin, enforceRateLimit, readBoundedJson, securityErrorResponse } from "@/lib/security";
 import { queueMaterialOpportunityChanges } from "@/lib/notification-service";
+import { applyOpportunityLifecycleReview } from "@/data/opportunity-lifecycle";
 
 export const dynamic = "force-dynamic";
 const noStoreHeaders = { "Cache-Control": "no-store, max-age=0" };
@@ -29,7 +30,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     const result = validateOpportunityInput(await readBoundedJson(request, 32 * 1024));
     if (!result.data) return NextResponse.json({ errors: result.errors }, { status: 400, headers: noStoreHeaders });
     const input = result.data;
-    const next: Opportunity = {
+    const draft: Opportunity = {
       ...current.opportunity,
       title: input.title,
       organization: input.organization,
@@ -48,8 +49,19 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
       official_source_url: input.official_source_url,
       verification_status: input.verification_status,
       last_verified: input.last_verified,
-      metadata: { ...current.opportunity.metadata, deadlineType: input.deadline ? "fixed" : "not_announced", claimUrl: input.official_source_url },
+      recurring: Boolean(input.recurrence_type),
+      metadata: { ...current.opportunity.metadata, deadlineType: input.lifecycle_state === "rolling" ? "rolling" : input.deadline ? "fixed" : input.lifecycle_state === "closed" ? "current_cycle_closed" : "not_announced", claimUrl: input.official_source_url },
     };
+    const next = applyOpportunityLifecycleReview(current.opportunity, draft, {
+      state: input.lifecycle_state,
+      confidence: input.lifecycle_confidence,
+      reason: input.lifecycle_reason,
+      reviewedAt: input.last_verified,
+      reviewer: auth.session!.user.email,
+      note: input.lifecycle_review_note,
+      openingDate: input.opening_date,
+      recurrence: input.recurrence_type ? { type: input.recurrence_type, confidence: input.lifecycle_confidence } : null,
+    });
     const previous = { title: current.opportunity.title, organization: current.opportunity.organization, type: current.opportunity.type, category: current.opportunity.category, description: current.opportunity.description, eligibility: current.opportunity.eligibility, school_scope: current.opportunity.school_scope, schools: current.opportunity.schools, tags: current.opportunity.tags, estimated_value: current.opportunity.estimated_value, deadline: current.opportunity.deadline, official_source_url: current.opportunity.official_source_url, verification_status: current.opportunity.verification_status, last_verified: current.opportunity.last_verified };
     const changed = (Object.keys(input) as (keyof typeof input)[]).filter((field) => JSON.stringify(previous[field as keyof typeof previous]) !== JSON.stringify(input[field]));
     const record = await saveManagedOpportunity(next, auth.session!.user.email, changed);
@@ -74,8 +86,8 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     const current = await getManagedRecord(auth.id!);
     if (!current || current.deleted) return NextResponse.json({ error: "Opportunity not found" }, { status: 404, headers: noStoreHeaders });
     const record = await setManagedArchive(auth.id!, body.archived, auth.session!.user.email);
-    const beforeOpportunity: Opportunity = current.archived ? { ...current.opportunity, verification_status: "archived" } : current.opportunity;
-    const changedOpportunity: Opportunity = body.archived ? { ...current.opportunity, verification_status: "archived" } : current.opportunity;
+    const beforeOpportunity: Opportunity = current.opportunity;
+    const changedOpportunity: Opportunity = record.opportunity;
     after(async () => {
       await queueMaterialOpportunityChanges(beforeOpportunity, changedOpportunity).catch((error) => {
         console.warn("[UnlockED notifications] Archive change queue failed", { errorCategory: error instanceof Error ? error.name : "unknown" });

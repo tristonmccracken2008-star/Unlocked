@@ -1,6 +1,7 @@
 import { getDeadlineDays, getMatchingMajors, getMatchingMinor, gpaRequirement, isSchoolEligible, type OpportunityStudentContext } from "./opportunity-intelligence";
 import { normalizeOpportunityEligibility, opportunityEligibilityText, opportunityHasSchoolLikeHost, type CanonicalOpportunityEligibility } from "./opportunity-eligibility-model";
 import type { Opportunity, OpportunityEligibilityRules } from "./opportunities";
+import { resolveOpportunityLifecycle } from "./opportunity-lifecycle";
 
 export type EligibilityCheckKey =
   | "institution_type"
@@ -341,22 +342,23 @@ function demographicCheck(opportunity: Opportunity, context: OpportunityStudentC
 }
 
 function applicationCycleCheck(opportunity: Opportunity) {
-  const configured = rules(opportunity);
-  const deadlineDays = getDeadlineDays(opportunity);
-  if (deadlineDays !== null) return proof("application_cycle", true, deadlineDays >= 0, deadlineDays >= 0 ? "The verified application deadline is still open." : "The application deadline has passed.", `Deadline: ${opportunity.application_deadline}.`);
-  if (configured.availability === "closed" || opportunity.metadata.deadlineType === "current_cycle_closed") return proof("application_cycle", true, false, "The current application cycle is closed.", configured.applicationCycle ?? "Deadline metadata marks the current cycle closed.");
-  if (configured.availability === "open" || configured.availability === "rolling" || opportunity.metadata.deadlineType === "rolling" || opportunity.metadata.deadlineType === "no_deadline") return proof("application_cycle", true, true, "Current availability is explicitly recorded.", configured.applicationCycle ?? `Deadline type: ${opportunity.metadata.deadlineType}.`);
+  const lifecycle = resolveOpportunityLifecycle(opportunity);
+  if (lifecycle.actionable) return proof("application_cycle", true, true, lifecycle.state === "rolling" ? "Rolling applications are confirmed." : "The current application cycle is supported as open.", `Lifecycle: ${lifecycle.state}; confidence: ${lifecycle.confidence}.`);
+  if (["closed", "temporarily_closed", "canceled", "archived"].includes(lifecycle.state)) return proof("application_cycle", true, false, "The current application cycle is not open.", `Lifecycle: ${lifecycle.state}; reason: ${lifecycle.reason}.`);
   const applicationRequired = ["Career", "Research", "Scholarship"].includes(opportunity.type) && !/career resources|student organizations|certifications/i.test(opportunity.category);
-  if (applicationRequired) return proof("application_cycle", true, false, "The current application cycle is not positively proven.", `Deadline type: ${opportunity.metadata.deadlineType ?? "missing"}.`);
+  if (applicationRequired) return proof("application_cycle", true, false, "The current application cycle is not positively proven.", `Lifecycle: ${lifecycle.state}; confidence: ${lifecycle.confidence}.`);
   return proof("application_cycle", false, true, "No time-bound application cycle applies.", `Opportunity type: ${opportunity.type}.`);
 }
 
 function availabilityCheck(opportunity: Opportunity) {
-  const excluded = ["temporarily_closed", "expired", "archived", "broken_source", "incomplete"].includes(opportunity.verification_status);
-  if (excluded) return proof("availability", true, false, "Opportunity is not currently actionable.", `Verification status: ${opportunity.verification_status}.`);
-  const explicit = rules(opportunity).availability;
-  if (explicit === "closed" || explicit === "unknown") return proof("availability", true, false, "Current availability is not proven.", `Structured availability: ${explicit}.`);
-  return proof("availability", true, opportunity.verification_status === "verified", opportunity.verification_status === "verified" ? "Current availability passed verification status checks." : "Current availability is not verified.", `Verification status: ${opportunity.verification_status}.`);
+  const lifecycle = resolveOpportunityLifecycle(opportunity);
+  return proof(
+    "availability",
+    true,
+    lifecycle.recommendationEligible,
+    lifecycle.recommendationEligible ? "Current availability is positively supported." : "Current availability is not positively proven.",
+    `Lifecycle: ${lifecycle.state}; confidence: ${lifecycle.confidence}; reason: ${lifecycle.reason}.`,
+  );
 }
 
 export function evaluateOpportunityEligibility(opportunity: Opportunity, context: OpportunityStudentContext): OpportunityEligibilityEvaluation {

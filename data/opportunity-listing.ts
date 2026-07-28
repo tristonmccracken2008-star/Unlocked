@@ -1,4 +1,5 @@
 import type { Opportunity, OpportunityDifficulty, OpportunityType } from "./opportunities";
+import type { OpportunityLifecycleConfidence, OpportunityLifecycleDisplayState, OpportunityLifecycleState } from "./opportunity-lifecycle-types";
 
 // Client-safe listing primitives. This module must never import the opportunity catalog at runtime.
 export const listingOpportunityTypes = ["Benefit", "AI", "Career", "Research", "Scholarship"] as const satisfies readonly OpportunityType[];
@@ -13,7 +14,7 @@ export type DiscoverRecovery = {
 };
 
 export type DiscoverCatalogPayload = {
-  opportunities: Opportunity[];
+  opportunities: OpportunityListing[];
   total: number;
   limit: number;
   recovery: DiscoverRecovery | null;
@@ -22,6 +23,22 @@ export type DiscoverCatalogPayload = {
     majors: string[];
     typeCounts: Record<string, number>;
   };
+};
+
+export type OpportunityLifecyclePresentation = {
+  state: OpportunityLifecycleState;
+  displayState: OpportunityLifecycleDisplayState;
+  confidence: OpportunityLifecycleConfidence;
+  label: string;
+  actionable: boolean;
+  recommendationEligible: boolean;
+  recurring: boolean;
+  actionLabel: "View official application" | "View official source";
+  actionAllowed: boolean;
+};
+
+export type OpportunityListing = Opportunity & {
+  lifecyclePresentation?: OpportunityLifecyclePresentation;
 };
 
 export function listingDeadlineLabel(item: Pick<Opportunity, "application_deadline" | "type" | "metadata">) {

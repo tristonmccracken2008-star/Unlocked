@@ -36,6 +36,7 @@ import { readAccountData, readAccountUser } from "./auth-store";
 import { listPublishedOpportunitiesByIds } from "./content-store";
 import { sendNotificationEmail } from "./notification-email";
 import type { NotificationPriority, NotificationRecord, NotificationSchedule, OpportunityMaterialChange } from "./notification-types";
+import { resolveOpportunityLifecycle } from "@/data/opportunity-lifecycle";
 
 const activeStatuses = new Set(["Saved", "Interested", "Applying", "Submitted", "Interview"]);
 
@@ -430,8 +431,11 @@ export async function processDueNotificationBatch(now = new Date(), limit = 100)
 }
 
 export async function queueMaterialOpportunityChanges(before: Opportunity, after: Opportunity, now = new Date()) {
+  const lifecycle = resolveOpportunityLifecycle(after, now);
   const changes = detectMaterialOpportunityChanges(before, after).filter((change) => (
-    change.field === "application_status" || after.verification_status === "verified"
+    change.field === "application_status"
+      ? ["confirmed", "strong"].includes(lifecycle.confidence)
+      : after.verification_status === "verified"
   ));
   if (!changes.length) return { changes: 0, recipients: 0, scheduled: 0 };
   const recipients = await trackedRecipients(after.id);

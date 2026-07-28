@@ -1,5 +1,6 @@
 import { CheckIcon } from "./icons";
 import type { VerificationStatus } from "@/data/opportunities";
+import type { OpportunityLifecycleConfidence, OpportunityLifecycleDisplayState } from "@/data/opportunity-lifecycle-types";
 
 const labels: Record<VerificationStatus, string> = {
   verified: "Verified Recently",
@@ -31,4 +32,24 @@ export function ConfidenceBadge({ status }: { status: VerificationStatus }) {
   const item = confidence[status];
   const tone = item.label === "Verified" ? "border-trust/35 text-trust" : item.label === "Needs Review" ? "border-amber-700/35 text-amber-700" : "border-forest/35 text-forest";
   return <span tabIndex={0} className={`group relative inline-flex cursor-help items-center border px-2 py-1 text-[10px] font-bold uppercase tracking-wider outline-none ${tone}`} aria-label={`Confidence: ${item.label}. ${item.description}`}><span className="mr-1 text-ink/35">Confidence</span>{item.label}<span role="tooltip" className="pointer-events-none absolute bottom-full left-0 z-40 mb-2 hidden w-64 border border-ink/20 bg-ink p-3 text-left text-[11px] font-normal normal-case leading-5 tracking-normal text-white shadow-[4px_4px_0_rgba(43,33,26,.18)] group-hover:block group-focus:block">{item.description}</span></span>;
+}
+
+export function LifecycleBadge({ state, confidence, label }: { state: OpportunityLifecycleDisplayState; confidence: OpportunityLifecycleConfidence; label: string }) {
+  const positive = ["open", "rolling", "reopened"].includes(state);
+  const caution = ["upcoming", "closing_soon", "temporarily_closed", "unknown"].includes(state);
+  const tone = positive
+    ? "border-trust/25 bg-trust/[.06] text-trust"
+    : caution
+      ? "border-amber-700/25 bg-amber-700/[.05] text-amber-800"
+      : "border-ink/20 bg-ink/[.04] text-ink/65";
+  const confidenceText = confidence === "confirmed"
+    ? "confirmed"
+    : confidence === "strong"
+      ? "supported by current structured evidence"
+      : confidence === "estimated"
+        ? "estimated from prior patterns"
+        : confidence === "limited"
+          ? "based on limited current evidence"
+          : "not confirmed";
+  return <span aria-label={`${label}; ${confidenceText}`} className={`inline-flex items-center border px-2 py-1 text-[9px] font-bold uppercase tracking-[.1em] ${tone}`}>{label}</span>;
 }

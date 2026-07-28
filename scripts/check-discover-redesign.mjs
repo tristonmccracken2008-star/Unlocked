@@ -32,7 +32,7 @@ for (const label of ["Opportunity", "Eligibility", "Details", "Freshman-friendly
   assert.ok(filter.includes(label), `Discover sidebar must include ${label}.`);
 }
 
-for (const token of ["AddToJourneyButton", "Open Opportunity", "StatusBadge", "line-clamp-2", "Deadline", "Eligibility", "Format"]) {
+for (const token of ["AddToJourneyButton", "Open Opportunity", "LifecycleBadge", "line-clamp-2", "Deadline", "Eligibility", "Format"]) {
   assert.ok(card.includes(token) || card.includes(token.replace("Official source", "Source")), `Opportunity cards must include ${token}.`);
 }
 assert.doesNotMatch(card, /SaveOpportunityButton|>Save<|Save opportunity|Track this|Official source/, "Discover cards must use only Open Opportunity and Add to Journey actions.");

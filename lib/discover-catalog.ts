@@ -2,7 +2,8 @@ import "server-only";
 
 import { isCanonicalCatalogOpportunity } from "@/data/opportunity-catalog-canonical";
 import { filterOpportunities, type Opportunity, type OpportunityDifficulty, type OpportunityType } from "@/data/opportunities";
-import type { DiscoverCatalogPayload, DiscoverRecovery, DiscoverSortMode } from "@/data/opportunity-listing";
+import { resolveOpportunityLifecycle, type OpportunityLifecycleSnapshot } from "@/data/opportunity-lifecycle";
+import type { DiscoverCatalogPayload, DiscoverRecovery, DiscoverSortMode, OpportunityListing } from "@/data/opportunity-listing";
 
 export type DiscoverCatalogQuery = {
   query: string;
@@ -60,6 +61,7 @@ const quickFilters: { label: string; type?: OpportunityType; category?: string }
 
 const indexBySource = new WeakMap<readonly Opportunity[], DiscoverIndex>();
 const canonicalSourceBySource = new WeakMap<readonly Opportunity[], readonly Opportunity[]>();
+const lifecycleBySource = new WeakMap<readonly Opportunity[], { date: string; snapshots: Map<string, OpportunityLifecycleSnapshot> }>();
 
 function canonicalSource(source: readonly Opportunity[]) {
   const cached = canonicalSourceBySource.get(source);
@@ -177,12 +179,16 @@ function discoverIndex(source: readonly Opportunity[]) {
   return index;
 }
 
-function deadlineIsClosed(item: Opportunity, today: string) {
-  return item.metadata.deadlineType === "current_cycle_closed"
-    || Boolean(item.application_deadline && item.application_deadline < today);
+function lifecycleIndex(source: readonly Opportunity[], now: Date) {
+  const date = now.toISOString().slice(0, 10);
+  const cached = lifecycleBySource.get(source);
+  if (cached?.date === date) return cached.snapshots;
+  const snapshots = new Map(source.map((item) => [item.id, resolveOpportunityLifecycle(item, now)]));
+  lifecycleBySource.set(source, { date, snapshots });
+  return snapshots;
 }
 
-function qualityScore(item: Opportunity, today: string, recentVerificationCutoff: string) {
+function qualityScore(item: Opportunity, lifecycle: OpportunityLifecycleSnapshot, today: string, recentVerificationCutoff: string) {
   let score = 0;
   if (item.featured) score += 40;
   if (item.verification_status === "verified") score += 25;
@@ -196,7 +202,9 @@ function qualityScore(item: Opportunity, today: string, recentVerificationCutoff
   if (item.last_verified >= recentVerificationCutoff) score += 6;
   if (item.estimated_value) score += Math.min(12, Math.log10(Math.max(item.estimated_value, 1)) * 2);
   if (item.verification_status === "needs_review") score -= 10;
-  if (deadlineIsClosed(item, today) || item.verification_status === "temporarily_closed") score -= 250;
+  if (lifecycle.actionable) score += 18;
+  if (["closed", "temporarily_closed", "canceled"].includes(lifecycle.state)) score -= 250;
+  if (lifecycle.state === "unknown") score -= 80;
   if (["expired", "archived", "broken_source"].includes(item.verification_status)) score -= 10_000;
   return score;
 }
@@ -275,26 +283,26 @@ function searchScore(query: PreparedSearchQuery, document: SearchDocument) {
   return score;
 }
 
-function sortOpportunities(items: Opportunity[], sort: DiscoverSortMode, index: DiscoverIndex, query: PreparedSearchQuery, today: string) {
+function sortOpportunities(items: Opportunity[], sort: DiscoverSortMode, index: DiscoverIndex, lifecycle: Map<string, OpportunityLifecycleSnapshot>, query: PreparedSearchQuery, today: string) {
   const next = [...items];
   if (sort === "Relevant") {
     const recentVerificationCutoff = new Date(`${today}T00:00:00Z`);
     recentVerificationCutoff.setUTCDate(recentVerificationCutoff.getUTCDate() - 180);
     const cutoff = recentVerificationCutoff.toISOString().slice(0, 10);
-    const scores = new Map(next.map((item) => [item.id, searchScore(query, index.documentsById.get(item.id)!) + qualityScore(item, today, cutoff)]));
+    const scores = new Map(next.map((item) => [item.id, searchScore(query, index.documentsById.get(item.id)!) + qualityScore(item, lifecycle.get(item.id)!, today, cutoff)]));
     return next.sort((a, b) => scores.get(b.id)! - scores.get(a.id)! || b.date_added.localeCompare(a.date_added) || a.title.localeCompare(b.title));
   }
   if (sort === "Newest") return next.sort((a, b) => b.date_added.localeCompare(a.date_added) || a.title.localeCompare(b.title));
   if (sort === "Deadline") return next.sort((a, b) => {
-    const aDeadline = deadlineIsClosed(a, today) ? "9999-12-31" : a.application_deadline ?? "9999-12-30";
-    const bDeadline = deadlineIsClosed(b, today) ? "9999-12-31" : b.application_deadline ?? "9999-12-30";
+    const aDeadline = lifecycle.get(a.id)?.actionable ? a.application_deadline ?? "9999-12-30" : "9999-12-31";
+    const bDeadline = lifecycle.get(b.id)?.actionable ? b.application_deadline ?? "9999-12-30" : "9999-12-31";
     return aDeadline.localeCompare(bDeadline) || a.title.localeCompare(b.title);
   });
   return next.sort((a, b) => a.title.localeCompare(b.title));
 }
 
-function structuredMatches(source: readonly Opportunity[], query: DiscoverCatalogQuery) {
-  return filterOpportunities({
+function structuredMatches(source: readonly Opportunity[], query: DiscoverCatalogQuery, lifecycle: Map<string, OpportunityLifecycleSnapshot>) {
+  const base = filterOpportunities({
     types: query.type === "All" ? undefined : [query.type],
     category: query.category,
     major: query.major,
@@ -303,8 +311,18 @@ function structuredMatches(source: readonly Opportunity[], query: DiscoverCatalo
     remote: query.remote === "All" ? undefined : query.remote === "Remote",
     difficulty: query.difficulty,
     freshmanFriendly: query.freshmanFriendly,
-    deadline: query.deadline === "All" ? undefined : query.deadline as "published" | "upcoming" | "rolling" | "not_announced",
+    deadline: ["published", "not_announced"].includes(query.deadline) ? query.deadline as "published" | "not_announced" : undefined,
   }, source);
+  if (query.deadline === "All" || ["published", "not_announced"].includes(query.deadline)) return base;
+  return base.filter((item) => {
+    const snapshot = lifecycle.get(item.id)!;
+    if (query.deadline === "open") return snapshot.displayState === "open" || snapshot.displayState === "closing_soon" || snapshot.displayState === "reopened";
+    if (query.deadline === "upcoming") return snapshot.state === "upcoming";
+    if (query.deadline === "rolling") return snapshot.state === "rolling";
+    if (query.deadline === "closed") return ["closed", "temporarily_closed", "canceled"].includes(snapshot.state);
+    if (query.deadline === "recurring") return snapshot.recurring;
+    return true;
+  });
 }
 
 function queryMatches(items: readonly Opportunity[], query: PreparedSearchQuery, index: DiscoverIndex) {
@@ -324,7 +342,7 @@ const recoveryLabels: Record<DiscoverRecovery["filter"], string> = {
   deadline: "Any deadline",
 };
 
-function zeroResultRecovery(source: readonly Opportunity[], query: DiscoverCatalogQuery, preparedQuery: PreparedSearchQuery, index: DiscoverIndex) {
+function zeroResultRecovery(source: readonly Opportunity[], query: DiscoverCatalogQuery, preparedQuery: PreparedSearchQuery, index: DiscoverIndex, lifecycle: Map<string, OpportunityLifecycleSnapshot>) {
   const candidates: DiscoverRecovery[] = [];
   const possible: DiscoverRecovery["filter"][] = ["type", "category", "major", "school", "paid", "remote", "difficulty", "freshmanFriendly", "deadline"];
   for (const filter of possible) {
@@ -334,7 +352,7 @@ function zeroResultRecovery(source: readonly Opportunity[], query: DiscoverCatal
       ...query,
       [filter]: filter === "freshmanFriendly" ? false : "All",
     };
-    const count = queryMatches(structuredMatches(source, relaxed), preparedQuery, index).length;
+    const count = queryMatches(structuredMatches(source, relaxed, lifecycle), preparedQuery, index).length;
     if (count > 0) candidates.push({ filter, label: recoveryLabels[filter], resultCount: count });
   }
   return candidates.sort((left, right) => right.resultCount - left.resultCount || left.filter.localeCompare(right.filter))[0] ?? null;
@@ -344,14 +362,33 @@ export function buildDiscoverCatalog(source: readonly Opportunity[], query: Disc
   const visibleSource = canonicalSource(source);
   const index = discoverIndex(visibleSource);
   const preparedQuery = prepareSearchQuery(query.query, index);
-  const filtered = queryMatches(structuredMatches(visibleSource, query), preparedQuery, index);
-  const today = new Date().toISOString().slice(0, 10);
-  const sorted = sortOpportunities(filtered, query.sort, index, preparedQuery, today);
+  const now = new Date();
+  const lifecycle = lifecycleIndex(visibleSource, now);
+  const filtered = queryMatches(structuredMatches(visibleSource, query, lifecycle), preparedQuery, index);
+  const today = now.toISOString().slice(0, 10);
+  const sorted = sortOpportunities(filtered, query.sort, index, lifecycle, preparedQuery, today);
+  const listings: OpportunityListing[] = sorted.slice(0, query.limit).map((item) => {
+    const snapshot = lifecycle.get(item.id)!;
+    return {
+      ...item,
+      lifecyclePresentation: {
+        state: snapshot.state,
+        displayState: snapshot.displayState,
+        confidence: snapshot.confidence,
+        label: snapshot.label,
+        actionable: snapshot.actionable,
+        recommendationEligible: snapshot.recommendationEligible,
+        recurring: snapshot.recurring,
+        actionLabel: snapshot.actionLabel,
+        actionAllowed: snapshot.actionAllowed,
+      },
+    };
+  });
   return {
-    opportunities: sorted.slice(0, query.limit),
+    opportunities: listings,
     total: sorted.length,
     limit: query.limit,
-    recovery: sorted.length ? null : zeroResultRecovery(visibleSource, query, preparedQuery, index),
+    recovery: sorted.length ? null : zeroResultRecovery(visibleSource, query, preparedQuery, index, lifecycle),
     facets: index.facets,
   };
 }

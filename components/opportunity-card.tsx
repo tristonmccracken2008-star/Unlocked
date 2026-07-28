@@ -1,11 +1,12 @@
 import Link from "next/link";
 import type { Opportunity } from "@/data/opportunities";
-import { listingDeadlineLabel as deadlineLabel } from "@/data/opportunity-listing";
+import { listingDeadlineLabel as deadlineLabel, type OpportunityListing } from "@/data/opportunity-listing";
+import { resolveOpportunityLifecycle } from "@/data/opportunity-lifecycle";
 import { ArrowIcon } from "./icons";
 import { AddToJourneyButton } from "./opportunity-activity";
 import { DiscoverOpportunityLink } from "./discover-opportunity-link";
 import { OrganizationLogo } from "./organization-logo";
-import { StatusBadge } from "./status-badge";
+import { LifecycleBadge } from "./status-badge";
 
 function eligibilityLabel(opportunity: Opportunity) {
   if (opportunity.school_scope === "National") {
@@ -17,15 +18,18 @@ function eligibilityLabel(opportunity: Opportunity) {
   return `${school.split("-").map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join(" ")} enrollment required`;
 }
 
-export function OpportunityCard({ opportunity, reasons, source }: { opportunity: Opportunity; reasons?: string[]; source?: "discover" | "for_you" }) {
+export function OpportunityCard({ opportunity, reasons, source }: { opportunity: OpportunityListing; reasons?: string[]; source?: "discover" | "for_you" }) {
   return <OpportunityCardContent opportunity={opportunity} reasons={reasons} source={source} />;
 }
 
-export function OpportunityCardContent({ opportunity, reasons, source }: { opportunity: Opportunity; reasons?: string[]; source?: "discover" | "for_you" }) {
+export function OpportunityCardContent({ opportunity, reasons, source }: { opportunity: OpportunityListing; reasons?: string[]; source?: "discover" | "for_you" }) {
+  const resolved = opportunity.lifecyclePresentation ?? resolveOpportunityLifecycle(opportunity);
   const publishedDeadline = deadlineLabel(opportunity);
-  const deadline = opportunity.application_deadline && opportunity.application_deadline < new Date().toISOString().slice(0, 10)
-    ? `Closed · ${publishedDeadline}`
-    : publishedDeadline;
+  const deadline = resolved.state === "rolling"
+    ? "Rolling"
+    : ["closed", "temporarily_closed", "canceled"].includes(resolved.state)
+      ? resolved.label
+      : publishedDeadline;
   const value = opportunity.type === "Scholarship"
     ? opportunity.metadata.awardAmountLabel ?? opportunity.estimated_value_note
     : opportunity.type === "Benefit"
@@ -36,7 +40,7 @@ export function OpportunityCardContent({ opportunity, reasons, source }: { oppor
   const detailHref = `/opportunities/${opportunity.id}`;
   const titleClass = "rounded-sm hover:text-forest focus:outline-none focus:ring-2 focus:ring-forest/30";
   return <article data-discover-opportunity={source === "discover" ? opportunity.id : undefined} style={{ color: "var(--unlocked-text)", background: "var(--unlocked-surface)", borderColor: "var(--unlocked-border)" }} className="flex h-full flex-col rounded-[1.25rem] border p-5 shadow-[0_14px_40px_rgba(43,33,26,.05)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_20px_48px_rgba(43,33,26,.085)] motion-reduce:hover:translate-y-0">
-    <div className="flex flex-wrap items-center gap-2"><span className="rule-label text-forest">{cardType}</span><StatusBadge status={opportunity.verification_status}/></div>
+    <div className="flex flex-wrap items-center gap-2"><span className="rule-label text-forest">{cardType}</span><LifecycleBadge state={resolved.displayState} confidence={resolved.confidence} label={resolved.label}/></div>
     <div className="mt-5 flex items-start gap-4"><OrganizationLogo opportunity={opportunity} size="md"/><div className="min-w-0 flex-1"><h3 className="font-editorial text-2xl font-bold leading-[1.08] tracking-[-.025em]">{source === "discover" ? <DiscoverOpportunityLink href={detailHref} opportunityId={opportunity.id} category={opportunity.category} className={titleClass}>{opportunity.title}</DiscoverOpportunityLink> : <Link href={detailHref} className={titleClass}>{opportunity.title}</Link>}</h3><p className="mt-2 text-xs font-bold uppercase tracking-[.08em] text-ink/35">{opportunity.organization}</p></div></div>
     <div className="mt-4 min-w-0 flex-1"><p style={{ color: "var(--unlocked-muted)" }} className="line-clamp-2 text-sm leading-6">{opportunity.description}</p>{reasons?.length ? <details className="mt-4 rounded-xl bg-paper/70 px-4 py-3"><summary className="cursor-pointer text-xs font-bold text-ink/60">Why this matches</summary><ul className="mt-2 space-y-1 text-xs leading-5 text-ink/55">{reasons.map((reason)=><li key={reason}>{reason}</li>)}</ul></details> : null}</div>
     <dl className="mt-5 grid gap-x-4 gap-y-3 border-t border-ink/10 pt-4 text-xs sm:grid-cols-2">

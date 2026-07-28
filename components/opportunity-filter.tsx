@@ -36,7 +36,7 @@ type ActiveFilter = { key: FilterKey; label: string };
 const storageKey = "unlocked-discover-filters";
 const scrollKey = "unlocked-discover-scroll";
 const resultPageSize = 16;
-const deadlineOptions = ["All", "published", "upcoming", "rolling", "not_announced"] as const;
+const deadlineOptions = ["All", "open", "upcoming", "rolling", "closed", "recurring"] as const;
 const sortOptions: DiscoverSortMode[] = ["Relevant", "Newest", "Deadline", "Alphabetical"];
 const defaultFilters: FilterState = {
   query: "",
@@ -167,10 +167,11 @@ function activeFilterLabels(filters: FilterState): ActiveFilter[] {
 
 function deadlineLabel(value: string) {
   return {
-    published: "Published deadline",
-    upcoming: "Upcoming deadline",
-    rolling: "Rolling deadline",
-    not_announced: "Deadline not announced",
+    open: "Open now",
+    upcoming: "Opening soon",
+    rolling: "Rolling",
+    closed: "Closed",
+    recurring: "Recurring",
   }[value] ?? value;
 }
 

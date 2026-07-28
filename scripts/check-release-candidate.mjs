@@ -47,12 +47,12 @@ assert.match(discover, /useDeferredValue/, "Discover search must defer expensive
 assert.match(discover, /params\.set\("view", "discover"\)/, "Discover must identify its bounded server-side result windows.");
 assert.match(discover, /params\.set\("limit", String\(visibleCount\)\)/, "Discover must bound server results to the visible window.");
 assert.doesNotMatch(discover, /filterOpportunities/, "Discover must not filter the full catalog on the browser main thread.");
-assert.match(discoverCatalog, /searchScore\(query, index\.documentsById\.get\(item\.id\)!\) \+ qualityScore\(item, today, cutoff\)/, "Discover should combine indexed search relevance with catalog quality on the server.");
+assert.match(discoverCatalog, /searchScore\(query, index\.documentsById\.get\(item\.id\)!\) \+ qualityScore\(item, lifecycle\.get\(item\.id\)!, today, cutoff\)/, "Discover should combine indexed search relevance, lifecycle truth, and catalog quality on the server.");
 assert.match(discoverCatalog, /const scores = new Map/, "Discover should compute ranking scores once before sorting.");
 
 assert.doesNotMatch(journeyDashboard, /import \{[^}]*opportunities,/, "Journey dashboard must not statically import the full catalog.");
 assert.doesNotMatch(journeyDashboard, /buildRecommendationService|NextToReview|JourneyRecapCard/, "Journey must not include retired recommendations or recap sharing.");
-assert.match(journeyPage, /listPublishedOpportunitiesByIds\(trackedIds\)/, "Journey should fetch only tracked opportunities on the server.");
+assert.match(journeyPage, /listPublishedOpportunitiesByIds\(trackedIds, \{ includeArchived: true \}\)/, "Journey should fetch only tracked opportunities, including retained historical records, on the server.");
 assert.doesNotMatch(journeyEditorial, /fetch\(|createPathGeometry|Your next step|Horizon/, "Journey must remain server-first and free of competing coaching UI.");
 assert.match(journeyDashboard, /router\.refresh\(\)/, "Journey client recovery must refresh into the server-composed experience.");
 

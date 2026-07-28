@@ -5,6 +5,7 @@ import { resolveOrganizationLogo, type ResolvedOrganizationLogo } from "@/data/o
 import { schools } from "@/data/index";
 import type { AccountData, AuthUser } from "@/lib/account-types";
 import { isProUser } from "@/lib/billing";
+import { resolveOpportunityLifecycle } from "@/data/opportunity-lifecycle";
 
 export type JourneyTimelineEventType =
   | "saved"
@@ -49,6 +50,10 @@ export type JourneyTimelineEvent = {
   reminderAt?: string;
   documentNames?: string[];
   attribution?: "Updated by you";
+  publicLifecycle?: {
+    label: string;
+    actionable: boolean;
+  };
 };
 
 export type JourneyTimelineFilterKey = "everything" | "applications" | "interviews" | "offers" | "scholarships" | "research" | "competitions" | "benefits" | "milestones";
@@ -222,6 +227,8 @@ function recordEvents(record: TrackedOpportunity, opportunity: Opportunity, fall
 
   const last = events.at(-1);
   if (last) last.control = controlFor(record, opportunity, now);
+  const publicLifecycle = resolveOpportunityLifecycle(opportunity, now);
+  for (const event of events) event.publicLifecycle = { label: publicLifecycle.label, actionable: publicLifecycle.actionable };
   return events;
 }
 

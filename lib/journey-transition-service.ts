@@ -89,7 +89,7 @@ export async function transformJourneyProgress(user: Pick<AuthUser, "id" | "name
     const previousRecord = trackedRecord(previousAccount, mutation.opportunityId);
     if (!previousRecord) throw new JourneyTransitionError("This opportunity is not part of your Journey.", "invalid_request");
     const ids = trackedIds(previousAccount);
-    const opportunities = await listPublishedOpportunitiesByIds(ids);
+    const opportunities = await listPublishedOpportunitiesByIds(ids, { includeArchived: true });
     const opportunity = opportunities.find((item) => item.id === mutation.opportunityId);
     if (!opportunity) throw new JourneyTransitionError("This opportunity is no longer available.", "invalid_request");
     const occurredAt = nextOccurredAt(previousRecord.updatedAt);
