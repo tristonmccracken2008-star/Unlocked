@@ -208,9 +208,21 @@ try {
     await dialog.getByText("Choose a different stage", { exact: true }).click();
     await dialog.getByText("Application submitted", { exact: true }).click();
     await dialog.getByRole("button", { name: "Save milestone" }).click();
-    await dialog.getByText("Journey updated", { exact: true }).waitFor();
+    await dialog.getByText("Progress recorded", { exact: true }).waitFor();
+    assert.equal(await dialog.locator("[data-milestone-celebration]").count(), 0, "Application submission must not trigger confetti.");
     await dialog.getByRole("button", { name: "Return to Journey" }).click();
     await page.getByText("Application submitted", { exact: true }).first().waitFor();
+    const interviewRecord = root.locator('[data-journey-record][data-stage="interviewing"]').first();
+    await interviewRecord.getByRole("button", { name: "Update", exact: true }).click();
+    const milestoneDialog = page.locator("dialog[data-journey-update-dialog][open]");
+    await milestoneDialog.getByText("Accepted", { exact: true }).first().click();
+    await milestoneDialog.getByRole("button", { name: "Save milestone" }).click();
+    await milestoneDialog.getByText("A defining milestone", { exact: true }).waitFor();
+    await milestoneDialog.locator("[data-milestone-celebration]").waitFor({ state: "attached" });
+    assert.equal(await milestoneDialog.locator("[data-journey-update-confirmation][aria-live='polite']").count(), 1, "Confirmed milestones need a restrained screen-reader announcement.");
+    assert.equal(await milestoneDialog.locator("[data-milestone-celebration][aria-hidden='true']").count(), 1, "Decorative celebration particles must stay outside the accessibility tree.");
+    assert.equal(await milestoneDialog.getByRole("link", { name: "Create Journey Card" }).count(), 1);
+    await milestoneDialog.getByRole("button", { name: "Return to Journey" }).click();
     await page.locator('summary[aria-label="Search Journey"]').click();
     await page.locator("input#journey-search").fill(rich.searchTitle);
     await page.getByRole("button", { name: "Search", exact: true }).click();
@@ -219,7 +231,7 @@ try {
     assert.ok(await page.locator("[data-journey-record]").count() >= 1);
     await page.goto(origin, { waitUntil: "domcontentloaded" });
     await page.locator("[data-journey-command-center]").waitFor({ state: "visible" });
-    await page.screenshot({ path: path.join(output, "journey-command-desktop.png"), fullPage: true });
+    await page.screenshot({ path: path.join(output, "journey-command-desktop.png"), fullPage: true, caret: "initial" });
     await assertJourneyCard(page);
     const [exportDownload] = await Promise.all([
       page.waitForEvent("download"),
@@ -253,6 +265,14 @@ try {
     await context.close();
   }
   {
+    const context = await chromiumBrowser.newContext({ viewport: { width: 640, height: 450 }, reducedMotion: "reduce" });
+    await install(context, origin, rich.session.token);
+    const page = await context.newPage();
+    await page.goto(origin, { waitUntil: "domcontentloaded" });
+    await baseAssertions(page, "Chromium 200% effective zoom");
+    await context.close();
+  }
+  {
     const context = await chromiumBrowser.newContext({ viewport: { width: 820, height: 1180 }, reducedMotion: "reduce" });
     await install(context, origin, heavy.session.token);
     const page = await context.newPage();
@@ -275,9 +295,17 @@ try {
     const root = await baseAssertions(page, "WebKit mobile dark");
     assert.equal(await root.getAttribute("data-theme"), "dark");
     const record = root.locator("[data-journey-record]").first();
-    await page.screenshot({ path: path.join(output, "journey-command-mobile.png"), fullPage: true });
+    await page.screenshot({ path: path.join(output, "journey-command-mobile.png"), fullPage: true, caret: "initial" });
     await record.locator("summary[aria-label^='More actions and details']").press("Enter");
     await record.getByText("Public listing", { exact: true }).waitFor();
+    await record.locator("summary[aria-label^='More actions and details']").press("Enter");
+    await record.getByRole("button", { name: "Update", exact: true }).click();
+    const reducedDialog = page.locator("dialog[data-journey-update-dialog][open]");
+    await reducedDialog.getByText("Choose a different stage", { exact: true }).click();
+    await reducedDialog.getByText("Offer received", { exact: true }).click();
+    await reducedDialog.getByRole("button", { name: "Save milestone" }).click();
+    await reducedDialog.getByText("A defining milestone", { exact: true }).waitFor();
+    assert.equal(await reducedDialog.locator("[data-milestone-celebration]").count(), 0, "Reduced motion must suppress confetti code while retaining success text.");
     noErrors();
     await context.close();
   }
@@ -293,7 +321,7 @@ try {
     assert.equal(await root.getByRole("link", { name: "View For You" }).count(), 1);
     await context.close();
   }
-  console.log("Journey command-center browser checks passed", { browsers: ["Chromium", "WebKit"], datasets: ["empty", "rich", "100-active", "500-history"], viewports: ["desktop", "tablet", "mobile"], screenshots: output });
+  console.log("Journey command-center browser checks passed", { browsers: ["Chromium", "WebKit"], datasets: ["empty", "rich", "100-active", "500-history"], viewports: ["desktop", "tablet", "mobile", "200%-effective-zoom"], screenshots: output });
 } catch (error) {
   failure = error;
 } finally {

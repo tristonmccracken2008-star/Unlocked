@@ -117,6 +117,11 @@
   box-shadow: 0 16px 44px color-mix(in srgb, var(--journey-text-primary) 12%, transparent);
   animation: moment-settle 480ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
 }
+.previewFrame { animation: journey-card-reveal var(--motion-success) var(--motion-ease-emphasis) both; }
+@keyframes journey-card-reveal {
+  from { transform: translateY(4px); opacity: .55; }
+  to { transform: translateY(0); opacity: 1; }
+}
 
 .previewFrame[data-preview-layout="story"] { aspect-ratio: 9 / 16; height: min(60dvh, 42rem); }
 .previewFrame[data-preview-layout="square"] { aspect-ratio: 1; width: min(60dvh, 38rem); }

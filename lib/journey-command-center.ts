@@ -30,7 +30,13 @@ export type JourneyCommandRecord = {
   stageFilter: JourneyCommandFilter;
   savedAt: string;
   updatedAt: string;
-  nextDate?: { label: string; value: string; urgency: "normal" | "soon" | "overdue" };
+  nextDate?: {
+    label: string;
+    value: string;
+    urgency: "normal" | "approaching" | "due_soon" | "tomorrow" | "today" | "overdue";
+    timingLabel: string;
+    daysAway: number;
+  };
   statusDetail: string;
   lifecycle?: { label: string; state: string; actionable: boolean };
   latestDetails?: JourneyMilestoneDetails;
@@ -69,6 +75,7 @@ export type JourneyOverviewCard = {
 };
 
 export type JourneyCommandCenterModel = {
+  accountKey: string;
   overview: JourneyOverviewCard[];
   attention: JourneyAttentionItem[];
   attentionCount: number;
@@ -89,6 +96,7 @@ export type JourneyCommandCenterModel = {
   card: JourneyTimelineModel["card"];
   cardEligible: boolean;
   theme: JourneyTimelineModel["theme"];
+  showFirstUseHints: boolean;
 };
 
 const terminalStatuses = new Set<OpportunityTrackerStatus>(["Rejected", "Completed"]);
@@ -101,6 +109,25 @@ function safeTime(value: string | undefined) {
 
 function daysUntil(value: string, now: Date) {
   return Math.ceil((safeTime(value) - now.getTime()) / 86_400_000);
+}
+
+export function journeyDeadlineTiming(deadline: string, now: Date, timezone = "UTC") {
+  let localDate = now.toISOString().slice(0, 10);
+  try {
+    const parts = new Intl.DateTimeFormat("en-US", { timeZone: timezone, year: "numeric", month: "2-digit", day: "2-digit" })
+      .formatToParts(now);
+    const value = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+    localDate = `${value.year}-${value.month}-${value.day}`;
+  } catch {
+    timezone = "UTC";
+  }
+  const days = Math.round((Date.parse(`${deadline}T00:00:00.000Z`) - Date.parse(`${localDate}T00:00:00.000Z`)) / 86_400_000);
+  if (days < 0) return { urgency: "overdue" as const, timingLabel: "Overdue", timezone, daysAway: days };
+  if (days === 0) return { urgency: "today" as const, timingLabel: "Due today", timezone, daysAway: days };
+  if (days === 1) return { urgency: "tomorrow" as const, timingLabel: "Due tomorrow", timezone, daysAway: days };
+  if (days <= 6) return { urgency: "due_soon" as const, timingLabel: `Due in ${days} days`, timezone, daysAway: days };
+  if (days <= 14) return { urgency: "approaching" as const, timingLabel: `Approaching · ${days} days`, timezone, daysAway: days };
+  return { urgency: "normal" as const, timingLabel: "Official deadline", timezone, daysAway: days };
 }
 
 function latestDetails(record: TrackedOpportunity) {
@@ -128,14 +155,22 @@ function statusDetail(record: TrackedOpportunity, details: JourneyMilestoneDetai
   return `Current stage: ${stageLabel}`;
 }
 
-function nextRelevantDate(opportunity: Opportunity | undefined, details: JourneyMilestoneDetails | undefined, now: Date) {
+function nextRelevantDate(opportunity: Opportunity | undefined, details: JourneyMilestoneDetails | undefined, now: Date, timezone: string) {
   const candidates: Array<{ label: string; value: string }> = [];
   if (details?.reminderAt) candidates.push({ label: "Reminder", value: details.reminderAt });
   if (opportunity?.application_deadline) candidates.push({ label: "Official deadline", value: `${opportunity.application_deadline}T23:59:59.999Z` });
   const next = candidates.sort((left, right) => safeTime(left.value) - safeTime(right.value))[0];
   if (!next) return undefined;
+  if (next.label === "Official deadline" && opportunity?.application_deadline) {
+    return { ...next, ...journeyDeadlineTiming(opportunity.application_deadline, now, timezone) };
+  }
   const days = daysUntil(next.value, now);
-  return { ...next, urgency: days < 0 ? "overdue" as const : days <= 14 ? "soon" as const : "normal" as const };
+  if (days < 0) return { ...next, urgency: "overdue" as const, timingLabel: "Overdue", daysAway: days };
+  if (days === 0) return { ...next, urgency: "today" as const, timingLabel: "Due today", daysAway: days };
+  if (days === 1) return { ...next, urgency: "tomorrow" as const, timingLabel: "Due tomorrow", daysAway: days };
+  if (days <= 6) return { ...next, urgency: "due_soon" as const, timingLabel: `Due in ${days} days`, daysAway: days };
+  if (days <= 14) return { ...next, urgency: "approaching" as const, timingLabel: `Approaching · ${days} days`, daysAway: days };
+  return { ...next, urgency: "normal" as const, timingLabel: next.label, daysAway: days };
 }
 
 function controlFor(record: TrackedOpportunity, opportunity: Opportunity, now: Date): JourneyTimelineControl | undefined {
@@ -158,7 +193,7 @@ function controlFor(record: TrackedOpportunity, opportunity: Opportunity, now: D
   };
 }
 
-function projectRecord(record: TrackedOpportunity, opportunity: Opportunity | undefined, now: Date): JourneyCommandRecord {
+function projectRecord(record: TrackedOpportunity, opportunity: Opportunity | undefined, now: Date, timezone: string): JourneyCommandRecord {
   const workflow = opportunity ? getJourneyProfessionalWorkflow(opportunity) : undefined;
   const resolvedStage = workflow ? resolveJourneyProfessionalStage(record, workflow) : undefined;
   const stageLabel = resolvedStage?.label
@@ -175,7 +210,7 @@ function projectRecord(record: TrackedOpportunity, opportunity: Opportunity | un
     stageFilter: stageFilter(record, resolvedStage?.id ?? ""),
     savedAt: record.savedAt,
     updatedAt: record.updatedAt,
-    nextDate: nextRelevantDate(opportunity, details, now),
+    nextDate: nextRelevantDate(opportunity, details, now, timezone),
     statusDetail: statusDetail(record, details, stageLabel),
     lifecycle: lifecycle ? { label: lifecycle.label, state: lifecycle.displayState, actionable: lifecycle.actionable } : undefined,
     latestDetails: details,
@@ -198,12 +233,12 @@ function attentionItems(records: readonly JourneyCommandRecord[], now: Date): Jo
     const date = record.nextDate;
     if (date?.label === "Reminder" && date.urgency === "overdue") {
       items.push({ id: `reminder-overdue:${record.id}`, recordId: record.id, title: record.title, reason: "A reminder you set is overdue.", priority: 1, date: date.value });
-    } else if (date?.label === "Reminder" && date.urgency === "soon") {
+    } else if (date?.label === "Reminder" && date.urgency !== "normal") {
       items.push({ id: `reminder-soon:${record.id}`, recordId: record.id, title: record.title, reason: "A reminder you set is approaching.", priority: 2, date: date.value });
     }
-    if (date?.label === "Official deadline" && date.urgency === "soon") {
-      const days = Math.max(0, daysUntil(date.value, now));
-      items.push({ id: `deadline:${record.id}`, recordId: record.id, title: record.title, reason: `The confirmed application deadline is in ${days} ${days === 1 ? "day" : "days"}.`, priority: 2, date: date.value });
+    if (date?.label === "Official deadline" && date.urgency !== "normal" && date.urgency !== "overdue") {
+      const days = Math.max(0, date.daysAway);
+      items.push({ id: `deadline:${record.id}`, recordId: record.id, title: record.title, reason: days === 0 ? "The confirmed application deadline is today." : days === 1 ? "The confirmed application deadline is tomorrow." : `The confirmed application deadline is in ${days} days.`, priority: days <= 1 ? 1 : 2, date: date.value });
     }
     if (record.lifecycle && ["canceled", "closed", "temporarily_closed"].includes(record.lifecycle.state) && !["Saved", "Paused"].includes(record.status)) {
       items.push({ id: `lifecycle:${record.id}`, recordId: record.id, title: record.title, reason: `${record.lifecycle.label}. Your Journey stage remains ${record.stageLabel}.`, priority: record.lifecycle.state === "canceled" ? 1 : 3 });
@@ -321,7 +356,7 @@ function overviewCards(records: readonly JourneyCommandRecord[], now: Date): Jou
 }
 
 export function buildJourneyCommandCenterModel(input: {
-  user: Pick<AuthUser, "name">;
+  user: Pick<AuthUser, "id" | "name">;
   account: AccountData;
   opportunities: readonly Opportunity[];
   resolvedTheme?: "light" | "dark";
@@ -336,9 +371,10 @@ export function buildJourneyCommandCenterModel(input: {
   const filter = journeyCommandFilters.includes(input.filter as JourneyCommandFilter) ? input.filter as JourneyCommandFilter : "active";
   const sort = journeyCommandSorts.includes(input.sort as JourneyCommandSort) ? input.sort as JourneyCommandSort : "attention";
   const query = (input.query ?? "").trim().slice(0, 100);
+  const timezone = input.account.preferences?.notifications?.timezone ?? "UTC";
   const opportunityById = new Map(input.opportunities.map((item) => [item.id, item]));
   const recordsById = { ...(input.account.activity?.tracked ?? {}), ...(input.account.tracker ?? {}) };
-  const records = Object.values(recordsById).map((record) => projectRecord(record, opportunityById.get(record.id), now));
+  const records = Object.values(recordsById).map((record) => projectRecord(record, opportunityById.get(record.id), now, timezone));
   const allActive = records.filter((record) => !terminalStatuses.has(record.status));
   const allHistory = records.filter((record) => terminalStatuses.has(record.status));
   const allAttention = attentionItems(allActive, now);
@@ -372,6 +408,7 @@ export function buildJourneyCommandCenterModel(input: {
   ])) as Record<JourneyCommandFilter, number>;
   const timeline = buildJourneyTimelineModel({ user: input.user, account: input.account, opportunities: input.opportunities, resolvedTheme: input.resolvedTheme, now });
   return {
+    accountKey: input.user.id,
     overview: overviewCards(records, now),
     attention,
     attentionCount: allAttention.length,
@@ -393,6 +430,7 @@ export function buildJourneyCommandCenterModel(input: {
     cardEligible: records.some((record) => record.history.some((item) => validationTransitions.has(item.transition)))
       || Object.values(input.account.journeyProgress ?? {}).some(Boolean),
     theme: timeline.theme,
+    showFirstUseHints: records.length > 0 && !records.some((record) => record.history.some((item) => item.transition !== "choose")),
   };
 }
 

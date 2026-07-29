@@ -1,25 +1,55 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Component, lazy, Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { authenticatedFetch } from "@/data/authenticated-request";
 import { accountSessionEvent } from "@/data/account-sync";
 import type { JourneyMilestoneDocumentReference, JourneyProgressTransition, TrackedOpportunity } from "@/data/student-activity";
+import type { MilestoneCelebration } from "@/data/milestone-celebrations";
 import type { JourneyProfessionalAction } from "@/data/journey-professional";
 import type { JourneyTimelineControl } from "@/lib/journey-timeline";
 import { CheckCircleIcon, CloseIcon } from "@/components/icons";
 import styles from "./journey-timeline.module.css";
+
+const MilestoneCelebrationEffect = lazy(() => import("./milestone-celebration-effect"));
+const celebrationStorageKey = "unlocked-shown-milestone-celebrations";
 
 type TransitionResponse = {
   ok: true;
   duplicate: boolean;
   transition: JourneyProgressTransition;
   record: TrackedOpportunity;
+  milestoneEventId: string;
+  celebration: MilestoneCelebration | null;
   professionalStage?: { id: string; label: string; major: boolean };
   stageChange?: { before: string; after: string };
   narrative: { title: string; accomplishment: string; whatChanged: string; storyType: string };
   summaryChanges: Array<{ id: string; label: string; before: number; after: number }>;
 };
+
+class CelebrationBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
+  state = { failed: false };
+  static getDerivedStateFromError() { return { failed: true }; }
+  render() { return this.state.failed ? null : this.props.children; }
+}
+
+function claimCelebration(eventId: string) {
+  try {
+    const parsed: unknown = JSON.parse(localStorage.getItem(celebrationStorageKey) ?? "[]");
+    const shown = new Set(Array.isArray(parsed) ? parsed.filter((value): value is string => typeof value === "string") : []);
+    if (shown.has(eventId)) return false;
+    shown.add(eventId);
+    localStorage.setItem(celebrationStorageKey, JSON.stringify([...shown].slice(-100)));
+    return true;
+  } catch {
+    try {
+      localStorage.setItem(celebrationStorageKey, JSON.stringify([eventId]));
+    } catch {
+      // Storage can be unavailable in strict privacy modes; the confirmed update still succeeds.
+    }
+    return true;
+  }
+}
 
 function messageForStatus(status: number, fallback?: string) {
   if (status === 401) return "Your session ended. Sign in again before updating your Journey.";
@@ -53,6 +83,7 @@ export function JourneyTimelineControl({ control, compactLabel = "Update Journey
   const dialogRef = useRef<HTMLDialogElement>(null);
   const controllerRef = useRef<AbortController | null>(null);
   const pendingRef = useRef(false);
+  const rowHighlightTimerRef = useRef<number | null>(null);
   const [selectedId, setSelectedId] = useState(control.actions[0]?.id ?? "");
   const [pending, setPending] = useState(false);
   const [notes, setNotes] = useState(control.details?.notes ?? "");
@@ -62,6 +93,7 @@ export function JourneyTimelineControl({ control, compactLabel = "Update Journey
   const [documents, setDocuments] = useState<JourneyMilestoneDocumentReference[]>(control.details?.documents ?? []);
   const [error, setError] = useState("");
   const [result, setResult] = useState<TransitionResponse | null>(null);
+  const [celebrationVisible, setCelebrationVisible] = useState(false);
   const [followUpDismissed, setFollowUpDismissed] = useState(false);
   const currentIndex = control.workflow.stages.findIndex((stage) => stage.id === control.currentStageId);
   const selected = useMemo(() => control.actions.find((action) => action.id === selectedId) ?? control.actions[0], [control.actions, selectedId]);
@@ -81,11 +113,13 @@ export function JourneyTimelineControl({ control, compactLabel = "Update Journey
       dialogRef.current?.close();
       setPending(false);
       setResult(null);
+      setCelebrationVisible(false);
       setError("");
     };
     window.addEventListener(accountSessionEvent, accountChanged);
     return () => {
       controllerRef.current?.abort("journey-control-unmounted");
+      if (rowHighlightTimerRef.current) window.clearTimeout(rowHighlightTimerRef.current);
       window.removeEventListener(accountSessionEvent, accountChanged);
     };
   }, []);
@@ -94,6 +128,7 @@ export function JourneyTimelineControl({ control, compactLabel = "Update Journey
     if (actionId) setSelectedId(actionId);
     setError("");
     setResult(null);
+    setCelebrationVisible(false);
     dialogRef.current?.showModal();
   }
 
@@ -139,6 +174,15 @@ export function JourneyTimelineControl({ control, compactLabel = "Update Journey
         return;
       }
       setResult(body);
+      const row = dialogRef.current?.closest<HTMLElement>("[data-journey-record]");
+      if (row) {
+        row.dataset.recentlyUpdated = "true";
+        if (rowHighlightTimerRef.current) window.clearTimeout(rowHighlightTimerRef.current);
+        rowHighlightTimerRef.current = window.setTimeout(() => delete row.dataset.recentlyUpdated, 1_900);
+      }
+      const reducedMotion = document.documentElement.dataset.motion === "reduce"
+        || window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      setCelebrationVisible(Boolean(body.celebration?.particleAccent && claimCelebration(body.milestoneEventId) && !reducedMotion));
     } catch {
       if (controller.signal.reason === "account-changed" || controller.signal.reason === "journey-control-unmounted") return;
       setError(controller.signal.aborted ? "We couldn’t confirm this update in time. Your previous stage is unchanged." : "We couldn’t reach UnlockED. Your previous stage is unchanged.");
@@ -166,9 +210,10 @@ export function JourneyTimelineControl({ control, compactLabel = "Update Journey
           <button type="button" className={styles.updateClose} onClick={close} disabled={pending} aria-label="Close Update Journey"><CloseIcon /></button>
         </header>
 
-        {result ? <section className={styles.updateConfirmation} aria-live="polite" data-journey-update-confirmation="">
+        {result ? <section className={styles.updateConfirmation} aria-live="polite" data-journey-update-confirmation="" data-celebration-level={result.celebration?.level ?? "routine"}>
+          {celebrationVisible && result.celebration ? <CelebrationBoundary><Suspense fallback={null}><MilestoneCelebrationEffect level={result.celebration.level} /></Suspense></CelebrationBoundary> : null}
           <span className={styles.confirmationIcon} aria-hidden="true"><CheckCircleIcon /></span>
-          <p>Journey updated</p>
+          <p>{result.celebration?.level === "signature" ? "A defining milestone" : result.celebration?.level === "major" ? "Milestone recorded" : result.celebration ? "Progress recorded" : "Journey updated"}</p>
           <h3>{result.narrative.title}</h3>
           <span>{result.narrative.accomplishment}</span>
           <div className={styles.attribution}><span>Updated by you</span><span>Private by default</span></div>
@@ -179,7 +224,10 @@ export function JourneyTimelineControl({ control, compactLabel = "Update Journey
             {result.summaryChanges.map((change) => <div key={change.id}><dt>{change.label}</dt><dd><span>{change.before}</span><b aria-hidden="true">→</b><strong>{change.after}</strong></dd></div>)}
           </dl> : null}
           <section className={styles.whatChanged}><p>What changed</p><span>{result.narrative.whatChanged}</span></section>
-          <button type="button" className={styles.updatePrimary} onClick={close}>Return to Journey</button>
+          <div className={styles.confirmationActions}>
+            <button type="button" className={styles.updatePrimary} onClick={close}>Return to Journey</button>
+            {result.celebration?.particleAccent ? <a href="#journey-cards" onClick={close}>Create Journey Card</a> : null}
+          </div>
         </section> : <>
           <section className={styles.stageProgress} aria-labelledby={`journey-stage-heading-${control.opportunityId}`}>
             <div><p>Current Journey stage</p><h3 id={`journey-stage-heading-${control.opportunityId}`}>{control.workflow.stages[currentIndex]?.label ?? "In progress"}</h3></div>

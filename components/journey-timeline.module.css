@@ -210,7 +210,11 @@
 .controlError { margin: 1rem 0 0; color: #b63e32; font-size: .76rem; font-weight: 700; line-height: 1.5; }
 
 .updateConfirmation { display: grid; justify-items: center; padding: clamp(3rem, 9vw, 6rem) clamp(1.25rem, 8vw, 5rem); text-align: center; }
+.updateConfirmation[data-celebration-level="major"],
+.updateConfirmation[data-celebration-level="signature"] { background: radial-gradient(circle at 50% 18%, color-mix(in srgb, var(--journey-gold) 9%, transparent), transparent 38%); }
 .confirmationIcon { display: grid; width: 4.5rem; height: 4.5rem; place-items: center; border-radius: 50%; background: color-mix(in srgb, var(--journey-green) 11%, transparent); color: var(--journey-green); }
+.updateConfirmation[data-celebration-level="major"] .confirmationIcon,
+.updateConfirmation[data-celebration-level="signature"] .confirmationIcon { background: color-mix(in srgb, var(--journey-gold) 14%, transparent); color: var(--journey-gold); animation: milestone-settle var(--motion-success) var(--motion-ease-emphasis) both; }
 .confirmationIcon svg { width: 2rem; height: 2rem; }
 .updateConfirmation > p { margin: 1.5rem 0 .55rem; color: var(--journey-green); font-size: .68rem; font-weight: 850; letter-spacing: .1em; text-transform: uppercase; }
 .updateConfirmation h3 { max-width: 35rem; margin: 0; color: var(--journey-ink); font: 700 clamp(2rem, 6vw, 3.35rem)/1.02 var(--font-editorial), Georgia, serif; letter-spacing: 0; }
@@ -227,6 +231,12 @@
 .whatChanged { max-width: 34rem; margin: 1.7rem 0; border-left: 2px solid var(--journey-gold); padding-left: 1rem; text-align: left; }
 .whatChanged p { margin: 0 0 .35rem; color: var(--journey-gold); font-size: .68rem; font-weight: 850; letter-spacing: .08em; text-transform: uppercase; }
 .whatChanged span { color: var(--journey-muted); font-size: .82rem; line-height: 1.55; }
+.confirmationActions { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: .7rem; }
+.confirmationActions > a { display: inline-flex; min-height: 45px; align-items: center; border: 1px solid var(--journey-line); border-radius: .65rem; color: var(--journey-green); padding: 0 1.2rem; font-size: .78rem; font-weight: 850; text-decoration: none; }
+@keyframes milestone-settle {
+  from { transform: scale(.9); opacity: .2; }
+  to { transform: scale(1); opacity: 1; }
+}
 
 .archives { border-top: 1px solid var(--journey-line); padding: clamp(3rem, 7vw, 5rem) 0; }
 .archives > header { max-width: 34rem; }

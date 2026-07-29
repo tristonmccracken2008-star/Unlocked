@@ -6,6 +6,7 @@ import { JourneyTimelineControl } from "@/components/journey-timeline-control";
 import { JourneyCardEntry } from "@/components/journey-card-entry";
 import { JourneyAnalytics } from "@/components/journey-analytics";
 import { JourneyCommandActions } from "@/components/journey-command-actions";
+import { JourneySessionFeedback } from "@/components/journey-session-feedback";
 import styles from "./journey-command-center.module.css";
 
 const primaryFilters: JourneyCommandFilter[] = ["active", "preparing", "applied", "interviewing", "offers", "saved"];
@@ -98,7 +99,7 @@ function JourneyRecordRow({ record, theme }: { record: JourneyCommandRecord; the
     </div>
     <div className={styles.recordStage}>
       <span className={styles.stage} data-stage={record.stageFilter}>{record.stageLabel}</span>
-      {record.nextDate ? <span data-urgency={record.nextDate.urgency}>{record.nextDate.label} {formatDate(record.nextDate.value)}</span> : <span>{record.statusDetail}</span>}
+      {record.nextDate ? <span data-urgency={record.nextDate.urgency}>{record.nextDate.timingLabel}{record.nextDate.urgency === "normal" ? ` ${formatDate(record.nextDate.value)}` : ""}</span> : <span>{record.statusDetail}</span>}
     </div>
     <div className={styles.recordUpdated}><span>Updated</span><strong>{relativeUpdated(record.updatedAt)}</strong></div>
     <div className={styles.recordActions}>
@@ -129,10 +130,11 @@ export function JourneyCommandCenter({ model }: { model: JourneyCommandCenterMod
         <div><h1>Journey</h1><span>Your private record of what you saved, pursued, and accomplished.</span></div>
         <JourneyCommandActions trackedIds={model.trackedIds} />
       </header>
+      <JourneySessionFeedback accountKey={model.accountKey} overview={model.overview} attentionCount={model.attentionCount} showHints={model.showFirstUseHints} />
 
       {!hasRecords ? <EmptyJourney /> : <>
         {model.overview.length ? <section className={styles.overview} aria-label="Journey overview">
-          {model.overview.map((card) => <a key={card.id} href={card.href} data-tone={card.tone}>
+          {model.overview.map((card) => <a key={card.id} href={card.href} data-tone={card.tone} data-overview-id={card.id}>
             <span className={styles.overviewIcon} aria-hidden="true"><OverviewIcon card={card} /></span>
             <small>{card.label}</small>
             <strong>{card.value}</strong>
@@ -194,7 +196,7 @@ export function JourneyCommandCenter({ model }: { model: JourneyCommandCenterMod
           </div>
         </section> : null}
 
-        {model.cardEligible ? <section className={styles.cards} aria-labelledby="journey-card-heading">
+        {model.cardEligible ? <section className={styles.cards} id="journey-cards" aria-labelledby="journey-card-heading">
           <div><span aria-hidden="true"><SendIcon /></span><div><p>Journey Cards</p><h2 id="journey-card-heading">Celebrate a confirmed milestone.</h2><small>Turn factual progress into a polished card. Nothing is published automatically.</small></div></div>
           <JourneyCardEntry card={model.card} theme={model.theme} />
         </section> : null}

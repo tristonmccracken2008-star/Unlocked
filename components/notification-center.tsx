@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { NotificationRecord } from "@/lib/notification-types";
 import { accountSessionEvent } from "@/data/account-sync";
 
@@ -42,6 +42,9 @@ export function NotificationCenter() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState("");
   const [accountVersion, setAccountVersion] = useState(0);
+  const [arrivingIds, setArrivingIds] = useState<Set<string>>(() => new Set());
+  const [arrivalAnnouncement, setArrivalAnnouncement] = useState("");
+  const arrivalTimerRef = useRef<number | null>(null);
 
   async function load(cursor = 0) {
     const response = await fetch(`/api/notifications?cursor=${cursor}`, { credentials: "same-origin", cache: "no-store" });
@@ -62,6 +65,34 @@ export function NotificationCenter() {
       if (active) setLoading(false);
     });
     return () => { active = false; };
+  }, [accountVersion]);
+
+  useEffect(() => {
+    let active = true;
+    const refresh = () => {
+      void load().then((body) => {
+        if (!active) return;
+        setItems((current) => {
+          const currentIds = new Set(current.map((item) => item.id));
+          const newIds = body.notifications.filter((item) => !currentIds.has(item.id)).map((item) => item.id);
+          if (newIds.length) {
+            setArrivingIds(new Set(newIds));
+            setArrivalAnnouncement(newIds.length === 1 ? "One new notification arrived." : `${newIds.length} new notifications arrived.`);
+            if (arrivalTimerRef.current) window.clearTimeout(arrivalTimerRef.current);
+            arrivalTimerRef.current = window.setTimeout(() => setArrivingIds(new Set()), 700);
+          }
+          return body.notifications;
+        });
+        setUnreadCount(body.unreadCount);
+        setNextCursor(body.nextCursor);
+      }).catch(() => undefined);
+    };
+    window.addEventListener("unlocked:notifications-updated", refresh);
+    return () => {
+      active = false;
+      if (arrivalTimerRef.current) window.clearTimeout(arrivalTimerRef.current);
+      window.removeEventListener("unlocked:notifications-updated", refresh);
+    };
   }, [accountVersion]);
 
   useEffect(() => {
@@ -128,6 +159,7 @@ export function NotificationCenter() {
       </header>
 
       <div aria-live="polite" className="sr-only">{loading ? "Loading notifications" : `${unreadCount} unread notifications`}</div>
+      <p aria-live="polite" className="sr-only">{arrivalAnnouncement}</p>
       {error ? <div role="alert" className="mt-6 flex items-center justify-between gap-4 border-l-2 border-red-700 bg-red-50 px-4 py-3 text-sm font-semibold text-red-800"><span>{error}</span><button type="button" onClick={() => window.location.reload()} className="min-h-11 px-3 font-bold">Retry</button></div> : null}
 
       {loading ? <div aria-hidden="true" className="mt-8 space-y-3 animate-pulse">
@@ -144,7 +176,7 @@ export function NotificationCenter() {
       {groups.map((group) => <section key={group.label} aria-labelledby={`notifications-${group.label.toLowerCase()}`} className="mt-10">
         <h2 id={`notifications-${group.label.toLowerCase()}`} className="font-editorial text-2xl font-bold">{group.label}</h2>
         <ol className="mt-4 divide-y divide-ink/10 border-y border-ink/10">
-          {group.items.map((item) => <li key={item.id} className={`relative grid gap-4 py-6 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center ${item.readAt ? "opacity-70" : ""}`}>
+          {group.items.map((item) => <li key={item.id} data-notification-item-arrived={arrivingIds.has(item.id) ? "true" : undefined} className={`relative grid gap-4 py-6 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center ${item.readAt ? "opacity-70" : ""}`}>
             <div className="flex min-w-0 gap-4">
               <span className={`mt-2 h-2.5 w-2.5 shrink-0 rounded-full ${item.readAt ? "border border-ink/25 bg-transparent" : item.priority === "high" ? "bg-gold" : "bg-forest"}`} aria-hidden="true" />
               <div className="min-w-0">

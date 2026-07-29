@@ -105,7 +105,7 @@ export function JourneyCardCreator({ card, theme, onClose }: { card: JourneyCard
       link.click();
       link.remove();
       window.setTimeout(() => URL.revokeObjectURL(url), 1_000);
-      setMessage("Journey Card downloaded.");
+      setMessage("Journey Card ready.");
       trackProductEvent(productIntelligenceEvents.journeyCardDownloaded, { format: layout });
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "The Journey Card could not be downloaded.");
@@ -162,7 +162,7 @@ export function JourneyCardCreator({ card, theme, onClose }: { card: JourneyCard
       </header>
       <div className={styles.workspace}>
         <section className={styles.previewColumn} aria-label="Journey Card preview">
-          <div className={styles.previewFrame} data-preview-layout={layout} role="img" aria-label={alt}>
+          <div key={`${layout}:${exportTheme}`} className={styles.previewFrame} data-preview-layout={layout} role="img" aria-label={alt}>
             <JourneyCardArtwork ref={artworkRef} card={card} layout={layout} privacy={privacy} theme={exportTheme} />
           </div>
           <p className={styles.previewCaption}>{journeyCardLayouts[layout].label} · {journeyCardLayouts[layout].width} × {journeyCardLayouts[layout].height} PNG</p>

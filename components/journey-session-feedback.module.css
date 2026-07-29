@@ -1,0 +1,48 @@
+.caughtUp {
+  display: flex;
+  align-items: center;
+  gap: .7rem;
+  margin-top: 1rem;
+  border-left: 2px solid var(--journey-green);
+  background: color-mix(in srgb, var(--journey-green) 7%, var(--journey-panel));
+  color: var(--journey-muted);
+  padding: .8rem 1rem;
+  font-size: .72rem;
+  animation: feedback-enter var(--motion-standard) var(--motion-ease) both;
+}
+.caughtUp svg { width: 1.15rem; height: 1.15rem; flex: 0 0 auto; color: var(--journey-green); }
+.caughtUp strong { color: var(--journey-ink); }
+.hints {
+  margin-top: 1rem;
+  border: 1px solid var(--journey-line);
+  border-radius: .7rem;
+  background: color-mix(in srgb, var(--journey-panel) 78%, transparent);
+  padding: .9rem 1rem;
+}
+.hints > div { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.hints p { margin: 0; color: var(--journey-green); font-size: .66rem; font-weight: 850; letter-spacing: .08em; text-transform: uppercase; }
+.hints button { display: grid; width: 44px; height: 44px; place-items: center; border: 0; background: transparent; color: var(--journey-muted); cursor: pointer; }
+.hints button svg { width: .85rem; height: .85rem; }
+.hints ol { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; margin: .45rem 0 0; padding: 0; list-style: none; }
+.hints li { display: grid; gap: .2rem; }
+.hints strong { font: 700 .88rem/1.15 var(--font-editorial), Georgia, serif; }
+.hints span { color: var(--journey-muted); font-size: .66rem; line-height: 1.45; }
+@keyframes feedback-enter {
+  from { transform: translateY(-3px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+@media (max-width: 700px) {
+  .hints ol {
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(10.5rem, 1fr);
+    gap: .85rem;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scrollbar-width: none;
+  }
+  .hints ol::-webkit-scrollbar { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .caughtUp { animation: none; }
+}

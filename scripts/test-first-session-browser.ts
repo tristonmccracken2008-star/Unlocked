@@ -165,14 +165,14 @@ async function verifyFirstSave(page: Page, origin: string) {
   const button = page.getByRole("button", { name: "Add to Journey" }).first();
   await button.click();
   await page.getByRole("alert").getByText(/couldn’t add/i).waitFor({ state: "visible" });
-  assert.equal(await page.getByText("Added to Journey", { exact: false }).count(), 0, "A failed save must not show success.");
+  assert.equal(await page.getByText("Saved to Journey", { exact: false }).count(), 0, "A failed save must not show success.");
 
   const startedAt = performance.now();
   await button.dblclick();
   await page.getByText("Saved to your Journey.", { exact: false }).waitFor({ state: "visible", timeout: 15_000 });
   const firstSaveMs = performance.now() - startedAt;
   assert.equal(addRequests, 2, "The failed attempt and one protected retry should issue exactly two requests.");
-  const addedState = page.getByText("Added to Journey", { exact: false }).first();
+  const addedState = page.getByText("Saved to Journey", { exact: false }).first();
   assert.ok(await addedState.isVisible());
 
   const opportunityId = await page.locator("[data-for-you-page] article").first().evaluate((node) => {
@@ -193,9 +193,9 @@ async function verifyFirstSave(page: Page, origin: string) {
 
   const journeyStartedAt = performance.now();
   await page.goto(origin, { waitUntil: "domcontentloaded", timeout: 60_000 });
-  await page.getByRole("heading", { name: "Saved is not the same as applied." }).waitFor({ state: "visible" });
-  assert.ok(await page.getByText("Nothing moves forward automatically.", { exact: false }).isVisible());
-  assert.ok(await page.getByRole("button", { name: "Update Journey" }).first().isVisible());
+  await page.getByRole("heading", { name: "Journey", exact: true }).waitFor({ state: "visible" });
+  assert.equal(await page.getByText("Your private record of what you saved, pursued, and accomplished.", { exact: true }).count(), 1);
+  assert.ok(await page.getByRole("button", { name: "Update", exact: true }).first().isVisible());
   const firstJourneyMs = performance.now() - journeyStartedAt;
 
   const returnStartedAt = performance.now();

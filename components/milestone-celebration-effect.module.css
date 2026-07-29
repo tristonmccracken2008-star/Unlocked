@@ -1,0 +1,33 @@
+.effect {
+  pointer-events: none;
+  position: fixed;
+  z-index: 120;
+  inset: 50% auto auto 50%;
+  width: 1px;
+  height: 1px;
+}
+.effect i {
+  position: absolute;
+  width: 7px;
+  height: 13px;
+  border-radius: 2px;
+  background: var(--particle);
+  opacity: 0;
+  animation: milestone-particle var(--motion-celebration, 1200ms) var(--motion-ease-emphasis, cubic-bezier(.2, .8, .2, 1)) both;
+  animation-delay: calc(var(--particle-index, 0) * 12ms);
+}
+.effect i:nth-child(3n) { width: 6px; height: 6px; border-radius: 50%; }
+.effect i:nth-child(4n) { animation-delay: 70ms; }
+.effect[data-level="signature"] i { animation-duration: calc(var(--motion-celebration, 1200ms) + 180ms); }
+@keyframes milestone-particle {
+  0% { transform: translate3d(0, 0, 0) rotate(0); opacity: 0; }
+  12% { opacity: .88; }
+  100% { transform: translate3d(var(--x), var(--y), 0) rotate(var(--r)); opacity: 0; }
+}
+@media (max-width: 640px) {
+  .effect i:nth-child(n+13) { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .effect { display: none; }
+}
+:global(html[data-motion="reduce"]) .effect { display: none; }

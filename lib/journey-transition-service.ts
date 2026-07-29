@@ -8,6 +8,7 @@ import { applyJourneyProfessionalUpdate, applyJourneyTransition, JourneyTransiti
 import { getJourneyProfessionalWorkflow, professionalStageById, resolveJourneyProfessionalStage } from "@/data/journey-professional";
 import { createOpenLineMotionPlan, type OpenLineMotionPlan } from "@/data/open-line";
 import type { JourneyMilestoneDetails, JourneyProgressTransition, OpportunityTrackerStatus, TrackedOpportunity } from "@/data/student-activity";
+import { resolveMilestoneCelebration, type MilestoneCelebration } from "@/data/milestone-celebrations";
 import { buildJourneyTimelineModel } from "./journey-timeline";
 
 export type JourneyTransitionMutation = {
@@ -28,6 +29,8 @@ export type JourneyTransformationResponse = {
   stageChange?: { before: string; after: string };
   record: TrackedOpportunity;
   pathEventCreated: string | null;
+  milestoneEventId: string;
+  celebration: MilestoneCelebration | null;
   narrative: {
     title: string;
     accomplishment: string;
@@ -113,6 +116,9 @@ export async function transformJourneyProgress(user: Pick<AuthUser, "id" | "name
     const resolvedTransition = applied.historyRecord.transition;
     const professionalStage = mutation.professionalStageId ? professionalStageById(workflow, mutation.professionalStageId) : undefined;
     const previousProfessionalStage = resolveJourneyProfessionalStage(previousRecord, workflow);
+    const previousProfessionalIndex = workflow.stages.findIndex((stage) => stage.id === previousProfessionalStage.id);
+    const resultingProfessionalIndex = professionalStage ? workflow.stages.findIndex((stage) => stage.id === professionalStage.id) : -1;
+    const correction = Boolean(professionalStage && resultingProfessionalIndex <= previousProfessionalIndex);
     const resultingStageLabel = mutation.professionalStageId === "paused"
       ? "Paused"
       : mutation.professionalStageId === "resume"
@@ -158,6 +164,15 @@ export async function transformJourneyProgress(user: Pick<AuthUser, "id" | "name
       stageChange: resultingStageLabel ? { before: previousRecord.status === "Paused" ? "Paused" : previousProfessionalStage.label, after: resultingStageLabel } : undefined,
       record: persistedRecord,
       pathEventCreated: pathEvent?.id ?? null,
+      milestoneEventId: applied.historyRecord.id,
+      celebration: resolveMilestoneCelebration({
+        account: previousAccount,
+        eventId: applied.historyRecord.id,
+        transition: resolvedTransition,
+        professionalStage: professionalStage ? { id: professionalStage.id, label: professionalStage.label, major: professionalStage.major } : undefined,
+        duplicate: applied.duplicate,
+        correction,
+      }),
       narrative: {
         title: professionalStage?.milestoneTitle ?? moment?.title ?? pathEvent!.title,
         accomplishment: professionalStage?.description ?? moment?.body ?? pathEvent!.narrative,
