@@ -52,27 +52,46 @@ export type JourneyAttentionItem = {
 export type JourneyHistoryGroup = {
   year: string;
   records: JourneyCommandRecord[];
+  count: number;
+  completed: number;
+  closed: number;
+  archived: number;
+};
+
+export type JourneyOverviewCard = {
+  id: "next_deadline" | "waiting_on" | "newest_milestone" | "year";
+  label: string;
+  value: string;
+  title: string;
+  detail: string;
+  href: string;
+  tone: "primary" | "warm" | "milestone" | "neutral";
 };
 
 export type JourneyCommandCenterModel = {
-  overview: Array<{ id: "active" | "deadlines" | "submitted" | "milestones"; label: string; value: number; href?: string }>;
+  overview: JourneyOverviewCard[];
   attention: JourneyAttentionItem[];
+  attentionCount: number;
   activeRecords: JourneyCommandRecord[];
   historyGroups: JourneyHistoryGroup[];
   activeCount: number;
+  matchingActiveCount: number;
+  shownActiveCount: number;
   historyCount: number;
   unavailableCount: number;
   shownHistoryCount: number;
+  trackedIds: string[];
   filterCounts: Record<JourneyCommandFilter, number>;
   filter: JourneyCommandFilter;
   sort: JourneyCommandSort;
   query: string;
+  activeLimit: number;
   card: JourneyTimelineModel["card"];
+  cardEligible: boolean;
   theme: JourneyTimelineModel["theme"];
 };
 
 const terminalStatuses = new Set<OpportunityTrackerStatus>(["Rejected", "Completed"]);
-const submittedStatuses = new Set<OpportunityTrackerStatus>(["Submitted", "Interview", "Accepted", "Completed"]);
 const validationTransitions = new Set(["interview", "accept", "complete"]);
 
 function safeTime(value: string | undefined) {
@@ -134,6 +153,7 @@ function controlFor(record: TrackedOpportunity, opportunity: Opportunity, now: D
     status: record.status,
     version: record.version ?? 0,
     actions,
+    details: latestDetails(record),
     inactiveDays: inactiveDays >= 30 && !["Saved", "Paused"].includes(record.status) ? inactiveDays : undefined,
   };
 }
@@ -193,7 +213,7 @@ function attentionItems(records: readonly JourneyCommandRecord[], now: Date): Jo
       items.push({ id: `inactive:${record.id}`, recordId: record.id, title: record.title, reason: `This active record has not been updated in ${inactiveDays} days.`, priority: 4 });
     }
   }
-  return items.sort((left, right) => left.priority - right.priority || safeTime(left.date) - safeTime(right.date) || left.title.localeCompare(right.title)).slice(0, 5);
+  return items.sort((left, right) => left.priority - right.priority || safeTime(left.date) - safeTime(right.date) || left.title.localeCompare(right.title));
 }
 
 function compareRecords(sort: JourneyCommandSort) {
@@ -211,10 +231,93 @@ function meaningfulYear(record: JourneyCommandRecord) {
   return Number.isFinite(year) ? String(year) : "Earlier";
 }
 
+function historyYear(record: JourneyCommandRecord, currentYear: number) {
+  const year = Number(meaningfulYear(record));
+  if (!Number.isFinite(year) || year < currentYear - 1) return "Earlier";
+  return String(year);
+}
+
 function matchesQuery(record: JourneyCommandRecord, query: string) {
   if (!query) return true;
   const normalized = query.toLocaleLowerCase();
   return `${record.title} ${record.organization} ${record.latestDetails?.notes ?? ""}`.toLocaleLowerCase().includes(normalized);
+}
+
+function overviewCards(records: readonly JourneyCommandRecord[], now: Date): JourneyOverviewCard[] {
+  const active = records.filter((record) => !terminalStatuses.has(record.status));
+  const verifiedDeadline = active
+    .filter((record) => record.opportunity?.application_deadline && record.opportunity.verification_status === "verified")
+    .map((record) => ({
+      record,
+      value: `${record.opportunity!.application_deadline}T23:59:59.999Z`,
+    }))
+    .filter((item) => safeTime(item.value) >= now.getTime())
+    .sort((left, right) => safeTime(left.value) - safeTime(right.value))[0];
+  const waitingOn = active
+    .filter((record) => ["interviewing", "offers", "accepted"].includes(record.stageFilter) && record.latestDetails?.reminderAt)
+    .map((record) => ({ record, value: record.latestDetails!.reminderAt! }))
+    .filter((item) => safeTime(item.value) >= now.getTime())
+    .sort((left, right) => safeTime(left.value) - safeTime(right.value))[0];
+  const newestMilestone = records
+    .flatMap((record) => record.history.filter((item) => validationTransitions.has(item.transition)).map((item) => ({ record, item })))
+    .sort((left, right) => safeTime(right.item.occurredAt) - safeTime(left.item.occurredAt))[0];
+  const currentYear = now.getUTCFullYear();
+  const yearEvents = records.flatMap((record) => record.history.filter((item) => new Date(item.occurredAt).getUTCFullYear() === currentYear));
+  const yearMilestones = yearEvents.filter((item) => validationTransitions.has(item.transition)).length;
+  const yearInterviews = yearEvents.filter((item) => item.transition === "interview").length;
+  const yearOffers = yearEvents.filter((item) => item.transition === "accept").length;
+  const yearSaved = yearEvents.filter((item) => item.transition === "choose").length;
+  const cards: JourneyOverviewCard[] = [];
+  if (verifiedDeadline) {
+    const days = Math.max(0, daysUntil(verifiedDeadline.value, now));
+    cards.push({
+      id: "next_deadline",
+      label: "Next deadline",
+      value: days === 0 ? "Today" : `${days} ${days === 1 ? "day" : "days"}`,
+      title: verifiedDeadline.record.title,
+      detail: `Due ${new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" }).format(new Date(verifiedDeadline.value))}`,
+      href: `#journey-record-${verifiedDeadline.record.id}`,
+      tone: "primary",
+    });
+  }
+  if (waitingOn) {
+    cards.push({
+      id: "waiting_on",
+      label: "Waiting on",
+      value: waitingOn.record.stageLabel,
+      title: waitingOn.record.title,
+      detail: `Reminder ${new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }).format(new Date(waitingOn.value))}`,
+      href: `#journey-record-${waitingOn.record.id}`,
+      tone: "warm",
+    });
+  }
+  if (newestMilestone) {
+    cards.push({
+      id: "newest_milestone",
+      label: "Newest milestone",
+      value: newestMilestone.record.stageLabel,
+      title: newestMilestone.record.title,
+      detail: new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" }).format(new Date(newestMilestone.item.occurredAt)),
+      href: `#journey-record-${newestMilestone.record.id}`,
+      tone: "milestone",
+    });
+  }
+  if (yearEvents.length) {
+    cards.push({
+      id: "year",
+      label: "This year",
+      value: yearMilestones
+        ? `${yearMilestones} ${yearMilestones === 1 ? "milestone" : "milestones"}`
+        : `${yearEvents.length} recorded ${yearEvents.length === 1 ? "update" : "updates"}`,
+      title: yearOffers || yearInterviews
+        ? `${yearOffers} ${yearOffers === 1 ? "offer" : "offers"} · ${yearInterviews} ${yearInterviews === 1 ? "interview" : "interviews"}`
+        : `${yearSaved} ${yearSaved === 1 ? "opportunity" : "opportunities"} saved`,
+      detail: `${yearEvents.length} recorded ${yearEvents.length === 1 ? "update" : "updates"}`,
+      href: "#journey-history",
+      tone: "neutral",
+    });
+  }
+  return cards;
 }
 
 export function buildJourneyCommandCenterModel(input: {
@@ -227,6 +330,7 @@ export function buildJourneyCommandCenterModel(input: {
   sort?: string;
   query?: string;
   historyLimit?: number;
+  activeLimit?: number;
 }): JourneyCommandCenterModel {
   const now = input.now ?? new Date();
   const filter = journeyCommandFilters.includes(input.filter as JourneyCommandFilter) ? input.filter as JourneyCommandFilter : "active";
@@ -237,7 +341,8 @@ export function buildJourneyCommandCenterModel(input: {
   const records = Object.values(recordsById).map((record) => projectRecord(record, opportunityById.get(record.id), now));
   const allActive = records.filter((record) => !terminalStatuses.has(record.status));
   const allHistory = records.filter((record) => terminalStatuses.has(record.status));
-  const attention = attentionItems(allActive, now);
+  const allAttention = attentionItems(allActive, now);
+  const attention = allAttention.slice(0, 3);
   const attentionIds = new Set(attention.map((item) => item.recordId));
   const filteredActive = allActive
     .filter((record) => filter === "active" || filter === "history" ? true : record.stageFilter === filter)
@@ -247,43 +352,46 @@ export function buildJourneyCommandCenterModel(input: {
       : compareRecords(sort)(left, right));
   const filteredHistory = allHistory.filter((record) => matchesQuery(record, query)).sort(compareRecords(sort === "attention" ? "recent" : sort));
   const historyLimit = Math.max(1, Math.min(input.historyLimit ?? 24, 100));
+  const activeLimit = Math.max(4, Math.min(input.activeLimit ?? 6, 100));
   const shownHistory = filteredHistory.slice(0, historyLimit);
-  const historyGroups = [...new Set(shownHistory.map(meaningfulYear))].sort((a, b) => b.localeCompare(a)).map((year) => ({
+  const currentYear = now.getUTCFullYear();
+  const allHistoryYears = [...new Set(filteredHistory.map((record) => historyYear(record, currentYear)))].sort((left, right) => left === "Earlier" ? 1 : right === "Earlier" ? -1 : right.localeCompare(left));
+  const historyGroups = allHistoryYears.map((year) => {
+    const allYearRecords = filteredHistory.filter((record) => historyYear(record, currentYear) === year);
+    return {
     year,
-    records: shownHistory.filter((record) => meaningfulYear(record) === year),
-  }));
-  const year = now.getUTCFullYear();
-  const submitted = records.filter((record) => {
-    const recordedSubmission = record.history.some((item) => item.transition === "submit" && new Date(item.occurredAt).getUTCFullYear() === year);
-    const legacySubmission = !record.history.length && submittedStatuses.has(record.status) && new Date(record.updatedAt).getUTCFullYear() === year;
-    return recordedSubmission || legacySubmission;
-  }).length;
-  const milestones = records.reduce((total, record) => total + record.history.filter((item) => validationTransitions.has(item.transition) && new Date(item.occurredAt).getUTCFullYear() === year).length, 0);
-  const upcoming = allActive.filter((record) => record.nextDate && ["normal", "soon"].includes(record.nextDate.urgency)).length;
+    records: shownHistory.filter((record) => historyYear(record, currentYear) === year),
+    count: allYearRecords.length,
+    completed: allYearRecords.filter((record) => record.status === "Completed").length,
+    archived: allYearRecords.filter((record) => record.stageLabel === "Archived").length,
+    closed: allYearRecords.filter((record) => record.status === "Rejected" && record.stageLabel !== "Archived").length,
+  }; });
   const filterCounts = Object.fromEntries(journeyCommandFilters.map((key) => [
     key,
     key === "active" ? allActive.length : key === "history" ? allHistory.length : allActive.filter((record) => record.stageFilter === key).length,
   ])) as Record<JourneyCommandFilter, number>;
   const timeline = buildJourneyTimelineModel({ user: input.user, account: input.account, opportunities: input.opportunities, resolvedTheme: input.resolvedTheme, now });
   return {
-    overview: [
-      { id: "active", label: "Active opportunities", value: allActive.length, href: "/?stage=active#active-opportunities" },
-      { id: "deadlines", label: "Upcoming dates", value: upcoming, href: "/?sort=deadline#active-opportunities" },
-      { id: "submitted", label: `Submitted in ${year}`, value: submitted, href: "/?stage=applied#active-opportunities" },
-      { id: "milestones", label: `Milestones in ${year}`, value: milestones, href: "#journey-history" },
-    ],
+    overview: overviewCards(records, now),
     attention,
-    activeRecords: filter === "history" ? [] : filteredActive.slice(0, 100),
+    attentionCount: allAttention.length,
+    activeRecords: filter === "history" ? [] : filteredActive.slice(0, activeLimit),
     historyGroups,
     activeCount: allActive.length,
+    matchingActiveCount: filter === "history" ? 0 : filteredActive.length,
+    shownActiveCount: Math.min(filteredActive.length, activeLimit),
     historyCount: filteredHistory.length,
     unavailableCount: records.filter((record) => record.unavailable).length,
     shownHistoryCount: shownHistory.length,
+    trackedIds: records.map((record) => record.id),
     filterCounts,
     filter,
     sort,
     query,
+    activeLimit,
     card: timeline.card,
+    cardEligible: records.some((record) => record.history.some((item) => validationTransitions.has(item.transition)))
+      || Object.values(input.account.journeyProgress ?? {}).some(Boolean),
     theme: timeline.theme,
   };
 }

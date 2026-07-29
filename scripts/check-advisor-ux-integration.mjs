@@ -38,7 +38,7 @@ for (const symbol of [
 
 for (const label of [
   "Journey",
-  "Your private record of what you saved, pursued, and completed.",
+  "Your private record of what you saved, pursued, and accomplished.",
   "JourneyTimelineControl",
   "JourneyCardEntry",
 ]) {

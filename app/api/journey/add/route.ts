@@ -6,21 +6,36 @@ import { productIntelligenceEvents } from "@/lib/analytics-types";
 import { addJourneyOpportunity } from "@/lib/journey-add-service";
 import { syncUserNotificationSchedules } from "@/lib/notification-service";
 import { assertSameOrigin, enforceRateLimit, readBoundedJson, SecurityError, securityErrorResponse } from "@/lib/security";
+import type { JourneyMilestoneDetails } from "@/data/student-activity";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 const opportunityIdPattern = /^[A-Za-z0-9][A-Za-z0-9._:-]{0,159}$/;
 const requestIdPattern = /^[A-Za-z0-9][A-Za-z0-9._:-]{7,127}$/;
-const validSources = new Set(["discover", "for_you", "opportunity"]);
+const validSources = new Set(["discover", "for_you", "opportunity", "journey"]);
+const validInitialStages = new Set(["saved", "preparing", "applied"]);
+
+function cleanDetails(value: unknown): JourneyMilestoneDetails | undefined {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return undefined;
+  const input = value as Record<string, unknown>;
+  const notes = typeof input.notes === "string" ? input.notes.trim().slice(0, 1200) : undefined;
+  const reminderTime = typeof input.reminderAt === "string" ? Date.parse(input.reminderAt) : Number.NaN;
+  const reminderAt = Number.isFinite(reminderTime) && reminderTime >= Date.now() - 86_400_000 && reminderTime <= Date.now() + 5 * 365 * 86_400_000 ? new Date(reminderTime).toISOString() : undefined;
+  const reminderText = reminderAt && typeof input.reminderText === "string" ? input.reminderText.replace(/\s+/g, " ").trim().slice(0, 160) : undefined;
+  if (!notes && !reminderAt && !reminderText) return undefined;
+  return { notes, reminderAt, reminderText, source: "student_reported" };
+}
 
 function parseBody(value: unknown) {
   if (!value || typeof value !== "object" || Array.isArray(value)) throw new SecurityError("Invalid Journey request.", 400, "invalid_request");
   const body = value as Record<string, unknown>;
   if (typeof body.opportunityId !== "string" || !opportunityIdPattern.test(body.opportunityId)) throw new SecurityError("Invalid opportunity.", 400, "invalid_request");
   if (typeof body.idempotencyKey !== "string" || !requestIdPattern.test(body.idempotencyKey)) throw new SecurityError("Invalid request identifier.", 400, "invalid_request");
-  const source = typeof body.source === "string" && validSources.has(body.source) ? body.source as "discover" | "for_you" | "opportunity" : "opportunity";
-  return { opportunityId: body.opportunityId, idempotencyKey: body.idempotencyKey, source };
+  const source = typeof body.source === "string" && validSources.has(body.source) ? body.source as "discover" | "for_you" | "opportunity" | "journey" : "opportunity";
+  if (body.initialStage !== undefined && (typeof body.initialStage !== "string" || !validInitialStages.has(body.initialStage))) throw new SecurityError("Invalid starting stage.", 400, "invalid_request");
+  const initialStage = (body.initialStage ?? "saved") as "saved" | "preparing" | "applied";
+  return { opportunityId: body.opportunityId, idempotencyKey: body.idempotencyKey, source, initialStage, details: cleanDetails(body.details) };
 }
 
 export async function POST(request: Request) {
@@ -52,6 +67,7 @@ export async function POST(request: Request) {
     if (error instanceof SecurityError) return securityErrorResponse(error, "This opportunity could not be added.");
     if (error instanceof Error && error.name === "OnboardingRequiredError") return NextResponse.json({ error: error.message, code: "onboarding_required" }, { status: 409, headers: { "Cache-Control": "no-store, max-age=0" } });
     if (error instanceof Error && error.name === "OpportunityUnavailableError") return NextResponse.json({ error: error.message, code: "opportunity_unavailable" }, { status: 404, headers: { "Cache-Control": "no-store, max-age=0" } });
+    if (error instanceof Error && error.name === "InvalidInitialJourneyStageError") return NextResponse.json({ error: error.message, code: "invalid_initial_stage" }, { status: 422, headers: { "Cache-Control": "no-store, max-age=0" } });
     if (error instanceof Error && /already in progress/i.test(error.message)) return NextResponse.json({ error: "Another Journey update is still saving. Try again in a moment.", code: "operation_locked" }, { status: 423, headers: { "Cache-Control": "no-store, max-age=0" } });
     console.error("[UnlockED Journey] Add failed", { errorCategory: error instanceof Error ? error.name : "unknown" });
     return NextResponse.json({ error: "We couldn’t add this opportunity. Nothing changed.", code: "save_failed" }, { status: 500, headers: { "Cache-Control": "no-store, max-age=0" } });

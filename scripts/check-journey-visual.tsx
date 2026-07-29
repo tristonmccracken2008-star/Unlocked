@@ -46,7 +46,7 @@ for (const token of ["BrandMarkArtwork", "MY JOURNEY", "MOMENTS", "Built with Un
 assert.doesNotMatch(artwork, /OpenLineRenderer|openLineAperturePath|gradient|filter=|drop-shadow|confetti/i);
 for (const token of ["Download PNG", "Copy image", "navigator.share", "Private until you share it", "role={messageIsError ?"]) assert.ok(creator.includes(token));
 assert.match(creatorStyles, /min-height:\s*44px/);
-assert.match(loading, /Loading your saved opportunities and progress\./);
+assert.match(loading, /Loading your saved opportunities, deadlines, and progress\./);
 assert.doesNotMatch(loading, /loadingWaypoint|next step|story\./i);
 
 console.log(JSON.stringify({ message: "Unified Journey visual checks passed.", viewports: [320, 390, 820, 1440], themes: ["cream", "forest"], exports: journeyCardLayouts }, null, 2));

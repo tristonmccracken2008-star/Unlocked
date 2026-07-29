@@ -53,15 +53,17 @@ assert.equal(populated.card.identity.firstName, "Jordan");
 
 const component = read("components/journey-timeline.tsx");
 const commandCenter = read("components/journey-command-center.tsx");
+const commandActions = read("components/journey-command-actions.tsx");
 const styles = read("components/journey-timeline.module.css");
 const page = read("app/page.tsx");
 const loading = read("app/loading.tsx");
 for (const required of ["<h1>Journey</h1>", "A timeline of the opportunities and milestones that have shaped your progress.", "Your Journey starts here", "JourneyCardEntry"]) assert.ok(component.includes(required), `Unified Journey must render ${required}.`);
 for (const retired of ["Your next step", "Horizon", "Journey Board", "Move to...", "Right now", "recommendation"]) assert.ok(!component.includes(retired), `Unified Journey must retire ${retired}.`);
 assert.ok(page.includes("buildJourneyCommandCenterModel") && page.includes("JourneyCommandCenter"), "The signed-in home must use the server-built command center.");
-for (const required of ["Opportunity command center", "Needs attention", "Active opportunities", "History", "Journey Cards"]) assert.ok(commandCenter.includes(required), `Command center must render ${required}.`);
+for (const required of ["Your private record of what you saved, pursued, and accomplished.", "Things to do", "Active opportunities", "History", "Journey Cards"]) assert.ok(commandCenter.includes(required), `Command center must render ${required}.`);
+for (const required of ["Add opportunity", "Export data"]) assert.ok(commandActions.includes(required), `Command-center actions must render ${required}.`);
 assert.ok(styles.includes("grid-template-columns") && styles.includes("prefers-reduced-motion") && styles.includes("prefers-contrast: more"));
-assert.ok(loading.includes("Loading your saved opportunities and progress."), "Loading copy must match the final timeline.");
+assert.ok(loading.includes("Loading your saved opportunities, deadlines, and progress."), "Loading copy must match the final Journey experience.");
 
 const durations: number[] = [];
 for (let index = 0; index < 80; index += 1) {

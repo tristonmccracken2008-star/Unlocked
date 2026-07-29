@@ -1,6 +1,6 @@
 import type { Opportunity } from "@/data/opportunities";
 import { getJourneyProfessionalActions, getJourneyProfessionalWorkflow, professionalStageById, resolveJourneyProfessionalStage, type JourneyProfessionalAction, type JourneyProfessionalWorkflow } from "@/data/journey-professional";
-import type { JourneyProgressTransition, OpportunityTrackerStatus, TrackedOpportunity } from "@/data/student-activity";
+import type { JourneyMilestoneDetails, JourneyProgressTransition, OpportunityTrackerStatus, TrackedOpportunity } from "@/data/student-activity";
 import { resolveOrganizationLogo, type ResolvedOrganizationLogo } from "@/data/organization-logos";
 import { schools } from "@/data/index";
 import type { AccountData, AuthUser } from "@/lib/account-types";
@@ -31,6 +31,7 @@ export type JourneyTimelineControl = {
   status: OpportunityTrackerStatus;
   version: number;
   actions: JourneyProfessionalAction[];
+  details?: JourneyMilestoneDetails;
   inactiveDays?: number;
 };
 

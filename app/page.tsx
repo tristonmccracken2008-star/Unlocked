@@ -49,6 +49,7 @@ export default async function Home({ searchParams }: { searchParams?: Promise<Re
       sort: first(query?.sort),
       query: first(query?.q),
       historyLimit: first(query?.history) === "100" ? 100 : 24,
+      activeLimit: first(query?.active) === "100" ? 100 : 6,
     });
     return <div data-unlocked-home="journey-command-center-v1">
       <JourneyCommandCenter model={model} />

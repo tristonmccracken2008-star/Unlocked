@@ -48,18 +48,18 @@ function documentsFrom(files: FileList | null): JourneyMilestoneDocumentReferenc
   }));
 }
 
-export function JourneyTimelineControl({ control }: { control: JourneyTimelineControl }) {
+export function JourneyTimelineControl({ control, compactLabel = "Update Journey", showFollowUp = true }: { control: JourneyTimelineControl; compactLabel?: string; showFollowUp?: boolean }) {
   const router = useRouter();
   const dialogRef = useRef<HTMLDialogElement>(null);
   const controllerRef = useRef<AbortController | null>(null);
   const pendingRef = useRef(false);
   const [selectedId, setSelectedId] = useState(control.actions[0]?.id ?? "");
   const [pending, setPending] = useState(false);
-  const [notes, setNotes] = useState("");
-  const [milestoneDate, setMilestoneDate] = useState("");
-  const [reminderAt, setReminderAt] = useState("");
-  const [reminderText, setReminderText] = useState("");
-  const [documents, setDocuments] = useState<JourneyMilestoneDocumentReference[]>([]);
+  const [notes, setNotes] = useState(control.details?.notes ?? "");
+  const [milestoneDate, setMilestoneDate] = useState(control.details?.milestoneDate ?? "");
+  const [reminderAt, setReminderAt] = useState(control.details?.reminderAt ? control.details.reminderAt.slice(0, 16) : "");
+  const [reminderText, setReminderText] = useState(control.details?.reminderText ?? "");
+  const [documents, setDocuments] = useState<JourneyMilestoneDocumentReference[]>(control.details?.documents ?? []);
   const [error, setError] = useState("");
   const [result, setResult] = useState<TransitionResponse | null>(null);
   const [followUpDismissed, setFollowUpDismissed] = useState(false);
@@ -151,10 +151,10 @@ export function JourneyTimelineControl({ control }: { control: JourneyTimelineCo
   }
 
   return <div className={styles.statusControl} data-journey-update-control="" data-opportunity-id={control.opportunityId}>
-    {control.inactiveDays && !followUpDismissed ? <aside className={styles.followUp} aria-label="Journey update reminder">
+    {showFollowUp && control.inactiveDays && !followUpDismissed ? <aside className={styles.followUp} aria-label="Journey update reminder">
       <p>You marked this as <strong>{control.workflow.stages[currentIndex]?.label ?? "active"}</strong> {control.inactiveDays} days ago.</p>
       <div><button type="button" onClick={() => open()}>Update Journey</button><button type="button" onClick={() => setFollowUpDismissed(true)}>Keep current stage</button><button type="button" onClick={() => open("archived")}>Archive</button></div>
-    </aside> : <button type="button" className={styles.updateJourneyButton} onClick={() => open()}>Update Journey</button>}
+    </aside> : <button type="button" className={styles.updateJourneyButton} onClick={() => open()}>{compactLabel}</button>}
 
     <dialog ref={dialogRef} className={styles.updateDialog} data-journey-update-dialog="" onCancel={(event) => { if (pending) event.preventDefault(); }} aria-labelledby={`journey-update-title-${control.opportunityId}`}>
       <div className={styles.updateDialogShell}>

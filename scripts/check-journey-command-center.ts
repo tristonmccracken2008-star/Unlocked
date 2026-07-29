@@ -58,7 +58,9 @@ for (const count of [5, 20, 50]) {
   const fixtures = opportunities.slice(0, count).map((item, index) => record(item.id, ["Saved", "Applying", "Submitted", "Interview", "Accepted"][index % 5] as OpportunityTrackerStatus, index));
   const model = buildJourneyCommandCenterModel({ user, account: account(fixtures), opportunities: opportunities.slice(0, count), now });
   assert.equal(model.activeCount, count, `${count}-record Journey must preserve every active record.`);
-  assert.equal(model.activeRecords.length, count, `${count}-record Journey must remain fully visible without history pagination.`);
+  assert.equal(model.activeRecords.length, Math.min(6, count), `${count}-record Journey must keep the first viewport bounded.`);
+  const expanded = buildJourneyCommandCenterModel({ user, account: account(fixtures), opportunities: opportunities.slice(0, count), now, activeLimit: 100 });
+  assert.equal(expanded.activeRecords.length, count, `${count}-record Journey must support server-side progressive disclosure.`);
 }
 
 const selected = opportunities.slice(0, 600);
@@ -77,16 +79,21 @@ for (let run = 0; run < 12; run += 1) {
 assert.equal(JSON.stringify(largeAccount), before, "Command-center projection must not mutate persisted Journey data.");
 assert.equal(largeModel.activeCount, 100);
 assert.equal(largeModel.historyCount, 500);
-assert.equal(largeModel.activeRecords.length, 100);
+assert.equal(largeModel.activeRecords.length, 6);
+assert.equal(largeModel.shownActiveCount, 6);
 assert.equal(largeModel.shownHistoryCount, 24);
 assert.equal(largeModel.historyGroups.flatMap((group) => group.records).length, 24);
-assert.ok(largeModel.attention.length > 0 && largeModel.attention.length <= 5, "Needs Attention must be useful and bounded.");
+assert.ok(largeModel.attention.length > 0 && largeModel.attention.length <= 3, "Things to do must be useful and bounded.");
 assert.ok(largeModel.attention.every((item) => item.reason.length > 10), "Every attention item must state why it appears.");
+assert.ok(largeModel.overview.length >= 1 && largeModel.overview.length <= 4, "Overview cards must hide unsupported states instead of rendering empty placeholders.");
+assert.equal(largeModel.overview.at(-1)?.id, "year", "The factual year summary must remain available.");
+const expandedLarge = buildJourneyCommandCenterModel({ user, account: largeAccount, opportunities: selected, now, activeLimit: 100 });
+assert.equal(expandedLarge.activeRecords.length, 100);
 
 const migration = auditJourneyProjection(largeAccount, largeModel);
 assert.deepEqual(migration, {
   sourceRecords: 600,
-  projectedInitialRecords: 124,
+  projectedInitialRecords: 30,
   activeRecords: 100,
   historicalRecords: 500,
   unavailableRecords: 0,
@@ -138,18 +145,32 @@ assert.equal(buildJourneyCommandCenterModel({
 
 const componentSource = readFileSync("components/journey-command-center.tsx", "utf8");
 const styleSource = readFileSync("components/journey-command-center.module.css", "utf8");
+const actionSource = readFileSync("components/journey-command-actions.tsx", "utf8");
+const addRouteSource = readFileSync("app/api/journey/add/route.ts", "utf8");
+const exportRouteSource = readFileSync("app/api/journey/export/route.ts", "utf8");
 assert.match(componentSource, /<main[\s\S]*data-journey-command-center/);
 assert.match(componentSource, /aria-label="Journey overview"/);
 assert.match(componentSource, /role="search"/);
 assert.match(componentSource, /<label htmlFor="journey-search"/);
 assert.match(componentSource, /<details[\s\S]*<summary>/);
 assert.match(componentSource, /aria-labelledby="active-opportunities-heading"/);
+assert.match(componentSource, /Things to do/);
+assert.match(componentSource, /JourneyCommandActions/);
 assert.doesNotMatch(componentSource, /draggable=|onDrag/, "Journey must not require drag and drop.");
 assert.match(styleSource, /min-height:\s*44px/);
 assert.match(styleSource, /@media\s*\(prefers-reduced-motion:\s*reduce\)/);
 assert.match(styleSource, /@media\s*\(forced-colors:\s*active\)/);
 assert.match(styleSource, /@media\s*\(max-width:\s*7\d{2}px\)/);
 assert.match(styleSource, /\[data-theme="dark"\]/);
+assert.match(actionSource, /\/api\/opportunities\?/);
+assert.match(actionSource, /\/api\/journey\/add/);
+assert.match(actionSource, /\/api\/journey\/export/);
+assert.match(actionSource, /Already in Journey/);
+assert.match(addRouteSource, /initialStage/);
+assert.match(addRouteSource, /assertSameOrigin/);
+assert.match(exportRouteSource, /getSession/);
+assert.match(exportRouteSource, /Content-Disposition/);
+assert.doesNotMatch(exportRouteSource, /session\.user\.email/, "Journey exports must not expose the account email.");
 
 timings.sort((a, b) => a - b);
 const average = timings.reduce((sum, value) => sum + value, 0) / timings.length;

@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdirSync } from "node:fs";
+import { mkdirSync, readFileSync } from "node:fs";
 import http from "node:http";
 import net from "node:net";
 import path from "node:path";
@@ -103,7 +103,8 @@ async function seed(label: string, mode: "empty" | "rich" | "heavy" | "alternate
     preferences: { appearance: pro ? "midnight" : "light", updatedAt: "2026-07-20T12:00:00.000Z" },
   });
   if (pro) await updateAccountBilling(user.id, { tier: "pro", status: "active", billingInterval: "month", cancelAtPeriodEnd: false });
-  return { session: await createSession(user), title: selected[0]?.title ?? "", searchTitle: selected.at(-1)?.title ?? "" };
+  const addCandidate = opportunities.find((item) => item.type === "Career" && !selected.some((selectedItem) => selectedItem.id === item.id));
+  return { session: await createSession(user), title: selected[0]?.title ?? "", searchTitle: selected.at(-1)?.title ?? "", addTitle: addCandidate?.title ?? "" };
 }
 
 async function install(context: BrowserContext, origin: string, token: string) {
@@ -194,13 +195,14 @@ try {
     const noErrors = observe(page, "Chromium desktop");
     await page.goto(origin, { waitUntil: "domcontentloaded" });
     const root = await baseAssertions(page, "Chromium desktop");
-    assert.equal(await root.locator("[aria-label='Journey overview'] > *").count(), 4);
+    assert.ok(await root.locator("[aria-label='Journey overview'] > *").count() >= 1);
+    assert.ok(await root.locator("[aria-label='Journey overview'] > *").count() <= 4);
     assert.ok(await root.locator("[data-journey-record]").count() >= 4);
-    assert.ok(await root.getByRole("heading", { name: "Needs attention" }).count() <= 1);
+    assert.ok(await root.getByRole("heading", { name: /Things to do/ }).count() <= 1);
     const firstRecord = root.locator("[data-journey-record]").filter({ hasText: rich.title }).first();
-    await firstRecord.getByText("View details", { exact: true }).click();
-    await firstRecord.getByText("Private command-center note.").waitFor();
-    await firstRecord.getByRole("button", { name: "Update Journey" }).click();
+    await firstRecord.locator(`summary[aria-label="More actions and details for ${rich.title}"]`).click();
+    await firstRecord.getByRole("paragraph").filter({ hasText: "Private command-center note." }).waitFor();
+    await firstRecord.getByRole("button", { name: "Update", exact: true }).click();
     const dialog = page.locator("dialog[data-journey-update-dialog][open]");
     await dialog.waitFor({ state: "visible" });
     await dialog.getByText("Choose a different stage", { exact: true }).click();
@@ -209,13 +211,44 @@ try {
     await dialog.getByText("Journey updated", { exact: true }).waitFor();
     await dialog.getByRole("button", { name: "Return to Journey" }).click();
     await page.getByText("Application submitted", { exact: true }).first().waitFor();
-    await page.getByLabel("Search Journey").fill(rich.searchTitle);
+    await page.locator('summary[aria-label="Search Journey"]').click();
+    await page.locator("input#journey-search").fill(rich.searchTitle);
     await page.getByRole("button", { name: "Search", exact: true }).click();
     await page.waitForURL(/q=/);
     await page.locator("[data-journey-command-center] [data-journey-record]").first().waitFor({ state: "visible" });
     assert.ok(await page.locator("[data-journey-record]").count() >= 1);
+    await page.goto(origin, { waitUntil: "domcontentloaded" });
+    await page.locator("[data-journey-command-center]").waitFor({ state: "visible" });
     await page.screenshot({ path: path.join(output, "journey-command-desktop.png"), fullPage: true });
     await assertJourneyCard(page);
+    const [exportDownload] = await Promise.all([
+      page.waitForEvent("download"),
+      page.getByRole("button", { name: "Export data" }).click(),
+    ]);
+    const exportPath = await exportDownload.path();
+    assert.ok(exportPath, "Journey data export must create a downloadable file.");
+    const exported = readFileSync(exportPath!, "utf8");
+    assert.match(exported, /Private command-center note/);
+    assert.doesNotMatch(exported, /@example\.test/, "Journey export must not expose the account email.");
+    await page.getByRole("button", { name: "Add opportunity" }).click();
+    const addDialog = page.locator("dialog").filter({ has: page.getByRole("heading", { name: "Add an opportunity" }) });
+    await addDialog.waitFor({ state: "visible" });
+    await addDialog.getByLabel("Search the opportunity catalog").fill(rich.addTitle);
+    await addDialog.getByRole("button", { name: "Search", exact: true }).click();
+    await addDialog.getByText(rich.addTitle, { exact: true }).waitFor();
+    await addDialog.getByText(rich.addTitle, { exact: true }).click();
+    await addDialog.getByLabel("Starting stage").selectOption("applied");
+    await addDialog.getByRole("button", { name: "Add to Journey" }).click();
+    await addDialog.waitFor({ state: "hidden" });
+    await page.goto(`${origin}/?q=${encodeURIComponent(rich.addTitle)}`, { waitUntil: "domcontentloaded" });
+    const addedRecord = page.locator("[data-journey-record]").filter({ hasText: rich.addTitle }).first();
+    await addedRecord.waitFor({ state: "visible" });
+    await addedRecord.locator('span[data-stage="applied"]').filter({ hasText: "Application submitted" }).waitFor();
+    await page.getByRole("button", { name: "Add opportunity" }).click();
+    await addDialog.getByLabel("Search the opportunity catalog").fill(rich.addTitle);
+    await addDialog.getByRole("button", { name: "Search", exact: true }).click();
+    await addDialog.getByText("Already in Journey", { exact: true }).waitFor();
+    await addDialog.getByRole("button", { name: "Close Add opportunity" }).click();
     noErrors();
     await context.close();
   }
@@ -225,10 +258,10 @@ try {
     const page = await context.newPage();
     await page.goto(origin, { waitUntil: "domcontentloaded" });
     const root = await baseAssertions(page, "Chromium heavy tablet");
-    assert.equal(await root.locator("[data-journey-record]").count(), 124, "Initial render must include 100 active and only 24 historical records.");
-    assert.equal(await root.getByText("500", { exact: true }).count() >= 1, true);
-    await root.getByText("History", { exact: true }).click();
-    await root.getByText("Show more History", { exact: false }).waitFor();
+    assert.equal(await root.locator("[data-journey-record]").count(), 30, "Initial render must include 6 active and only 24 historical records.");
+    assert.equal(await root.getByText("500 records", { exact: true }).count() >= 1, true);
+    await root.getByText("500 records", { exact: true }).click();
+    await root.getByText("View all history", { exact: true }).waitFor();
     const pageHeight = await page.evaluate(() => document.documentElement.scrollHeight);
     assert.ok(pageHeight < 55_000, `Bounded initial Journey should avoid an excessive page height; received ${pageHeight}px.`);
     await context.close();
@@ -242,9 +275,9 @@ try {
     const root = await baseAssertions(page, "WebKit mobile dark");
     assert.equal(await root.getAttribute("data-theme"), "dark");
     const record = root.locator("[data-journey-record]").first();
-    await record.getByText("View details", { exact: true }).press("Enter");
-    await record.getByText("Public listing", { exact: true }).waitFor();
     await page.screenshot({ path: path.join(output, "journey-command-mobile.png"), fullPage: true });
+    await record.locator("summary[aria-label^='More actions and details']").press("Enter");
+    await record.getByText("Public listing", { exact: true }).waitFor();
     noErrors();
     await context.close();
   }
