@@ -192,7 +192,7 @@ async function runBrowser(browserType: BrowserType, engine: string, origin: stri
   await installSession(cookiePage, origin, navigationSession.token);
   await cookiePage.close();
   const navigationMs: Record<string, number> = {};
-  for (const [label, target] of [["Discover", "/opportunities"], ["For You", "/advisor"], ["Journey", "/"], ["Refer", "/referral"]] as const) {
+  for (const [label, target] of [["Discover", "/opportunities"], ["For You", "/advisor"], ["Journey", "/"]] as const) {
     const navigationPage = await context.newPage();
     observeConsole(navigationPage, `navigation:${label}`);
     navigationMs[label] = await verifyNavigation(navigationPage, origin, label, target, viewportName);

@@ -1,5 +1,5 @@
 export default function JourneyLoading() {
-  return <main className="min-h-[70vh] bg-[#f6f0e6] px-5 py-14 sm:py-24" aria-busy="true" aria-label="Loading your Journey">
+  return <main className="min-h-[70vh] bg-paper px-5 py-14 sm:py-24" aria-busy="true" aria-label="Loading your Journey">
     <div className="mx-auto w-full max-w-[52rem] animate-pulse motion-reduce:animate-none">
       <div className="h-3 w-20 rounded-full bg-forest/12" />
       <div className="mt-5 h-14 w-4/5 max-w-xl rounded-xl bg-ink/8 sm:h-20" />

@@ -2,9 +2,11 @@
 
 import { useMemo, useState } from "react";
 import { aiOfferLabels, aiOfferTypes, aiToolCategories, aiTools, type AIOfferType, type AIToolCategory } from "@/data/ai-tools";
+import { getOpportunity } from "@/data/opportunities";
+import { resolveOpportunityLifecycle } from "@/data/opportunity-lifecycle";
 import { ArrowIcon, SearchIcon } from "./icons";
 import { AddToJourneyButton } from "./opportunity-activity";
-import { StatusBadge } from "./status-badge";
+import { LifecycleBadge, StatusBadge } from "./status-badge";
 import { rankOpportunities, type RecommendationProfile } from "@/data/recommendations";
 
 const offerFilterLabels: Record<(typeof aiOfferTypes)[number], string> = { All: "All access types", ...aiOfferLabels };
@@ -26,12 +28,12 @@ export function AIToolsSection({ profile }: { profile: RecommendationProfile }) 
       <label className="flex h-14 items-center justify-between gap-3 border-t border-ink/20 px-4 lg:border-l lg:border-t-0"><span className="rule-label text-ink/40">Category</span><select value={category} onChange={(event)=>setCategory(event.target.value as AIToolCategory | "All")} className="min-w-0 bg-transparent text-sm font-bold outline-none">{aiToolCategories.map((item)=><option key={item}>{item}</option>)}</select></label>
       <label className="flex h-14 items-center justify-between gap-3 border-t border-ink/20 px-4 lg:border-l lg:border-t-0"><span className="rule-label text-ink/40">Access</span><select value={offerType} onChange={(event)=>setOfferType(event.target.value as AIOfferType | "All")} className="min-w-0 bg-transparent text-sm font-bold outline-none">{aiOfferTypes.map((item)=><option key={item} value={item}>{offerFilterLabels[item]}</option>)}</select></label>
     </div>
-    <div className="border-b-2 border-ink">{visible.map((tool,index)=><article key={tool.slug} className="grid gap-4 border-b border-ink/20 bg-white px-4 py-5 last:border-b-0 lg:grid-cols-[36px_1fr_210px_150px] lg:items-start">
+    <div className="border-b-2 border-ink">{visible.map((tool,index)=>{const opportunity=getOpportunity(tool.opportunityId);const lifecycle=opportunity?resolveOpportunityLifecycle(opportunity):null;return <article key={tool.slug} className="grid gap-4 border-b border-ink/20 bg-white px-4 py-5 last:border-b-0 lg:grid-cols-[36px_1fr_210px_150px] lg:items-start">
       <span className="hidden pt-1 font-mono text-xs text-ink/30 lg:block">{String(index+1).padStart(2,"0")}</span>
-      <div><div className="flex flex-wrap items-center gap-3"><span className="rule-label text-forest">{tool.category}</span><StatusBadge status={tool.verificationStatus}/></div><h3 className="mt-2 font-editorial text-xl font-bold">{tool.name}</h3><p className="mt-1 text-xs font-bold uppercase tracking-wider text-ink/35">{tool.company}</p><p className="mt-3 text-sm leading-6 text-ink/55">{tool.description}</p><p className="mt-3 text-sm leading-6"><span className="font-bold">Student offer:</span> {tool.studentOffer}</p><p className="mt-1 text-xs leading-5 text-ink/45"><span className="font-bold">Eligibility:</span> {tool.eligibility}</p></div>
+      <div><div className="flex flex-wrap items-center gap-3"><span className="rule-label text-forest">{tool.category}</span>{lifecycle?<LifecycleBadge state={lifecycle.displayState} confidence={lifecycle.confidence} label={lifecycle.label}/>:<StatusBadge status={tool.verificationStatus}/>}</div><h3 className="mt-2 font-editorial text-xl font-bold">{tool.name}</h3><p className="mt-1 text-xs font-bold uppercase tracking-wider text-ink/35">{tool.company}</p><p className="mt-3 text-sm leading-6 text-ink/55">{tool.description}</p><p className="mt-3 text-sm leading-6"><span className="font-bold">Student offer:</span> {tool.studentOffer}</p><p className="mt-1 text-xs leading-5 text-ink/45"><span className="font-bold">Eligibility:</span> {tool.eligibility}</p></div>
       <div className="border-t border-ink/15 pt-4 lg:border-l lg:border-t-0 lg:pl-4 lg:pt-0"><p className="rule-label text-ink/35">Access type</p><p className="mt-2 text-sm font-bold text-forest">{aiOfferLabels[tool.offerType]}</p><p className="mt-5 rule-label text-ink/35">Estimated value</p><p className="mt-2 text-sm font-bold">{tool.estimatedAnnualValue===null?"Unknown":new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",maximumFractionDigits:0}).format(tool.estimatedAnnualValue)}</p></div>
-      <div className="lg:text-right"><p className="text-xs text-ink/40">Last verified {tool.lastVerifiedAt}</p><AddToJourneyButton opportunityId={tool.opportunityId} className="mt-4 w-full border border-ink/15 px-4 text-ink/55 hover:border-forest hover:text-forest lg:w-auto"/><a href={tool.officialSourceUrl} target="_blank" rel="noreferrer" className="mt-3 inline-flex min-h-11 items-center gap-2 border-b border-ink pb-1 text-xs font-bold uppercase tracking-wider hover:border-forest hover:text-forest">Official source <ArrowIcon /></a></div>
-    </article>)}</div>
+      <div className="lg:text-right"><p className="text-xs text-ink/40">Reviewed {tool.lastVerifiedAt}</p><AddToJourneyButton opportunityId={tool.opportunityId} className="mt-4 w-full border border-ink/15 px-4 text-ink/55 hover:border-forest hover:text-forest lg:w-auto"/>{lifecycle?.actionAllowed!==false?<a href={tool.officialSourceUrl} target="_blank" rel="noreferrer" className="mt-3 inline-flex min-h-11 items-center gap-2 border-b border-ink pb-1 text-xs font-bold uppercase tracking-wider hover:border-forest hover:text-forest">Official source <ArrowIcon /><span className="sr-only">(opens in a new tab)</span></a>:<p className="mt-3 text-xs font-bold text-ink/45">Official link needs review</p>}</div>
+    </article>})}</div>
     {visible.length===0&&<div className="border-b-2 border-ink bg-white py-12 text-center"><p className="font-editorial text-2xl font-bold">No matching AI tools</p><p className="mt-2 text-sm text-ink/45">Try another search or filter.</p></div>}
   </section>;
 }

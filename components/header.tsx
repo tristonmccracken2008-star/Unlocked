@@ -8,7 +8,7 @@ import { accountSessionEvent, readAccountSession } from "@/data/account-sync";
 import type { AccountSession } from "@/lib/account-types";
 import { NotificationNavButton } from "./notification-nav-button";
 
-const destinations = [["Discover", "/opportunities"], ["For You", "/advisor"], ["Journey", "/"], ["Refer", "/referral"]] as const;
+const destinations = [["Discover", "/opportunities"], ["For You", "/advisor"], ["Journey", "/"]] as const;
 
 function isServerProtectedProductPath(pathname: string) {
   return pathname === "/advisor"
@@ -78,7 +78,7 @@ export function Header() {
         </div>
       </div>
     </header>
-    <nav aria-label="Mobile navigation" className="fixed inset-x-4 bottom-4 z-40 grid grid-cols-4 rounded-full bg-ink/95 p-1 text-xs font-bold text-white shadow-[0_20px_60px_rgba(43,33,26,.24)] backdrop-blur sm:hidden">
+    <nav aria-label="Mobile navigation" className="fixed inset-x-4 bottom-[max(1rem,env(safe-area-inset-bottom))] z-40 grid grid-cols-3 rounded-full bg-ink/95 p-1 text-xs font-bold text-white shadow-[0_20px_60px_rgba(43,33,26,.24)] backdrop-blur sm:hidden">
       {destinations.map(([label, href]) => navigationLink(label, href, true))}
     </nav>
   </>;

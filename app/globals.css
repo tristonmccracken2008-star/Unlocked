@@ -71,6 +71,8 @@ button, input, select, textarea { font: inherit; }
 .rule-label { font-size: .67rem; font-weight: 750; letter-spacing: .135em; line-height: 1.4; text-transform: uppercase; }
 .scrollbar-none::-webkit-scrollbar { display: none; }
 .scrollbar-none { scrollbar-width: none; }
+.skip-link { position: fixed; left: 1rem; top: 1rem; z-index: 100; min-height: 2.75rem; transform: translateY(-6rem); border-radius: 999px; background: rgb(var(--color-forest)); padding: .7rem 1rem; color: white; font-size: .875rem; font-weight: 750; box-shadow: 0 12px 32px rgb(0 0 0 / .2); }
+.skip-link:focus { transform: translateY(0); }
 .prose-copy h2 { font-size: 1.25rem; font-weight: 800; letter-spacing: -0.02em; }
 .prose-copy p { margin-top: .65rem; color: rgb(43 33 26 / .62); line-height: 1.75; }
 .input { min-height: 2.75rem; width: 100%; border: 1px solid var(--unlocked-border); background: var(--unlocked-surface); color: var(--unlocked-text); padding-inline: .75rem; font-size: .875rem; outline: none; }

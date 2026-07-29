@@ -327,13 +327,12 @@ try {
   {
     const context = await chromiumBrowser.newContext({ viewport: { width: 390, height: 844 } });
     const page = await context.newPage();
-    const sessionReady = page.waitForResponse((response) => response.url().includes("/api/auth/session") && response.status() === 200);
     await page.goto(`${origin}/pricing`, { waitUntil: "domcontentloaded" });
-    await sessionReady;
-    await page.waitForTimeout(100);
-    await page.getByRole("button", { name: "Upgrade to Monthly" }).click();
-    await page.getByText("Sign in to upgrade to UnlockED Pro.", { exact: true }).waitFor({ state: "visible" });
-    assert.equal(new URL(page.url()).pathname, "/pricing");
+    const monthly = page.getByRole("link", { name: "Sign in to choose monthly" });
+    const annual = page.getByRole("link", { name: "Sign in to choose annual" });
+    await monthly.waitFor({ state: "visible" });
+    assert.equal(await monthly.getAttribute("href"), "/api/auth/google");
+    assert.equal(await annual.getAttribute("href"), "/api/auth/google");
     await context.close();
   }
   {
@@ -356,7 +355,7 @@ try {
     await mockCheckout(context, "pro_annual", { status: 502, body: { error: "We couldn’t start checkout. Please try again.", code: "checkout_failed" } });
     const page = await context.newPage();
     const billingReady = page.waitForResponse((response) => response.url().includes("/api/billing/config") && response.status() === 200);
-    await page.goto(`${origin}/profile`, { waitUntil: "domcontentloaded" });
+    await page.goto(`${origin}/profile#billing`, { waitUntil: "domcontentloaded" });
     await billingReady;
     await page.getByRole("button", { name: "Upgrade Annual" }).waitFor({ state: "visible" });
     await page.getByRole("button", { name: "Upgrade Annual" }).click();

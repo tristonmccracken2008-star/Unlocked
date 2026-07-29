@@ -18,7 +18,10 @@ export const dynamic = "force-dynamic";
 export default async function Home() {
   const session = await getServerSessionForProduct();
   if (!session || !accountHasCompletedOnboarding(session.data) || !session.data.profile) {
-    return <div data-unlocked-home="public-or-onboarding-v1"><PersonalizedHome /></div>;
+    const initialSession = session
+      ? { authenticated: true, user: session.user, data: session.data }
+      : { authenticated: false, user: null, data: null };
+    return <div data-unlocked-home="public-or-onboarding-v1"><PersonalizedHome initialSession={initialSession} /></div>;
   }
 
   const trackedIds = [...new Set([

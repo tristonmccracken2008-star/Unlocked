@@ -91,18 +91,24 @@ async function exercise(browser: Browser, origin: string, token: string, name: s
   assert.equal(await page.locator("#first-name").inputValue(), name);
   for (const section of ["Profile", "Interests", "Notifications", "Privacy", "Appearance", "Plan and billing", "Data and account"]) assert.ok(await page.getByRole("button", { name: section, exact: true }).isVisible());
 
+  await page.goto(`${origin}/profile#billing`, { waitUntil: "domcontentloaded" });
+  await page.getByRole("heading", { name: pro ? "UnlockED Pro" : "UnlockED Free" }).waitFor();
+  assert.equal(await page.getByRole("button", { name: "Plan and billing", exact: true }).getAttribute("aria-current"), "page");
+  await page.goBack({ waitUntil: "domcontentloaded" });
+  await page.getByRole("heading", { name: "The facts that shape your matches." }).waitFor();
+
   await page.getByRole("button", { name: "Interests", exact: true }).click();
   await page.getByRole("heading", { name: "Tell For You what to prioritize." }).waitFor();
   await page.getByRole("button", { name: "Internships", exact: true }).click();
   await page.getByRole("button", { name: "Save interests" }).click();
-  await page.getByText("Changes saved.").waitFor();
+  await page.getByText("Opportunity interests saved.").waitFor();
 
   await page.getByRole("button", { name: "Privacy", exact: true }).click();
   await page.getByRole("heading", { name: "Private by default." }).waitFor();
   const school = page.getByRole("checkbox", { name: /Include school/ });
   await school.check();
   await page.getByRole("button", { name: "Save privacy defaults" }).click();
-  await page.getByText("Changes saved.").waitFor();
+  await page.getByText("Journey Card privacy defaults saved.").waitFor();
 
   await page.getByRole("button", { name: "Appearance", exact: true }).click();
   const midnight = page.getByRole("button", { name: /Midnight/ });
@@ -155,7 +161,8 @@ try {
   await page.getByRole("button", { name: "Start account deletion" }).click();
   await page.getByLabel("Type DELETE to confirm").fill("DELETE");
   await page.getByRole("button", { name: "Permanently delete account" }).click();
-  await page.waitForURL(`${origin}/?account=deleted`, { timeout: 30_000 });
+  await page.getByText("Your UnlockED account and associated data were deleted.").waitFor({ timeout: 30_000 });
+  await page.waitForURL(`${origin}/`, { timeout: 30_000 });
   const { getSession } = await import("../lib/auth-store");
   assert.equal(await getSession(deletion.session.token), null);
   await context.close();

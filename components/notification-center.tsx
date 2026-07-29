@@ -159,7 +159,9 @@ export function NotificationCenter() {
             </div>
             <div className="flex items-center gap-2 pl-6 sm:pl-0">
               <Link href={item.actionHref} onClick={() => {
-                void updateNotification("acted", item.id).then(() => window.dispatchEvent(new Event("unlocked:notifications-updated")));
+                void updateNotification("acted", item.id)
+                  .then(() => window.dispatchEvent(new Event("unlocked:notifications-updated")))
+                  .catch(() => setError("The update opened, but its notification state could not be saved."));
               }} className="inline-flex min-h-11 items-center rounded-full bg-forest px-4 text-sm font-bold text-white hover:bg-ink">{item.actionLabel}</Link>
               {!item.readAt ? <button type="button" onClick={async () => {
                 const previous = items;

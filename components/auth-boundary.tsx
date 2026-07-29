@@ -15,6 +15,6 @@ export function AuthBoundary({children}:{children:React.ReactNode}){
   useEffect(()=>{if(!requiresAuth||!session)return;if(!session.authenticated){clearLocalDashboardState();router.replace("/");return}const profile=session.data?.profile??readCompletedStudentProfile();if(requiresProfile&&!profile)router.replace("/")},[requiresAuth,requiresProfile,router,session]);
   if(!requiresAuth)return children;
   const profile=session?.data?.profile??(typeof window!=="undefined"?readCompletedStudentProfile():null);
-  if(!session?.authenticated||(requiresProfile&&!profile))return <main className="min-h-[65vh] px-5 py-16 sm:px-8"><div className="mx-auto max-w-5xl"><p className="rule-label text-forest">UnlockED</p><h1 className="mt-3 font-editorial text-3xl font-bold">Preparing your workspace.</h1><p className="mt-3 text-sm text-ink/45">Checking your account and saved profile.</p></div></main>;
+  if(!session?.authenticated||(requiresProfile&&!profile))return <main className="min-h-[65vh] px-5 py-16 sm:px-8" aria-busy="true" aria-label="Preparing your private workspace"><div className="mx-auto max-w-5xl animate-pulse motion-reduce:animate-none"><p className="rule-label text-forest">UnlockED</p><div className="mt-4 h-10 max-w-md rounded-lg bg-ink/8"/><div className="mt-4 h-4 max-w-sm rounded-full bg-ink/8"/><p className="sr-only" role="status" aria-live="polite">Checking your account and saved profile.</p></div></main>;
   return children;
 }

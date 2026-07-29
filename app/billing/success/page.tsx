@@ -23,7 +23,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
       {checkout?.id && <p className="mt-4 rounded-2xl bg-paper px-4 py-3 text-xs font-bold text-ink/45">Checkout session verified. Access is controlled by Stripe webhook confirmation.</p>}
       <div className="mt-8 flex flex-col gap-3 sm:flex-row">
         <Link href="/advisor" className="inline-flex min-h-12 items-center justify-center rounded-full bg-forest px-6 text-sm font-bold text-white hover:bg-ink">Open For You</Link>
-        <Link href="/profile" className="inline-flex min-h-12 items-center justify-center rounded-full border border-ink/15 px-6 text-sm font-bold text-ink/60 hover:border-forest hover:text-forest">Open billing</Link>
+        <Link href="/profile#billing" className="inline-flex min-h-12 items-center justify-center rounded-full border border-ink/15 px-6 text-sm font-bold text-ink/60 hover:border-forest hover:text-forest">Open billing</Link>
       </div>
     </section>
   </main>;

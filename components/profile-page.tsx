@@ -30,6 +30,7 @@ const sections = [
   ["data", "Data and account"],
 ] as const;
 type SectionId = (typeof sections)[number][0];
+type SavePreferences = (patch: Partial<UserPreferencesRecord>, successMessage?: string) => Promise<boolean>;
 
 type BillingAvailability = {
   checkoutConfigured: boolean;
@@ -61,6 +62,21 @@ function readableError(status: number, fallback: string) {
   return fallback;
 }
 
+function sectionFromHash(hash: string): SectionId {
+  const candidate = hash.replace(/^#/, "");
+  return sections.some(([id]) => id === candidate) ? candidate as SectionId : "profile";
+}
+
+function billingReturnMessage(code: string | null) {
+  if (code === "returned") return { message: "You returned from Stripe. Your confirmed billing status is shown below.", error: "" };
+  if (code === "already-pro") return { message: "UnlockED Pro is already active on this account.", error: "" };
+  if (code === "portal-unavailable") return { message: "", error: "Stripe billing is temporarily unavailable. Your current plan is unchanged." };
+  if (code === "portal-failed") return { message: "", error: "We couldn’t open Stripe billing. Your current plan is unchanged." };
+  if (code === "not-configured") return { message: "", error: "Checkout is temporarily unavailable. Your current plan is unchanged." };
+  if (code === "checkout-failed") return { message: "", error: "We couldn’t start checkout. Your current plan is unchanged." };
+  return null;
+}
+
 export function ProfilePage() {
   const [profile, setProfile] = useState<StudentProfile | null | undefined>(undefined);
   const [session, setSession] = useState<AccountSession | null>(null);
@@ -90,14 +106,15 @@ export function ProfilePage() {
   useEffect(() => {
     const accountChanged = (event: Event) => {
       const next = (event as CustomEvent<AccountSession>).detail;
-      const changedIdentity = accountId.current !== (next.user?.id ?? null);
+      const priorAccountId = accountId.current;
+      const changedIdentity = priorAccountId !== (next.user?.id ?? null);
       accountId.current = next.user?.id ?? null;
       setSession(next);
       setProfile(next.data?.profile ?? null);
       if (changedIdentity) {
         setMessage("");
         setError("");
-        setActive("profile");
+        setActive(priorAccountId ? "profile" : sectionFromHash(window.location.hash));
       }
     };
     window.addEventListener(accountSessionEvent, accountChanged);
@@ -108,6 +125,28 @@ export function ProfilePage() {
     if (session?.authenticated) trackProductEvent("account_center_viewed");
   }, [session?.authenticated]);
 
+  useEffect(() => {
+    const syncFromUrl = () => {
+      const url = new URL(window.location.href);
+      const billingReturn = billingReturnMessage(url.searchParams.get("billing"));
+      const section = billingReturn ? "billing" : sectionFromHash(url.hash);
+      setActive(section);
+      if (!billingReturn) return;
+      setMessage(billingReturn.message);
+      setError(billingReturn.error);
+      url.searchParams.delete("billing");
+      url.hash = "billing";
+      window.history.replaceState(window.history.state, "", `${url.pathname}${url.search}${url.hash}`);
+    };
+    syncFromUrl();
+    window.addEventListener("hashchange", syncFromUrl);
+    window.addEventListener("popstate", syncFromUrl);
+    return () => {
+      window.removeEventListener("hashchange", syncFromUrl);
+      window.removeEventListener("popstate", syncFromUrl);
+    };
+  }, []);
+
   async function refresh() {
     const next = await hydrateAccountData();
     setSession(next);
@@ -115,7 +154,7 @@ export function ProfilePage() {
     return next;
   }
 
-  async function savePreferences(patch: Partial<UserPreferencesRecord>) {
+  async function savePreferences(patch: Partial<UserPreferencesRecord>, successMessage = "Account preferences saved.") {
     setError("");
     setMessage("");
     const updatedAt = new Date().toISOString();
@@ -130,7 +169,7 @@ export function ProfilePage() {
       else if (typeof patch.useActivityForRecommendations === "boolean") trackProductEvent("recommendation_learning_changed");
       else if (patch.privacy) trackProductEvent("privacy_settings_updated");
       else if (patch.appearance || patch.reducedMotion) trackProductEvent("appearance_changed");
-      setMessage("Changes saved.");
+      setMessage(successMessage);
       return true;
     } catch {
       setError("We couldn’t save this change. Your previous setting is unchanged.");
@@ -151,12 +190,12 @@ export function ProfilePage() {
           <h1 className="mt-2 font-editorial text-4xl font-bold tracking-[-.03em] sm:text-5xl">Your account, clearly organized.</h1>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-ink/50">Manage the private information and preferences that shape your UnlockED experience.</p>
         </div>
-        <AccountButton compact />
+        <div className="flex flex-wrap items-center justify-end gap-3"><Link href="/referral" className="inline-flex min-h-11 items-center text-sm font-bold text-forest hover:text-ink">Referrals</Link><AccountButton compact /></div>
       </header>
 
       <div className="mt-7 grid gap-8 lg:grid-cols-[13rem_minmax(0,1fr)]">
         <nav aria-label="Account sections" className="-mx-1 flex gap-1 overflow-x-auto px-1 pb-2 lg:sticky lg:top-24 lg:mx-0 lg:h-fit lg:flex-col lg:overflow-visible lg:px-0">
-          {sections.map(([id, label]) => <button key={id} type="button" aria-current={active === id ? "page" : undefined} onClick={() => { setActive(id); setError(""); setMessage(""); }} className={`min-h-11 shrink-0 rounded-md px-4 text-left text-sm font-bold transition-colors ${active === id ? "bg-forest text-white" : "text-ink/50 hover:bg-ink/5 hover:text-ink"}`}>{label}</button>)}
+          {sections.map(([id, label]) => <button key={id} type="button" aria-current={active === id ? "page" : undefined} onClick={() => { setActive(id); setError(""); setMessage(""); window.history.pushState(window.history.state, "", `${window.location.pathname}#${id}`); }} className={`min-h-11 shrink-0 rounded-md px-4 text-left text-sm font-bold transition-colors ${active === id ? "bg-forest text-white" : "text-ink/50 hover:bg-ink/5 hover:text-ink"}`}>{label}</button>)}
         </nav>
 
         <section aria-labelledby={`${active}-heading`} className="min-w-0">
@@ -202,7 +241,7 @@ function ProfileSection({ profile, session, onSaved }: { profile: StudentProfile
   </div>;
 }
 
-function InterestsSection({ session, profile, savePreferences, onReset }: { session: AccountSession; profile: StudentProfile | null; savePreferences: (patch: Partial<UserPreferencesRecord>) => Promise<boolean>; onReset: () => Promise<void> }) {
+function InterestsSection({ session, profile, savePreferences, onReset }: { session: AccountSession; profile: StudentProfile | null; savePreferences: SavePreferences; onReset: () => Promise<void> }) {
   const initial = session.data?.preferences?.preferredTypes ?? profile?.preferredOpportunityTypes ?? [];
   const [selected, setSelected] = useState(initial);
   const [resetOpen, setResetOpen] = useState(false);
@@ -215,18 +254,18 @@ function InterestsSection({ session, profile, savePreferences, onReset }: { sess
         const checked = selected.includes(item);
         return <button key={item} type="button" aria-pressed={checked} onClick={() => setSelected((current) => checked ? current.filter((value) => value !== item) : [...current, item])} className={`min-h-11 rounded-full border px-4 text-sm font-bold ${checked ? "border-forest bg-forest text-white" : "border-ink/15 text-ink/55 hover:border-forest hover:text-forest"}`}>{item}</button>;
       })}</div>
-      <button type="button" onClick={() => void savePreferences({ preferredTypes: selected })} className="mt-6 min-h-11 rounded-full bg-forest px-5 text-sm font-bold text-white hover:bg-ink">Save interests</button>
+      <button type="button" onClick={() => void savePreferences({ preferredTypes: selected }, "Opportunity interests saved.")} className="mt-6 min-h-11 rounded-full bg-forest px-5 text-sm font-bold text-white hover:bg-ink">Save interests</button>
     </fieldset>
     <div className="mt-10 border-t border-ink/12 pt-7">
       <h3 className="font-editorial text-2xl font-bold">Learned signals</h3>
       <p className="mt-2 max-w-2xl text-sm leading-6 text-ink/50">UnlockED can use recent views, saves, Journey activity, and feedback to refine ranking. It does not infer sensitive personal traits.</p>
-      <SettingToggle checked={useActivity} label="Use my activity to improve For You" description={useActivity ? "Your recent UnlockED activity can refine recommendations." : "Browsing and feedback no longer affect ranking. Saved and Journey status still prevent duplicate or outdated suggestions."} onChange={(checked) => void savePreferences({ useActivityForRecommendations: checked })} />
+      <SettingToggle checked={useActivity} label="Use my activity to improve For You" description={useActivity ? "Your recent UnlockED activity can refine recommendations." : "Browsing and feedback no longer affect ranking. Saved and Journey status still prevent duplicate or outdated suggestions."} onChange={(checked) => void savePreferences({ useActivityForRecommendations: checked }, checked ? "Activity-based personalization enabled." : "Activity-based personalization disabled.")} />
       {!resetOpen ? <button type="button" onClick={() => setResetOpen(true)} className="mt-5 min-h-11 text-sm font-bold text-forest hover:text-ink">Reset For You learning</button> : <div className="mt-5 rounded-md border border-ink/15 p-5"><p className="text-sm leading-6 text-ink/60">This clears learned recommendation signals and dismissal history. Your profile, interests, saved opportunities, Journey, and billing remain unchanged.</p><div className="mt-4 flex flex-wrap gap-3"><button type="button" onClick={() => void onReset().finally(() => setResetOpen(false))} className="min-h-11 rounded-full bg-ink px-5 text-sm font-bold text-white">Confirm reset</button><button type="button" onClick={() => setResetOpen(false)} className="min-h-11 px-4 text-sm font-bold text-ink/50">Cancel</button></div></div>}
     </div>
   </div>;
 }
 
-function PrivacySection({ session, savePreferences }: { session: AccountSession; savePreferences: (patch: Partial<UserPreferencesRecord>) => Promise<boolean> }) {
+function PrivacySection({ session, savePreferences }: { session: AccountSession; savePreferences: SavePreferences }) {
   const [privacy, setPrivacy] = useState(session.data?.preferences?.privacy ?? defaultPrivacy());
   const card = privacy.journeyCard;
   const updateCard = <K extends keyof typeof card>(key: K, value: (typeof card)[K]) => setPrivacy((current) => ({ ...current, journeyCard: { ...current.journeyCard, [key]: value } }));
@@ -249,11 +288,11 @@ function PrivacySection({ session, savePreferences }: { session: AccountSession;
       <SettingToggle checked={card.includeDate} label="Include dates" description="Show milestone or period dates." onChange={(checked) => updateCard("includeDate", checked)} />
       <SettingToggle checked={card.includeBranding} label="Include UnlockED branding" description="Keep the subtle UnlockED attribution on exported cards." onChange={(checked) => updateCard("includeBranding", checked)} />
     </div>
-    <button type="button" onClick={() => void savePreferences({ privacy })} className="mt-6 min-h-11 rounded-full bg-forest px-5 text-sm font-bold text-white hover:bg-ink">Save privacy defaults</button>
+    <button type="button" onClick={() => void savePreferences({ privacy }, "Journey Card privacy defaults saved.")} className="mt-6 min-h-11 rounded-full bg-forest px-5 text-sm font-bold text-white hover:bg-ink">Save privacy defaults</button>
   </div>;
 }
 
-function AppearanceSection({ session, savePreferences }: { session: AccountSession; savePreferences: (patch: Partial<UserPreferencesRecord>) => Promise<boolean> }) {
+function AppearanceSection({ session, savePreferences }: { session: AccountSession; savePreferences: SavePreferences }) {
   const pro = isProUser(session.data?.billing);
   const appearance = session.data?.preferences?.appearance ?? "light";
   const reducedMotion = session.data?.preferences?.reducedMotion ?? "system";
@@ -262,18 +301,25 @@ function AppearanceSection({ session, savePreferences }: { session: AccountSessi
     <div className="mt-8 flex flex-wrap gap-3">{(["light","system","midnight","forest"] as const).map((item) => {
       const premium = item !== "light";
       const disabled = premium && !pro;
-      return <button key={item} type="button" disabled={disabled} aria-pressed={appearance === item} onClick={() => void savePreferences({ appearance: item })} className={`min-h-11 rounded-full border px-5 text-sm font-bold disabled:cursor-not-allowed disabled:opacity-45 ${appearance === item ? "border-forest bg-forest text-white" : "border-ink/15 text-ink/55 hover:border-forest"}`}>{item === "light" ? "Light" : item === "system" ? "System" : item === "midnight" ? "Midnight" : "Forest"}{disabled ? " · Pro" : ""}</button>;
+      return <button key={item} type="button" disabled={disabled} aria-pressed={appearance === item} onClick={() => void savePreferences({ appearance: item }, `Appearance changed to ${item === "light" ? "Light" : item === "system" ? "System" : item === "midnight" ? "Midnight" : "Forest"}.`)} className={`min-h-11 rounded-full border px-5 text-sm font-bold disabled:cursor-not-allowed disabled:opacity-45 ${appearance === item ? "border-forest bg-forest text-white" : "border-ink/15 text-ink/55 hover:border-forest"}`}>{item === "light" ? "Light" : item === "system" ? "System" : item === "midnight" ? "Midnight" : "Forest"}{disabled ? " · Pro" : ""}</button>;
     })}</div>
-    <div className="mt-8 max-w-md"><SelectSetting label="Motion" value={reducedMotion === "full" ? "system" : reducedMotion} onChange={(value) => void savePreferences({ reducedMotion: value as UserPreferencesRecord["reducedMotion"] })} options={[["system","Use system setting"],["reduce","Reduce motion"]]} /></div>
+    <div className="mt-8 max-w-md"><SelectSetting label="Motion" value={reducedMotion === "full" ? "system" : reducedMotion} onChange={(value) => void savePreferences({ reducedMotion: value as UserPreferencesRecord["reducedMotion"] }, value === "reduce" ? "Reduced motion enabled." : "Motion now follows your system setting.")} options={[["system","Use system setting"],["reduce","Reduce motion"]]} /></div>
     {!pro ? <p className="mt-5 text-sm text-ink/50"><Link href="/pricing" className="font-bold text-forest">Compare plans</Link> for premium appearance options. Core account controls remain available on Free.</p> : null}
   </div>;
 }
 
 function BillingSection({ session }: { session: AccountSession }) {
-  const [availability, setAvailability] = useState<BillingAvailability | null>(null);
+  const [availability, setAvailability] = useState<BillingAvailability | null | undefined>(undefined);
+  const [loadVersion, setLoadVersion] = useState(0);
   useEffect(() => {
-    fetch("/api/billing/config", { cache: "no-store", credentials: "same-origin" }).then((response) => response.ok ? response.json() : null).then(setAvailability).catch(() => setAvailability(null));
-  }, []);
+    let active = true;
+    setAvailability(undefined);
+    fetch("/api/billing/config", { cache: "no-store", credentials: "same-origin" })
+      .then((response) => response.ok ? response.json() : Promise.reject(new Error("billing_config_failed")))
+      .then((body: BillingAvailability) => { if (active) setAvailability(body); })
+      .catch(() => { if (active) setAvailability(null); });
+    return () => { active = false; };
+  }, [loadVersion]);
   const billing = session.data!.billing;
   const pro = isProUser(billing);
   const period = billing.currentPeriodEnd ? new Intl.DateTimeFormat(undefined, { month: "long", day: "numeric", year: "numeric" }).format(new Date(billing.currentPeriodEnd)) : "";
@@ -285,7 +331,7 @@ function BillingSection({ session }: { session: AccountSession }) {
       {period ? <Definition label={billing.cancelAtPeriodEnd ? "Access ends" : "Renews"} value={period} /> : null}
     </dl>
     {billing.status === "past_due" ? <p role="alert" className="mt-5 rounded-md bg-amber-50 p-4 text-sm font-bold text-amber-900">Payment needs attention. Open Stripe billing to update your payment method.</p> : null}
-    {availability === null ? <p className="mt-6 text-sm text-ink/45">Loading billing actions…</p> : <div className="mt-6 flex flex-wrap gap-3">
+    {availability === undefined ? <p className="mt-6 text-sm text-ink/45" role="status">Loading billing actions…</p> : availability === null ? <div className="mt-6 rounded-xl border border-red-800/20 bg-white p-4" role="alert"><p className="text-sm font-bold text-red-800">Billing actions could not be loaded. Your current plan is unchanged.</p><button type="button" onClick={() => setLoadVersion((value) => value + 1)} className="mt-3 min-h-11 text-sm font-bold text-forest hover:text-ink">Retry billing actions</button></div> : <div className="mt-6 flex flex-wrap gap-3">
       {!pro ? (Object.keys(proPricing) as Array<keyof typeof proPricing>).map((planId) => <BillingCheckoutButton key={planId} planId={planId} configured={availability.checkoutPlans?.[planId] ?? availability.checkoutConfigured} source="profile" className="min-h-11 rounded-full bg-forest px-5 text-sm font-bold text-white disabled:opacity-50">Upgrade {proPricing[planId].label}</BillingCheckoutButton>) : null}
       {billing.hasStripeCustomer && availability.portalConfigured ? <form action="/api/billing/portal" method="post"><button className="min-h-11 rounded-full border border-ink/15 px-5 text-sm font-bold text-ink/60 hover:border-forest hover:text-forest">Manage subscription in Stripe</button></form> : null}
       {!pro ? <Link href="/pricing" className="inline-flex min-h-11 items-center px-3 text-sm font-bold text-forest">Compare plans</Link> : null}

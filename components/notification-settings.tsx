@@ -29,26 +29,39 @@ function Toggle({ checked, label, description, onChange }: { checked: boolean; l
 export function NotificationSettings({ embedded = false }: { embedded?: boolean }) {
   const [preferences, setPreferences] = useState<NotificationPreferences | null>(null);
   const [message, setMessage] = useState("");
+  const [messageKind, setMessageKind] = useState<"success" | "error" | null>(null);
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [accountVersion, setAccountVersion] = useState(0);
+  const [reloadVersion, setReloadVersion] = useState(0);
 
   useEffect(() => {
     let active = true;
+    setLoading(true);
+    setMessage("");
+    setMessageKind(null);
     fetch("/api/notifications/preferences", { credentials: "same-origin", cache: "no-store" })
       .then((response) => response.ok ? response.json() : Promise.reject())
       .then((body: { preferences: NotificationPreferences }) => {
         if (active) setPreferences(body.preferences);
       })
       .catch(() => {
-        if (active) setMessage("Notification settings could not be loaded.");
-      });
+        if (active) {
+          setPreferences(null);
+          setMessageKind("error");
+          setMessage("Notification settings could not be loaded. Your existing preferences were not changed.");
+        }
+      })
+      .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
-  }, [accountVersion]);
+  }, [accountVersion, reloadVersion]);
 
   useEffect(() => {
     const accountChanged = () => {
       setPreferences(null);
       setMessage("");
+      setMessageKind(null);
+      setLoading(true);
       setAccountVersion((value) => value + 1);
     };
     window.addEventListener(accountSessionEvent, accountChanged);
@@ -58,13 +71,14 @@ export function NotificationSettings({ embedded = false }: { embedded?: boolean 
   const detected = typeof Intl !== "undefined" ? Intl.DateTimeFormat().resolvedOptions().timeZone : "";
   const timezones = [...new Set([detected, ...commonTimezones].filter(Boolean))];
 
-  if (!preferences) return <section id="notifications" aria-busy="true" className={embedded ? "pt-7" : "px-5 pt-6 sm:px-8"}><div className={`${embedded ? "" : "mx-auto max-w-5xl rounded-[2rem] shadow-soft ring-1 ring-ink/8"} h-48 animate-pulse bg-[var(--unlocked-surface)]`}><span className="sr-only">Loading notification settings</span></div></section>;
+  if (loading) return <section id="notifications" aria-busy="true" className={embedded ? "pt-7" : "px-5 pt-6 sm:px-8"}><div className={`${embedded ? "" : "mx-auto max-w-5xl rounded-[2rem] shadow-soft ring-1 ring-ink/8"} h-48 animate-pulse bg-[var(--unlocked-surface)] motion-reduce:animate-none`}><span className="sr-only" role="status">Loading notification settings</span></div></section>;
+  if (!preferences) return <section id="notifications" className={embedded ? "pt-7" : "px-5 pt-6 sm:px-8"}><div className={embedded ? "rounded-xl border border-red-800/20 bg-white p-5" : "mx-auto max-w-5xl rounded-[1.5rem] border border-red-800/20 bg-white p-6 shadow-soft"} role="alert"><p className="text-sm font-bold text-red-800">{message || "Notification settings could not be loaded."}</p><button type="button" onClick={() => setReloadVersion((value) => value + 1)} className="mt-3 min-h-11 text-sm font-bold text-forest hover:text-ink">Retry notification settings</button></div></section>;
 
   const update = <K extends keyof NotificationPreferences>(key: K, value: NotificationPreferences[K]) => setPreferences((current) => current ? { ...current, [key]: value } : current);
 
   return <section id="notifications" className={embedded ? "scroll-mt-28 pt-7" : "scroll-mt-28 px-5 pt-6 sm:px-8"}>
     <div className={embedded ? "" : "mx-auto max-w-5xl rounded-[2rem] bg-[var(--unlocked-surface)] p-5 shadow-soft ring-1 ring-ink/8 sm:p-6"}>
-      {!embedded ? <><p className="rule-label text-forest">Notifications</p><h2 className="mt-2 font-editorial text-2xl font-bold">Choose what deserves your attention.</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-ink/50">Essential deadline protection remains available on Free. Weekly and recommendation emails are off unless you choose them.</p></> : <p className="max-w-2xl text-sm leading-6 text-ink/50">Deadline protection remains available on Free. Weekly and recommendation email are off unless you choose them.</p>}
+      {!embedded ? <><p className="rule-label text-forest">Notifications</p><h2 className="mt-2 font-editorial text-2xl font-bold">Choose what deserves your attention.</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-ink/50">Essential deadline protection remains available on Free. Weekly and recommendation emails are off unless you choose them.</p></> : <p className="max-w-2xl text-sm leading-6 text-ink/50">Deadline protection remains available on Free. Weekly and recommendation emails are off unless you choose them.</p>}
 
       <div className="mt-5 border-y border-ink/10">
         <Toggle checked={preferences.inAppEnabled} label="In-app notifications" description="Show timely updates inside UnlockED." onChange={(checked) => update("inAppEnabled", checked)} />
@@ -99,6 +113,7 @@ export function NotificationSettings({ embedded = false }: { embedded?: boolean 
         <button type="button" disabled={saving} onClick={async () => {
           setSaving(true);
           setMessage("");
+          setMessageKind(null);
           try {
             const response = await fetch("/api/notifications/preferences", {
               method: "PUT",
@@ -110,15 +125,17 @@ export function NotificationSettings({ embedded = false }: { embedded?: boolean 
             if (!response.ok) throw new Error("save_failed");
             const body = await response.json() as { preferences: NotificationPreferences };
             setPreferences(body.preferences);
+            setMessageKind("success");
             setMessage("Notification settings saved.");
           } catch {
+            setMessageKind("error");
             setMessage("We couldn’t save these settings. Your previous choices are unchanged.");
           } finally {
             setSaving(false);
           }
         }} className="min-h-11 rounded-full bg-forest px-5 text-sm font-bold text-white hover:bg-ink disabled:cursor-wait disabled:opacity-60">{saving ? "Saving…" : "Save notification settings"}</button>
         <a href="/notifications" className="inline-flex min-h-11 items-center text-sm font-bold text-forest hover:text-ink">Open notifications</a>
-        {message ? <p role="status" className="w-full text-sm font-bold text-forest">{message}</p> : null}
+        {message ? <p role={messageKind === "error" ? "alert" : "status"} className={`w-full text-sm font-bold ${messageKind === "error" ? "text-red-800" : "text-forest"}`}>{message}</p> : null}
       </div>
     </div>
   </section>;

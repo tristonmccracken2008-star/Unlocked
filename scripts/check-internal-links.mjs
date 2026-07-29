@@ -50,6 +50,22 @@ const staticRoutes = new Set([
   "/api/auth/google",
 ]);
 
+function discoverAppPages(dir) {
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      discoverAppPages(full);
+      continue;
+    }
+    if (entry.name !== "page.tsx") continue;
+    const relative = path.relative(path.join(root, "app"), path.dirname(full));
+    const segments = relative.split(path.sep).filter((segment) => segment && !segment.startsWith("("));
+    if (segments.some((segment) => segment.startsWith("[") || segment.startsWith("@"))) continue;
+    staticRoutes.add(segments.length ? `/${segments.join("/")}` : "/");
+  }
+}
+
+discoverAppPages(path.join(root, "app"));
 for (const item of schools) staticRoutes.add(`/schools/${item.slug}`);
 for (const item of opportunities) staticRoutes.add(`/opportunities/${item.id}`);
 for (const slug of benefitSlugs) staticRoutes.add(`/benefits/${slug}`);

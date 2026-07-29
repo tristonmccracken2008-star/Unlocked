@@ -14,10 +14,10 @@ import { trackProductEvent } from "@/data/product-analytics";
 const interestSuggestions = ["Scholarships", "Research", "Internships", "AI", "Software", "Startups", "Finance", "Medicine", "Engineering"];
 const careerGoalSuggestions = ["Get an internship", "Find funding", "Join a research lab", "Build technical skills", "Prepare for graduate school", "Explore careers"];
 
-export function PersonalizedHome() {
-  const [ready, setReady] = useState(false);
-  const [profile, setProfile] = useState<StudentProfile | null>(null);
-  const [session, setSession] = useState<AccountSession | null>(null);
+export function PersonalizedHome({ initialSession = null }: { initialSession?: AccountSession | null }) {
+  const [ready, setReady] = useState(Boolean(initialSession));
+  const [profile, setProfile] = useState<StudentProfile | null>(initialSession?.data?.profile ?? null);
+  const [session, setSession] = useState<AccountSession | null>(initialSession);
   const [syncError, setSyncError] = useState("");
   const [authIssue, setAuthIssue] = useState("");
   const trackedView = useRef("");
@@ -57,18 +57,21 @@ export function PersonalizedHome() {
     const onSyncError = (event: Event) => setSyncError((event as CustomEvent<string>).detail);
     window.addEventListener(accountSessionEvent, onSession);
     window.addEventListener(accountSyncErrorEvent, onSyncError);
-    void load();
+    if (!initialSession) void load();
     return () => { active = false; window.removeEventListener(accountSessionEvent, onSession); window.removeEventListener(accountSyncErrorEvent, onSyncError); };
-  }, []);
+  }, [initialSession]);
 
   useEffect(() => {
     if (!ready || !session) return;
     const url = new URL(window.location.href);
     const auth = url.searchParams.get("auth");
-    if (!auth) return;
+    const account = url.searchParams.get("account");
+    if (!auth && !account) return;
     if (!session.authenticated && auth === "failed") setAuthIssue("Sign-in could not be completed. Please try again.");
     else if (!session.authenticated && auth === "unavailable") setAuthIssue("Google sign-in is temporarily unavailable. Please try again in a moment.");
+    else if (!session.authenticated && account === "deleted") setAuthIssue("Your UnlockED account and associated data were deleted.");
     url.searchParams.delete("auth");
+    url.searchParams.delete("account");
     window.history.replaceState({}, "", `${url.pathname}${url.search}${url.hash}`);
   }, [ready, session]);
 
