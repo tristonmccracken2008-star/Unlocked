@@ -24,7 +24,7 @@ export function AccountButton({ compact = false }: { compact?: boolean }) {
     let active = true;
     const refresh = () => {
       setError("");
-      readAccountSession().then((next) => { if (active) setSession(next); }).catch(() => { if (active) { setError("Could not load account"); setSession({ authenticated: false, user: null, data: null }); } });
+      readAccountSession().then((next) => { if (active) setSession(next); }).catch(() => { if (active) setError("Account status could not be refreshed."); });
     };
     refresh();
     const onSession = (event: Event) => setSession((event as CustomEvent<AccountSession>).detail);
@@ -33,7 +33,7 @@ export function AccountButton({ compact = false }: { compact?: boolean }) {
     return () => { active = false; window.removeEventListener(accountSessionEvent, onSession); window.removeEventListener("focus", refresh); };
   }, []);
   useEffect(() => { setImageFailed(false); }, [session?.user?.image]);
-  if (!session) return <span className="inline-flex min-h-11 items-center px-3 text-[11px] font-bold uppercase tracking-wider text-ink/35">Checking account</span>;
+  if (!session) return <span className="inline-flex min-h-11 items-center gap-3 px-3 text-[11px] font-bold uppercase tracking-wider text-ink/45">{error || "Checking account"}{error ? <button type="button" className="min-h-11 text-forest" onClick={() => { setError(""); readAccountSession(true).then(setSession).catch(() => setError("Account status could not be refreshed.")); }}>Retry</button> : null}</span>;
   if (!session.authenticated) return <span className="inline-flex flex-col items-start gap-1"><a href="/api/auth/google" onClick={() => resetAccountSessionCache()} className="inline-flex min-h-11 shrink-0 items-center justify-center whitespace-nowrap rounded-full bg-forest px-5 text-sm font-bold text-white hover:bg-ink">Sign in</a>{!compact && <span className="text-[11px] font-bold text-ink/35">Save your opportunities across devices.</span>}{error && <span role="alert" className="text-[10px] font-bold text-red-700">{error}</span>}</span>;
   const label = session.user?.name || session.user?.email || "Signed in";
   return <form action="/api/auth/logout" method="post" aria-busy={signingOut || undefined} onSubmit={async (event) => {

@@ -65,6 +65,15 @@ export function JourneyTimelineControl({ control }: { control: JourneyTimelineCo
   const [followUpDismissed, setFollowUpDismissed] = useState(false);
   const currentIndex = control.workflow.stages.findIndex((stage) => stage.id === control.currentStageId);
   const selected = useMemo(() => control.actions.find((action) => action.id === selectedId) ?? control.actions[0], [control.actions, selectedId]);
+  const alternateActions = control.actions.slice(1);
+  const selectedStageText = `${selected?.id ?? ""} ${selected?.stage?.label ?? ""}`;
+  const dateLabel = /interview/i.test(selectedStageText) ? "Interview date"
+    : /offer|award|winner/i.test(selectedStageText) ? "Offer or award date"
+      : /accept/i.test(selectedStageText) ? "Acceptance date"
+        : /complete|funds|participated/i.test(selectedStageText) ? "Completion date"
+          : /submit|application/i.test(selectedStageText) ? "Application date"
+            : "Relevant date";
+  const supportsDocuments = /prepar|submit|application|interview/i.test(selectedStageText);
 
   useEffect(() => {
     const accountChanged = () => {
@@ -174,38 +183,41 @@ export function JourneyTimelineControl({ control }: { control: JourneyTimelineCo
         </section> : <>
           <section className={styles.stageProgress} aria-labelledby={`journey-stage-heading-${control.opportunityId}`}>
             <div><p>Current Journey stage</p><h3 id={`journey-stage-heading-${control.opportunityId}`}>{control.workflow.stages[currentIndex]?.label ?? "In progress"}</h3></div>
-            <ol aria-label={`${control.workflow.label} stages`}>
-              {control.workflow.stages.filter((stage) => stage.id !== "archived").map((stage, index) => <li key={stage.id} data-state={index < currentIndex ? "complete" : index === currentIndex ? "current" : "future"}>
-                <span aria-hidden="true" />
-                <p>{stage.label}</p>
-              </li>)}
-            </ol>
           </section>
 
           <form className={styles.updateForm} onSubmit={(event) => { event.preventDefault(); if (selected) void update(selected); }}>
             <fieldset>
               <legend>What changed?</legend>
-              <p>Only the next valid milestone is available. UnlockED never advances your Journey automatically.</p>
+              <p>Choose the factual stage you want to record. UnlockED never advances your Journey automatically.</p>
               <div className={styles.stageChoices}>
-                {control.actions.map((action) => <label key={action.id} data-destructive={action.destructive ? "true" : undefined}>
+                {control.actions.slice(0, 1).map((action) => <label key={action.id} data-destructive={action.destructive ? "true" : undefined}>
                   <input type="radio" name={`journey-stage-${control.opportunityId}`} value={action.id} checked={selectedId === action.id} onChange={() => setSelectedId(action.id)} />
-                  <span><strong>{action.id === "resume" ? action.label : action.stage?.label ?? action.label}</strong><small>{action.stage?.description ?? (action.id === "paused" ? "Keep the opportunity without moving it forward." : "Keep this opportunity in your history.")}</small></span>
+                  <span><strong>{action.id === "resume" || action.correction ? action.label : action.stage?.label ?? action.label}</strong><small>{action.correction ? "Correct the current record while preserving its stage history." : action.stage?.description ?? (action.id === "paused" ? "Keep the opportunity without moving it forward." : "Keep this opportunity in your history.")}</small></span>
                 </label>)}
               </div>
+              {alternateActions.length ? <details className={styles.alternateStages}>
+                <summary>Choose a different stage</summary>
+                <div className={styles.stageChoices}>
+                  {alternateActions.map((action) => <label key={action.id} data-destructive={action.destructive ? "true" : undefined}>
+                    <input type="radio" name={`journey-stage-${control.opportunityId}`} value={action.id} checked={selectedId === action.id} onChange={() => setSelectedId(action.id)} />
+                    <span><strong>{action.id === "resume" || action.correction ? action.label : action.stage?.label ?? action.label}</strong><small>{action.correction ? "Correct the current record while preserving its stage history." : action.stage?.description ?? (action.id === "paused" ? "Keep the opportunity without moving it forward." : "Keep this opportunity in your history.")}</small></span>
+                  </label>)}
+                </div>
+              </details> : null}
             </fieldset>
 
             <details className={styles.milestoneDetails}>
               <summary>Add private details <span>Optional</span></summary>
               <div>
-                <label>Notes<textarea value={notes} maxLength={1200} rows={4} onChange={(event) => setNotes(event.target.value)} placeholder="What would you want to remember about this milestone?" /></label>
+                <label>Private note<textarea value={notes} maxLength={1200} rows={3} onChange={(event) => setNotes(event.target.value)} placeholder="Add a factual note for your records" /></label>
                 <div className={styles.dateFields}>
-                  <label>Milestone date<input type="date" value={milestoneDate} onChange={(event) => setMilestoneDate(event.target.value)} /></label>
+                  <label>{dateLabel}<input type="date" value={milestoneDate} onChange={(event) => setMilestoneDate(event.target.value)} /></label>
                   <label>Reminder<input type="datetime-local" value={reminderAt} onChange={(event) => setReminderAt(event.target.value)} /></label>
                 </div>
                 {reminderAt ? <label>Reminder note<input type="text" maxLength={160} value={reminderText} onChange={(event) => setReminderText(event.target.value)} placeholder="For example, request a recommendation letter" /></label> : null}
-                <label>Document references<input type="file" multiple onChange={(event) => setDocuments(documentsFrom(event.target.files))} /></label>
-                <p className={styles.documentNotice}>For privacy, UnlockED records filenames only. The files are not uploaded or verified.</p>
-                {documents.length ? <ul className={styles.documentList}>{documents.map((document) => <li key={document.id}>{document.name}</li>)}</ul> : null}
+                {supportsDocuments ? <><label>Document references<input type="file" multiple onChange={(event) => setDocuments(documentsFrom(event.target.files))} /></label>
+                  <p className={styles.documentNotice}>For privacy, UnlockED records filenames only. The files are not uploaded or verified.</p>
+                  {documents.length ? <ul className={styles.documentList}>{documents.map((document) => <li key={document.id}>{document.name}</li>)}</ul> : null}</> : null}
               </div>
             </details>
 

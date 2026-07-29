@@ -11,9 +11,9 @@ const routeOutput = [
   ...await Promise.all(chunkPaths.map((chunkPath) => readFile(new URL(`../.next/${chunkPath}`, import.meta.url), "utf8"))),
 ].join("\n");
 const requiredSignatures = [
-  "journey-timeline-v1",
+  "journey-command-center-v1",
   "public-or-onboarding-v1",
-  "data-journey-timeline",
+  "data-journey-command-center",
 ];
 
 const missing = requiredSignatures.filter((signature) => !routeOutput.includes(signature));
@@ -21,4 +21,4 @@ if (missing.length) {
   throw new Error(`Production homepage verification failed. Missing: ${missing.join(", ")}`);
 }
 
-console.log("Verified the server-first UnlockED Journey and public homepage branches in the production build.");
+console.log("Verified the server-first UnlockED Journey command center and public homepage branches in the production build.");

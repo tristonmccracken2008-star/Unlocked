@@ -91,6 +91,17 @@ for (const behavior of ["Reset For You learning", "Download your data", "Type DE
 assert.match(center, /NotificationSettings embedded/);
 assert.match(center, /StudentProfileForm mode="edit"/);
 assert.match(center, /session\.data\?\.updatedAt/);
+assert.match(center, /initialSession/, "Profile must retain the server-confirmed session during client refresh.");
+assert.match(center, /Your session is still active; retry or refresh the page/, "Temporary account refresh failures must not be mislabeled as session expiry.");
+const accountSync = source("data/account-sync.ts");
+assert.match(accountSync, /if \(!response\.ok\) throw new AccountSessionRequestError/, "A failed session endpoint must remain a retryable request failure.");
+assert.doesNotMatch(accountSync, /response\.ok \? await response\.json\(\)[\s\S]*authenticated: false/, "Session transport failures cannot be converted to signed-out state.");
+const authBoundary = source("components/auth-boundary.tsx");
+assert.match(authBoundary, /\.catch\(\(\)=>undefined\)/, "A temporary session request failure must preserve the server-authenticated route.");
+assert.doesNotMatch(authBoundary, /\.catch\(\(\)=>\{if\(active\)setSession\(\{authenticated:false/, "The global auth boundary must not classify transport failures as sign-out.");
+assert.doesNotMatch(source("components/header.tsx"), /\.catch\(\(\)=>\s*\{[\s\S]*setSession\(\{ authenticated: false/, "The header must not show signed-out navigation after a transport failure.");
+assert.match(source("app/referral/page.tsx"), /publicAccountSession\(session\)/, "Private account pages must receive the server-confirmed session.");
+assert.match(source("components/referral-page.tsx"), /Your session is still active; retry or refresh the page/, "Referral data failures must remain distinct from authentication failures.");
 
 const accountRoute = source("app/api/account/data/route.ts");
 assert.match(accountRoute, /stale_profile/);

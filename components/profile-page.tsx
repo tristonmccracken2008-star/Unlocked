@@ -77,9 +77,9 @@ function billingReturnMessage(code: string | null) {
   return null;
 }
 
-export function ProfilePage() {
-  const [profile, setProfile] = useState<StudentProfile | null | undefined>(undefined);
-  const [session, setSession] = useState<AccountSession | null>(null);
+export function ProfilePage({ initialSession }: { initialSession: AccountSession }) {
+  const [profile, setProfile] = useState<StudentProfile | null | undefined>(initialSession.data?.profile);
+  const [session, setSession] = useState<AccountSession | null>(initialSession);
   const [active, setActive] = useState<SectionId>("profile");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -87,7 +87,7 @@ export function ProfilePage() {
 
   useEffect(() => {
     let current = true;
-    setProfile(readStudentProfile());
+    accountId.current = initialSession.user?.id ?? null;
     hydrateAccountData()
       .then((next) => {
         if (!current) return;
@@ -97,11 +97,10 @@ export function ProfilePage() {
       })
       .catch(() => {
         if (!current) return;
-        setError("Your account could not be loaded. Refresh or sign in again.");
-        setSession({ authenticated: false, user: null, data: null });
+        setError("Your account details could not be refreshed. Your session is still active; retry or refresh the page.");
       });
     return () => { current = false; };
-  }, []);
+  }, [initialSession.user?.id]);
 
   useEffect(() => {
     const accountChanged = (event: Event) => {

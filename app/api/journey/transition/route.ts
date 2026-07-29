@@ -38,7 +38,7 @@ function cleanDetails(value: unknown): JourneyMilestoneDetails | undefined {
   const input = value as Record<string, unknown>;
   const notes = typeof input.notes === "string" ? input.notes.trim().slice(0, 1200) : undefined;
   const milestoneTime = typeof input.milestoneDate === "string" && /^\d{4}-\d{2}-\d{2}$/.test(input.milestoneDate) ? Date.parse(`${input.milestoneDate}T12:00:00.000Z`) : Number.NaN;
-  const milestoneDate = Number.isFinite(milestoneTime) && milestoneTime >= Date.UTC(2000, 0, 1) && milestoneTime <= Date.now() + 86_400_000 ? input.milestoneDate as string : undefined;
+  const milestoneDate = Number.isFinite(milestoneTime) && milestoneTime >= Date.UTC(2000, 0, 1) && milestoneTime <= Date.now() + 5 * 365 * 86_400_000 ? input.milestoneDate as string : undefined;
   const reminderTime = typeof input.reminderAt === "string" ? Date.parse(input.reminderAt) : Number.NaN;
   const reminderAt = Number.isFinite(reminderTime) && reminderTime >= Date.now() - 86_400_000 && reminderTime <= Date.now() + 5 * 365 * 86_400_000 ? new Date(reminderTime).toISOString() : undefined;
   const reminderText = typeof input.reminderText === "string" ? input.reminderText.replace(/\s+/g, " ").trim().slice(0, 160) : undefined;

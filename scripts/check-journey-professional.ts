@@ -43,7 +43,7 @@ for (const [kind, labels] of Object.entries(requiredStages)) {
     assert.equal(record.status, target.status);
     assert.equal(result.historyRecord.details?.source, "student_reported");
   }
-  assert.equal(getJourneyProfessionalActions(record, workflow).length, 0, `${kind} completed records must not invent another milestone.`);
+  assert.ok(getJourneyProfessionalActions(record, workflow).every((action) => action.correction), `${kind} completed records may offer corrections but cannot invent another forward milestone.`);
 }
 
 const career = journeyProfessionalWorkflows.career;
@@ -87,8 +87,39 @@ assert.equal(applyJourneyProfessionalUpdate(duplicate.record, career, {
   occurredAt: "2026-08-03T12:00:00.000Z",
 }).duplicate, true, "Repeated request identifiers must not duplicate Journey events.");
 
-assert.throws(() => applyJourneyProfessionalUpdate(base("professional-invalid"), career, {
+const directOffer = applyJourneyProfessionalUpdate(base("professional-direct-offer"), career, {
   targetStageId: "offer_received",
+  expectedStatus: "Saved",
+  expectedVersion: 0,
+  idempotencyKey: "journey:professional:direct-offer",
+  occurredAt: "2026-08-02T12:00:00.000Z",
+});
+assert.equal(directOffer.record.professionalStageId, "offer_received", "Students must be able to record a factual offer without first entering every intermediate stage.");
+const corrected = applyJourneyProfessionalUpdate(directOffer.record, career, {
+  targetStageId: "application_submitted",
+  expectedStatus: directOffer.record.status,
+  expectedVersion: directOffer.record.version ?? 0,
+  idempotencyKey: "journey:professional:correction",
+  occurredAt: "2026-08-03T12:00:00.000Z",
+});
+assert.equal(corrected.record.status, "Submitted", "Students must be able to correct an accidentally advanced stage.");
+const archived = applyJourneyProfessionalUpdate(corrected.record, career, {
+  targetStageId: "archived",
+  expectedStatus: corrected.record.status,
+  expectedVersion: corrected.record.version ?? 0,
+  idempotencyKey: "journey:professional:archive",
+  occurredAt: "2026-08-04T12:00:00.000Z",
+});
+const restored = applyJourneyProfessionalUpdate(archived.record, career, {
+  targetStageId: "application_submitted",
+  expectedStatus: archived.record.status,
+  expectedVersion: archived.record.version ?? 0,
+  idempotencyKey: "journey:professional:restore",
+  occurredAt: "2026-08-05T12:00:00.000Z",
+});
+assert.equal(restored.record.status, "Submitted", "Archived records must restore to their prior factual stage.");
+assert.throws(() => applyJourneyProfessionalUpdate(base("professional-invalid"), career, {
+  targetStageId: "saved",
   expectedStatus: "Saved",
   expectedVersion: 0,
   idempotencyKey: "journey:professional:invalid",
@@ -101,7 +132,7 @@ const timeline = readFileSync("components/journey-timeline.tsx", "utf8");
 const timelineModel = readFileSync("lib/journey-timeline.ts", "utf8");
 for (const requirement of ["assertSameOrigin", "getSession", "expectedVersion", "idempotencyKey", "cleanDetails"]) assert.ok(route.includes(requirement));
 for (const status of ["401", "403", "409", "423", "422"]) assert.ok(control.includes(`status === ${status}`));
-for (const copy of ["Update Journey", "Student reported", "Private by default", "UnlockED never advances your Journey automatically", "Journey updated"]) assert.ok(control.includes(copy));
+for (const copy of ["Update Journey", "Student reported", "Private by default", "UnlockED never advances your Journey automatically", "Journey updated", "Choose a different stage"]) assert.ok(control.includes(copy));
 assert.ok(timeline.includes("Annual archive") && timelineModel.includes('"Updated by you"'));
 assert.doesNotMatch(control, /Update status|<select|confetti|\bXP\b|streak/i);
 

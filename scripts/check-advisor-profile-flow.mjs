@@ -7,7 +7,7 @@ const authStore = readFileSync("lib/auth-store.ts", "utf8");
 const profileVersion = readFileSync("lib/advisor/profile-version.ts", "utf8");
 const dashboard = readFileSync("components/personalized-home.tsx", "utf8");
 const journeyDashboard = readFileSync("components/student-journey-dashboard.tsx", "utf8");
-const journeyTimeline = readFileSync("components/journey-timeline.tsx", "utf8");
+const journeyTimeline = readFileSync("components/journey-command-center.tsx", "utf8");
 const profileData = readFileSync("data/student-profile.ts", "utf8");
 const packageJson = JSON.parse(readFileSync("package.json", "utf8"));
 const snapshots = JSON.parse(readFileSync("data/advisor-review-snapshots.json", "utf8"));
@@ -26,9 +26,9 @@ assert.match(profileVersion, /preferredOpportunityTypes/, "Profile hash must inc
 assert.match(profileData, /advisorProfileUpdatedMessageKey/, "Profile saves must set a one-time plan-updated acknowledgement.");
 
 assert.match(dashboard, /Journey/, "Private home must be the student's Journey.");
-assert.match(journeyTimeline, /data-journey-timeline/, "Journey must expose one canonical chronological timeline.");
-assert.match(journeyTimeline, /JourneyTimelineControl/, "Journey must keep progress editing attached to canonical timeline records.");
-assert.match(journeyTimeline, /JourneyCardEntry/, "Journey sharing must remain secondary to the timeline.");
+assert.match(journeyTimeline, /data-journey-command-center/, "Journey must expose one canonical opportunity command center.");
+assert.match(journeyTimeline, /JourneyTimelineControl/, "Journey must keep progress editing attached to canonical current records.");
+assert.match(journeyTimeline, /JourneyCardEntry/, "Journey sharing must remain secondary to active records and History.");
 assert.doesNotMatch(journeyTimeline, /Your next step|recommendation|Horizon/, "Journey must not duplicate Advisor guidance.");
 assert.doesNotMatch(journeyDashboard, /Share recap/, "Dashboard must not duplicate Path Moment sharing.");
 assert.doesNotMatch(dashboard, /Today’s Mission/, "Journey should not keep the old coaching-dashboard copy.");

@@ -28,9 +28,7 @@ export function Header() {
     let active = true;
     readAccountSession().then((next) => {
       if (active) setSession(next);
-    }).catch(() => {
-      if (active) setSession({ authenticated: false, user: null, data: null });
-    });
+    }).catch(() => undefined);
     const update = (event: Event) => setSession((event as CustomEvent<AccountSession>).detail);
     window.addEventListener(accountSessionEvent, update);
     return () => {

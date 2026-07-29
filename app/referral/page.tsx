@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ReferralPage } from "@/components/referral-page";
 import { requireCompletedOnboarding } from "@/lib/onboarding";
+import { publicAccountSession } from "@/lib/public-account";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
@@ -11,6 +12,6 @@ export const metadata: Metadata = {
 };
 
 export default async function Page() {
-  await requireCompletedOnboarding();
-  return <ReferralPage />;
+  const session = await requireCompletedOnboarding();
+  return <ReferralPage initialSession={publicAccountSession(session)} />;
 }

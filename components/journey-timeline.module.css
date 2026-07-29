@@ -183,6 +183,11 @@
 .stageChoices span { display: grid; gap: .25rem; }
 .stageChoices strong { font-size: .8rem; }
 .stageChoices small { color: var(--journey-muted); font-size: .74rem; line-height: 1.45; }
+.alternateStages { margin-top: .7rem; }
+.alternateStages > summary { display: inline-flex; min-height: 44px; align-items: center; color: var(--journey-green); font-size: .74rem; font-weight: 800; cursor: pointer; list-style: none; }
+.alternateStages > summary::-webkit-details-marker { display: none; }
+.alternateStages > summary::after { margin-left: .45rem; content: "+"; }
+.alternateStages[open] > summary::after { content: "−"; }
 
 .milestoneDetails { margin-top: 1rem; border-block: 1px solid var(--journey-line); }
 .milestoneDetails summary { display: flex; min-height: 54px; align-items: center; justify-content: space-between; color: var(--journey-ink); font-size: .78rem; font-weight: 800; cursor: pointer; list-style: none; }

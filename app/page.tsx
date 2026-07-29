@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { PersonalizedHome } from "@/components/personalized-home";
-import { JourneyTimeline, JourneyTimelineUnavailable } from "@/components/journey-timeline";
+import { JourneyCommandCenter, JourneyCommandCenterUnavailable } from "@/components/journey-command-center";
 import { getServerSessionForProduct } from "@/lib/onboarding";
 import { accountHasCompletedOnboarding } from "@/lib/auth-store";
 import { listPublishedOpportunitiesByIds } from "@/lib/content-store";
-import { buildJourneyTimelineModel } from "@/lib/journey-timeline";
+import { buildJourneyCommandCenterModel } from "@/lib/journey-command-center";
 import { cookies } from "next/headers";
 import { isProUser } from "@/lib/billing";
 
@@ -15,7 +15,11 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
-export default async function Home() {
+function first(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] : value;
+}
+
+export default async function Home({ searchParams }: { searchParams?: Promise<Record<string, string | string[] | undefined>> }) {
   const session = await getServerSessionForProduct();
   if (!session || !accountHasCompletedOnboarding(session.data) || !session.data.profile) {
     const initialSession = session
@@ -31,18 +35,28 @@ export default async function Home() {
     ...session.data.savedOpportunities.map((record) => record.opportunityId),
   ])];
   try {
+    const query = await searchParams;
     const opportunities = await listPublishedOpportunitiesByIds(trackedIds, { includeArchived: true });
     const appearance = session.data.preferences?.appearance ?? "light";
     const systemScheme = (await cookies()).get("unlocked-color-scheme")?.value;
     const resolvedTheme = isProUser(session.data.billing) && (appearance === "midnight" || appearance === "forest" || (appearance === "system" && systemScheme === "dark")) ? "dark" as const : "light" as const;
-    const model = buildJourneyTimelineModel({ user: session.user, account: session.data, opportunities, resolvedTheme });
-    return <div data-unlocked-home="journey-timeline-v1">
-      <JourneyTimeline model={model} />
+    const model = buildJourneyCommandCenterModel({
+      user: session.user,
+      account: session.data,
+      opportunities,
+      resolvedTheme,
+      filter: first(query?.stage),
+      sort: first(query?.sort),
+      query: first(query?.q),
+      historyLimit: first(query?.history) === "100" ? 100 : 24,
+    });
+    return <div data-unlocked-home="journey-command-center-v1">
+      <JourneyCommandCenter model={model} />
     </div>;
   } catch (error) {
-    console.error("[UnlockED Journey] timeline composition failed", process.env.NODE_ENV === "production"
+    console.error("[UnlockED Journey] command center composition failed", process.env.NODE_ENV === "production"
       ? { errorType: error instanceof Error ? error.name : "UnknownError" }
       : { errorType: error instanceof Error ? error.name : "UnknownError", message: error instanceof Error ? error.message : "Unknown Journey composition failure" });
-    return <JourneyTimelineUnavailable />;
+    return <JourneyCommandCenterUnavailable />;
   }
 }

@@ -26,6 +26,7 @@ export type JourneyProfessionalAction = {
   transition: JourneyProgressTransition;
   resultingStatus: OpportunityTrackerStatus;
   destructive?: boolean;
+  correction?: boolean;
   stage?: JourneyProfessionalStage;
 };
 
@@ -132,7 +133,11 @@ export function resolveJourneyProfessionalStage(record: TrackedOpportunity, work
 }
 
 export function getJourneyProfessionalActions(record: TrackedOpportunity, workflow: JourneyProfessionalWorkflow): JourneyProfessionalAction[] {
-  if (record.status === "Completed" || record.status === "Rejected") return [];
+  if (record.status === "Rejected") {
+    const priorStageId = [...(record.history ?? [])].reverse().find((item) => item.professionalStageId && item.professionalStageId !== "archived")?.professionalStageId;
+    const restoreStage = workflow.stages.find((item) => item.id === priorStageId) ?? workflow.stages[0];
+    return [{ id: restoreStage.id, label: `Restore to ${restoreStage.label}`, transition: restoreStage.transition, resultingStatus: restoreStage.status, stage: restoreStage, correction: true }];
+  }
   if (record.status === "Paused") {
     const resumeId = record.pausedFromProfessionalStageId;
     const resumeStage = workflow.stages.find((item) => item.id === resumeId)
@@ -142,11 +147,14 @@ export function getJourneyProfessionalActions(record: TrackedOpportunity, workfl
   }
   const current = resolveJourneyProfessionalStage(record, workflow);
   const index = workflow.stages.findIndex((item) => item.id === current.id);
-  const next = workflow.stages.slice(index + 1).find((item) => item.id !== "archived");
+  const nextStages = workflow.stages.slice(index + 1).filter((item) => item.id !== "archived");
   const actions: JourneyProfessionalAction[] = [];
-  if (next) actions.push({ id: next.id, label: next.actionLabel, transition: next.transition, resultingStatus: next.status, stage: next });
-  if (index > 0) actions.push({ id: "paused", label: "Pause this opportunity", transition: "pause", resultingStatus: "Paused" });
-  actions.push({ id: "archived", label: "Archive", transition: "close", resultingStatus: "Rejected", destructive: true, stage: workflow.stages.at(-1) });
+  for (const next of nextStages) actions.push({ id: next.id, label: next.actionLabel, transition: next.transition, resultingStatus: next.status, stage: next });
+  for (const correction of workflow.stages.slice(0, Math.max(0, index))) {
+    actions.push({ id: correction.id, label: `Correct to ${correction.label}`, transition: correction.transition, resultingStatus: correction.status, stage: correction, correction: true });
+  }
+  if (index > 0 && record.status !== "Completed") actions.push({ id: "paused", label: "Pause this opportunity", transition: "pause", resultingStatus: "Paused" });
+  if (record.status !== "Completed") actions.push({ id: "archived", label: "Archive", transition: "close", resultingStatus: "Rejected", destructive: true, stage: workflow.stages.at(-1) });
   return actions;
 }
 

@@ -176,7 +176,7 @@ function cleanJourneyMilestoneDetails(value: unknown): JourneyMilestoneDetails |
   const input = value as Partial<JourneyMilestoneDetails>;
   const notes = typeof input.notes === "string" ? input.notes.trim().slice(0, 1200) : undefined;
   const milestoneTime = typeof input.milestoneDate === "string" && /^\d{4}-\d{2}-\d{2}$/.test(input.milestoneDate) ? Date.parse(`${input.milestoneDate}T12:00:00.000Z`) : Number.NaN;
-  const milestoneDate = Number.isFinite(milestoneTime) && milestoneTime >= Date.UTC(2000, 0, 1) && milestoneTime <= Date.now() + 86_400_000 ? input.milestoneDate : undefined;
+  const milestoneDate = Number.isFinite(milestoneTime) && milestoneTime >= Date.UTC(2000, 0, 1) && milestoneTime <= Date.now() + 5 * 365 * 24 * 60 * 60 * 1000 ? input.milestoneDate : undefined;
   const reminderAt = safeReminderTimestamp(input.reminderAt);
   const reminderText = stringValue(input.reminderText, 160);
   const documents = Array.isArray(input.documents) ? input.documents.slice(0, 3).flatMap((document) => {

@@ -153,6 +153,18 @@ let failure: unknown;
 try {
   await exercise(chromiumBrowser, origin, free.session.token, "Avery", false, { width: 1280, height: 900 });
   await exercise(webkitBrowser, origin, pro.session.token, "Jordan", true, { width: 390, height: 844 });
+  {
+    const context = await chromiumBrowser.newContext({ viewport: { width: 1280, height: 900 } });
+    await install(context, origin, free.session.token);
+    await context.route("**/api/auth/session", (route) => route.fulfill({ status: 503, contentType: "application/json", body: JSON.stringify({ error: "temporary_failure" }) }));
+    const page = await context.newPage();
+    await page.goto(`${origin}/profile`, { waitUntil: "domcontentloaded" });
+    await page.getByRole("heading", { name: "Your account, clearly organized." }).waitFor();
+    await page.getByText("Your account details could not be refreshed. Your session is still active; retry or refresh the page.").waitFor();
+    assert.equal(await page.getByRole("heading", { name: "Your session has ended." }).count(), 0, "Temporary session API failure must not show a false sign-out state.");
+    assert.equal(await page.locator("#first-name").inputValue(), "Avery", "Server-confirmed profile data must remain visible during a temporary client refresh failure.");
+    await context.close();
+  }
   const context = await chromiumBrowser.newContext({ viewport: { width: 1024, height: 768 } });
   await install(context, origin, deletion.session.token);
   const page = await context.newPage();
@@ -166,7 +178,7 @@ try {
   const { getSession } = await import("../lib/auth-store");
   assert.equal(await getSession(deletion.session.token), null);
   await context.close();
-  console.log("Account center browser checks passed", { browsers: ["Chromium", "WebKit"], accounts: 3, viewports: ["desktop", "mobile"] });
+  console.log("Account center browser checks passed", { browsers: ["Chromium", "WebKit"], accounts: 3, viewports: ["desktop", "mobile"], sessionFailureClassification: "retryable_data_error" });
 } catch (error) {
   failure = error;
 } finally {

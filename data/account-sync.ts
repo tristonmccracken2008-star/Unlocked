@@ -19,6 +19,13 @@ let sessionRequest: Promise<AccountSession> | null = null;
 let hydrateRequest: Promise<AccountSession> | null = null;
 const sessionCacheMs = 5000;
 
+export class AccountSessionRequestError extends Error {
+  constructor(readonly status: number) {
+    super("Account session could not be loaded.");
+    this.name = "AccountSessionRequestError";
+  }
+}
+
 function persistAccountSession(session: AccountSession | null) {
   try {
     if (!session) localStorage.removeItem(accountSessionStorageKey);
@@ -75,7 +82,9 @@ export async function readAccountSession(force = false) {
   if (sessionRequest) return sessionRequest;
   if (!force && sessionCache && Date.now() - sessionCacheAt < sessionCacheMs) return sessionCache;
   sessionRequest = authenticatedFetch("/api/auth/session", { credentials: "same-origin", cache: "no-store" }).then(async (response) => {
-    const session = response.ok ? await response.json() as AccountSession : { authenticated: false, user: null, data: null } as AccountSession;
+    if (!response.ok) throw new AccountSessionRequestError(response.status);
+    const session = await response.json() as AccountSession;
+    if (typeof session.authenticated !== "boolean") throw new AccountSessionRequestError(502);
     sessionCache = session;
     sessionCacheAt = Date.now();
     persistAccountSession(session);

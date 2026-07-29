@@ -52,12 +52,14 @@ assert.ok(populated.card.highlights.length > 0 && populated.card.highlights.leng
 assert.equal(populated.card.identity.firstName, "Jordan");
 
 const component = read("components/journey-timeline.tsx");
+const commandCenter = read("components/journey-command-center.tsx");
 const styles = read("components/journey-timeline.module.css");
 const page = read("app/page.tsx");
 const loading = read("app/loading.tsx");
 for (const required of ["<h1>Journey</h1>", "A timeline of the opportunities and milestones that have shaped your progress.", "Your Journey starts here", "JourneyCardEntry"]) assert.ok(component.includes(required), `Unified Journey must render ${required}.`);
 for (const retired of ["Your next step", "Horizon", "Journey Board", "Move to...", "Right now", "recommendation"]) assert.ok(!component.includes(retired), `Unified Journey must retire ${retired}.`);
-assert.ok(page.includes("buildJourneyTimelineModel") && page.includes("JourneyTimeline"), "The signed-in home must use the server-built timeline.");
+assert.ok(page.includes("buildJourneyCommandCenterModel") && page.includes("JourneyCommandCenter"), "The signed-in home must use the server-built command center.");
+for (const required of ["Opportunity command center", "Needs attention", "Active opportunities", "History", "Journey Cards"]) assert.ok(commandCenter.includes(required), `Command center must render ${required}.`);
 assert.ok(styles.includes("grid-template-columns") && styles.includes("prefers-reduced-motion") && styles.includes("prefers-contrast: more"));
 assert.ok(loading.includes("Loading your saved opportunities and progress."), "Loading copy must match the final timeline.");
 

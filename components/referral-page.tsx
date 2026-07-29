@@ -8,10 +8,13 @@ import type { AccountSession } from "@/lib/account-types";
 import { accountReferralSummary, referralRewards } from "@/lib/referrals";
 import { ArrowIcon, CheckIcon, SparkIcon } from "./icons";
 
-export function ReferralPage() {
-  const [session, setSession] = useState<AccountSession | null>(null);
+export function ReferralPage({ initialSession }: { initialSession: AccountSession }) {
+  const [session, setSession] = useState<AccountSession | null>(initialSession);
   const [message, setMessage] = useState("");
-  useEffect(() => { hydrateAccountData().then(setSession).catch(() => setSession({ authenticated: false, user: null, data: null })); }, []);
+  const [loadError, setLoadError] = useState("");
+  useEffect(() => {
+    hydrateAccountData().then(setSession).catch(() => setLoadError("Your referral details could not be refreshed. Your session is still active; retry or refresh the page."));
+  }, []);
   const referrals = session?.data?.referrals ?? null;
   const summary = useMemo(() => accountReferralSummary(session?.data), [session?.data]);
   const completed = summary.completed;
@@ -36,6 +39,7 @@ export function ReferralPage() {
 
   return <main className="bg-[radial-gradient(circle_at_top_left,rgba(231,216,189,.48),transparent_34rem),#f6f0e6] px-5 py-10 sm:px-8 sm:py-14">
     <div className="mx-auto max-w-6xl">
+      {loadError ? <p role="alert" className="mb-5 border-l-2 border-gold px-4 py-3 text-sm font-bold text-ink/65">{loadError}</p> : null}
       <section className="grid gap-8 rounded-[2rem] bg-white/70 p-6 shadow-soft ring-1 ring-ink/8 sm:p-8 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-end">
         <div>
           <p className="rule-label text-forest">Invite students</p>
