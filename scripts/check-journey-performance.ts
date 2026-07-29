@@ -13,6 +13,7 @@ const timeline = read("components/journey-timeline.tsx");
 const timelineServer = read("lib/journey-timeline.ts");
 const entry = read("components/journey-card-entry.tsx");
 const creator = read("components/journey-card-creator.tsx");
+const brandExport = read("lib/brand-export.ts");
 const packageJson = JSON.parse(read("package.json"));
 
 assert.match(timeline, /data-journey-timeline/);
@@ -27,7 +28,8 @@ assert.match(entry, /onPointerEnter=\{preload\}/);
 assert.match(entry, /onFocus=\{preload\}/);
 assert.doesNotMatch(entry, /JourneyCardArtwork|XMLSerializer|canvas\.toBlob|ClipboardItem|navigator\.share/,
   "Export dependencies cannot enter the initial Journey client boundary.");
-assert.match(creator, /XMLSerializer/);
+assert.match(creator, /serializeBrandedArtwork/);
+assert.match(brandExport, /XMLSerializer/);
 assert.match(creator, /canvas\.toBlob/);
 assert.match(creator, /navigator\.share/);
 

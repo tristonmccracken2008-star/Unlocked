@@ -166,9 +166,11 @@ for (const layout of Object.keys(semesterStoryLayouts) as Array<keyof typeof sem
 }
 
 const creatorSource = readFileSync(new URL("../components/semester-story-creator.tsx", import.meta.url), "utf8");
+const brandExportSource = readFileSync(new URL("../lib/brand-export.ts", import.meta.url), "utf8");
 const entrySource = readFileSync(new URL("../components/semester-story-entry.tsx", import.meta.url), "utf8");
 const artworkSource = readFileSync(new URL("../components/semester-story-artwork.tsx", import.meta.url), "utf8");
-assert.match(creatorSource, /XMLSerializer/);
+assert.match(creatorSource, /serializeBrandedArtwork/);
+assert.match(brandExportSource, /XMLSerializer/);
 assert.match(creatorSource, /canvas\.toBlob/);
 assert.match(creatorSource, /ClipboardItem/);
 assert.match(creatorSource, /navigator\.share/);

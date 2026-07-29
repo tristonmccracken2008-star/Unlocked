@@ -143,9 +143,11 @@ for (const layout of Object.keys(pathMomentLayouts) as Array<keyof typeof pathMo
 }
 
 const creatorSource = readFileSync(new URL("../components/path-moment-creator.tsx", import.meta.url), "utf8");
+const brandExportSource = readFileSync(new URL("../lib/brand-export.ts", import.meta.url), "utf8");
 const entrySource = readFileSync(new URL("../components/path-moment-entry.tsx", import.meta.url), "utf8");
 const artworkSource = readFileSync(new URL("../components/path-moment-artwork.tsx", import.meta.url), "utf8");
-assert.match(creatorSource, /XMLSerializer/);
+assert.match(creatorSource, /serializeBrandedArtwork/);
+assert.match(brandExportSource, /XMLSerializer/);
 assert.match(creatorSource, /canvas\.toBlob/);
 assert.match(creatorSource, /ClipboardItem/);
 assert.match(creatorSource, /navigator\.share/);

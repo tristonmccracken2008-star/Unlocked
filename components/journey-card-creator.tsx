@@ -6,6 +6,7 @@ import { journeyCardLayouts, type JourneyCardData, type JourneyCardLayout, type 
 import { productIntelligenceEvents } from "@/lib/analytics-types";
 import { trackProductError, trackProductEvent } from "@/data/product-analytics";
 import { readAccountSession } from "@/data/account-sync";
+import { serializeBrandedArtwork } from "@/lib/brand-export";
 import styles from "./path-moment.module.css";
 
 function fileName(layout: JourneyCardLayout) {
@@ -68,7 +69,7 @@ export function JourneyCardCreator({ card, theme, onClose }: { card: JourneyCard
     const svg = artworkRef.current;
     if (!svg) throw new Error("The Journey Card preview is not ready yet.");
     const dimensions = journeyCardLayouts[layout];
-    const source = new XMLSerializer().serializeToString(svg);
+    const source = await serializeBrandedArtwork(svg);
     const sourceUrl = URL.createObjectURL(new Blob([source], { type: "image/svg+xml;charset=utf-8" }));
     const image = new Image();
     image.decoding = "async";

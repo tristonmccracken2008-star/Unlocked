@@ -1,14 +1,18 @@
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 import { ImageResponse } from "next/og";
-import { BrandMark } from "@/components/brand-mark";
 
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-export default function Image() {
+export default async function Image() {
+  const unlockedMark = await readFile(join(process.cwd(), "public", "brand", "unlocked-mark.png"));
+  const unlockedMarkSrc = `data:image/png;base64,${unlockedMark.toString("base64")}`;
+
   return new ImageResponse(
     <div style={{ background: "#f6f0e6", color: "#2b211a", display: "flex", flexDirection: "column", fontFamily: "Arial, sans-serif", height: "100%", justifyContent: "space-between", padding: "72px", width: "100%" }}>
       <div style={{ alignItems: "center", display: "flex", gap: "18px" }}>
-        <BrandMark width="58" height="58" />
+        <img src={unlockedMarkSrc} alt="" width={58} height={58} style={{ objectFit: "contain" }} />
         <div style={{ display: "flex", fontSize: 42, fontWeight: 800, letterSpacing: 0 }}>Unlock<span style={{ color: "#1f5f43" }}>ED</span></div>
       </div>
       <div style={{ display: "flex", flexDirection: "column" }}>

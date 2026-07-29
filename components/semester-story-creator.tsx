@@ -12,6 +12,7 @@ import {
 } from "@/lib/semester-story";
 import styles from "./path-moment.module.css";
 import type { JourneyThemeName } from "@/lib/journey-theme";
+import { serializeBrandedArtwork } from "@/lib/brand-export";
 
 type SemesterStoryCreatorProps = {
   collection: SemesterStoryCollection;
@@ -76,7 +77,7 @@ export function SemesterStoryCreator({ collection, theme, openedAt, onClose }: S
     const svg = artworkRef.current;
     if (!svg) throw new Error("The Semester Story preview is not ready yet.");
     const dimensions = semesterStoryLayouts[layout];
-    const source = new XMLSerializer().serializeToString(svg);
+    const source = await serializeBrandedArtwork(svg);
     const sourceUrl = URL.createObjectURL(new Blob([source], { type: "image/svg+xml;charset=utf-8" }));
     const image = new Image();
     image.decoding = "async";

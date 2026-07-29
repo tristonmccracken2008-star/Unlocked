@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   applicationName: "UnlockED",
   authors: [{ name: "UnlockED" }],
   creator: "UnlockED",
-  icons: { icon: "/icon", apple: "/apple-icon" },
+  icons: { icon: "/icon.png", apple: "/apple-icon.png" },
   openGraph: { type: "website", siteName: "UnlockED", title: "UnlockED — Student opportunities, chosen for you", description: "Discover scholarships, internships, research, student benefits, and other opportunities from official sources.", url: "https://www.unlockededu.com", images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "UnlockED student opportunity directory" }] },
   twitter: { card: "summary_large_image", title: "UnlockED", description: "Student opportunities, chosen for you.", images: ["/opengraph-image"] },
   robots: { index: true, follow: true },

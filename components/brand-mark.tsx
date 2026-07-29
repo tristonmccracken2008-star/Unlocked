@@ -1,35 +1,43 @@
-import type { SVGProps } from "react";
+import type { ImgHTMLAttributes } from "react";
+import { UNLOCKED_MARK_HEIGHT, UNLOCKED_MARK_SRC, UNLOCKED_MARK_WIDTH } from "@/data/brand-assets";
 
-export const unlockedBrandPaths = {
-  frame: "M9 8h18v19.5C27 33 23.5 36 18 36S9 33 9 27.5V8Z",
-  opening: "M27 8h7v7",
-  letter: "M17 14v13c0 2.1 1.2 3.2 3 3.2s3-1.1 3-3.2V14",
-  accent: "M27 8 20 15",
-} as const;
-
-type BrandMarkProps = SVGProps<SVGSVGElement> & {
+type BrandMarkProps = Omit<ImgHTMLAttributes<HTMLImageElement>, "alt" | "height" | "src" | "width"> & {
   tone?: "default" | "inverse";
+  width?: number | string;
+  height?: number | string;
 };
 
-export function BrandMark({ className = "", tone = "default", ...props }: BrandMarkProps) {
-  const frame = tone === "inverse" ? "#f6f0e6" : "#1f5f43";
-  const ink = tone === "inverse" ? "#ffffff" : "#2b211a";
-  return <svg viewBox="0 0 40 40" aria-hidden="true" focusable="false" className={className} data-unlocked-brand-mark="" {...props}>
-    <path d={unlockedBrandPaths.frame} fill="none" stroke={frame} strokeWidth="3" strokeLinejoin="round" />
-    <path d={unlockedBrandPaths.opening} fill="none" stroke={ink} strokeWidth="3" strokeLinecap="square" />
-    <path d={unlockedBrandPaths.letter} fill="none" stroke={ink} strokeWidth="2.6" strokeLinecap="round" />
-    <path d={unlockedBrandPaths.accent} fill="none" stroke="#b48a45" strokeWidth="2.4" strokeLinecap="round" />
-  </svg>;
+export function BrandMark({ className = "", tone = "default", width = UNLOCKED_MARK_WIDTH, height = UNLOCKED_MARK_HEIGHT, style, ...props }: BrandMarkProps) {
+  return <img
+    src={UNLOCKED_MARK_SRC}
+    alt=""
+    aria-hidden="true"
+    width={width}
+    height={height}
+    className={className}
+    data-unlocked-brand-mark=""
+    data-brand-tone={tone}
+    style={tone === "inverse"
+      ? { background: "#f6f0e6", borderRadius: 4, boxSizing: "border-box", objectFit: "contain", padding: 3, ...style }
+      : style}
+    {...props}
+  />;
 }
 
 export function BrandMarkArtwork({ x, y, size, tone = "default" }: { x: number; y: number; size: number; tone?: "default" | "inverse" }) {
-  const scale = size / 40;
-  const frame = tone === "inverse" ? "#f6f0e6" : "#1f5f43";
-  const ink = tone === "inverse" ? "#ffffff" : "#2b211a";
-  return <g transform={`translate(${x} ${y}) scale(${scale})`} aria-hidden="true" data-unlocked-brand-mark="">
-    <path d={unlockedBrandPaths.frame} fill="none" stroke={frame} strokeWidth="3" strokeLinejoin="round" />
-    <path d={unlockedBrandPaths.opening} fill="none" stroke={ink} strokeWidth="3" strokeLinecap="square" />
-    <path d={unlockedBrandPaths.letter} fill="none" stroke={ink} strokeWidth="2.6" strokeLinecap="round" />
-    <path d={unlockedBrandPaths.accent} fill="none" stroke="#b48a45" strokeWidth="2.4" strokeLinecap="round" />
+  const inset = tone === "inverse" ? Math.max(2, size * 0.08) : 0;
+  return <g aria-hidden="true" data-brand-lockup-tone={tone}>
+    {tone === "inverse" ? <rect x={x} y={y} width={size} height={size} rx={size * 0.12} fill="#f6f0e6" /> : null}
+    <image
+      href={UNLOCKED_MARK_SRC}
+      x={x + inset}
+      y={y + inset}
+      width={size - inset * 2}
+      height={size - inset * 2}
+      preserveAspectRatio="xMidYMid meet"
+      aria-hidden="true"
+      data-unlocked-brand-mark=""
+      data-brand-tone={tone}
+    />
   </g>;
 }

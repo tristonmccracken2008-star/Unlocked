@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdirSync, readFileSync } from "node:fs";
+import { copyFileSync, mkdirSync, readFileSync } from "node:fs";
 import http from "node:http";
 import net from "node:net";
 import path from "node:path";
@@ -147,10 +147,13 @@ async function assertJourneyCard(page: Page) {
   const dialog = page.locator('dialog[aria-labelledby="journey-card-title"][open]');
   await dialog.waitFor({ state: "visible" });
   const artwork = dialog.locator("svg[data-journey-card-artwork]");
+  const brandMark = artwork.locator('image[data-unlocked-brand-mark]');
+  assert.equal(await brandMark.getAttribute("href"), "/brand/unlocked-mark.png", "Journey Card previews must use the canonical uploaded UnlockED mark.");
   assert.equal(await artwork.getAttribute("data-journey-card-layout"), "story");
   assert.equal(await artwork.getAttribute("width"), "1080");
   assert.equal(await artwork.getAttribute("height"), "1920");
   assert.doesNotMatch(await artwork.textContent() ?? "", /Private command-center note/, "Journey Card output must never contain a private Journey note.");
+  await dialog.screenshot({ path: path.join(output, "journey-card-preview.png"), caret: "initial" });
   await dialog.getByRole("button", { name: "Square" }).click();
   assert.equal(await artwork.getAttribute("width"), "1080");
   assert.equal(await artwork.getAttribute("height"), "1080");
@@ -163,6 +166,9 @@ async function assertJourneyCard(page: Page) {
     dialog.getByRole("button", { name: "Download PNG" }).click(),
   ]);
   assert.equal(download.suggestedFilename(), "unlocked-journey-card-story.png");
+  const downloadedPath = await download.path();
+  assert.ok(downloadedPath, "Journey Card export must produce a PNG file.");
+  copyFileSync(downloadedPath!, path.join(output, "journey-card-export.png"));
   await dialog.getByRole("button", { name: "Close Journey Card creator" }).click();
   assert.equal(await trigger.evaluate((node) => document.activeElement === node), true, "Closing the Journey Card builder must restore focus.");
 }

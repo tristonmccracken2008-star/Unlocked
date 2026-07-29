@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
+    "prepare:brand": "node scripts/prepare-unlocked-logo.mjs",
     "dev": "next dev",
     "validate:data": "node scripts/validate-data.mjs",
     "check:data-enrichment": "node scripts/check-opportunity-enrichment.mjs",

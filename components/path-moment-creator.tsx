@@ -7,6 +7,7 @@ import { PathMomentArtwork, pathMomentAltDescription, type PathMomentPrivacy } f
 import { pathMomentLayouts, pathMomentTitle, type PathMomentCollection, type PathMomentLayout, type PathMomentNameMode } from "@/lib/path-moments";
 import styles from "./path-moment.module.css";
 import type { JourneyThemeName } from "@/lib/journey-theme";
+import { serializeBrandedArtwork } from "@/lib/brand-export";
 
 type PathMomentCreatorProps = {
   collection: PathMomentCollection;
@@ -71,7 +72,7 @@ export function PathMomentCreator({ collection, theme, openedAt, onClose }: Path
     const svg = artworkRef.current;
     if (!svg) throw new Error("The Path Moment preview is not ready yet.");
     const dimensions = pathMomentLayouts[layout];
-    const source = new XMLSerializer().serializeToString(svg);
+    const source = await serializeBrandedArtwork(svg);
     const sourceUrl = URL.createObjectURL(new Blob([source], { type: "image/svg+xml;charset=utf-8" }));
     const image = new Image();
     image.decoding = "async";
