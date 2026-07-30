@@ -1,0 +1,157 @@
+.saveButton {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  transform-origin: center;
+}
+
+.saveButton::before {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(105deg, transparent 25%, rgb(var(--color-forest) / 0.07) 48%, transparent 72%);
+  content: "";
+  opacity: 0;
+  transform: translateX(-70%);
+}
+
+.saveButton[data-journey-save-state="loading"]::before {
+  opacity: 1;
+  animation: save-loading-sweep 900ms var(--motion-ease) infinite;
+}
+
+.saveButton[data-journey-save-state="loading"] {
+  border-color: rgb(var(--color-forest) / 0.3);
+  color: rgb(var(--color-forest));
+  opacity: 1;
+}
+
+.saveButton[data-journey-save-state="error"] {
+  border-color: rgb(185 28 28 / 0.32);
+  color: rgb(153 27 27);
+  opacity: 1;
+}
+
+.saveButton:active:not(:disabled) {
+  box-shadow: inset 0 2px 5px rgb(43 33 26 / 0.1);
+  transform: translateY(1px) scale(0.975);
+}
+
+.buttonIcon {
+  position: relative;
+  display: inline-grid;
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  place-items: center;
+}
+
+.progress {
+  width: 18px;
+  height: 18px;
+  overflow: visible;
+  transform: rotate(-90deg);
+}
+
+.progressTrack,
+.progressTrace {
+  fill: none;
+  stroke-width: 1.75;
+}
+
+.progressTrack {
+  stroke: rgb(var(--color-forest) / 0.16);
+}
+
+.progressTrace {
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-dasharray: 28 44;
+  animation: save-progress-trace 760ms var(--motion-ease) infinite;
+  transform-origin: center;
+}
+
+.errorIcon {
+  width: 16px;
+  height: 16px;
+}
+
+.addedIcon {
+  display: inline-grid;
+  width: 20px;
+  height: 20px;
+  place-items: center;
+  color: white;
+  border-radius: 999px;
+  background: rgb(var(--color-forest));
+  box-shadow: 0 4px 12px rgb(var(--color-forest) / 0.18);
+}
+
+.addedIcon svg {
+  width: 12px;
+  height: 12px;
+  stroke-width: 2.3;
+}
+
+.addedGroup {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+}
+
+.journeyLink {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  border-bottom: 1px solid currentColor;
+  color: rgb(var(--color-forest));
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.addedState[data-journey-save-confirmed="true"] .addedIcon {
+  animation: save-icon-settle 420ms var(--motion-ease-emphasis) both;
+}
+
+.error {
+  animation: save-error-enter 220ms var(--motion-ease-emphasis) both;
+}
+
+@keyframes save-loading-sweep {
+  from { transform: translateX(-75%); }
+  to { transform: translateX(90%); }
+}
+
+@keyframes save-progress-trace {
+  from { stroke-dashoffset: 48; transform: rotate(0deg); }
+  to { stroke-dashoffset: 0; transform: rotate(360deg); }
+}
+
+@keyframes save-icon-settle {
+  0% { opacity: 0.3; transform: scale(0.72); }
+  62% { opacity: 1; transform: scale(1.06); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes save-error-enter {
+  from { opacity: 0.35; transform: translateY(-2px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .saveButton::before {
+    animation: none !important;
+  }
+
+  .progressTrace {
+    animation: none;
+    stroke-dasharray: 34 44;
+    stroke-dashoffset: 8;
+  }
+
+  .addedState[data-journey-save-confirmed="true"] .addedIcon,
+  .error {
+    animation-duration: 1ms;
+  }
+}

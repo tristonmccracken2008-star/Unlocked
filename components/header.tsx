@@ -56,6 +56,7 @@ export function Header() {
       aria-current={active ? "page" : undefined}
       data-navigation-item=""
       data-active={active ? "true" : undefined}
+      data-journey-destination={label === "Journey" ? mobile ? "mobile" : "desktop" : undefined}
       className={mobile
         ? `relative inline-flex min-h-11 items-center justify-center rounded-full px-3 text-center transition duration-200 active:scale-[.98] ${active ? "bg-white text-forest" : "text-white/70 hover:text-white"}`
         : `relative inline-flex min-h-11 items-center rounded-full px-4 transition duration-200 active:scale-[.98] ${active ? "bg-white text-forest shadow-[0_8px_20px_rgba(43,33,26,.08)]" : "hover:bg-white/75 hover:text-forest"}`}

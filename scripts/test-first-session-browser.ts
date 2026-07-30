@@ -125,7 +125,9 @@ async function completeOnboarding(page: Page, origin: string) {
 
   await page.getByRole("button", { name: "Get started" }).click();
   const schoolInput = page.getByRole("combobox", { name: "Search for your school" });
+  await page.waitForFunction(() => Object.keys(localStorage).some((key) => key.startsWith("unlocked-onboarding-draft-v1:")));
   await schoolInput.fill("University of Chicago");
+  await page.waitForFunction(() => Object.keys(localStorage).some((key) => key.startsWith("unlocked-onboarding-draft-v1:") && localStorage.getItem(key)?.includes("University of Chicago")));
   await page.reload({ waitUntil: "domcontentloaded" });
   await page.getByRole("button", { name: "Get started" }).click();
   await assert.doesNotReject(async () => assert.equal(await schoolInput.inputValue(), "University of Chicago"), "Interrupted onboarding must restore the saved answer.");
@@ -156,24 +158,29 @@ async function completeOnboarding(page: Page, origin: string) {
   return timings;
 }
 
-async function verifyFirstSave(page: Page, origin: string) {
+async function verifyFirstSave(page: Page, origin: string, browserName: string) {
   let addRequests = 0;
   page.on("request", (request) => {
     if (new URL(request.url()).pathname === "/api/journey/add") addRequests += 1;
   });
   await page.route("**/api/journey/add", (route) => route.fulfill({ status: 500, contentType: "application/json", body: JSON.stringify({ error: "We couldn’t add this opportunity. Nothing changed." }) }), { times: 1 });
-  const button = page.getByRole("button", { name: "Add to Journey" }).first();
+  const button = page.locator("button[data-journey-save-state]").first();
+  await button.getByText("Add to Journey", { exact: true }).waitFor({ state: "visible" });
   await button.click();
   await page.getByRole("alert").getByText(/couldn’t add/i).waitFor({ state: "visible" });
-  assert.equal(await page.getByText("Saved to Journey", { exact: false }).count(), 0, "A failed save must not show success.");
+  assert.equal(await page.getByText("Added to Journey", { exact: false }).count(), 0, "A failed save must not show success.");
+  assert.equal(await button.getAttribute("data-journey-save-state"), "error", "A failed save must settle into an intentional retry state.");
+  assert.equal(await button.getByText("Try again", { exact: true }).count(), 1);
 
   const startedAt = performance.now();
   await button.dblclick();
-  await page.getByText("Saved to your Journey.", { exact: false }).waitFor({ state: "visible", timeout: 15_000 });
+  await page.getByText("Added to your Journey.", { exact: false }).waitFor({ state: "visible", timeout: 15_000 });
   const firstSaveMs = performance.now() - startedAt;
   assert.equal(addRequests, 2, "The failed attempt and one protected retry should issue exactly two requests.");
-  const addedState = page.getByText("Saved to Journey", { exact: false }).first();
+  const addedState = page.getByText("Added to Journey", { exact: false }).first();
   assert.ok(await addedState.isVisible());
+  assert.equal(await page.locator("[data-journey-save-flight]").count(), 0, "Reduced-motion users must not receive the travel animation.");
+  await page.screenshot({ path: `/tmp/unlocked-save-${browserName.toLowerCase()}-mobile-reduced.png`, fullPage: true });
 
   const opportunityId = await page.locator("[data-for-you-page] article").first().evaluate((node) => {
     const link = node.querySelector<HTMLAnchorElement>('a[href^="/opportunities/"]');
@@ -205,13 +212,13 @@ async function verifyFirstSave(page: Page, origin: string) {
   return { firstSaveMs, firstJourneyMs, returnMs: performance.now() - returnStartedAt };
 }
 
-async function runNewAccount(browser: Browser, origin: string, token: string) {
+async function runNewAccount(browser: Browser, origin: string, token: string, browserName: string) {
   const context = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce" });
   await installSession(context, origin, token);
   const page = await context.newPage();
   const assertNoErrors = observe(page);
   const onboarding = await completeOnboarding(page, origin);
-  const activation = await verifyFirstSave(page, origin);
+  const activation = await verifyFirstSave(page, origin, browserName);
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   assert.ok(overflow <= 1, `First-session mobile flow created ${overflow}px horizontal overflow.`);
   assertNoErrors(true);
@@ -219,15 +226,54 @@ async function runNewAccount(browser: Browser, origin: string, token: string) {
   return { ...onboarding, ...activation };
 }
 
-async function runPro(browser: Browser, origin: string, token: string) {
+async function runPro(browser: Browser, origin: string, token: string, browserName: string) {
   const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
   await installSession(context, origin, token);
   const page = await context.newPage();
   const assertNoErrors = observe(page);
   await page.goto(`${origin}/advisor`, { waitUntil: "domcontentloaded", timeout: 60_000 });
   await page.getByRole("button", { name: "Add to Journey" }).first().waitFor({ state: "visible", timeout: 60_000 });
+  const button = page.locator("button[data-journey-save-state]").first();
   assert.equal(await page.getByText("See your complete personalized shortlist", { exact: false }).count(), 0, "Pro must not receive Free upgrade messaging.");
   assert.ok(await page.locator("[data-for-you-page] article").count() > 1, "Pro should receive the full shortlist.");
+  await page.evaluate(() => {
+    const root = document.documentElement;
+    const observer = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        if (mutation.type === "childList") {
+          for (const node of mutation.addedNodes) {
+            if (!(node instanceof HTMLElement)) continue;
+            if (node.matches("[data-journey-save-flight]")) root.dataset.saveFlightObserved = "true";
+            if (node.matches("[data-journey-save-chip]")) root.dataset.saveChipObserved = "true";
+          }
+        }
+        if (mutation.type === "attributes" && mutation.target instanceof HTMLElement) {
+          if (mutation.target.matches("[data-journey-destination][data-journey-arrival='true']")) root.dataset.saveArrivalObserved = "true";
+          if (mutation.target.matches("[data-journey-save-card='confirmed']")) root.dataset.saveCardObserved = "true";
+        }
+      }
+    });
+    observer.observe(document.body, { attributes: true, childList: true, subtree: true });
+  });
+  await page.route("**/api/journey/add", async (route) => {
+    await new Promise((resolve) => setTimeout(resolve, 180));
+    await route.continue();
+  }, { times: 1 });
+  await button.click();
+  await button.locator("[data-journey-save-progress]").waitFor({ state: "visible" });
+  assert.equal(await button.getAttribute("data-journey-save-state"), "loading");
+  await page.screenshot({ path: `/tmp/unlocked-save-${browserName.toLowerCase()}-desktop-loading.png`, fullPage: true });
+  await page.getByText("Added to your Journey.", { exact: false }).waitFor({ state: "visible", timeout: 15_000 });
+  await page.screenshot({ path: `/tmp/unlocked-save-${browserName.toLowerCase()}-desktop-success.png`, fullPage: true });
+  await page.waitForFunction(() => document.documentElement.dataset.saveArrivalObserved === "true");
+  const observations = await page.evaluate(() => ({
+    flight: document.documentElement.dataset.saveFlightObserved,
+    chip: document.documentElement.dataset.saveChipObserved,
+    arrival: document.documentElement.dataset.saveArrivalObserved,
+    card: document.documentElement.dataset.saveCardObserved,
+  }));
+  assert.deepEqual(observations, { flight: "true", chip: "true", arrival: "true", card: "true" }, "Desktop save must complete the flight, confirmation, destination, and card acknowledgement sequence.");
+  assert.ok(await page.getByText("Added to Journey", { exact: false }).first().isVisible());
   assertNoErrors();
   await context.close();
 }
@@ -258,8 +304,8 @@ let failure: unknown;
 try {
   const results: Array<{ browser: string; timings: Record<string, number> }> = [];
   for (const target of browsers) {
-    const timings = await runNewAccount(target.browser, origin, target.fresh);
-    await runPro(target.browser, origin, target.pro);
+    const timings = await runNewAccount(target.browser, origin, target.fresh, target.name);
+    await runPro(target.browser, origin, target.pro, target.name);
     results.push({ browser: target.name, timings });
   }
   const timingKeys = Object.keys(results[0]!.timings);

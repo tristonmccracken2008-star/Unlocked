@@ -1,0 +1,116 @@
+.flight {
+  position: fixed;
+  z-index: 80;
+  width: 24px;
+  height: 30px;
+  pointer-events: none;
+  border: 1px solid rgb(var(--color-forest) / 0.3);
+  border-radius: 7px;
+  background:
+    linear-gradient(rgb(var(--color-forest) / 0.18), rgb(var(--color-forest) / 0.18)) 6px 9px / 12px 2px no-repeat,
+    linear-gradient(rgb(var(--color-forest) / 0.1), rgb(var(--color-forest) / 0.1)) 6px 14px / 8px 2px no-repeat,
+    rgb(255 255 255 / 0.96);
+  box-shadow:
+    0 8px 24px rgb(var(--color-forest) / 0.2),
+    0 0 18px rgb(var(--color-gold) / 0.16);
+  will-change: transform, opacity;
+}
+
+.flight::before {
+  position: absolute;
+  top: 4px;
+  left: 5px;
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: rgb(var(--color-gold));
+  content: "";
+}
+
+.chip {
+  position: fixed;
+  z-index: 81;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 6px 11px;
+  pointer-events: none;
+  white-space: nowrap;
+  color: rgb(255 255 255);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0;
+  border-radius: 999px;
+  background: rgb(var(--color-forest) / 0.96);
+  box-shadow: 0 10px 28px rgb(var(--color-forest) / 0.2);
+  animation: journey-save-chip 1100ms var(--motion-ease-emphasis) both;
+  will-change: transform, opacity;
+  left: 50%;
+  bottom: 24px;
+}
+
+@keyframes journey-save-chip {
+  0% { opacity: 0; transform: translate(-50%, 5px) scale(0.98); }
+  18%, 68% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -7px) scale(0.99); }
+}
+
+:global([data-journey-destination][data-journey-arrival="true"]) {
+  animation: journey-destination-arrival 560ms var(--motion-ease-emphasis) both;
+}
+
+@keyframes journey-destination-arrival {
+  0%, 100% {
+    filter: drop-shadow(0 0 0 transparent);
+    transform: scale(1);
+  }
+  45% {
+    color: rgb(var(--color-forest));
+    filter: drop-shadow(0 7px 12px rgb(var(--color-forest) / 0.18));
+    transform: scale(1.035);
+  }
+}
+
+:global([data-journey-save-card="confirmed"]) {
+  animation: journey-card-confirmed 760ms var(--motion-ease-emphasis) both;
+}
+
+@keyframes journey-card-confirmed {
+  0%, 100% {
+    box-shadow: var(--elevation-rest);
+  }
+  38% {
+    border-color: rgb(var(--color-forest) / 0.32);
+    box-shadow:
+      0 16px 36px rgb(var(--color-forest) / 0.11),
+      inset 0 0 0 1px rgb(var(--color-forest) / 0.12);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flight {
+    display: none;
+  }
+
+  .chip {
+    animation: journey-save-chip-reduced 420ms ease-out both;
+  }
+
+  :global([data-journey-destination][data-journey-arrival="true"]),
+  :global([data-journey-save-card="confirmed"]) {
+    animation: none;
+  }
+}
+
+@media (max-width: 639px) {
+  .chip {
+    bottom: max(84px, calc(env(safe-area-inset-bottom) + 72px));
+  }
+}
+
+@keyframes journey-save-chip-reduced {
+  0% { opacity: 0; transform: translate(-50%, 0); }
+  25%, 75% { opacity: 1; transform: translate(-50%, 0); }
+  100% { opacity: 0; transform: translate(-50%, 0); }
+}

@@ -56,7 +56,7 @@ assert.match(source("app/api/account/data/route.ts"), /New opportunities require
 
 const action = source("components/opportunity-activity.tsx");
 assert.match(action, /await authenticatedFetch\("\/api\/journey\/add"/);
-assert.match(action, /Saved to your Journey/);
+assert.match(action, /Added to your Journey/);
 assert.ok(action.indexOf("setAdded(true)") > action.indexOf("if (!response.ok"), "The UI may confirm only after a successful server response.");
 assert.doesNotMatch(action, /saveOpportunity\(opportunityId/);
 
