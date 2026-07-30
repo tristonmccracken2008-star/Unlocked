@@ -80,6 +80,43 @@ export type JourneyCardStat = {
   value: number;
 };
 
+export const journeyCardTemplates = ["acceptance", "internship", "scholarship", "research", "offer", "completion", "year_review"] as const;
+export type JourneyCardTemplate = (typeof journeyCardTemplates)[number];
+export const journeyCardTemplateLabels: Record<JourneyCardTemplate, string> = {
+  acceptance: "Acceptance",
+  internship: "Internship",
+  scholarship: "Scholarship",
+  research: "Research",
+  offer: "Offer",
+  completion: "Completion",
+  year_review: "Year in Review",
+};
+
+export const journeyCardThemes = ["cream", "forest", "midnight", "ivory_gold"] as const;
+export type JourneyCardTheme = (typeof journeyCardThemes)[number];
+
+export type JourneyCardOrganizationMark = {
+  src?: string;
+  initials: string;
+  alt: string;
+};
+
+export type JourneyCardAchievement = {
+  id: string;
+  label: string;
+  title: string;
+  organization?: string;
+  occurredAt?: string;
+  role?: string;
+  location?: string;
+  awardAmount?: string;
+  field?: string;
+  season?: string;
+  templates: JourneyCardTemplate[];
+  defaultTemplate: JourneyCardTemplate;
+  organizationMark?: JourneyCardOrganizationMark;
+};
+
 export type JourneyCardData = {
   identity: { firstName: string; fullName: string; school?: string };
   dateRange: string;
@@ -87,6 +124,8 @@ export type JourneyCardData = {
   periodTitle: string;
   stats: JourneyCardStat[];
   highlights: Array<{ id: string; date: string; title: string; label: string; organization?: string }>;
+  achievements: JourneyCardAchievement[];
+  defaultAchievementId: string;
 };
 
 export type JourneyAnnualArchive = {
@@ -109,6 +148,9 @@ export type JourneyCardPrivacy = {
   includeDates: boolean;
   includeOrganization?: boolean;
   includeBranding?: boolean;
+  includeRole?: boolean;
+  includeLocation?: boolean;
+  includeAwardAmount?: boolean;
 };
 
 export type JourneyTimelineModel = {
@@ -271,6 +313,86 @@ function journeyPeriodTitle(events: readonly JourneyTimelineEvent[]) {
   return `My ${year}`;
 }
 
+function titleSeason(value: string) {
+  const date = new Date(value);
+  if (!Number.isFinite(date.getTime())) return undefined;
+  const month = date.getUTCMonth();
+  const season = month >= 5 && month <= 7 ? "Summer" : month >= 8 ? "Fall" : month <= 1 ? "Winter" : "Spring";
+  return `${season} ${date.getUTCFullYear()}`;
+}
+
+function cardAmount(opportunity: Opportunity) {
+  if (opportunity.metadata.awardAmountLabel?.trim()) return opportunity.metadata.awardAmountLabel.trim();
+  if (typeof opportunity.estimated_value !== "number") return undefined;
+  return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(opportunity.estimated_value);
+}
+
+function cardMark(opportunity: Opportunity): JourneyCardOrganizationMark {
+  const resolved = resolveOrganizationLogo(opportunity);
+  if (resolved.kind === "image") {
+    return {
+      src: resolved.src.startsWith("/") ? resolved.src : undefined,
+      initials: resolved.initials || opportunity.organization.slice(0, 2).toUpperCase(),
+      alt: resolved.alt,
+    };
+  }
+  return {
+    initials: resolved.kind === "initials" ? resolved.initials : resolved.categoryIcon,
+    alt: resolved.alt,
+  };
+}
+
+function cardTemplatesFor(event: JourneyTimelineEvent): JourneyCardTemplate[] {
+  const opportunity = event.opportunity;
+  if (!opportunity) return [];
+  const internship = opportunity.type === "Career" && /intern|co-?op|apprentice/i.test(`${opportunity.title} ${opportunity.category}`);
+  if (event.type === "scholarship_awarded") return ["scholarship"];
+  if (event.type === "accepted") {
+    if (opportunity.type === "Research") return ["research", "acceptance", "offer"];
+    if (internship) return ["internship", "acceptance", "offer"];
+    return ["acceptance", "offer"];
+  }
+  if (event.type === "completed") {
+    if (opportunity.type === "Research") return ["research", "completion"];
+    if (internship) return ["internship", "completion"];
+    return ["completion"];
+  }
+  return [];
+}
+
+function buildCardAchievements(events: readonly JourneyTimelineEvent[], stats: readonly JourneyCardStat[], periodTitle: string) {
+  const achievements: JourneyCardAchievement[] = [];
+  for (const event of [...events].reverse()) {
+    const templates = cardTemplatesFor(event);
+    const opportunity = event.opportunity;
+    if (!templates.length || !opportunity) continue;
+    achievements.push({
+      id: event.id,
+      label: event.label,
+      title: opportunity.title,
+      organization: opportunity.organization || undefined,
+      occurredAt: event.occurredAt,
+      role: opportunity.title,
+      location: opportunity.location || undefined,
+      awardAmount: opportunity.type === "Scholarship" ? cardAmount(opportunity) : undefined,
+      field: opportunity.metadata.researchArea ?? opportunity.metadata.department ?? (opportunity.type === "Research" ? opportunity.category : undefined),
+      season: opportunity.metadata.applicationSeason ?? titleSeason(event.occurredAt),
+      templates,
+      defaultTemplate: templates[0],
+      organizationMark: cardMark(opportunity),
+    });
+    if (achievements.length >= 24) break;
+  }
+  if (stats.length) achievements.push({
+    id: "year-review",
+    label: "Year in Review",
+    title: periodTitle,
+    templates: ["year_review"],
+    defaultTemplate: "year_review",
+  });
+  return achievements;
+}
+
 function buildHighlights(events: readonly JourneyTimelineEvent[], records: readonly TrackedOpportunity[], opportunityById: ReadonlyMap<string, Opportunity>, fallbackDate: string): JourneyHighlight[] {
   const candidates: JourneyHighlight[] = [];
   const firstApplication = events.find((event) => event.type === "application_submitted" && isApplicationOpportunity(event.opportunity));
@@ -398,6 +520,8 @@ export function buildJourneyTimelineModel(input: {
   const school = profile ? schools.find((item) => item.slug === profile.schoolSlug)?.name : undefined;
   const appearance = input.account.preferences?.appearance ?? "light";
   const theme = input.resolvedTheme ?? (isProUser(input.account.billing) && (appearance === "midnight" || appearance === "forest") ? "dark" : "light");
+  const periodTitle = journeyPeriodTitle(events);
+  const achievements = buildCardAchievements(events, stats, periodTitle);
 
   return {
     events,
@@ -414,9 +538,11 @@ export function buildJourneyTimelineModel(input: {
       identity: { firstName, fullName: profileName || input.user.name.trim() || firstName, school },
       dateRange: cardDateRange(events),
       headline: cardHeadline(values),
-      periodTitle: journeyPeriodTitle(events),
+      periodTitle,
       stats,
       highlights: cardHighlights,
+      achievements,
+      defaultAchievementId: achievements[0]?.id ?? "",
     },
   };
 }

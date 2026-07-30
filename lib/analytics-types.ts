@@ -17,6 +17,10 @@ export const productIntelligenceEvents = {
   journeyCardDownloaded: "journey_card_downloaded_v1",
   journeyCardShared: "journey_card_shared_v1",
   journeyCardCopied: "journey_card_copied_v1",
+  journeyCardTemplateSelected: "journey_card_template_selected_v1",
+  journeyCardAppearanceChanged: "journey_card_appearance_changed_v1",
+  journeyCardFormatChanged: "journey_card_format_changed_v1",
+  journeyCardPrivacyChanged: "journey_card_privacy_changed_v1",
   pathMomentCreatorOpened: "path_moment_creator_opened_v1",
   pathMomentPrivacyChanged: "path_moment_privacy_changed_v1",
   pathMomentAppearanceChanged: "path_moment_appearance_changed_v1",
@@ -167,6 +171,10 @@ export const productIntelligenceDefinitions: Record<ProductIntelligenceEventName
   journey_card_downloaded_v1: action("Measure completed Journey Card downloads without recording card content.", ["format"]),
   journey_card_shared_v1: action("Measure completed native Journey Card shares without recording destinations.", ["format"]),
   journey_card_copied_v1: action("Measure completed Journey Card image copies without recording content.", ["format"]),
+  journey_card_template_selected_v1: action("Measure use of factual Journey Card templates without recording achievement content.", ["control"]),
+  journey_card_appearance_changed_v1: action("Measure Journey Card appearance control use.", ["appearance"]),
+  journey_card_format_changed_v1: action("Measure Journey Card format control use.", ["format"]),
+  journey_card_privacy_changed_v1: action("Measure use of Journey Card privacy controls without recording their values.", ["control"]),
   path_moment_creator_opened_v1: action("Measure use of Path Moment creation.", ["format"]),
   path_moment_privacy_changed_v1: action("Measure whether privacy controls are useful.", ["control"]),
   path_moment_appearance_changed_v1: action("Measure appearance control use.", ["appearance"]),
@@ -217,7 +225,7 @@ const identifier = /^[A-Za-z0-9][A-Za-z0-9._:-]{0,119}$/;
 const safeToken = /^[a-z0-9][a-z0-9_-]{0,63}$/;
 const safeStatus = /^(empty|sparse|active|validated|saved|interested|applying|submitted|interview|accepted|paused|rejected|completed)$/i;
 const safeFormat = /^(story|square|linkedin)$/;
-const safeAppearance = /^(light|dark|midnight|system)$/;
+const safeAppearance = /^(light|dark|cream|forest|midnight|ivory_gold|system)$/;
 const safeDevice = /^(mobile|tablet|desktop)$/;
 const safeBrowser = /^(chromium|webkit|firefox|other)$/;
 const safeError = /^(network|timeout|session|security|conflict|invalid_response|invalid_transition|unsupported|export|unavailable|unknown)$/;

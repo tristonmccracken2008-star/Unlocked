@@ -55,6 +55,9 @@ assert.equal(model.filterCounts.everything, model.events.length);
 assert.equal(model.filterCounts.scholarships, model.events.filter((event) => event.filters.includes("scholarships")).length);
 assert.ok(model.card.periodTitle === "My 2026" || /^(Spring|Summer|Fall) 2026$/.test(model.card.periodTitle), "Share titles must be derived from recorded dates.");
 assert.ok(model.card.highlights.every((item) => item.title && item.date), "Every exported highlight must come from a dated Journey event.");
+assert.ok(model.card.achievements.length > 0, "Journey Cards must expose confirmed achievements.");
+assert.ok(model.card.achievements.every((item) => item.templates.length > 0), "Each confirmed achievement must have compatible templates.");
+assert.ok(model.card.achievements.filter((item) => item.id !== "year-review").every((item) => model.events.some((event) => event.id === item.id)), "Achievement cards must resolve to recorded Journey events.");
 
 const timeline = source("components/journey-timeline.tsx");
 const filters = source("components/journey-timeline-filters.tsx");
@@ -65,8 +68,9 @@ assert.match(filters, /localStorage\.setItem\(storageKey, filter\)/, "The last s
 assert.match(filters, /aria-pressed=\{active === filter\}/, "Journey filters must expose selected state.");
 assert.match(styles, /content-visibility:\s*auto/, "Large histories must retain browser rendering containment.");
 assert.match(styles, /prefers-reduced-motion:\s*reduce/, "Journey motion must respect reduced-motion preferences.");
-assert.match(artwork, /periodTitle/);
-assert.match(artwork, /moment\.organization/);
+assert.match(artwork, /JourneyCardAchievement/);
+assert.match(artwork, /journeyCardTemplateLabels/);
+assert.match(artwork, /data-journey-card-template/);
 assert.doesNotMatch(timeline, /\bXP\b|streak|leaderboard|confetti|fake progress/i);
 
 console.log(JSON.stringify({

@@ -107,7 +107,7 @@ assert.match(effectStyles, /prefers-reduced-motion:\s*reduce/);
 assert.match(effectStyles, /pointer-events:\s*none/);
 assert.match(activity, /Saved to Journey/);
 assert.match(activity, /setConfirmedThisSession\(!body\.duplicate\)/);
-assert.match(card, /Journey Card ready\./);
+assert.match(card, /Your PNG is ready\./);
 assert.match(globalStyles, /--motion-micro:\s*140ms/);
 assert.doesNotMatch(readFileSync("package.json", "utf8"), /framer-motion|canvas-confetti|lottie/, "Microinteractions must not add a heavy animation dependency.");
 

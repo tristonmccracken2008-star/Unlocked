@@ -59,7 +59,7 @@ for (const token of ["OpenLineRenderer", "Built with UnlockED"]) assert.ok(artwo
 for (const token of ["data-journey-timeline", "Journey Card", "JourneyTimelineControl", "OrganizationLogo"]) assert.ok(timeline.includes(token), `Unified Journey must include ${token}.`);
 for (const token of ["journeyCardLayouts", "1080", "1920", "cardHeadline", "highlights", "stats"]) assert.ok(timelineModel.includes(token), `Journey Card model must include ${token}.`);
 for (const token of ["Download PNG", "navigator.share", "navigator.clipboard", "ClipboardItem", "serializeBrandedArtwork", "canvas.toBlob", "Private until you share it"]) assert.ok(cardCreator.includes(token), `Journey Card creator must include ${token}.`);
-for (const token of ["Built with UnlockED", "unlockededu.com", "BrandMarkArtwork", "MOMENTS"]) assert.ok(cardArtwork.includes(token), `Journey Card artwork must include ${token}.`);
+for (const token of ["UnlockED", "JOURNEY CARD", "BrandMarkArtwork", "data-journey-card-template"]) assert.ok(cardArtwork.includes(token), `Journey Card artwork must include ${token}.`);
 for (const token of ["XMLSerializer", "UNLOCKED_MARK_SRC", "image[data-unlocked-brand-mark]"]) assert.ok(brandExport.includes(token), `Brand export utility must include ${token}.`);
 
 for (const [event, emitter] of [["path_moment_preview_rendered_v1", "pathMomentPreviewRendered"], ["path_moment_downloaded_v1", "pathMomentDownloaded"], ["path_moment_copied_v1", "pathMomentCopied"], ["path_moment_shared_v1", "pathMomentShared"]]) {

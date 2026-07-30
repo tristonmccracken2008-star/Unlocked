@@ -63,6 +63,10 @@ All Journey action aggregates are retained for 90 days.
 | `journey_application_management_opened_v1` | none | Did students need the operational workspace? |
 | `journey_card_creator_opened_v1` | `format` | Did students open the privacy-controlled Journey Card creator? |
 | `journey_card_downloaded_v1` | `format` | Did a Journey Card download complete? |
+| `journey_card_template_selected_v1` | `control` | Which factual card templates help students tell their story? |
+| `journey_card_appearance_changed_v1` | `appearance` | Which card appearances are useful? |
+| `journey_card_format_changed_v1` | `format` | Which export formats are useful? |
+| `journey_card_privacy_changed_v1` | `control` | Which privacy controls are useful, without recording their values? |
 | `journey_card_shared_v1` | `format` | Did a native Journey Card share complete? |
 | `journey_card_copied_v1` | `format` | Did an image copy complete? |
 

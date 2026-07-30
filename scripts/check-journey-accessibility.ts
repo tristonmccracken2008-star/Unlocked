@@ -8,7 +8,7 @@ const entry = read("components/journey-card-entry.tsx");
 const creator = read("components/journey-card-creator.tsx");
 const artwork = read("components/journey-card-artwork.tsx");
 const styles = read("components/journey-timeline.module.css");
-const creatorStyles = read("components/path-moment.module.css");
+const creatorStyles = read("components/journey-card-creator.module.css");
 const loading = read("app/loading.tsx");
 
 const unavailable = timeline.slice(timeline.indexOf("export function JourneyTimelineUnavailable"));
@@ -29,7 +29,7 @@ assert.match(control, /role="alert"/);
 assert.match(entry, /aria-describedby=\{error \? "journey-card-load-error" : undefined\}/);
 assert.match(entry, /role="alert"/);
 
-assert.match(creator, /<dialog[^>]+aria-labelledby="journey-card-title" aria-describedby="journey-card-description"/);
+assert.match(creator, /<dialog[\s\S]*?aria-labelledby="journey-card-title"[\s\S]*?aria-describedby="journey-card-description"/);
 assert.match(creator, /aria-label="Journey Card preview"/);
 assert.match(creator, /role="img" aria-label=\{alt\}/);
 assert.match(creator, /aria-busy=\{busy \? "true" : undefined\}/);
@@ -37,14 +37,14 @@ assert.match(creator, /role=\{messageIsError \? "alert" : "status"\}/);
 assert.match(creator, /aria-pressed=\{layout === item\}/);
 assert.match(creator, /aria-pressed=\{exportTheme === item\}/);
 assert.match(creator, /aria-pressed=\{privacy\.nameMode === mode\}/);
-assert.match(artwork, /aria-hidden="true" focusable="false"/);
+assert.match(artwork, /aria-hidden="true"[\s\S]*?focusable="false"/);
 
 assert.match(styles, /\.eventFooter a \{[^}]*min-height:\s*44px/);
 assert.match(styles, /\.updateJourneyButton \{[^}]*min-height:\s*45px/);
 assert.match(styles, /\.updateClose \{[^}]*width:\s*44px;[^}]*height:\s*44px/);
 assert.match(styles, /\.updateActions button \{[^}]*min-height:\s*45px/);
 assert.match(creatorStyles, /\.segmented button \{[\s\S]*?min-height:\s*44px/);
-assert.match(creatorStyles, /\.checks label \{[\s\S]*?min-height:\s*44px/);
+assert.match(creatorStyles, /\.checks label,[\s\S]*?min-height:\s*44px/);
 assert.match(creatorStyles, /\.actions button \{[\s\S]*?min-height:\s*44px/);
 assert.match(styles, /@media \(prefers-reduced-motion: reduce\)/);
 assert.match(styles, /@media \(prefers-contrast: more\)/);

@@ -139,12 +139,19 @@ async function baseAssertions(page: Page, label: string) {
   return root;
 }
 
-async function assertJourneyCard(page: Page) {
+async function assertJourneyCard(page: Page, label = "desktop") {
   const trigger = page.getByRole("button", { name: "Create a Journey Card" });
   await trigger.waitFor({ state: "visible" });
   await page.waitForFunction(() => document.querySelector('[data-journey-card-entry] [data-hydration-ready="true"]'));
-  await trigger.click();
+  if (label.includes("webkit")) await trigger.press("Enter");
+  else await trigger.click();
   const dialog = page.locator('dialog[aria-labelledby="journey-card-title"][open]');
+  await page.waitForFunction(() => Boolean(
+    document.querySelector('dialog[aria-labelledby="journey-card-title"][open]')
+    || document.querySelector("#journey-card-load-error"),
+  ), undefined, { timeout: 12_000 });
+  const loadError = page.locator("#journey-card-load-error");
+  if (await loadError.count()) throw new Error(`Journey Card failed to load in ${label}: ${await loadError.textContent()}`);
   await dialog.waitFor({ state: "visible" });
   const artwork = dialog.locator("svg[data-journey-card-artwork]");
   const brandMark = artwork.locator('image[data-unlocked-brand-mark]');
@@ -152,8 +159,12 @@ async function assertJourneyCard(page: Page) {
   assert.equal(await artwork.getAttribute("data-journey-card-layout"), "story");
   assert.equal(await artwork.getAttribute("width"), "1080");
   assert.equal(await artwork.getAttribute("height"), "1920");
+  assert.ok(await dialog.locator("select").inputValue(), "Journey Card must begin with a confirmed achievement.");
+  assert.equal(await dialog.locator("section[aria-labelledby='journey-card-template-heading'] button[aria-pressed='true']").count(), 1, "A compatible template must be selected.");
   assert.doesNotMatch(await artwork.textContent() ?? "", /Private command-center note/, "Journey Card output must never contain a private Journey note.");
-  await dialog.screenshot({ path: path.join(output, "journey-card-preview.png"), caret: "initial" });
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  assert.ok(overflow <= 1, `${label} Journey Card created ${overflow}px horizontal overflow.`);
+  await dialog.screenshot({ path: path.join(output, `journey-card-preview-${label}.png`), caret: "initial" });
   await dialog.getByRole("button", { name: "Square" }).click();
   assert.equal(await artwork.getAttribute("width"), "1080");
   assert.equal(await artwork.getAttribute("height"), "1080");
@@ -161,14 +172,17 @@ async function assertJourneyCard(page: Page) {
   assert.equal(await artwork.getAttribute("width"), "1200");
   assert.equal(await artwork.getAttribute("height"), "627");
   await dialog.getByRole("button", { name: "Story" }).click();
+  await dialog.getByRole("button", { name: "Midnight" }).click();
+  assert.equal(await artwork.getAttribute("data-export-theme"), "midnight");
+  await dialog.getByRole("button", { name: "Cream" }).click();
   const [download] = await Promise.all([
     page.waitForEvent("download"),
     dialog.getByRole("button", { name: "Download PNG" }).click(),
   ]);
-  assert.equal(download.suggestedFilename(), "unlocked-journey-card-story.png");
+  assert.match(download.suggestedFilename(), /^unlocked-[a-z-]+-story\.png$/);
   const downloadedPath = await download.path();
   assert.ok(downloadedPath, "Journey Card export must produce a PNG file.");
-  copyFileSync(downloadedPath!, path.join(output, "journey-card-export.png"));
+  copyFileSync(downloadedPath!, path.join(output, `journey-card-export-${label}.png`));
   await dialog.getByRole("button", { name: "Close Journey Card creator" }).click();
   assert.equal(await trigger.evaluate((node) => document.activeElement === node), true, "Closing the Journey Card builder must restore focus.");
 }
@@ -313,6 +327,15 @@ try {
     await reducedDialog.getByText("A defining milestone", { exact: true }).waitFor();
     assert.equal(await reducedDialog.locator("[data-milestone-celebration]").count(), 0, "Reduced motion must suppress confetti code while retaining success text.");
     noErrors();
+    await context.close();
+  }
+  {
+    const context = await webkitBrowser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce" });
+    await install(context, origin, rich.session.token);
+    const page = await context.newPage();
+    await page.goto(origin, { waitUntil: "domcontentloaded" });
+    await baseAssertions(page, "WebKit mobile Journey Card");
+    await assertJourneyCard(page, "webkit-mobile");
     await context.close();
   }
   {

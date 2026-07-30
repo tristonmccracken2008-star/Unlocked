@@ -168,7 +168,7 @@ async function assertCard(page: Page, root: Locator, label: string) {
   assert.equal(await artwork.getAttribute("width"), "1200");
   assert.equal(await artwork.getAttribute("height"), "627");
   await dialog.getByRole("button", { name: "Forest" }).click();
-  assert.equal(await artwork.getAttribute("data-export-theme"), "dark");
+  assert.equal(await artwork.getAttribute("data-export-theme"), "forest");
   await dialog.getByRole("button", { name: "Anonymous" }).click();
   assert.match(await dialog.locator("[role='img']").getAttribute("aria-label") ?? "", /Anonymous/);
   await dialog.getByRole("button", { name: "Story" }).click();
@@ -176,10 +176,10 @@ async function assertCard(page: Page, root: Locator, label: string) {
     page.waitForEvent("download"),
     dialog.getByRole("button", { name: "Download PNG" }).click(),
   ]);
-  assert.equal(download.suggestedFilename(), "unlocked-journey-card-story.png");
+  assert.match(download.suggestedFilename(), /^unlocked-[a-z-]+-story\.png$/);
   if (await dialog.getByRole("button", { name: "Copy image" }).count()) {
     await dialog.getByRole("button", { name: "Copy image" }).click();
-    await dialog.getByText(/Journey Card copied as an image|This browser could not copy the image/).waitFor({ state: "visible" });
+    await dialog.getByText(/Image copied|This browser could not copy the image/).waitFor({ state: "visible" });
   }
   await dialog.getByRole("button", { name: "Close Journey Card creator" }).click();
   assert.equal(await root.getByRole("button", { name: "Create a Journey Card" }).evaluate((node) => document.activeElement === node), true);
