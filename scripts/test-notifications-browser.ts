@@ -118,8 +118,10 @@ async function exercise(browser: Browser, origin: string, token: string, expecte
   await assert.doesNotReject(async () => page.locator(`html[data-theme="${expectedTheme}"]`).waitFor({ timeout: 5_000 }));
   assert.equal(await page.getByText(forbiddenTitle, { exact: true }).count(), 0, "An account must never render another account's notification.");
   assert.ok(await page.getByRole("link", { name: /Notifications,/ }).isVisible());
+  const notificationItem = page.locator("[data-notification-item]").filter({ hasText: expectedTitle });
   const markRead = page.getByRole("button", { name: `Mark as read: ${expectedTitle}` });
   await markRead.click();
+  assert.equal(await notificationItem.getAttribute("data-read"), "true", "Read notifications must use the shared visual state.");
   await assert.doesNotReject(async () => page.getByRole("link", { name: "Notifications" }).waitFor({ timeout: 5_000 }));
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   assert.ok(overflow <= 1, `Notification center created ${overflow}px horizontal overflow at ${viewport.width}px.`);

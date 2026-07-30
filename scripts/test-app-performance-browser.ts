@@ -209,6 +209,14 @@ async function verifyDiscover(page: Page, origin: string, screenshotLabel: strin
   await Promise.race([searchRequest, new Promise((_, reject) => setTimeout(() => reject(new Error("Discover search request did not start.")), 5000))]);
   assert.equal(await page.getByRole("link", { name: "Open Opportunity" }).count(), cardsBefore, "Discover must retain existing results while a refresh is pending.");
   await page.getByText("Updating results…", { exact: true }).waitFor({ state: "visible" });
+  const resultRegion = page.locator("[data-filter-results]");
+  assert.equal(await resultRegion.getAttribute("data-refreshing"), "true", "Discover must expose its non-blocking refresh state.");
+  await page.waitForFunction(() => {
+    const region = document.querySelector("[data-filter-results][data-refreshing='true']");
+    return region ? Number(getComputedStyle(region).opacity) < 1 : false;
+  });
+  const refreshingOpacity = Number(await resultRegion.evaluate((node) => getComputedStyle(node).opacity));
+  assert.ok(refreshingOpacity < 1 && refreshingOpacity >= .5, `Discover should soften retained results without hiding them; received ${refreshingOpacity}.`);
   releaseSearch();
   await page.getByText("Updating results…", { exact: true }).waitFor({ state: "hidden", timeout: 10_000 });
   await page.unroute("**/api/opportunities?*");
@@ -219,6 +227,7 @@ async function verifyDiscover(page: Page, origin: string, screenshotLabel: strin
     await page.getByRole("button", { name: "Filters" }).click();
     const dialog = page.getByRole("dialog", { name: "Filter opportunities" });
     await dialog.waitFor({ state: "visible" });
+    assert.equal(await dialog.getAttribute("data-modal-surface"), "", "The mobile filter sheet must use the shared modal motion contract.");
     await dialog.press("Escape");
     await dialog.waitFor({ state: "hidden" });
   }
@@ -240,7 +249,7 @@ async function verifyDiscover(page: Page, origin: string, screenshotLabel: strin
     assert.match(cardTextColors.description, /251,\s*243,\s*232/, "Discover card descriptions must use the readable dark-theme text token.");
   }
   await assertStableLayout(page, screenshotLabel);
-  await page.screenshot({ path: path.join(outputDirectory, `${screenshotLabel}-discover.png`), fullPage: true });
+  await page.screenshot({ path: path.join(outputDirectory, `${screenshotLabel}-discover.png`), fullPage: true, caret: "initial" });
 
   const warmStartedAt = performance.now();
   await page.reload({ waitUntil: "domcontentloaded" });
@@ -263,6 +272,11 @@ async function verifyDiscover(page: Page, origin: string, screenshotLabel: strin
   assert.equal(page.url(), stateUrl, "Returning from a detail page must restore the complete Discover URL.");
   assert.equal(await search.evaluate((element) => (element as HTMLInputElement).value), "engineering", "Returning from a detail page must restore the search query.");
   if (previousScroll > 0) assert.ok(await page.evaluate(() => window.scrollY) > 0, "Returning from a detail page must restore scroll position.");
+  await page.getByRole("button", { name: "Clear opportunity search" }).click();
+  await page.getByText("Updating results…", { exact: true }).waitFor({ state: "hidden", timeout: 10_000 });
+  assert.equal(await search.inputValue(), "", "The search clear action must reset the visible value.");
+  assert.equal(new URL(page.url()).searchParams.has("query"), false, "The search clear action must remove the URL query.");
+  assert.equal(await search.evaluate((node) => document.activeElement === node), true, "Clearing search must return focus to the search field.");
 
   await page.goto(`${origin}/opportunities?type=AI&category=Scholarships`, { waitUntil: "domcontentloaded" });
   await page.getByText("No exact matches yet.", { exact: true }).waitFor({ state: "visible" });
@@ -331,14 +345,14 @@ async function verifyPrimaryRoutes(page: Page, origin: string, screenshotLabel: 
     assert.equal(undersizedControls, 0, "Mobile recommendation controls must preserve 44px touch targets.");
   }
   await assertStableLayout(page, `${screenshotLabel} For You`);
-  await page.screenshot({ path: path.join(outputDirectory, `${screenshotLabel}-for-you.png`), fullPage: true });
+  await page.screenshot({ path: path.join(outputDirectory, `${screenshotLabel}-for-you.png`), fullPage: true, caret: "initial" });
 
   const journeyStartedAt = performance.now();
   await page.goto(origin, { waitUntil: "domcontentloaded", timeout: 45_000 });
-  await page.locator("[data-journey-timeline]").waitFor({ state: "visible", timeout: 45_000 });
+  await page.locator("[data-journey-command-center]").waitFor({ state: "visible", timeout: 45_000 });
   const journeyReadyMs = Math.round(performance.now() - journeyStartedAt);
   await assertStableLayout(page, `${screenshotLabel} Journey`);
-  await page.screenshot({ path: path.join(outputDirectory, `${screenshotLabel}-journey.png`), fullPage: true });
+  await page.screenshot({ path: path.join(outputDirectory, `${screenshotLabel}-journey.png`), fullPage: true, caret: "initial" });
   return { forYouReadyMs, journeyReadyMs };
 }
 

@@ -137,6 +137,7 @@
   place-items: center;
   overflow: hidden;
   pointer-events: none;
+  transition: opacity var(--motion-standard, 220ms) var(--motion-ease, ease), transform var(--motion-standard, 220ms) var(--motion-ease, ease);
 }
 .previewFrame svg {
   display: block;
@@ -268,9 +269,29 @@
 .gallery button small { margin-top: .25rem; opacity: .7; }
 .srOnly { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 .dialog button { cursor: pointer; }
+.dialog button:disabled { cursor: wait; }
 .dialog button:focus-visible, .dialog select:focus-visible, .dialog label:has(input:focus-visible) {
   outline: 3px solid color-mix(in srgb, var(--journey-forest, #0f6245) 75%, white);
   outline-offset: 2px;
+}
+@media (hover: hover) and (pointer: fine) {
+  .templateGrid button:hover,
+  .themeGrid button:hover,
+  .gallery button:hover {
+    border-color: color-mix(in srgb, var(--journey-forest, #0f6245) 45%, transparent);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px rgb(38 28 18 / 7%);
+  }
+  .actions button:not(:disabled):hover {
+    border-color: color-mix(in srgb, var(--journey-forest, #0f6245) 65%, transparent);
+    color: var(--journey-forest, #0f6245);
+  }
+  .actions .primary:not(:disabled):hover {
+    border-color: var(--journey-ink, #2b211a);
+    background: var(--journey-ink, #2b211a);
+    color: #fffaf2;
+    transform: translateY(-1px);
+  }
 }
 
 @media (max-width: 860px) {

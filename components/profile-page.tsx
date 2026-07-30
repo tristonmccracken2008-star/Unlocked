@@ -18,7 +18,7 @@ import { StudentProfileForm } from "./personalized-home";
 
 const AdvisorBrainProfileTab = dynamic(() => import("./profile-career-tab").then((module) => module.AdvisorBrainProfileTab), {
   ssr: false,
-  loading: () => <div className="h-40 animate-pulse rounded-lg bg-ink/5"><span className="sr-only">Loading career profile</span></div>,
+  loading: () => <div className="unlocked-skeleton h-40 rounded-lg bg-ink/5"><span className="sr-only">Loading career profile</span></div>,
 });
 
 const sections = [
@@ -404,7 +404,7 @@ function DataSection({ session, setError, setMessage }: { session: AccountSessio
 }
 
 function AccountLoading() {
-  return <main aria-busy="true" aria-label="Loading account center" className="min-h-[65vh] px-5 py-12 sm:px-8"><div className="mx-auto max-w-6xl animate-pulse"><div className="h-3 w-28 rounded-full bg-forest/12"/><div className="mt-4 h-12 max-w-xl rounded-md bg-ink/8"/><div className="mt-10 grid gap-8 lg:grid-cols-[13rem_1fr]"><div className="h-72 rounded-md bg-ink/5"/><div className="h-96 rounded-md bg-ink/5"/></div><p className="sr-only">Loading your private account settings.</p></div></main>;
+  return <main aria-busy="true" aria-label="Loading account center" className="min-h-[65vh] px-5 py-12 sm:px-8"><div className="unlocked-skeleton mx-auto max-w-6xl"><div className="h-3 w-28 rounded-full bg-forest/12"/><div className="mt-4 h-12 max-w-xl rounded-md bg-ink/8"/><div className="mt-10 grid gap-8 lg:grid-cols-[13rem_1fr]"><div className="h-72 rounded-md bg-ink/5"/><div className="h-96 rounded-md bg-ink/5"/></div><p className="sr-only">Loading your private account settings.</p></div></main>;
 }
 
 function SectionHeading({ id, eyebrow, title, description }: { id: string; eyebrow: string; title: string; description: string }) {
@@ -413,7 +413,7 @@ function SectionHeading({ id, eyebrow, title, description }: { id: string; eyebr
 
 function StatusMessages({ message, error }: { message: string; error: string }) {
   if (!message && !error) return null;
-  return <div role={error ? "alert" : "status"} className={`mb-6 rounded-md border px-4 py-3 text-sm font-bold ${error ? "border-red-800/20 bg-red-50 text-red-800" : "border-forest/20 bg-forest/5 text-forest"}`}>{error || message}</div>;
+  return <div role={error ? "alert" : "status"} data-inline-feedback="" data-state={error ? "error" : "success"} className={`mb-6 rounded-md border px-4 py-3 text-sm font-bold ${error ? "border-red-800/20 bg-red-50 text-red-800" : "border-forest/20 bg-forest/5 text-forest"}`}>{error || message}</div>;
 }
 
 function SettingToggle({ checked, label, description, onChange }: { checked: boolean; label: string; description: string; onChange: (checked: boolean) => void }) {

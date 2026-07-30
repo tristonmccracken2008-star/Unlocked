@@ -203,6 +203,7 @@ export function OpportunityFilter({ opportunities: initialOpportunities = [] }: 
   const closeFilterButton = useRef<HTMLButtonElement | null>(null);
   const filterDialog = useRef<HTMLDivElement | null>(null);
   const resultGrid = useRef<HTMLDivElement | null>(null);
+  const searchInput = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     const initial = filtersFromLocation();
@@ -398,11 +399,12 @@ export function OpportunityFilter({ opportunities: initialOpportunities = [] }: 
     </header>
 
     <section className="mt-8 max-w-5xl rounded-[1.5rem] bg-white/50 p-3 shadow-[0_18px_55px_rgba(43,33,26,.05)] ring-1 ring-ink/10 sm:p-4" aria-label="Search opportunities">
-      <label className="flex min-h-16 items-center gap-4 rounded-2xl bg-white px-5 shadow-[0_12px_34px_rgba(43,33,26,.065)] ring-1 ring-ink/10 focus-within:ring-2 focus-within:ring-forest/30">
+      <div data-search-surface="" className="flex min-h-16 items-center gap-4 rounded-2xl border border-transparent bg-white px-5 shadow-[0_12px_34px_rgba(43,33,26,.065)] ring-1 ring-ink/10">
         <SearchIcon className="h-5 w-5 text-forest" />
-        <span className="sr-only">Search all opportunities</span>
-        <input value={filters.query} onChange={(event) => update({ query: event.target.value })} maxLength={120} placeholder="Try “first-year software internship” or “Chicago scholarship”" className="min-w-0 flex-1 bg-transparent text-base font-semibold outline-none placeholder:font-normal placeholder:text-ink/35" />
-      </label>
+        <label htmlFor="discover-search" className="sr-only">Search all opportunities</label>
+        <input ref={searchInput} id="discover-search" type="search" value={filters.query} onChange={(event) => update({ query: event.target.value })} maxLength={120} autoComplete="off" placeholder="Try “first-year software internship” or “Chicago scholarship”" className="min-w-0 flex-1 bg-transparent text-base font-semibold outline-none placeholder:font-normal placeholder:text-ink/35" />
+        {filters.query ? <button type="button" onClick={() => { update({ query: "" }); searchInput.current?.focus(); }} className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-sm font-bold text-ink/40 hover:bg-paper hover:text-forest" aria-label="Clear opportunity search">×</button> : null}
+      </div>
       <div className="mt-3 flex gap-2 overflow-x-auto pb-1 scrollbar-none" aria-label="Browse by category">
         {quickFilters.map((item) => {
           const active = filters.type === (item.type ?? "All") && filters.category === (item.category ?? "All");
@@ -421,7 +423,7 @@ export function OpportunityFilter({ opportunities: initialOpportunities = [] }: 
         <FilterPanel filters={filters} update={update} clearFilters={clearFilters} activeFilterCount={activeFilters.length} categories={categories} majors={majors} />
       </aside>
 
-      <main aria-busy={refreshing}>
+      <main aria-busy={refreshing} data-filter-results="" data-refreshing={refreshing ? "true" : undefined}>
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="rule-label text-forest">Search results</p>
@@ -452,8 +454,8 @@ export function OpportunityFilter({ opportunities: initialOpportunities = [] }: 
       </main>
     </div>
 
-    {mobileFiltersOpen ? <div className="fixed inset-0 z-50 bg-ink/35 px-3 py-[max(1rem,env(safe-area-inset-top))] lg:hidden" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setMobileFiltersOpen(false); }}>
-      <div ref={filterDialog} className="ml-auto flex max-h-full max-w-md flex-col overflow-hidden rounded-[1.5rem] bg-paper shadow-[0_30px_90px_rgba(43,33,26,.25)]" role="dialog" aria-modal="true" aria-labelledby="mobile-filter-title">
+    {mobileFiltersOpen ? <div data-modal-overlay="" className="fixed inset-0 z-50 bg-ink/35 px-3 py-[max(1rem,env(safe-area-inset-top))] lg:hidden" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setMobileFiltersOpen(false); }}>
+      <div ref={filterDialog} data-modal-surface="" className="ml-auto flex max-h-full max-w-md flex-col overflow-hidden rounded-[1.5rem] bg-paper shadow-[0_30px_90px_rgba(43,33,26,.25)]" role="dialog" aria-modal="true" aria-labelledby="mobile-filter-title">
         <div className="flex items-center justify-between border-b border-ink/10 px-5 py-4"><p id="mobile-filter-title" className="font-bold">Filter opportunities</p><button ref={closeFilterButton} type="button" onClick={() => setMobileFiltersOpen(false)} className="min-h-11 rounded-full px-3 text-sm font-bold text-ink/50 hover:bg-white">Close</button></div>
         <div className="overflow-y-auto overscroll-contain p-4 pb-[max(1rem,env(safe-area-inset-bottom))]"><FilterPanel filters={filters} update={update} clearFilters={clearFilters} activeFilterCount={activeFilters.length} categories={categories} majors={majors} /></div>
       </div>
@@ -492,7 +494,7 @@ function FilterGroup({ title, children }: { title: string; children: ReactNode }
 }
 
 function ResultSkeleton() {
-  return <div className="mt-2 grid gap-4 sm:grid-cols-2 xl:grid-cols-3" aria-label="Loading opportunities">{Array.from({ length: 6 }, (_, index) => <div key={index} className="h-[25rem] rounded-[1.25rem] bg-white/70 p-5 shadow-[0_14px_40px_rgba(43,33,26,.04)] ring-1 ring-ink/10"><div className="h-3 w-24 rounded-full bg-paper" /><div className="mt-5 h-8 rounded-full bg-paper" /><div className="mt-3 h-4 w-2/3 rounded-full bg-paper" /><div className="mt-6 h-16 rounded-2xl bg-paper" /><div className="mt-8 h-11 rounded-xl bg-paper" /></div>)}</div>;
+  return <div className="unlocked-skeleton mt-2 grid gap-4 sm:grid-cols-2 xl:grid-cols-3" aria-label="Loading opportunities">{Array.from({ length: 6 }, (_, index) => <div key={index} className="h-[25rem] rounded-[1.25rem] bg-white/70 p-5 shadow-[0_14px_40px_rgba(43,33,26,.04)] ring-1 ring-ink/10"><div className="h-3 w-24 rounded-full bg-paper" /><div className="mt-5 h-8 rounded-full bg-paper" /><div className="mt-3 h-4 w-2/3 rounded-full bg-paper" /><div className="mt-6 h-16 rounded-2xl bg-paper" /><div className="mt-8 h-11 rounded-xl bg-paper" /></div>)}</div>;
 }
 
 function EmptyResults({ recovery, removeRecovery, clearQuery, clearFilters, hasQuery }: { recovery: DiscoverRecovery | null; removeRecovery: () => void; clearQuery: () => void; clearFilters: () => void; hasQuery: boolean }) {

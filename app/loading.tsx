@@ -1,6 +1,6 @@
 export default function JourneyLoading() {
   return <main className="min-h-[70vh] bg-paper px-4 py-10 sm:px-6 sm:py-16" aria-busy="true" aria-label="Loading your Journey">
-    <div className="mx-auto w-full max-w-[88rem] animate-pulse motion-reduce:animate-none">
+    <div className="unlocked-skeleton mx-auto w-full max-w-[88rem]">
       <div className="flex items-start justify-between gap-6">
         <div className="w-full max-w-xl"><div className="h-12 w-48 rounded-lg bg-ink/8"/><div className="mt-4 h-4 w-4/5 rounded-full bg-ink/8"/></div>
         <div className="hidden gap-3 sm:flex"><div className="h-11 w-36 rounded-lg bg-forest/10"/><div className="h-11 w-28 rounded-lg bg-ink/8"/></div>

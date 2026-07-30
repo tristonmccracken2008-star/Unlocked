@@ -173,7 +173,7 @@ export function JourneyCommandActions({ trackedIds }: { trackedIds: string[] }) 
   return <div className={styles.headerActions} data-journey-command-actions="">
     <div>
       <button ref={addTriggerRef} type="button" className={styles.addButton} onClick={open}>Add opportunity</button>
-      <button type="button" className={styles.exportButton} onClick={() => void exportData()} disabled={exporting}>{exporting ? "Preparing export…" : "Export data"}</button>
+      <button type="button" className={styles.exportButton} onClick={() => void exportData()} disabled={exporting} aria-busy={exporting ? "true" : undefined} data-action-state={exporting ? "loading" : "idle"}>{exporting ? "Preparing export…" : "Export data"}</button>
     </div>
     {error && !dialogRef.current?.open ? <p role="alert">{error}</p> : null}
     <dialog ref={dialogRef} className={styles.addDialog} aria-labelledby={titleId} onCancel={(event) => { if (saving || dirty) event.preventDefault(); if (!saving) close(); }}>

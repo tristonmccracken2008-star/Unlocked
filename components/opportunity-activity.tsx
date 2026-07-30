@@ -121,13 +121,13 @@ export function AddToJourneyButton({ opportunityId, recommendationId, recommenda
 
   if (added) return <div className="grid gap-2"><JourneyAddedState className={className} confirmed={confirmedThisSession} />{firstSave ? <p className="max-w-sm text-xs font-medium leading-5 text-ink/55" role="status">Saved to your Journey. Return there when you have a real update, such as starting or submitting an application.</p> : null}</div>;
   return <div className="grid gap-2">
-    <button type="button" onClick={() => void add()} disabled={pending} aria-describedby={error ? `journey-add-error-${opportunityId}` : undefined} className={`inline-flex min-h-11 min-w-[11rem] items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider disabled:cursor-wait disabled:opacity-60 ${className}`}>{pending ? "Adding…" : "Add to Journey"}</button>
+    <button type="button" onClick={() => void add()} disabled={pending} aria-busy={pending ? "true" : undefined} data-action-state={pending ? "loading" : "idle"} aria-describedby={error ? `journey-add-error-${opportunityId}` : undefined} className={`inline-flex min-h-11 min-w-[11rem] items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider disabled:cursor-wait disabled:opacity-60 ${className}`}>{pending ? "Adding…" : "Add to Journey"}</button>
     {error ? <p id={`journey-add-error-${opportunityId}`} role="alert" className="max-w-sm text-xs font-bold leading-5 text-red-700">{error}</p> : null}
   </div>;
 }
 
 function JourneyAddedState({ className = "", confirmed = false }: { className?: string; confirmed?: boolean }) {
-  return <span data-journey-save-confirmed={confirmed ? "true" : undefined} className={`unlocked-save-confirmation inline-flex min-h-11 min-w-[11rem] items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider ${className}`}><CheckIcon className="h-4 w-4"/> Saved to Journey <span aria-hidden="true">✓</span> <LinkToJourney /></span>;
+  return <span data-action-state="success" data-journey-save-confirmed={confirmed ? "true" : undefined} className={`unlocked-save-confirmation inline-flex min-h-11 min-w-[11rem] items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider ${className}`}><CheckIcon className="h-4 w-4"/> Saved to Journey <span aria-hidden="true">✓</span> <LinkToJourney /></span>;
 }
 
 function LinkToJourney() {

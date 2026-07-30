@@ -43,8 +43,10 @@ export function NotificationCenter() {
   const [error, setError] = useState("");
   const [accountVersion, setAccountVersion] = useState(0);
   const [arrivingIds, setArrivingIds] = useState<Set<string>>(() => new Set());
+  const [dismissingIds, setDismissingIds] = useState<Set<string>>(() => new Set());
   const [arrivalAnnouncement, setArrivalAnnouncement] = useState("");
   const arrivalTimerRef = useRef<number | null>(null);
+  const accountVersionRef = useRef(0);
 
   async function load(cursor = 0) {
     const response = await fetch(`/api/notifications?cursor=${cursor}`, { credentials: "same-origin", cache: "no-store" });
@@ -97,11 +99,13 @@ export function NotificationCenter() {
 
   useEffect(() => {
     const accountChanged = () => {
+      accountVersionRef.current += 1;
       setItems([]);
       setUnreadCount(0);
       setNextCursor(null);
       setError("");
       setLoading(true);
+      setDismissingIds(new Set());
       setAccountVersion((value) => value + 1);
     };
     window.addEventListener(accountSessionEvent, accountChanged);
@@ -132,16 +136,28 @@ export function NotificationCenter() {
   }
 
   async function dismiss(item: NotificationRecord) {
+    if (dismissingIds.has(item.id)) return;
+    const requestAccountVersion = accountVersionRef.current;
+    setDismissingIds((current) => new Set(current).add(item.id));
+    const request = updateNotification("dismiss", item.id).then(() => true).catch(() => false);
+    await new Promise((resolve) => window.setTimeout(resolve, 150));
+    if (accountVersionRef.current !== requestAccountVersion) return;
     setItems((current) => current.filter((candidate) => candidate.id !== item.id));
     if (!item.readAt) setUnreadCount((count) => Math.max(0, count - 1));
-    try {
-      await updateNotification("dismiss", item.id);
+    const saved = await request;
+    if (accountVersionRef.current !== requestAccountVersion) return;
+    if (saved) {
       window.dispatchEvent(new Event("unlocked:notifications-updated"));
-    } catch {
+    } else {
       setItems((current) => [item, ...current].sort((left, right) => right.createdAt.localeCompare(left.createdAt)));
       if (!item.readAt) setUnreadCount((count) => count + 1);
       setError("We couldn’t dismiss that update.");
     }
+    setDismissingIds((current) => {
+      const next = new Set(current);
+      next.delete(item.id);
+      return next;
+    });
   }
 
   return <main className="px-5 py-10 pb-28 sm:px-8 sm:py-14">
@@ -162,7 +178,7 @@ export function NotificationCenter() {
       <p aria-live="polite" className="sr-only">{arrivalAnnouncement}</p>
       {error ? <div role="alert" className="mt-6 flex items-center justify-between gap-4 border-l-2 border-red-700 bg-red-50 px-4 py-3 text-sm font-semibold text-red-800"><span>{error}</span><button type="button" onClick={() => window.location.reload()} className="min-h-11 px-3 font-bold">Retry</button></div> : null}
 
-      {loading ? <div aria-hidden="true" className="mt-8 space-y-3 animate-pulse">
+      {loading ? <div aria-hidden="true" className="unlocked-skeleton mt-8 space-y-3">
         {[0, 1, 2].map((item) => <div key={item} className="h-32 bg-[var(--unlocked-surface)] shadow-soft ring-1 ring-ink/6" />)}
       </div> : null}
 
@@ -176,7 +192,7 @@ export function NotificationCenter() {
       {groups.map((group) => <section key={group.label} aria-labelledby={`notifications-${group.label.toLowerCase()}`} className="mt-10">
         <h2 id={`notifications-${group.label.toLowerCase()}`} className="font-editorial text-2xl font-bold">{group.label}</h2>
         <ol className="mt-4 divide-y divide-ink/10 border-y border-ink/10">
-          {group.items.map((item) => <li key={item.id} data-notification-item-arrived={arrivingIds.has(item.id) ? "true" : undefined} className={`relative grid gap-4 py-6 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center ${item.readAt ? "opacity-70" : ""}`}>
+          {group.items.map((item) => <li key={item.id} data-notification-item="" data-notification-item-arrived={arrivingIds.has(item.id) ? "true" : undefined} data-read={item.readAt ? "true" : undefined} data-dismissing={dismissingIds.has(item.id) ? "true" : undefined} className="relative grid gap-4 py-6 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
             <div className="flex min-w-0 gap-4">
               <span className={`mt-2 h-2.5 w-2.5 shrink-0 rounded-full ${item.readAt ? "border border-ink/25 bg-transparent" : item.priority === "high" ? "bg-gold" : "bg-forest"}`} aria-hidden="true" />
               <div className="min-w-0">
@@ -209,7 +225,7 @@ export function NotificationCenter() {
                   setError("We couldn’t mark that update as read.");
                 }
               }} className="min-h-11 px-3 text-sm font-bold text-ink/40 hover:text-forest" aria-label={`Mark as read: ${item.title}`}>Mark read</button> : null}
-              <button type="button" onClick={() => void dismiss(item)} className="min-h-11 px-3 text-sm font-bold text-ink/40 hover:text-forest" aria-label={`Dismiss: ${item.title}`}>Dismiss</button>
+              <button type="button" onClick={() => void dismiss(item)} disabled={dismissingIds.has(item.id)} className="min-h-11 px-3 text-sm font-bold text-ink/40 hover:text-forest disabled:cursor-wait disabled:opacity-50" aria-label={`Dismiss: ${item.title}`}>{dismissingIds.has(item.id) ? "Dismissing…" : "Dismiss"}</button>
             </div>
           </li>)}
         </ol>

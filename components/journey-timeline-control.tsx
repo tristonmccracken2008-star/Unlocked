@@ -272,7 +272,7 @@ export function JourneyTimelineControl({ control, compactLabel = "Update Journey
             {error ? <p className={styles.controlError} role="alert">{error}</p> : null}
             <footer className={styles.updateActions}>
               <button type="button" onClick={close} disabled={pending}>Cancel</button>
-              <button type="submit" className={styles.updatePrimary} disabled={pending || !selected}>{pending ? "Saving milestone…" : selected?.destructive ? "Archive opportunity" : "Save milestone"}</button>
+              <button type="submit" className={styles.updatePrimary} disabled={pending || !selected} aria-busy={pending ? "true" : undefined} data-action-state={pending ? "loading" : "idle"}>{pending ? "Saving milestone…" : selected?.destructive ? "Archive opportunity" : "Save milestone"}</button>
             </footer>
             <p className={styles.studentReported}>Student reported · Private by default · UnlockED does not verify supporting details</p>
           </form>

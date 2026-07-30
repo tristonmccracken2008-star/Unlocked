@@ -488,7 +488,7 @@ function TopRecommendation({ view, onFeedback }: { view: RecommendationViewModel
   const signals = recommendationSignals(view);
   const score = scoreFor(view);
   const timing = timingFor(view);
-  return <article className={styles.featured} aria-labelledby={`recommendation-${view.recommendation.id}`}>
+  return <article className={styles.featured} data-for-you-card="featured" aria-labelledby={`recommendation-${view.recommendation.id}`}>
     <div className={styles.featuredMain}>
       <div className={styles.featuredIdentity}>
         <div className={styles.featuredLabel}>
@@ -589,7 +589,7 @@ function RecommendationCard({ view, index, onFeedback }: { view: RecommendationV
   const signals = recommendationSignals(view, 4);
   const score = scoreFor(view);
   const timing = timingFor(view);
-  return <article className={styles.recommendation} aria-labelledby={`recommendation-${view.recommendation.id}`}>
+  return <article className={styles.recommendation} data-for-you-card="recommendation" aria-labelledby={`recommendation-${view.recommendation.id}`}>
     <span className={styles.rank} aria-hidden="true">{String(index).padStart(2, "0")}</span>
     <div className={styles.recommendationBody}>
       <div className={styles.recommendationTitle}>{opportunity ? <OrganizationLogo opportunity={opportunity} size="md" className={styles.logo} /> : null}<div><p>{opportunity?.organization ?? view.recommendation.kind}</p><h3 id={`recommendation-${view.recommendation.id}`}>{opportunity?.title ?? view.recommendation.title}</h3><span className={styles.trace}>{portfolioRole(view)}{view.freshnessLabel ? ` · ${view.freshnessLabel}` : ""}</span></div></div>

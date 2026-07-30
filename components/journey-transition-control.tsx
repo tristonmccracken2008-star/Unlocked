@@ -167,7 +167,7 @@ export function JourneyTransitionControl({ control }: { control: NonNullable<Jou
   </section>;
 
   return <div className={styles.transitionControls} aria-busy={pending ? "true" : undefined} data-journey-transition-control="" data-opportunity-id={control.opportunityId}>
-    {primary ? <button type="button" className={styles.primaryAction} disabled={Boolean(pending)} aria-describedby={error ? "journey-transition-error" : undefined} data-journey-analytics="waypoint" data-journey-source="transition" onClick={() => void run(primary)}>
+    {primary ? <button type="button" className={styles.primaryAction} disabled={Boolean(pending)} aria-busy={pending === primary.transition ? "true" : undefined} data-action-state={pending === primary.transition ? "loading" : "idle"} aria-describedby={error ? "journey-transition-error" : undefined} data-journey-analytics="waypoint" data-journey-source="transition" onClick={() => void run(primary)}>
       {pending === primary.transition ? "Saving…" : primary.label} {!pending ? <ArrowIcon /> : null}
     </button> : null}
     {actions.some((action) => !action.primary) ? <details className={styles.manageDisclosure}>

@@ -363,11 +363,11 @@ export function JourneyCardCreator({ card, theme, onClose }: { card: JourneyCard
             <SectionHeading number="4" id="journey-card-share-heading">Preview & share</SectionHeading>
             <p className={styles.privacyNote}><strong>Private until you share it.</strong> Only the details visible in the preview are included.</p>
             <div className={styles.actions}>
-              <button type="button" className={styles.primary} disabled={Boolean(busy)} onClick={download}>{busy === "download" ? "Preparing PNG…" : "Download PNG"}</button>
-              {canCopy ? <button type="button" disabled={Boolean(busy)} onClick={copyImage}>{busy === "copy" ? "Copying…" : "Copy image"}</button> : null}
-              {canShare ? <button type="button" disabled={Boolean(busy)} onClick={share}>{busy === "share" ? "Opening…" : "Share"}</button> : null}
+              <button type="button" className={styles.primary} disabled={Boolean(busy)} aria-busy={busy === "download" ? "true" : undefined} data-action-state={busy === "download" ? "loading" : "idle"} onClick={download}>{busy === "download" ? "Preparing PNG…" : "Download PNG"}</button>
+              {canCopy ? <button type="button" disabled={Boolean(busy)} aria-busy={busy === "copy" ? "true" : undefined} data-action-state={busy === "copy" ? "loading" : "idle"} onClick={copyImage}>{busy === "copy" ? "Copying…" : "Copy image"}</button> : null}
+              {canShare ? <button type="button" disabled={Boolean(busy)} aria-busy={busy === "share" ? "true" : undefined} data-action-state={busy === "share" ? "loading" : "idle"} onClick={share}>{busy === "share" ? "Opening…" : "Share"}</button> : null}
             </div>
-            <p className={styles.status} role={messageIsError ? "alert" : "status"} aria-live={messageIsError ? "assertive" : "polite"}>{message}</p>
+            <p className={styles.status} data-inline-feedback={message ? "" : undefined} data-state={messageIsError ? "error" : "success"} role={messageIsError ? "alert" : "status"} aria-live={messageIsError ? "assertive" : "polite"}>{message}</p>
           </section>
         </div>
 

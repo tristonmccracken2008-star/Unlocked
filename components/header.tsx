@@ -54,6 +54,8 @@ export function Header() {
       key={href}
       href={href}
       aria-current={active ? "page" : undefined}
+      data-navigation-item=""
+      data-active={active ? "true" : undefined}
       className={mobile
         ? `relative inline-flex min-h-11 items-center justify-center rounded-full px-3 text-center transition duration-200 active:scale-[.98] ${active ? "bg-white text-forest" : "text-white/70 hover:text-white"}`
         : `relative inline-flex min-h-11 items-center rounded-full px-4 transition duration-200 active:scale-[.98] ${active ? "bg-white text-forest shadow-[0_8px_20px_rgba(43,33,26,.08)]" : "hover:bg-white/75 hover:text-forest"}`}
@@ -66,7 +68,7 @@ export function Header() {
     <header className="sticky top-0 z-30 border-b border-ink/10 bg-paper/90 backdrop-blur-xl">
       <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-x-6 gap-y-2 px-5 py-3 sm:px-8">
         <Logo />
-        <nav aria-label="Primary navigation" className="order-3 hidden w-full gap-1 overflow-x-auto rounded-full bg-white/48 p-1 text-sm font-bold text-ink/55 shadow-[0_10px_30px_rgba(43,33,26,.04)] ring-1 ring-ink/6 sm:order-none sm:flex sm:w-auto">
+        <nav aria-label="Primary navigation" data-primary-navigation="" className="order-3 hidden w-full gap-1 overflow-x-auto rounded-full bg-white/48 p-1 text-sm font-bold text-ink/55 shadow-[0_10px_30px_rgba(43,33,26,.04)] ring-1 ring-ink/6 sm:order-none sm:flex sm:w-auto">
           {destinations.map(([label, href]) => navigationLink(label, href))}
         </nav>
         <div className="flex items-center gap-3">
@@ -76,7 +78,7 @@ export function Header() {
         </div>
       </div>
     </header>
-    <nav aria-label="Mobile navigation" className="fixed inset-x-4 bottom-[max(1rem,env(safe-area-inset-bottom))] z-40 grid grid-cols-3 rounded-full bg-ink/95 p-1 text-xs font-bold text-white shadow-[0_20px_60px_rgba(43,33,26,.24)] backdrop-blur sm:hidden">
+    <nav aria-label="Mobile navigation" data-primary-navigation="" className="fixed inset-x-4 bottom-[max(1rem,env(safe-area-inset-bottom))] z-40 grid grid-cols-3 rounded-full bg-ink/95 p-1 text-xs font-bold text-white shadow-[0_20px_60px_rgba(43,33,26,.24)] backdrop-blur sm:hidden">
       {destinations.map(([label, href]) => navigationLink(label, href, true))}
     </nav>
   </>;

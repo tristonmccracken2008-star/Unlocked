@@ -6,6 +6,15 @@
   width: 1px;
   height: 1px;
 }
+.effect::before {
+  position: absolute;
+  inset: -1.5rem;
+  border: 1px solid color-mix(in srgb, var(--journey-gold, #b48a45) 46%, transparent);
+  border-radius: 50%;
+  opacity: 0;
+  animation: milestone-ring 720ms var(--motion-ease-emphasis, cubic-bezier(.16, 1, .3, 1)) both;
+  content: "";
+}
 .effect i {
   position: absolute;
   width: 7px;
@@ -15,14 +24,20 @@
   opacity: 0;
   animation: milestone-particle var(--motion-celebration, 1200ms) var(--motion-ease-emphasis, cubic-bezier(.2, .8, .2, 1)) both;
   animation-delay: calc(var(--particle-index, 0) * 12ms);
+  box-shadow: 0 1px 2px rgb(32 24 18 / 10%);
 }
 .effect i:nth-child(3n) { width: 6px; height: 6px; border-radius: 50%; }
 .effect i:nth-child(4n) { animation-delay: 70ms; }
 .effect[data-level="signature"] i { animation-duration: calc(var(--motion-celebration, 1200ms) + 180ms); }
 @keyframes milestone-particle {
   0% { transform: translate3d(0, 0, 0) rotate(0); opacity: 0; }
-  12% { opacity: .88; }
+  12% { opacity: .82; }
   100% { transform: translate3d(var(--x), var(--y), 0) rotate(var(--r)); opacity: 0; }
+}
+@keyframes milestone-ring {
+  0% { transform: scale(.45); opacity: 0; }
+  20% { opacity: .55; }
+  100% { transform: scale(2.3); opacity: 0; }
 }
 @media (max-width: 640px) {
   .effect i:nth-child(n+13) { display: none; }

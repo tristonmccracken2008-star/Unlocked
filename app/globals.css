@@ -19,10 +19,14 @@
   --unlocked-border: rgb(43 33 26 / .12);
   --motion-micro: 140ms;
   --motion-standard: 220ms;
+  --motion-surface: 280ms;
   --motion-success: 360ms;
   --motion-celebration: 1200ms;
   --motion-ease: cubic-bezier(.2, .7, .2, 1);
   --motion-ease-emphasis: cubic-bezier(.16, 1, .3, 1);
+  --motion-ease-settle: cubic-bezier(.22, .61, .36, 1);
+  --elevation-rest: 0 10px 30px rgb(43 33 26 / .045);
+  --elevation-hover: 0 16px 38px rgb(43 33 26 / .075);
   color: var(--unlocked-text);
   background: var(--unlocked-page);
   color-scheme: light;
@@ -83,6 +87,152 @@ button, input, select, textarea { font: inherit; }
 .prose-copy p { margin-top: .65rem; color: rgb(43 33 26 / .62); line-height: 1.75; }
 .input { min-height: 2.75rem; width: 100%; border: 1px solid var(--unlocked-border); background: var(--unlocked-surface); color: var(--unlocked-text); padding-inline: .75rem; font-size: .875rem; outline: none; }
 .input:focus { border-color: var(--journey-focus); }
+
+/* Shared interaction vocabulary. Component styles remain authoritative for layout and color. */
+:where(button, a[href], summary, [role="button"]) {
+  -webkit-tap-highlight-color: transparent;
+  transition-property: color, background-color, border-color, opacity, box-shadow, transform;
+  transition-duration: var(--motion-micro);
+  transition-timing-function: var(--motion-ease);
+}
+:where(button, [role="button"]):disabled,
+:where(button, [role="button"])[aria-disabled="true"] {
+  cursor: not-allowed;
+}
+[data-action-state="loading"] {
+  cursor: wait;
+  opacity: .72;
+}
+[data-action-state="success"] {
+  border-color: rgb(var(--color-forest) / .35);
+  color: rgb(var(--color-forest));
+}
+:where(button, a[href], summary, [role="button"]):not(:disabled):not(.skip-link):active {
+  transform: translateY(1px) scale(.995);
+  transition-duration: 80ms;
+}
+:where(input, select, textarea) {
+  transition-property: color, background-color, border-color, box-shadow;
+  transition-timing-function: var(--motion-ease);
+}
+:where(input, select, textarea):focus-visible {
+  border-color: rgb(var(--color-forest) / .65);
+  box-shadow: 0 0 0 4px rgb(var(--color-forest) / .1);
+  outline: 0;
+}
+
+#main-content > :where(main, section) {
+  animation: unlocked-page-enter var(--motion-surface) var(--motion-ease-emphasis) both;
+}
+@keyframes unlocked-page-enter {
+  from { opacity: .72; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+:where(
+  [data-ui-card],
+  [data-discover-opportunity],
+  [data-for-you-card],
+  [data-journey-record],
+  [data-profile-identity-card],
+  [data-journey-card-entry]
+) {
+  transition-property: border-color, background-color, box-shadow, transform;
+  transition-duration: var(--motion-standard);
+  transition-timing-function: var(--motion-ease);
+}
+@media (hover: hover) and (pointer: fine) {
+  :where(
+    [data-ui-card],
+    [data-discover-opportunity],
+    [data-for-you-card],
+    [data-profile-identity-card],
+    [data-journey-card-entry]
+  ):hover {
+    transform: translateY(-2px);
+    box-shadow: var(--elevation-hover);
+  }
+  [data-journey-record]:hover {
+    background: color-mix(in srgb, var(--journey-green, #1f5f43) 3.5%, transparent);
+  }
+}
+
+details[open] > :where(div, ul, ol, form, section, dl) {
+  animation: unlocked-disclosure-in var(--motion-standard) var(--motion-ease) both;
+}
+@keyframes unlocked-disclosure-in {
+  from { opacity: .55; transform: translateY(-3px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+dialog {
+  opacity: 0;
+  transform: translateY(8px) scale(.992);
+  transition:
+    opacity var(--motion-standard) var(--motion-ease),
+    transform var(--motion-standard) var(--motion-ease-emphasis),
+    display var(--motion-standard) allow-discrete,
+    overlay var(--motion-standard) allow-discrete;
+}
+dialog[open] {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+dialog::backdrop {
+  opacity: 0;
+  transition:
+    opacity var(--motion-standard) var(--motion-ease),
+    display var(--motion-standard) allow-discrete,
+    overlay var(--motion-standard) allow-discrete;
+}
+dialog[open]::backdrop { opacity: 1; }
+@starting-style {
+  dialog[open] { opacity: 0; transform: translateY(8px) scale(.992); }
+  dialog[open]::backdrop { opacity: 0; }
+}
+[data-modal-overlay] { animation: unlocked-overlay-in var(--motion-standard) var(--motion-ease) both; }
+[data-modal-surface] { animation: unlocked-sheet-in var(--motion-standard) var(--motion-ease-emphasis) both; }
+@keyframes unlocked-overlay-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes unlocked-sheet-in {
+  from { opacity: .7; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+[data-search-surface] {
+  transition: border-color var(--motion-standard) var(--motion-ease), box-shadow var(--motion-standard) var(--motion-ease), background-color var(--motion-standard) var(--motion-ease);
+}
+[data-search-surface]:focus-within {
+  border-color: rgb(var(--color-forest) / .42);
+  box-shadow: 0 14px 36px rgb(var(--color-forest) / .09);
+}
+[data-filter-results] {
+  transition: opacity var(--motion-standard) var(--motion-ease), transform var(--motion-standard) var(--motion-ease);
+}
+[data-filter-results][data-refreshing="true"] {
+  opacity: .62;
+  transform: translateY(2px);
+}
+[data-filter-results] > * { animation: unlocked-results-in var(--motion-standard) var(--motion-ease) both; }
+@keyframes unlocked-results-in {
+  from { opacity: .65; transform: translateY(3px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.unlocked-skeleton {
+  animation: unlocked-skeleton 1.35s ease-in-out infinite alternate;
+}
+@keyframes unlocked-skeleton {
+  from { opacity: .48; }
+  to { opacity: .88; }
+}
+
+[data-inline-feedback] {
+  animation: unlocked-feedback-in var(--motion-success) var(--motion-ease-emphasis) both;
+}
+@keyframes unlocked-feedback-in {
+  from { opacity: .35; transform: translateY(3px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 .unlocked-save-confirmation[data-journey-save-confirmed="true"] { animation: unlocked-save-confirmed var(--motion-success) var(--motion-ease-emphasis) both; }
 @keyframes unlocked-save-confirmed {
   from { transform: translateY(2px); opacity: .45; }
@@ -100,6 +250,11 @@ button, input, select, textarea { font: inherit; }
   to { transform: scale(1); opacity: 1; }
 }
 [data-notification-item-arrived="true"] { animation: unlocked-notification-item var(--motion-standard) var(--motion-ease) both; }
+[data-notification-item] {
+  transition: opacity var(--motion-standard) var(--motion-ease), background-color var(--motion-standard) var(--motion-ease), transform var(--motion-standard) var(--motion-ease);
+}
+[data-notification-item][data-read="true"] { opacity: .7; }
+[data-notification-item][data-dismissing="true"] { opacity: 0; transform: translateX(5px); }
 @keyframes unlocked-notification-item {
   from { transform: translateY(-3px); opacity: .4; }
   to { transform: translateY(0); opacity: 1; }
@@ -111,6 +266,11 @@ button, input, select, textarea { font: inherit; }
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+  dialog, dialog[open], [data-modal-surface], [data-filter-results][data-refreshing="true"] { transform: none !important; }
 }
 html[data-motion="reduce"] { scroll-behavior: auto; }
 html[data-motion="reduce"] *, html[data-motion="reduce"] *::before, html[data-motion="reduce"] *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+html[data-motion="reduce"] dialog,
+html[data-motion="reduce"] dialog[open],
+html[data-motion="reduce"] [data-modal-surface],
+html[data-motion="reduce"] [data-filter-results][data-refreshing="true"] { transform: none !important; }

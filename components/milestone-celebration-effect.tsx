@@ -18,6 +18,7 @@ type ParticleStyle = CSSProperties & {
   "--y": string;
   "--r": string;
   "--particle": string;
+  "--particle-index": number;
 };
 
 export default function MilestoneCelebrationEffect({ level }: { level: MilestoneCelebrationLevel }) {
@@ -31,6 +32,7 @@ export default function MilestoneCelebrationEffect({ level }: { level: Milestone
         "--y": `${y}vh`,
         "--r": `${rotation * 12}deg`,
         "--particle": color,
+        "--particle-index": index,
       } as ParticleStyle}
       data-particle={index}
     />)}
