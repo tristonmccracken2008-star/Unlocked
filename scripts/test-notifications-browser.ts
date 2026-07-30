@@ -107,24 +107,48 @@ function observe(page: Page) {
   return () => assert.deepEqual(errors, [], `Browser errors: ${errors.join(" | ")}`);
 }
 
-async function exercise(browser: Browser, origin: string, token: string, expectedTitle: string, forbiddenTitle: string, viewport: { width: number; height: number }, expectedTheme: "light" | "midnight") {
-  const context = await browser.newContext({ viewport, reducedMotion: "reduce", colorScheme: "dark" });
+async function exercise(browser: Browser, browserName: string, origin: string, token: string, expectedTitle: string, forbiddenTitle: string, viewport: { width: number; height: number }, expectedTheme: "light" | "midnight", reducedMotion: "reduce" | "no-preference", expectedGroups: string[], arrival?: { title: string; insert: () => Promise<void> }) {
+  const context = await browser.newContext({ viewport, reducedMotion, colorScheme: "dark" });
   await install(context, origin, token);
   const page = await context.newPage();
   const assertNoErrors = observe(page);
+  await page.route("**/api/notifications?cursor=0", async (route) => {
+    await new Promise((resolve) => setTimeout(resolve, 180));
+    await route.continue();
+  }, { times: 1 });
   await page.goto(`${origin}/notifications`, { waitUntil: "domcontentloaded", timeout: 60_000 });
   await page.getByRole("heading", { name: "Useful updates, nothing more." }).waitFor();
+  await page.locator("[data-notification-skeleton]").waitFor({ state: "visible" });
   await page.getByRole("heading", { name: expectedTitle }).waitFor();
+  await page.locator("[data-notification-skeleton]").waitFor({ state: "hidden" });
   await assert.doesNotReject(async () => page.locator(`html[data-theme="${expectedTheme}"]`).waitFor({ timeout: 5_000 }));
   assert.equal(await page.getByText(forbiddenTitle, { exact: true }).count(), 0, "An account must never render another account's notification.");
   assert.ok(await page.getByRole("link", { name: /Notifications,/ }).isVisible());
+  assert.deepEqual(await page.locator("[data-notification-group]").evaluateAll((groups) => groups.map((group) => group.getAttribute("data-notification-group"))), expectedGroups);
+  if (arrival) {
+    await arrival.insert();
+    await page.evaluate(() => window.dispatchEvent(new Event("unlocked:notifications-updated")));
+    const arrivedItem = page.locator("[data-notification-item]").filter({ hasText: arrival.title });
+    await arrivedItem.waitFor();
+    assert.equal(await arrivedItem.getAttribute("data-notification-item-arrived"), "true", "New notifications must enter through the arrival state.");
+    await page.getByText("One new notification arrived.", { exact: true }).waitFor();
+  }
   const notificationItem = page.locator("[data-notification-item]").filter({ hasText: expectedTitle });
+  assert.equal(await notificationItem.locator("[data-visible='true']").first().count(), 1, "Unread notifications must expose the refined indicator.");
+  assert.ok(await notificationItem.locator("svg").first().isVisible(), "Notification type must have a visible icon.");
   const markRead = page.getByRole("button", { name: `Mark as read: ${expectedTitle}` });
   await markRead.click();
   assert.equal(await notificationItem.getAttribute("data-read"), "true", "Read notifications must use the shared visual state.");
+  assert.equal(await notificationItem.locator("[data-visible='false']").count(), 1, "Unread indicator must fade without a layout jump.");
+  assert.equal(await notificationItem.locator("button[data-read='true']").count(), 1, "Read action must settle into a stable confirmed state.");
   await assert.doesNotReject(async () => page.getByRole("link", { name: "Notifications" }).waitFor({ timeout: 5_000 }));
+  const sectionHeading = page.getByRole("heading", { name: expectedGroups[0]!, exact: true });
+  assert.equal(await sectionHeading.evaluate((node) => getComputedStyle(node).position), "sticky");
+  const actionTargets = await notificationItem.locator("a, button").evaluateAll((nodes) => nodes.map((node) => ({ width: (node as HTMLElement).getBoundingClientRect().width, height: (node as HTMLElement).getBoundingClientRect().height })));
+  assert.ok(actionTargets.every((target) => target.width >= 44 && target.height >= 44), "Notification actions must preserve 44px touch targets.");
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   assert.ok(overflow <= 1, `Notification center created ${overflow}px horizontal overflow at ${viewport.width}px.`);
+  await page.screenshot({ path: `/tmp/unlocked-notifications-${browserName.toLowerCase()}-${viewport.width < 640 ? "mobile" : "desktop"}.png`, fullPage: true });
   assertNoErrors();
   await context.close();
 }
@@ -139,9 +163,10 @@ process.env.NEXT_PUBLIC_APP_URL = `http://127.0.0.1:${appPort}`;
 
 const accountA = await seedAccount("Avery");
 const accountB = await seedAccount("Jordan", true);
+const emptyAccount = await seedAccount("Casey");
 const { buildNotificationRecord, normalizeNotificationPreferences } = await import("../lib/notification-engine");
 const { storeNotification } = await import("../lib/notification-store");
-const now = new Date("2026-07-27T12:00:00.000Z");
+const now = new Date();
 const preferences = normalizeNotificationPreferences(null, now.toISOString());
 const recordA = buildNotificationRecord({
   type: "deadline_reminder", priority: "high", title: "Deadline tomorrow",
@@ -155,10 +180,35 @@ const recordB = buildNotificationRecord({
   actionLabel: "View opportunity", actionHref: "/opportunities/research-fellowship",
   contentVersion: "b-v1", idempotencyKey: "browser-b-v1", now, preferences,
 });
-await Promise.all([
-  storeNotification(accountA.user.id, recordA),
-  storeNotification(accountB.user.id, recordB),
-]);
+const yesterday = buildNotificationRecord({
+  type: "journey_follow_up", priority: "normal", title: "Your Journey is ready",
+  body: "A saved opportunity is ready for your next update.", organization: "UnlockED",
+  actionLabel: "View Journey", actionHref: "/",
+  contentVersion: "a-v2", idempotencyKey: "browser-a-v2", now: new Date(now.getTime() - 86_400_000), preferences,
+});
+const earlierThisWeek = buildNotificationRecord({
+  type: "recommendation_update", priority: "normal", title: "New verified match",
+  body: "A newly verified opportunity fits your profile.", organization: "UnlockED",
+  actionLabel: "Review match", actionHref: "/advisor",
+  contentVersion: "a-v3", idempotencyKey: "browser-a-v3", now: new Date(now.getTime() - 2 * 86_400_000), preferences,
+});
+const earlier = buildNotificationRecord({
+  type: "weekly_digest", priority: "low", title: "Your earlier update",
+  body: "A useful summary from your recent activity.", organization: "UnlockED",
+  actionLabel: "View Journey", actionHref: "/",
+  contentVersion: "a-v4", idempotencyKey: "browser-a-v4", now: new Date(now.getTime() - 8 * 86_400_000), preferences,
+});
+const arrival = buildNotificationRecord({
+  type: "account", priority: "normal", title: "A new update arrived",
+  body: "Your latest account update is ready.", organization: "UnlockED",
+  actionLabel: "View profile", actionHref: "/profile",
+  contentVersion: "a-v5", idempotencyKey: "browser-a-v5", now: new Date(now.getTime() + 1_000), preferences,
+});
+await storeNotification(accountA.user.id, recordA);
+await storeNotification(accountA.user.id, yesterday);
+await storeNotification(accountA.user.id, earlierThisWeek);
+await storeNotification(accountA.user.id, earlier);
+await storeNotification(accountB.user.id, recordB);
 
 const app = next({ dev: true, dir: process.cwd(), hostname: "127.0.0.1", port: appPort });
 await app.prepare();
@@ -169,8 +219,24 @@ const chromiumBrowser = await chromium.launch({ headless: true });
 const webkitBrowser = await webkit.launch({ headless: true });
 let failure: unknown;
 try {
-  await exercise(chromiumBrowser, origin, accountA.session.token, recordA.title, recordB.title, { width: 1280, height: 900 }, "light");
-  await exercise(webkitBrowser, origin, accountB.session.token, recordB.title, recordA.title, { width: 390, height: 844 }, "midnight");
+  const daysSinceMonday = (now.getDay() + 6) % 7;
+  const accountAGroups = ["Today", "Yesterday", ...(daysSinceMonday >= 2 ? ["Earlier This Week"] : []), "Earlier"];
+  await exercise(chromiumBrowser, "Chromium", origin, accountA.session.token, recordA.title, recordB.title, { width: 1280, height: 900 }, "light", "no-preference", accountAGroups, {
+    title: arrival.title,
+    insert: async () => {
+      await storeNotification(accountA.user.id, arrival);
+    },
+  });
+  await exercise(webkitBrowser, "WebKit", origin, accountB.session.token, recordB.title, recordA.title, { width: 390, height: 844 }, "midnight", "reduce", ["Today"]);
+
+  const emptyContext = await chromiumBrowser.newContext({ viewport: { width: 390, height: 844 } });
+  await install(emptyContext, origin, emptyAccount.session.token);
+  const emptyPage = await emptyContext.newPage();
+  await emptyPage.goto(`${origin}/notifications`, { waitUntil: "domcontentloaded", timeout: 60_000 });
+  await emptyPage.getByRole("heading", { name: "You’re all caught up." }).waitFor();
+  await emptyPage.getByText("Important updates about your saved opportunities and Journey will appear here.").waitFor();
+  assert.equal(await emptyPage.locator("[data-notification-item]").count(), 0);
+  await emptyContext.close();
 
   const context = await chromiumBrowser.newContext({ viewport: { width: 1024, height: 768 } });
   await install(context, origin, accountA.session.token);
@@ -202,7 +268,7 @@ try {
   }, recordA.id);
   assert.equal(forged, 404, "Cross-account notification mutation must not reveal or update the record.");
   await context.close();
-  console.log("Notification browser checks passed", { browsers: ["Chromium", "WebKit"], viewports: ["desktop", "mobile"], accounts: 2 });
+  console.log("Notification browser checks passed", { browsers: ["Chromium", "WebKit"], viewports: ["desktop", "mobile"], accounts: 3, states: ["loading", "arrival", "read", "empty"] });
 } catch (error) {
   failure = error;
 } finally {

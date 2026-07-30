@@ -1,25 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
-import type { NotificationRecord } from "@/lib/notification-types";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import type { NotificationRecord, NotificationType } from "@/lib/notification-types";
+import { groupNotifications, notificationTimestamp } from "@/lib/notification-presentation";
 import { accountSessionEvent } from "@/data/account-sync";
+import { ArrowIcon, BellIcon, BookmarkIcon, CalendarIcon, CheckCircleIcon, CheckIcon, CloseIcon, ListIcon, SparkIcon, TargetIcon } from "./icons";
+import styles from "./notification-center.module.css";
 
 type CenterResponse = {
   notifications: NotificationRecord[];
   unreadCount: number;
   nextCursor: number | null;
 };
-
-function relativeTime(timestamp: string) {
-  const value = Date.parse(timestamp);
-  if (!Number.isFinite(value)) return "";
-  const difference = Date.now() - value;
-  if (difference < 60_000) return "Just now";
-  if (difference < 3_600_000) return `${Math.max(1, Math.floor(difference / 60_000))}m ago`;
-  if (difference < 86_400_000) return `${Math.max(1, Math.floor(difference / 3_600_000))}h ago`;
-  return new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric" }).format(new Date(value));
-}
 
 async function updateNotification(action: "read" | "dismiss" | "acted" | "mark_all_read", notificationId?: string) {
   const response = await fetch("/api/notifications", {
@@ -32,6 +25,33 @@ async function updateNotification(action: "read" | "dismiss" | "acted" | "mark_a
   });
   if (!response.ok) throw new Error("Notification update failed.");
   return await response.json();
+}
+
+function notificationTone(type: NotificationType) {
+  if (type === "deadline_reminder") return "deadline";
+  if (type === "opportunity_change") return "change";
+  if (type === "account") return "account";
+  return "journey";
+}
+
+function NotificationTypeIcon({ type }: { type: NotificationType }) {
+  if (type === "deadline_reminder") return <CalendarIcon />;
+  if (type === "journey_reminder" || type === "journey_follow_up") return <BookmarkIcon />;
+  if (type === "opportunity_change") return <SparkIcon />;
+  if (type === "weekly_digest") return <ListIcon />;
+  if (type === "recommendation_update") return <TargetIcon />;
+  return <BellIcon />;
+}
+
+function NotificationSkeleton() {
+  return <div aria-hidden="true" className={`unlocked-skeleton ${styles.loading}`} data-notification-skeleton="">
+    <div className={styles.skeletonHeading} />
+    {[0, 1, 2].map((item) => <div key={item} className={styles.skeletonCard}>
+      <div className={styles.skeletonIcon} />
+      <div className={styles.skeletonCopy}><span /><span /><span /></div>
+      <div className={styles.skeletonAction} />
+    </div>)}
+  </div>;
 }
 
 export function NotificationCenter() {
@@ -47,6 +67,32 @@ export function NotificationCenter() {
   const [arrivalAnnouncement, setArrivalAnnouncement] = useState("");
   const arrivalTimerRef = useRef<number | null>(null);
   const accountVersionRef = useRef(0);
+  const groupsRef = useRef<HTMLDivElement | null>(null);
+  const previousPositionsRef = useRef<Map<string, number> | null>(null);
+
+  function capturePositions() {
+    const positions = new Map<string, number>();
+    groupsRef.current?.querySelectorAll<HTMLElement>("[data-notification-id]").forEach((element) => {
+      positions.set(element.dataset.notificationId!, element.getBoundingClientRect().top);
+    });
+    previousPositionsRef.current = positions;
+  }
+
+  useLayoutEffect(() => {
+    const previous = previousPositionsRef.current;
+    previousPositionsRef.current = null;
+    if (!previous || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    groupsRef.current?.querySelectorAll<HTMLElement>("[data-notification-id]").forEach((element) => {
+      const priorTop = previous.get(element.dataset.notificationId!);
+      if (priorTop === undefined) return;
+      const offset = priorTop - element.getBoundingClientRect().top;
+      if (Math.abs(offset) < 1) return;
+      element.animate([
+        { transform: `translate3d(0, ${offset}px, 0)` },
+        { transform: "translate3d(0, 0, 0)" },
+      ], { duration: 240, easing: "cubic-bezier(.2, .7, .2, 1)" });
+    });
+  }, [items]);
 
   async function load(cursor = 0) {
     const response = await fetch(`/api/notifications?cursor=${cursor}`, { credentials: "same-origin", cache: "no-store" });
@@ -74,6 +120,7 @@ export function NotificationCenter() {
     const refresh = () => {
       void load().then((body) => {
         if (!active) return;
+        capturePositions();
         setItems((current) => {
           const currentIds = new Set(current.map((item) => item.id));
           const newIds = body.notifications.filter((item) => !currentIds.has(item.id)).map((item) => item.id);
@@ -112,13 +159,7 @@ export function NotificationCenter() {
     return () => window.removeEventListener(accountSessionEvent, accountChanged);
   }, []);
 
-  const groups = useMemo(() => {
-    const today = new Date().toDateString();
-    return [
-      { label: "Today", items: items.filter((item) => new Date(item.createdAt).toDateString() === today) },
-      { label: "Earlier", items: items.filter((item) => new Date(item.createdAt).toDateString() !== today) },
-    ].filter((group) => group.items.length);
-  }, [items]);
+  const groups = useMemo(() => groupNotifications(items), [items]);
 
   async function markAll() {
     const previous = items;
@@ -135,6 +176,22 @@ export function NotificationCenter() {
     }
   }
 
+  async function markRead(item: NotificationRecord) {
+    if (item.readAt) return;
+    const previous = items;
+    const now = new Date().toISOString();
+    setItems((current) => current.map((candidate) => candidate.id === item.id ? { ...candidate, readAt: now, state: "read" } : candidate));
+    setUnreadCount((count) => Math.max(0, count - 1));
+    try {
+      await updateNotification("read", item.id);
+      window.dispatchEvent(new Event("unlocked:notifications-updated"));
+    } catch {
+      setItems(previous);
+      setUnreadCount((count) => count + 1);
+      setError("We couldn’t mark that update as read.");
+    }
+  }
+
   async function dismiss(item: NotificationRecord) {
     if (dismissingIds.has(item.id)) return;
     const requestAccountVersion = accountVersionRef.current;
@@ -142,6 +199,7 @@ export function NotificationCenter() {
     const request = updateNotification("dismiss", item.id).then(() => true).catch(() => false);
     await new Promise((resolve) => window.setTimeout(resolve, 150));
     if (accountVersionRef.current !== requestAccountVersion) return;
+    capturePositions();
     setItems((current) => current.filter((candidate) => candidate.id !== item.id));
     if (!item.readAt) setUnreadCount((count) => Math.max(0, count - 1));
     const saved = await request;
@@ -149,6 +207,7 @@ export function NotificationCenter() {
     if (saved) {
       window.dispatchEvent(new Event("unlocked:notifications-updated"));
     } else {
+      capturePositions();
       setItems((current) => [item, ...current].sort((left, right) => right.createdAt.localeCompare(left.createdAt)));
       if (!item.readAt) setUnreadCount((count) => count + 1);
       setError("We couldn’t dismiss that update.");
@@ -160,82 +219,76 @@ export function NotificationCenter() {
     });
   }
 
-  return <main className="px-5 py-10 pb-28 sm:px-8 sm:py-14">
-    <section className="mx-auto max-w-4xl">
-      <header className="flex flex-col gap-5 border-b border-ink/15 pb-7 sm:flex-row sm:items-end sm:justify-between">
-        <div>
+  return <main className={styles.page}>
+    <section className={styles.container}>
+      <header className={styles.header}>
+        <div className={styles.headerCopy}>
           <p className="rule-label text-forest">Notifications</p>
           <h1 className="mt-2 font-editorial text-4xl font-bold sm:text-5xl">Useful updates, nothing more.</h1>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-ink/55">Deadline reminders, Journey follow-ups, and meaningful changes to opportunities you saved.</p>
+          <p className="mt-3 text-sm leading-6 text-ink/55">Deadline reminders, Journey follow-ups, and meaningful changes to opportunities you saved.</p>
         </div>
-        <div className="flex items-center gap-4">
-          <Link href="/profile#notifications" className="inline-flex min-h-11 items-center text-sm font-bold text-forest hover:text-ink">Settings</Link>
-          {unreadCount ? <button type="button" onClick={() => void markAll()} className="min-h-11 rounded-full border border-ink/15 px-4 text-sm font-bold text-ink/60 hover:border-forest hover:text-forest">Mark all read</button> : null}
+        <div className={styles.headerActions}>
+          <Link href="/profile#notifications" className={styles.settings}>Settings</Link>
+          {unreadCount ? <button type="button" onClick={() => void markAll()} className={styles.markAll}>Mark all read</button> : null}
         </div>
       </header>
 
       <div aria-live="polite" className="sr-only">{loading ? "Loading notifications" : `${unreadCount} unread notifications`}</div>
       <p aria-live="polite" className="sr-only">{arrivalAnnouncement}</p>
-      {error ? <div role="alert" className="mt-6 flex items-center justify-between gap-4 border-l-2 border-red-700 bg-red-50 px-4 py-3 text-sm font-semibold text-red-800"><span>{error}</span><button type="button" onClick={() => window.location.reload()} className="min-h-11 px-3 font-bold">Retry</button></div> : null}
+      {error ? <div role="alert" data-inline-feedback="" data-state="error" className={styles.error}><span>{error}</span><button type="button" onClick={() => window.location.reload()}>Retry</button></div> : null}
 
-      {loading ? <div aria-hidden="true" className="unlocked-skeleton mt-8 space-y-3">
-        {[0, 1, 2].map((item) => <div key={item} className="h-32 bg-[var(--unlocked-surface)] shadow-soft ring-1 ring-ink/6" />)}
-      </div> : null}
+      {loading ? <NotificationSkeleton /> : null}
 
-      {!loading && !items.length ? <section className="py-20 text-center">
-        <div className="mx-auto h-12 w-px bg-forest/30" />
-        <h2 className="mt-5 font-editorial text-3xl font-bold">Nothing needs your attention.</h2>
-        <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-ink/50">When a saved deadline approaches or something important changes, it will appear here.</p>
-        <Link href="/opportunities" className="mt-6 inline-flex min-h-11 items-center rounded-full bg-forest px-5 text-sm font-bold text-white hover:bg-ink">Explore opportunities</Link>
+      {!loading && !items.length ? <section className={styles.empty}>
+        <span className={styles.emptyIcon} aria-hidden="true"><CheckCircleIcon className="h-6 w-6" /></span>
+        <h2>You’re all caught up.</h2>
+        <p>Important updates about your saved opportunities and Journey will appear here.</p>
+        <Link href="/opportunities">Explore opportunities</Link>
       </section> : null}
 
-      {groups.map((group) => <section key={group.label} aria-labelledby={`notifications-${group.label.toLowerCase()}`} className="mt-10">
-        <h2 id={`notifications-${group.label.toLowerCase()}`} className="font-editorial text-2xl font-bold">{group.label}</h2>
-        <ol className="mt-4 divide-y divide-ink/10 border-y border-ink/10">
-          {group.items.map((item) => <li key={item.id} data-notification-item="" data-notification-item-arrived={arrivingIds.has(item.id) ? "true" : undefined} data-read={item.readAt ? "true" : undefined} data-dismissing={dismissingIds.has(item.id) ? "true" : undefined} className="relative grid gap-4 py-6 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
-            <div className="flex min-w-0 gap-4">
-              <span className={`mt-2 h-2.5 w-2.5 shrink-0 rounded-full ${item.readAt ? "border border-ink/25 bg-transparent" : item.priority === "high" ? "bg-gold" : "bg-forest"}`} aria-hidden="true" />
-              <div className="min-w-0">
-                <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                  <h3 className="font-editorial text-xl font-bold">{item.title}</h3>
-                  <time dateTime={item.createdAt} className="text-xs font-semibold text-ink/35">{relativeTime(item.createdAt)}</time>
-                  {!item.readAt ? <span className="sr-only">Unread</span> : <span className="sr-only">Read</span>}
+      <div ref={groupsRef} className={styles.groups}>
+        {groups.map((group) => {
+          const headingId = `notifications-${group.label.toLowerCase().replaceAll(" ", "-")}`;
+          return <section key={group.label} aria-labelledby={headingId} className={styles.group} data-notification-group={group.label}>
+            <h2 id={headingId} className={styles.groupHeading}>{group.label}</h2>
+            <ol className={styles.list}>
+              {group.items.map((item) => <li key={item.id} data-notification-item="" data-notification-id={item.id} data-notification-item-arrived={arrivingIds.has(item.id) ? "true" : undefined} data-read={item.readAt ? "true" : "false"} data-dismissing={dismissingIds.has(item.id) ? "true" : undefined} className={styles.item}>
+                <div className={styles.content}>
+                  <span className={styles.icon} data-tone={notificationTone(item.type)} aria-hidden="true">
+                    <NotificationTypeIcon type={item.type} />
+                    <span className={styles.unreadIndicator} data-visible={item.readAt ? "false" : "true"} />
+                  </span>
+                  <div className={styles.copy}>
+                    <div className={styles.titleRow}>
+                      <h3 className={styles.title}>{item.title}</h3>
+                      <time dateTime={item.createdAt} className={styles.timestamp}>{notificationTimestamp(item.createdAt)}</time>
+                      {!item.readAt ? <span className="sr-only">Unread</span> : <span className="sr-only">Read</span>}
+                    </div>
+                    {item.organization ? <p className={styles.organization}>{item.organization}</p> : null}
+                    <p className={styles.body}>{item.body}</p>
+                  </div>
                 </div>
-                {item.organization ? <p className="mt-1 text-xs font-bold uppercase tracking-wider text-forest">{item.organization}</p> : null}
-                <p className="mt-2 max-w-2xl text-sm leading-6 text-ink/55">{item.body}</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2 pl-6 sm:pl-0">
-              <Link href={item.actionHref} onClick={() => {
-                void updateNotification("acted", item.id)
-                  .then(() => window.dispatchEvent(new Event("unlocked:notifications-updated")))
-                  .catch(() => setError("The update opened, but its notification state could not be saved."));
-              }} className="inline-flex min-h-11 items-center rounded-full bg-forest px-4 text-sm font-bold text-white hover:bg-ink">{item.actionLabel}</Link>
-              {!item.readAt ? <button type="button" onClick={async () => {
-                const previous = items;
-                const now = new Date().toISOString();
-                setItems((current) => current.map((candidate) => candidate.id === item.id ? { ...candidate, readAt: now, state: "read" } : candidate));
-                setUnreadCount((count) => Math.max(0, count - 1));
-                try {
-                  await updateNotification("read", item.id);
-                  window.dispatchEvent(new Event("unlocked:notifications-updated"));
-                } catch {
-                  setItems(previous);
-                  setUnreadCount((count) => count + 1);
-                  setError("We couldn’t mark that update as read.");
-                }
-              }} className="min-h-11 px-3 text-sm font-bold text-ink/40 hover:text-forest" aria-label={`Mark as read: ${item.title}`}>Mark read</button> : null}
-              <button type="button" onClick={() => void dismiss(item)} disabled={dismissingIds.has(item.id)} className="min-h-11 px-3 text-sm font-bold text-ink/40 hover:text-forest disabled:cursor-wait disabled:opacity-50" aria-label={`Dismiss: ${item.title}`}>{dismissingIds.has(item.id) ? "Dismissing…" : "Dismiss"}</button>
-            </div>
-          </li>)}
-        </ol>
-      </section>)}
+                <div className={styles.actions}>
+                  <Link href={item.actionHref} onClick={() => {
+                    void updateNotification("acted", item.id)
+                      .then(() => window.dispatchEvent(new Event("unlocked:notifications-updated")))
+                      .catch(() => setError("The update opened, but its notification state could not be saved."));
+                  }} className={styles.primaryAction}>{item.actionLabel} <ArrowIcon /></Link>
+                  <button type="button" onClick={() => void markRead(item)} disabled={Boolean(item.readAt)} data-read={item.readAt ? "true" : "false"} className={`${styles.iconAction} ${styles.readAction}`} aria-label={item.readAt ? `Read: ${item.title}` : `Mark as read: ${item.title}`} title={item.readAt ? "Read" : "Mark as read"}><CheckIcon /></button>
+                  <button type="button" onClick={() => void dismiss(item)} disabled={dismissingIds.has(item.id)} className={styles.iconAction} aria-label={`Dismiss: ${item.title}`} title="Dismiss"><CloseIcon /></button>
+                </div>
+              </li>)}
+            </ol>
+          </section>;
+        })}
+      </div>
 
-      {nextCursor !== null ? <div className="mt-8 text-center"><button type="button" disabled={loadingMore} onClick={async () => {
+      {nextCursor !== null ? <div className={styles.loadMoreWrap}><button type="button" disabled={loadingMore} onClick={async () => {
         setLoadingMore(true);
         setError("");
         try {
           const body = await load(nextCursor);
+          capturePositions();
           setItems((current) => [...current, ...body.notifications.filter((item) => !current.some((existing) => existing.id === item.id))]);
           setNextCursor(body.nextCursor);
         } catch {
@@ -243,7 +296,7 @@ export function NotificationCenter() {
         } finally {
           setLoadingMore(false);
         }
-      }} className="min-h-11 rounded-full border border-ink/15 px-5 text-sm font-bold text-ink/60 hover:border-forest hover:text-forest disabled:opacity-60">{loadingMore ? "Loading…" : "Show older updates"}</button></div> : null}
+      }} className={styles.loadMore}>{loadingMore ? "Loading…" : "Show older updates"}</button></div> : null}
     </section>
   </main>;
 }

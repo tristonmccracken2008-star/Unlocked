@@ -249,16 +249,6 @@ dialog[open]::backdrop { opacity: 1; }
   from { transform: scale(.75); opacity: .4; }
   to { transform: scale(1); opacity: 1; }
 }
-[data-notification-item-arrived="true"] { animation: unlocked-notification-item var(--motion-standard) var(--motion-ease) both; }
-[data-notification-item] {
-  transition: opacity var(--motion-standard) var(--motion-ease), background-color var(--motion-standard) var(--motion-ease), transform var(--motion-standard) var(--motion-ease);
-}
-[data-notification-item][data-read="true"] { opacity: .7; }
-[data-notification-item][data-dismissing="true"] { opacity: 0; transform: translateX(5px); }
-@keyframes unlocked-notification-item {
-  from { transform: translateY(-3px); opacity: .4; }
-  to { transform: translateY(0); opacity: 1; }
-}
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after {

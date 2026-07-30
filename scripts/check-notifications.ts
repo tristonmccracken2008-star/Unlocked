@@ -12,6 +12,7 @@ import {
   normalizeNotificationPreferences,
   opportunityDeadlineIsTrustworthy,
 } from "../lib/notification-engine";
+import { notificationGroupLabel, notificationTimestamp } from "../lib/notification-presentation";
 
 process.env.AUTH_SECRET = "notification-regression-secret-with-at-least-thirty-two-bytes";
 Reflect.set(process.env, "NODE_ENV", "test");
@@ -20,6 +21,15 @@ delete process.env.KV_REST_API_TOKEN;
 delete process.env.UPSTASH_REDIS_REST_URL;
 delete process.env.UPSTASH_REDIS_REST_TOKEN;
 const now = new Date("2026-03-01T12:00:00.000Z");
+const presentationNow = new Date(2026, 6, 30, 12, 0, 0);
+assert.equal(notificationGroupLabel(new Date(2026, 6, 30, 9, 0, 0).toISOString(), presentationNow), "Today");
+assert.equal(notificationGroupLabel(new Date(2026, 6, 29, 9, 0, 0).toISOString(), presentationNow), "Yesterday");
+assert.equal(notificationGroupLabel(new Date(2026, 6, 27, 9, 0, 0).toISOString(), presentationNow), "Earlier This Week");
+assert.equal(notificationGroupLabel(new Date(2026, 6, 20, 9, 0, 0).toISOString(), presentationNow), "Earlier");
+assert.equal(notificationTimestamp(new Date(2026, 6, 30, 11, 59, 45).toISOString(), presentationNow), "Just now");
+assert.equal(notificationTimestamp(new Date(2026, 6, 30, 11, 55, 0).toISOString(), presentationNow), "5 min ago");
+assert.equal(notificationTimestamp(new Date(2026, 6, 30, 10, 0, 0).toISOString(), presentationNow), "2 hours ago");
+assert.equal(notificationTimestamp(new Date(2026, 6, 29, 12, 0, 0).toISOString(), presentationNow), "Yesterday");
 const base = opportunities[0]!;
 
 function opportunity(overrides: Partial<Opportunity> = {}): Opportunity {
