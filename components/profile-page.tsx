@@ -13,6 +13,7 @@ import { trackProductEvent } from "@/data/product-analytics";
 import { AccountButton } from "./account-auth";
 import { BillingCheckoutButton } from "./billing-checkout-button";
 import { NotificationSettings } from "./notification-settings";
+import { ProfileIdentityCard } from "./profile-identity-card";
 import { StudentProfileForm } from "./personalized-home";
 
 const AdvisorBrainProfileTab = dynamic(() => import("./profile-career-tab").then((module) => module.AdvisorBrainProfileTab), {
@@ -185,11 +186,11 @@ export function ProfilePage({ initialSession }: { initialSession: AccountSession
     <div className="mx-auto max-w-6xl">
       <header className="flex flex-col gap-5 border-b border-ink/12 pb-7 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="rule-label text-forest">UnlockED account</p>
-          <h1 className="mt-2 font-editorial text-4xl font-bold tracking-[-.03em] sm:text-5xl">Your account, clearly organized.</h1>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-ink/50">Manage the private information and preferences that shape your UnlockED experience.</p>
+          <p className="rule-label text-forest">Profile</p>
+          <h1 className="mt-2 font-editorial text-4xl font-bold tracking-[-.03em] text-[var(--unlocked-text)] sm:text-5xl">Your account.</h1>
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-ink/50">Manage your private profile, preferences, and account.</p>
         </div>
-        <div className="flex flex-wrap items-center justify-end gap-3"><Link href="/referral" className="inline-flex min-h-11 items-center text-sm font-bold text-forest hover:text-ink">Referrals</Link><AccountButton compact /></div>
+        <Link href="/referral" className="inline-flex min-h-11 items-center self-start text-sm font-bold text-forest hover:text-ink sm:self-auto">Referrals</Link>
       </header>
 
       <div className="mt-7 grid gap-8 lg:grid-cols-[13rem_minmax(0,1fr)]">
@@ -230,9 +231,17 @@ export function ProfilePage({ initialSession }: { initialSession: AccountSession
 
 function ProfileSection({ profile, session, onSaved }: { profile: StudentProfile | null; session: AccountSession; onSaved: (profile: StudentProfile) => Promise<void> }) {
   const [careerOpen, setCareerOpen] = useState(false);
+  const focusProfileField = (fieldId: string) => {
+    const field = document.getElementById(fieldId);
+    field?.focus({ preventScroll: true });
+    field?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "center" });
+  };
   return <div>
-    <SectionHeading id="profile-heading" eyebrow="Profile" title="The facts that shape your matches." description="Required academic details support eligibility. GPA, a second major, and other context are optional and always private." />
-    <StudentProfileForm mode="edit" session={session} initialProfile={profile} onSave={onSaved} />
+    <ProfileIdentityCard profile={profile} session={session} onEdit={focusProfileField} />
+    <div id="profile-settings" className="mt-10 scroll-mt-28">
+      <SectionHeading id="profile-settings-heading" eyebrow="Private details" title="Profile settings." description="Update the private details used for eligibility and recommendations." />
+      <StudentProfileForm key={`${session.user?.id ?? "signed-out"}:${session.data?.updatedAt ?? "unknown"}`} mode="edit" session={session} initialProfile={profile} onSave={onSaved} showHeader={false} />
+    </div>
     <details className="mt-8 border-t border-ink/12 pt-6" open={careerOpen} onToggle={(event) => setCareerOpen(event.currentTarget.open)}>
       <summary className="min-h-11 cursor-pointer text-sm font-bold text-forest">How UnlockED understands your direction</summary>
       <div className="pt-4">{careerOpen ? <AdvisorBrainProfileTab profile={profile} session={session} /> : null}</div>
@@ -399,7 +408,7 @@ function AccountLoading() {
 }
 
 function SectionHeading({ id, eyebrow, title, description }: { id: string; eyebrow: string; title: string; description: string }) {
-  return <header><p className="rule-label text-forest">{eyebrow}</p><h2 id={id} className="mt-2 font-editorial text-3xl font-bold tracking-[-.02em] sm:text-4xl">{title}</h2><p className="mt-3 max-w-2xl text-sm leading-6 text-ink/50">{description}</p></header>;
+  return <header><p className="rule-label text-forest">{eyebrow}</p><h2 id={id} className="mt-2 font-editorial text-3xl font-bold tracking-[-.02em] text-[var(--unlocked-text)] sm:text-4xl">{title}</h2><p className="mt-3 max-w-2xl text-sm leading-6 text-ink/50">{description}</p></header>;
 }
 
 function StatusMessages({ message, error }: { message: string; error: string }) {

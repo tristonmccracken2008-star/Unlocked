@@ -67,6 +67,7 @@ async function seed(label: string, pro = false) {
     },
     onboardingComplete: true,
     activity: { viewed: [], saved: [], claimed: [], tracked: {} },
+    journeyProgress: { "completed-profile": true },
   });
   if (pro) await updateAccountBilling(user.id, { tier: "pro", status: "active", billingInterval: "year", cancelAtPeriodEnd: false });
   return { user, session: await createSession(user) };
@@ -86,16 +87,32 @@ async function exercise(browser: Browser, origin: string, token: string, name: s
   const page = await context.newPage();
   const noErrors = observe(page);
   await page.goto(`${origin}/profile`, { waitUntil: "domcontentloaded", timeout: 60_000 });
-  await page.getByRole("heading", { name: "Your account, clearly organized." }).waitFor();
+  await page.getByRole("heading", { name: "Your account." }).waitFor();
+  await page.getByRole("heading", { name, exact: true }).waitFor();
+  await page.getByRole("heading", { name: "Profile settings." }).waitFor();
+  assert.equal(await page.locator("[data-profile-identity-card]").count(), 1);
+  const identityCard = page.locator("[data-profile-identity-card]");
+  await identityCard.getByText("University of Chicago").waitFor();
+  await identityCard.getByText(pro ? "Computer Science" : "Mathematics", { exact: true }).waitFor();
+  await identityCard.getByText("Research", { exact: true }).waitFor();
+  await page.screenshot({ path: `/tmp/unlocked-profile-identity-${name.toLowerCase()}.png`, fullPage: true });
+  await identityCard.getByText("Saved", { exact: true }).waitFor();
+  await page.getByRole("button", { name: "Edit profile", exact: true }).click();
+  await page.locator("#first-name").waitFor();
+  assert.equal(await page.evaluate(() => document.activeElement?.id), "first-name");
   await page.locator("#first-name").waitFor();
   assert.equal(await page.locator("#first-name").inputValue(), name);
+  await page.locator("#last-name").fill("Verified");
+  await page.getByRole("button", { name: "Save profile" }).click();
+  await page.getByText("Profile saved. Eligibility and For You will use these details.").waitFor();
+  await page.getByRole("heading", { name: `${name} Verified`, exact: true }).waitFor();
   for (const section of ["Profile", "Interests", "Notifications", "Privacy", "Appearance", "Plan and billing", "Data and account"]) assert.ok(await page.getByRole("button", { name: section, exact: true }).isVisible());
 
   await page.goto(`${origin}/profile#billing`, { waitUntil: "domcontentloaded" });
   await page.getByRole("heading", { name: pro ? "UnlockED Pro" : "UnlockED Free" }).waitFor();
   assert.equal(await page.getByRole("button", { name: "Plan and billing", exact: true }).getAttribute("aria-current"), "page");
   await page.goBack({ waitUntil: "domcontentloaded" });
-  await page.getByRole("heading", { name: "The facts that shape your matches." }).waitFor();
+  await page.getByRole("heading", { name: "Profile settings." }).waitFor();
 
   await page.getByRole("button", { name: "Interests", exact: true }).click();
   await page.getByRole("heading", { name: "Tell For You what to prioritize." }).waitFor();
@@ -116,6 +133,15 @@ async function exercise(browser: Browser, origin: string, token: string, name: s
   if (pro) {
     await midnight.click();
     await page.locator('html[data-theme="midnight"]').waitFor();
+    await page.getByRole("button", { name: "Profile", exact: true }).click();
+    await page.locator("[data-profile-identity-card]").waitFor();
+    const themeColors = await page.evaluate(() => ({
+      pageHeading: getComputedStyle(document.querySelector("h1")!).color,
+      identityHeading: getComputedStyle(document.querySelector("[data-profile-identity-card] h2")!).color,
+    }));
+    assert.deepEqual(themeColors, { pageHeading: "rgb(251, 243, 232)", identityHeading: "rgb(251, 243, 232)" }, "Midnight Profile headings must use the active high-contrast theme token.");
+    await page.waitForTimeout(250);
+    await page.screenshot({ path: "/tmp/unlocked-profile-identity-dark-mobile.png", fullPage: false });
   }
 
   await page.getByRole("button", { name: "Data and account", exact: true }).click();
@@ -159,10 +185,48 @@ try {
     await context.route("**/api/auth/session", (route) => route.fulfill({ status: 503, contentType: "application/json", body: JSON.stringify({ error: "temporary_failure" }) }));
     const page = await context.newPage();
     await page.goto(`${origin}/profile`, { waitUntil: "domcontentloaded" });
-    await page.getByRole("heading", { name: "Your account, clearly organized." }).waitFor();
+    await page.getByRole("heading", { name: "Your account." }).waitFor();
     await page.getByText("Your account details could not be refreshed. Your session is still active; retry or refresh the page.").waitFor();
     assert.equal(await page.getByRole("heading", { name: "Your session has ended." }).count(), 0, "Temporary session API failure must not show a false sign-out state.");
     assert.equal(await page.locator("#first-name").inputValue(), "Avery", "Server-confirmed profile data must remain visible during a temporary client refresh failure.");
+    await context.close();
+  }
+  {
+    const context = await chromiumBrowser.newContext({ viewport: { width: 640, height: 900 } });
+    await install(context, origin, free.session.token);
+    const page = await context.newPage();
+    await page.goto(`${origin}/profile`, { waitUntil: "domcontentloaded" });
+    await page.getByRole("heading", { name: "Avery Verified", exact: true }).waitFor();
+    assert.ok(await page.locator("[data-profile-identity-card]").isVisible(), "Identity card must remain visible at a 200% reflow-equivalent viewport.");
+    assert.ok(await page.getByRole("button", { name: "Edit profile", exact: true }).isVisible(), "Primary identity edit action must remain reachable at 200% reflow.");
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+    assert.ok(overflow <= 1, `Profile created ${overflow}px horizontal overflow at the 200% reflow-equivalent viewport.`);
+
+    await install(context, origin, pro.session.token);
+    await page.reload({ waitUntil: "domcontentloaded" });
+    await page.getByRole("heading", { name: "Jordan Verified", exact: true }).waitFor();
+    assert.equal(await page.getByRole("heading", { name: "Avery Verified", exact: true }).count(), 0, "Prior account identity must not survive an account switch.");
+
+    await install(context, origin, free.session.token);
+    await page.reload({ waitUntil: "domcontentloaded" });
+    await page.getByRole("heading", { name: "Avery Verified", exact: true }).waitFor();
+    assert.equal(await page.getByRole("heading", { name: "Jordan Verified", exact: true }).count(), 0, "Switched account identity must not leak after returning to the original account.");
+    await context.close();
+  }
+  {
+    const context = await chromiumBrowser.newContext({ viewport: { width: 1280, height: 900 } });
+    await install(context, origin, free.session.token);
+    await context.route("**/api/account/data", async (route) => {
+      if (route.request().method() === "PUT") await route.fulfill({ status: 503, contentType: "application/json", body: JSON.stringify({ error: "temporary_failure" }) });
+      else await route.continue();
+    });
+    const page = await context.newPage();
+    await page.goto(`${origin}/profile`, { waitUntil: "domcontentloaded" });
+    await page.getByRole("heading", { name: "Avery Verified", exact: true }).waitFor();
+    await page.locator("#first-name").fill("Unsaved");
+    await page.getByRole("button", { name: "Save profile" }).click();
+    await page.getByText("Profile could not be saved.").waitFor();
+    await page.getByRole("heading", { name: "Avery Verified", exact: true }).waitFor();
     await context.close();
   }
   const context = await chromiumBrowser.newContext({ viewport: { width: 1024, height: 768 } });
@@ -178,7 +242,7 @@ try {
   const { getSession } = await import("../lib/auth-store");
   assert.equal(await getSession(deletion.session.token), null);
   await context.close();
-  console.log("Account center browser checks passed", { browsers: ["Chromium", "WebKit"], accounts: 3, viewports: ["desktop", "mobile"], sessionFailureClassification: "retryable_data_error" });
+  console.log("Account center browser checks passed", { browsers: ["Chromium", "WebKit"], accounts: 3, viewports: ["desktop", "mobile", "200_percent_reflow_equivalent"], accountSwitching: true, sessionFailureClassification: "retryable_data_error" });
 } catch (error) {
   failure = error;
 } finally {

@@ -141,7 +141,7 @@ function LoggedOutLanding({ authIssue }: { authIssue: string }) {
   </main>;
 }
 
-export function StudentProfileForm({ mode, session, initialProfile, onSave, onCancel }: { mode: "onboarding" | "edit"; session: AccountSession | null; initialProfile?: StudentProfile | null; onSave: (profile: StudentProfile) => void | Promise<void>; onCancel?: () => void }) {
+export function StudentProfileForm({ mode, session, initialProfile, onSave, onCancel, showHeader = true }: { mode: "onboarding" | "edit"; session: AccountSession | null; initialProfile?: StudentProfile | null; onSave: (profile: StudentProfile) => void | Promise<void>; onCancel?: () => void; showHeader?: boolean }) {
   const initialSchool = schools.find((item) => item.slug === initialProfile?.schoolSlug) ?? null;
   const nameParts = session?.user?.name?.split(" ").filter(Boolean) ?? [];
   const [firstName, setFirstName] = useState(initialProfile?.firstName ?? nameParts[0] ?? "");
@@ -241,12 +241,12 @@ export function StudentProfileForm({ mode, session, initialProfile, onSave, onCa
     }
   }
 
-  return <section className={mode === "edit" ? "py-8" : "px-5 py-10 sm:px-8 sm:py-14"}>
+  return <section className={mode === "edit" ? showHeader ? "py-8" : "pb-8 pt-6" : "px-5 py-10 sm:px-8 sm:py-14"}>
     <section className="mx-auto max-w-3xl">
-      <p className="rule-label text-forest">{mode === "edit" ? "Edit profile" : "First things first"}</p>
+      {showHeader ? <><p className="rule-label text-forest">{mode === "edit" ? "Edit profile" : "First things first"}</p>
       <h1 className="mt-3 font-editorial text-4xl font-bold tracking-[-.03em] sm:text-5xl">{mode === "edit" ? "Update your profile." : "Tell UnlockED what fits you."}</h1>
-      <p className="mt-4 max-w-2xl text-sm leading-7 text-ink/55">{mode === "edit" ? "Change anything here. UnlockED updates after you save." : "You only do this once. UnlockED uses these details to personalize your account."}</p>
-      <form onSubmit={submit} className="mt-8 space-y-7 border-t border-ink/15 pt-8">
+      <p className="mt-4 max-w-2xl text-sm leading-7 text-ink/55">{mode === "edit" ? "Change anything here. UnlockED updates after you save." : "You only do this once. UnlockED uses these details to personalize your account."}</p></> : null}
+      <form onSubmit={submit} className={`${showHeader ? "mt-8" : ""} space-y-7 border-t border-ink/15 pt-8`}>
         <div className="grid gap-4 sm:grid-cols-[1fr_1fr]">
           <TextField id="first-name" label="First name" value={firstName} setValue={setFirstName} required />
           <TextField id="last-name" label="Last name" value={lastName} setValue={setLastName} />
