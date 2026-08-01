@@ -61,7 +61,9 @@ assert.ok(action.indexOf("setAdded(true)") > action.indexOf("if (!response.ok"),
 assert.doesNotMatch(action, /saveOpportunity\(opportunityId/);
 
 const onboarding = source("components/onboarding-flow.tsx");
-assert.match(onboarding, /const totalSteps = 6/);
+assert.match(onboarding, /const totalSteps = 10/);
+assert.match(onboarding, /window\.location\.assign\("\/opportunities"\)/);
+assert.match(onboarding, /unlocked-onboarding-draft-v2/);
 assert.doesNotMatch(onboarding, /title="Do you have a minor\?"/);
 assert.doesNotMatch(onboarding, /title="What is your current GPA\?"/);
 assert.match(onboarding, /onboarding_abandoned/);

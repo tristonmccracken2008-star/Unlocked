@@ -259,8 +259,12 @@ function studentContext(profile: AdvisorProfile): OpportunityStudentContext {
     schoolName: profile.school.name,
     major: profile.academics.major,
     academicYear: profile.academics.academicYear,
-    careerGoals: [profile.goals.careerGoal, ...profile.goals.primaryGoals].filter(Boolean).join(", "),
+    careerGoals: [profile.goals.careerGoal, ...profile.goals.specificCareerInterests, ...profile.goals.primaryGoals].filter(Boolean).join(", "),
     interests: unique([...profile.goals.interests, ...profile.goals.topics]),
+    preferredCategories: profile.goals.preferredOpportunityTypes,
+    locationFormats: profile.goals.locationFormats,
+    compensationPreference: profile.goals.compensationPreference,
+    timeCommitments: profile.goals.timeCommitments,
     savedOpportunityIds: profile.experience.savedOpportunityIds,
     viewedOpportunityIds: profile.experience.viewedOpportunityIds,
   };

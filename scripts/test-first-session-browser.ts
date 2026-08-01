@@ -95,6 +95,14 @@ async function seedProSession(label: string) {
   return await createSession(user);
 }
 
+async function seedProOnboardingSession(label: string) {
+  const { createSession, mergeAccountData, updateAccountBilling, upsertUser } = await import("../lib/auth-store");
+  const user = await upsertUser({ googleSub: `first-session-pro-onboarding-${label}`, email: `pro-onboarding-${label}@example.test`, name: `Taylor ${label}` });
+  await updateAccountBilling(user.id, { tier: "pro", status: "active", billingInterval: "month", cancelAtPeriodEnd: false });
+  await mergeAccountData(user.id, { preferences: { appearance: "midnight", updatedAt: new Date().toISOString() } });
+  return await createSession(user);
+}
+
 async function installSession(context: BrowserContext, origin: string, token: string) {
   await context.addCookies([{ name: "unlocked_session", value: token, url: origin, httpOnly: true, sameSite: "Lax", expires: Math.floor(Date.now() / 1_000) + 3_600 }]);
   await context.route("https://logo.clearbit.com/**", (route) => route.fulfill({ status: 200, contentType: "image/svg+xml", body: '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32"/>' }));
@@ -106,12 +114,16 @@ function observe(page: Page) {
     if (message.type() === "error" && !message.text().includes("_vercel")) errors.push(message.text());
   });
   page.on("pageerror", (error) => errors.push(error.message));
-  return (allowIntentionalSaveFailure = false) => {
+  return (allowIntentionalSaveFailure = false, allowIntentionalSecurityFailure = false) => {
     const intentionalSaveFailure: string = "Failed to load resource: the server responded with a status of 500 (Internal Server Error)";
-    const expected = errors.filter((message) => message === intentionalSaveFailure);
-    const unexpected = errors.filter((message) => message !== intentionalSaveFailure);
-    if (allowIntentionalSaveFailure) assert.equal(expected.length, 1, "The forced save failure should produce exactly one browser resource error.");
-    else assert.equal(expected.length, 0, "No unexpected HTTP 500 should reach the browser.");
+    const intentionalSecurityFailure: string = "Failed to load resource: the server responded with a status of 400 (Bad Request)";
+    const expectedSave = errors.filter((message) => message === intentionalSaveFailure);
+    const expectedSecurity = errors.filter((message) => message === intentionalSecurityFailure);
+    const unexpected = errors.filter((message) => message !== intentionalSaveFailure && message !== intentionalSecurityFailure);
+    if (allowIntentionalSaveFailure) assert.equal(expectedSave.length, 1, "The forced save failure should produce exactly one browser resource error.");
+    else assert.equal(expectedSave.length, 0, "No unexpected HTTP 500 should reach the browser.");
+    if (allowIntentionalSecurityFailure) assert.equal(expectedSecurity.length, 1, "The forced onboarding bypass should produce exactly one browser resource error.");
+    else assert.equal(expectedSecurity.length, 0, "No unexpected HTTP 400 should reach the browser.");
     assert.deepEqual(unexpected, [], `Browser errors: ${unexpected.join(" | ")}`);
   };
 }
@@ -125,37 +137,105 @@ async function completeOnboarding(page: Page, origin: string) {
 
   await page.getByRole("button", { name: "Get started" }).click();
   const schoolInput = page.getByRole("combobox", { name: "Search for your school" });
-  await page.waitForFunction(() => Object.keys(localStorage).some((key) => key.startsWith("unlocked-onboarding-draft-v1:")));
+  await page.waitForFunction(() => Object.keys(localStorage).some((key) => key.startsWith("unlocked-onboarding-draft-v2:")));
   await schoolInput.fill("University of Chicago");
-  await page.waitForFunction(() => Object.keys(localStorage).some((key) => key.startsWith("unlocked-onboarding-draft-v1:") && localStorage.getItem(key)?.includes("University of Chicago")));
+  await page.waitForFunction(() => Object.keys(localStorage).some((key) => key.startsWith("unlocked-onboarding-draft-v2:") && localStorage.getItem(key)?.includes("University of Chicago")));
   await page.reload({ waitUntil: "domcontentloaded" });
-  await page.getByRole("button", { name: "Get started" }).click();
+  await page.getByRole("heading", { name: "What school do you attend?" }).waitFor({ state: "visible" });
   await assert.doesNotReject(async () => assert.equal(await schoolInput.inputValue(), "University of Chicago"), "Interrupted onboarding must restore the saved answer.");
 
   startedAt = performance.now();
-  await page.getByRole("button", { name: "Continue" }).click();
+  await page.getByRole("button", { name: "Continue" }).focus();
+  await page.keyboard.press("Enter");
+  await page.getByRole("heading", { name: "When do you expect to graduate?" }).waitFor({ state: "visible" });
   await page.getByRole("combobox", { name: "Select year" }).selectOption("2030");
   await page.getByRole("button", { name: "Continue" }).click();
+  await page.getByRole("heading", { name: "What are you studying?" }).waitFor({ state: "visible" });
   const majorInput = page.getByRole("combobox", { name: "Search for your major" });
   await majorInput.fill("Mathematics");
   await majorInput.evaluate((node) => (node as HTMLInputElement).blur());
   await page.locator("#onboarding-major-listbox").waitFor({ state: "hidden" });
   await page.getByRole("button", { name: "Continue" }).click();
-  await page.getByRole("button", { name: "Research", exact: true }).click();
+  await page.getByRole("heading", { name: "What kinds of opportunities are you looking for?" }).waitFor({ state: "visible" });
+  const opportunityResearch = page.getByRole("button", { name: "Research", exact: true });
+  if (await opportunityResearch.getAttribute("aria-pressed") !== "true") await opportunityResearch.click();
+  await page.waitForFunction(() => [...document.querySelectorAll<HTMLButtonElement>("button[aria-pressed]")].some((button) => button.textContent?.includes("Research") && button.getAttribute("aria-pressed") === "true"));
   await page.getByRole("button", { name: "Continue" }).click();
-  await page.getByRole("button", { name: "Research", exact: true }).click();
-  await page.getByRole("button", { name: "Scholarships", exact: true }).click();
+  await page.getByRole("heading", { name: "What fields are you interested in?" }).waitFor({ state: "visible" });
+  await page.getByRole("button", { name: "Natural Sciences", exact: true }).click();
+  await page.getByRole("button", { name: "Go back" }).click();
+  await page.getByRole("heading", { name: "What kinds of opportunities are you looking for?" }).waitFor({ state: "visible" });
+  assert.equal(await page.getByRole("button", { name: "Research", exact: true }).getAttribute("aria-pressed"), "true", "Back navigation must preserve prior selections.");
   await page.getByRole("button", { name: "Continue" }).click();
-  await page.getByRole("button", { name: "Finding research", exact: true }).click();
+  await page.getByRole("heading", { name: "What fields are you interested in?" }).waitFor({ state: "visible" });
+  assert.equal(await page.getByRole("button", { name: "Natural Sciences", exact: true }).getAttribute("aria-pressed"), "true", "Returning forward must preserve the current answer.");
+  await page.getByRole("button", { name: "Continue" }).click();
+  await page.getByRole("button", { name: "Finding research experience", exact: true }).click();
+  await page.getByRole("button", { name: "Continue" }).click();
+  await page.getByRole("button", { name: "Remote", exact: true }).click();
+  await page.getByRole("button", { name: "Continue" }).click();
+  await page.getByRole("button", { name: "Continue" }).click();
+  await page.getByRole("button", { name: "Summer", exact: true }).click();
+  await page.getByRole("button", { name: "Continue" }).click();
+  await page.getByRole("button", { name: "Academic Research", exact: true }).click();
   timings.onboardingInteractions = performance.now() - startedAt;
 
   startedAt = performance.now();
-  await page.getByRole("button", { name: "Finish setup" }).click();
-  await page.waitForURL("**/advisor", { timeout: 60_000 });
+  let profileWrites = 0;
+  page.on("request", (request) => {
+    if (new URL(request.url()).pathname === "/api/account/data" && request.method() === "PUT") profileWrites += 1;
+  });
+  await page.getByRole("button", { name: "Finish setup" }).dblclick();
+  await page.waitForURL("**/opportunities", { timeout: 60_000 });
+  assert.equal(profileWrites, 1, "Rapid duplicate completion must produce one profile write.");
+  await page.getByRole("heading", { name: "Find what’s out there." }).waitFor({ state: "visible", timeout: 60_000 });
+  timings.onboardingToDiscover = performance.now() - startedAt;
+  await page.goto(`${origin}/advisor`, { waitUntil: "domcontentloaded", timeout: 60_000 });
   await page.getByRole("heading", { name: "Your opportunities are ready." }).waitFor({ state: "visible", timeout: 60_000 });
   await page.getByRole("button", { name: "Add to Journey" }).first().waitFor({ state: "visible" });
-  timings.onboardingToForYou = performance.now() - startedAt;
+  timings.discoverToForYou = performance.now() - startedAt - timings.onboardingToDiscover;
   return timings;
+}
+
+async function verifyDesktopDarkOnboarding(browser: Browser, origin: string, token: string) {
+  const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, colorScheme: "dark" });
+  await installSession(context, origin, token);
+  const page = await context.newPage();
+  const assertNoErrors = observe(page);
+  await page.goto(`${origin}/onboarding`, { waitUntil: "domcontentloaded", timeout: 60_000 });
+  await page.getByRole("heading", { name: "Welcome to UnlockED" }).waitFor({ state: "visible" });
+  await page.waitForFunction(() => document.documentElement.dataset.theme === "midnight");
+  assert.equal(await page.locator("html").getAttribute("data-theme"), "midnight", "Pro onboarding must honor the saved dark appearance.");
+  const bypassAttempt = await page.evaluate(async () => {
+    const response = await fetch("/api/account/data", {
+      method: "PUT",
+      credentials: "same-origin",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        onboardingComplete: true,
+        profile: { firstName: "Taylor", schoolSlug: "university-of-chicago", major: "Mathematics", graduationYear: "2030", year: "First year", careerGoal: "Research", interests: "Research" },
+      }),
+    });
+    return { status: response.status, body: await response.json() };
+  });
+  assert.equal(bypassAttempt.status, 400, "Client manipulation must not bypass V2 server validation.");
+  assert.equal(bypassAttempt.body.code, "incomplete_onboarding");
+  await page.getByRole("button", { name: "Get started" }).focus();
+  await page.keyboard.press("Enter");
+  const progress = page.getByRole("progressbar", { name: "Onboarding progress" });
+  assert.equal(await progress.getAttribute("aria-valuemax"), "10");
+  assert.equal(await progress.getAttribute("aria-valuenow"), "1");
+  assert.ok(await page.getByRole("combobox", { name: "Search for your school" }).isVisible());
+  await page.getByRole("button", { name: "Go back" }).focus();
+  await page.keyboard.press("Enter");
+  await page.getByRole("heading", { name: "Welcome to UnlockED" }).waitFor({ state: "visible" });
+  await page.getByRole("button", { name: "Get started" }).focus();
+  await page.keyboard.press("Enter");
+  await page.getByRole("heading", { name: "What school do you attend?" }).waitFor({ state: "visible" });
+  await page.screenshot({ path: "/tmp/unlocked-onboarding-desktop-dark.png", fullPage: true });
+  assert.ok(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth <= 1), "Desktop dark onboarding must not overflow horizontally.");
+  assertNoErrors(false, true);
+  await context.close();
 }
 
 async function verifyFirstSave(page: Page, origin: string, browserName: string) {
@@ -290,6 +370,7 @@ const chromiumNew = await seedNewSession("chromium");
 const webkitNew = await seedNewSession("webkit");
 const chromiumPro = await seedProSession("chromium");
 const webkitPro = await seedProSession("webkit");
+const chromiumProOnboarding = await seedProOnboardingSession("chromium");
 const app = next({ dev: true, dir: process.cwd(), hostname: "127.0.0.1", port: appPort });
 await app.prepare();
 const server = http.createServer((request, response) => app.getRequestHandler()(request, response));
@@ -303,6 +384,7 @@ const browsers = [
 let failure: unknown;
 try {
   const results: Array<{ browser: string; timings: Record<string, number> }> = [];
+  await verifyDesktopDarkOnboarding(browsers[0]!.browser, origin, chromiumProOnboarding.token);
   for (const target of browsers) {
     const timings = await runNewAccount(target.browser, origin, target.fresh, target.name);
     await runPro(target.browser, origin, target.pro, target.name);

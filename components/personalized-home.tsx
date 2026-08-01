@@ -6,13 +6,12 @@ import { schoolDirectory as schools, type School } from "@/data/school-directory
 import { findExactSchoolMatches, findSchoolMatches, normalizeSchoolQuery } from "@/data/school-search";
 import { SearchIcon } from "./icons";
 import { readCompletedStudentProfile, writeStudentProfile, type StudentProfile } from "@/data/student-profile";
-import { academicYearFromGraduationYear, canonicalMajors, currentPriorityOptions, graduationYears, normalizedOpportunityInterests, opportunityInterestOptions, priorityToOpportunityType } from "@/data/profile-options";
+import { academicYearFromGraduationYear, canonicalMajors, graduationYears } from "@/data/profile-options";
+import { careerPathOptions, compensationOptions, currentGoalOptions, fieldInterestOptions, isExplorationChoice, locationFormatOptions, onboardingSelectionLimits, opportunityTypeOptions, timeCommitmentOptions, type CompensationPreference, type LocationFormatPreference, type TimeCommitmentPreference } from "@/data/onboarding-options";
+import { applyOnboardingPersonalization, personalizationFromLegacyProfile } from "@/data/onboarding-personalization";
 import { accountSessionEvent, accountSyncErrorEvent, clearLocalDashboardState, hydrateAccountData } from "@/data/account-sync";
 import type { AccountSession } from "@/lib/account-types";
 import { trackProductEvent } from "@/data/product-analytics";
-
-const interestSuggestions = ["Scholarships", "Research", "Internships", "AI", "Software", "Startups", "Finance", "Medicine", "Engineering"];
-const careerGoalSuggestions = ["Get an internship", "Find funding", "Join a research lab", "Build technical skills", "Prepare for graduate school", "Explore careers"];
 
 export function PersonalizedHome({ initialSession = null }: { initialSession?: AccountSession | null }) {
   const [ready, setReady] = useState(Boolean(initialSession));
@@ -152,14 +151,23 @@ export function StudentProfileForm({ mode, session, initialProfile, onSave, onCa
   const [major, setMajor] = useState(initialProfile?.major ?? "");
   const [secondaryMajor, setSecondaryMajor] = useState(initialProfile?.secondaryMajor ?? "");
   const [graduationYear, setGraduationYear] = useState(initialProfile?.graduationYear ?? "");
-  const [interests, setInterests] = useState(initialProfile?.interests ?? "");
-  const [careerGoal, setCareerGoal] = useState(initialProfile?.careerGoal ?? "");
+  const initialPersonalization = personalizationFromLegacyProfile(initialProfile);
+  const initialUnknownFields = initialPersonalization.fieldInterests.filter((value) => !fieldInterestOptions.includes(value as never));
+  const initialUnknownCareers = initialPersonalization.specificCareerInterests.filter((value) => !careerPathOptions.includes(value as never));
+  const [opportunityTypeInterests, setOpportunityTypeInterests] = useState<string[]>(initialPersonalization.opportunityTypeInterests);
+  const [fieldInterests, setFieldInterests] = useState<string[]>(initialUnknownFields.length ? [...initialPersonalization.fieldInterests.filter((value) => fieldInterestOptions.includes(value as never)), "Other"] : initialPersonalization.fieldInterests);
+  const [otherFieldInterest, setOtherFieldInterest] = useState(initialUnknownFields.join(", "));
+  const [goals, setGoals] = useState<string[]>(initialPersonalization.goals);
+  const [specificCareerInterests, setSpecificCareerInterests] = useState<string[]>(initialUnknownCareers.length ? [...initialPersonalization.specificCareerInterests.filter((value) => careerPathOptions.includes(value as never)), "Other"] : initialPersonalization.specificCareerInterests);
+  const [otherCareerInterest, setOtherCareerInterest] = useState(initialUnknownCareers.join(", "));
+  const [locationFormats, setLocationFormats] = useState<LocationFormatPreference[]>(initialPersonalization.locationFormats);
+  const [compensationPreference, setCompensationPreference] = useState<CompensationPreference>(initialPersonalization.compensationPreference);
+  const [timeCommitments, setTimeCommitments] = useState<TimeCommitmentPreference[]>(initialPersonalization.timeCommitments);
   const [minorStatus, setMinorStatus] = useState<"declared" | "none">(initialProfile?.minorStatus ?? (initialProfile?.minor ? "declared" : "none"));
   const [minor, setMinor] = useState(initialProfile?.minor ?? "");
   const [gpaStatus, setGpaStatus] = useState<"reported" | "none_yet" | "nonstandard">(initialProfile?.gpaStatus ?? "none_yet");
   const [gpa, setGpa] = useState(typeof initialProfile?.gpa === "number" ? String(initialProfile.gpa) : "");
   const [gpaScale, setGpaScale] = useState<"4.0" | "5.0" | "100">(initialProfile?.gpaScale ?? "4.0");
-  const [currentPriority, setCurrentPriority] = useState(initialProfile?.currentPriority ?? currentPriorityOptions[4]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [showMajorSuggestions, setShowMajorSuggestions] = useState(false);
   const [showMinorSuggestions, setShowMinorSuggestions] = useState(false);
@@ -177,9 +185,17 @@ export function StudentProfileForm({ mode, session, initialProfile, onSave, onCa
     setUseCustomSchool(false);
   }
 
-  function addToken(value: string, current: string, update: (next: string) => void) {
-    const tokens = current.split(",").map((item) => item.trim()).filter(Boolean);
-    if (!tokens.includes(value)) update([...tokens, value].join(", "));
+  function toggleSelection(current: string[], value: string, update: (next: string[]) => void, limit?: number) {
+    if (current.includes(value)) return update(current.filter((item) => item !== value));
+    const next = isExplorationChoice(value) ? [value] : [...current.filter((item) => !isExplorationChoice(item)), value];
+    if (limit && next.length > limit) return setError(`Choose no more than ${limit}.`);
+    update(next);
+    setError("");
+  }
+
+  function togglePractical<T extends string>(current: T[], value: T, update: (next: T[]) => void) {
+    const next = current.includes(value) ? current.filter((item) => item !== value) : value === "no_preference" ? [value] : [...current.filter((item) => item !== "no_preference"), value];
+    update(next);
   }
 
   async function submit(event: FormEvent) {
@@ -196,15 +212,15 @@ export function StudentProfileForm({ mode, session, initialProfile, onSave, onCa
       const maximum = gpaScale === "100" ? 100 : Number(gpaScale);
       if (!Number.isFinite(numericGpa) || numericGpa < 0 || numericGpa > maximum) { setError(`Enter a GPA from 0 to ${gpaScale}.`); return; }
     }
-    if (!interests.trim()) { setError("Add at least one interest."); return; }
-    if (!careerGoal.trim()) { setError("Add one career goal."); return; }
-    if (!currentPriority) { setError("Choose your current priority."); return; }
+    if (!opportunityTypeInterests.length) { setError("Choose at least one opportunity type."); return; }
+    if (!fieldInterests.length || fieldInterests.length > onboardingSelectionLimits.fieldInterests) { setError("Choose between one and five fields."); return; }
+    if (fieldInterests.includes("Other") && otherFieldInterest.trim().length < 2) { setError("Add your other field of interest."); return; }
+    if (!goals.length || goals.length > onboardingSelectionLimits.currentGoals) { setError("Choose between one and four current goals."); return; }
+    if (specificCareerInterests.includes("Other") && otherCareerInterest.trim().length < 2) { setError("Add your other career interest."); return; }
     setError("");
     setSaving(true);
-    const interestTokens = interests.split(",").map((item) => item.trim()).filter(Boolean);
-    const preferredOpportunityTypes = normalizedOpportunityInterests([...(initialProfile?.preferredOpportunityTypes ?? []), ...interestTokens, priorityToOpportunityType(currentPriority)].filter(Boolean));
     try {
-      await onSave({
+      const baseProfile: StudentProfile = {
       ...initialProfile,
       firstName: firstName.trim(),
       lastName: lastName.trim() || undefined,
@@ -219,21 +235,20 @@ export function StudentProfileForm({ mode, session, initialProfile, onSave, onCa
       gpaStatus,
       gpa: gpaStatus === "reported" ? Number(Number(gpa).toFixed(2)) : undefined,
       gpaScale: gpaStatus === "reported" ? gpaScale : undefined,
-      careerGoal: careerGoal.trim(),
-      interests: interests.trim(),
-      preferredOpportunityTypes,
-      currentPriority,
-      goals: careerGoal.split(",").map((item) => item.trim()).filter(Boolean),
-      topics: interestTokens,
-      advisorInterview: {
-        ...(initialProfile?.advisorInterview ?? {}),
-        careerGoal: careerGoal.trim(),
-        interests: interestTokens,
-        primaryGoals: [currentPriority],
-        preferredOpportunityTypes,
-        completedAt: initialProfile?.advisorInterview?.completedAt ?? initialProfile?.onboardingCompletedAt,
-      },
+      careerGoal: initialProfile?.careerGoal ?? "Exploring possible careers",
+      interests: initialProfile?.interests ?? "Still exploring",
+      };
+      const nextProfile = applyOnboardingPersonalization(baseProfile, {
+        opportunityTypeInterests: opportunityTypeInterests as NonNullable<StudentProfile["opportunityTypeInterests"]>,
+        fieldInterests: fieldInterests.map((value) => value === "Other" ? otherFieldInterest.trim() : value),
+        goals,
+        specificCareerInterests: specificCareerInterests.map((value) => value === "Other" ? otherCareerInterest.trim() : value),
+        locationFormats,
+        compensationPreference,
+        timeCommitments,
       });
+      nextProfile.advisorInterview = { ...(nextProfile.advisorInterview ?? {}), completedAt: initialProfile?.advisorInterview?.completedAt ?? initialProfile?.onboardingCompletedAt };
+      await onSave(nextProfile);
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Your profile could not be saved. Please try again.");
     } finally {
@@ -293,10 +308,32 @@ export function StudentProfileForm({ mode, session, initialProfile, onSave, onCa
             {gpaStatus === "reported" && <div className="mt-3 grid grid-cols-[1fr_7rem] gap-2"><label htmlFor="profile-gpa" className="sr-only">GPA</label><input id="profile-gpa" inputMode="decimal" value={gpa} onChange={(event) => setGpa(event.target.value.replace(/[^0-9.]/g, ""))} placeholder="Example: 3.75" className="min-h-12 w-full border border-ink/20 bg-white px-4 outline-none focus:border-forest"/><label className="sr-only" htmlFor="profile-gpa-scale">GPA scale</label><select id="profile-gpa-scale" value={gpaScale} onChange={(event) => setGpaScale(event.target.value as "4.0" | "5.0" | "100")} className="min-h-12 border border-ink/20 bg-white px-3"><option value="4.0">4.0 scale</option><option value="5.0">5.0 scale</option><option value="100">100 scale</option></select></div>}
           </fieldset>
         </div>
-        <TokenField id="profile-interests" label="Interests" value={interests} setValue={setInterests} suggestions={interestSuggestions} onAdd={addToken} placeholder="AI, research, scholarships" />
-        <TokenField id="profile-goals" label="Career goals" value={careerGoal} setValue={setCareerGoal} suggestions={careerGoalSuggestions} onAdd={addToken} placeholder="Get an internship, join a lab" />
-        <label className="block"><span className="mb-2 block text-sm font-bold">Current priority</span><select value={currentPriority} onChange={(event) => setCurrentPriority(event.target.value)} className="min-h-12 w-full border border-ink/20 bg-white px-4 outline-none focus:border-forest">{currentPriorityOptions.map((option) => <option key={option} value={option}>{option}</option>)}</select></label>
-        <div><p className="mb-2 text-sm font-bold">Opportunity interests</p><div className="flex flex-wrap gap-2">{opportunityInterestOptions.map((item) => <button key={item} type="button" onClick={() => addToken(item, interests, setInterests)} className="inline-flex min-h-11 items-center border border-ink/15 px-3 text-xs font-bold text-ink/55 hover:border-forest hover:text-forest">{item}</button>)}</div></div>
+        <div className="border-t border-ink/15 pt-7">
+          <p className="rule-label text-forest">Recommendation preferences</p>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-ink/50">These details shape For You. Discover still shows the complete catalog.</p>
+          <div className="mt-5 divide-y divide-ink/10 border-y border-ink/10">
+            <PreferenceDetails title="Opportunity types" summary={opportunityTypeInterests.join(", ") || "Choose what you want to find"}>
+              <ProfileChoiceGrid options={opportunityTypeOptions} values={opportunityTypeInterests} onToggle={(value) => toggleSelection(opportunityTypeInterests, value, setOpportunityTypeInterests)} />
+            </PreferenceDetails>
+            <PreferenceDetails title="Fields and current goals" summary={[...fieldInterests, ...goals].slice(0, 3).join(", ") || "Add your current interests"}>
+              <ProfileChoiceGrid options={fieldInterestOptions} values={fieldInterests} onToggle={(value) => toggleSelection(fieldInterests, value, setFieldInterests, onboardingSelectionLimits.fieldInterests)} />
+              {fieldInterests.includes("Other") ? <CompactTextField id="profile-other-field" label="Other field" value={otherFieldInterest} onChange={setOtherFieldInterest} /> : null}
+              <p className="mb-3 mt-6 text-sm font-bold">What you are working toward now</p>
+              <ProfileChoiceGrid options={currentGoalOptions} values={goals} onToggle={(value) => toggleSelection(goals, value, setGoals, onboardingSelectionLimits.currentGoals)} />
+            </PreferenceDetails>
+            <PreferenceDetails title="Practical preferences" summary="Location, compensation, and time commitment">
+              <p className="mb-3 text-sm font-bold">Participation format</p>
+              <ProfileOptionGrid options={locationFormatOptions} values={locationFormats} onToggle={(value) => togglePractical(locationFormats, value, setLocationFormats)} />
+              <label className="mt-6 block"><span className="mb-2 block text-sm font-bold">Compensation</span><select value={compensationPreference} onChange={(event) => setCompensationPreference(event.target.value as CompensationPreference)} className="min-h-12 w-full border border-ink/20 bg-white px-4 outline-none focus:border-forest">{compensationOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>
+              <p className="mb-3 mt-6 text-sm font-bold">Time commitment</p>
+              <ProfileOptionGrid options={timeCommitmentOptions} values={timeCommitments} onToggle={(value) => togglePractical(timeCommitments, value, setTimeCommitments)} />
+            </PreferenceDetails>
+            <PreferenceDetails title="Specific career paths" summary={specificCareerInterests.join(", ") || "Optional"}>
+              <ProfileChoiceGrid options={careerPathOptions} values={specificCareerInterests} onToggle={(value) => toggleSelection(specificCareerInterests, value, setSpecificCareerInterests, onboardingSelectionLimits.specificCareerInterests)} />
+              {specificCareerInterests.includes("Other") ? <CompactTextField id="profile-other-career" label="Other career path" value={otherCareerInterest} onChange={setOtherCareerInterest} /> : null}
+            </PreferenceDetails>
+          </div>
+        </div>
         {error && <p role="alert" className="text-sm font-bold text-red-700">{error}</p>}
         <div className="flex flex-col gap-3 border-t border-ink/15 pt-6 sm:flex-row">
           <button type="submit" disabled={saving} className="inline-flex min-h-12 items-center justify-center bg-forest px-6 text-sm font-bold uppercase tracking-wider text-white hover:bg-ink disabled:opacity-60">{saving ? "Saving…" : mode === "edit" ? "Save profile" : "Open UnlockED"}</button>
@@ -311,6 +348,18 @@ function TextField({ id, label, value, setValue, required = false }: { id: strin
   return <label htmlFor={id} className="block"><span className="mb-2 block text-sm font-bold">{label}{required ? " *" : ""}</span><input id={id} value={value} onChange={(event) => setValue(event.target.value)} className="min-h-12 w-full border border-ink/20 bg-white px-4 outline-none focus:border-forest"/></label>;
 }
 
-function TokenField({ id, label, value, setValue, suggestions, onAdd, placeholder }: { id: string; label: string; value: string; setValue: (value: string) => void; suggestions: string[]; onAdd: (value: string, current: string, update: (next: string) => void) => void; placeholder: string }) {
-  return <div><label htmlFor={id} className="mb-2 block text-sm font-bold">{label}</label><input id={id} value={value} onChange={(event) => setValue(event.target.value)} placeholder={placeholder} className="min-h-12 w-full border border-ink/20 bg-white px-4 outline-none placeholder:text-ink/30 focus:border-forest"/><div className="mt-3 flex flex-wrap gap-2">{suggestions.map((item) => <button key={item} type="button" onClick={() => onAdd(item, value, setValue)} className="inline-flex min-h-11 items-center border border-ink/15 px-3 text-xs font-bold text-ink/55 hover:border-forest hover:text-forest">{item}</button>)}</div></div>;
+function PreferenceDetails({ title, summary, children }: { title: string; summary: string; children: React.ReactNode }) {
+  return <details className="group py-4"><summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-5 text-sm font-bold"><span>{title}</span><span className="max-w-[60%] truncate text-xs font-semibold text-ink/40 group-open:hidden">{summary}</span><span aria-hidden="true" className="text-forest">+</span></summary><div className="pb-2 pt-4">{children}</div></details>;
+}
+
+function ProfileChoiceGrid({ options, values, onToggle }: { options: readonly string[]; values: string[]; onToggle: (value: string) => void }) {
+  return <div className="grid gap-2 sm:grid-cols-2">{options.map((option) => <button key={option} type="button" aria-pressed={values.includes(option)} onClick={() => onToggle(option)} className={`flex min-h-11 items-center justify-between gap-3 border px-3 py-2 text-left text-xs font-bold ${values.includes(option) ? "border-forest bg-forest text-white" : "border-ink/15 bg-white text-ink/60 hover:border-forest hover:text-forest"}`}><span>{option}</span><span aria-hidden="true" className={values.includes(option) ? "opacity-100" : "opacity-0"}>✓</span></button>)}</div>;
+}
+
+function ProfileOptionGrid<T extends string>({ options, values, onToggle }: { options: readonly { value: T; label: string }[]; values: readonly T[]; onToggle: (value: T) => void }) {
+  return <div className="grid gap-2 sm:grid-cols-2">{options.map((option) => <button key={option.value} type="button" aria-pressed={values.includes(option.value)} onClick={() => onToggle(option.value)} className={`flex min-h-11 items-center justify-between gap-3 border px-3 py-2 text-left text-xs font-bold ${values.includes(option.value) ? "border-forest bg-forest text-white" : "border-ink/15 bg-white text-ink/60 hover:border-forest hover:text-forest"}`}><span>{option.label}</span><span aria-hidden="true" className={values.includes(option.value) ? "opacity-100" : "opacity-0"}>✓</span></button>)}</div>;
+}
+
+function CompactTextField({ id, label, value, onChange }: { id: string; label: string; value: string; onChange: (value: string) => void }) {
+  return <label htmlFor={id} className="mt-4 block"><span className="mb-2 block text-sm font-bold">{label}</span><input id={id} value={value} onChange={(event) => onChange(event.target.value)} className="min-h-12 w-full border border-ink/20 bg-white px-4 outline-none focus:border-forest" /></label>;
 }

@@ -31,10 +31,12 @@ export type OpportunityStudentContext = {
   invitedOpportunityIds?: string[];
   externalStudentEligible?: boolean;
   major?: string;
+  secondaryMajor?: string;
   minor?: string;
   academicYear?: string;
   careerGoals?: string;
   currentPriority?: string;
+  currentGoals?: string[];
   interests?: string[];
   gpaStatus?: "reported" | "none_yet" | "nonstandard";
   gpa?: number;
@@ -48,6 +50,9 @@ export type OpportunityStudentContext = {
   viewedCategories?: string[];
   completedCategories?: string[];
   preferredCategories?: string[];
+  locationFormats?: ("remote" | "in_person" | "hybrid" | "no_preference")[];
+  compensationPreference?: "paid_only" | "prefer_paid" | "no_preference";
+  timeCommitments?: ("short_term" | "semester" | "summer" | "year_round" | "no_preference")[];
   interactedOrganizations?: string[];
   ignoredCategories?: string[];
   dismissedOpportunityIds?: string[];
@@ -319,12 +324,12 @@ export function getOpportunityIntelligence(item: Opportunity): OpportunityIntell
 }
 
 export function getMatchingMajors(item: Opportunity, context: OpportunityStudentContext) {
-  if (!context.major) return [];
-  const major = normalize(context.major);
+  const majors = unique([context.major, context.secondaryMajor].filter((value): value is string => Boolean(value)).map(normalize));
+  if (!majors.length) return [];
   if (item.majors.includes("Any Major")) return ["Any Major"];
   return item.majors.filter((itemMajor) => {
     const candidate = normalize(itemMajor);
-    return major.includes(candidate) || candidate.includes(major);
+    return majors.some((major) => major.includes(candidate) || candidate.includes(major));
   });
 }
 
@@ -339,21 +344,23 @@ export function getMatchingMinor(item: Opportunity, context: OpportunityStudentC
 }
 
 export function getMatchingCareerGoals(item: Opportunity, context: OpportunityStudentContext) {
-  const goal = context.careerGoals?.trim();
-  if (!goal) return [];
-  const roadmap = getCareerRoadmap(goal);
+  const goals = unique((context.careerGoals ?? "").split(",").map((goal) => goal.trim()).filter(Boolean));
+  if (!goals.length) return [];
   const canonical = canonicalOpportunity(item);
   const fields = new Set([...canonical.careerFields, ...(item.metadata.careerPaths ?? [])].map(normalize));
   const text = normalize([item.title, item.organization, item.category, ...item.tags, ...(item.metadata.careerPaths ?? [])].join(" "));
   const hasField = (...values: string[]) => values.some((value) => fields.has(normalize(value)));
-  if (roadmap.id === "software-engineering" && hasField("Software Engineering") && /\b(developer|programming|coding|github|ide|software engineering|software development|cloud computing|api)\b/.test(text)) return [roadmap.label];
-  if (roadmap.id === "data-science" && hasField("Data Science", "Data and Analytics", "AI / Machine Learning")) return [roadmap.label];
-  if (roadmap.id === "quantitative-finance" && (hasField("Quantitative Finance") || /\b(quant|quantitative trading)\b/.test(text) || hasField("Data and Analytics", "Data Science") && /\b(math|mathematics|statistics|probability|markets)\b/.test(text))) return [roadmap.label];
-  if (roadmap.id === "investment-banking" && hasField("Finance") && /\b(investment|banking|summer analyst|financial modeling)\b/.test(text)) return [roadmap.label];
-  if (roadmap.id === "medicine" && hasField("Healthcare", "Health and Medicine")) return [roadmap.label];
-  const normalizedGoal = normalize(goal);
-  if (roadmap.id === "general" && [...fields].some((field) => field === normalizedGoal || field.includes(normalizedGoal) || normalizedGoal.includes(field))) return [goal];
-  return [];
+  return goals.flatMap((goal) => {
+    const roadmap = getCareerRoadmap(goal);
+    if (roadmap.id === "software-engineering" && hasField("Software Engineering") && /\b(developer|programming|coding|github|ide|software engineering|software development|cloud computing|api)\b/.test(text)) return [roadmap.label];
+    if (roadmap.id === "data-science" && hasField("Data Science", "Data and Analytics", "AI / Machine Learning")) return [roadmap.label];
+    if (roadmap.id === "quantitative-finance" && (hasField("Quantitative Finance") || /\b(quant|quantitative trading)\b/.test(text) || hasField("Data and Analytics", "Data Science") && /\b(math|mathematics|statistics|probability|markets)\b/.test(text))) return [roadmap.label];
+    if (roadmap.id === "investment-banking" && hasField("Finance") && /\b(investment|banking|summer analyst|financial modeling)\b/.test(text)) return [roadmap.label];
+    if (roadmap.id === "medicine" && hasField("Healthcare", "Health and Medicine")) return [roadmap.label];
+    const normalizedGoal = normalize(goal);
+    if (roadmap.id === "general" && [...fields].some((field) => field === normalizedGoal || field.includes(normalizedGoal) || normalizedGoal.includes(field))) return [goal];
+    return [];
+  });
 }
 
 export function getMatchingInterests(item: Opportunity, context: OpportunityStudentContext) {
@@ -381,6 +388,18 @@ function currentPriorityMatches(item: Opportunity, priority?: string) {
   if (value.includes("benefit")) return item.type === "Benefit" || item.type === "AI" || text.includes("benefit") || text.includes("software");
   if (value.includes("application")) return item.type === "Career" || text.includes("resume") || text.includes("career") || text.includes("fellowship");
   return false;
+}
+
+function timeCommitmentMatches(item: Opportunity, preferences: OpportunityStudentContext["timeCommitments"]) {
+  if (!preferences?.length || preferences.includes("no_preference")) return false;
+  const text = normalize([item.metadata.internshipDuration ?? "", item.metadata.applicationSeason ?? "", ...(item.metadata.semesters ?? []), item.description].join(" "));
+  return preferences.some((preference) => {
+    if (preference === "short_term") return /day|week|short term|workshop|conference|competition|hackathon/.test(text);
+    if (preference === "semester") return /semester|fall|spring/.test(text);
+    if (preference === "summer") return /summer/.test(text);
+    if (preference === "year_round") return /year round|annual|ongoing|rolling/.test(text);
+    return false;
+  });
 }
 
 export function getMatchingYears(item: Opportunity, context: OpportunityStudentContext) {
@@ -442,7 +461,8 @@ export function scoreOpportunityIntelligence(item: Opportunity, context: Opportu
   const matchingMinor = getMatchingMinor(item, context);
   const matchingCareerGoals = getMatchingCareerGoals(item, context);
   const matchingInterests = getMatchingInterests(item, context);
-  const matchingCurrentPriority = currentPriorityMatches(item, context.currentPriority);
+  const matchingGoal = unique([context.currentPriority, ...(context.currentGoals ?? [])]).find((goal) => currentPriorityMatches(item, goal));
+  const matchingCurrentPriority = Boolean(matchingGoal);
   const matchingYears = getMatchingYears(item, context);
   const text = searchableText(item);
   const schoolEligible = isSchoolEligible(item, context);
@@ -484,8 +504,24 @@ export function scoreOpportunityIntelligence(item: Opportunity, context: Opportu
   }
   if (matchingCurrentPriority) {
     score += weights.currentPriority;
-    addSignal(`Current priority matches ${context.currentPriority}`, "positive", weights.currentPriority);
-    personalizedSignals.push(`priority:${context.currentPriority}`);
+    addSignal(`Current priority matches ${matchingGoal}`, "positive", weights.currentPriority);
+    personalizedSignals.push(`priority:${matchingGoal}`);
+  }
+  const preferredWorkModes = (context.locationFormats ?? []).filter((value) => value !== "no_preference").map((value) => value === "in_person" ? "In Person" : value === "remote" ? "Remote" : "Hybrid");
+  if (preferredWorkModes.some((mode) => mode === intelligence.workMode)) {
+    score += weights.workModePreference;
+    addSignal(`Matches your ${intelligence.workMode.toLowerCase()} preference`, "positive", weights.workModePreference);
+    personalizedSignals.push(`format:${intelligence.workMode}`);
+  }
+  if ((context.compensationPreference === "paid_only" || context.compensationPreference === "prefer_paid") && intelligence.payStatus === "Paid") {
+    score += weights.paidPreference;
+    addSignal("Matches your paid-opportunity preference", "positive", weights.paidPreference);
+    personalizedSignals.push("compensation:paid");
+  }
+  if (timeCommitmentMatches(item, context.timeCommitments)) {
+    score += weights.timeCommitmentPreference;
+    addSignal("Matches your preferred time commitment", "positive", weights.timeCommitmentPreference);
+    personalizedSignals.push("commitment:match");
   }
   const roadmapCategory = context.careerRoadmapCategories?.some((category) => category === item.category || category === item.type || category === intelligence.category);
   if (roadmapCategory) {
@@ -665,7 +701,8 @@ export function getRecommendationReasons(item: Opportunity, context: Opportunity
   const matchingMinor = getMatchingMinor(item, context);
   const matchingCareerGoals = getMatchingCareerGoals(item, context);
   const matchingInterests = getMatchingInterests(item, context);
-  const matchingCurrentPriority = currentPriorityMatches(item, context.currentPriority);
+  const matchingGoal = unique([context.currentPriority, ...(context.currentGoals ?? [])]).find((goal) => currentPriorityMatches(item, goal));
+  const matchingCurrentPriority = Boolean(matchingGoal);
   const matchingYears = getMatchingYears(item, context);
   const schoolEligible = isSchoolEligible(item, context);
   const deadlineDays = getDeadlineDays(item);
@@ -676,7 +713,7 @@ export function getRecommendationReasons(item: Opportunity, context: Opportunity
   if (matchingMinor.length) reasons.push(`Connects with your minor: ${matchingMinor[0]}.`);
   if (matchingCareerGoals.length) reasons.push(`Matches your career goal: ${matchingCareerGoals.slice(0, 2).join(", ")}.`);
   if (matchingInterests.length) reasons.push(`Matches your opportunity interests: ${matchingInterests.slice(0, 2).join(", ")}.`);
-  if (matchingCurrentPriority && context.currentPriority) reasons.push(`Supports your current priority: ${context.currentPriority}.`);
+  if (matchingCurrentPriority && matchingGoal) reasons.push(`Supports your current priority: ${matchingGoal}.`);
   if (context.preferredCategories?.some((category) => category === item.category || category === item.type)) reasons.push(`Matches your preferred opportunity type: ${item.category}.`);
   if (context.savedCategories?.includes(item.category)) reasons.push(`Similar to ${item.category.toLowerCase()} opportunities you saved.`);
   if (context.viewedCategories?.includes(item.category)) reasons.push(`Similar to ${item.category.toLowerCase()} opportunities you viewed.`);

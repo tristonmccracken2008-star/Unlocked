@@ -28,6 +28,12 @@ export function advisorProfileFingerprint(profile: StudentProfile | null | undef
     currentExperience: profile.currentExperience?.trim().toLowerCase() ?? "",
     weeklyAvailability: profile.weeklyAvailability ?? "",
     preferredOpportunityTypes: [...(profile.preferredOpportunityTypes ?? [])].sort(),
+    opportunityTypeInterests: [...(profile.opportunityTypeInterests ?? [])].sort(),
+    fieldInterests: [...(profile.fieldInterests ?? [])].sort(),
+    specificCareerInterests: [...(profile.specificCareerInterests ?? [])].sort(),
+    locationFormats: [...(profile.locationFormats ?? [])].sort(),
+    compensationPreference: profile.compensationPreference ?? "",
+    timeCommitments: [...(profile.timeCommitments ?? [])].sort(),
     goals: [...(profile.goals ?? [])].sort(),
     topics: [...(profile.topics ?? [])].sort(),
     advisorInterview: profile.advisorInterview ? {

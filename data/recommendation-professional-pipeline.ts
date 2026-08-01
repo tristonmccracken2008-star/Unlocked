@@ -3,7 +3,7 @@ import { duplicateCanonicalId } from "./opportunity-catalog-canonical";
 import { buildOpportunityConfidence, isProfessionalConfidence, opportunityEligibilityDataConfidence, opportunityVerificationConfidence } from "./opportunity-confidence";
 import { evaluateOpportunityEligibility, hasUnknownEligibilityLanguage, rawEligibilityText } from "./opportunity-eligibility";
 import { normalizeOpportunityEligibility } from "./opportunity-eligibility-model";
-import { getDeadlineDays, isSchoolEligible, type OpportunityStudentContext } from "./opportunity-intelligence";
+import { getDeadlineDays, getOpportunityIntelligence, isSchoolEligible, type OpportunityStudentContext } from "./opportunity-intelligence";
 import { recommendationConfig } from "./recommendation-config";
 import type { RecommendationV1 } from "./recommendation-engine";
 import type { Opportunity } from "./opportunities";
@@ -92,6 +92,7 @@ export function validateOpportunityData(opportunity: Opportunity): CandidateGate
 export function evaluateEligibility(opportunity: Opportunity, context: OpportunityStudentContext): CandidateGateResult {
   const evaluation = evaluateOpportunityEligibility(opportunity, context);
   const reasons = [...evaluation.failures];
+  if (context.compensationPreference === "paid_only" && getOpportunityIntelligence(opportunity).payStatus !== "Paid") reasons.push("Student requested paid opportunities only.");
   if (context.completedOpportunityIds?.includes(opportunity.id)) reasons.push("Student already completed this opportunity.");
   if (context.rejectedOpportunityIds?.includes(opportunity.id)) reasons.push("Student rejected this opportunity.");
   if (context.activeOpportunityIds?.includes(opportunity.id)) reasons.push("Opportunity is already active in Journey.");

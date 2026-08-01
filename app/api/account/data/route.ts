@@ -6,6 +6,8 @@ import { cleanAccountDataInput } from "@/lib/account-input";
 import { publicAccountData } from "@/lib/public-account";
 import { assertSameOrigin, enforceRateLimit, readBoundedJson, SecurityError, securityErrorResponse } from "@/lib/security";
 import { accountSyncPreservesJourneyState } from "@/data/journey-transformations";
+import { onboardingProfileV2Issues } from "@/data/onboarding-personalization";
+import { onboardingSchemaVersion } from "@/data/onboarding-options";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -34,9 +36,15 @@ export async function PUT(request: Request) {
     const raw = await readBoundedJson<Record<string, unknown>>(request, 256 * 1024);
     const body = cleanAccountDataInput(raw);
     if (!Object.values(body).some((value) => value !== undefined)) return NextResponse.json({ error: "No valid account fields were provided" }, { status: 400, headers: { "Cache-Control": "no-store, max-age=0" } });
+    const currentAccount = body.profile || body.onboardingComplete || typeof raw.expectedUpdatedAt === "string" ? await readAccountData(session.user.id) : null;
+    if (body.onboardingComplete && !currentAccount?.onboardingComplete) {
+      if (!body.profile || body.profile.onboardingSchemaVersion !== onboardingSchemaVersion || onboardingProfileV2Issues(body.profile).length) {
+        throw new SecurityError("Complete the required onboarding questions before continuing.", 400, "incomplete_onboarding");
+      }
+    }
     if (body.preferences?.appearance && body.preferences.appearance !== "light" && !isProUser(session.data.billing)) body.preferences.appearance = "light";
     if (body.profile && typeof raw.expectedUpdatedAt === "string") {
-      const current = await readAccountData(session.user.id);
+      const current = currentAccount ?? await readAccountData(session.user.id);
       if (current.updatedAt !== raw.expectedUpdatedAt) throw new SecurityError("Your profile changed elsewhere. Refresh before saving.", 409, "stale_profile");
     }
     const incomingTracker = body.tracker ?? body.activity?.tracked;

@@ -1,4 +1,5 @@
 import { authenticatedFetch } from "./authenticated-request";
+import type { CareerPathInterest, CompensationPreference, FieldInterest, LocationFormatPreference, OpportunityTypeInterest, TimeCommitmentPreference } from "./onboarding-options";
 
 export const studentProfileStorageKey = "unlocked-student-profile";
 export const studentProfileCompleteStorageKey = "unlocked-student-profile-complete";
@@ -21,6 +22,13 @@ export type StudentProfile = {
   currentExperience?: string;
   weeklyAvailability?: string;
   preferredOpportunityTypes?: string[];
+  opportunityTypeInterests?: OpportunityTypeInterest[];
+  fieldInterests?: FieldInterest[];
+  specificCareerInterests?: CareerPathInterest[];
+  locationFormats?: LocationFormatPreference[];
+  compensationPreference?: CompensationPreference;
+  timeCommitments?: TimeCommitmentPreference[];
+  onboardingSchemaVersion?: number;
   advisorInterview?: {
     careerGoal?: string;
     currentExperience?: string;
@@ -66,6 +74,7 @@ export function isCompletedStudentProfile(value: unknown): value is StudentProfi
 }
 
 export function normalizeStudentProfile(profile: StudentProfile): StudentProfile {
+  const uniqueStrings = (values: readonly string[] | undefined) => [...new Set((values ?? []).map((value) => value.trim()).filter(Boolean))];
   const topicTokens = profile.topics?.length ? profile.topics : profile.interests.split(",").map((item) => item.trim()).filter(Boolean);
   const goalTokens = profile.goals?.length ? profile.goals : profile.careerGoal.split(",").map((item) => item.trim()).filter(Boolean);
   const minorStatus: MinorStatus = profile.minor?.trim() ? "declared" : profile.minorStatus === "declared" ? "declared" : "none";
@@ -82,8 +91,13 @@ export function normalizeStudentProfile(profile: StudentProfile): StudentProfile
     gpa,
     gpaScale: gpaStatus === "reported" ? gpaScale : undefined,
     currentPriority,
-    goals: goalTokens,
-    topics: topicTokens,
+    goals: uniqueStrings(goalTokens),
+    topics: uniqueStrings(topicTokens),
+    opportunityTypeInterests: uniqueStrings(profile.opportunityTypeInterests) as StudentProfile["opportunityTypeInterests"],
+    fieldInterests: uniqueStrings(profile.fieldInterests?.length ? profile.fieldInterests : topicTokens) as StudentProfile["fieldInterests"],
+    specificCareerInterests: uniqueStrings(profile.specificCareerInterests) as StudentProfile["specificCareerInterests"],
+    locationFormats: uniqueStrings(profile.locationFormats) as StudentProfile["locationFormats"],
+    timeCommitments: uniqueStrings(profile.timeCommitments) as StudentProfile["timeCommitments"],
     advisorInterview: profile.advisorInterview ? {
       ...profile.advisorInterview,
       careerGoal: profile.advisorInterview.careerGoal ?? profile.careerGoal,
@@ -157,6 +171,12 @@ function advisorFingerprint(profile: StudentProfile | null | undefined) {
     currentExperience: profile.currentExperience?.trim().toLowerCase() ?? "",
     weeklyAvailability: profile.weeklyAvailability ?? "",
     preferredOpportunityTypes: [...(profile.preferredOpportunityTypes ?? [])].sort(),
+    opportunityTypeInterests: [...(profile.opportunityTypeInterests ?? [])].sort(),
+    fieldInterests: [...(profile.fieldInterests ?? [])].sort(),
+    specificCareerInterests: [...(profile.specificCareerInterests ?? [])].sort(),
+    locationFormats: [...(profile.locationFormats ?? [])].sort(),
+    compensationPreference: profile.compensationPreference ?? "",
+    timeCommitments: [...(profile.timeCommitments ?? [])].sort(),
     goals: [...(profile.goals ?? [])].sort(),
     topics: [...(profile.topics ?? [])].sort(),
     advisorInterview: profile.advisorInterview ? {

@@ -1,5 +1,6 @@
 import { journeyProgressTransitions, opportunityTrackerStatuses, type JourneyMilestoneDetails, type JourneyTransitionHistoryRecord, type StudentActivity, type TrackedOpportunity } from "@/data/student-activity";
 import type { StudentProfile } from "@/data/student-profile";
+import { compensationOptions, locationFormatOptions, onboardingSchemaVersion, opportunityTypeOptions, timeCommitmentOptions } from "@/data/onboarding-options";
 import type { AccountData, SavedOpportunityRecord, UserPreferencesRecord } from "./account-types";
 import { normalizeNotificationPreferences } from "./notification-engine";
 
@@ -86,6 +87,13 @@ export function cleanStudentProfile(value: unknown): StudentProfile | undefined 
     currentExperience: stringValue(input.currentExperience, 500),
     weeklyAvailability: stringValue(input.weeklyAvailability, 120),
     preferredOpportunityTypes: stringList(input.preferredOpportunityTypes),
+    opportunityTypeInterests: stringList(input.opportunityTypeInterests, opportunityTypeOptions.length)?.filter((item) => opportunityTypeOptions.includes(item as never)) as StudentProfile["opportunityTypeInterests"],
+    fieldInterests: stringList(input.fieldInterests, 5, 120) as StudentProfile["fieldInterests"],
+    specificCareerInterests: stringList(input.specificCareerInterests, 5, 120) as StudentProfile["specificCareerInterests"],
+    locationFormats: stringList(input.locationFormats, locationFormatOptions.length)?.filter((item) => locationFormatOptions.some((option) => option.value === item)) as StudentProfile["locationFormats"],
+    compensationPreference: enumValue(input.compensationPreference, compensationOptions.map((option) => option.value)),
+    timeCommitments: stringList(input.timeCommitments, timeCommitmentOptions.length)?.filter((item) => timeCommitmentOptions.some((option) => option.value === item)) as StudentProfile["timeCommitments"],
+    onboardingSchemaVersion: input.onboardingSchemaVersion === onboardingSchemaVersion ? onboardingSchemaVersion : undefined,
     advisorInterview,
     minor: stringValue(input.minor, 160),
     minorStatus,

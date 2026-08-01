@@ -182,12 +182,12 @@ export function normalizeOnboardingProfile(raw: RawAdvisorProfile): NormalizedAd
 
 export function profileToRawAdvisorProfile(profile: StudentProfile, userId: string): RawAdvisorProfile {
   const weekly = Number(profile.weeklyAvailability?.match(/\d+/)?.[0] ?? 5);
-  const text = `${profile.major} ${profile.careerGoal} ${profile.interests} ${profile.currentExperience ?? ""} ${(profile.goals ?? []).join(" ")} ${(profile.topics ?? []).join(" ")}`.toLowerCase();
+  const text = `${profile.major} ${profile.secondaryMajor ?? ""} ${profile.careerGoal} ${(profile.specificCareerInterests ?? []).join(" ")} ${profile.interests} ${profile.currentExperience ?? ""} ${(profile.goals ?? []).join(" ")} ${(profile.topics ?? []).join(" ")}`.toLowerCase();
   return {
     ...profile,
     userId,
-    majors: [profile.major],
-    careerGoals: [profile.careerGoal, ...(profile.goals ?? [])],
+    majors: [profile.major, profile.secondaryMajor].filter((value): value is string => Boolean(value)),
+    careerGoals: [profile.careerGoal, ...(profile.specificCareerInterests ?? []), ...(profile.goals ?? [])],
     hoursPerWeek: weekly,
     programmingSkill: /software|computer|coding|programming|data|ai/.test(text) ? 35 : 0,
     probabilitySkill: /quant|finance|math|statistics/.test(text) ? 20 : 0,

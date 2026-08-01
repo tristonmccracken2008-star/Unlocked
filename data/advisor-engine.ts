@@ -25,6 +25,7 @@ export type AdvisorProfile = {
   };
   academics: {
     major: string;
+    secondaryMajor?: string;
     minor?: string;
     graduationYear?: string;
     academicYear: string;
@@ -50,6 +51,10 @@ export type AdvisorProfile = {
     topics: string[];
     primaryGoals: string[];
     preferredOpportunityTypes: string[];
+    specificCareerInterests: string[];
+    locationFormats: NonNullable<StudentProfile["locationFormats"]>;
+    compensationPreference?: StudentProfile["compensationPreference"];
+    timeCommitments: NonNullable<StudentProfile["timeCommitments"]>;
     weeklyAvailability?: string;
     clubs?: string;
   };
@@ -132,7 +137,7 @@ export function createAdvisorProfile(input: { profile: StudentProfile; school: S
   const { profile, school, activity } = input;
   const tracked = activity?.tracked ?? {};
   const progress = inferApplicationsFromActivity(activity, [], input.progress);
-  const interests = unique([profile.interests, ...(profile.topics ?? [])].flatMap((item) => item.split(",").map((part) => part.trim())));
+  const interests = unique([profile.interests, ...(profile.topics ?? []), ...(profile.fieldInterests ?? [])].flatMap((item) => item.split(",").map((part) => part.trim())));
   const goals = unique([profile.careerGoal, ...(profile.goals ?? [])].flatMap((item) => item.split(",").map((part) => part.trim())));
   const schoolName = school.name.toLowerCase();
   const inferredInstitutionType: AdvisorProfile["academics"]["institutionType"] = schoolName.includes("community college") || schoolName.includes("technical college")
@@ -156,6 +161,7 @@ export function createAdvisorProfile(input: { profile: StudentProfile; school: S
     },
     academics: {
       major: profile.major,
+      secondaryMajor: profile.secondaryMajor,
       minor: profile.minor,
       graduationYear: profile.graduationYear,
       academicYear: profile.year,
@@ -179,8 +185,12 @@ export function createAdvisorProfile(input: { profile: StudentProfile; school: S
       currentPriority: profile.currentPriority,
       interests,
       topics: profile.topics ?? interests,
-      primaryGoals: unique([...(profile.goals ?? goals), profile.currentPriority ?? ""]),
+      primaryGoals: unique(profile.goals?.length ? profile.goals : [...goals, profile.currentPriority ?? ""]),
       preferredOpportunityTypes: profile.preferredOpportunityTypes ?? profile.advisorInterview?.preferredOpportunityTypes ?? [],
+      specificCareerInterests: profile.specificCareerInterests ?? [],
+      locationFormats: profile.locationFormats ?? [],
+      compensationPreference: profile.compensationPreference,
+      timeCommitments: profile.timeCommitments ?? [],
       weeklyAvailability: profile.weeklyAvailability ?? profile.advisorInterview?.weeklyAvailability,
       clubs: profile.clubs,
     },
