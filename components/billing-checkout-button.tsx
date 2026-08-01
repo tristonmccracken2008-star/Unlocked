@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import { authenticatedFetch } from "@/data/authenticated-request";
 import { trackProductEvent } from "@/data/product-analytics";
 import type { ProPlanId } from "@/lib/billing";
+import { DelayedPendingLabel } from "./delayed-pending-label";
 
 type BillingCheckoutButtonProps = {
   planId: ProPlanId;
@@ -70,7 +71,7 @@ export function BillingCheckoutButton({ planId, children, className = "", config
   }
 
   return <div>
-    <button type="button" onClick={startCheckout} disabled={pending} className={className} aria-describedby={message ? `checkout-message-${planId}-${source}` : undefined}>{pending ? "Opening secure checkout…" : children}</button>
+    <button type="button" onClick={startCheckout} disabled={pending} className={className} aria-busy={pending ? "true" : undefined} data-action-state={pending ? "loading" : "idle"} aria-describedby={message ? `checkout-message-${planId}-${source}` : undefined}><DelayedPendingLabel pending={pending} idle={children} pendingLabel="Opening secure checkout…" /></button>
     {message ? <p id={`checkout-message-${planId}-${source}`} role={error ? "alert" : "status"} className={`mt-2 text-xs font-bold leading-5 ${error ? "text-red-700" : "text-forest"}`}>{message}</p> : null}
   </div>;
 }

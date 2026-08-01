@@ -20,6 +20,8 @@ import { OrganizationLogo } from "./organization-logo";
 import { AddToJourneyButton } from "./opportunity-activity";
 import type { FeedbackType } from "@/lib/advisor/types";
 import styles from "./advisor-page.module.css";
+import { AdvisorRecommendationLoading } from "./loading-system";
+import { DelayedPendingLabel } from "./delayed-pending-label";
 
 type ForYouPageState = "loading" | "pro_ready" | "free_preview" | "profile_incomplete" | "empty" | "preparing" | "error";
 type SessionReadiness = "checking" | "authenticated" | "unauthenticated" | "error";
@@ -557,7 +559,7 @@ function ForYouFreePreviewOnly() {
 }
 
 function ForYouLoading() {
-  return <main className={styles.page}><section className={styles.loading} aria-busy="true" aria-live="polite" aria-label="Loading For You recommendations"><p>For You</p><div className={`${styles.skeleton} ${styles.skeletonTitle}`} /><div className={`${styles.skeleton} ${styles.skeletonCopy}`} /><div className={styles.loadingSteps} aria-hidden="true"><span>Checking eligibility</span><span>Ranking fit and quality</span><span>Confirming sources</span></div><div className={styles.loadingFeature}><div /><div /><div /></div><span className={styles.srStatus}>Checking eligibility, quality, and verified sources.</span></section></main>;
+  return <AdvisorRecommendationLoading />;
 }
 
 function ForYouEmptyState() {
@@ -653,7 +655,7 @@ function RecommendationFeedback({ view, onFeedback, compact = false }: { view: R
   return <details className={`${styles.feedback} ${compact ? styles.feedbackCompact : ""}`}>
     <summary>{compact ? "Refine this match" : "Not quite right?"}</summary>
     <div>
-      {actions.map((action) => <button key={action.type} type="button" disabled={Boolean(pending)} onClick={() => void choose(action.type, action.eventLabel)}>{pending === action.type ? "Saving…" : action.label}</button>)}
+      {actions.map((action) => <button key={action.type} type="button" disabled={Boolean(pending)} aria-busy={pending === action.type ? "true" : undefined} data-action-state={pending === action.type ? "loading" : "idle"} onClick={() => void choose(action.type, action.eventLabel)}><DelayedPendingLabel pending={pending === action.type} idle={action.label} pendingLabel="Saving preference…" /></button>)}
     </div>
   </details>;
 }

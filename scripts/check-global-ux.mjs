@@ -16,6 +16,7 @@ const home = read("components/personalized-home.tsx");
 const page = read("app/page.tsx");
 const clientError = read("app/error.tsx");
 const loading = read("app/loading.tsx");
+const loadingSystem = read("components/loading-system.tsx");
 const authBoundary = read("components/auth-boundary.tsx");
 const opportunityActivity = read("components/opportunity-activity.tsx");
 const opportunityDetail = read("app/opportunities/[id]/page.tsx");
@@ -68,8 +69,10 @@ assert.match(benefitDetail, /opens in a new tab/, "Benefit source actions must a
 
 assert.doesNotMatch(clientError, /console\.error\(error\)/, "The client error boundary must not expose the full Error object.");
 assert.match(clientError, /hasDigest/, "Client diagnostics should log only a safe error category.");
-assert.match(loading, /bg-paper/, "Global loading must use the theme surface token.");
-assert.match(authBoundary, /aria-busy="true"/, "Protected-route loading must expose busy state.");
-assert.match(authBoundary, /motion-reduce:animate-none/, "Protected-route loading must respect reduced motion.");
+assert.match(loading, /AppPageLoading/, "Global routes must use the shared loading system.");
+assert.match(loadingSystem, /bg-paper/, "Global loading must use the theme surface token.");
+assert.match(authBoundary, /AccountPageLoading/, "Protected routes must use the shared account loading state.");
+assert.match(loadingSystem, /aria-busy="true"/, "Protected-route loading must expose busy state.");
+assert.match(globals, /prefers-reduced-motion:\s*reduce[\s\S]*unlocked-skeleton-block/, "Shared loading must respect reduced motion.");
 
 console.log("Global UX consistency checks passed.");

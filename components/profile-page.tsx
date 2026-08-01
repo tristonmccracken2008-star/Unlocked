@@ -15,10 +15,12 @@ import { BillingCheckoutButton } from "./billing-checkout-button";
 import { NotificationSettings } from "./notification-settings";
 import { ProfileIdentityCard } from "./profile-identity-card";
 import { StudentProfileForm } from "./personalized-home";
+import { AccountPageLoading, SectionLoading, SkeletonBlock } from "./loading-system";
+import { DelayedPendingLabel } from "./delayed-pending-label";
 
 const AdvisorBrainProfileTab = dynamic(() => import("./profile-career-tab").then((module) => module.AdvisorBrainProfileTab), {
   ssr: false,
-  loading: () => <div className="unlocked-skeleton h-40 rounded-lg bg-ink/5"><span className="sr-only">Loading career profile</span></div>,
+  loading: () => <SectionLoading label="Loading career profile" rows={2} className="rounded-lg border border-ink/8 bg-[var(--unlocked-surface-muted)] p-5" />,
 });
 
 const sections = [
@@ -339,7 +341,7 @@ function BillingSection({ session }: { session: AccountSession }) {
       {period ? <Definition label={billing.cancelAtPeriodEnd ? "Access ends" : "Renews"} value={period} /> : null}
     </dl>
     {billing.status === "past_due" ? <p role="alert" className="mt-5 rounded-md bg-amber-50 p-4 text-sm font-bold text-amber-900">Payment needs attention. Open Stripe billing to update your payment method.</p> : null}
-    {availability === undefined ? <p className="mt-6 text-sm text-ink/45" role="status">Loading billing actions…</p> : availability === null ? <div className="mt-6 rounded-xl border border-red-800/20 bg-white p-4" role="alert"><p className="text-sm font-bold text-red-800">Billing actions could not be loaded. Your current plan is unchanged.</p><button type="button" onClick={() => setLoadVersion((value) => value + 1)} className="mt-3 min-h-11 text-sm font-bold text-forest hover:text-ink">Retry billing actions</button></div> : <div className="mt-6 flex flex-wrap gap-3">
+    {availability === undefined ? <div className="mt-6 flex gap-3" aria-label="Loading billing actions" aria-busy="true"><SkeletonBlock className="h-11 w-44 rounded-full" /><SkeletonBlock className="h-11 w-32 rounded-full" /><span className="sr-only" role="status">Loading billing actions</span></div> : availability === null ? <div className="mt-6 rounded-xl border border-red-800/20 bg-white p-4" role="alert"><p className="text-sm font-bold text-red-800">Billing actions could not be loaded. Your current plan is unchanged.</p><button type="button" onClick={() => setLoadVersion((value) => value + 1)} className="mt-3 min-h-11 text-sm font-bold text-forest hover:text-ink">Retry billing actions</button></div> : <div className="mt-6 flex flex-wrap gap-3">
       {!pro ? (Object.keys(proPricing) as Array<keyof typeof proPricing>).map((planId) => <BillingCheckoutButton key={planId} planId={planId} configured={availability.checkoutPlans?.[planId] ?? availability.checkoutConfigured} source="profile" className="min-h-11 rounded-full bg-forest px-5 text-sm font-bold text-white disabled:opacity-50">Upgrade {proPricing[planId].label}</BillingCheckoutButton>) : null}
       {billing.hasStripeCustomer && availability.portalConfigured ? <form action="/api/billing/portal" method="post"><button className="min-h-11 rounded-full border border-ink/15 px-5 text-sm font-bold text-ink/60 hover:border-forest hover:text-forest">Manage subscription in Stripe</button></form> : null}
       {!pro ? <Link href="/pricing" className="inline-flex min-h-11 items-center px-3 text-sm font-bold text-forest">Compare plans</Link> : null}
@@ -373,7 +375,7 @@ function DataSection({ session, setError, setMessage }: { session: AccountSessio
         } catch (reason) {
           setError(reason instanceof Error ? reason.message : "Your export could not be prepared.");
         } finally { setExporting(false); }
-      }} className="min-h-11 rounded-full border border-ink/15 px-5 text-sm font-bold hover:border-forest hover:text-forest">{exporting ? "Preparing…" : "Download JSON"}</button>} />
+      }} aria-busy={exporting ? "true" : undefined} data-action-state={exporting ? "loading" : "idle"} className="min-h-11 rounded-full border border-ink/15 px-5 text-sm font-bold hover:border-forest hover:text-forest"><DelayedPendingLabel pending={exporting} idle="Download JSON" pendingLabel="Preparing download…" /></button>} />
       <ActionRow title="Signed-in account" description={session.user?.email ?? "Current Google account"} action={<AccountButton compact />} />
     </div>
     <div className="mt-12 border-t border-red-800/20 pt-7">
@@ -397,14 +399,14 @@ function DataSection({ session, setError, setMessage }: { session: AccountSessio
             setError(reason instanceof Error ? reason.message : "Your account could not be deleted. Your account remains available.");
             setDeleting(false);
           }
-        }} className="min-h-11 rounded-full bg-red-900 px-5 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-40">{deleting ? "Deleting…" : "Permanently delete account"}</button><button type="button" disabled={deleting} onClick={() => { setDeleteOpen(false); setConfirmation(""); }} className="min-h-11 px-4 text-sm font-bold text-ink/50">Cancel</button></div>
+        }} aria-busy={deleting ? "true" : undefined} data-action-state={deleting ? "loading" : "idle"} className="min-h-11 rounded-full bg-red-900 px-5 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-40"><DelayedPendingLabel pending={deleting} idle="Permanently delete account" pendingLabel="Deleting account…" /></button><button type="button" disabled={deleting} onClick={() => { setDeleteOpen(false); setConfirmation(""); }} className="min-h-11 px-4 text-sm font-bold text-ink/50">Cancel</button></div>
       </div>}
     </div>
   </div>;
 }
 
 function AccountLoading() {
-  return <main aria-busy="true" aria-label="Loading account center" className="min-h-[65vh] px-5 py-12 sm:px-8"><div className="unlocked-skeleton mx-auto max-w-6xl"><div className="h-3 w-28 rounded-full bg-forest/12"/><div className="mt-4 h-12 max-w-xl rounded-md bg-ink/8"/><div className="mt-10 grid gap-8 lg:grid-cols-[13rem_1fr]"><div className="h-72 rounded-md bg-ink/5"/><div className="h-96 rounded-md bg-ink/5"/></div><p className="sr-only">Loading your private account settings.</p></div></main>;
+  return <AccountPageLoading label="Loading your private account settings" />;
 }
 
 function SectionHeading({ id, eyebrow, title, description }: { id: string; eyebrow: string; title: string; description: string }) {

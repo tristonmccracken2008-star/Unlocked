@@ -13,6 +13,7 @@ import {
 import styles from "./path-moment.module.css";
 import type { JourneyThemeName } from "@/lib/journey-theme";
 import { serializeBrandedArtwork } from "@/lib/brand-export";
+import { DelayedPendingLabel } from "@/components/delayed-pending-label";
 
 type SemesterStoryCreatorProps = {
   collection: SemesterStoryCollection;
@@ -255,9 +256,9 @@ export function SemesterStoryCreator({ collection, theme, openedAt, onClose }: S
           </div>
 
           <div className={styles.actions}>
-            <button type="button" className={styles.primary} disabled={Boolean(busy)} onClick={download}>{busy === "download" ? "Preparing PNG…" : "Download PNG"}</button>
-            {canCopy ? <button type="button" disabled={Boolean(busy)} onClick={copyImage}>{busy === "copy" ? "Copying…" : "Copy image"}</button> : null}
-            {canShare ? <button type="button" disabled={Boolean(busy)} onClick={nativeShare}>{busy === "share" ? "Opening…" : "Share"}</button> : null}
+            <button type="button" className={styles.primary} disabled={Boolean(busy)} aria-busy={busy === "download" ? "true" : undefined} data-action-state={busy === "download" ? "loading" : "idle"} onClick={download}><DelayedPendingLabel pending={busy === "download"} idle="Download PNG" pendingLabel="Preparing PNG…" /></button>
+            {canCopy ? <button type="button" disabled={Boolean(busy)} aria-busy={busy === "copy" ? "true" : undefined} data-action-state={busy === "copy" ? "loading" : "idle"} onClick={copyImage}><DelayedPendingLabel pending={busy === "copy"} idle="Copy image" pendingLabel="Copying image…" /></button> : null}
+            {canShare ? <button type="button" disabled={Boolean(busy)} aria-busy={busy === "share" ? "true" : undefined} data-action-state={busy === "share" ? "loading" : "idle"} onClick={nativeShare}><DelayedPendingLabel pending={busy === "share"} idle="Share" pendingLabel="Opening share sheet…" /></button> : null}
           </div>
           <p className={styles.status} role={messageIsError ? "alert" : "status"} aria-live={messageIsError ? "assertive" : "polite"}>{message}</p>
         </aside>

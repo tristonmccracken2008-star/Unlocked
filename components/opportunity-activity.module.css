@@ -46,31 +46,6 @@
   place-items: center;
 }
 
-.progress {
-  width: 18px;
-  height: 18px;
-  overflow: visible;
-  transform: rotate(-90deg);
-}
-
-.progressTrack,
-.progressTrace {
-  fill: none;
-  stroke-width: 1.75;
-}
-
-.progressTrack {
-  stroke: rgb(var(--color-forest) / 0.16);
-}
-
-.progressTrace {
-  stroke: currentColor;
-  stroke-linecap: round;
-  stroke-dasharray: 28 44;
-  animation: save-progress-trace 760ms var(--motion-ease) infinite;
-  transform-origin: center;
-}
-
 .errorIcon {
   width: 16px;
   height: 16px;
@@ -123,11 +98,6 @@
   to { transform: translateX(90%); }
 }
 
-@keyframes save-progress-trace {
-  from { stroke-dashoffset: 48; transform: rotate(0deg); }
-  to { stroke-dashoffset: 0; transform: rotate(360deg); }
-}
-
 @keyframes save-icon-settle {
   0% { opacity: 0.3; transform: scale(0.72); }
   62% { opacity: 1; transform: scale(1.06); }
@@ -142,12 +112,6 @@
 @media (prefers-reduced-motion: reduce) {
   .saveButton::before {
     animation: none !important;
-  }
-
-  .progressTrace {
-    animation: none;
-    stroke-dasharray: 34 44;
-    stroke-dashoffset: 8;
   }
 
   .addedState[data-journey-save-confirmed="true"] .addedIcon,

@@ -7,6 +7,7 @@ import { authenticatedFetch } from "@/data/authenticated-request";
 import { accountSessionEvent } from "@/data/account-sync";
 import { CloseIcon, SearchIcon } from "@/components/icons";
 import styles from "./journey-command-center.module.css";
+import { DelayedPendingLabel } from "./delayed-pending-label";
 
 type CatalogResponse = { opportunities?: OpportunityListing[]; error?: string };
 type AddResponse = { ok?: boolean; duplicate?: boolean; error?: string };
@@ -173,7 +174,7 @@ export function JourneyCommandActions({ trackedIds }: { trackedIds: string[] }) 
   return <div className={styles.headerActions} data-journey-command-actions="">
     <div>
       <button ref={addTriggerRef} type="button" className={styles.addButton} onClick={open}>Add opportunity</button>
-      <button type="button" className={styles.exportButton} onClick={() => void exportData()} disabled={exporting} aria-busy={exporting ? "true" : undefined} data-action-state={exporting ? "loading" : "idle"}>{exporting ? "Preparing export…" : "Export data"}</button>
+      <button type="button" className={styles.exportButton} onClick={() => void exportData()} disabled={exporting} aria-busy={exporting ? "true" : undefined} data-action-state={exporting ? "loading" : "idle"}><DelayedPendingLabel pending={exporting} idle="Export data" pendingLabel="Preparing export…" /></button>
     </div>
     {error && !dialogRef.current?.open ? <p role="alert">{error}</p> : null}
     <dialog ref={dialogRef} className={styles.addDialog} aria-labelledby={titleId} onCancel={(event) => { if (saving || dirty) event.preventDefault(); if (!saving) close(); }}>
@@ -186,7 +187,7 @@ export function JourneyCommandActions({ trackedIds }: { trackedIds: string[] }) 
           <SearchIcon />
           <label htmlFor={`${titleId}-search`} className="sr-only">Search the opportunity catalog</label>
           <input id={`${titleId}-search`} value={query} onChange={(event) => setQuery(event.target.value)} maxLength={120} placeholder="Search title or organization" autoComplete="off" />
-          <button type="submit" disabled={loading}>{loading ? "Searching…" : "Search"}</button>
+          <button type="submit" disabled={loading} aria-busy={loading ? "true" : undefined} data-action-state={loading ? "loading" : "idle"}><DelayedPendingLabel pending={loading} idle="Search" pendingLabel="Searching…" /></button>
         </form>
         <div className={styles.catalogResults} aria-busy={loading ? "true" : undefined}>
           {!loading && !results.length ? <p>No catalog opportunities match this search.</p> : results.map((opportunity) => {

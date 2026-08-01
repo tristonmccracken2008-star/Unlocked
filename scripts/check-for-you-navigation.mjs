@@ -4,6 +4,7 @@ import { readFileSync, existsSync } from "node:fs";
 const read = (path) => readFileSync(path, "utf8");
 const header = read("components/header.tsx");
 const loading = read("app/advisor/loading.tsx");
+const loadingSystem = read("components/loading-system.tsx");
 const advisorPage = read("app/advisor/page.tsx");
 const callback = read("app/api/auth/callback/google/route.ts");
 const proxy = read("proxy.ts");
@@ -18,8 +19,9 @@ assert.match(header, /aria-label="Primary navigation"/, "Desktop navigation must
 assert.match(header, /aria-label="Mobile navigation"/, "Mobile navigation must use the same semantic links.");
 assert.match(header, /active:scale-\[\.98\]/, "Header links must provide immediate pressed feedback without blocking navigation.");
 
-assert.match(loading, /aria-busy="true"/, "Cold route loading must be announced immediately.");
-assert.match(loading, /Checking eligibility, quality, and verified sources/, "Cold starts and slow session stores need a bounded preparing state.");
+assert.match(loading, /AdvisorRecommendationLoading/, "Cold route loading must use the shared recommendation skeleton.");
+assert.match(loadingSystem, /aria-busy="true"/, "Cold route loading must be announced to assistive technology.");
+assert.match(loadingSystem, /Selecting your For You recommendations/, "Cold starts need a calm, specific loading status.");
 assert.match(advisorPage, /requireCompletedOnboarding\(\)/, "The destination must remain server-authenticated.");
 assert.match(advisorPage, /<AdvisorPage initialState=\{initialState\} serverAuthenticated \/>/, "The destination must reuse safe server state immediately after authentication.");
 assert.match(advisorPage, /allowGeneration: false/, "The route document must not wait for recommendation generation.");

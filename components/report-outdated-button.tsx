@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { authenticatedFetch } from "@/data/authenticated-request";
+import { DelayedPendingLabel } from "./delayed-pending-label";
 
 const issueOptions = [
   ["incorrect_deadline", "Deadline or dates are incorrect"],
@@ -67,7 +68,7 @@ export function ReportOutdatedButton({ opportunityId }: { opportunityId: string 
       </select>
       <label className="mt-3 block text-xs font-bold" htmlFor={`report-detail-${opportunityId}`}>Details <span className="font-normal text-ink/40">(optional)</span></label>
       <textarea id={`report-detail-${opportunityId}`} name="detail" maxLength={300} rows={3} className="mt-2 w-full rounded-lg border border-ink/20 bg-white p-3 text-sm" placeholder="Briefly tell our reviewers what changed." />
-      <button disabled={pending} className="mt-3 min-h-11 w-full rounded-lg bg-ink px-4 text-xs font-bold text-white hover:bg-forest disabled:cursor-wait disabled:opacity-60">{pending ? "Sending…" : "Send report"}</button>
+      <button disabled={pending} aria-busy={pending ? "true" : undefined} data-action-state={pending ? "loading" : "idle"} className="mt-3 min-h-11 w-full rounded-lg bg-ink px-4 text-xs font-bold text-white hover:bg-forest disabled:cursor-wait disabled:opacity-60"><DelayedPendingLabel pending={pending} idle="Send report" pendingLabel="Sending report…" /></button>
     </form> : null}
     {error ? <p role="alert" className="mt-3 text-xs font-bold leading-5 text-red-700">{error}</p> : null}
     {sent ? <p role="status" className="mt-3 text-xs font-bold leading-5 text-trust">Thank you. Our team will review this listing.</p> : null}

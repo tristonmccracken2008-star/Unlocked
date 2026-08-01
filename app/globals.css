@@ -27,6 +27,8 @@
   --motion-ease-settle: cubic-bezier(.22, .61, .36, 1);
   --elevation-rest: 0 10px 30px rgb(43 33 26 / .045);
   --elevation-hover: 0 16px 38px rgb(43 33 26 / .075);
+  --loading-base: rgb(43 33 26 / .065);
+  --loading-highlight: rgb(255 255 255 / .72);
   color: var(--unlocked-text);
   background: var(--unlocked-page);
   color-scheme: light;
@@ -46,6 +48,8 @@
   --unlocked-text: #fbf3e8;
   --unlocked-muted: rgb(251 243 232 / .68);
   --unlocked-border: rgb(251 243 232 / .16);
+  --loading-base: rgb(251 243 232 / .09);
+  --loading-highlight: rgb(251 243 232 / .17);
   color: var(--unlocked-text);
   background: var(--unlocked-page);
   color-scheme: dark;
@@ -65,6 +69,8 @@
   --unlocked-text: #fbf3e8;
   --unlocked-muted: rgb(251 243 232 / .68);
   --unlocked-border: rgb(251 243 232 / .16);
+  --loading-base: rgb(251 243 232 / .1);
+  --loading-highlight: rgb(251 243 232 / .18);
   color: var(--unlocked-text);
   background: var(--unlocked-page);
   color-scheme: dark;
@@ -100,8 +106,43 @@ button, input, select, textarea { font: inherit; }
   cursor: not-allowed;
 }
 [data-action-state="loading"] {
+  position: relative;
+  overflow: hidden;
   cursor: wait;
   opacity: .72;
+}
+[data-action-state="loading"]::after {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  background: currentColor;
+  content: "";
+  opacity: 0;
+  transform: scaleX(.18);
+  transform-origin: left;
+  animation: unlocked-button-progress 900ms var(--motion-ease) 300ms infinite both;
+  pointer-events: none;
+}
+@keyframes unlocked-button-progress {
+  0% { opacity: 0; transform: scaleX(.18); }
+  20% { opacity: .28; }
+  72% { opacity: .28; transform: scaleX(.72); }
+  100% { opacity: 0; transform: scaleX(1); }
+}
+.unlocked-button-label {
+  display: inline-grid;
+  align-items: center;
+  justify-items: center;
+}
+.unlocked-button-label > span {
+  grid-area: 1 / 1;
+  transition: opacity var(--motion-micro) var(--motion-ease);
+}
+.unlocked-button-label[data-pending-visible="false"] > span:last-child,
+.unlocked-button-label[data-pending-visible="true"] > span:first-child {
+  opacity: 0;
 }
 [data-action-state="success"] {
   border-color: rgb(var(--color-forest) / .35);
@@ -218,11 +259,39 @@ dialog[open]::backdrop { opacity: 1; }
   to { opacity: 1; transform: translateY(0); }
 }
 
-.unlocked-skeleton {
-  animation: unlocked-skeleton 1.35s ease-in-out infinite alternate;
+[data-loading-region][data-loading-delay="true"] {
+  animation: unlocked-loading-reveal 1ms linear 300ms both;
 }
-@keyframes unlocked-skeleton {
-  from { opacity: .48; }
+@keyframes unlocked-loading-reveal {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.unlocked-skeleton-block,
+.unlocked-skeleton {
+  position: relative;
+  overflow: hidden;
+}
+.unlocked-skeleton-block {
+  display: block;
+  background: var(--loading-base);
+}
+.unlocked-skeleton-block::after {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, transparent 22%, var(--loading-highlight) 48%, transparent 74%);
+  content: "";
+  transform: translate3d(-105%, 0, 0);
+  animation: unlocked-skeleton-shimmer 1.55s var(--motion-ease) 300ms infinite;
+  will-change: transform;
+}
+.unlocked-skeleton {
+  animation: unlocked-skeleton-breathe 1.5s var(--motion-ease) 300ms infinite alternate;
+}
+@keyframes unlocked-skeleton-shimmer {
+  to { transform: translate3d(105%, 0, 0); }
+}
+@keyframes unlocked-skeleton-breathe {
+  from { opacity: .62; }
   to { opacity: .88; }
 }
 
@@ -257,6 +326,8 @@ dialog[open]::backdrop { opacity: 1; }
     transition-duration: 0.01ms !important;
   }
   dialog, dialog[open], [data-modal-surface], [data-filter-results][data-refreshing="true"] { transform: none !important; }
+  [data-loading-region][data-loading-delay="true"] { opacity: 1; }
+  .unlocked-skeleton-block::after, [data-action-state="loading"]::after { display: none; }
 }
 html[data-motion="reduce"] { scroll-behavior: auto; }
 html[data-motion="reduce"] *, html[data-motion="reduce"] *::before, html[data-motion="reduce"] *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
@@ -264,3 +335,10 @@ html[data-motion="reduce"] dialog,
 html[data-motion="reduce"] dialog[open],
 html[data-motion="reduce"] [data-modal-surface],
 html[data-motion="reduce"] [data-filter-results][data-refreshing="true"] { transform: none !important; }
+html[data-motion="reduce"] [data-loading-region][data-loading-delay="true"] { opacity: 1; }
+html[data-motion="reduce"] .unlocked-skeleton-block::after,
+html[data-motion="reduce"] [data-action-state="loading"]::after { display: none; }
+@media (forced-colors: active) {
+  .unlocked-skeleton-block { border: 1px solid CanvasText; background: Canvas; opacity: .35; }
+  .unlocked-skeleton-block::after, [data-action-state="loading"]::after { display: none; }
+}

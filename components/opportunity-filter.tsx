@@ -15,6 +15,8 @@ import { trackProductEvent } from "@/data/product-analytics";
 import { productIntelligenceEvents } from "@/lib/analytics-types";
 import { ArrowIcon, SearchIcon } from "./icons";
 import { OpportunityCard } from "./opportunity-card";
+import { LoadingRegion, SkeletonBlock } from "./loading-system";
+import { DelayedPendingLabel } from "./delayed-pending-label";
 
 type FilterState = {
   query: string;
@@ -449,7 +451,7 @@ export function OpportunityFilter({ opportunities: initialOpportunities = [] }: 
           <div ref={resultGrid} className="mt-2 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {opportunities.map((item) => <OpportunityCard key={item.id} opportunity={item} source="discover" />)}
           </div>
-          {totalMatches > opportunities.length ? <div className="py-7 text-center"><button type="button" onClick={() => setVisibleCount((count) => Math.min(count + resultPageSize, totalMatches))} disabled={refreshing} className="min-h-12 rounded-full border border-ink/15 bg-white px-6 text-sm font-bold text-forest shadow-[0_8px_22px_rgba(43,33,26,.04)] hover:border-forest disabled:cursor-wait disabled:opacity-60">{refreshing ? "Loading…" : `Show more (${(totalMatches - opportunities.length).toLocaleString()} remaining)`} <ArrowIcon className="inline h-3.5 w-3.5" /></button></div> : null}
+          {totalMatches > opportunities.length ? <div className="py-7 text-center"><button type="button" onClick={() => setVisibleCount((count) => Math.min(count + resultPageSize, totalMatches))} disabled={refreshing} aria-busy={refreshing ? "true" : undefined} data-action-state={refreshing ? "loading" : "idle"} className="min-h-12 rounded-full border border-ink/15 bg-white px-6 text-sm font-bold text-forest shadow-[0_8px_22px_rgba(43,33,26,.04)] hover:border-forest disabled:cursor-wait disabled:opacity-60"><DelayedPendingLabel pending={refreshing} idle={<>Show more ({(totalMatches - opportunities.length).toLocaleString()} remaining) <ArrowIcon className="inline h-3.5 w-3.5" /></>} pendingLabel="Updating results…" /></button></div> : null}
         </> : <EmptyResults recovery={recovery} removeRecovery={() => recovery && update(recoveryUpdate(recovery.filter), recovery.filter)} clearQuery={() => update({ query: "" })} clearFilters={clearFilters} hasQuery={Boolean(filters.query.trim())} />}
       </main>
     </div>
@@ -494,7 +496,7 @@ function FilterGroup({ title, children }: { title: string; children: ReactNode }
 }
 
 function ResultSkeleton() {
-  return <div className="unlocked-skeleton mt-2 grid gap-4 sm:grid-cols-2 xl:grid-cols-3" aria-label="Loading opportunities">{Array.from({ length: 6 }, (_, index) => <div key={index} className="h-[25rem] rounded-[1.25rem] bg-white/70 p-5 shadow-[0_14px_40px_rgba(43,33,26,.04)] ring-1 ring-ink/10"><div className="h-3 w-24 rounded-full bg-paper" /><div className="mt-5 h-8 rounded-full bg-paper" /><div className="mt-3 h-4 w-2/3 rounded-full bg-paper" /><div className="mt-6 h-16 rounded-2xl bg-paper" /><div className="mt-8 h-11 rounded-xl bg-paper" /></div>)}</div>;
+  return <LoadingRegion label="Loading opportunities" className="mt-2 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">{Array.from({ length: 6 }, (_, index) => <div key={index} className="h-[25rem] rounded-[1.25rem] bg-white/70 p-5 shadow-[0_14px_40px_rgba(43,33,26,.04)] ring-1 ring-ink/10"><SkeletonBlock className="h-3 w-24 rounded-full" /><SkeletonBlock className="mt-5 h-8 rounded-md" /><SkeletonBlock className="mt-3 h-4 w-2/3 rounded-full" /><SkeletonBlock className="mt-6 h-16 rounded-lg" /><SkeletonBlock className="mt-8 h-11 rounded-xl" /></div>)}</LoadingRegion>;
 }
 
 function EmptyResults({ recovery, removeRecovery, clearQuery, clearFilters, hasQuery }: { recovery: DiscoverRecovery | null; removeRecovery: () => void; clearQuery: () => void; clearFilters: () => void; hasQuery: boolean }) {

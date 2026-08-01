@@ -12,6 +12,7 @@ import { applyOnboardingPersonalization, personalizationFromLegacyProfile } from
 import { accountSessionEvent, accountSyncErrorEvent, clearLocalDashboardState, hydrateAccountData } from "@/data/account-sync";
 import type { AccountSession } from "@/lib/account-types";
 import { trackProductEvent } from "@/data/product-analytics";
+import { DelayedPendingLabel } from "./delayed-pending-label";
 
 export function PersonalizedHome({ initialSession = null }: { initialSession?: AccountSession | null }) {
   const [ready, setReady] = useState(Boolean(initialSession));
@@ -336,7 +337,7 @@ export function StudentProfileForm({ mode, session, initialProfile, onSave, onCa
         </div>
         {error && <p role="alert" className="text-sm font-bold text-red-700">{error}</p>}
         <div className="flex flex-col gap-3 border-t border-ink/15 pt-6 sm:flex-row">
-          <button type="submit" disabled={saving} className="inline-flex min-h-12 items-center justify-center bg-forest px-6 text-sm font-bold uppercase tracking-wider text-white hover:bg-ink disabled:opacity-60">{saving ? "Saving…" : mode === "edit" ? "Save profile" : "Open UnlockED"}</button>
+          <button type="submit" disabled={saving} aria-busy={saving ? "true" : undefined} data-action-state={saving ? "loading" : "idle"} className="inline-flex min-h-12 items-center justify-center bg-forest px-6 text-sm font-bold uppercase tracking-wider text-white hover:bg-ink disabled:opacity-60"><DelayedPendingLabel pending={saving} idle={mode === "edit" ? "Save profile" : "Open UnlockED"} pendingLabel="Saving profile…" /></button>
           {onCancel && <button type="button" onClick={onCancel} className="inline-flex min-h-12 items-center justify-center border border-ink/20 px-6 text-sm font-bold uppercase tracking-wider text-ink/60 hover:border-forest hover:text-forest">Cancel</button>}
         </div>
       </form>

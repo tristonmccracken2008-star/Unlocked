@@ -11,6 +11,7 @@ import type { JourneyTimelineControl } from "@/lib/journey-timeline";
 import { CheckCircleIcon, CloseIcon } from "@/components/icons";
 import { ResolvedOrganizationMark } from "@/components/organization-logo";
 import styles from "./journey-timeline.module.css";
+import { DelayedPendingLabel } from "./delayed-pending-label";
 
 const MilestoneCelebrationEffect = lazy(() => import("./milestone-celebration-effect"));
 const celebrationStorageKey = "unlocked-shown-milestone-celebrations";
@@ -265,7 +266,7 @@ export function JourneyTimelineControl({ control, compactLabel = "Update Journey
             {error ? <p className={styles.controlError} role="alert">{error}</p> : null}
             <footer className={styles.updateActions}>
               <button type="button" onClick={close} disabled={pending}>Cancel</button>
-              <button type="submit" className={styles.updatePrimary} disabled={pending || !selected} aria-busy={pending ? "true" : undefined} data-action-state={pending ? "loading" : "idle"}>{pending ? "Saving milestone…" : selected?.destructive ? "Archive opportunity" : "Save milestone"}</button>
+              <button type="submit" className={styles.updatePrimary} disabled={pending || !selected} aria-busy={pending ? "true" : undefined} data-action-state={pending ? "loading" : "idle"}><DelayedPendingLabel pending={pending} idle={selected?.destructive ? "Archive opportunity" : "Save milestone"} pendingLabel="Saving milestone…" /></button>
             </footer>
             <p className={styles.studentReported}>Student reported · Private by default · UnlockED does not verify supporting details</p>
           </form>

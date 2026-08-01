@@ -66,6 +66,7 @@ async function seed(label: string, pro = false) {
       onboardingCompletedAt: "2026-07-20T12:00:00.000Z",
     },
     onboardingComplete: true,
+    firstLaunchComplete: true,
     activity: { viewed: [], saved: [], claimed: [], tracked: {} },
     journeyProgress: { "completed-profile": true },
   });
@@ -95,7 +96,7 @@ async function exercise(browser: Browser, origin: string, token: string, name: s
   await identityCard.getByText("University of Chicago").waitFor();
   await identityCard.getByText(pro ? "Computer Science" : "Mathematics", { exact: true }).waitFor();
   await identityCard.getByText("Research", { exact: true }).waitFor();
-  await page.screenshot({ path: `/tmp/unlocked-profile-identity-${name.toLowerCase()}.png`, fullPage: true });
+  await page.screenshot({ path: `/tmp/unlocked-profile-identity-${name.toLowerCase()}.png`, fullPage: true, caret: "initial" });
   await identityCard.getByText("Saved", { exact: true }).waitFor();
   await page.getByRole("button", { name: "Edit profile", exact: true }).click();
   await page.locator("#first-name").waitFor();
@@ -141,7 +142,7 @@ async function exercise(browser: Browser, origin: string, token: string, name: s
     }));
     assert.deepEqual(themeColors, { pageHeading: "rgb(251, 243, 232)", identityHeading: "rgb(251, 243, 232)" }, "Midnight Profile headings must use the active high-contrast theme token.");
     await page.waitForTimeout(250);
-    await page.screenshot({ path: "/tmp/unlocked-profile-identity-dark-mobile.png", fullPage: false });
+    await page.screenshot({ path: "/tmp/unlocked-profile-identity-dark-mobile.png", fullPage: false, caret: "initial" });
   }
 
   await page.getByRole("button", { name: "Data and account", exact: true }).click();

@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { defaultNotificationPreferences, type NotificationPreferences } from "@/lib/notification-types";
 import { accountSessionEvent } from "@/data/account-sync";
+import { SectionLoading } from "./loading-system";
+import { DelayedPendingLabel } from "./delayed-pending-label";
 
 const commonTimezones = [
   "America/New_York",
@@ -71,7 +73,7 @@ export function NotificationSettings({ embedded = false }: { embedded?: boolean 
   const detected = typeof Intl !== "undefined" ? Intl.DateTimeFormat().resolvedOptions().timeZone : "";
   const timezones = [...new Set([detected, ...commonTimezones].filter(Boolean))];
 
-  if (loading) return <section id="notifications" aria-busy="true" className={embedded ? "pt-7" : "px-5 pt-6 sm:px-8"}><div className={`${embedded ? "" : "mx-auto max-w-5xl rounded-[2rem] shadow-soft ring-1 ring-ink/8"} unlocked-skeleton h-48 bg-[var(--unlocked-surface)]`}><span className="sr-only" role="status">Loading notification settings</span></div></section>;
+  if (loading) return <section id="notifications" className={embedded ? "pt-7" : "px-5 pt-6 sm:px-8"}><SectionLoading label="Loading notification settings" rows={2} className={embedded ? "" : "mx-auto max-w-5xl rounded-[2rem] bg-[var(--unlocked-surface)] p-5 shadow-soft ring-1 ring-ink/8 sm:p-6"} /></section>;
   if (!preferences) return <section id="notifications" className={embedded ? "pt-7" : "px-5 pt-6 sm:px-8"}><div className={embedded ? "rounded-xl border border-red-800/20 bg-white p-5" : "mx-auto max-w-5xl rounded-[1.5rem] border border-red-800/20 bg-white p-6 shadow-soft"} role="alert"><p className="text-sm font-bold text-red-800">{message || "Notification settings could not be loaded."}</p><button type="button" onClick={() => setReloadVersion((value) => value + 1)} className="mt-3 min-h-11 text-sm font-bold text-forest hover:text-ink">Retry notification settings</button></div></section>;
 
   const update = <K extends keyof NotificationPreferences>(key: K, value: NotificationPreferences[K]) => setPreferences((current) => current ? { ...current, [key]: value } : current);
@@ -133,7 +135,7 @@ export function NotificationSettings({ embedded = false }: { embedded?: boolean 
           } finally {
             setSaving(false);
           }
-        }} className="min-h-11 rounded-full bg-forest px-5 text-sm font-bold text-white hover:bg-ink disabled:cursor-wait disabled:opacity-60">{saving ? "Saving…" : "Save notification settings"}</button>
+        }} aria-busy={saving ? "true" : undefined} data-action-state={saving ? "loading" : "idle"} className="min-h-11 rounded-full bg-forest px-5 text-sm font-bold text-white hover:bg-ink disabled:cursor-wait disabled:opacity-60"><DelayedPendingLabel pending={saving} idle="Save notification settings" pendingLabel="Saving settings…" /></button>
         <a href="/notifications" className="inline-flex min-h-11 items-center text-sm font-bold text-forest hover:text-ink">Open notifications</a>
         {message ? <p role={messageKind === "error" ? "alert" : "status"} className={`w-full text-sm font-bold ${messageKind === "error" ? "text-red-800" : "text-forest"}`}>{message}</p> : null}
       </div>

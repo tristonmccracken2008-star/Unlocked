@@ -10,6 +10,7 @@ import { ArrowIcon, BookmarkIcon, CheckIcon } from "./icons";
 import { productIntelligenceEvents } from "@/lib/analytics-types";
 import { recommendationAttributionDetailsFor, rememberRecommendationAttribution, trackProductEvent } from "@/data/product-analytics";
 import { playJourneySaveMotion } from "./journey-save-motion";
+import { DelayedPendingLabel } from "./delayed-pending-label";
 import styles from "./opportunity-activity.module.css";
 
 export function OpportunityViewTracker({ opportunityId }: { opportunityId: string }) {
@@ -126,8 +127,8 @@ export function AddToJourneyButton({ opportunityId, recommendationId, recommenda
   if (added) return <div className="grid gap-2"><JourneyAddedState className={className} confirmed={confirmedThisSession} />{firstSave ? <p className="max-w-sm text-xs font-medium leading-5 text-ink/55" role="status">Added to your Journey. Return there when you have a real update, such as starting or submitting an application.</p> : null}</div>;
   return <div className="grid gap-2">
     <button ref={buttonRef} type="button" onClick={() => void add()} disabled={pending} aria-busy={pending ? "true" : undefined} data-action-state={error ? "error" : pending ? "loading" : "idle"} data-journey-save-state={error ? "error" : pending ? "loading" : "idle"} aria-describedby={error ? `journey-add-error-${opportunityId}` : undefined} className={`${styles.saveButton} inline-flex min-h-11 min-w-[11rem] items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider disabled:cursor-wait ${className}`}>
-      <span className={styles.buttonIcon} aria-hidden="true">{pending ? <svg className={styles.progress} viewBox="0 0 18 18" data-journey-save-progress=""><circle className={styles.progressTrack} cx="9" cy="9" r="7"/><circle className={styles.progressTrace} cx="9" cy="9" r="7"/></svg> : error ? <svg className={styles.errorIcon} viewBox="0 0 18 18" fill="none"><path d="M5.2 5.5A5.2 5.2 0 1 1 4 10.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/><path d="M2.8 6.2 5.5 5.5l-.7-2.7" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/></svg> : <BookmarkIcon className="h-4 w-4"/>}</span>
-      <span>{pending ? "Adding…" : error ? "Try again" : "Add to Journey"}</span>
+      <span className={styles.buttonIcon} aria-hidden="true">{error ? <svg className={styles.errorIcon} viewBox="0 0 18 18" fill="none"><path d="M5.2 5.5A5.2 5.2 0 1 1 4 10.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/><path d="M2.8 6.2 5.5 5.5l-.7-2.7" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/></svg> : <BookmarkIcon className="h-4 w-4"/>}</span>
+      <DelayedPendingLabel pending={pending} idle={error ? "Try again" : "Add to Journey"} pendingLabel="Adding to Journey…" />
     </button>
     {error ? <p id={`journey-add-error-${opportunityId}`} role="alert" data-inline-feedback="" data-state="error" className={`${styles.error} max-w-sm text-xs font-bold leading-5 text-red-700`}>{error}</p> : null}
   </div>;

@@ -12,6 +12,7 @@ import { journeyTransformationEvent } from "./journey-live-line";
 import { productIntelligenceEvents } from "@/lib/analytics-types";
 import { recommendationAttributionDetailsFor, trackProductEvent, trackProductTiming } from "@/data/product-analytics";
 import styles from "./journey-editorial.module.css";
+import { DelayedPendingLabel } from "./delayed-pending-label";
 
 type TransitionResponse = {
   ok: true;
@@ -168,7 +169,7 @@ export function JourneyTransitionControl({ control }: { control: NonNullable<Jou
 
   return <div className={styles.transitionControls} aria-busy={pending ? "true" : undefined} data-journey-transition-control="" data-opportunity-id={control.opportunityId}>
     {primary ? <button type="button" className={styles.primaryAction} disabled={Boolean(pending)} aria-busy={pending === primary.transition ? "true" : undefined} data-action-state={pending === primary.transition ? "loading" : "idle"} aria-describedby={error ? "journey-transition-error" : undefined} data-journey-analytics="waypoint" data-journey-source="transition" onClick={() => void run(primary)}>
-      {pending === primary.transition ? "Saving…" : primary.label} {!pending ? <ArrowIcon /> : null}
+      <DelayedPendingLabel pending={pending === primary.transition} idle={<>{primary.label} <ArrowIcon /></>} pendingLabel="Saving Journey…" />
     </button> : null}
     {actions.some((action) => !action.primary) ? <details className={styles.manageDisclosure}>
       <summary>Manage applications</summary>

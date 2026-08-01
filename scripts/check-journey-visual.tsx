@@ -10,6 +10,7 @@ const creator = read("components/journey-card-creator.tsx");
 const entry = read("components/journey-card-entry.tsx");
 const creatorStyles = read("components/journey-card-creator.module.css");
 const loading = read("app/loading.tsx");
+const loadingSystem = read("components/loading-system.tsx");
 
 function luminance(hex: string) {
   const channels = hex.slice(1).match(/.{2}/g)?.map((value) => Number.parseInt(value, 16) / 255) ?? [];
@@ -46,7 +47,8 @@ for (const token of ["BrandMarkArtwork", "acceptance", "Year in Review", "JOURNE
 assert.doesNotMatch(artwork, /OpenLineRenderer|openLineAperturePath|gradient|filter=|drop-shadow|confetti/i);
 for (const token of ["Choose template", "Appearance", "Personalization", "Download PNG", "Copy image", "navigator.share", "Private until you share it", "role={messageIsError ?"]) assert.ok(creator.includes(token));
 assert.match(creatorStyles, /min-height:\s*44px/);
-assert.match(loading, /Loading your saved opportunities, deadlines, and progress\./);
+assert.match(loading, /AppPageLoading/);
+assert.match(loadingSystem, /data-loading-skeleton/);
 assert.doesNotMatch(loading, /loadingWaypoint|next step|story\./i);
 
 console.log(JSON.stringify({ message: "Unified Journey visual checks passed.", viewports: [320, 390, 820, 1440], themes: ["cream", "forest"], exports: journeyCardLayouts }, null, 2));

@@ -7,6 +7,8 @@ import { groupNotifications, notificationTimestamp } from "@/lib/notification-pr
 import { accountSessionEvent } from "@/data/account-sync";
 import { ArrowIcon, BellIcon, BookmarkIcon, CalendarIcon, CheckCircleIcon, CheckIcon, CloseIcon, ListIcon, SparkIcon, TargetIcon } from "./icons";
 import { OrganizationMark } from "./organization-logo";
+import { LoadingRegion, SkeletonBlock } from "./loading-system";
+import { DelayedPendingLabel } from "./delayed-pending-label";
 import styles from "./notification-center.module.css";
 
 type CenterResponse = {
@@ -45,14 +47,14 @@ function NotificationTypeIcon({ type }: { type: NotificationType }) {
 }
 
 function NotificationSkeleton() {
-  return <div aria-hidden="true" className={`unlocked-skeleton ${styles.loading}`} data-notification-skeleton="">
-    <div className={styles.skeletonHeading} />
+  return <div data-notification-skeleton=""><LoadingRegion label="Loading notifications" className={styles.loading}>
+    <SkeletonBlock className={styles.skeletonHeading} />
     {[0, 1, 2].map((item) => <div key={item} className={styles.skeletonCard}>
-      <div className={styles.skeletonIcon} />
-      <div className={styles.skeletonCopy}><span /><span /><span /></div>
-      <div className={styles.skeletonAction} />
+      <SkeletonBlock className={styles.skeletonIcon} />
+      <div className={styles.skeletonCopy}><SkeletonBlock /><SkeletonBlock /><SkeletonBlock /></div>
+      <SkeletonBlock className={styles.skeletonAction} />
     </div>)}
-  </div>;
+  </LoadingRegion></div>;
 }
 
 export function NotificationCenter() {
@@ -297,7 +299,7 @@ export function NotificationCenter() {
         } finally {
           setLoadingMore(false);
         }
-      }} className={styles.loadMore}>{loadingMore ? "Loading…" : "Show older updates"}</button></div> : null}
+      }} aria-busy={loadingMore ? "true" : undefined} data-action-state={loadingMore ? "loading" : "idle"} className={styles.loadMore}><DelayedPendingLabel pending={loadingMore} idle="Show older updates" pendingLabel="Loading older updates…" /></button></div> : null}
     </section>
   </main>;
 }

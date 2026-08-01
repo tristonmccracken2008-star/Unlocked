@@ -197,12 +197,17 @@ async function assertOrganizationMarks(page: Page, label: string) {
   const marks = page.locator("[data-organization-mark]");
   const count = await marks.count();
   assert.ok(count > 0, `${label} must render organization branding.`);
-  const invalid = await marks.evaluateAll((elements) => elements.filter((element) => {
+  const result = await marks.evaluateAll((elements) => {
+    const visible = elements.filter((element) => element.getClientRects().length > 0);
+    const invalid = visible.filter((element) => {
     const rect = element.getBoundingClientRect();
     const kind = element.getAttribute("data-kind");
     return rect.width < 44 || rect.height < 44 || !["image", "monogram", "category"].includes(kind ?? "") || !element.getAttribute("aria-label");
-  }).length);
-  assert.equal(invalid, 0, `${label} must keep every organization mark stable, labeled, and non-empty.`);
+    }).length;
+    return { visible: visible.length, invalid };
+  });
+  assert.ok(result.visible > 0, `${label} must render visible organization branding.`);
+  assert.equal(result.invalid, 0, `${label} must keep every visible organization mark stable, labeled, and non-empty.`);
 }
 
 async function verifyDiscover(page: Page, origin: string, screenshotLabel: string) {
@@ -242,7 +247,8 @@ async function verifyDiscover(page: Page, origin: string, screenshotLabel: strin
   await search.fill("engineering");
   await Promise.race([searchRequest, new Promise((_, reject) => setTimeout(() => reject(new Error("Discover search request did not start.")), 5000))]);
   assert.equal(await page.getByRole("link", { name: "Open Opportunity" }).count(), cardsBefore, "Discover must retain existing results while a refresh is pending.");
-  await page.getByText("Updating results…", { exact: true }).waitFor({ state: "visible" });
+  const refreshStatus = page.locator("[data-filter-results] p[role='status']");
+  await refreshStatus.waitFor({ state: "visible" });
   const resultRegion = page.locator("[data-filter-results]");
   assert.equal(await resultRegion.getAttribute("data-refreshing"), "true", "Discover must expose its non-blocking refresh state.");
   await page.waitForFunction(() => {
@@ -252,7 +258,7 @@ async function verifyDiscover(page: Page, origin: string, screenshotLabel: strin
   const refreshingOpacity = Number(await resultRegion.evaluate((node) => getComputedStyle(node).opacity));
   assert.ok(refreshingOpacity < 1 && refreshingOpacity >= .5, `Discover should soften retained results without hiding them; received ${refreshingOpacity}.`);
   releaseSearch();
-  await page.getByText("Updating results…", { exact: true }).waitFor({ state: "hidden", timeout: 10_000 });
+  await refreshStatus.waitFor({ state: "hidden", timeout: 10_000 });
   await page.unroute("**/api/opportunities?*");
   assert.equal(new URL(page.url()).searchParams.get("query"), "engineering", "Discover search must synchronize with the URL.");
   await page.getByLabel("Sort").selectOption("Newest");
@@ -307,7 +313,7 @@ async function verifyDiscover(page: Page, origin: string, screenshotLabel: strin
   assert.equal(await search.evaluate((element) => (element as HTMLInputElement).value), "engineering", "Returning from a detail page must restore the search query.");
   if (previousScroll > 0) assert.ok(await page.evaluate(() => window.scrollY) > 0, "Returning from a detail page must restore scroll position.");
   await page.getByRole("button", { name: "Clear opportunity search" }).click();
-  await page.getByText("Updating results…", { exact: true }).waitFor({ state: "hidden", timeout: 10_000 });
+  await page.locator("[data-filter-results] p[role='status']").waitFor({ state: "hidden", timeout: 10_000 });
   assert.equal(await search.inputValue(), "", "The search clear action must reset the visible value.");
   assert.equal(new URL(page.url()).searchParams.has("query"), false, "The search clear action must remove the URL query.");
   assert.equal(await search.evaluate((node) => document.activeElement === node), true, "Clearing search must return focus to the search field.");

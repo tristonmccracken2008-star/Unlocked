@@ -166,6 +166,7 @@ async function completeOnboarding(page: Page, origin: string) {
   const schoolInput = page.getByRole("combobox", { name: "Search for your school" });
   await page.waitForFunction(() => Object.keys(localStorage).some((key) => key.startsWith("unlocked-onboarding-draft-v2:")));
   await schoolInput.fill("University of Chicago");
+  await page.getByRole("option", { name: /University of Chicago/ }).click();
   await page.waitForFunction(() => Object.keys(localStorage).some((key) => key.startsWith("unlocked-onboarding-draft-v2:") && localStorage.getItem(key)?.includes("University of Chicago")));
   await page.reload({ waitUntil: "domcontentloaded" });
   await page.getByRole("heading", { name: "What school do you attend?" }).waitFor({ state: "visible" });
@@ -365,6 +366,7 @@ async function verifyFirstSave(page: Page, origin: string, browserName: string) 
   await page.getByRole("heading", { name: "Journey", exact: true }).waitFor({ state: "visible" });
   assert.equal(await page.getByText("Your private record of what you saved, pursued, and accomplished.", { exact: true }).count(), 1);
   assert.ok(await page.getByRole("button", { name: "Update", exact: true }).first().isVisible());
+  await page.waitForLoadState("networkidle");
   const firstJourneyMs = performance.now() - journeyStartedAt;
 
   const returnStartedAt = performance.now();
@@ -418,12 +420,13 @@ async function runPro(browser: Browser, origin: string, token: string, browserNa
     observer.observe(document.body, { attributes: true, childList: true, subtree: true });
   });
   await page.route("**/api/journey/add", async (route) => {
-    await new Promise((resolve) => setTimeout(resolve, 180));
+    await new Promise((resolve) => setTimeout(resolve, 450));
     await route.continue();
   }, { times: 1 });
   await button.click();
-  await button.locator("[data-journey-save-progress]").waitFor({ state: "visible" });
   assert.equal(await button.getAttribute("data-journey-save-state"), "loading");
+  await button.getByText("Adding to Journey…", { exact: true }).waitFor({ state: "visible" });
+  assert.equal(await button.locator("[data-journey-save-progress]").count(), 0);
   await page.screenshot({ path: `/tmp/unlocked-save-${browserName.toLowerCase()}-desktop-loading.png`, fullPage: true });
   await page.getByText("Added to your Journey.", { exact: false }).waitFor({ state: "visible", timeout: 15_000 });
   await page.screenshot({ path: `/tmp/unlocked-save-${browserName.toLowerCase()}-desktop-success.png`, fullPage: true });

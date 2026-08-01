@@ -8,6 +8,7 @@ import { trackProductEvent } from "@/data/product-analytics";
 import type { AccountSession } from "@/lib/account-types";
 import { BrandMark } from "./brand-mark";
 import styles from "./first-launch-walkthrough.module.css";
+import { DelayedPendingLabel } from "./delayed-pending-label";
 
 type WalkthroughStep = {
   id: "discover" | "for-you" | "journey" | "ready";
@@ -219,8 +220,8 @@ export function FirstLaunchWalkthrough({ initialSession, pro }: { initialSession
 
             <div className="mt-8 flex min-h-12 items-center gap-3">
               {index > 0 ? <button type="button" onClick={() => goTo(index - 1)} disabled={Boolean(transition) || saving} className="inline-flex min-h-12 min-w-24 items-center justify-center rounded-xl border border-ink/15 bg-transparent px-5 text-sm font-bold text-ink/60 transition hover:border-forest hover:text-forest disabled:opacity-45">Back</button> : <span className="min-w-24" aria-hidden="true" />}
-              <button type="button" onClick={() => index === steps.length - 1 ? void finish() : goTo(index + 1)} disabled={Boolean(transition) || saving} className="inline-flex min-h-12 flex-1 items-center justify-center rounded-xl bg-forest px-6 text-sm font-bold text-white shadow-[0_12px_28px_rgba(31,95,67,.2)] transition hover:bg-ink active:scale-[.99] disabled:opacity-55">
-                {saving ? "Saving…" : index === steps.length - 1 ? "Start Exploring" : "Next"}<span aria-hidden="true" className="ml-2">→</span>
+              <button type="button" onClick={() => index === steps.length - 1 ? void finish() : goTo(index + 1)} disabled={Boolean(transition) || saving} aria-busy={saving ? "true" : undefined} data-action-state={saving ? "loading" : "idle"} className="inline-flex min-h-12 flex-1 items-center justify-center rounded-xl bg-forest px-6 text-sm font-bold text-white shadow-[0_12px_28px_rgba(31,95,67,.2)] transition hover:bg-ink active:scale-[.99] disabled:opacity-55">
+                <DelayedPendingLabel pending={saving} idle={index === steps.length - 1 ? "Start Exploring" : "Next"} pendingLabel="Saving your progress…" /><span aria-hidden="true" className="ml-2">→</span>
               </button>
             </div>
             {error && index === displayedStep ? <p role="alert" aria-live="polite" className="mt-4 text-sm font-bold text-red-700">{error}</p> : null}

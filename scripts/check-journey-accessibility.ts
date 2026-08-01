@@ -10,6 +10,7 @@ const artwork = read("components/journey-card-artwork.tsx");
 const styles = read("components/journey-timeline.module.css");
 const creatorStyles = read("components/journey-card-creator.module.css");
 const loading = read("app/loading.tsx");
+const loadingSystem = read("components/loading-system.tsx");
 
 const unavailable = timeline.slice(timeline.indexOf("export function JourneyTimelineUnavailable"));
 const primary = timeline.slice(0, timeline.indexOf("export function JourneyTimelineUnavailable"));
@@ -50,7 +51,9 @@ assert.match(styles, /@media \(prefers-reduced-motion: reduce\)/);
 assert.match(styles, /@media \(prefers-contrast: more\)/);
 assert.match(creatorStyles, /@media \(forced-colors: active\)/);
 assert.match(creatorStyles, /@media \(prefers-contrast: more\)/);
-assert.match(loading, /role="status" aria-live="polite"/);
+assert.match(loading, /AppPageLoading/);
+assert.match(loadingSystem, /role="status" aria-live="polite"/);
+assert.match(loadingSystem, /aria-busy="true"/);
 
 for (const source of [timeline, control, entry, creator, artwork]) {
   assert.doesNotMatch(source, /ResizeObserver|IntersectionObserver|getBoundingClientRect|requestIdleCallback/, "Journey must not add client geometry or observer work.");
