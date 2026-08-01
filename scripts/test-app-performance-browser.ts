@@ -4,12 +4,13 @@ import http from "node:http";
 import net from "node:net";
 import path from "node:path";
 import next from "next";
-import { chromium, webkit, type BrowserContext, type Page, type Route } from "playwright";
+import { chromium, webkit, type BrowserContext, type Page, type Request, type Route } from "playwright";
 
 type StoredValue = { value: unknown; expiresAt?: number };
 type ViewportScenario = { label: string; width: number; height: number };
 
 const store = new Map<string, StoredValue>();
+const pendingAccountWrites = new WeakMap<Page, Set<Request>>();
 const outputDirectory = "/tmp/unlocked-app-performance";
 const testDistDirectory = ".next-app-performance-browser";
 
@@ -83,6 +84,8 @@ async function seedSession() {
       onboardingCompletedAt: now,
     },
     onboardingComplete: true,
+    firstLaunchComplete: true,
+    firstLaunchCompletedAt: now,
     activity: { viewed: [], saved: [], claimed: [], tracked: {} },
     savedOpportunities: [],
     tracker: {},
@@ -142,6 +145,13 @@ function observePage(page: Page) {
   const consoleErrors: string[] = [];
   const requestFailures: string[] = [];
   const apiResponses: string[] = [];
+  const accountWrites = new Set<Request>();
+  pendingAccountWrites.set(page, accountWrites);
+  page.on("request", (request) => {
+    const url = new URL(request.url());
+    if (request.method() === "PUT" && url.pathname === "/api/account/data") accountWrites.add(request);
+  });
+  page.on("requestfinished", (request) => accountWrites.delete(request));
   page.on("console", (message) => {
     if (message.type() !== "error") return;
     const detail = message.text();
@@ -149,11 +159,12 @@ function observePage(page: Page) {
     consoleErrors.push(detail);
   });
   page.on("requestfailed", (request) => {
+    accountWrites.delete(request);
     const failure = request.failure()?.errorText.toLowerCase() ?? "";
     const url = new URL(request.url());
     const expectedCancellation = failure.includes("cancel")
       && request.method() === "GET"
-      && (url.pathname === "/api/opportunities" || url.searchParams.has("_rsc"));
+      && (url.pathname === "/api/opportunities" || url.pathname === "/api/notifications" || url.searchParams.has("_rsc"));
     if (failure === "net::err_aborted" || expectedCancellation) return;
     if (request.resourceType() === "image" && new URL(request.url()).origin !== new URL(page.url()).origin) return;
     requestFailures.push(`${request.method()} ${request.url()} ${request.failure()?.errorText ?? "failed"}`);
@@ -165,6 +176,16 @@ function observePage(page: Page) {
     }
   });
   return { consoleErrors, requestFailures, apiResponses };
+}
+
+async function settleAccountWrites(page: Page) {
+  if (process.env.UNLOCKED_TEST_PRODUCTION_WEBKIT !== "1") return;
+  const writes = pendingAccountWrites.get(page);
+  if (!writes) return;
+  await page.waitForTimeout(500);
+  const deadline = Date.now() + 10_000;
+  while (writes.size > 0 && Date.now() < deadline) await page.waitForTimeout(25);
+  assert.equal(writes.size, 0, "Authenticated account writes must settle before navigating away.");
 }
 
 async function assertStableLayout(page: Page, label: string) {
@@ -259,7 +280,7 @@ async function verifyDiscover(page: Page, origin: string, screenshotLabel: strin
   await page.evaluate(() => window.scrollTo(0, Math.min(500, document.documentElement.scrollHeight - innerHeight)));
   const previousScroll = await page.evaluate(() => window.scrollY);
   await page.getByRole("link", { name: "Open Opportunity" }).first().click();
-  await page.getByText("Official next step", { exact: true }).waitFor({ state: "visible", timeout: 20_000 });
+  await page.getByText("Official source", { exact: true }).waitFor({ state: "visible", timeout: 20_000 });
   if (screenshotLabel === "desktop") {
     await page.getByRole("button", { name: "Report incorrect information" }).click();
     await page.getByLabel("What needs attention?").selectOption("incorrect_deadline");
@@ -290,7 +311,55 @@ async function verifyDiscover(page: Page, origin: string, screenshotLabel: strin
     })).status);
     assert.equal(themeResetStatus, 200, "The browser fixture must restore the light-theme preference.");
   }
+  await settleAccountWrites(page);
   return { coldReadyMs, warmReadyMs, sessionRequests, catalogRequests: catalogRequests.length };
+}
+
+async function verifyOpportunityDetails(page: Page, origin: string, screenshotLabel: string) {
+  await page.waitForLoadState("networkidle", { timeout: 10_000 });
+  const scenarios = [
+    { id: "benefit--github-student-developer-pack", kind: "benefit", heading: "GitHub Student Developer Pack", facts: ["Value", "Access", "Deadline"] },
+    { id: "scholarship--goldwater-scholarship", kind: "scholarship", heading: "Barry Goldwater Scholarship", facts: ["Award", "Deadline", "Application", "Renewal"] },
+    { id: "career--google-student-internships", kind: "internship", heading: "Google Student Internships", facts: ["Location", "Format", "Compensation", "Deadline"] },
+    { id: "research--nsf-reu-sites", kind: "research", heading: "NSF Research Experiences for Undergraduates Sites", facts: ["Research focus", "Term", "Location", "Funding"] },
+    { id: "career--icpc", kind: "competition", heading: "International Collegiate Programming Contest", facts: ["Prize", "Deadline", "Format", "Difficulty"] },
+  ];
+  const renderedHeights = new Map<string, number>();
+  for (const scenario of scenarios) {
+    const notificationReady = page.waitForResponse((response) => {
+      const url = new URL(response.url());
+      return response.request().method() === "GET"
+        && url.pathname === "/api/notifications"
+        && url.searchParams.get("view") === "count";
+    }, { timeout: 10_000 });
+    await page.goto(`${origin}/opportunities/${scenario.id}`, { waitUntil: "domcontentloaded", timeout: 45_000 });
+    await page.getByRole("heading", { name: scenario.heading, exact: true }).waitFor({ state: "visible", timeout: 20_000 });
+    const detail = page.locator("[data-opportunity-detail]");
+    assert.equal(await detail.getAttribute("data-opportunity-kind"), scenario.kind);
+    assert.equal(await page.getByRole("heading", { level: 1 }).count(), 1, `${scenario.kind} detail must have one clear title.`);
+    assert.equal(await page.getByText("Who qualifies", { exact: true }).count(), 1, `${scenario.kind} detail must expose eligibility immediately.`);
+    assert.equal(await page.getByText("Official source", { exact: true }).count(), 1, `${scenario.kind} detail must keep the provider action primary.`);
+    for (const fact of scenario.facts) assert.ok(await page.locator("dt", { hasText: fact }).count(), `${scenario.kind} detail is missing ${fact}.`);
+    const learnMore = page.locator("details[data-learn-more]");
+    assert.equal(await learnMore.getAttribute("open"), null, `${scenario.kind} lower-priority detail must start collapsed.`);
+    assert.equal(await page.getByText(/This matters because/, { exact: false }).count(), 0, `${scenario.kind} detail retained generated catalog prose.`);
+    await assertStableLayout(page, `${screenshotLabel} ${scenario.kind} detail`);
+    renderedHeights.set(scenario.kind, await page.evaluate(() => document.documentElement.scrollHeight));
+    if (screenshotLabel === "desktop" || (screenshotLabel === "mobile" && scenario.kind === "scholarship")) {
+      await page.screenshot({ path: path.join(outputDirectory, `${screenshotLabel}-opportunity-${scenario.kind}.png`), fullPage: true, caret: "initial" });
+    }
+    await notificationReady;
+    await settleAccountWrites(page);
+  }
+  assert.ok((renderedHeights.get("benefit") ?? 0) < (renderedHeights.get("scholarship") ?? 0), "A simple benefit page should remain shorter than a scholarship with documented requirements.");
+  if (screenshotLabel === "mobile") {
+    const disclosure = page.locator("details[data-learn-more] > summary");
+    const box = await disclosure.boundingBox();
+    assert.ok(box && box.height >= 44, "Mobile Learn More must preserve a 44px touch target.");
+    await disclosure.click();
+    assert.notEqual(await page.locator("details[data-learn-more]").getAttribute("open"), null, "Learn More must expand inline.");
+  }
+  return { opportunityTypesVerified: scenarios.length };
 }
 
 async function verifyPrimaryRoutes(page: Page, origin: string, screenshotLabel: string) {
@@ -346,6 +415,7 @@ async function verifyPrimaryRoutes(page: Page, origin: string, screenshotLabel: 
   }
   await assertStableLayout(page, `${screenshotLabel} For You`);
   await page.screenshot({ path: path.join(outputDirectory, `${screenshotLabel}-for-you.png`), fullPage: true, caret: "initial" });
+  await settleAccountWrites(page);
 
   const journeyStartedAt = performance.now();
   await page.goto(origin, { waitUntil: "domcontentloaded", timeout: 45_000 });
@@ -353,6 +423,7 @@ async function verifyPrimaryRoutes(page: Page, origin: string, screenshotLabel: 
   const journeyReadyMs = Math.round(performance.now() - journeyStartedAt);
   await assertStableLayout(page, `${screenshotLabel} Journey`);
   await page.screenshot({ path: path.join(outputDirectory, `${screenshotLabel}-journey.png`), fullPage: true, caret: "initial" });
+  await settleAccountWrites(page);
   return { forYouReadyMs, journeyReadyMs };
 }
 
@@ -402,6 +473,7 @@ try {
     try {
       discover = await verifyDiscover(page, origin, "webkit");
       primaryRoutes = await verifyPrimaryRoutes(page, origin, "webkit");
+      Object.assign(primaryRoutes, await verifyOpportunityDetails(page, origin, "webkit"));
     } catch (error) {
       console.error("WebKit browser diagnostics", observed);
       throw error;
@@ -421,6 +493,7 @@ try {
       const observed = observePage(page);
       const discover = await verifyDiscover(page, origin, viewport.label);
       const primaryRoutes = await verifyPrimaryRoutes(page, origin, viewport.label);
+      Object.assign(primaryRoutes, await verifyOpportunityDetails(page, origin, viewport.label));
       assert.deepEqual(observed.consoleErrors, [], `${viewport.label} browser console errors: ${observed.consoleErrors.join(" | ")}`);
       assert.deepEqual(observed.requestFailures, [], `${viewport.label} request failures: ${observed.requestFailures.join(" | ")}`);
       results.push({ browser: "chromium", viewport: viewport.label, ...discover, ...primaryRoutes });
