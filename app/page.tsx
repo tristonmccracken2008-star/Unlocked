@@ -7,6 +7,7 @@ import { listPublishedOpportunitiesByIds } from "@/lib/content-store";
 import { buildJourneyCommandCenterModel } from "@/lib/journey-command-center";
 import { cookies } from "next/headers";
 import { isProUser } from "@/lib/billing";
+import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
   title: { absolute: "UnlockED — Student opportunities, chosen for you" },
@@ -27,6 +28,7 @@ export default async function Home({ searchParams }: { searchParams?: Promise<Re
       : { authenticated: false, user: null, data: null };
     return <div data-unlocked-home="public-or-onboarding-v1"><PersonalizedHome initialSession={initialSession} /></div>;
   }
+  if (!session.data.firstLaunchComplete) redirect("/welcome");
 
   const trackedIds = [...new Set([
     ...Object.keys(session.data.tracker ?? {}),

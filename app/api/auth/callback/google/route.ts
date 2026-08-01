@@ -1,7 +1,7 @@
 import crypto from "node:crypto";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
-import { accountHasCompletedOnboarding, attachReferralToUser, createSession, deleteSession, oauthCodeVerifierCookieName, oauthStateCookieName, readAccountData, sessionCookieName, upsertUser } from "@/lib/auth-store";
+import { accountHasCompletedFirstLaunch, accountHasCompletedOnboarding, attachReferralToUser, createSession, deleteSession, oauthCodeVerifierCookieName, oauthStateCookieName, readAccountData, sessionCookieName, upsertUser } from "@/lib/auth-store";
 import { appUrl, exchangeGoogleCode } from "@/lib/google-oauth";
 import { referralCookieName } from "@/lib/referrals";
 import { constantTimeEqual, enforceRateLimit, safeLogText } from "@/lib/security";
@@ -62,7 +62,10 @@ export async function GET(request: NextRequest) {
     console.info("[UnlockED auth] Previous session cleanup complete", { requestId, durationMs: Math.round(performance.now() - startedAt) });
     const session = await createSession(user);
     console.info("[UnlockED auth] New session persistence complete", { requestId, durationMs: Math.round(performance.now() - startedAt) });
-    const response = NextResponse.redirect(new URL(accountHasCompletedOnboarding(accountData) ? "/advisor" : "/onboarding", request.nextUrl.origin));
+    const destination = !accountHasCompletedOnboarding(accountData)
+      ? "/onboarding"
+      : accountHasCompletedFirstLaunch(accountData) ? "/advisor" : "/welcome";
+    const response = NextResponse.redirect(new URL(destination, request.nextUrl.origin));
     clearOAuthCookies(response);
     response.cookies.delete(referralCookieName);
     response.cookies.set(sessionCookieName, session.token, { httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", expires: session.expires, maxAge: 60 * 60 * 24 * 30, path: "/", priority: "high" });

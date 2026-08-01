@@ -11,7 +11,7 @@ function expect(file, description, test) {
 }
 
 expect("app/api/auth/callback/google/route.ts", "OAuth callback must route from persisted onboarding state", (source) =>
-  source.includes("accountHasCompletedOnboarding(accountData)") && source.includes("\"/onboarding\"") && source.includes("\"/advisor\"") && !source.includes("/profile?auth=signed-in"),
+  source.includes("accountHasCompletedOnboarding(accountData)") && source.includes("accountHasCompletedFirstLaunch(accountData)") && source.includes("\"/onboarding\"") && source.includes("\"/welcome\"") && source.includes("\"/advisor\"") && !source.includes("/profile?auth=signed-in"),
 );
 
 expect("lib/onboarding.ts", "protected product routes must use a shared server onboarding guard", (source) =>
@@ -62,8 +62,8 @@ expect("components/onboarding-flow.tsx", "minor and GPA must be safely deferred 
     && source.includes('const gpaStatus: GpaStatus = draft.gpaStatus || "none_yet"'),
 );
 
-expect("components/onboarding-flow.tsx", "onboarding must persist through the canonical profile writer before routing to Discover", (source) =>
-  source.includes("await writeStudentProfile(profile)") && source.includes("window.location.assign(\"/opportunities\")") && source.includes("onboardingCompletedAt"),
+expect("components/onboarding-flow.tsx", "onboarding must persist through the canonical profile writer before routing to the first-launch walkthrough", (source) =>
+  source.includes("await writeStudentProfile(profile)") && source.includes("window.location.assign(\"/welcome\")") && source.includes("onboardingCompletedAt"),
 );
 
 expect("components/onboarding-flow.tsx", "refresh, account switching, selection limits, and duplicate submission must be safe", (source) =>

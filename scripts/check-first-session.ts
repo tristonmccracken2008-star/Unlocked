@@ -14,6 +14,7 @@ const now = "2026-07-26T12:00:00.000Z";
 const emptyAccount = (): AccountData => ({
   profile: null,
   onboardingComplete: false,
+  firstLaunchComplete: false,
   billing: defaultBillingRecord(),
   activity: null,
   savedOpportunities: [],
@@ -62,7 +63,11 @@ assert.doesNotMatch(action, /saveOpportunity\(opportunityId/);
 
 const onboarding = source("components/onboarding-flow.tsx");
 assert.match(onboarding, /const totalSteps = 10/);
-assert.match(onboarding, /window\.location\.assign\("\/opportunities"\)/);
+assert.match(onboarding, /window\.location\.assign\("\/welcome"\)/);
+const firstLaunch = source("components/first-launch-walkthrough.tsx");
+assert.match(firstLaunch, /Start Exploring/);
+assert.match(firstLaunch, /\/api\/account\/first-launch/);
+assert.match(firstLaunch, /router\.replace\("\/opportunities"\)/);
 assert.match(onboarding, /unlocked-onboarding-draft-v2/);
 assert.doesNotMatch(onboarding, /title="Do you have a minor\?"/);
 assert.doesNotMatch(onboarding, /title="What is your current GPA\?"/);

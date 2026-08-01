@@ -117,6 +117,8 @@ function sameAccountData(left: Partial<AccountData>, right: Partial<AccountData>
   return JSON.stringify({
     profile: left.profile ?? null,
     onboardingComplete: Boolean(left.onboardingComplete),
+    firstLaunchComplete: Boolean(left.firstLaunchComplete),
+    firstLaunchCompletedAt: left.firstLaunchCompletedAt ?? null,
     activity: left.activity ?? null,
     journeyProgress: left.journeyProgress ?? {},
     preferences: left.preferences ?? null,
@@ -124,6 +126,8 @@ function sameAccountData(left: Partial<AccountData>, right: Partial<AccountData>
   }) === JSON.stringify({
     profile: right?.profile ?? null,
     onboardingComplete: Boolean(right?.onboardingComplete),
+    firstLaunchComplete: Boolean(right?.firstLaunchComplete),
+    firstLaunchCompletedAt: right?.firstLaunchCompletedAt ?? null,
     activity: right?.activity ?? null,
     journeyProgress: right?.journeyProgress ?? {},
     preferences: right?.preferences ?? null,
@@ -157,6 +161,8 @@ async function hydrateAccountDataInner(): Promise<AccountSession> {
   const merged: Partial<AccountData> = {
     profile: cloudData?.profile ?? (!migrated ? local.profile ?? null : null),
     onboardingComplete: Boolean(cloudData?.onboardingComplete || isCompletedStudentProfile(cloudData?.profile) || (!migrated && isCompletedStudentProfile(local.profile))),
+    firstLaunchComplete: Boolean(cloudData?.firstLaunchComplete),
+    firstLaunchCompletedAt: cloudData?.firstLaunchCompletedAt,
     activity: mergeActivity(local.activity ?? null, cloudData?.activity ?? null),
     journeyProgress: migrated ? { ...(local.journeyProgress ?? {}), ...(cloudData?.journeyProgress ?? {}) } : { ...(cloudData?.journeyProgress ?? {}), ...(local.journeyProgress ?? {}) },
     preferences: cloudData?.preferences ?? null,
@@ -177,7 +183,7 @@ async function hydrateAccountDataInner(): Promise<AccountSession> {
   localStorage.setItem(journeyProgressStorageKey, JSON.stringify(merged.journeyProgress ?? {}));
   localStorage.setItem(accountMigrationKey(session.user.id), "true");
   const saved = !sameAccountData(merged, cloudData) ? await pushAccountData(merged) : cloudData;
-  const fallbackData: AccountData = { profile: merged.profile ?? null, onboardingComplete: Boolean(merged.onboardingComplete), billing: cloudData?.billing ?? defaultBillingRecord(), activity: merged.activity ?? null, savedOpportunities: merged.savedOpportunities ?? [], tracker: merged.tracker ?? {}, preferences: merged.preferences ?? null, journeyProgress: merged.journeyProgress ?? {}, advisor: merged.advisor ?? null, referrals: cloudData?.referrals ?? null, updatedAt: new Date().toISOString() };
+  const fallbackData: AccountData = { profile: merged.profile ?? null, onboardingComplete: Boolean(merged.onboardingComplete), firstLaunchComplete: Boolean(merged.firstLaunchComplete), firstLaunchCompletedAt: merged.firstLaunchCompletedAt, billing: cloudData?.billing ?? defaultBillingRecord(), activity: merged.activity ?? null, savedOpportunities: merged.savedOpportunities ?? [], tracker: merged.tracker ?? {}, preferences: merged.preferences ?? null, journeyProgress: merged.journeyProgress ?? {}, advisor: merged.advisor ?? null, referrals: cloudData?.referrals ?? null, updatedAt: new Date().toISOString() };
   const syncedSession = { ...session, data: saved ?? fallbackData } satisfies AccountSession;
   sessionCache = syncedSession;
   sessionCacheAt = Date.now();

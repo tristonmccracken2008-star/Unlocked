@@ -287,7 +287,7 @@ export function OnboardingFlow({ session, initialProfile }: { session: AccountSe
       completed.current = true;
       localStorage.removeItem(draftKey);
       trackProductEvent("onboarding_completed", { stepCount: String(totalSteps) });
-      window.location.assign("/opportunities");
+      window.location.assign("/welcome");
     } catch {
       savingRef.current = false;
       setScreen("question");

@@ -27,7 +27,8 @@ assert.match(advisorPage, /allowGeneration: false/, "The route document must not
 const cookieSet = callback.indexOf("response.cookies.set(sessionCookieName");
 const callbackReturn = callback.indexOf("return response", cookieSet);
 assert.ok(cookieSet >= 0 && callbackReturn > cookieSet, "OAuth must attach the session cookie before redirecting to For You.");
-assert.match(callback, /accountHasCompletedOnboarding\(accountData\) \? "\/advisor" : "\/onboarding"/, "Returning users must still redirect directly to For You.");
+assert.match(callback, /!accountHasCompletedOnboarding\(accountData\)[\s\S]*\? "\/onboarding"/, "New users must still enter onboarding.");
+assert.match(callback, /accountHasCompletedFirstLaunch\(accountData\) \? "\/advisor" : "\/welcome"/, "Returning users must bypass first launch while newly onboarded users enter it.");
 assert.match(proxy, /"\/advisor"/, "The edge proxy must protect For You immediately after login.");
 assert.match(proxy, /signedSessionIsValid/, "The proxy must validate the signed cookie without waiting for the remote session store.");
 

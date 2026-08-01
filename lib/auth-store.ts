@@ -7,6 +7,7 @@ import { recordAnalyticsEvent } from "./analytics-store";
 import { isCompletedStudentProfile, normalizeStudentProfile } from "@/data/student-profile";
 import { meaningfulAdvisorProfileChanged } from "./advisor/profile-version";
 import { constantTimeEqual, requiredAuthSecret } from "./security";
+import { normalizedFirstLaunchComplete } from "./first-launch-state";
 
 export const sessionCookieName = "unlocked_session";
 export const oauthStateCookieName = "unlocked_oauth_state";
@@ -31,7 +32,7 @@ const kvTimeoutMs = 2800;
 const kvRetryDelayMs = 120;
 const releaseLockScript = "if redis.call('GET',KEYS[1]) == ARGV[1] then return redis.call('DEL',KEYS[1]) else return 0 end";
 
-const emptyData = (): AccountData => ({ profile: null, onboardingComplete: false, billing: defaultBillingRecord(), activity: null, savedOpportunities: [], tracker: {}, preferences: null, journeyProgress: {}, advisor: null, referrals: null, updatedAt: new Date().toISOString() });
+const emptyData = (): AccountData => ({ profile: null, onboardingComplete: false, firstLaunchComplete: false, billing: defaultBillingRecord(), activity: null, savedOpportunities: [], tracker: {}, preferences: null, journeyProgress: {}, advisor: null, referrals: null, updatedAt: new Date().toISOString() });
 
 function requireProductionStore() {
   if (!hasKv && process.env.NODE_ENV === "production") throw new Error("A production data store is required. Set KV_REST_API_URL/KV_REST_API_TOKEN or UPSTASH_REDIS_REST_URL/UPSTASH_REDIS_REST_TOKEN.");
@@ -350,9 +351,13 @@ function normalizeAccountData(value: AccountData | null | undefined): AccountDat
   if (!value) return emptyData();
   const tracked = value.tracker ?? value.activity?.tracked ?? {};
   const profile = value.profile && isCompletedStudentProfile(value.profile) ? normalizeStudentProfile(value.profile) : value.profile ?? null;
+  const onboardingComplete = Boolean(value.onboardingComplete || (profile && isCompletedStudentProfile(profile)));
+  const hasPersistedFirstLaunchState = typeof value.firstLaunchComplete === "boolean";
   return {
     profile,
-    onboardingComplete: Boolean(value.onboardingComplete || (profile && isCompletedStudentProfile(profile))),
+    onboardingComplete,
+    firstLaunchComplete: normalizedFirstLaunchComplete(value, onboardingComplete),
+    firstLaunchCompletedAt: value.firstLaunchCompletedAt ?? (!hasPersistedFirstLaunchState && onboardingComplete ? profile?.onboardingCompletedAt : undefined),
     billing: normalizeBillingRecord(value.billing),
     activity: value.activity ? {
       viewed: uniqueStrings(value.activity.viewed),
@@ -372,6 +377,10 @@ function normalizeAccountData(value: AccountData | null | undefined): AccountDat
 
 export function accountHasCompletedOnboarding(data: AccountData | null | undefined) {
   return Boolean(data?.onboardingComplete && data.profile && isCompletedStudentProfile(data.profile));
+}
+
+export function accountHasCompletedFirstLaunch(data: AccountData | null | undefined) {
+  return Boolean(accountHasCompletedOnboarding(data) && data?.firstLaunchComplete);
 }
 
 export async function mergeAccountData(userId: string, incoming: Partial<AccountData>) {
@@ -396,6 +405,8 @@ export async function mergeAccountData(userId: string, incoming: Partial<Account
   const next: AccountData = {
     profile,
     onboardingComplete: Boolean(current.onboardingComplete || incoming.onboardingComplete || (profile && isCompletedStudentProfile(profile))),
+    firstLaunchComplete: Boolean(current.firstLaunchComplete || incoming.firstLaunchComplete),
+    firstLaunchCompletedAt: current.firstLaunchCompletedAt ?? incoming.firstLaunchCompletedAt,
     billing: normalizeBillingRecord(current.billing),
     activity,
     savedOpportunities: savedIds.map((opportunityId) => current.savedOpportunities.find((item) => item.opportunityId === opportunityId) ?? incoming.savedOpportunities?.find((item) => item.opportunityId === opportunityId) ?? { opportunityId, savedAt: tracker[opportunityId]?.savedAt ?? new Date().toISOString() }),

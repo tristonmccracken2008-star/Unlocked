@@ -92,6 +92,8 @@ const cleaned = cleanAccountDataInput({
   preferences: { appearance: "forest", updatedAt: now, arbitrary: "removed" },
   billing: { tier: "pro", status: "active", stripeCustomerId: "cus_attacker" },
   referrals: { code: "ATTACKER" },
+  firstLaunchComplete: true,
+  firstLaunchCompletedAt: now,
 });
 assert.equal(cleaned.profile?.firstName, "Student");
 assert.equal(cleaned.profile?.gpa, 4);
@@ -101,6 +103,8 @@ assert.equal(cleaned.tracker?.valid.id, "valid", "Tracker IDs must come from val
 assert.equal("arbitrary" in (cleaned.preferences as object), false);
 assert.equal("billing" in cleaned, false, "Clients must not mutate billing.");
 assert.equal("referrals" in cleaned, false, "Clients must not mutate referrals.");
+assert.equal("firstLaunchComplete" in cleaned, false, "Generic account writes must not complete first launch.");
+assert.equal("firstLaunchCompletedAt" in cleaned, false, "Generic account writes must not forge first-launch timestamps.");
 
 const validOpportunity = {
   title: "Verified opportunity", organization: "Official Organization", type: "Scholarship", category: "Scholarships",

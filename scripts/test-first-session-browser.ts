@@ -89,6 +89,7 @@ async function seedProSession(label: string) {
       onboardingCompletedAt: new Date().toISOString(),
     },
     onboardingComplete: true,
+    firstLaunchComplete: true,
     activity: { viewed: [], saved: [], claimed: [], tracked: {} },
   });
   await updateAccountBilling(user.id, { tier: "pro", status: "active", billingInterval: "month", cancelAtPeriodEnd: false });
@@ -100,6 +101,32 @@ async function seedProOnboardingSession(label: string) {
   const user = await upsertUser({ googleSub: `first-session-pro-onboarding-${label}`, email: `pro-onboarding-${label}@example.test`, name: `Taylor ${label}` });
   await updateAccountBilling(user.id, { tier: "pro", status: "active", billingInterval: "month", cancelAtPeriodEnd: false });
   await mergeAccountData(user.id, { preferences: { appearance: "midnight", updatedAt: new Date().toISOString() } });
+  return await createSession(user);
+}
+
+async function seedProWalkthroughSession(label: string) {
+  const { createSession, mergeAccountData, updateAccountBilling, upsertUser } = await import("../lib/auth-store");
+  const user = await upsertUser({ googleSub: `first-session-pro-walkthrough-${label}`, email: `pro-walkthrough-${label}@example.test`, name: `Riley ${label}` });
+  await mergeAccountData(user.id, {
+    profile: {
+      firstName: "Riley",
+      lastName: label,
+      schoolSlug: "university-of-chicago",
+      major: "Mathematics",
+      graduationYear: "2030",
+      year: "First year",
+      careerGoal: "Research",
+      interests: "Research",
+      goals: ["Finding research experience"],
+      topics: ["Natural Sciences"],
+      gpaStatus: "none_yet",
+      onboardingCompletedAt: new Date().toISOString(),
+    },
+    onboardingComplete: true,
+    firstLaunchComplete: false,
+    preferences: { appearance: "midnight", updatedAt: new Date().toISOString() },
+  });
+  await updateAccountBilling(user.id, { tier: "pro", status: "active", billingInterval: "month", cancelAtPeriodEnd: false });
   return await createSession(user);
 }
 
@@ -153,7 +180,7 @@ async function completeOnboarding(page: Page, origin: string) {
   await page.getByRole("heading", { name: "What are you studying?" }).waitFor({ state: "visible" });
   const majorInput = page.getByRole("combobox", { name: "Search for your major" });
   await majorInput.fill("Mathematics");
-  await majorInput.evaluate((node) => (node as HTMLInputElement).blur());
+  await majorInput.press("Escape");
   await page.locator("#onboarding-major-listbox").waitFor({ state: "hidden" });
   await page.getByRole("button", { name: "Continue" }).click();
   await page.getByRole("heading", { name: "What kinds of opportunities are you looking for?" }).waitFor({ state: "visible" });
@@ -186,14 +213,52 @@ async function completeOnboarding(page: Page, origin: string) {
     if (new URL(request.url()).pathname === "/api/account/data" && request.method() === "PUT") profileWrites += 1;
   });
   await page.getByRole("button", { name: "Finish setup" }).dblclick();
-  await page.waitForURL("**/opportunities", { timeout: 60_000 });
+  await page.waitForURL("**/welcome", { timeout: 60_000 });
   assert.equal(profileWrites, 1, "Rapid duplicate completion must produce one profile write.");
+  await page.getByRole("heading", { name: "Discover Opportunities" }).waitFor({ state: "visible", timeout: 60_000 });
+  timings.onboardingToWalkthrough = performance.now() - startedAt;
+
+  let completionWrites = 0;
+  page.on("request", (request) => {
+    if (new URL(request.url()).pathname === "/api/account/first-launch" && request.method() === "POST") completionWrites += 1;
+  });
+  const walkthrough = page.locator("[data-first-launch-walkthrough]");
+  assert.equal(await walkthrough.getAttribute("data-first-launch-step"), "discover");
+  assert.equal(await page.getByRole("navigation", { name: "Walkthrough progress" }).getByText("Step 1 of 4: Discover").count(), 1);
+  await page.getByRole("button", { name: "Next", exact: true }).click();
+  await page.getByRole("heading", { name: "Personalized For You" }).waitFor({ state: "visible" });
+  assert.equal(await page.getByText("Upgrade anytime to unlock your complete personalized feed.", { exact: true }).count(), 1, "Free users should receive one quiet expectation-setting line.");
+  await page.reload({ waitUntil: "domcontentloaded" });
+  await page.getByRole("heading", { name: "Personalized For You" }).waitFor({ state: "visible" });
+  await page.keyboard.press("ArrowLeft");
+  await page.getByRole("heading", { name: "Discover Opportunities" }).waitFor({ state: "visible" });
+  await page.keyboard.press("ArrowRight");
+  await page.getByRole("heading", { name: "Personalized For You" }).waitFor({ state: "visible" });
+  await walkthrough.dispatchEvent("touchstart", { touches: [{ identifier: 1, clientX: 320, clientY: 420 }], changedTouches: [{ identifier: 1, clientX: 320, clientY: 420 }] });
+  await walkthrough.dispatchEvent("touchend", { touches: [], changedTouches: [{ identifier: 1, clientX: 80, clientY: 422 }] });
+  await page.getByRole("heading", { name: "Build Your Journey" }).waitFor({ state: "visible" });
+  await page.keyboard.press("ArrowRight");
+  await page.getByRole("heading", { name: "You’re Ready" }).waitFor({ state: "visible" });
+  await page.screenshot({ path: "/tmp/unlocked-first-launch-mobile.png", fullPage: false });
+  await page.getByRole("button", { name: "Start Exploring" }).dblclick();
+  await page.waitForURL("**/opportunities", { timeout: 60_000 });
+  assert.equal(completionWrites, 1, "Rapid duplicate completion must produce one walkthrough write.");
   await page.getByRole("heading", { name: "Find what’s out there." }).waitFor({ state: "visible", timeout: 60_000 });
-  timings.onboardingToDiscover = performance.now() - startedAt;
+  timings.walkthroughToDiscover = performance.now() - startedAt - timings.onboardingToWalkthrough;
+  const persistedSession = await page.evaluate(async () => await (await fetch("/api/auth/session", { cache: "no-store" })).json());
+  assert.equal(persistedSession.data.firstLaunchComplete, true, "Walkthrough completion must persist to the account.");
+  const duplicate = await page.evaluate(async () => {
+    const response = await fetch("/api/account/first-launch", { method: "POST", credentials: "same-origin" });
+    return { status: response.status, body: await response.json() };
+  });
+  assert.equal(duplicate.status, 200);
+  assert.equal(duplicate.body.duplicate, true, "A repeated server completion must be idempotent.");
+  await page.goto(`${origin}/welcome`, { waitUntil: "domcontentloaded", timeout: 60_000 });
+  await page.waitForURL("**/opportunities", { timeout: 60_000 });
   await page.goto(`${origin}/advisor`, { waitUntil: "domcontentloaded", timeout: 60_000 });
   await page.getByRole("heading", { name: "Your opportunities are ready." }).waitFor({ state: "visible", timeout: 60_000 });
   await page.getByRole("button", { name: "Add to Journey" }).first().waitFor({ state: "visible" });
-  timings.discoverToForYou = performance.now() - startedAt - timings.onboardingToDiscover;
+  timings.discoverToForYou = performance.now() - startedAt - timings.onboardingToWalkthrough - timings.walkthroughToDiscover;
   return timings;
 }
 
@@ -235,6 +300,23 @@ async function verifyDesktopDarkOnboarding(browser: Browser, origin: string, tok
   await page.screenshot({ path: "/tmp/unlocked-onboarding-desktop-dark.png", fullPage: true });
   assert.ok(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth <= 1), "Desktop dark onboarding must not overflow horizontally.");
   assertNoErrors(false, true);
+  await context.close();
+}
+
+async function verifyDesktopDarkWalkthrough(browser: Browser, origin: string, token: string) {
+  const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, colorScheme: "dark" });
+  await installSession(context, origin, token);
+  const page = await context.newPage();
+  const assertNoErrors = observe(page);
+  await page.goto(`${origin}/welcome`, { waitUntil: "domcontentloaded", timeout: 60_000 });
+  await page.getByRole("heading", { name: "Discover Opportunities" }).waitFor({ state: "visible" });
+  await page.waitForFunction(() => document.documentElement.dataset.theme === "midnight");
+  assert.equal(await page.getByText("Upgrade anytime to unlock your complete personalized feed.", { exact: true }).count(), 0, "Pro users must not receive Free walkthrough copy.");
+  assert.ok(await page.locator("picture img[src='/walkthrough/discover-desktop.png']").isVisible(), "Desktop walkthrough must render a real responsive product capture.");
+  assert.ok(await page.getByRole("button", { name: "Next", exact: true }).isVisible());
+  await page.screenshot({ path: "/tmp/unlocked-first-launch-desktop-dark.png", fullPage: false });
+  assert.ok(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth <= 1), "Desktop walkthrough must not overflow horizontally.");
+  assertNoErrors();
   await context.close();
 }
 
@@ -354,6 +436,9 @@ async function runPro(browser: Browser, origin: string, token: string, browserNa
   }));
   assert.deepEqual(observations, { flight: "true", chip: "true", arrival: "true", card: "true" }, "Desktop save must complete the flight, confirmation, destination, and card acknowledgement sequence.");
   assert.ok(await page.getByText("Added to Journey", { exact: false }).first().isVisible());
+  await page.goto(`${origin}/welcome`, { waitUntil: "domcontentloaded", timeout: 60_000 });
+  await page.waitForURL("**/opportunities", { timeout: 60_000 });
+  assert.equal(await page.locator("[data-first-launch-walkthrough]").count(), 0, "Returning accounts must never re-enter the walkthrough.");
   assertNoErrors();
   await context.close();
 }
@@ -371,6 +456,7 @@ const webkitNew = await seedNewSession("webkit");
 const chromiumPro = await seedProSession("chromium");
 const webkitPro = await seedProSession("webkit");
 const chromiumProOnboarding = await seedProOnboardingSession("chromium");
+const chromiumProWalkthrough = await seedProWalkthroughSession("chromium");
 const app = next({ dev: true, dir: process.cwd(), hostname: "127.0.0.1", port: appPort });
 await app.prepare();
 const server = http.createServer((request, response) => app.getRequestHandler()(request, response));
@@ -385,6 +471,7 @@ let failure: unknown;
 try {
   const results: Array<{ browser: string; timings: Record<string, number> }> = [];
   await verifyDesktopDarkOnboarding(browsers[0]!.browser, origin, chromiumProOnboarding.token);
+  await verifyDesktopDarkWalkthrough(browsers[0]!.browser, origin, chromiumProWalkthrough.token);
   for (const target of browsers) {
     const timings = await runNewAccount(target.browser, origin, target.fresh, target.name);
     await runPro(target.browser, origin, target.pro, target.name);
