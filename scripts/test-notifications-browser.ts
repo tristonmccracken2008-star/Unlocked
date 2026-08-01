@@ -85,6 +85,8 @@ async function seedAccount(label: string, pro = false) {
       onboardingCompletedAt: "2026-03-01T12:00:00.000Z",
     },
     onboardingComplete: true,
+    firstLaunchComplete: true,
+    firstLaunchCompletedAt: "2026-03-01T12:00:00.000Z",
     activity: { viewed: [], saved: [], claimed: [], tracked: {} },
   });
   if (pro) {
@@ -135,7 +137,11 @@ async function exercise(browser: Browser, browserName: string, origin: string, t
   }
   const notificationItem = page.locator("[data-notification-item]").filter({ hasText: expectedTitle });
   assert.equal(await notificationItem.locator("[data-visible='true']").first().count(), 1, "Unread notifications must expose the refined indicator.");
-  assert.ok(await notificationItem.locator("svg").first().isVisible(), "Notification type must have a visible icon.");
+  const organizationMark = notificationItem.locator("[data-organization-mark]").first();
+  assert.ok(await organizationMark.isVisible(), "Notifications with an organization must show its canonical organization mark.");
+  assert.ok(["image", "monogram", "category"].includes(await organizationMark.getAttribute("data-kind") ?? ""), "Notification organization branding must never be empty.");
+  const markBox = await organizationMark.boundingBox();
+  assert.ok(markBox && markBox.width === 44 && markBox.height === 44, "Notification organization marks must preserve the shared 44px footprint.");
   const markRead = page.getByRole("button", { name: `Mark as read: ${expectedTitle}` });
   await markRead.click();
   assert.equal(await notificationItem.getAttribute("data-read"), "true", "Read notifications must use the shared visual state.");

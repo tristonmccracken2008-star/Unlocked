@@ -152,8 +152,6 @@
 .updateIdentity > div { min-width: 0; }
 .updateIdentity p { margin: 0 0 .25rem; color: var(--journey-green); font-size: .67rem; font-weight: 850; letter-spacing: .08em; text-transform: uppercase; }
 .updateIdentity h2 { margin: 0; color: var(--journey-ink); font: 700 clamp(1.05rem, 3vw, 1.35rem)/1.15 var(--font-editorial), Georgia, serif; letter-spacing: 0; overflow-wrap: anywhere; }
-.updateBrand { position: relative; display: grid; width: 3.5rem; height: 3.5rem; flex: 0 0 auto; place-items: center; overflow: hidden; border: 1px solid var(--journey-line); border-radius: .7rem; background: #fffdf8; color: #1f5f43; font-size: .76rem; font-weight: 850; }
-.updateBrand img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; padding: .55rem; }
 .updateClose { display: grid; width: 44px; height: 44px; flex: 0 0 auto; place-items: center; border: 0; border-radius: 50%; background: transparent; color: var(--journey-muted); cursor: pointer; }
 .updateClose:hover { background: color-mix(in srgb, var(--journey-ink) 6%, transparent); color: var(--journey-ink); }
 .updateClose svg { width: 1.15rem; height: 1.15rem; }

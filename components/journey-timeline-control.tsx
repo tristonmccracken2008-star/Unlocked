@@ -9,6 +9,7 @@ import type { MilestoneCelebration } from "@/data/milestone-celebrations";
 import type { JourneyProfessionalAction } from "@/data/journey-professional";
 import type { JourneyTimelineControl } from "@/lib/journey-timeline";
 import { CheckCircleIcon, CloseIcon } from "@/components/icons";
+import { ResolvedOrganizationMark } from "@/components/organization-logo";
 import styles from "./journey-timeline.module.css";
 
 const MilestoneCelebrationEffect = lazy(() => import("./milestone-celebration-effect"));
@@ -58,14 +59,6 @@ function messageForStatus(status: number, fallback?: string) {
   if (status === 423) return "Another Journey update is still saving. Try again in a moment.";
   if (status === 422) return fallback || "That milestone is not available from the current stage.";
   return fallback || "We couldn’t save this milestone. Your previous stage is unchanged.";
-}
-
-function BrandMark({ branding, organization }: Pick<JourneyTimelineControl, "branding" | "organization">) {
-  if (branding.kind === "image") return <span className={styles.updateBrand} aria-label={branding.alt}>
-    <span aria-hidden="true">{branding.initials || organization.slice(0, 2).toUpperCase()}</span>
-    <img src={branding.src} alt="" width="56" height="56" />
-  </span>;
-  return <span className={styles.updateBrand} aria-label={branding.alt}>{branding.kind === "category" ? branding.categoryIcon : branding.initials}</span>;
 }
 
 function documentsFrom(files: FileList | null): JourneyMilestoneDocumentReference[] {
@@ -204,7 +197,7 @@ export function JourneyTimelineControl({ control, compactLabel = "Update Journey
       <div className={styles.updateDialogShell}>
         <header className={styles.updateDialogHeader}>
           <div className={styles.updateIdentity}>
-            <BrandMark branding={control.branding} organization={control.organization} />
+            <ResolvedOrganizationMark logo={control.branding} size="md" />
             <div><p>{control.organization}</p><h2 id={`journey-update-title-${control.opportunityId}`}>{control.opportunityTitle}</h2></div>
           </div>
           <button type="button" className={styles.updateClose} onClick={close} disabled={pending} aria-label="Close Update Journey"><CloseIcon /></button>

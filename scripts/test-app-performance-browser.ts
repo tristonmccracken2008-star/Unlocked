@@ -193,6 +193,18 @@ async function assertStableLayout(page: Page, label: string) {
   assert.ok(overflow <= 1, `${label} must not create horizontal overflow; received ${overflow}px.`);
 }
 
+async function assertOrganizationMarks(page: Page, label: string) {
+  const marks = page.locator("[data-organization-mark]");
+  const count = await marks.count();
+  assert.ok(count > 0, `${label} must render organization branding.`);
+  const invalid = await marks.evaluateAll((elements) => elements.filter((element) => {
+    const rect = element.getBoundingClientRect();
+    const kind = element.getAttribute("data-kind");
+    return rect.width < 44 || rect.height < 44 || !["image", "monogram", "category"].includes(kind ?? "") || !element.getAttribute("aria-label");
+  }).length);
+  assert.equal(invalid, 0, `${label} must keep every organization mark stable, labeled, and non-empty.`);
+}
+
 async function verifyDiscover(page: Page, origin: string, screenshotLabel: string) {
   const startedAt = performance.now();
   let sessionRequests = 0;
@@ -205,6 +217,7 @@ async function verifyDiscover(page: Page, origin: string, screenshotLabel: strin
   await page.goto(`${origin}/opportunities`, { waitUntil: "domcontentloaded", timeout: 45_000 });
   await page.getByRole("heading", { name: "Find what’s out there." }).waitFor({ state: "visible" });
   await page.getByRole("link", { name: "Open Opportunity" }).first().waitFor({ state: "visible", timeout: 45_000 });
+  await assertOrganizationMarks(page, `${screenshotLabel} Discover`);
   const coldReadyMs = Math.round(performance.now() - startedAt);
   assert.equal(catalogRequests.filter((search) => !new URLSearchParams(search).has("view")).length, 0, "Discover must never request the unbounded catalog.");
   assert.ok(catalogRequests.every((search) => new URLSearchParams(search).get("view") === "discover"), "Discover catalog requests must use the bounded projection.");
@@ -334,6 +347,7 @@ async function verifyOpportunityDetails(page: Page, origin: string, screenshotLa
     }, { timeout: 10_000 });
     await page.goto(`${origin}/opportunities/${scenario.id}`, { waitUntil: "domcontentloaded", timeout: 45_000 });
     await page.getByRole("heading", { name: scenario.heading, exact: true }).waitFor({ state: "visible", timeout: 20_000 });
+    await assertOrganizationMarks(page, `${screenshotLabel} ${scenario.kind} detail`);
     const detail = page.locator("[data-opportunity-detail]");
     assert.equal(await detail.getAttribute("data-opportunity-kind"), scenario.kind);
     assert.equal(await page.getByRole("heading", { level: 1 }).count(), 1, `${scenario.kind} detail must have one clear title.`);
@@ -377,6 +391,7 @@ async function verifyPrimaryRoutes(page: Page, origin: string, screenshotLabel: 
     throw error;
   }
   const forYouReadyMs = Math.round(performance.now() - forYouStartedAt);
+  await assertOrganizationMarks(page, `${screenshotLabel} For You`);
   assert.equal(await page.getByRole("heading", { name: "We couldn’t load your shortlist." }).count(), 0, "For You must not enter an error state on the first authenticated visit.");
   const intelligenceDisclosures = page.getByText("Why this opportunity?", { exact: true });
   const disclosureCount = await intelligenceDisclosures.count();

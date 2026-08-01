@@ -6,6 +6,7 @@ import type { NotificationRecord, NotificationType } from "@/lib/notification-ty
 import { groupNotifications, notificationTimestamp } from "@/lib/notification-presentation";
 import { accountSessionEvent } from "@/data/account-sync";
 import { ArrowIcon, BellIcon, BookmarkIcon, CalendarIcon, CheckCircleIcon, CheckIcon, CloseIcon, ListIcon, SparkIcon, TargetIcon } from "./icons";
+import { OrganizationMark } from "./organization-logo";
 import styles from "./notification-center.module.css";
 
 type CenterResponse = {
@@ -254,8 +255,8 @@ export function NotificationCenter() {
             <ol className={styles.list}>
               {group.items.map((item) => <li key={item.id} data-notification-item="" data-notification-id={item.id} data-notification-item-arrived={arrivingIds.has(item.id) ? "true" : undefined} data-read={item.readAt ? "true" : "false"} data-dismissing={dismissingIds.has(item.id) ? "true" : undefined} className={styles.item}>
                 <div className={styles.content}>
-                  <span className={styles.icon} data-tone={notificationTone(item.type)} aria-hidden="true">
-                    <NotificationTypeIcon type={item.type} />
+                  <span className={styles.iconWrap}>
+                    {item.organization ? <OrganizationMark organization={item.organization} size="sm" /> : <span className={styles.icon} data-tone={notificationTone(item.type)} aria-hidden="true"><NotificationTypeIcon type={item.type} /></span>}
                     <span className={styles.unreadIndicator} data-visible={item.readAt ? "false" : "true"} />
                   </span>
                   <div className={styles.copy}>

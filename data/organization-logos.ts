@@ -10,10 +10,28 @@ export type OrganizationIdentity = {
   logoVerified?: boolean;
 };
 
+export type OrganizationCategoryIcon = "scholarship" | "internship" | "research" | "competition" | "benefit" | "academic" | "software" | "career";
+export type OrganizationMonogramTone = "forest" | "espresso" | "gold" | "blue" | "plum";
+
+type ResolvedFallback = {
+  alt: string;
+  initials: string;
+  categoryIcon: OrganizationCategoryIcon;
+  tone: OrganizationMonogramTone;
+};
+
 export type ResolvedOrganizationLogo =
-  | { kind: "image"; src: string; alt: string; initials: string; verified: boolean; source: "curated" | "source" | "domain-provider" }
-  | { kind: "initials"; alt: string; initials: string; verified: false; source: "generated-fallback" }
-  | { kind: "category"; alt: string; categoryIcon: string; verified: false; source: "generated-fallback" };
+  | (ResolvedFallback & { kind: "image"; src: string; verified: boolean; source: "curated" | "source" | "domain-provider" })
+  | (ResolvedFallback & { kind: "initials"; verified: false; source: "generated-fallback" })
+  | (ResolvedFallback & { kind: "category"; verified: false; source: "generated-fallback" });
+
+export type OrganizationLogoInput = {
+  organization?: string | null;
+  officialSource?: string | null;
+  icon?: string | null;
+  type?: string | null;
+  category?: string | null;
+};
 
 type OrganizationRegistryEntry = {
   displayName: string;
@@ -54,10 +72,13 @@ export const organizationLogoRegistry: OrganizationRegistryEntry[] = [
 ];
 
 const registry = new Map<string, OrganizationRegistryEntry>();
+const registryByDomain = new Map<string, OrganizationRegistryEntry>();
 for (const entry of organizationLogoRegistry) {
   registry.set(normalizeOrganizationName(entry.displayName), entry);
   for (const alias of entry.aliases) registry.set(normalizeOrganizationName(alias), entry);
+  registryByDomain.set(entry.domain, entry);
 }
+const registryDomains = [...registryByDomain.entries()].sort(([left], [right]) => right.length - left.length);
 
 const cache = new Map<string, ResolvedOrganizationLogo>();
 
@@ -69,10 +90,10 @@ function domainLogoUrl(domain: string) {
   return `https://logo.clearbit.com/${domain}`;
 }
 
-function initials(value: string) {
-  const words = normalizeOrganizationName(value).split(" ").filter(Boolean);
+export function organizationInitials(value: string) {
+  const words = normalizeOrganizationName(value).split(" ").filter((word) => word && !["a", "an", "and", "at", "for", "of", "the"].includes(word));
   if (!words.length) return "";
-  if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
+  if (words.length === 1) return words[0].slice(0, 1).toUpperCase();
   return `${words[0][0]}${words[1][0]}`.toUpperCase();
 }
 
@@ -90,38 +111,80 @@ function trustedSourceLogo(url: string, officialSource: string) {
   return Boolean(url.startsWith("https://") && (approvedLogoHosts.has(logoHost) || (sourceHost && (logoHost === sourceHost || logoHost.endsWith(`.${sourceHost}`)))));
 }
 
-function categoryIcon(opportunity: Opportunity) {
-  if (opportunity.type === "Research") return "R";
-  if (opportunity.type === "Scholarship") return "$";
-  if (opportunity.type === "AI") return "AI";
-  if (opportunity.type === "Career") return "C";
-  return "B";
+export function organizationCategoryIcon(type = "", category = ""): OrganizationCategoryIcon {
+  const value = `${type} ${category}`.toLowerCase();
+  if (/scholarship|grant|financial aid/.test(value)) return "scholarship";
+  if (/internship|co-op|campus job/.test(value)) return "internship";
+  if (/research|fellowship/.test(value)) return "research";
+  if (/competition|award|challenge|hackathon/.test(value)) return "competition";
+  if (/software|ai|tool|certification/.test(value)) return "software";
+  if (/academic|study abroad|conference|program/.test(value)) return "academic";
+  if (/career|leadership/.test(value)) return "career";
+  return "benefit";
+}
+
+export function organizationMonogramTone(value: string): OrganizationMonogramTone {
+  const tones: OrganizationMonogramTone[] = ["forest", "espresso", "gold", "blue", "plum"];
+  let hash = 0;
+  for (const character of normalizeOrganizationName(value)) hash = ((hash << 5) - hash + character.charCodeAt(0)) | 0;
+  return tones[Math.abs(hash) % tones.length];
+}
+
+function registryEntry(name: string, sourceDomain: string) {
+  const direct = registry.get(name);
+  if (direct) return direct;
+  if (!sourceDomain) return undefined;
+  return registryDomains.find(([domain]) => sourceDomain === domain || sourceDomain.endsWith(`.${domain}`))?.[1];
 }
 
 export function organizationIdentity(opportunity: Opportunity): OrganizationIdentity {
   const displayName = opportunity.organization?.trim() ?? "";
   const normalizedName = normalizeOrganizationName(displayName);
-  const entry = registry.get(normalizedName);
   const sourceDomain = hostname(opportunity.official_source);
+  const entry = registryEntry(normalizedName, sourceDomain);
   if (entry) return { displayName: entry.displayName, normalizedName, matchedAlias: normalizedName, domain: entry.domain, logoUrl: entry.logoUrl, logoSource: entry.logoUrl ? "curated" : "domain-provider", logoVerified: entry.logoVerified };
   return { displayName, normalizedName, domain: sourceDomain || undefined, logoSource: sourceDomain ? "domain-provider" : "generated-fallback", logoVerified: false };
 }
 
-export function resolveOrganizationLogo(opportunity: Opportunity): ResolvedOrganizationLogo {
-  const key = `${opportunity.organization}|${opportunity.official_source}|${opportunity.icon ?? ""}`;
+export function resolveOrganizationMark(input: OrganizationLogoInput): ResolvedOrganizationLogo {
+  const displayName = input.organization?.trim() ?? "";
+  const officialSource = input.officialSource?.trim() ?? "";
+  const sourceDomain = hostname(officialSource);
+  const normalizedName = normalizeOrganizationName(displayName);
+  const entry = registryEntry(normalizedName, sourceDomain);
+  const identity: OrganizationIdentity = entry
+    ? { displayName: entry.displayName, normalizedName, matchedAlias: normalizedName, domain: entry.domain, logoUrl: entry.logoUrl, logoSource: entry.logoUrl ? "curated" : "domain-provider", logoVerified: entry.logoVerified }
+    : { displayName, normalizedName, domain: sourceDomain || undefined, logoSource: sourceDomain ? "domain-provider" : "generated-fallback", logoVerified: false };
+  const key = `${displayName}|${officialSource}|${input.icon ?? ""}|${input.type ?? ""}|${input.category ?? ""}`;
   const cached = cache.get(key);
   if (cached) return cached;
-  const identity = organizationIdentity(opportunity);
-  const alt = identity.displayName ? `${identity.displayName} logo` : `${opportunity.type} opportunity`;
-  const sourceLogo = opportunity.icon && opportunity.icon.startsWith("https://") && trustedSourceLogo(opportunity.icon, opportunity.official_source) ? opportunity.icon : "";
+  const category = organizationCategoryIcon(input.type ?? "", input.category ?? "");
+  const alt = identity.displayName ? `${identity.displayName} logo` : `${input.category || input.type || "Opportunity"} icon`;
+  const fallback = {
+    alt,
+    initials: organizationInitials(identity.displayName || identity.domain || ""),
+    categoryIcon: category,
+    tone: organizationMonogramTone(identity.displayName || input.category || input.type || "opportunity"),
+  };
+  const sourceLogo = input.icon && input.icon.startsWith("https://") && trustedSourceLogo(input.icon, officialSource) ? input.icon : "";
   let resolved: ResolvedOrganizationLogo;
-  if (identity.logoUrl) resolved = { kind: "image", src: identity.logoUrl, alt, initials: initials(identity.displayName), verified: Boolean(identity.logoVerified), source: "curated" };
-  else if (sourceLogo) resolved = { kind: "image", src: sourceLogo, alt, initials: initials(identity.displayName), verified: true, source: "source" };
-  else if (identity.domain) resolved = { kind: "image", src: domainLogoUrl(identity.domain), alt, initials: initials(identity.displayName || identity.domain), verified: Boolean(identity.logoVerified), source: "domain-provider" };
-  else if (identity.displayName) resolved = { kind: "initials", alt, initials: initials(identity.displayName), verified: false, source: "generated-fallback" };
-  else resolved = { kind: "category", alt, categoryIcon: categoryIcon(opportunity), verified: false, source: "generated-fallback" };
+  if (identity.logoUrl) resolved = { ...fallback, kind: "image", src: identity.logoUrl, verified: Boolean(identity.logoVerified), source: "curated" };
+  else if (sourceLogo) resolved = { ...fallback, kind: "image", src: sourceLogo, verified: true, source: "source" };
+  else if (identity.domain) resolved = { ...fallback, kind: "image", src: domainLogoUrl(identity.domain), verified: Boolean(identity.logoVerified), source: "domain-provider" };
+  else if (fallback.initials) resolved = { ...fallback, kind: "initials", verified: false, source: "generated-fallback" };
+  else resolved = { ...fallback, kind: "category", verified: false, source: "generated-fallback" };
   cache.set(key, resolved);
   return resolved;
+}
+
+export function resolveOrganizationLogo(opportunity: Opportunity): ResolvedOrganizationLogo {
+  return resolveOrganizationMark({
+    organization: opportunity.organization,
+    officialSource: opportunity.official_source,
+    icon: opportunity.icon,
+    type: opportunity.type,
+    category: opportunity.category,
+  });
 }
 
 export function organizationLogoAudit(opportunities: readonly Opportunity[]) {

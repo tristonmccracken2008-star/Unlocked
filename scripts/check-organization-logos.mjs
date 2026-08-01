@@ -9,6 +9,8 @@ const opportunityCard = read("components/opportunity-card.tsx");
 const advisor = read("components/advisor-page.tsx");
 const tracker = read("components/journey-timeline.tsx");
 const detail = read("app/opportunities/[id]/page.tsx");
+const notifications = read("components/notification-center.tsx");
+const commandCenter = read("components/journey-command-center.tsx");
 const config = read("next.config.mjs");
 const pkg = read("package.json");
 
@@ -74,7 +76,7 @@ for (const token of [
 
 assert.doesNotMatch(resolver, /opportunity\.title/, "Organization logos must not be inferred from arbitrary opportunity title text.");
 
-for (const token of ["resolveOrganizationLogo", "alt=", "loading=\"lazy\"", "decoding=\"async\"", "onError", "setFailed(false)", "width=", "height=", "aria-label"]) {
+for (const token of ["resolveOrganizationLogo", "resolveOrganizationMark", "ResolvedOrganizationMark", "alt=", "loading={eager ? \"eager\" : \"lazy\"}", "decoding=\"async\"", "onError", "setFailed(false)", "width=", "height=", "aria-label"]) {
   assert.ok(component.includes(token), `OrganizationLogo component must include ${token}.`);
 }
 
@@ -88,6 +90,10 @@ for (const [path, source] of [
 ]) {
   assert.ok(source.includes("OrganizationLogo"), `${path} must render shared organization logos.`);
 }
+
+assert.ok(notifications.includes("OrganizationMark"), "Notifications with organizations must render the shared organization mark.");
+assert.ok(commandCenter.includes("OrganizationMark"), "Unavailable Journey records must use a category mark instead of a generic placeholder.");
+assert.doesNotMatch(commandCenter, />\?<\/span>/, "Journey must not render a question-mark organization placeholder.");
 
 assert.ok(pkg.includes("check:logos"), "Package scripts must include the organization logo regression check.");
 

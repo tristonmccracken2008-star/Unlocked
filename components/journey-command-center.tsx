@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { JourneyCommandCenterModel, JourneyCommandFilter, JourneyCommandRecord, JourneyCommandSort, JourneyOverviewCard } from "@/lib/journey-command-center";
 import { ArrowIcon, BellIcon, BookmarkIcon, MoreIcon, SearchIcon, SendIcon, SparkIcon, TargetIcon, TrophyIcon } from "@/components/icons";
-import { OrganizationLogo } from "@/components/organization-logo";
+import { OrganizationLogo, OrganizationMark } from "@/components/organization-logo";
 import { JourneyTimelineControl } from "@/components/journey-timeline-control";
 import { JourneyCardEntry } from "@/components/journey-card-entry";
 import { JourneyAnalytics } from "@/components/journey-analytics";
@@ -91,7 +91,9 @@ function JourneyRecordRow({ record, theme }: { record: JourneyCommandRecord; the
   const urgency = record.nextDate?.urgency ?? (record.stageFilter === "interviewing" ? "interview" : "normal");
   return <article id={`journey-record-${record.id}`} className={styles.record} data-journey-record="" data-stage={record.stageFilter} data-urgency={urgency} data-unavailable={record.unavailable ? "true" : undefined}>
     <div className={styles.recordMain}>
-      {record.opportunity ? <OrganizationLogo opportunity={record.opportunity} size="sm" className={theme === "dark" ? styles.darkLogo : ""} /> : <span className={styles.fallbackLogo} aria-hidden="true">?</span>}
+      {record.opportunity
+        ? <OrganizationLogo opportunity={record.opportunity} size="sm" className={theme === "dark" ? styles.darkLogo : ""} />
+        : <OrganizationMark organization="" category={record.category} size="sm" className={theme === "dark" ? styles.darkLogo : ""} />}
       <div className={styles.recordIdentity}>
         <h3>{record.title}</h3>
         <p>{record.organization}</p>
