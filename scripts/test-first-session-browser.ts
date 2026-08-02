@@ -144,9 +144,10 @@ function observe(page: Page) {
   return (allowIntentionalSaveFailure = false, allowIntentionalSecurityFailure = false) => {
     const intentionalSaveFailure: string = "Failed to load resource: the server responded with a status of 500 (Internal Server Error)";
     const intentionalSecurityFailure: string = "Failed to load resource: the server responded with a status of 400 (Bad Request)";
+    const isWebKitNavigationCancellation = (message: string) => /\/api\/(?:auth\/session|notifications\?view=count) due to access control checks\.$/.test(message);
     const expectedSave = errors.filter((message) => message === intentionalSaveFailure);
     const expectedSecurity = errors.filter((message) => message === intentionalSecurityFailure);
-    const unexpected = errors.filter((message) => message !== intentionalSaveFailure && message !== intentionalSecurityFailure);
+    const unexpected = errors.filter((message) => message !== intentionalSaveFailure && message !== intentionalSecurityFailure && !isWebKitNavigationCancellation(message));
     if (allowIntentionalSaveFailure) assert.equal(expectedSave.length, 1, "The forced save failure should produce exactly one browser resource error.");
     else assert.equal(expectedSave.length, 0, "No unexpected HTTP 500 should reach the browser.");
     if (allowIntentionalSecurityFailure) assert.equal(expectedSecurity.length, 1, "The forced onboarding bypass should produce exactly one browser resource error.");
@@ -179,8 +180,9 @@ async function completeOnboarding(page: Page, origin: string) {
   await page.getByRole("combobox", { name: "Select year" }).selectOption("2030");
   await page.getByRole("button", { name: "Continue" }).click();
   await page.getByRole("heading", { name: "What are you studying?" }).waitFor({ state: "visible" });
-  const majorInput = page.getByRole("combobox", { name: "Search for your major" });
+  const majorInput = page.locator("#onboarding-major");
   await majorInput.fill("Mathematics");
+  await page.waitForFunction(() => Object.keys(localStorage).some((key) => key.startsWith("unlocked-onboarding-draft-v2:") && localStorage.getItem(key)?.includes('"major":"Mathematics"')));
   await majorInput.press("Escape");
   await page.locator("#onboarding-major-listbox").waitFor({ state: "hidden" });
   await page.getByRole("button", { name: "Continue" }).click();
@@ -258,7 +260,7 @@ async function completeOnboarding(page: Page, origin: string) {
   await page.waitForURL("**/opportunities", { timeout: 60_000 });
   await page.goto(`${origin}/advisor`, { waitUntil: "domcontentloaded", timeout: 60_000 });
   await page.getByRole("heading", { name: "Your opportunities are ready." }).waitFor({ state: "visible", timeout: 60_000 });
-  await page.getByRole("button", { name: "Add to Journey" }).first().waitFor({ state: "visible" });
+  await page.getByRole("button", { name: "Save to Journey" }).first().waitFor({ state: "visible" });
   timings.discoverToForYou = performance.now() - startedAt - timings.onboardingToWalkthrough - timings.walkthroughToDiscover;
   return timings;
 }
@@ -328,7 +330,7 @@ async function verifyFirstSave(page: Page, origin: string, browserName: string) 
   });
   await page.route("**/api/journey/add", (route) => route.fulfill({ status: 500, contentType: "application/json", body: JSON.stringify({ error: "We couldn’t add this opportunity. Nothing changed." }) }), { times: 1 });
   const button = page.locator("button[data-journey-save-state]").first();
-  await button.getByText("Add to Journey", { exact: true }).waitFor({ state: "visible" });
+  await button.getByText("Save to Journey", { exact: true }).waitFor({ state: "visible" });
   await button.click();
   await page.getByRole("alert").getByText(/couldn’t add/i).waitFor({ state: "visible" });
   assert.equal(await page.getByText("Added to Journey", { exact: false }).count(), 0, "A failed save must not show success.");
@@ -365,13 +367,13 @@ async function verifyFirstSave(page: Page, origin: string, browserName: string) 
   await page.goto(origin, { waitUntil: "domcontentloaded", timeout: 60_000 });
   await page.getByRole("heading", { name: "Journey", exact: true }).waitFor({ state: "visible" });
   assert.equal(await page.getByText("Your private record of what you saved, pursued, and accomplished.", { exact: true }).count(), 1);
-  assert.ok(await page.getByRole("button", { name: "Update", exact: true }).first().isVisible());
+  await page.getByRole("button", { name: "Update", exact: true }).first().waitFor({ state: "visible", timeout: 15_000 });
   await page.waitForLoadState("networkidle");
   const firstJourneyMs = performance.now() - journeyStartedAt;
 
   const returnStartedAt = performance.now();
   await page.goto(`${origin}/advisor`, { waitUntil: "domcontentloaded", timeout: 60_000 });
-  await page.getByRole("button", { name: "Add to Journey" }).first().waitFor({ state: "visible", timeout: 60_000 });
+  await page.getByRole("button", { name: "Save to Journey" }).first().waitFor({ state: "visible", timeout: 60_000 });
   assert.equal(await page.getByRole("heading", { name: "Your opportunities are ready." }).count(), 0, "Returning activated users must not see first-session welcome copy.");
   return { firstSaveMs, firstJourneyMs, returnMs: performance.now() - returnStartedAt };
 }
@@ -396,12 +398,13 @@ async function runPro(browser: Browser, origin: string, token: string, browserNa
   const page = await context.newPage();
   const assertNoErrors = observe(page);
   await page.goto(`${origin}/advisor`, { waitUntil: "domcontentloaded", timeout: 60_000 });
-  await page.getByRole("button", { name: "Add to Journey" }).first().waitFor({ state: "visible", timeout: 60_000 });
+  await page.getByRole("button", { name: "Save to Journey" }).first().waitFor({ state: "visible", timeout: 60_000 });
   const button = page.locator("button[data-journey-save-state]").first();
   assert.equal(await page.getByText("See your complete personalized shortlist", { exact: false }).count(), 0, "Pro must not receive Free upgrade messaging.");
   assert.ok(await page.locator("[data-for-you-page] article").count() > 1, "Pro should receive the full shortlist.");
   await page.evaluate(() => {
     const root = document.documentElement;
+    root.dataset.maximumConcurrentSaveFlights = "0";
     const observer = new MutationObserver((mutations) => {
       for (const mutation of mutations) {
         if (mutation.type === "childList") {
@@ -415,6 +418,7 @@ async function runPro(browser: Browser, origin: string, token: string, browserNa
           if (mutation.target.matches("[data-journey-destination][data-journey-arrival='true']")) root.dataset.saveArrivalObserved = "true";
           if (mutation.target.matches("[data-journey-save-card='confirmed']")) root.dataset.saveCardObserved = "true";
         }
+        root.dataset.maximumConcurrentSaveFlights = String(Math.max(Number(root.dataset.maximumConcurrentSaveFlights ?? 0), document.querySelectorAll("[data-journey-save-flight]").length));
       }
     });
     observer.observe(document.body, { attributes: true, childList: true, subtree: true });
@@ -423,9 +427,14 @@ async function runPro(browser: Browser, origin: string, token: string, browserNa
     await new Promise((resolve) => setTimeout(resolve, 450));
     await route.continue();
   }, { times: 1 });
+  const idleButtonBox = await button.boundingBox();
+  assert.ok(idleButtonBox, "The idle Save to Journey control must have measurable dimensions.");
   await button.click();
   assert.equal(await button.getAttribute("data-journey-save-state"), "loading");
-  await button.getByText("Adding to Journey…", { exact: true }).waitFor({ state: "visible" });
+  await button.getByText("Saving…", { exact: true }).waitFor({ state: "visible" });
+  const loadingButtonBox = await button.boundingBox();
+  assert.ok(loadingButtonBox, "The saving control must preserve measurable dimensions.");
+  assert.ok(Math.abs(loadingButtonBox.width - idleButtonBox.width) <= 1 && Math.abs(loadingButtonBox.height - idleButtonBox.height) <= 1, "Saving must not resize the action control.");
   assert.equal(await button.locator("[data-journey-save-progress]").count(), 0);
   await page.screenshot({ path: `/tmp/unlocked-save-${browserName.toLowerCase()}-desktop-loading.png`, fullPage: true });
   await page.getByText("Added to your Journey.", { exact: false }).waitFor({ state: "visible", timeout: 15_000 });
@@ -438,7 +447,58 @@ async function runPro(browser: Browser, origin: string, token: string, browserNa
     card: document.documentElement.dataset.saveCardObserved,
   }));
   assert.deepEqual(observations, { flight: "true", chip: "true", arrival: "true", card: "true" }, "Desktop save must complete the flight, confirmation, destination, and card acknowledgement sequence.");
-  assert.ok(await page.getByText("Added to Journey", { exact: false }).first().isVisible());
+  const confirmedControl = page.locator("[data-journey-save-confirmed='true']").first();
+  assert.ok(await confirmedControl.isVisible());
+  const confirmedButtonBox = await confirmedControl.boundingBox();
+  assert.ok(confirmedButtonBox, "The confirmed Journey control must have measurable dimensions.");
+  assert.ok(Math.abs(confirmedButtonBox.width - idleButtonBox.width) <= 1 && Math.abs(confirmedButtonBox.height - idleButtonBox.height) <= 1, "Confirmation must not resize the action control.");
+  assert.ok(await page.locator("[data-journey-destination-icon]").first().isVisible(), "The save animation must acknowledge a dedicated Journey destination mark.");
+
+  let activeSaveRequests = 0;
+  let maximumConcurrentSaveRequests = 0;
+  await page.route("**/api/journey/add", async (route) => {
+    activeSaveRequests += 1;
+    maximumConcurrentSaveRequests = Math.max(maximumConcurrentSaveRequests, activeSaveRequests);
+    await new Promise((resolve) => setTimeout(resolve, 460));
+    await route.continue();
+    activeSaveRequests -= 1;
+  }, { times: 2 });
+  const rapidButtons = page.locator("button[data-journey-save-state='idle']");
+  assert.ok(await rapidButtons.count() >= 2, "The Pro shortlist must provide multiple save controls for queue validation.");
+  const rapidOpportunityIds = await rapidButtons.evaluateAll((buttons) => buttons.slice(0, 2).map((button) => button.getAttribute("data-journey-save-opportunity") ?? ""));
+  assert.ok(rapidOpportunityIds.every(Boolean), "Rapid-save controls must expose stable opportunity identifiers.");
+  const firstRapidSave = page.locator(`[data-journey-save-opportunity="${rapidOpportunityIds[0]}"]`);
+  const secondRapidSave = page.locator(`[data-journey-save-opportunity="${rapidOpportunityIds[1]}"]`);
+  await page.evaluate((opportunityIds) => {
+    const buttons = [...document.querySelectorAll<HTMLButtonElement>("button[data-journey-save-opportunity]")];
+    for (const opportunityId of opportunityIds) buttons.find((button) => button.dataset.journeySaveOpportunity === opportunityId)?.click();
+  }, rapidOpportunityIds);
+  assert.equal(await firstRapidSave.getAttribute("data-journey-save-state"), "loading");
+  assert.equal(await secondRapidSave.getAttribute("data-journey-save-state"), "loading");
+  await secondRapidSave.getByText("Saving…", { exact: true }).waitFor({ state: "visible" });
+  await page.waitForFunction(() => document.querySelectorAll("[data-journey-save-confirmed='true']").length >= 3, undefined, { timeout: 15_000 });
+  await page.waitForFunction(() => !document.querySelector("[data-journey-save-flight]") && !document.querySelector("[data-journey-save-chip]"), undefined, { timeout: 15_000 });
+  assert.equal(maximumConcurrentSaveRequests, 1, "Rapid saves must serialize client requests instead of colliding with the account lock.");
+  assert.ok(Number(await page.locator("html").getAttribute("data-maximum-concurrent-save-flights")) <= 2, "Transfer motion must remain bounded during rapid saves.");
+  assert.equal(await page.locator("[data-journey-save-state='error'], [id^='journey-add-error-']").count(), 0, "Rapid saves must not produce a lock or retry error.");
+
+  await page.goto(`${origin}/opportunities`, { waitUntil: "domcontentloaded", timeout: 60_000 });
+  const unsavedDiscoverCard = page.locator("[data-discover-opportunity]").filter({ has: page.locator("button[data-journey-save-state='idle']") }).first();
+  await unsavedDiscoverCard.waitFor({ state: "visible", timeout: 60_000 });
+  const discoverOpportunityId = await unsavedDiscoverCard.getAttribute("data-discover-opportunity");
+  assert.ok(discoverOpportunityId, "Discover save validation requires a stable opportunity identifier.");
+  const discoverSave = page.locator(`[data-discover-opportunity="${discoverOpportunityId}"]`);
+  await discoverSave.locator("button[data-journey-save-state='idle']").click();
+  await discoverSave.getByText("Added to Journey", { exact: false }).waitFor({ state: "visible", timeout: 15_000 });
+
+  const detailCandidate = page.locator("[data-discover-opportunity]").filter({ has: page.locator("button[data-journey-save-state='idle']") }).first();
+  const detailHref = await detailCandidate.locator('a[href^="/opportunities/"]').first().getAttribute("href");
+  assert.ok(detailHref, "Discover must expose an opportunity detail route for save validation.");
+  await page.goto(`${origin}${detailHref}`, { waitUntil: "domcontentloaded", timeout: 60_000 });
+  const detailSave = page.locator("button[data-journey-save-state='idle']");
+  await detailSave.waitFor({ state: "visible", timeout: 60_000 });
+  await detailSave.click();
+  await page.getByText("Added to Journey", { exact: false }).first().waitFor({ state: "visible", timeout: 15_000 });
   await page.goto(`${origin}/welcome`, { waitUntil: "domcontentloaded", timeout: 60_000 });
   await page.waitForURL("**/opportunities", { timeout: 60_000 });
   assert.equal(await page.locator("[data-first-launch-walkthrough]").count(), 0, "Returning accounts must never re-enter the walkthrough.");

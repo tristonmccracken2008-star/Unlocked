@@ -7,6 +7,7 @@ import { AccountButton } from "./account-auth";
 import { accountSessionEvent, readAccountSession } from "@/data/account-sync";
 import type { AccountSession } from "@/lib/account-types";
 import { NotificationNavButton } from "./notification-nav-button";
+import { BookmarkIcon } from "./icons";
 
 const destinations = [["Discover", "/opportunities"], ["For You", "/advisor"], ["Journey", "/"]] as const;
 
@@ -61,6 +62,7 @@ export function Header() {
         ? `relative inline-flex min-h-11 items-center justify-center rounded-full px-3 text-center transition duration-200 active:scale-[.98] ${active ? "bg-white text-forest" : "text-white/70 hover:text-white"}`
         : `relative inline-flex min-h-11 items-center rounded-full px-4 transition duration-200 active:scale-[.98] ${active ? "bg-white text-forest shadow-[0_8px_20px_rgba(43,33,26,.08)]" : "hover:bg-white/75 hover:text-forest"}`}
     >
+      {label === "Journey" ? <span data-journey-destination-icon="" aria-hidden="true" className="inline-grid h-4 w-4 shrink-0 place-items-center"><BookmarkIcon className="h-4 w-4" /></span> : null}
       {label}
     </a>;
   }

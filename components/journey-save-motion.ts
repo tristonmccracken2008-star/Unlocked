@@ -1,9 +1,18 @@
 import styles from "./journey-save-motion.module.css";
 
 const activeFlights = new Set<HTMLElement>();
+const activeAnimations = new Map<HTMLElement, Animation>();
+const activeChips = new Set<HTMLElement>();
+const decoratedCards = new Set<HTMLElement>();
+const decoratedDestinations = new Set<HTMLElement>();
 const destinationTimers = new WeakMap<HTMLElement, number>();
 const cardTimers = new WeakMap<HTMLElement, number>();
 const maximumConcurrentFlights = 2;
+const transferQueue: DOMRect[] = [];
+const confirmationQueue: boolean[] = [];
+const scheduledTransferTimers = new Set<number>();
+let scheduledTransfers = 0;
+let confirmationActive = false;
 
 function prefersReducedMotion() {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -23,14 +32,22 @@ function brieflyConfirmCard(source: HTMLElement) {
   const previousTimer = cardTimers.get(card);
   if (previousTimer) window.clearTimeout(previousTimer);
   card.setAttribute("data-journey-save-card", "confirmed");
+  decoratedCards.add(card);
   const timer = window.setTimeout(() => {
     card.removeAttribute("data-journey-save-card");
+    decoratedCards.delete(card);
     cardTimers.delete(card);
   }, 820);
   cardTimers.set(card, timer);
 }
 
-function showConfirmationChip(reducedMotion: boolean) {
+function showNextConfirmationChip() {
+  const reducedMotion = confirmationQueue.shift();
+  if (reducedMotion === undefined) {
+    confirmationActive = false;
+    return;
+  }
+  confirmationActive = true;
   const chip = document.createElement("span");
   chip.className = styles.chip;
   chip.setAttribute("data-journey-save-chip", "");
@@ -38,9 +55,22 @@ function showConfirmationChip(reducedMotion: boolean) {
   chip.setAttribute("aria-hidden", "true");
   chip.textContent = "✓  Added to Journey";
   document.body.append(chip);
-  const remove = () => chip.remove();
+  activeChips.add(chip);
+  let removed = false;
+  const remove = () => {
+    if (removed) return;
+    removed = true;
+    activeChips.delete(chip);
+    chip.remove();
+    showNextConfirmationChip();
+  };
   chip.addEventListener("animationend", remove, { once: true });
   window.setTimeout(remove, reducedMotion ? 500 : 1_200);
+}
+
+function queueConfirmationChip(reducedMotion: boolean) {
+  confirmationQueue.push(reducedMotion);
+  if (!confirmationActive) showNextConfirmationChip();
 }
 
 function pulseDestination(destination: HTMLElement) {
@@ -49,8 +79,10 @@ function pulseDestination(destination: HTMLElement) {
   destination.removeAttribute("data-journey-arrival");
   window.requestAnimationFrame(() => {
     destination.setAttribute("data-journey-arrival", "true");
+    decoratedDestinations.add(destination);
     const timer = window.setTimeout(() => {
       destination.removeAttribute("data-journey-arrival");
+      decoratedDestinations.delete(destination);
       destinationTimers.delete(destination);
     }, 620);
     destinationTimers.set(destination, timer);
@@ -62,19 +94,10 @@ function provideSoftHaptic() {
   navigator.vibrate(8);
 }
 
-export function playJourneySaveMotion(source: HTMLElement | null) {
-  if (!source || typeof window === "undefined") return;
-  const sourceRect = source.getBoundingClientRect();
-  const reducedMotion = prefersReducedMotion();
-  brieflyConfirmCard(source);
-  showConfirmationChip(reducedMotion);
-  provideSoftHaptic();
-
-  if (reducedMotion) return;
+function startTransfer(sourceRect: DOMRect) {
   const destination = visibleJourneyDestination();
-  if (!destination) return;
-  if (activeFlights.size >= maximumConcurrentFlights) {
-    pulseDestination(destination);
+  if (!destination) {
+    drainTransferQueue();
     return;
   }
 
@@ -103,19 +126,72 @@ export function playJourneySaveMotion(source: HTMLElement | null) {
     easing: "cubic-bezier(.22, .72, .16, 1)",
     fill: "forwards",
   });
+  activeAnimations.set(flight, animation);
 
   let settled = false;
   const finish = () => {
     if (settled) return;
     settled = true;
     pulseDestination(destination);
+    activeAnimations.delete(flight);
     activeFlights.delete(flight);
     flight.remove();
+    drainTransferQueue();
   };
   animation.finished.then(finish).catch(() => {
     settled = true;
+    activeAnimations.delete(flight);
     activeFlights.delete(flight);
     flight.remove();
+    drainTransferQueue();
   });
   window.setTimeout(finish, 680);
+}
+
+function drainTransferQueue() {
+  while (transferQueue.length && activeFlights.size + scheduledTransfers < maximumConcurrentFlights) {
+    const sourceRect = transferQueue.shift()!;
+    const delay = scheduledTransfers * 110;
+    scheduledTransfers += 1;
+    const timer = window.setTimeout(() => {
+      scheduledTransferTimers.delete(timer);
+      scheduledTransfers -= 1;
+      startTransfer(sourceRect);
+    }, delay);
+    scheduledTransferTimers.add(timer);
+  }
+}
+
+export function playJourneySaveMotion(source: HTMLElement | null) {
+  if (!source || typeof window === "undefined") return;
+  const sourceRect = source.getBoundingClientRect();
+  const reducedMotion = prefersReducedMotion();
+  brieflyConfirmCard(source);
+  queueConfirmationChip(reducedMotion);
+  provideSoftHaptic();
+
+  if (reducedMotion) return;
+  transferQueue.push(sourceRect);
+  drainTransferQueue();
+}
+
+export function cancelJourneySaveMotion() {
+  transferQueue.length = 0;
+  confirmationQueue.length = 0;
+  confirmationActive = false;
+  for (const timer of scheduledTransferTimers) window.clearTimeout(timer);
+  scheduledTransferTimers.clear();
+  scheduledTransfers = 0;
+  for (const [flight, animation] of activeAnimations) {
+    animation.cancel();
+    flight.remove();
+  }
+  activeAnimations.clear();
+  activeFlights.clear();
+  for (const chip of activeChips) chip.remove();
+  activeChips.clear();
+  for (const card of decoratedCards) card.removeAttribute("data-journey-save-card");
+  decoratedCards.clear();
+  for (const destination of decoratedDestinations) destination.removeAttribute("data-journey-arrival");
+  decoratedDestinations.clear();
 }

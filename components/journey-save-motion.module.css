@@ -57,19 +57,26 @@
 }
 
 :global([data-journey-destination][data-journey-arrival="true"]) {
-  animation: journey-destination-arrival 560ms var(--motion-ease-emphasis) both;
+  animation: journey-destination-surface 560ms var(--motion-ease-emphasis) both;
 }
 
-@keyframes journey-destination-arrival {
+@keyframes journey-destination-surface {
   0%, 100% {
-    filter: drop-shadow(0 0 0 transparent);
-    transform: scale(1);
+    box-shadow: 0 0 0 rgb(var(--color-forest) / 0);
   }
   45% {
     color: rgb(var(--color-forest));
-    filter: drop-shadow(0 7px 12px rgb(var(--color-forest) / 0.18));
-    transform: scale(1.035);
+    box-shadow: 0 8px 22px rgb(var(--color-forest) / 0.13);
   }
+}
+
+:global([data-journey-destination][data-journey-arrival="true"] [data-journey-destination-icon]) {
+  animation: journey-destination-icon 560ms var(--motion-ease-emphasis) both;
+}
+
+@keyframes journey-destination-icon {
+  0%, 100% { filter: drop-shadow(0 0 0 transparent); transform: scale(1); }
+  45% { filter: drop-shadow(0 5px 10px rgb(var(--color-forest) / 0.22)); transform: scale(1.12); }
 }
 
 :global([data-journey-save-card="confirmed"]) {
@@ -98,6 +105,7 @@
   }
 
   :global([data-journey-destination][data-journey-arrival="true"]),
+  :global([data-journey-destination][data-journey-arrival="true"] [data-journey-destination-icon]),
   :global([data-journey-save-card="confirmed"]) {
     animation: none;
   }

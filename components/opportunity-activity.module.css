@@ -46,12 +46,24 @@
   place-items: center;
 }
 
+.saveIcon {
+  width: 16px;
+  height: 16px;
+  transition: opacity 180ms var(--motion-ease), transform 220ms var(--motion-ease-emphasis);
+}
+
+.saveButton[data-journey-save-state="loading"] .saveIcon {
+  opacity: 0.72;
+  transform: translateY(-1px) scale(0.92);
+}
+
 .errorIcon {
   width: 16px;
   height: 16px;
 }
 
 .addedIcon {
+  position: relative;
   display: inline-grid;
   width: 20px;
   height: 20px;
@@ -63,19 +75,42 @@
 }
 
 .addedIcon svg {
+  position: absolute;
   width: 12px;
   height: 12px;
   stroke-width: 2.3;
 }
 
+.addedBookmark {
+  opacity: 0;
+  transform: scale(0.72);
+}
+
+.addedCheck {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.addedIcon[data-confirmed="true"] .addedBookmark {
+  animation: save-bookmark-settle 420ms var(--motion-ease-emphasis) both;
+}
+
+.addedIcon[data-confirmed="true"] .addedCheck {
+  animation: save-check-arrive 420ms var(--motion-ease-emphasis) both;
+}
+
+.addedLabel {
+  animation: save-label-arrive 320ms var(--motion-ease-emphasis) both;
+}
+
 .addedGroup {
   display: grid;
-  justify-items: center;
   gap: 6px;
 }
 
 .journeyLink {
   display: inline-flex;
+  justify-self: center;
   min-height: 44px;
   align-items: center;
   border-bottom: 1px solid currentColor;
@@ -104,6 +139,23 @@
   100% { opacity: 1; transform: scale(1); }
 }
 
+@keyframes save-bookmark-settle {
+  0% { opacity: 1; transform: scale(1); }
+  45% { opacity: 0; transform: translateY(-1px) scale(0.7); }
+  100% { opacity: 0; transform: scale(0.7); }
+}
+
+@keyframes save-check-arrive {
+  0%, 38% { opacity: 0; transform: scale(0.62); }
+  72% { opacity: 1; transform: scale(1.08); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes save-label-arrive {
+  from { opacity: 0.45; transform: translateY(2px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 @keyframes save-error-enter {
   from { opacity: 0.35; transform: translateY(-2px); }
   to { opacity: 1; transform: translateY(0); }
@@ -115,6 +167,9 @@
   }
 
   .addedState[data-journey-save-confirmed="true"] .addedIcon,
+  .addedIcon[data-confirmed="true"] .addedBookmark,
+  .addedIcon[data-confirmed="true"] .addedCheck,
+  .addedLabel,
   .error {
     animation-duration: 1ms;
   }
