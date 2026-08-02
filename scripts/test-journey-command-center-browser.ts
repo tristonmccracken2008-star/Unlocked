@@ -218,6 +218,7 @@ try {
     const root = await baseAssertions(page, "Chromium desktop");
     assert.ok(await root.locator("[aria-label='Journey overview'] > *").count() >= 1);
     assert.ok(await root.locator("[aria-label='Journey overview'] > *").count() <= 4);
+    assert.equal(Number(await root.locator("[aria-label='Journey overview']").getAttribute("data-count")), await root.locator("[aria-label='Journey overview'] > *").count(), "The overview layout must reflect only supported summary items.");
     assert.ok(await root.locator("[data-journey-record]").count() >= 4);
     assert.ok(await root.getByRole("heading", { name: /Things to do/ }).count() <= 1);
     const firstRecord = root.locator("[data-journey-record]").filter({ hasText: rich.title }).first();
@@ -276,6 +277,22 @@ try {
     assert.ok(await page.locator("[data-journey-record]").count() >= 1);
     await page.goto(origin, { waitUntil: "domcontentloaded" });
     await page.locator("[data-journey-command-center]").waitFor({ state: "visible" });
+    const hierarchy = await page.locator("[data-journey-command-center]").evaluate((node) => {
+      const root = node as HTMLElement;
+      const top = (selector: string) => root.querySelector<HTMLElement>(selector)?.getBoundingClientRect().top ?? -1;
+      return {
+        header: top(":scope > div > header"),
+        overview: top("[aria-label='Journey overview']"),
+        attention: top("section[aria-labelledby='journey-attention-heading']"),
+        active: top("#active-opportunities"),
+        history: top("#journey-history"),
+      };
+    });
+    assert.ok(hierarchy.header >= 0 && hierarchy.header < hierarchy.overview && hierarchy.overview < hierarchy.attention && hierarchy.attention < hierarchy.active && hierarchy.active < hierarchy.history, `Journey sections must retain a clear reading order: ${JSON.stringify(hierarchy)}`);
+    const desktopRecord = page.locator("[data-journey-record]").first();
+    const desktopRecordBox = await desktopRecord.boundingBox();
+    const desktopIdentityBox = await desktopRecord.locator("[data-record-identity]").boundingBox();
+    assert.ok(desktopRecordBox && desktopIdentityBox && desktopIdentityBox.width >= desktopRecordBox.width * .38, "Desktop opportunity identity must remain the dominant record column.");
     await page.screenshot({ path: path.join(output, "journey-command-desktop.png"), fullPage: true, caret: "initial" });
     await assertJourneyCard(page);
     const [exportDownload] = await Promise.all([
@@ -325,6 +342,7 @@ try {
     const root = await baseAssertions(page, "Chromium heavy tablet");
     assert.equal(await root.locator("[data-journey-record]").count(), 30, "Initial render must include 6 active and only 24 historical records.");
     assert.equal(await root.getByText("500 records", { exact: true }).count() >= 1, true);
+    await page.screenshot({ path: path.join(output, "journey-command-tablet.png"), fullPage: false, caret: "initial" });
     await root.getByText("500 records", { exact: true }).click();
     await root.getByText("View all history", { exact: true }).waitFor();
     const pageHeight = await page.evaluate(() => document.documentElement.scrollHeight);
@@ -340,6 +358,12 @@ try {
     const root = await baseAssertions(page, "WebKit mobile dark");
     assert.equal(await root.getAttribute("data-theme"), "dark");
     const record = root.locator("[data-journey-record]").first();
+    const mobileRecordBox = await record.boundingBox();
+    const mobileIdentityBox = await record.locator("[data-record-identity]").boundingBox();
+    const mobileProgressBox = await record.locator("[data-record-progress]").boundingBox();
+    const mobileActionsBox = await record.locator("[data-record-actions]").boundingBox();
+    assert.ok(mobileRecordBox && mobileIdentityBox && mobileIdentityBox.width >= mobileRecordBox.width * .85, "Mobile opportunity identity must use the full first row for readable titles.");
+    assert.ok(mobileProgressBox && mobileActionsBox && mobileProgressBox.x + mobileProgressBox.width <= mobileActionsBox.x + 1, "Mobile progress and actions must not overlap.");
     await page.screenshot({ path: path.join(output, "journey-command-mobile.png"), fullPage: true, caret: "initial" });
     const mobileDetailsTrigger = record.getByRole("button", { name: /^View details for/ });
     await mobileDetailsTrigger.press("Enter");

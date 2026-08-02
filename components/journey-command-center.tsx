@@ -96,7 +96,7 @@ function RecordDetails({ record }: { record: JourneyCommandRecord }) {
 function JourneyRecordRow({ record, theme }: { record: JourneyCommandRecord; theme: JourneyCommandCenterModel["theme"] }) {
   const urgency = record.nextDate?.urgency ?? (record.stageFilter === "interviewing" ? "interview" : "normal");
   return <article id={`journey-record-${record.id}`} className={styles.record} data-journey-record="" data-stage={record.stageFilter} data-urgency={urgency} data-unavailable={record.unavailable ? "true" : undefined}>
-    <div className={styles.recordMain}>
+    <div className={styles.recordMain} data-record-identity="">
       {record.opportunity
         ? <OrganizationLogo opportunity={record.opportunity} size="sm" className={theme === "dark" ? styles.darkLogo : ""} />
         : <OrganizationMark organization="" category={record.category} size="sm" className={theme === "dark" ? styles.darkLogo : ""} />}
@@ -105,12 +105,12 @@ function JourneyRecordRow({ record, theme }: { record: JourneyCommandRecord; the
         <p>{record.organization}</p>
       </div>
     </div>
-    <div className={styles.recordStage}>
+    <div className={styles.recordStage} data-record-progress="">
       <span className={styles.stage} data-stage={record.stageFilter}>{record.stageLabel}</span>
       {record.nextDate ? <span data-urgency={record.nextDate.urgency}>{record.nextDate.timingLabel}{record.nextDate.urgency === "normal" ? ` ${formatDate(record.nextDate.value)}` : ""}</span> : <span>{record.statusDetail}</span>}
     </div>
     <div className={styles.recordUpdated}><span>Updated</span><strong>{relativeUpdated(record.updatedAt)}</strong></div>
-    <div className={styles.recordActions}>
+    <div className={styles.recordActions} data-record-actions="">
       {record.control ? <JourneyTimelineControl control={record.control} compactLabel="Update" showFollowUp={false} /> : null}
       <RecordDetails record={record} />
     </div>
@@ -148,7 +148,7 @@ export function JourneyCommandCenter({ model }: { model: JourneyCommandCenterMod
       <JourneySessionFeedback accountKey={model.accountKey} overview={model.overview} attentionCount={model.attentionCount} showHints={model.showFirstUseHints} />
 
       {!hasRecords ? <EmptyJourney /> : <>
-        {model.overview.length ? <section className={styles.overview} aria-label="Journey overview">
+        {model.overview.length ? <section className={styles.overview} aria-label="Journey overview" data-count={model.overview.length}>
           {model.overview.map((card) => <a key={card.id} href={card.href} data-tone={card.tone} data-overview-id={card.id}>
             <span className={styles.overviewIcon} aria-hidden="true"><OverviewIcon card={card} /></span>
             <small>{card.label}</small>
