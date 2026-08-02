@@ -75,6 +75,9 @@ function documentsFrom(files: FileList | null): JourneyMilestoneDocumentReferenc
 export function JourneyTimelineControl({ control, compactLabel = "Update Journey", showFollowUp = true }: { control: JourneyTimelineControl; compactLabel?: string; showFollowUp?: boolean }) {
   const router = useRouter();
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const alternateStagesRef = useRef<HTMLDetailsElement>(null);
+  const milestoneDetailsRef = useRef<HTMLDetailsElement>(null);
   const controllerRef = useRef<AbortController | null>(null);
   const pendingRef = useRef(false);
   const rowHighlightTimerRef = useRef<number | null>(null);
@@ -100,15 +103,34 @@ export function JourneyTimelineControl({ control, compactLabel = "Update Journey
           : /submit|application/i.test(selectedStageText) ? "Application date"
             : "Relevant date";
   const supportsDocuments = /prepar|submit|application|interview/i.test(selectedStageText);
+  const initialActionId = control.actions[0]?.id ?? "";
+  const draftDirty = selectedId !== initialActionId
+    || notes !== (control.details?.notes ?? "")
+    || milestoneDate !== (control.details?.milestoneDate ?? "")
+    || reminderAt !== (control.details?.reminderAt ? control.details.reminderAt.slice(0, 16) : "")
+    || reminderText !== (control.details?.reminderText ?? "")
+    || JSON.stringify(documents) !== JSON.stringify(control.details?.documents ?? []);
+
+  function resetDraft() {
+    setSelectedId(initialActionId);
+    setNotes(control.details?.notes ?? "");
+    setMilestoneDate(control.details?.milestoneDate ?? "");
+    setReminderAt(control.details?.reminderAt ? control.details.reminderAt.slice(0, 16) : "");
+    setReminderText(control.details?.reminderText ?? "");
+    setDocuments(control.details?.documents ?? []);
+    setError("");
+    setResult(null);
+    setCelebrationVisible(false);
+    if (alternateStagesRef.current) alternateStagesRef.current.open = false;
+    if (milestoneDetailsRef.current) milestoneDetailsRef.current.open = false;
+  }
 
   useEffect(() => {
     const accountChanged = () => {
       controllerRef.current?.abort("account-changed");
       dialogRef.current?.close();
       setPending(false);
-      setResult(null);
-      setCelebrationVisible(false);
-      setError("");
+      resetDraft();
     };
     window.addEventListener(accountSessionEvent, accountChanged);
     return () => {
@@ -119,16 +141,19 @@ export function JourneyTimelineControl({ control, compactLabel = "Update Journey
   }, []);
 
   function open(actionId = control.actions[0]?.id) {
+    resetDraft();
     if (actionId) setSelectedId(actionId);
-    setError("");
-    setResult(null);
-    setCelebrationVisible(false);
     dialogRef.current?.showModal();
   }
 
-  function close() {
+  function close(force = false) {
+    if (pending) return;
+    if (!force && !result && draftDirty && !window.confirm("Close without saving these Journey changes?")) return;
+    const refresh = Boolean(result);
     dialogRef.current?.close();
-    if (result) router.refresh();
+    resetDraft();
+    triggerRef.current?.focus();
+    if (refresh) router.refresh();
   }
 
   async function update(action: JourneyProfessionalAction) {
@@ -191,17 +216,17 @@ export function JourneyTimelineControl({ control, compactLabel = "Update Journey
   return <div className={styles.statusControl} data-journey-update-control="" data-opportunity-id={control.opportunityId}>
     {showFollowUp && control.inactiveDays && !followUpDismissed ? <aside className={styles.followUp} aria-label="Journey update reminder">
       <p>You marked this as <strong>{control.workflow.stages[currentIndex]?.label ?? "active"}</strong> {control.inactiveDays} days ago.</p>
-      <div><button type="button" onClick={() => open()}>Update Journey</button><button type="button" onClick={() => setFollowUpDismissed(true)}>Keep current stage</button><button type="button" onClick={() => open("archived")}>Archive</button></div>
-    </aside> : <button type="button" className={styles.updateJourneyButton} onClick={() => open()}>{compactLabel}</button>}
+      <div><button ref={triggerRef} type="button" onClick={() => open()}>Update Journey</button><button type="button" onClick={() => setFollowUpDismissed(true)}>Keep current stage</button><button type="button" onClick={() => open("archived")}>Archive</button></div>
+    </aside> : <button ref={triggerRef} type="button" className={styles.updateJourneyButton} onClick={() => open()}>{compactLabel}</button>}
 
-    <dialog ref={dialogRef} className={styles.updateDialog} data-journey-update-dialog="" onCancel={(event) => { if (pending) event.preventDefault(); }} aria-labelledby={`journey-update-title-${control.opportunityId}`}>
+    <dialog ref={dialogRef} className={styles.updateDialog} data-journey-update-dialog="" onCancel={(event) => { event.preventDefault(); if (!pending) close(); }} aria-labelledby={`journey-update-title-${control.opportunityId}`}>
       <div className={styles.updateDialogShell}>
         <header className={styles.updateDialogHeader}>
           <div className={styles.updateIdentity}>
             <ResolvedOrganizationMark logo={control.branding} size="md" />
             <div><p>{control.organization}</p><h2 id={`journey-update-title-${control.opportunityId}`}>{control.opportunityTitle}</h2></div>
           </div>
-          <button type="button" className={styles.updateClose} onClick={close} disabled={pending} aria-label="Close Update Journey"><CloseIcon /></button>
+          <button type="button" className={styles.updateClose} onClick={() => close()} disabled={pending} aria-label="Close Update Journey"><CloseIcon /></button>
         </header>
 
         {result ? <section className={styles.updateConfirmation} aria-live="polite" data-journey-update-confirmation="" data-celebration-level={result.celebration?.level ?? "routine"}>
@@ -219,8 +244,8 @@ export function JourneyTimelineControl({ control, compactLabel = "Update Journey
           </dl> : null}
           <section className={styles.whatChanged}><p>What changed</p><span>{result.narrative.whatChanged}</span></section>
           <div className={styles.confirmationActions}>
-            <button type="button" className={styles.updatePrimary} onClick={close}>Return to Journey</button>
-            {result.celebration?.particleAccent ? <a href="#journey-cards" onClick={close}>Create Journey Card</a> : null}
+            <button type="button" className={styles.updatePrimary} onClick={() => close()}>Return to Journey</button>
+            {result.celebration?.particleAccent ? <a href="#journey-cards" onClick={() => close()}>Create Journey Card</a> : null}
           </div>
         </section> : <>
           <section className={styles.stageProgress} aria-labelledby={`journey-stage-heading-${control.opportunityId}`}>
@@ -237,7 +262,7 @@ export function JourneyTimelineControl({ control, compactLabel = "Update Journey
                   <span><strong>{action.id === "resume" || action.correction ? action.label : action.stage?.label ?? action.label}</strong><small>{action.correction ? "Correct the current record while preserving its stage history." : action.stage?.description ?? (action.id === "paused" ? "Keep the opportunity without moving it forward." : "Keep this opportunity in your history.")}</small></span>
                 </label>)}
               </div>
-              {alternateActions.length ? <details className={styles.alternateStages}>
+              {alternateActions.length ? <details ref={alternateStagesRef} className={styles.alternateStages}>
                 <summary>Choose a different stage</summary>
                 <div className={styles.stageChoices}>
                   {alternateActions.map((action) => <label key={action.id} data-destructive={action.destructive ? "true" : undefined}>
@@ -248,7 +273,7 @@ export function JourneyTimelineControl({ control, compactLabel = "Update Journey
               </details> : null}
             </fieldset>
 
-            <details className={styles.milestoneDetails}>
+            <details ref={milestoneDetailsRef} className={styles.milestoneDetails}>
               <summary>Add private details <span>Optional</span></summary>
               <div>
                 <label>Private note<textarea value={notes} maxLength={1200} rows={3} onChange={(event) => setNotes(event.target.value)} placeholder="Add a factual note for your records" /></label>
@@ -265,7 +290,7 @@ export function JourneyTimelineControl({ control, compactLabel = "Update Journey
 
             {error ? <p className={styles.controlError} role="alert">{error}</p> : null}
             <footer className={styles.updateActions}>
-              <button type="button" onClick={close} disabled={pending}>Cancel</button>
+              <button type="button" onClick={() => close()} disabled={pending}>Cancel</button>
               <button type="submit" className={styles.updatePrimary} disabled={pending || !selected} aria-busy={pending ? "true" : undefined} data-action-state={pending ? "loading" : "idle"}><DelayedPendingLabel pending={pending} idle={selected?.destructive ? "Archive opportunity" : "Save milestone"} pendingLabel="Saving milestone…" /></button>
             </footer>
             <p className={styles.studentReported}>Student reported · Private by default · UnlockED does not verify supporting details</p>

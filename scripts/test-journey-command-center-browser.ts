@@ -97,6 +97,7 @@ async function seed(label: string, mode: "empty" | "rich" | "heavy" | "alternate
   await mergeAccountData(user.id, {
     profile: { firstName: label, schoolSlug: "university-of-chicago", major: "Mathematics", graduationYear: "2030", year: "First year", careerGoal: "Research", interests: "Research", onboardingCompletedAt: "2026-07-20T12:00:00.000Z" },
     onboardingComplete: true,
+    firstLaunchComplete: true,
     activity: { viewed: [], saved: selected.map((item) => item.id), claimed: [], tracked: tracker },
     savedOpportunities: selected.map((item, index) => ({ opportunityId: item.id, savedAt: `2026-01-${String((index % 25) + 1).padStart(2, "0")}T12:00:00.000Z` })),
     tracker,
@@ -220,11 +221,35 @@ try {
     assert.ok(await root.locator("[data-journey-record]").count() >= 4);
     assert.ok(await root.getByRole("heading", { name: /Things to do/ }).count() <= 1);
     const firstRecord = root.locator("[data-journey-record]").filter({ hasText: rich.title }).first();
-    await firstRecord.locator(`summary[aria-label="More actions and details for ${rich.title}"]`).click();
-    await firstRecord.getByRole("paragraph").filter({ hasText: "Private command-center note." }).waitFor();
-    await firstRecord.getByRole("button", { name: "Update", exact: true }).click();
+    const detailsTrigger = firstRecord.getByRole("button", { name: `View details for ${rich.title}` });
+    await detailsTrigger.click();
+    const detailsPanel = firstRecord.locator("section[popover]:popover-open");
+    await detailsPanel.waitFor({ state: "visible" });
+    await detailsPanel.getByRole("heading", { name: rich.title, exact: true }).waitFor();
+    await detailsPanel.getByRole("paragraph").filter({ hasText: "Private command-center note." }).waitFor();
+    const detailsBox = await detailsPanel.boundingBox();
+    assert.ok(detailsBox && detailsBox.x >= 0 && detailsBox.y >= 0 && detailsBox.x + detailsBox.width <= 1440 && detailsBox.y + detailsBox.height <= 1000, "Record details must remain fully visible in the desktop viewport.");
+    await detailsPanel.screenshot({ path: path.join(output, "journey-record-details-desktop.png"), caret: "initial" });
+    await page.keyboard.press("Escape");
+    await detailsPanel.waitFor({ state: "hidden" });
+    assert.equal(await detailsTrigger.evaluate((node) => document.activeElement === node), true, "Light-dismiss must restore focus to the record-details trigger.");
+    const updateTrigger = firstRecord.getByRole("button", { name: "Update", exact: true });
+    await updateTrigger.click();
     const dialog = page.locator("dialog[data-journey-update-dialog][open]");
     await dialog.waitFor({ state: "visible" });
+    const privateDetails = dialog.locator("details").filter({ hasText: "Add private details" });
+    await privateDetails.locator("summary").click();
+    const privateNote = dialog.getByLabel("Private note");
+    assert.equal(await privateNote.inputValue(), "Private command-center note.");
+    await privateNote.fill("Unsaved Journey draft");
+    page.once("dialog", (confirmation) => confirmation.accept());
+    await dialog.getByRole("button", { name: "Close Update Journey" }).click();
+    await dialog.waitFor({ state: "hidden" });
+    assert.equal(await updateTrigger.evaluate((node) => document.activeElement === node), true, "Discarding an update must restore focus to its trigger.");
+    await updateTrigger.click();
+    await dialog.waitFor({ state: "visible" });
+    await privateDetails.locator("summary").click();
+    assert.equal(await dialog.getByLabel("Private note").inputValue(), "Private command-center note.", "A discarded private draft must not reappear when the dialog is reopened.");
     await dialog.getByText("Choose a different stage", { exact: true }).click();
     await dialog.getByText("Application submitted", { exact: true }).click();
     await dialog.getByRole("button", { name: "Save milestone" }).click();
@@ -316,9 +341,16 @@ try {
     assert.equal(await root.getAttribute("data-theme"), "dark");
     const record = root.locator("[data-journey-record]").first();
     await page.screenshot({ path: path.join(output, "journey-command-mobile.png"), fullPage: true, caret: "initial" });
-    await record.locator("summary[aria-label^='More actions and details']").press("Enter");
-    await record.getByText("Public listing", { exact: true }).waitFor();
-    await record.locator("summary[aria-label^='More actions and details']").press("Enter");
+    const mobileDetailsTrigger = record.getByRole("button", { name: /^View details for/ });
+    await mobileDetailsTrigger.press("Enter");
+    const mobileDetailsPanel = record.locator("section[popover]:popover-open");
+    await mobileDetailsPanel.getByText("Public listing", { exact: true }).waitFor();
+    const mobileDetailsBox = await mobileDetailsPanel.boundingBox();
+    assert.ok(mobileDetailsBox && mobileDetailsBox.x >= 0 && mobileDetailsBox.y >= 0 && mobileDetailsBox.x + mobileDetailsBox.width <= 390 && mobileDetailsBox.y + mobileDetailsBox.height <= 844, "Mobile record details must render as a visible, unclipped sheet.");
+    await page.screenshot({ path: path.join(output, "journey-record-details-mobile.png"), caret: "initial" });
+    await mobileDetailsPanel.getByRole("button", { name: /^Close details for/ }).press("Enter");
+    await mobileDetailsPanel.waitFor({ state: "hidden" });
+    assert.equal(await mobileDetailsTrigger.evaluate((node) => document.activeElement === node), true, "Closing mobile record details must restore focus to its trigger.");
     await record.getByRole("button", { name: "Update", exact: true }).click();
     const reducedDialog = page.locator("dialog[data-journey-update-dialog][open]");
     await reducedDialog.getByText("Choose a different stage", { exact: true }).click();
@@ -336,6 +368,16 @@ try {
     await page.goto(origin, { waitUntil: "domcontentloaded" });
     await baseAssertions(page, "WebKit mobile Journey Card");
     await assertJourneyCard(page, "webkit-mobile");
+    await context.close();
+  }
+  {
+    const context = await chromiumBrowser.newContext({ viewport: { width: 1280, height: 900 } });
+    await install(context, origin, alternate.session.token);
+    const page = await context.newPage();
+    await page.goto(`${origin}/?stage=paused#active-opportunities`, { waitUntil: "domcontentloaded" });
+    const root = await baseAssertions(page, "Chromium empty stage filter");
+    await root.getByRole("heading", { name: "No opportunities in Paused right now." }).waitFor();
+    assert.equal(await root.getByRole("link", { name: "Show all active opportunities" }).count(), 1);
     await context.close();
   }
   {

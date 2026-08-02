@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { JourneyCommandCenterModel, JourneyCommandFilter, JourneyCommandRecord, JourneyCommandSort, JourneyOverviewCard } from "@/lib/journey-command-center";
-import { ArrowIcon, BellIcon, BookmarkIcon, MoreIcon, SearchIcon, SendIcon, SparkIcon, TargetIcon, TrophyIcon } from "@/components/icons";
+import { ArrowIcon, BellIcon, BookmarkIcon, CloseIcon, MoreIcon, SearchIcon, SendIcon, SparkIcon, TargetIcon, TrophyIcon } from "@/components/icons";
 import { OrganizationLogo, OrganizationMark } from "@/components/organization-logo";
 import { JourneyTimelineControl } from "@/components/journey-timeline-control";
 import { JourneyCardEntry } from "@/components/journey-card-entry";
@@ -65,9 +65,15 @@ function OverviewIcon({ card }: { card: JourneyOverviewCard }) {
 }
 
 function RecordDetails({ record }: { record: JourneyCommandRecord }) {
-  return <details className={styles.recordDetails} data-journey-record-details="">
-    <summary aria-label={`More actions and details for ${record.title}`}><MoreIcon /><span className="sr-only">More actions and details</span></summary>
-    <div className={styles.detailGrid}>
+  const panelId = `journey-record-details-${record.id}`;
+  const titleId = `${panelId}-title`;
+  return <div className={styles.recordDetails} data-journey-record-details="">
+    <button type="button" popoverTarget={panelId} aria-label={`View details for ${record.title}`} aria-haspopup="dialog"><MoreIcon /><span className="sr-only">View record details</span></button>
+    <section id={panelId} popover="auto" className={styles.detailGrid} role="dialog" aria-labelledby={titleId}>
+      <header className={styles.detailHeader}>
+        <div><p>Journey details</p><h3 id={titleId}>{record.title}</h3><span>{record.organization}</span></div>
+        <button type="button" popoverTarget={panelId} popoverTargetAction="hide" aria-label={`Close details for ${record.title}`}><CloseIcon /></button>
+      </header>
       <dl>
         <div><dt>Journey stage</dt><dd>{record.stageLabel}</dd></div>
         <div><dt>Public listing</dt><dd>{record.lifecycle?.label ?? "Listing unavailable"}{record.lifecycle && !record.lifecycle.actionable ? " · Journey stage unchanged" : ""}</dd></div>
@@ -83,8 +89,8 @@ function RecordDetails({ record }: { record: JourneyCommandRecord }) {
         {record.opportunity ? <Link href={`/opportunities/${record.id}`}>View details <ArrowIcon /></Link> : <span>The original public listing is no longer available.</span>}
         {record.opportunity?.official_source_url ? <a href={record.opportunity.official_source_url} target="_blank" rel="noreferrer">Official source <ArrowIcon /><span className="sr-only">(opens in a new tab)</span></a> : null}
       </div>
-    </div>
-  </details>;
+    </section>
+  </div>;
 }
 
 function JourneyRecordRow({ record, theme }: { record: JourneyCommandRecord; theme: JourneyCommandCenterModel["theme"] }) {
@@ -120,6 +126,13 @@ function EmptyJourney() {
     <p>Add an opportunity from Discover or For You, then update your progress as things change.</p>
     <div><Link href="/opportunities">Explore Discover <ArrowIcon /></Link><Link href="/advisor">View For You</Link></div>
   </section>;
+}
+
+function EmptyRecords({ model }: { model: JourneyCommandCenterModel }) {
+  if (model.query) return <div className={styles.noResults}><h3>No Journey records match “{model.query}”.</h3><p>Try another title or organization, or clear the search to see everything again.</p><Link href={hrefFor(model, { query: "" })}>Clear search</Link></div>;
+  if (model.filter === "history") return <div className={styles.noResults}><h3>No history yet.</h3><p>Completed and archived opportunities will appear here without removing them from your record.</p><Link href="/#active-opportunities">View active opportunities</Link></div>;
+  const heading = model.filter === "active" ? "No active opportunities right now." : `No opportunities in ${filterLabels[model.filter]} right now.`;
+  return <div className={styles.noResults}><h3>{heading}</h3><p>Choose another stage or add an opportunity when you find one worth pursuing.</p><Link href="/#active-opportunities">Show all active opportunities</Link></div>;
 }
 
 export function JourneyCommandCenter({ model }: { model: JourneyCommandCenterModel }) {
@@ -183,7 +196,7 @@ export function JourneyCommandCenter({ model }: { model: JourneyCommandCenterMod
           </div>
           {model.query ? <p className={styles.activeQuery}>Results for “{model.query}” <Link href={hrefFor(model, { query: "" })}>Clear search</Link></p> : null}
 
-          {model.activeRecords.length ? <div className={styles.records}>{model.activeRecords.map((record) => <JourneyRecordRow key={record.id} record={record} theme={model.theme} />)}</div> : <div className={styles.noResults}><h3>No active records match.</h3><p>Clear the current search or choose another stage.</p><Link href="/#active-opportunities">Show all active opportunities</Link></div>}
+          {model.activeRecords.length ? <div className={styles.records}>{model.activeRecords.map((record) => <JourneyRecordRow key={record.id} record={record} theme={model.theme} />)}</div> : <EmptyRecords model={model} />}
           {model.shownActiveCount < model.matchingActiveCount ? <Link className={styles.viewMore} href={hrefFor(model, { active: "100" })}>View {Math.min(94, model.matchingActiveCount - model.shownActiveCount)} more <span aria-hidden="true">⌄</span></Link> : null}
           {model.activeLimit === 100 && model.activeCount > 100 ? <p className={styles.limitNotice}>Showing the 100 most relevant active records. Use search or a stage filter to narrow the list.</p> : null}
         </section>

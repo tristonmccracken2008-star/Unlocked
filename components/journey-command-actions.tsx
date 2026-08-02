@@ -26,6 +26,7 @@ export function JourneyCommandActions({ trackedIds }: { trackedIds: string[] }) 
   const dialogRef = useRef<HTMLDialogElement>(null);
   const addTriggerRef = useRef<HTMLButtonElement>(null);
   const requestRef = useRef<AbortController | null>(null);
+  const exportRequestRef = useRef<AbortController | null>(null);
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<OpportunityListing[]>([]);
   const [selectedId, setSelectedId] = useState("");
@@ -44,19 +45,33 @@ export function JourneyCommandActions({ trackedIds }: { trackedIds: string[] }) 
     : true;
   const dirty = Boolean(selectedId || note || reminderAt || reminderText || stage !== "saved");
 
+  function resetDraft(clearCatalog = false) {
+    setSelectedId("");
+    setStage("saved");
+    setNote("");
+    setReminderAt("");
+    setReminderText("");
+    setError("");
+    if (clearCatalog) {
+      setQuery("");
+      setResults([]);
+    }
+  }
+
   useEffect(() => {
     const reset = () => {
       requestRef.current?.abort("account-changed");
+      exportRequestRef.current?.abort("account-changed");
       dialogRef.current?.close();
-      setResults([]);
-      setSelectedId("");
-      setError("");
+      resetDraft(true);
+      setLoading(false);
       setSaving(false);
       setExporting(false);
     };
     window.addEventListener(accountSessionEvent, reset);
     return () => {
       requestRef.current?.abort("unmounted");
+      exportRequestRef.current?.abort("unmounted");
       window.removeEventListener(accountSessionEvent, reset);
     };
   }, []);
@@ -69,7 +84,10 @@ export function JourneyCommandActions({ trackedIds }: { trackedIds: string[] }) 
 
   function close(force = false) {
     if (!force && dirty && !window.confirm("Close without saving this Journey record?")) return;
+    requestRef.current?.abort("dialog-closed");
     dialogRef.current?.close();
+    resetDraft();
+    setLoading(false);
     addTriggerRef.current?.focus();
   }
 
@@ -127,11 +145,6 @@ export function JourneyCommandActions({ trackedIds }: { trackedIds: string[] }) 
         setError(errorFor(response.status, body?.error));
         return;
       }
-      setSelectedId("");
-      setStage("saved");
-      setNote("");
-      setReminderAt("");
-      setReminderText("");
       close(true);
       router.refresh();
     } catch {
@@ -148,8 +161,11 @@ export function JourneyCommandActions({ trackedIds }: { trackedIds: string[] }) 
     if (exporting) return;
     setExporting(true);
     setError("");
+    const controller = new AbortController();
+    exportRequestRef.current = controller;
+    const timeout = window.setTimeout(() => controller.abort("timeout"), 8_000);
     try {
-      const response = await authenticatedFetch("/api/journey/export", { credentials: "same-origin", cache: "no-store" });
+      const response = await authenticatedFetch("/api/journey/export", { credentials: "same-origin", cache: "no-store", signal: controller.signal });
       if (!response.ok) {
         const body = await response.json().catch(() => null) as { error?: string } | null;
         setError(errorFor(response.status, body?.error || "Your Journey export could not be prepared."));
@@ -165,9 +181,12 @@ export function JourneyCommandActions({ trackedIds }: { trackedIds: string[] }) 
       link.remove();
       window.setTimeout(() => URL.revokeObjectURL(url), 1_000);
     } catch {
-      setError("We couldn’t reach UnlockED. Try exporting again.");
+      if (controller.signal.reason === "account-changed" || controller.signal.reason === "unmounted") return;
+      setError(controller.signal.reason === "timeout" ? "Preparing the export took too long. Try again." : "We couldn’t reach UnlockED. Try exporting again.");
     } finally {
-      setExporting(false);
+      window.clearTimeout(timeout);
+      if (exportRequestRef.current === controller) exportRequestRef.current = null;
+      if (controller.signal.reason !== "account-changed" && controller.signal.reason !== "unmounted") setExporting(false);
     }
   }
 
