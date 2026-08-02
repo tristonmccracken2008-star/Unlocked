@@ -80,8 +80,8 @@ assert.equal(resolve("accept", { id: "offer_received", label: "Offer received", 
 assert.equal(resolve("accept", { id: "accepted", label: "Accepted", major: true })?.kind, "acceptance");
 assert.equal(resolve("accept", { id: "awarded", label: "Awarded", major: true })?.kind, "scholarship_awarded");
 assert.equal(resolve("accept", { id: "winner", label: "Winner", major: true })?.kind, "competition_result");
-assert.equal(resolve("complete", { id: "completed_program", label: "Completed program", major: true })?.level, "signature");
-assert.equal(resolve("complete", { id: "completed_program", label: "Completed program", major: true }, [event("complete", "research_completed")])?.level, "major");
+assert.equal(resolve("complete", { id: "completed_program", label: "Experience completed", major: true })?.level, "signature");
+assert.equal(resolve("complete", { id: "completed_program", label: "Experience completed", major: true }, [event("complete", "research_completed")])?.level, "major");
 assert.equal(resolve("accept", { id: "accepted", label: "Accepted", major: true }, [], true), null, "A duplicate response must never replay celebration eligibility.");
 assert.equal(resolve("accept", { id: "accepted", label: "Accepted", major: true }, [], false, true), null, "A corrected earlier stage must not replay a milestone celebration.");
 

@@ -100,6 +100,7 @@ async function seedSession(label: string, status: "Saved" | "Applying" = "Saved"
       onboardingCompletedAt: "2026-07-01T12:00:00.000Z",
     },
     onboardingComplete: true,
+    firstLaunchComplete: true,
     activity: { viewed: [], saved: [record.id], claimed: [], tracked: { [record.id]: record } },
     tracker: { [record.id]: record },
     savedOpportunities: [{ opportunityId: record.id, savedAt: record.savedAt }],
@@ -112,7 +113,7 @@ async function installSession(context: BrowserContext, origin: string, token: st
 }
 
 async function openUpdate(page: Page) {
-  const action = page.getByRole("button", { name: "Update Journey" }).first();
+  const action = page.getByRole("button", { name: "Update", exact: true }).first();
   await action.waitFor({ state: "visible", timeout: 12_000 });
   await action.click();
   const dialog = page.locator("dialog[data-journey-update-dialog][open]");
@@ -122,7 +123,11 @@ async function openUpdate(page: Page) {
 
 async function saveUpdate(page: Page, option?: RegExp, duplicate = false) {
   const dialog = page.locator("dialog[data-journey-update-dialog][open]");
-  if (option) await dialog.getByText(option).first().click();
+  if (option) {
+    const choice = dialog.getByText(option).first();
+    if (!await choice.isVisible()) await dialog.getByText("Choose a different stage", { exact: true }).click();
+    await choice.click();
+  }
   let requestCount = 0;
   const count = (request: { url(): string }) => { if (request.url().includes("/api/journey/transition")) requestCount += 1; };
   page.on("request", count);
@@ -149,8 +154,8 @@ async function completeForwardSequence(page: Page) {
     /Interview received/,
     /Final round interview/,
     /Offer received/,
-    /^Accepted$/,
-    /Completed program/,
+    /Offer accepted/,
+    /Experience completed/,
   ];
   for (const [index, stage] of stages.entries()) {
     await openUpdate(page);
@@ -158,8 +163,8 @@ async function completeForwardSequence(page: Page) {
     await result.getByText(stage).first().waitFor({ state: "visible" });
     await returnToJourney(page);
   }
-  await page.getByText("Completed program", { exact: true }).first().waitFor({ state: "visible" });
-  await page.getByRole("heading", { name: "Your record, year by year." }).waitFor({ state: "visible" });
+  await page.getByText("Experience completed", { exact: true }).first().waitFor({ state: "visible" });
+  await page.getByRole("heading", { name: "Professional history" }).waitFor({ state: "visible" });
 }
 
 async function verifyPauseResumeClose(page: Page) {
@@ -200,7 +205,7 @@ async function runBrowser(browser: Browser, origin: string, sessions: Awaited<Re
   await installSession(context, origin, sessions[0].token);
   const page = await context.newPage();
   await page.goto(origin, { waitUntil: "domcontentloaded", timeout: 45_000 });
-  await page.locator("[data-journey-timeline]").waitFor({ state: "visible" });
+  await page.locator("[data-journey-command-center]").waitFor({ state: "visible" });
   await page.waitForLoadState("networkidle");
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   assert.ok(overflow <= 1, `Journey transformation UI must not overflow; received ${overflow}px.`);
@@ -233,7 +238,7 @@ async function runBrowser(browser: Browser, origin: string, sessions: Awaited<Re
     await page.waitForTimeout(900);
     assert.equal(await page.locator("dialog[data-journey-update-dialog][open]").count(), 0, "Account changes must discard stale completion UI.");
   } else {
-    const action = page.getByRole("button", { name: "Update Journey" }).first();
+    const action = page.getByRole("button", { name: "Update", exact: true }).first();
     await action.waitFor({ state: "visible" });
     const minimum = await action.boundingBox();
     assert.ok(minimum && minimum.height >= 44, "Mobile primary actions must be at least 44px high.");

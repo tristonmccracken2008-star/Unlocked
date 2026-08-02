@@ -35,7 +35,7 @@ assert.match(timelineControl, /setDocuments\(control\.details\?\.documents \?\? 
 assert.match(timelineControl, /controllerRef\.current\?\.abort\("account-changed"\)/);
 
 assert.match(commandCenter, /No Journey records match/);
-assert.match(commandCenter, /No history yet/);
+assert.match(commandCenter, /No professional history yet/);
 assert.match(commandCenter, /No opportunities in/);
 assert.doesNotMatch(commandCenter, /No active records match/);
 

@@ -9,11 +9,11 @@ function base(id: string): TrackedOpportunity {
 }
 
 const requiredStages = {
-  career: ["Saved", "Preparing application", "Application submitted", "Interview received", "Final round interview", "Offer received", "Accepted", "Completed program", "Archived"],
-  scholarship: ["Saved", "Preparing submission", "Submitted", "Finalist", "Awarded", "Funds received", "Archived"],
-  research: ["Saved", "Contacted lab", "Interview", "Accepted", "Research active", "Research completed", "Archived"],
-  competition: ["Saved", "Registered", "Participated", "Finalist", "Winner", "Completed", "Archived"],
-  resource: ["Saved", "Activated", "Completed", "Archived"],
+  career: ["Saved", "Preparing application", "Application submitted", "Interview received", "Final round interview", "Offer received", "Offer accepted", "Experience completed", "Archived"],
+  scholarship: ["Saved", "Preparing submission", "Application submitted", "Finalist", "Awarded", "Funds received", "Archived"],
+  research: ["Saved", "Contacted lab", "Research interview", "Research position accepted", "Research underway", "Research completed", "Archived"],
+  competition: ["Saved", "Registered", "Competition entered", "Finalist", "Competition won", "Competition completed", "Archived"],
+  resource: ["Saved", "Resource activated", "Resource completed", "Archived"],
 } as const;
 
 for (const [kind, labels] of Object.entries(requiredStages)) {

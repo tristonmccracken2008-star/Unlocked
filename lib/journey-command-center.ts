@@ -41,6 +41,7 @@ export type JourneyCommandRecord = {
   lifecycle?: { label: string; state: string; actionable: boolean };
   latestDetails?: JourneyMilestoneDetails;
   history: Array<{ id: string; label: string; transition: string; occurredAt: string; details?: JourneyMilestoneDetails }>;
+  historyFullyProjected: boolean;
   opportunity?: Opportunity;
   control?: JourneyTimelineControl;
   unavailable: boolean;
@@ -149,11 +150,40 @@ function stageFilter(record: TrackedOpportunity, stageId: string): JourneyComman
 function statusDetail(record: TrackedOpportunity, details: JourneyMilestoneDetails | undefined, stageLabel: string) {
   if (details?.reminderText) return details.reminderText;
   if (record.status === "Saved") return "Saved for review";
+  if (record.status === "Interested") return "Selected for closer review";
+  if (record.status === "Applying") return "Preparation in progress";
+  if (record.status === "Submitted") return "Submission recorded";
+  if (record.status === "Interview") return "Interview progress recorded";
+  if (record.status === "Accepted") return "Confirmed outcome recorded";
   if (record.status === "Paused") return "Paused by you";
-  if (record.status === "Rejected") return stageLabel === "Archived" ? "Kept in History" : "Closed by you";
-  if (record.status === "Completed") return "Completed and preserved in History";
-  return `Current stage: ${stageLabel}`;
+  if (record.status === "Rejected") return stageLabel === "Archived" ? "Kept in professional history" : "Closed by you";
+  if (record.status === "Completed") return "Preserved in professional history";
+  return "Progress recorded";
 }
+
+const fallbackStatusLabels: Record<OpportunityTrackerStatus, string> = {
+  Saved: "Saved",
+  Interested: "Selected",
+  Applying: "Preparing application",
+  Submitted: "Application submitted",
+  Interview: "Interview recorded",
+  Accepted: "Acceptance recorded",
+  Paused: "Paused",
+  Rejected: "Closed",
+  Completed: "Experience completed",
+};
+
+const fallbackHistoryLabels: Record<string, string> = {
+  choose: "Saved to Journey",
+  start: "Preparation started",
+  submit: "Application submitted",
+  interview: "Interview recorded",
+  accept: "Acceptance recorded",
+  complete: "Experience completed",
+  pause: "Opportunity paused",
+  resume: "Opportunity resumed",
+  close: "Opportunity archived",
+};
 
 function nextRelevantDate(opportunity: Opportunity | undefined, details: JourneyMilestoneDetails | undefined, now: Date, timezone: string) {
   const candidates: Array<{ label: string; value: string }> = [];
@@ -196,8 +226,7 @@ function controlFor(record: TrackedOpportunity, opportunity: Opportunity, now: D
 function projectRecord(record: TrackedOpportunity, opportunity: Opportunity | undefined, now: Date, timezone: string): JourneyCommandRecord {
   const workflow = opportunity ? getJourneyProfessionalWorkflow(opportunity) : undefined;
   const resolvedStage = workflow ? resolveJourneyProfessionalStage(record, workflow) : undefined;
-  const stageLabel = resolvedStage?.label
-    ?? (record.status === "Interview" ? "Interviewing" : record.status === "Rejected" ? "Closed" : record.status);
+  const stageLabel = resolvedStage?.label ?? fallbackStatusLabels[record.status];
   const details = latestDetails(record);
   const lifecycle = opportunity ? resolveOpportunityLifecycle(opportunity, now) : undefined;
   return {
@@ -214,13 +243,17 @@ function projectRecord(record: TrackedOpportunity, opportunity: Opportunity | un
     statusDetail: statusDetail(record, details, stageLabel),
     lifecycle: lifecycle ? { label: lifecycle.label, state: lifecycle.displayState, actionable: lifecycle.actionable } : undefined,
     latestDetails: details,
-    history: [...(record.history ?? [])].slice(-10).reverse().map((item) => ({
-      id: item.id,
-      label: item.professionalStageId?.replaceAll("_", " ") ?? item.transition,
-      transition: item.transition,
-      occurredAt: item.occurredAt,
-      details: item.details,
-    })),
+    historyFullyProjected: (record.history?.length ?? 0) <= 10,
+    history: [...(record.history ?? [])].slice(-10).reverse().map((item) => {
+      const canonicalStage = workflow?.stages.find((stage) => stage.id === item.professionalStageId);
+      return {
+        id: item.id,
+        label: canonicalStage?.label ?? fallbackHistoryLabels[item.transition] ?? "Journey updated",
+        transition: item.transition,
+        occurredAt: item.occurredAt,
+        details: item.details,
+      };
+    }),
     opportunity,
     control: opportunity ? controlFor(record, opportunity, now) : undefined,
     unavailable: !opportunity,
@@ -278,6 +311,33 @@ function matchesQuery(record: JourneyCommandRecord, query: string) {
   return `${record.title} ${record.organization} ${record.latestDetails?.notes ?? ""}`.toLocaleLowerCase().includes(normalized);
 }
 
+function milestoneDomain(record: JourneyCommandRecord, transition: string) {
+  if (transition === "interview") return "interview";
+  if (!record.opportunity || !["accept", "complete"].includes(transition)) return undefined;
+  return `${transition}:${getJourneyProfessionalWorkflow(record.opportunity).id}`;
+}
+
+function firstMilestoneLabel(record: JourneyCommandRecord, transition: string) {
+  if (transition === "interview") return "First interview recorded";
+  if (!record.opportunity) return undefined;
+  const kind = getJourneyProfessionalWorkflow(record.opportunity).id;
+  if (transition === "accept") {
+    if (kind === "scholarship") return "First scholarship award recorded";
+    if (kind === "research") return "First research acceptance recorded";
+    if (kind === "competition") return "First competition result recorded";
+    if (kind === "career") return "First offer recorded";
+    return "First confirmed outcome";
+  }
+  if (transition === "complete") {
+    if (kind === "research") return "First research experience completed";
+    if (kind === "competition") return "First competition completed";
+    if (kind === "scholarship") return "First scholarship completion recorded";
+    if (kind === "resource") return "First resource completed";
+    return "First experience completed";
+  }
+  return undefined;
+}
+
 function overviewCards(records: readonly JourneyCommandRecord[], now: Date): JourneyOverviewCard[] {
   const active = records.filter((record) => !terminalStatuses.has(record.status));
   const verifiedDeadline = active
@@ -300,7 +360,7 @@ function overviewCards(records: readonly JourneyCommandRecord[], now: Date): Jou
   const yearEvents = records.flatMap((record) => record.history.filter((item) => new Date(item.occurredAt).getUTCFullYear() === currentYear));
   const yearMilestones = yearEvents.filter((item) => validationTransitions.has(item.transition)).length;
   const yearInterviews = yearEvents.filter((item) => item.transition === "interview").length;
-  const yearOffers = yearEvents.filter((item) => item.transition === "accept").length;
+  const yearResults = yearEvents.filter((item) => item.transition === "accept").length;
   const yearSaved = yearEvents.filter((item) => item.transition === "choose").length;
   const cards: JourneyOverviewCard[] = [];
   if (verifiedDeadline) {
@@ -327,10 +387,18 @@ function overviewCards(records: readonly JourneyCommandRecord[], now: Date): Jou
     });
   }
   if (newestMilestone) {
+    const newestDomain = milestoneDomain(newestMilestone.record, newestMilestone.item.transition);
+    const earlierSameMilestone = !newestDomain || records.some((record) => record.history.some((item) =>
+      milestoneDomain(record, item.transition) === newestDomain
+      && safeTime(item.occurredAt) < safeTime(newestMilestone.item.occurredAt),
+    ));
+    const firstRecognition = records.every((record) => record.historyFullyProjected) && !earlierSameMilestone
+      ? firstMilestoneLabel(newestMilestone.record, newestMilestone.item.transition)
+      : undefined;
     cards.push({
       id: "newest_milestone",
-      label: "Newest milestone",
-      value: newestMilestone.record.stageLabel,
+      label: firstRecognition ?? (newestMilestone.item.transition === "interview" ? "Recent progress" : "Recent accomplishment"),
+      value: newestMilestone.item.label,
       title: newestMilestone.record.title,
       detail: new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" }).format(new Date(newestMilestone.item.occurredAt)),
       href: `#journey-record-${newestMilestone.record.id}`,
@@ -344,8 +412,8 @@ function overviewCards(records: readonly JourneyCommandRecord[], now: Date): Jou
       value: yearMilestones
         ? `${yearMilestones} ${yearMilestones === 1 ? "milestone" : "milestones"}`
         : `${yearEvents.length} recorded ${yearEvents.length === 1 ? "update" : "updates"}`,
-      title: yearOffers || yearInterviews
-        ? `${yearOffers} ${yearOffers === 1 ? "offer" : "offers"} · ${yearInterviews} ${yearInterviews === 1 ? "interview" : "interviews"}`
+      title: yearResults || yearInterviews
+        ? `${yearResults} ${yearResults === 1 ? "result" : "results"} recorded · ${yearInterviews} ${yearInterviews === 1 ? "interview" : "interviews"}`
         : `${yearSaved} ${yearSaved === 1 ? "opportunity" : "opportunities"} saved`,
       detail: `${yearEvents.length} recorded ${yearEvents.length === 1 ? "update" : "updates"}`,
       href: "#journey-history",

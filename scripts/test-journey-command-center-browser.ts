@@ -220,7 +220,7 @@ try {
     assert.ok(await root.locator("[aria-label='Journey overview'] > *").count() <= 4);
     assert.equal(Number(await root.locator("[aria-label='Journey overview']").getAttribute("data-count")), await root.locator("[aria-label='Journey overview'] > *").count(), "The overview layout must reflect only supported summary items.");
     assert.ok(await root.locator("[data-journey-record]").count() >= 4);
-    assert.ok(await root.getByRole("heading", { name: /Things to do/ }).count() <= 1);
+    assert.ok(await root.getByRole("heading", { name: /Needs attention/ }).count() <= 1);
     const firstRecord = root.locator("[data-journey-record]").filter({ hasText: rich.title }).first();
     const detailsTrigger = firstRecord.getByRole("button", { name: `View details for ${rich.title}` });
     await detailsTrigger.click();
@@ -261,7 +261,7 @@ try {
     const interviewRecord = root.locator('[data-journey-record][data-stage="interviewing"]').first();
     await interviewRecord.getByRole("button", { name: "Update", exact: true }).click();
     const milestoneDialog = page.locator("dialog[data-journey-update-dialog][open]");
-    await milestoneDialog.getByText("Accepted", { exact: true }).first().click();
+    await milestoneDialog.getByText("Research position accepted", { exact: true }).first().click();
     await milestoneDialog.getByRole("button", { name: "Save milestone" }).click();
     await milestoneDialog.getByText("A defining milestone", { exact: true }).waitFor();
     await milestoneDialog.locator("[data-milestone-celebration]").waitFor({ state: "attached" });
@@ -344,7 +344,7 @@ try {
     assert.equal(await root.getByText("500 records", { exact: true }).count() >= 1, true);
     await page.screenshot({ path: path.join(output, "journey-command-tablet.png"), fullPage: false, caret: "initial" });
     await root.getByText("500 records", { exact: true }).click();
-    await root.getByText("View all history", { exact: true }).waitFor();
+    await root.getByText("View full history", { exact: true }).waitFor();
     const pageHeight = await page.evaluate(() => document.documentElement.scrollHeight);
     assert.ok(pageHeight < 55_000, `Bounded initial Journey should avoid an excessive page height; received ${pageHeight}px.`);
     await context.close();

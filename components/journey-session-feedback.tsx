@@ -77,7 +77,7 @@ export function JourneySessionFeedback({
     {hintsVisible ? <aside className={styles.hints} aria-labelledby="journey-hints-title">
       <div><p id="journey-hints-title">A quick guide to Journey</p><button type="button" onClick={dismissHints} aria-label="Dismiss Journey guide"><CloseIcon /></button></div>
       <ol>
-        <li><strong>Things to do</strong><span>Confirmed deadlines and reminders that need attention.</span></li>
+        <li><strong>Needs attention</strong><span>Confirmed deadlines and reminders that require a response.</span></li>
         <li><strong>Update</strong><span>Record real progress when an opportunity moves forward.</span></li>
         <li><strong>Journey Cards</strong><span>Turn a confirmed milestone into a private, shareable card.</span></li>
       </ol>

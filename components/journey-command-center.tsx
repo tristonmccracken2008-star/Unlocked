@@ -84,7 +84,7 @@ function RecordDetails({ record }: { record: JourneyCommandRecord }) {
       </dl>
       {record.latestDetails?.notes ? <section><h4>Private note</h4><p>{record.latestDetails.notes}</p></section> : null}
       {record.latestDetails?.documents?.length ? <section><h4>Document references</h4><ul>{record.latestDetails.documents.map((document) => <li key={document.id}>{document.name}</li>)}</ul><p>References only. Files are not stored by UnlockED.</p></section> : null}
-      {record.history.length ? <section><h4>Recent stage history</h4><ol>{record.history.map((item) => <li key={item.id}><span>{item.label.replace(/\b\w/g, (letter) => letter.toUpperCase())}</span><time dateTime={item.occurredAt}>{formatDate(item.occurredAt)}</time></li>)}</ol></section> : null}
+      {record.history.length ? <section><h4>Recent progress</h4><ol>{record.history.map((item) => <li key={item.id}><span>{item.label}</span><time dateTime={item.occurredAt}>{formatDate(item.occurredAt)}</time></li>)}</ol></section> : null}
       <div className={styles.detailLinks}>
         {record.opportunity ? <Link href={`/opportunities/${record.id}`}>View details <ArrowIcon /></Link> : <span>The original public listing is no longer available.</span>}
         {record.opportunity?.official_source_url ? <a href={record.opportunity.official_source_url} target="_blank" rel="noreferrer">Official source <ArrowIcon /><span className="sr-only">(opens in a new tab)</span></a> : null}
@@ -130,7 +130,7 @@ function EmptyJourney() {
 
 function EmptyRecords({ model }: { model: JourneyCommandCenterModel }) {
   if (model.query) return <div className={styles.noResults}><h3>No Journey records match “{model.query}”.</h3><p>Try another title or organization, or clear the search to see everything again.</p><Link href={hrefFor(model, { query: "" })}>Clear search</Link></div>;
-  if (model.filter === "history") return <div className={styles.noResults}><h3>No history yet.</h3><p>Completed and archived opportunities will appear here without removing them from your record.</p><Link href="/#active-opportunities">View active opportunities</Link></div>;
+  if (model.filter === "history") return <div className={styles.noResults}><h3>No professional history yet.</h3><p>Completed and archived opportunities will appear here as your record grows.</p><Link href="/#active-opportunities">View active opportunities</Link></div>;
   const heading = model.filter === "active" ? "No active opportunities right now." : `No opportunities in ${filterLabels[model.filter]} right now.`;
   return <div className={styles.noResults}><h3>{heading}</h3><p>Choose another stage or add an opportunity when you find one worth pursuing.</p><Link href="/#active-opportunities">Show all active opportunities</Link></div>;
 }
@@ -160,7 +160,7 @@ export function JourneyCommandCenter({ model }: { model: JourneyCommandCenterMod
         </section> : null}
 
         {model.attention.length ? <section className={styles.attention} aria-labelledby="journey-attention-heading">
-          <header><h2 id="journey-attention-heading">Things to do <span>{model.attentionCount}</span></h2>{model.attentionCount > model.attention.length ? <a href={hrefFor(model, { active: "100" })}>View all</a> : null}</header>
+          <header><h2 id="journey-attention-heading">Needs attention <span>{model.attentionCount}</span></h2>{model.attentionCount > model.attention.length ? <a href={hrefFor(model, { active: "100" })}>View all</a> : null}</header>
           <ol>{model.attention.map((item) => <li key={item.id} data-priority={item.priority}>
             <span className={styles.attentionIcon} aria-hidden="true">{item.id.startsWith("deadline") ? <TargetIcon /> : item.id.startsWith("reminder") ? <BellIcon /> : <SparkIcon />}</span>
             <div><strong>{item.title}</strong><span>{item.reason}</span></div>
@@ -202,7 +202,7 @@ export function JourneyCommandCenter({ model }: { model: JourneyCommandCenterMod
         </section>
 
         {model.historyCount ? <section className={styles.history} id="journey-history" aria-labelledby="journey-history-heading">
-          <header><h2 id="journey-history-heading">History</h2>{model.shownHistoryCount < model.historyCount ? <Link href={hrefFor(model, { stage: "history", history: "100" })}>View all history</Link> : null}</header>
+          <header><h2 id="journey-history-heading">Professional history</h2>{model.shownHistoryCount < model.historyCount ? <Link href={hrefFor(model, { stage: "history", history: "100" })}>View full history</Link> : null}</header>
           <div className={styles.historyGroups}>
             {model.historyGroups.map((group) => <details key={group.year} open={model.filter === "history" || Boolean(model.query)}>
               <summary><span><strong>{group.year}</strong><small>{group.count} {group.count === 1 ? "record" : "records"}</small></span><p>{group.completed ? `Completed ${group.completed}` : ""}{group.closed ? `${group.completed ? " · " : ""}Closed ${group.closed}` : ""}{group.archived ? `${group.completed || group.closed ? " · " : ""}Archived ${group.archived}` : ""}</p><ArrowIcon /></summary>
@@ -212,7 +212,7 @@ export function JourneyCommandCenter({ model }: { model: JourneyCommandCenterMod
         </section> : null}
 
         {model.cardEligible ? <section className={styles.cards} id="journey-cards" aria-labelledby="journey-card-heading">
-          <div><span aria-hidden="true"><SendIcon /></span><div><p>Journey Cards</p><h2 id="journey-card-heading">Celebrate a confirmed milestone.</h2><small>Turn factual progress into a polished card. Nothing is published automatically.</small></div></div>
+          <div><span aria-hidden="true"><SendIcon /></span><div><p>Journey Cards</p><h2 id="journey-card-heading">Present a confirmed milestone.</h2><small>Create a polished record of factual progress. Nothing is published automatically.</small></div></div>
           <JourneyCardEntry card={model.card} theme={model.theme} />
         </section> : null}
       </>}
