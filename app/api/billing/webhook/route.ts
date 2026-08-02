@@ -23,6 +23,7 @@ import {
   verifyStripeWebhookPayload,
 } from "@/lib/stripe";
 import { readBoundedText } from "@/lib/security";
+import { queueAccountNotification } from "@/lib/notification-service";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -65,8 +66,10 @@ async function persistSubscription(subscription: StripeSubscription, event: Stri
   }
 
   const status = billingStatusFromStripe(subscription.status, deleted);
+  const nextTier = status === "active" || status === "trialing" || status === "past_due" ? "pro" : "free";
+  const cancelAtPeriodEnd = Boolean(subscription.cancel_at_period_end);
   await updateAccountBilling(userId, {
-    tier: status === "active" || status === "trialing" || status === "past_due" ? "pro" : "free",
+    tier: nextTier,
     status,
     stripeCustomerId: customerId,
     stripeSubscriptionId: subscription.id,
@@ -74,10 +77,31 @@ async function persistSubscription(subscription: StripeSubscription, event: Stri
     billingInterval: intervalForPriceId(priceId),
     currentPeriodStart: timestampFromStripe(subscription.current_period_start),
     currentPeriodEnd: timestampFromStripe(subscription.current_period_end),
-    cancelAtPeriodEnd: Boolean(subscription.cancel_at_period_end),
+    cancelAtPeriodEnd,
     stripeEventId: event.id,
     stripeEventCreatedAt: eventCreatedAt(event),
   });
+  if (current.billing.status !== status || current.billing.tier !== nextTier || current.billing.cancelAtPeriodEnd !== cancelAtPeriodEnd) {
+    const message = status === "past_due"
+      ? { title: "Billing needs attention", body: "Your latest Pro payment was not completed. Review billing to keep your plan current.", priority: "high" as const }
+      : cancelAtPeriodEnd
+        ? { title: "Your Pro plan is set to end", body: "Your Pro access remains available through the current billing period.", priority: "normal" as const }
+        : nextTier === "pro"
+          ? { title: "Your Pro plan is active", body: "Your subscription is active and your account has been updated.", priority: "normal" as const }
+          : { title: "Your account is now on Free", body: "Your subscription changed, and the core UnlockED experience remains available.", priority: "normal" as const };
+    await queueAccountNotification({
+      userId,
+      eventId: event.id,
+      title: message.title,
+      body: message.body,
+      actionLabel: "Manage billing",
+      actionHref: "/profile#billing",
+      priority: message.priority,
+      now: new Date(eventCreatedAt(event)),
+    }).catch((error) => {
+      console.warn("[UnlockED billing] Account notification failed", { eventId: event.id, type: event.type, errorCategory: error instanceof Error ? error.name : "unknown" });
+    });
+  }
 }
 
 async function processCheckout(event: StripeEvent) {
@@ -93,6 +117,7 @@ async function processCheckout(event: StripeEvent) {
 
   const subscriptionId = stringValue(session.subscription, /^sub_[A-Za-z0-9]{8,}$/);
   if (!subscriptionId) {
+    const current = await readAccountData(userId);
     await updateAccountBilling(userId, {
       tier: "free",
       status: "incomplete",
@@ -100,6 +125,20 @@ async function processCheckout(event: StripeEvent) {
       stripeEventId: event.id,
       stripeEventCreatedAt: eventCreatedAt(event),
     });
+    if (current.billing.status !== "incomplete") {
+      await queueAccountNotification({
+        userId,
+        eventId: event.id,
+        title: "Your Pro setup needs attention",
+        body: "Checkout finished without an active subscription. Review billing before trying again.",
+        actionLabel: "Review billing",
+        actionHref: "/profile#billing",
+        priority: "high",
+        now: new Date(eventCreatedAt(event)),
+      }).catch((error) => {
+        console.warn("[UnlockED billing] Account notification failed", { eventId: event.id, type: event.type, errorCategory: error instanceof Error ? error.name : "unknown" });
+      });
+    }
     return;
   }
   const subscription = await retrieveSubscription(subscriptionId);

@@ -86,10 +86,13 @@ export function NotificationSettings({ embedded = false }: { embedded?: boolean 
         <Toggle checked={preferences.inAppEnabled} label="In-app notifications" description="Show timely updates inside UnlockED." onChange={(checked) => update("inAppEnabled", checked)} />
         <Toggle checked={preferences.emailEnabled} label="Email notifications" description="Allow urgent deadline and reminder emails. Marketing remains separate." onChange={(checked) => update("emailEnabled", checked)} />
         <Toggle checked={preferences.deadlineReminders} label="Deadline reminders" description="Remind you about verified deadlines for active Journey opportunities." onChange={(checked) => update("deadlineReminders", checked)} />
+        <Toggle checked={preferences.personalizedOpportunities} label="Personalized opportunities" description="Tell you when a newly added, verified opportunity is an especially strong match." onChange={(checked) => update("personalizedOpportunities", checked)} />
         <Toggle checked={preferences.journeyReminders} label="Journey reminders" description="Deliver reminders you create and occasional factual follow-ups." onChange={(checked) => update("journeyReminders", checked)} />
         <Toggle checked={preferences.opportunityChanges} label="Changes to saved opportunities" description="Tell you when a verified deadline, eligibility rule, location, award, or application status changes." onChange={(checked) => update("opportunityChanges", checked)} />
+        <Toggle checked={preferences.milestoneUpdates} label="Journey milestones" description="Recognize meaningful firsts and completed experiences without streaks or gamification." onChange={(checked) => update("milestoneUpdates", checked)} />
+        <Toggle checked={preferences.accountUpdates} label="Account updates" description="Show important subscription, billing, profile, and security notices." onChange={(checked) => update("accountUpdates", checked)} />
+        <Toggle checked={preferences.productAnnouncements} label="Product announcements" description="Show occasional important changes to UnlockED. Off by default." onChange={(checked) => update("productAnnouncements", checked)} />
         <Toggle checked={preferences.weeklyDigest} label="Weekly UnlockED summary" description="Send one short summary only when there are meaningful updates." onChange={(checked) => update("weeklyDigest", checked)} />
-        <Toggle checked={preferences.recommendationUpdates} label="New opportunities selected for you" description="Allow at most one restrained recommendation update per week. Off by default." onChange={(checked) => update("recommendationUpdates", checked)} />
       </div>
 
       <div className="mt-6 grid gap-5 sm:grid-cols-2">

@@ -59,6 +59,10 @@ const cleaned = cleanAccountDataInput({
       deadlineReminders: true,
       journeyReminders: false,
       opportunityChanges: true,
+      personalizedOpportunities: true,
+      milestoneUpdates: false,
+      accountUpdates: true,
+      productAnnouncements: false,
       weeklyDigest: true,
       recommendationUpdates: false,
       frequency: "balanced",
@@ -72,6 +76,7 @@ const cleaned = cleanAccountDataInput({
 });
 assert.equal(cleaned.preferences?.notifications?.timezone, "America/Chicago");
 assert.equal(cleaned.preferences?.notifications?.emailEnabled, false);
+assert.equal(cleaned.preferences?.notifications?.milestoneUpdates, false);
 assert.equal("forgedAdminSetting" in (cleaned.preferences?.notifications as object), false);
 
 const center = source("components/notification-center.tsx");
@@ -86,5 +91,15 @@ assert.match(center, /prefers-reduced-motion: reduce/);
 assert.match(source("components/notification-nav-button.tsx"), /aria-label=\{label\}/);
 assert.match(source("app/notifications/page.tsx"), /requireCompletedOnboarding/);
 assert.match(source("vercel.json"), /\/api\/notifications\/schedule/);
+
+const service = source("lib/notification-service.ts");
+assert.match(service, /selectPersonalizedNotificationCandidate/);
+assert.match(service, /claimNotificationSync/);
+assert.match(service, /queueJourneyMilestoneNotification/);
+assert.match(service, /queueAccountNotification/);
+assert.match(source("app\/api\/advisor\/for-you\/route.ts"), /syncPersonalizedOpportunityNotification/);
+assert.match(source("app\/api\/journey\/add\/route.ts"), /queueJourneyMilestoneNotification/);
+assert.match(source("app\/api\/journey\/transition\/route.ts"), /queueJourneyMilestoneNotification/);
+assert.match(source("app\/api\/billing\/webhook\/route.ts"), /queueAccountNotification/);
 
 console.log("Notification security, ownership, accessibility, and configuration checks passed");

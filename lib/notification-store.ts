@@ -142,11 +142,22 @@ export async function storeNotification(userId: string, record: NotificationReco
   });
 }
 
+export async function claimNotificationSync(userId: string, version: string, expiresInSeconds = 300) {
+  return await command<string>([
+    "SET",
+    keyed("sync", `${userId}:${version}`),
+    "1",
+    "NX",
+    "EX",
+    String(Math.max(30, Math.min(expiresInSeconds, 3_600))),
+  ]) === "OK";
+}
+
 function visible(record: NotificationRecord, now: number) {
   return record.channels.inApp.state === "delivered"
     && !record.dismissedAt
     && Date.parse(record.expiresAt) > now
-    && !["canceled", "expired", "suppressed"].includes(record.state);
+    && !["archived", "canceled", "expired", "suppressed"].includes(record.state);
 }
 
 export async function readNotifications(userId: string, offset = 0, limit = 30) {
@@ -168,7 +179,7 @@ export async function readNotificationById(userId: string, notificationId: strin
   return (await readAll(userId)).find((item) => item.id === notificationId) ?? null;
 }
 
-export async function updateNotificationState(userId: string, notificationId: string, action: "read" | "dismiss" | "acted", now = new Date()) {
+export async function updateNotificationState(userId: string, notificationId: string, action: "read" | "dismiss" | "archive" | "acted", now = new Date()) {
   return await withSecurityLock("notifications", userId, async () => {
     const records = await readAll(userId);
     const index = records.findIndex((item) => item.id === notificationId);
@@ -176,12 +187,29 @@ export async function updateNotificationState(userId: string, notificationId: st
     const current = records[index];
     const updated: NotificationRecord = action === "dismiss"
       ? { ...current, state: "dismissed", dismissedAt: now.toISOString() }
+      : action === "archive"
+        ? { ...current, state: "archived", readAt: current.readAt ?? now.toISOString() }
       : action === "acted"
         ? { ...current, state: "acted_on", readAt: current.readAt ?? now.toISOString(), actedAt: now.toISOString() }
         : { ...current, state: current.state === "delivered" ? "read" : current.state, readAt: current.readAt ?? now.toISOString() };
     records[index] = updated;
     await writeAll(userId, records);
     return updated;
+  });
+}
+
+export async function archiveExpiredNotifications(userId: string, now = new Date()) {
+  return await withSecurityLock("notifications", userId, async () => {
+    const records = await readAll(userId);
+    let changed = 0;
+    const next = records.map((record) => {
+      if (record.state === "archived" || Date.parse(record.expiresAt) > now.getTime()) return record;
+      if (["dismissed", "acted_on", "suppressed", "failed", "canceled"].includes(record.state)) return record;
+      changed += 1;
+      return { ...record, state: "archived" as const, readAt: record.readAt ?? now.toISOString() };
+    });
+    if (changed) await writeAll(userId, next);
+    return changed;
   });
 }
 

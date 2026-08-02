@@ -43,6 +43,7 @@ function NotificationTypeIcon({ type }: { type: NotificationType }) {
   if (type === "opportunity_change") return <SparkIcon />;
   if (type === "weekly_digest") return <ListIcon />;
   if (type === "recommendation_update") return <TargetIcon />;
+  if (type === "milestone") return <SparkIcon />;
   return <BellIcon />;
 }
 

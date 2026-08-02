@@ -17,7 +17,7 @@ It does not create another saved-opportunity model, application status model, ac
 
 ## Product rules
 
-Notifications exist only for a verified deadline, an explicit reminder, a material tracked-opportunity change, a factual Journey follow-up, or an optional useful digest. Inactivity alone never creates a notification.
+Notifications exist only for a verified deadline, an explicit reminder, a material tracked-opportunity change, one bounded factual Journey check-in, a meaningful first milestone, an important account event, a strict newly added personalized match, or an optional useful digest. A Saved or Interested item can receive one check-in after two unchanged weeks; later inactivity does not create recurring messages.
 
 Default preferences:
 
@@ -28,8 +28,11 @@ Default preferences:
 | Verified deadline reminders | On |
 | User-created Journey reminders | On |
 | Material opportunity changes | On |
+| Personalized opportunities | On for new accounts; preserved for existing preferences |
+| Journey milestones | On |
+| Account updates | On |
+| Product announcements | Off |
 | Weekly digest | Off |
-| Recommendation email | Off |
 | Frequency | Important only |
 | Timezone | America/New_York until the user saves another |
 | Quiet hours | 10 PM–8 AM |
@@ -38,7 +41,7 @@ Marketing consent is not represented by these settings and must remain separate.
 
 ## Eligibility and timing
 
-- Saved and Interested items receive restrained 7-day and 1-day schedules.
+- Saved, Interested, and Applying items receive restrained 7-day, 3-day, and 1-day schedules.
 - Applying items receive 7-day, 3-day, and 1-day schedules.
 - Only fixed, future, verified deadlines verified within the last 366 days are eligible.
 - Rolling, unknown, varied, closed-cycle, malformed, stale, or expired deadlines do not create deadline reminders.
@@ -46,7 +49,10 @@ Marketing consent is not represented by these settings and must remain separate.
 - A custom reminder takes priority and suppresses an inferred reminder within 12 hours.
 - Accepted, Completed, Rejected, and Paused items do not create deadline schedules.
 - All schedules are revalidated against current account, Journey, preference, opportunity, and verification state at delivery time.
+- A Saved or Interested item receives at most one two-week check-in only while its status and update timestamp remain unchanged. Check-ins more than a week overdue are discarded instead of flooding existing accounts.
 - Non-urgent email that falls in quiet hours is queued for the first allowed 15-minute boundary. Explicit custom reminders keep the time the student selected.
+
+Personalized opportunity notices reuse completed For You output rather than running recommendation generation again. A candidate must be newly added within seven days, verified and actionable, score at least 90, carry at least 85 structured confidence, pass the professional eligibility pipeline that produced the snapshot, have no prior-exposure label, and not already be hidden or in Journey. The notification is keyed to the opportunity, so the same match cannot be announced repeatedly.
 
 The current Vercel cron runs daily at `12:05 UTC` because Vercel Hobby projects support only daily cron frequency. This safely processes due work but does not guarantee minute-precise delivery. Production requiring precise custom reminders must move the same bounded worker endpoint to a more frequent durable scheduler; the notification model and idempotency keys do not need to change.
 
@@ -54,16 +60,17 @@ The current Vercel cron runs daily at `12:05 UTC` because Vercel Hobby projects 
 
 - `critical`: reserved for rare account issues; never used for ordinary opportunities.
 - `high`: explicit reminders, next-day deadlines, and urgent application-state changes.
-- `normal`: several-day deadlines, ordinary material changes, factual follow-ups, and weekly digests.
-- `low`: future opt-in recommendation updates.
+- `normal`: several-day deadlines, ordinary material changes, factual follow-ups, professional milestones, strong personalized matches, account updates, and weekly digests.
 
 Free users retain essential deadline, Journey, and material-change notifications. No notification query runs per opportunity card, and no Pro gate is applied to deadline protection.
 
-Email is limited to one non-urgent message per day. High-priority messages use an hourly cap. Weekly and recommendation email remain opt-in. In-app history is bounded to 200 records and active views omit dismissed or expired records.
+Email is limited to one non-urgent message per day. High-priority messages use an hourly cap. Existing weekly email remains opt-in. Personalized opportunities, milestones, account notices, and product announcements introduced by the in-app engine never schedule email. In-app history is bounded to 200 records and active views omit dismissed, archived, or expired records.
 
 ## Deduplication, retries, and ownership
 
 Each logical notification has a deterministic HMAC-safe idempotency key based on the user, category, related record, scheduled time, and content version. Server storage rejects a duplicate before delivery. Cron claims use a five-minute lease, provider requests use the same idempotency key, and provider webhooks use a 30-day replay claim.
+
+Schedule synchronization is incremental. An HMAC-scoped lease keyed to the account and notification-preference version prevents repeated catalog reads during ordinary page loads. Journey and billing mutations enqueue only their affected event, while For You reuses its returned recommendation snapshot after the response has completed.
 
 Transient provider failures retry after 15 and 30 minutes. Permanent provider rejection does not retry. A failed email never removes the in-app record. Provider acceptance is recorded as `sent`; only a signed provider webhook records `delivered`. Bounce and complaint webhooks suppress later email for that account.
 
@@ -71,7 +78,7 @@ Notification history, schedules, provider ownership, recipient indexes, and supp
 
 ## Material change detection
 
-The content administration path compares normalized canonical fields after a successful write. It detects deadline, open/closed state, official URL, eligibility, award or compensation, location/work mode, and program-date changes. Tracking parameters, whitespace, punctuation-only edits, description edits, internal metadata, and verification refreshes do not notify. Non-status changes require the resulting record to be verified.
+The content administration path compares normalized canonical fields after a successful write. It detects deadline, open/closed state, official URL, eligibility, award or compensation, location/work mode, and program-date changes. Related changes from one catalog write are bundled into one notification. Tracking parameters, whitespace, punctuation-only edits, description edits, internal metadata, and verification refreshes do not notify. Non-status changes require the resulting record to be verified.
 
 ## Email provider
 

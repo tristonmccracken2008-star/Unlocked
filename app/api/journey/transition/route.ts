@@ -5,7 +5,7 @@ import { isJourneyProfessionalStageId } from "@/data/journey-professional";
 import { JourneyTransitionError } from "@/data/journey-transformations";
 import { getSession, sessionCookieName } from "@/lib/auth-store";
 import { transformJourneyProgress } from "@/lib/journey-transition-service";
-import { syncUserNotificationSchedules } from "@/lib/notification-service";
+import { queueJourneyMilestoneNotification, syncUserNotificationSchedules } from "@/lib/notification-service";
 import { assertSameOrigin, enforceRateLimit, readBoundedJson, SecurityError, securityErrorResponse } from "@/lib/security";
 
 export const dynamic = "force-dynamic";
@@ -64,8 +64,15 @@ export async function POST(request: Request) {
     const mutation = parseBody(await readBoundedJson(request, 8 * 1024));
     const result = await transformJourneyProgress(session.user, mutation);
     after(async () => {
-      await syncUserNotificationSchedules(session.user.id).catch((error) => {
-        console.warn("[UnlockED notifications] Journey schedule sync failed", { errorCategory: error instanceof Error ? error.name : "unknown" });
+      await Promise.allSettled([
+        syncUserNotificationSchedules(session.user.id),
+        result.duplicate ? Promise.resolve() : queueJourneyMilestoneNotification({
+          userId: session.user.id,
+          opportunityId: mutation.opportunityId,
+          eventId: result.milestoneEventId,
+        }),
+      ]).then((settled) => {
+        if (settled.some((item) => item.status === "rejected")) console.warn("[UnlockED notifications] Journey notification sync failed");
       });
     });
     return NextResponse.json(result, { headers: { "Cache-Control": "no-store, max-age=0" } });

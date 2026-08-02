@@ -1,7 +1,8 @@
 import { cookies } from "next/headers";
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
 import { getSession, sessionCookieName } from "@/lib/auth-store";
-import { forYouDiagnostics, resolveForYouState } from "@/lib/for-you-snapshot";
+import { forYouCatalogVersion, forYouDiagnostics, resolveForYouState } from "@/lib/for-you-snapshot";
+import { syncPersonalizedOpportunityNotification } from "@/lib/notification-service";
 import { enforceRateLimit, SecurityError } from "@/lib/security";
 
 export const dynamic = "force-dynamic";
@@ -84,6 +85,18 @@ export async function GET(request: Request) {
     checkpoint("explanation generation complete", { recommendationCount: body.recommendations.length });
     if (!validPageStates.has(body.pageState)) throw new Error(`Invalid For You page state: ${body.pageState}`);
     checkpoint("response serialization complete", { pageState: body.pageState, recommendationsReturned: body.recommendations.length });
+    if (body.recommendations.length) {
+      after(async () => {
+        await syncPersonalizedOpportunityNotification({
+          userId: session.user.id,
+          account: session.data,
+          recommendations: body.recommendations,
+          catalogVersion: forYouCatalogVersion,
+        }).catch((error) => {
+          console.warn("[UnlockED notifications] Personalized opportunity sync failed", { errorCategory: error instanceof Error ? error.name : "unknown" });
+        });
+      });
+    }
     logResponseShape(body);
     console.info("[UnlockED For You] request completed", {
       requestId,

@@ -60,12 +60,12 @@ export async function PATCH(request: Request) {
       after(async () => { await recordAnalyticsEvent(productIntelligenceEvents.notificationRead, session.user.id, { category: "all" }).catch(() => undefined); });
       return NextResponse.json({ ok: true, updated }, { headers: noStore });
     }
-    if (!["read", "dismiss", "acted"].includes(String(action)) || typeof body.notificationId !== "string" || !notificationId.test(body.notificationId)) {
+    if (!["read", "dismiss", "archive", "acted"].includes(String(action)) || typeof body.notificationId !== "string" || !notificationId.test(body.notificationId)) {
       throw new SecurityError("Invalid notification action.", 400, "invalid_request");
     }
-    const notification = await updateNotificationState(session.user.id, body.notificationId, action as "read" | "dismiss" | "acted");
+    const notification = await updateNotificationState(session.user.id, body.notificationId, action as "read" | "dismiss" | "archive" | "acted");
     if (!notification) throw new SecurityError("Notification not found.", 404, "notification_not_found");
-    const eventName = action === "dismiss"
+    const eventName = action === "dismiss" || action === "archive"
       ? productIntelligenceEvents.notificationDismissed
       : action === "acted"
         ? productIntelligenceEvents.notificationActed

@@ -4,7 +4,7 @@ import { getSession, sessionCookieName } from "@/lib/auth-store";
 import { recordAnalyticsEvent } from "@/lib/analytics-store";
 import { productIntelligenceEvents } from "@/lib/analytics-types";
 import { addJourneyOpportunity } from "@/lib/journey-add-service";
-import { syncUserNotificationSchedules } from "@/lib/notification-service";
+import { queueJourneyMilestoneNotification, syncUserNotificationSchedules } from "@/lib/notification-service";
 import { assertSameOrigin, enforceRateLimit, readBoundedJson, SecurityError, securityErrorResponse } from "@/lib/security";
 import type { JourneyMilestoneDetails } from "@/data/student-activity";
 
@@ -48,8 +48,15 @@ export async function POST(request: Request) {
     const mutation = parseBody(await readBoundedJson(request, 4 * 1024));
     const result = await addJourneyOpportunity(session.user, mutation);
     after(async () => {
-      await syncUserNotificationSchedules(session.user.id).catch((error) => {
-        console.warn("[UnlockED notifications] Journey schedule sync failed", { errorCategory: error instanceof Error ? error.name : "unknown" });
+      await Promise.allSettled([
+        syncUserNotificationSchedules(session.user.id),
+        result.duplicate ? Promise.resolve() : queueJourneyMilestoneNotification({
+          userId: session.user.id,
+          opportunityId: mutation.opportunityId,
+          eventId: mutation.idempotencyKey,
+        }),
+      ]).then((settled) => {
+        if (settled.some((item) => item.status === "rejected")) console.warn("[UnlockED notifications] Journey notification sync failed");
       });
     });
     if (!result.duplicate) {

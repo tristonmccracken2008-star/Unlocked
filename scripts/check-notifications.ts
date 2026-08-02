@@ -2,15 +2,19 @@ import assert from "node:assert/strict";
 import { performance } from "node:perf_hooks";
 import { opportunities, type Opportunity } from "../data/opportunities";
 import type { TrackedOpportunity } from "../data/student-activity";
+import type { RecommendationViewModel } from "../data/recommendation-service";
 import {
   buildNotificationRecord,
   buildNotificationSchedules,
   detectMaterialOpportunityChanges,
+  emailEligible,
+  evaluateNotificationQuality,
   inQuietHours,
   localDateTimeToUtc,
   nextAllowedEmailAt,
   normalizeNotificationPreferences,
   opportunityDeadlineIsTrustworthy,
+  selectPersonalizedNotificationCandidate,
 } from "../lib/notification-engine";
 import { notificationGroupLabel, notificationTimestamp } from "../lib/notification-presentation";
 
@@ -71,10 +75,28 @@ assert.equal(defaults.inAppEnabled, true);
 assert.equal(defaults.emailEnabled, true);
 assert.equal(defaults.weeklyDigest, false);
 assert.equal(defaults.recommendationUpdates, false);
+assert.equal(defaults.personalizedOpportunities, true);
+assert.equal(defaults.milestoneUpdates, true);
+assert.equal(defaults.accountUpdates, true);
+assert.equal(defaults.productAnnouncements, false);
 
 const savedSchedules = buildNotificationSchedules({ userId: "user-a", record: tracker(), opportunity: opportunity(), now });
-assert.deepEqual(savedSchedules.map((item) => item.type), ["deadline", "deadline", "follow_up"]);
-assert.deepEqual(savedSchedules.filter((item) => item.type === "deadline").map((item) => item.offsetDays), [7, 1]);
+assert.deepEqual(savedSchedules.map((item) => item.type), ["deadline", "deadline", "deadline", "follow_up"]);
+assert.deepEqual(savedSchedules.filter((item) => item.type === "deadline").map((item) => item.offsetDays), [7, 3, 1]);
+
+const twoWeekCheckIn = buildNotificationSchedules({
+  userId: "user-a",
+  record: { ...tracker(), savedAt: "2026-02-15T12:00:00.000Z", updatedAt: "2026-02-15T12:00:00.000Z" },
+  opportunity: opportunity(),
+  now,
+});
+assert.equal(twoWeekCheckIn.filter((item) => item.followUpKind === "saved_check_in").length, 1);
+assert.equal(buildNotificationSchedules({
+  userId: "user-a",
+  record: { ...tracker(), savedAt: "2026-02-15T12:00:00.000Z", updatedAt: "2026-02-20T12:00:00.000Z" },
+  opportunity: opportunity(),
+  now,
+}).some((item) => item.followUpKind === "saved_check_in"), false);
 
 const applyingSchedules = buildNotificationSchedules({ userId: "user-a", record: tracker("Applying"), opportunity: opportunity(), now });
 assert.deepEqual(applyingSchedules.filter((item) => item.type === "deadline").map((item) => item.offsetDays), [7, 3, 1]);
@@ -154,6 +176,26 @@ const balancedRecord = buildNotificationRecord({
   preferences: normalizeNotificationPreferences({ frequency: "balanced" }, now.toISOString()),
 });
 assert.equal(balancedRecord.channels.email.state, "scheduled");
+assert.equal(emailEligible("milestone", "high", defaults), false);
+assert.equal(emailEligible("account", "high", defaults), false);
+assert.equal(emailEligible("recommendation_update", "high", defaults), false);
+
+assert.deepEqual(evaluateNotificationQuality({ relevance: 95, usefulness: 90, urgency: 70, uniqueness: 100 }), { allowed: true, score: 90, reason: "useful" });
+assert.equal(evaluateNotificationQuality({ relevance: 60, usefulness: 95, urgency: 90, uniqueness: 100 }).allowed, false);
+assert.equal(evaluateNotificationQuality({ relevance: 100, usefulness: 100, urgency: 100, uniqueness: 100, outdated: true }).reason, "outdated");
+
+const newMatchOpportunity = opportunity({ date_added: "2026-02-28" });
+const newMatch = {
+  opportunity: newMatchOpportunity,
+  href: `/opportunities/${newMatchOpportunity.id}`,
+  opportunityScore: { value: 94, label: "Exceptional Match" },
+  recommendation: { confidence: 92, tier: "excellent" },
+} as RecommendationViewModel;
+assert.equal(selectPersonalizedNotificationCandidate([newMatch], new Set(), now)?.opportunity?.id, newMatchOpportunity.id);
+assert.equal(selectPersonalizedNotificationCandidate([{ ...newMatch, opportunityScore: { value: 89, label: "Worth Exploring" } }], new Set(), now), undefined);
+assert.equal(selectPersonalizedNotificationCandidate([{ ...newMatch, historyLabel: "Previously recommended" }], new Set(), now), undefined);
+assert.equal(selectPersonalizedNotificationCandidate([newMatch], new Set([newMatchOpportunity.id]), now), undefined);
+assert.equal(selectPersonalizedNotificationCandidate([{ ...newMatch, opportunity: { ...newMatchOpportunity, verification_status: "needs_review" } }], new Set(), now), undefined);
 
 const deadlineOff = normalizeNotificationPreferences({ deadlineReminders: false }, now.toISOString());
 assert.equal(buildNotificationSchedules({ userId: "user-a", record: tracker(), opportunity: opportunity(), preferences: deadlineOff, now }).length, 0);
@@ -173,19 +215,104 @@ assert.deepEqual(detectMaterialOpportunityChanges(before, { ...before, verificat
 assert.deepEqual(detectMaterialOpportunityChanges({ ...before, verification_status: "temporarily_closed" }, before).map((item) => item.field), ["application_status"]);
 assert.deepEqual(detectMaterialOpportunityChanges(before, { ...before, metadata: { ...before.metadata, semesters: ["Spring 2027"] } }).map((item) => item.field), ["program_dates"]);
 
-const { claimNotificationSchedule, claimProviderWebhook, readNotifications, releaseNotificationSchedule, storeNotification, updateNotificationState } = await import("../lib/notification-store");
+const { claimNotificationSchedule, claimNotificationSync, claimProviderWebhook, readNotifications, releaseNotificationSchedule, storeNotification, updateNotificationState } = await import("../lib/notification-store");
 const firstStored = await storeNotification("account-a", emailOffRecord);
 assert.equal(firstStored.duplicate, false);
 assert.equal((await storeNotification("account-a", { ...emailOffRecord, id: crypto.randomUUID() })).duplicate, true);
 assert.equal((await readNotifications("account-b")).notifications.length, 0);
 assert.equal(await updateNotificationState("account-b", emailOffRecord.id, "read"), null);
 assert.equal((await updateNotificationState("account-a", emailOffRecord.id, "read"))?.state, "read");
+const archiveRecord = { ...emailOffRecord, id: crypto.randomUUID(), idempotencyKey: "archive-record" };
+await storeNotification("account-a", archiveRecord);
+assert.equal((await updateNotificationState("account-a", archiveRecord.id, "archive"))?.state, "archived");
+assert.equal((await readNotifications("account-a")).notifications.some((item) => item.id === archiveRecord.id), false);
+assert.equal(await claimNotificationSync("account-a", "version-a"), true);
+assert.equal(await claimNotificationSync("account-a", "version-a"), false);
+assert.equal(await claimNotificationSync("account-a", "version-b"), true);
 assert.equal(await claimNotificationSchedule("schedule-replay"), true);
 assert.equal(await claimNotificationSchedule("schedule-replay"), false);
 await releaseNotificationSchedule("schedule-replay");
 assert.equal(await claimNotificationSchedule("schedule-replay"), true);
 assert.equal(await claimProviderWebhook("webhook-replay"), true);
 assert.equal(await claimProviderWebhook("webhook-replay"), false);
+
+const auth = await import("../lib/auth-store");
+const service = await import("../lib/notification-service");
+const integrationNow = new Date();
+const integrationDate = integrationNow.toISOString().slice(0, 10);
+const integrationDeadline = new Date(integrationNow.getTime() + 21 * 86_400_000).toISOString().slice(0, 10);
+const integrationOpportunity = opportunity({
+  date_added: integrationDate,
+  last_verified: integrationDate,
+  application_deadline: integrationDeadline,
+  deadline: integrationDeadline,
+});
+const integrationMatch = { ...newMatch, opportunity: integrationOpportunity } as RecommendationViewModel;
+const integrationUser = await auth.upsertUser({
+  googleSub: "notification-engine-integration",
+  email: "notification-engine@example.test",
+  name: "Notification Test",
+});
+let integrationAccount = await auth.mergeAccountData(integrationUser.id, {
+  onboardingComplete: true,
+  activity: { viewed: [], saved: [], claimed: [], tracked: {} },
+});
+assert.equal((await service.syncPersonalizedOpportunityNotification({
+  userId: integrationUser.id,
+  account: integrationAccount,
+  recommendations: [integrationMatch],
+  catalogVersion: "catalog-test-v1",
+  now: integrationNow,
+})).status, "generated");
+assert.equal((await service.syncPersonalizedOpportunityNotification({
+  userId: integrationUser.id,
+  account: integrationAccount,
+  recommendations: [integrationMatch],
+  catalogVersion: "catalog-test-v1",
+  now: integrationNow,
+})).status, "duplicate");
+assert.equal((await service.queueAccountNotification({
+  userId: integrationUser.id,
+  eventId: "billing-event-1",
+  title: "Your Pro plan is active",
+  body: "Your subscription is active and your account has been updated.",
+  now: integrationNow,
+})).status, "generated");
+assert.equal((await service.queueAccountNotification({
+  userId: integrationUser.id,
+  eventId: "billing-event-1",
+  title: "Your Pro plan is active",
+  body: "Your subscription is active and your account has been updated.",
+  now: integrationNow,
+})).status, "duplicate");
+const milestoneEventId = "journey-first-save-event";
+const milestoneRecord = {
+  ...tracker(),
+  id: base.id,
+  version: 1,
+  history: [{
+    id: milestoneEventId,
+    transition: "choose" as const,
+    priorStatus: "Saved" as const,
+    resultingStatus: "Saved" as const,
+    occurredAt: integrationNow.toISOString(),
+    details: { source: "student_reported" as const },
+  }],
+};
+integrationAccount = await auth.mergeAccountData(integrationUser.id, {
+  tracker: { [base.id]: milestoneRecord },
+  activity: { viewed: [], saved: [base.id], claimed: [], tracked: { [base.id]: milestoneRecord } },
+  savedOpportunities: [{ opportunityId: base.id, savedAt: milestoneRecord.savedAt }],
+});
+assert.equal(integrationAccount.tracker[base.id]?.id, base.id);
+assert.equal((await service.queueJourneyMilestoneNotification({
+  userId: integrationUser.id,
+  opportunityId: base.id,
+  eventId: milestoneEventId,
+  now: integrationNow,
+})).status, "generated");
+const integrationCenter = await readNotifications(integrationUser.id, 0, 20);
+assert.deepEqual(new Set(integrationCenter.notifications.map((item) => item.type)), new Set(["recommendation_update", "account", "milestone"]));
 
 const catastrophicBatchStarted = performance.now();
 for (let index = 0; index < 250; index += 1) {

@@ -1,5 +1,6 @@
 import crypto from "node:crypto";
 import type { Opportunity } from "@/data/opportunities";
+import type { RecommendationViewModel } from "@/data/recommendation-service";
 import { createOpportunityLifecycleEvents, resolveOpportunityLifecycle } from "@/data/opportunity-lifecycle";
 import type { TrackedOpportunity } from "@/data/student-activity";
 import {
@@ -37,8 +38,18 @@ export function normalizeNotificationPreferences(value: Partial<NotificationPref
     deadlineReminders: value?.deadlineReminders !== false,
     journeyReminders: value?.journeyReminders !== false,
     opportunityChanges: value?.opportunityChanges !== false,
+    personalizedOpportunities: typeof value?.personalizedOpportunities === "boolean"
+      ? value.personalizedOpportunities
+      : typeof value?.recommendationUpdates === "boolean"
+        ? value.recommendationUpdates
+        : fallback.personalizedOpportunities,
+    milestoneUpdates: value?.milestoneUpdates !== false,
+    accountUpdates: value?.accountUpdates !== false,
+    productAnnouncements: value?.productAnnouncements === true,
     weeklyDigest: value?.weeklyDigest === true,
-    recommendationUpdates: value?.recommendationUpdates === true,
+    recommendationUpdates: typeof value?.personalizedOpportunities === "boolean"
+      ? value.personalizedOpportunities
+      : value?.recommendationUpdates === true,
     frequency: value?.frequency === "balanced" ? "balanced" : "important_only",
     timezone: validTimezone(value?.timezone) ? value!.timezone! : fallback.timezone,
     quietHours: {
@@ -115,8 +126,22 @@ function latestCustomReminder(record: TrackedOpportunity) {
 
 function deadlineOffsets(record: TrackedOpportunity) {
   if (record.status === "Applying") return [7, 3, 1];
-  if (record.status === "Saved" || record.status === "Interested") return [7, 1];
+  if (record.status === "Saved" || record.status === "Interested") return [7, 3, 1];
   return [];
+}
+
+function savedCheckInAt(record: TrackedOpportunity, now: Date, timezone: string) {
+  if (!["Saved", "Interested"].includes(record.status)) return null;
+  const savedAt = Date.parse(record.savedAt);
+  const updatedAt = Date.parse(record.updatedAt);
+  if (!Number.isFinite(savedAt) || !Number.isFinite(updatedAt) || updatedAt > savedAt + 60_000) return null;
+  const dueAt = savedAt + 14 * 86_400_000;
+  const age = now.getTime() - dueAt;
+  if (age > 7 * 86_400_000) return null;
+  if (dueAt > now.getTime()) return new Date(dueAt);
+  const parts = localParts(now, timezone);
+  const date = `${parts.year}-${String(parts.month).padStart(2, "0")}-${String(parts.day).padStart(2, "0")}`;
+  return localDateTimeToUtc(date, Math.max(9, parts.hour), timezone) ?? now;
 }
 
 export function opportunityDeadlineIsTrustworthy(opportunity: Opportunity, now = new Date()) {
@@ -160,6 +185,22 @@ export function buildNotificationSchedules(input: {
     }
   }
 
+  if (preferences.journeyReminders) {
+    const checkInAt = savedCheckInAt(input.record, now, preferences.timezone);
+    if (checkInAt) {
+      const contentVersion = stableHash([input.record.id, input.record.savedAt, input.record.status, "saved_check_in"]);
+      schedules.push({
+        id: notificationIdempotencyKey([input.userId, "follow_up", input.record.id, "saved_check_in", contentVersion]),
+        userId: input.userId,
+        type: "follow_up",
+        opportunityId: input.record.id,
+        scheduledFor: checkInAt.toISOString(),
+        contentVersion,
+        followUpKind: "saved_check_in",
+      });
+    }
+  }
+
   if (!preferences.deadlineReminders || !activeDeadlineStatuses.has(input.record.status) || !opportunityDeadlineIsTrustworthy(input.opportunity, now)) return schedules;
   const deadline = input.opportunity.application_deadline!;
   for (const offsetDays of deadlineOffsets(input.record)) {
@@ -190,6 +231,7 @@ export function buildNotificationSchedules(input: {
         opportunityId: input.opportunity.id,
         scheduledFor: followUpAt.toISOString(),
         contentVersion,
+        followUpKind: "deadline_passed",
       });
     }
   }
@@ -262,9 +304,13 @@ export function notificationCategoryEnabled(type: NotificationType, preferences:
   if (type === "deadline_reminder") return preferences.deadlineReminders;
   if (type === "journey_reminder") return preferences.journeyReminders;
   if (type === "opportunity_change") return preferences.opportunityChanges;
+  if (type === "journey_follow_up") return preferences.journeyReminders;
+  if (type === "milestone") return preferences.milestoneUpdates;
   if (type === "weekly_digest") return preferences.weeklyDigest;
-  if (type === "recommendation_update") return preferences.recommendationUpdates;
-  return true;
+  if (type === "recommendation_update") return preferences.personalizedOpportunities;
+  if (type === "account") return preferences.accountUpdates;
+  if (type === "product_announcement") return preferences.productAnnouncements;
+  return preferences.inAppEnabled;
 }
 
 export function emailEligible(type: NotificationType, priority: NotificationPriority, preferences: NotificationPreferences) {
@@ -273,8 +319,50 @@ export function emailEligible(type: NotificationType, priority: NotificationPrio
   if (type === "deadline_reminder") return priority === "high" || preferences.frequency === "balanced";
   if (type === "opportunity_change") return priority === "high" || preferences.frequency === "balanced";
   if (type === "weekly_digest") return preferences.weeklyDigest;
-  if (type === "recommendation_update") return preferences.recommendationUpdates;
-  return type === "account";
+  if (type === "recommendation_update") return false;
+  if (type === "milestone" || type === "account" || type === "product_announcement") return false;
+  return false;
+}
+
+export type NotificationQualityInput = {
+  relevance: number;
+  usefulness: number;
+  urgency: number;
+  uniqueness: number;
+  outdated?: boolean;
+  acknowledged?: boolean;
+};
+
+export function evaluateNotificationQuality(input: NotificationQualityInput) {
+  if (input.outdated) return { allowed: false, score: 0, reason: "outdated" as const };
+  if (input.acknowledged) return { allowed: false, score: 0, reason: "acknowledged" as const };
+  const values = [input.relevance, input.usefulness, input.urgency, input.uniqueness]
+    .map((value) => Math.max(0, Math.min(100, Math.round(value))));
+  const score = Math.round(values[0] * 0.35 + values[1] * 0.35 + values[2] * 0.15 + values[3] * 0.15);
+  const allowed = values[0] >= 70 && values[1] >= 70 && values[3] >= 55 && score >= 72;
+  return { allowed, score, reason: allowed ? "useful" as const : "low_value" as const };
+}
+
+export function selectPersonalizedNotificationCandidate(
+  recommendations: readonly RecommendationViewModel[],
+  excludedOpportunityIds: ReadonlySet<string>,
+  now = new Date(),
+) {
+  return recommendations.find((view) => {
+    const opportunity = view.opportunity;
+    if (!opportunity || excludedOpportunityIds.has(opportunity.id)) return false;
+    const addedAt = Date.parse(`${opportunity.date_added}T00:00:00.000Z`);
+    const newlyAdded = Number.isFinite(addedAt)
+      && now.getTime() - addedAt <= 7 * 86_400_000
+      && addedAt <= now.getTime() + 86_400_000;
+    return newlyAdded
+      && !view.historyLabel
+      && opportunity.verification_status === "verified"
+      && resolveOpportunityLifecycle(opportunity, now).actionable
+      && view.opportunityScore.value >= 90
+      && view.recommendation.confidence >= 85
+      && ["excellent", "strong"].includes(view.recommendation.tier);
+  });
 }
 
 export function inQuietHours(now: Date, preferences: NotificationPreferences) {
@@ -306,6 +394,7 @@ export function buildNotificationRecord(input: {
   opportunityId?: string;
   journeyStatus?: TrackedOpportunity["status"];
   relevantAt?: string;
+  expiresAt?: string;
   bundledCount?: number;
   now?: Date;
   preferences: NotificationPreferences;
@@ -331,7 +420,9 @@ export function buildNotificationRecord(input: {
     actionHref,
     createdAt: now.toISOString(),
     relevantAt: input.relevantAt,
-    expiresAt: new Date(now.getTime() + 90 * 86_400_000).toISOString(),
+    expiresAt: input.expiresAt && Number.isFinite(Date.parse(input.expiresAt)) && Date.parse(input.expiresAt) > now.getTime()
+      ? input.expiresAt
+      : new Date(now.getTime() + 90 * 86_400_000).toISOString(),
     idempotencyKey: input.idempotencyKey,
     contentVersion: input.contentVersion,
     bundledCount: input.bundledCount,

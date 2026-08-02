@@ -5,14 +5,16 @@ export const notificationTypes = [
   "journey_reminder",
   "opportunity_change",
   "journey_follow_up",
+  "milestone",
   "weekly_digest",
   "recommendation_update",
   "account",
+  "product_announcement",
 ] as const;
 
 export type NotificationType = (typeof notificationTypes)[number];
 export type NotificationPriority = "critical" | "high" | "normal" | "low";
-export type NotificationState = "generated" | "delivered" | "read" | "dismissed" | "acted_on" | "expired" | "canceled" | "failed" | "suppressed";
+export type NotificationState = "generated" | "delivered" | "read" | "dismissed" | "archived" | "acted_on" | "expired" | "canceled" | "failed" | "suppressed";
 export type NotificationChannelState = "not_requested" | "scheduled" | "sent" | "delivered" | "failed" | "suppressed";
 
 export type NotificationPreferences = {
@@ -21,7 +23,12 @@ export type NotificationPreferences = {
   deadlineReminders: boolean;
   journeyReminders: boolean;
   opportunityChanges: boolean;
+  personalizedOpportunities: boolean;
+  milestoneUpdates: boolean;
+  accountUpdates: boolean;
+  productAnnouncements: boolean;
   weeklyDigest: boolean;
+  /** Retained so previously saved preference payloads continue to normalize safely. */
   recommendationUpdates: boolean;
   frequency: "important_only" | "balanced";
   timezone: string;
@@ -80,8 +87,10 @@ export type NotificationSchedule = {
   scheduledFor: string;
   contentVersion: string;
   offsetDays?: number;
+  followUpKind?: "saved_check_in" | "deadline_passed";
   customReminderText?: string;
   change?: OpportunityMaterialChange;
+  changes?: OpportunityMaterialChange[];
 };
 
 export type OpportunityMaterialChangeField =
@@ -107,6 +116,10 @@ export const defaultNotificationPreferences = (updatedAt = new Date().toISOStrin
   deadlineReminders: true,
   journeyReminders: true,
   opportunityChanges: true,
+  personalizedOpportunities: true,
+  milestoneUpdates: true,
+  accountUpdates: true,
+  productAnnouncements: false,
   weeklyDigest: false,
   recommendationUpdates: false,
   frequency: "important_only",
