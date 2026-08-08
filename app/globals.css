@@ -242,9 +242,35 @@ dialog[open]::backdrop { opacity: 1; }
 [data-search-surface] {
   transition: border-color var(--motion-standard) var(--motion-ease), box-shadow var(--motion-standard) var(--motion-ease), background-color var(--motion-standard) var(--motion-ease);
 }
+.discover-search-input::-webkit-search-cancel-button {
+  display: none;
+  appearance: none;
+}
 [data-search-surface]:focus-within {
   border-color: rgb(var(--color-forest) / .42);
   box-shadow: 0 14px 36px rgb(var(--color-forest) / .09);
+}
+[data-discover-filter-row] {
+  transition: border-color var(--motion-micro) var(--motion-ease), background-color var(--motion-micro) var(--motion-ease), box-shadow var(--motion-micro) var(--motion-ease);
+}
+[data-discover-filter-row]:hover,
+[data-discover-filter-row]:focus-within {
+  border-color: rgb(var(--color-forest) / .2);
+  background: var(--unlocked-surface);
+}
+[data-discover-filter-row][data-active="true"] {
+  border-color: rgb(var(--color-forest) / .3);
+  background: rgb(var(--color-forest) / .07);
+  box-shadow: inset 3px 0 0 rgb(var(--color-forest) / .78);
+}
+[data-discover-opportunity] [data-organization-mark] {
+  transition: border-color var(--motion-micro) var(--motion-ease), box-shadow var(--motion-micro) var(--motion-ease);
+}
+@media (hover: hover) and (pointer: fine) {
+  [data-discover-opportunity]:hover [data-organization-mark] {
+    border-color: rgb(var(--color-forest) / .22);
+    box-shadow: 0 6px 18px rgb(var(--color-forest) / .07);
+  }
 }
 [data-filter-results] {
   transition: opacity var(--motion-standard) var(--motion-ease), transform var(--motion-standard) var(--motion-ease);

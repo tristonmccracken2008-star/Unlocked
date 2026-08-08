@@ -165,7 +165,8 @@ function observePage(page: Page) {
     const expectedCancellation = failure.includes("cancel")
       && request.method() === "GET"
       && (url.pathname === "/api/opportunities" || url.pathname === "/api/notifications" || url.searchParams.has("_rsc"));
-    if (failure === "net::err_aborted" || expectedCancellation) return;
+    const expectedImageCancellation = request.resourceType() === "image" && failure.includes("cancel");
+    if (failure === "net::err_aborted" || expectedCancellation || expectedImageCancellation) return;
     if (request.resourceType() === "image" && new URL(request.url()).origin !== new URL(page.url()).origin) return;
     requestFailures.push(`${request.method()} ${request.url()} ${request.failure()?.errorText ?? "failed"}`);
   });
@@ -317,9 +318,15 @@ async function verifyDiscover(page: Page, origin: string, screenshotLabel: strin
   assert.equal(await search.inputValue(), "", "The search clear action must reset the visible value.");
   assert.equal(new URL(page.url()).searchParams.has("query"), false, "The search clear action must remove the URL query.");
   assert.equal(await search.evaluate((node) => document.activeElement === node), true, "Clearing search must return focus to the search field.");
+  await search.fill("research");
+  await search.press("Escape");
+  assert.equal(await search.inputValue(), "", "Escape must clear a focused Discover search.");
+  await search.blur();
+  await page.keyboard.press("/");
+  assert.equal(await search.evaluate((node) => document.activeElement === node), true, "The slash shortcut must focus Discover search outside editable controls.");
 
   await page.goto(`${origin}/opportunities?type=AI&category=Scholarships`, { waitUntil: "domcontentloaded" });
-  await page.getByText("No exact matches yet.", { exact: true }).waitFor({ state: "visible" });
+  await page.getByText("No opportunities match these filters.", { exact: true }).waitFor({ state: "visible" });
   await page.getByRole("button", { name: "Use Any category" }).click();
   await page.getByRole("link", { name: "Open Opportunity" }).first().waitFor({ state: "visible", timeout: 20_000 });
   if (screenshotLabel === "narrow-desktop") {

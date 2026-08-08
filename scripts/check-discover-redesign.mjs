@@ -20,6 +20,13 @@ for (const token of ["sessionStorage.setItem(storageKey", "filtersFromLocation",
   assert.ok(filter.includes(token), `Discover must preserve ${token}.`);
 }
 
+for (const token of ["aria-keyshortcuts=\"/ Escape\"", "Clear opportunity search", "role=\"status\"", "aria-live=\"polite\"", "LowResultRecovery", "Broaden filters", "data-discover-filter-row", "hasRestrictiveFilters"]) {
+  assert.ok(filter.includes(token), `Discover premium polish must preserve ${token}.`);
+}
+assert.ok(filter.includes("discover-search-input"), "Discover must suppress the native search cancel control when rendering its accessible clear action.");
+assert.ok(filter.includes('event.key === "/"') && filter.includes('event.key === "Escape"'), "Discover search must support deliberate keyboard focus and clearing.");
+assert.ok(filter.includes("query: current.query, sort: current.sort"), "Low-result recovery must preserve the user’s search and sort context.");
+
 for (const token of ["sm:grid-cols-2", "xl:grid-cols-3", "role=\"dialog\"", "aria-modal=\"true\"", "event.key === \"Escape\"", "document.body.style.overflow"]) {
   assert.ok(filter.includes(token), `Discover must include responsive behavior: ${token}.`);
 }

@@ -13,7 +13,7 @@ import { schoolDirectory as schools, type School } from "@/data/school-directory
 import { findSchoolMatches, normalizeSchoolQuery } from "@/data/school-search";
 import { trackProductEvent } from "@/data/product-analytics";
 import { productIntelligenceEvents } from "@/lib/analytics-types";
-import { ArrowIcon, SearchIcon } from "./icons";
+import { ArrowIcon, CloseIcon, SearchIcon } from "./icons";
 import { OpportunityCard } from "./opportunity-card";
 import { LoadingRegion, SkeletonBlock } from "./loading-system";
 import { DelayedPendingLabel } from "./delayed-pending-label";
@@ -342,6 +342,23 @@ export function OpportunityFilter({ opportunities: initialOpportunities = [] }: 
   }, [filters.query]);
 
   useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement | null;
+      const editing = target?.matches("input, textarea, select, [contenteditable='true']");
+      if (event.key === "/" && !editing && !event.metaKey && !event.ctrlKey && !event.altKey) {
+        event.preventDefault();
+        searchInput.current?.focus();
+        searchInput.current?.select();
+      } else if (event.key === "Escape" && document.activeElement === searchInput.current && filters.query) {
+        event.preventDefault();
+        update({ query: "" });
+      }
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [filters.query]);
+
+  useEffect(() => {
     if (!mobileFiltersOpen) return;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
@@ -387,11 +404,18 @@ export function OpportunityFilter({ opportunities: initialOpportunities = [] }: 
     setMobileFiltersOpen(false);
   }
 
+  function broadenFilters() {
+    setVisibleCount(resultPageSize);
+    setFilters((current) => ({ ...defaultFilters, query: current.query, sort: current.sort }));
+  }
+
   function applyQuickFilter(item: (typeof quickFilters)[number]) {
     setVisibleCount(resultPageSize);
     setFilters((current) => ({ ...current, type: item.type ?? "All", category: item.category ?? "All" }));
     trackProductEvent("filter_applied", { filterName: "type" });
   }
+
+  const hasRestrictiveFilters = activeFilters.some((filter) => filter.key !== "query");
 
   return <>
     <header className="max-w-4xl">
@@ -404,8 +428,8 @@ export function OpportunityFilter({ opportunities: initialOpportunities = [] }: 
       <div data-search-surface="" className="flex min-h-16 items-center gap-4 rounded-2xl border border-transparent bg-white px-5 shadow-[0_12px_34px_rgba(43,33,26,.065)] ring-1 ring-ink/10">
         <SearchIcon className="h-5 w-5 text-forest" />
         <label htmlFor="discover-search" className="sr-only">Search all opportunities</label>
-        <input ref={searchInput} id="discover-search" type="search" value={filters.query} onChange={(event) => update({ query: event.target.value })} maxLength={120} autoComplete="off" placeholder="Try “first-year software internship” or “Chicago scholarship”" className="min-w-0 flex-1 bg-transparent text-base font-semibold outline-none placeholder:font-normal placeholder:text-ink/35" />
-        {filters.query ? <button type="button" onClick={() => { update({ query: "" }); searchInput.current?.focus(); }} className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-sm font-bold text-ink/40 hover:bg-paper hover:text-forest" aria-label="Clear opportunity search">×</button> : null}
+        <input ref={searchInput} id="discover-search" type="search" value={filters.query} onChange={(event) => update({ query: event.target.value })} maxLength={120} autoComplete="off" enterKeyHint="search" aria-keyshortcuts="/ Escape" placeholder="Try “first-year software internship” or “Chicago scholarship”" className="discover-search-input min-w-0 flex-1 bg-transparent text-base font-semibold outline-none placeholder:font-normal placeholder:text-ink/35" />
+        {filters.query ? <button type="button" onClick={() => { update({ query: "" }); searchInput.current?.focus(); }} className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-ink/40 hover:bg-paper hover:text-forest" aria-label="Clear opportunity search"><CloseIcon className="h-4 w-4" /></button> : null}
       </div>
       <div className="mt-3 flex gap-2 overflow-x-auto pb-1 scrollbar-none" aria-label="Browse by category">
         {quickFilters.map((item) => {
@@ -416,7 +440,7 @@ export function OpportunityFilter({ opportunities: initialOpportunities = [] }: 
     </section>
 
     {activeFilters.length ? <div className="mt-4 flex max-w-5xl flex-wrap items-center gap-2" aria-label="Active filters">
-      {activeFilters.map((filter) => <button key={filter.key} type="button" onClick={() => update(clearValue(filter.key), filter.key)} className="inline-flex min-h-9 items-center gap-2 rounded-full border border-ink/10 bg-white/80 px-3 text-xs font-bold text-ink/60 hover:border-forest/35 hover:text-forest" aria-label={`Remove ${filter.label} filter`}>{filter.label}<span aria-hidden="true">×</span></button>)}
+      {activeFilters.map((filter) => <button key={filter.key} type="button" onClick={() => update(clearValue(filter.key), filter.key)} className="inline-flex min-h-9 max-w-full items-center gap-2 rounded-full border border-forest/20 bg-white/80 px-3 text-xs font-bold text-ink/60 shadow-[0_4px_14px_rgba(43,33,26,.025)] hover:border-forest/45 hover:text-forest" aria-label={`Remove ${filter.label} filter`}><span className="max-w-[16rem] truncate">{filter.label}</span><CloseIcon className="h-3.5 w-3.5 shrink-0" aria-hidden="true" /></button>)}
       <button type="button" onClick={clearFilters} className="min-h-9 px-2 text-xs font-bold text-forest hover:text-ink">Clear all</button>
     </div> : null}
 
@@ -429,14 +453,14 @@ export function OpportunityFilter({ opportunities: initialOpportunities = [] }: 
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="rule-label text-forest">Search results</p>
-            <h2 className="mt-2 font-editorial text-3xl font-bold tracking-[-.025em]">{loaded ? `${totalMatches.toLocaleString()} ${totalMatches === 1 ? "opportunity" : "opportunities"}` : "Opportunities"}</h2>
+            <h2 className="mt-2 font-editorial text-3xl font-bold tracking-[-.025em]" role="status" aria-live="polite" aria-atomic="true">{loaded ? `${totalMatches.toLocaleString()} ${totalMatches === 1 ? "opportunity" : "opportunities"}` : "Opportunities"}<span className="sr-only">{refreshing ? ", updating" : ", ready"}</span></h2>
             <p className="mt-1 text-sm text-ink/50">{filters.query.trim() ? "Best title, organization, and subject matches appear first." : "The full catalog, ordered by quality and current availability."}</p>
           </div>
           <div className="flex items-center gap-3">
             <button ref={filterTrigger} type="button" onClick={() => setMobileFiltersOpen(true)} className="inline-flex min-h-11 items-center justify-center rounded-full border border-ink/15 bg-white px-4 text-sm font-bold text-ink/60 shadow-[0_8px_22px_rgba(43,33,26,.04)] lg:hidden">Filters{activeFilters.length ? ` · ${activeFilters.length}` : ""}</button>
-            <label className="flex min-h-11 items-center gap-3 rounded-full border border-ink/15 bg-white px-4 text-sm font-bold text-ink/55 shadow-[0_8px_22px_rgba(43,33,26,.04)]">
+            <label className="flex min-h-11 items-center gap-3 rounded-full border border-ink/15 bg-white px-4 text-sm font-bold text-ink/55 shadow-[0_8px_22px_rgba(43,33,26,.04)] focus-within:border-forest/45 focus-within:ring-2 focus-within:ring-forest/10">
               <span>Sort</span>
-              <select value={filters.sort} onChange={(event) => { update({ sort: event.target.value as DiscoverSortMode }); trackProductEvent("filter_applied", { filterName: "sort" }); }} className="bg-transparent text-forest outline-none">
+              <select value={filters.sort} onChange={(event) => { update({ sort: event.target.value as DiscoverSortMode }); trackProductEvent("filter_applied", { filterName: "sort" }); }} className="cursor-pointer bg-transparent text-forest outline-none">
                 {sortOptions.map((option) => <option key={option} value={option}>{option === "Relevant" ? "Most relevant" : option}</option>)}
               </select>
             </label>
@@ -448,11 +472,12 @@ export function OpportunityFilter({ opportunities: initialOpportunities = [] }: 
         </div>
         {catalogError && opportunities.length ? <div className="mt-1 flex items-center justify-between gap-4 rounded-xl bg-white/70 px-4 py-3 text-sm text-ink/55" role="alert"><span>{catalogError}</span><button type="button" onClick={() => setReloadToken((value) => value + 1)} className="min-h-11 font-bold text-forest">Retry</button></div> : null}
         {!loaded ? <ResultSkeleton /> : catalogError && !opportunities.length ? <CatalogUnavailable retry={() => setReloadToken((value) => value + 1)} /> : opportunities.length ? <>
+          {totalMatches > 0 && totalMatches <= 4 && hasRestrictiveFilters ? <LowResultRecovery total={totalMatches} broadenFilters={broadenFilters} hasQuery={Boolean(filters.query.trim())} /> : null}
           <div ref={resultGrid} className="mt-2 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {opportunities.map((item) => <OpportunityCard key={item.id} opportunity={item} source="discover" />)}
           </div>
           {totalMatches > opportunities.length ? <div className="py-7 text-center"><button type="button" onClick={() => setVisibleCount((count) => Math.min(count + resultPageSize, totalMatches))} disabled={refreshing} aria-busy={refreshing ? "true" : undefined} data-action-state={refreshing ? "loading" : "idle"} className="min-h-12 rounded-full border border-ink/15 bg-white px-6 text-sm font-bold text-forest shadow-[0_8px_22px_rgba(43,33,26,.04)] hover:border-forest disabled:cursor-wait disabled:opacity-60"><DelayedPendingLabel pending={refreshing} idle={<>Show more ({(totalMatches - opportunities.length).toLocaleString()} remaining) <ArrowIcon className="inline h-3.5 w-3.5" /></>} pendingLabel="Updating results…" /></button></div> : null}
-        </> : <EmptyResults recovery={recovery} removeRecovery={() => recovery && update(recoveryUpdate(recovery.filter), recovery.filter)} clearQuery={() => update({ query: "" })} clearFilters={clearFilters} hasQuery={Boolean(filters.query.trim())} />}
+        </> : <EmptyResults recovery={recovery} removeRecovery={() => recovery && update(recoveryUpdate(recovery.filter), recovery.filter)} clearQuery={() => update({ query: "" })} clearFilters={clearFilters} hasQuery={Boolean(filters.query.trim())} hasFilters={hasRestrictiveFilters} />}
       </main>
     </div>
 
@@ -476,7 +501,7 @@ function FilterPanel({ filters, update, clearFilters, activeFilterCount, categor
       <FilterGroup title="Eligibility">
         <SchoolFilter value={filters.school} setValue={(value) => update({ school: value }, "school")} />
         <Select label="Major" value={filters.major} setValue={(value) => update({ major: value }, "major")} options={majors} />
-        <label className="flex min-h-11 items-center gap-3 rounded-xl bg-paper/70 px-3 text-sm font-bold text-ink/60"><input type="checkbox" checked={filters.freshmanFriendly} onChange={(event) => update({ freshmanFriendly: event.target.checked }, "freshmanFriendly")} className="h-4 w-4 accent-forest" /> Freshman-friendly</label>
+        <label data-discover-filter-row="" data-active={filters.freshmanFriendly ? "true" : "false"} className="flex min-h-11 items-center gap-3 rounded-xl border border-transparent bg-paper/70 px-3 text-sm font-bold text-ink/60"><input type="checkbox" checked={filters.freshmanFriendly} onChange={(event) => update({ freshmanFriendly: event.target.checked }, "freshmanFriendly")} className="h-5 w-5 rounded accent-forest" /> Freshman-friendly</label>
       </FilterGroup>
       <FilterGroup title="Details">
         <Select label="Deadline" value={filters.deadline} setValue={(value) => update({ deadline: value }, "deadline")} options={deadlineOptions} />
@@ -499,15 +524,22 @@ function ResultSkeleton() {
   return <LoadingRegion label="Loading opportunities" className="mt-2 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">{Array.from({ length: 6 }, (_, index) => <div key={index} className="h-[25rem] rounded-[1.25rem] bg-white/70 p-5 shadow-[0_14px_40px_rgba(43,33,26,.04)] ring-1 ring-ink/10"><SkeletonBlock className="h-3 w-24 rounded-full" /><SkeletonBlock className="mt-5 h-8 rounded-md" /><SkeletonBlock className="mt-3 h-4 w-2/3 rounded-full" /><SkeletonBlock className="mt-6 h-16 rounded-lg" /><SkeletonBlock className="mt-8 h-11 rounded-xl" /></div>)}</LoadingRegion>;
 }
 
-function EmptyResults({ recovery, removeRecovery, clearQuery, clearFilters, hasQuery }: { recovery: DiscoverRecovery | null; removeRecovery: () => void; clearQuery: () => void; clearFilters: () => void; hasQuery: boolean }) {
+function EmptyResults({ recovery, removeRecovery, clearQuery, clearFilters, hasQuery, hasFilters }: { recovery: DiscoverRecovery | null; removeRecovery: () => void; clearQuery: () => void; clearFilters: () => void; hasQuery: boolean; hasFilters: boolean }) {
   return <div className="mt-2 rounded-[1.5rem] bg-white/70 px-6 py-14 text-center shadow-[0_16px_50px_rgba(43,33,26,.04)] ring-1 ring-ink/10">
     <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-forest/10 text-forest"><SearchIcon className="h-6 w-6" /></div>
-    <p className="mt-5 font-editorial text-3xl font-bold">No exact matches yet.</p>
-    <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-ink/50">{recovery ? `Removing one filter reveals ${recovery.resultCount.toLocaleString()} ${recovery.resultCount === 1 ? "opportunity" : "opportunities"}.` : "Try fewer search terms or browse the complete catalog."}</p>
+    <p className="mt-5 font-editorial text-3xl font-bold">{hasFilters ? "No opportunities match these filters." : "No exact matches yet."}</p>
+    <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-ink/50">{recovery ? `Removing one filter reveals ${recovery.resultCount.toLocaleString()} ${recovery.resultCount === 1 ? "opportunity" : "opportunities"}.` : hasFilters ? "Try removing a filter or broadening your search." : "Try fewer search terms or browse the complete catalog."}</p>
     <div className="mt-7 flex flex-wrap justify-center gap-3">
       {recovery ? <button type="button" onClick={removeRecovery} className="min-h-12 rounded-full bg-forest px-6 text-sm font-bold text-white hover:bg-ink">Use {recovery.label}</button> : hasQuery ? <button type="button" onClick={clearQuery} className="min-h-12 rounded-full bg-forest px-6 text-sm font-bold text-white hover:bg-ink">Clear search</button> : null}
       <button type="button" onClick={clearFilters} className="min-h-12 rounded-full border border-ink/15 bg-white px-6 text-sm font-bold text-forest hover:border-forest">Browse all opportunities</button>
     </div>
+  </div>;
+}
+
+function LowResultRecovery({ total, broadenFilters, hasQuery }: { total: number; broadenFilters: () => void; hasQuery: boolean }) {
+  return <div className="mt-5 flex flex-col gap-2 rounded-xl border border-ink/10 bg-white/55 px-4 py-3 text-sm text-ink/55 sm:flex-row sm:items-center sm:justify-between">
+    <p>Only {total} {total === 1 ? "match" : "matches"}. {hasQuery ? "Keep your search and remove the other filters." : "Broaden the filters to see more."}</p>
+    <button type="button" onClick={broadenFilters} className="min-h-11 shrink-0 self-start font-bold text-forest hover:text-ink sm:self-auto">Broaden filters</button>
   </div>;
 }
 
@@ -536,7 +568,7 @@ function SchoolFilter({ value, setValue }: { value: string; setValue: (value: st
     setOpen(false);
   }
 
-  return <div className="relative rounded-xl bg-paper/70 px-3">
+  return <div data-discover-filter-row="" data-active={value !== "All" ? "true" : "false"} className="relative rounded-xl border border-transparent bg-paper/70 px-3">
     <label className="flex min-h-11 items-center justify-between gap-3"><span className="text-sm font-bold text-ink/45">School</span><input value={query} onFocus={() => setOpen(true)} onBlur={() => window.setTimeout(() => setOpen(false), 120)} onChange={(event) => { setQuery(event.target.value); setValue("All"); setOpen(true); }} placeholder="All schools" autoComplete="off" className="min-w-0 max-w-[62%] bg-transparent text-right text-sm font-bold outline-none placeholder:text-ink/35" /></label>
     {open && normalized ? <div className="absolute left-0 right-0 z-30 mt-1 overflow-hidden rounded-2xl border border-ink/10 bg-white shadow-soft">{matches.length ? matches.map((item) => <button key={item.slug} type="button" onMouseDown={(event) => event.preventDefault()} onClick={() => choose(item)} className="block min-h-11 w-full border-b border-ink/10 px-4 py-3 text-left text-sm font-bold last:border-b-0 hover:bg-paper">{item.name}<span className="block text-[11px] font-normal text-ink/40">{item.domain}</span></button>) : <p className="px-4 py-3 text-xs text-ink/50">School not found</p>}</div> : null}
   </div>;
@@ -544,5 +576,5 @@ function SchoolFilter({ value, setValue }: { value: string; setValue: (value: st
 
 function Select({ label, value, setValue, options }: { label: string; value: string; setValue: (value: string) => void; options: readonly string[] }) {
   const allLabels: Record<string, string> = { Type: "All types", Category: "All categories", Major: "All majors", Value: "Any value", Deadline: "Any deadline", Format: "Any format", Difficulty: "Any difficulty" };
-  return <label className="flex min-h-11 items-center justify-between gap-3 rounded-xl bg-paper/70 px-3"><span className="text-sm font-bold text-ink/45">{label}</span><select value={value} onChange={(event) => setValue(event.target.value)} className="min-w-0 max-w-[62%] bg-transparent text-right text-sm font-bold capitalize outline-none">{options.map((option) => <option key={option} value={option}>{option === "All" ? allLabels[label] : label === "Deadline" ? deadlineLabel(option) : option.replaceAll("_", " ")}</option>)}</select></label>;
+  return <label data-discover-filter-row="" data-active={value !== "All" ? "true" : "false"} className="flex min-h-11 items-center justify-between gap-3 rounded-xl border border-transparent bg-paper/70 px-3"><span className="text-sm font-bold text-ink/45">{label}</span><select value={value} onChange={(event) => setValue(event.target.value)} className="min-w-0 max-w-[62%] cursor-pointer bg-transparent text-right text-sm font-bold capitalize outline-none">{options.map((option) => <option key={option} value={option}>{option === "All" ? allLabels[label] : label === "Deadline" ? deadlineLabel(option) : option.replaceAll("_", " ")}</option>)}</select></label>;
 }
