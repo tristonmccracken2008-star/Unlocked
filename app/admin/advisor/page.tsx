@@ -20,7 +20,7 @@ export default async function AdvisorReviewPage() {
           <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_280px]">
             <div>
               <p className="rule-label text-forest">{item.careerId.replace("career.", "").replaceAll("-", " ")}</p>
-              <h2 className="mt-2 font-editorial text-2xl font-bold tracking-[-.02em]">{item.label}</h2>
+              <h2 className="mt-2 font-editorial text-2xl font-bold">{item.label}</h2>
               {item.finalRecommendation ? <>
                 <p className="mt-4 text-sm font-bold text-ink/70">Final recommendation</p>
                 <p className="mt-2 text-sm leading-6 text-ink/55">{item.finalRecommendation.coaching.recommendation}</p>

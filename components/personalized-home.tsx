@@ -93,18 +93,18 @@ function JourneyRedirect() {
   useEffect(() => {
     window.location.replace("/");
   }, []);
-  return <main className="min-h-[64vh] px-5 py-20 sm:px-8"><div className="mx-auto max-w-5xl"><p className="rule-label text-forest">Journey</p><h1 className="mt-4 font-editorial text-5xl font-bold tracking-[-.04em]">Opening your Journey.</h1><p className="mt-4 text-sm text-ink/45">Your account and profile are ready.</p></div></main>;
+  return <main className="min-h-[64vh] px-5 py-20 sm:px-8"><div className="mx-auto max-w-5xl"><p className="rule-label text-forest">Journey</p><h1 className="mt-4 font-editorial text-5xl font-bold">Opening your Journey.</h1><p className="mt-4 text-sm text-ink/45">Your account and profile are ready.</p></div></main>;
 }
 
 function OnboardingRedirect() {
   useEffect(() => {
     window.location.replace("/onboarding");
   }, []);
-  return <main className="min-h-[64vh] px-5 py-20 sm:px-8"><div className="mx-auto max-w-5xl"><p className="rule-label text-forest">UnlockED</p><h1 className="mt-4 font-editorial text-5xl font-bold tracking-[-.04em]">Opening onboarding.</h1><p className="mt-4 text-sm text-ink/45">Your session is ready. Finish your profile to continue.</p></div></main>;
+  return <main className="min-h-[64vh] px-5 py-20 sm:px-8"><div className="mx-auto max-w-5xl"><p className="rule-label text-forest">UnlockED</p><h1 className="mt-4 font-editorial text-5xl font-bold">Opening onboarding.</h1><p className="mt-4 text-sm text-ink/45">Your session is ready. Finish your profile to continue.</p></div></main>;
 }
 
 function WorkspaceLoading() {
-  return <main className="min-h-[64vh] px-5 py-20 sm:px-8"><div className="mx-auto max-w-5xl"><p className="rule-label text-forest">UnlockED</p><h1 className="mt-4 font-editorial text-5xl font-bold tracking-[-.04em]">Preparing your workspace.</h1><p className="mt-4 text-sm text-ink/45">Checking your account and saved profile.</p></div></main>;
+  return <main className="min-h-[64vh] px-5 py-20 sm:px-8"><div className="mx-auto max-w-5xl"><p className="rule-label text-forest">UnlockED</p><h1 className="mt-4 font-editorial text-5xl font-bold">Preparing your workspace.</h1><p className="mt-4 text-sm text-ink/45">Checking your account and saved profile.</p></div></main>;
 }
 
 function LoggedOutLanding({ authIssue }: { authIssue: string }) {
@@ -113,7 +113,7 @@ function LoggedOutLanding({ authIssue }: { authIssue: string }) {
       <div className="mx-auto grid max-w-7xl gap-14 lg:grid-cols-[minmax(0,1fr)_420px] lg:items-end">
         <div className="max-w-5xl">
           <p className="rule-label text-forest">College opportunities, finally in one place</p>
-          <h1 className="mt-6 max-w-5xl font-editorial text-6xl font-bold leading-[.96] tracking-[-.055em] text-ink sm:text-8xl">Find what college forgot to tell you about.</h1>
+          <h1 className="mt-6 max-w-5xl font-editorial text-6xl font-bold leading-[.96] text-ink sm:text-8xl">Find what college forgot to tell you about.</h1>
           <p className="mt-8 max-w-2xl text-lg leading-8 text-ink/60">UnlockED brings scattered scholarships, research, internships, AI tools, student benefits, and career resources into one calm place built around you.</p>
           <p className="mt-5 max-w-xl text-sm leading-7 text-ink/45">Sign in with Google, complete one short profile, and start with the opportunities most likely to matter.</p>
           {authIssue && <div role="alert" className="mt-7 max-w-2xl rounded-2xl border border-red-700/20 bg-white px-5 py-4 text-sm font-bold leading-6 text-red-700">{authIssue}</div>}
@@ -260,7 +260,7 @@ export function StudentProfileForm({ mode, session, initialProfile, onSave, onCa
   return <section className={mode === "edit" ? showHeader ? "py-8" : "pb-8 pt-6" : "px-5 py-10 sm:px-8 sm:py-14"}>
     <section className="mx-auto max-w-3xl">
       {showHeader ? <><p className="rule-label text-forest">{mode === "edit" ? "Edit profile" : "First things first"}</p>
-      <h1 className="mt-3 font-editorial text-4xl font-bold tracking-[-.03em] sm:text-5xl">{mode === "edit" ? "Update your profile." : "Tell UnlockED what fits you."}</h1>
+      <h1 className="mt-3 font-editorial text-4xl font-bold sm:text-5xl">{mode === "edit" ? "Update your profile." : "Tell UnlockED what fits you."}</h1>
       <p className="mt-4 max-w-2xl text-sm leading-7 text-ink/55">{mode === "edit" ? "Change anything here. UnlockED updates after you save." : "You only do this once. UnlockED uses these details to personalize your account."}</p></> : null}
       <form onSubmit={submit} className={`${showHeader ? "mt-8" : ""} space-y-7 border-t border-ink/15 pt-8`}>
         <div className="grid gap-4 sm:grid-cols-[1fr_1fr]">

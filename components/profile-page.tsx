@@ -189,7 +189,7 @@ export function ProfilePage({ initialSession }: { initialSession: AccountSession
       <header className="flex flex-col gap-5 border-b border-ink/12 pb-7 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="rule-label text-forest">Profile</p>
-          <h1 className="mt-2 font-editorial text-4xl font-bold tracking-[-.03em] text-[var(--unlocked-text)] sm:text-5xl">Your account.</h1>
+          <h1 className="mt-2 font-editorial text-4xl font-bold text-[var(--unlocked-text)] sm:text-5xl">Your account.</h1>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-ink/50">Manage your private profile, preferences, and account.</p>
         </div>
         <Link href="/referral" className="inline-flex min-h-11 items-center self-start text-sm font-bold text-forest hover:text-ink sm:self-auto">Referrals</Link>
@@ -410,7 +410,7 @@ function AccountLoading() {
 }
 
 function SectionHeading({ id, eyebrow, title, description }: { id: string; eyebrow: string; title: string; description: string }) {
-  return <header><p className="rule-label text-forest">{eyebrow}</p><h2 id={id} className="mt-2 font-editorial text-3xl font-bold tracking-[-.02em] text-[var(--unlocked-text)] sm:text-4xl">{title}</h2><p className="mt-3 max-w-2xl text-sm leading-6 text-ink/50">{description}</p></header>;
+  return <header><p className="rule-label text-forest">{eyebrow}</p><h2 id={id} className="mt-2 font-editorial text-3xl font-bold text-[var(--unlocked-text)] sm:text-4xl">{title}</h2><p className="mt-3 max-w-2xl text-sm leading-6 text-ink/50">{description}</p></header>;
 }
 
 function StatusMessages({ message, error }: { message: string; error: string }) {

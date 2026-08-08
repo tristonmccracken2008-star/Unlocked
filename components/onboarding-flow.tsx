@@ -383,7 +383,7 @@ function Welcome() {
   return <div className="mx-auto max-w-xl text-center">
     <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-forest/10 text-2xl font-bold text-forest">U</div>
     <p className="mt-8 rule-label text-forest">Welcome</p>
-    <h1 tabIndex={-1} data-onboarding-heading style={{ outline: "none" }} className="mt-3 font-editorial text-4xl font-bold leading-tight tracking-[-.035em] text-ink sm:text-5xl">Welcome to UnlockED</h1>
+    <h1 tabIndex={-1} data-onboarding-heading style={{ outline: "none" }} className="mt-3 font-editorial text-4xl font-bold leading-tight text-ink sm:text-5xl">Welcome to UnlockED</h1>
     <p className="mx-auto mt-4 max-w-md text-sm leading-7 text-ink/58">A few focused questions help UnlockED check eligibility and prioritize opportunities that fit. You can change these details later.</p>
   </div>;
 }
@@ -438,7 +438,7 @@ function Question(props: {
 function QuestionShell({ eyebrow, title, helper, children }: { eyebrow: string; title: string; helper?: string; children: React.ReactNode }) {
   return <div className="mx-auto w-full max-w-xl text-center">
     <p className="rule-label text-forest">{eyebrow}</p>
-    <h1 tabIndex={-1} data-onboarding-heading style={{ outline: "none" }} className="mt-3 font-editorial text-4xl font-bold leading-tight tracking-[-.035em] text-ink sm:text-5xl">{title}</h1>
+    <h1 tabIndex={-1} data-onboarding-heading style={{ outline: "none" }} className="mt-3 font-editorial text-4xl font-bold leading-tight text-ink sm:text-5xl">{title}</h1>
     {helper && <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-ink/52">{helper}</p>}
     <div className="mt-8 text-left">{children}</div>
   </div>;
@@ -500,7 +500,7 @@ function CompletionScreen({ saving }: { saving: boolean }) {
     <section className="mx-auto flex min-h-[62vh] max-w-3xl flex-col items-center justify-center rounded-[2rem] border border-ink/10 bg-white/72 px-6 py-12 text-center shadow-soft">
       <div className="flex h-20 w-20 items-center justify-center rounded-full bg-forest text-3xl font-bold text-white">✓</div>
       <p className="mt-8 rule-label text-forest">Complete</p>
-      <h1 className="mt-3 font-editorial text-4xl font-bold leading-tight tracking-[-.035em] text-ink sm:text-5xl">You&apos;re all set.</h1>
+      <h1 className="mt-3 font-editorial text-4xl font-bold leading-tight text-ink sm:text-5xl">You&apos;re all set.</h1>
       <p className="mx-auto mt-4 max-w-md text-sm leading-7 text-ink/58">We&apos;re preparing opportunities around your profile.</p>
       {saving && <div className="mt-8 h-1.5 w-40 overflow-hidden rounded-full bg-ink/10"><div className="h-full w-1/2 animate-pulse rounded-full bg-forest" /></div>}
     </section>

@@ -18,7 +18,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
   return <main className="min-h-[70vh] bg-paper px-5 py-16 sm:px-8">
     <section className="mx-auto max-w-3xl rounded-[2rem] bg-white/82 p-8 shadow-soft ring-1 ring-ink/8">
       <p className="rule-label text-forest">UnlockED Pro</p>
-      <h1 className="mt-4 font-editorial text-5xl font-bold tracking-[-.045em]">{pro ? "Welcome to UnlockED Pro" : "Payment is being finalized"}</h1>
+      <h1 className="mt-4 font-editorial text-5xl font-bold">{pro ? "Welcome to UnlockED Pro" : "Payment is being finalized"}</h1>
       <p className="mt-4 text-sm leading-7 text-ink/58">{pro ? "Your subscription is active and your personalized experience is ready." : "Stripe accepted the checkout session. We are waiting for webhook-confirmed access before unlocking Pro. This usually takes a moment."}</p>
       {checkout?.id && <p className="mt-4 rounded-2xl bg-paper px-4 py-3 text-xs font-bold text-ink/45">Checkout session verified. Access is controlled by Stripe webhook confirmation.</p>}
       <div className="mt-8 flex flex-col gap-3 sm:flex-row">

@@ -43,7 +43,7 @@ export function WhatsNewFeed({
               <div className="min-w-0">
                 <div className="flex min-w-0 items-center gap-2">
                   <span
-                    className={`shrink-0 border px-1.5 py-0.5 text-[9px] font-bold tracking-[.12em] ${
+                    className={`shrink-0 border px-1.5 py-0.5 text-[11px] font-bold tracking-[.08em] ${
                       badge === "NEW"
                         ? "border-gold bg-gold/15 text-ink"
                         : "border-forest/30 bg-forest/5 text-forest"

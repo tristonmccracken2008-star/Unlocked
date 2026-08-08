@@ -66,6 +66,7 @@ export function NotificationCenter() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState("");
   const [accountVersion, setAccountVersion] = useState(0);
+  const [retryVersion, setRetryVersion] = useState(0);
   const [arrivingIds, setArrivingIds] = useState<Set<string>>(() => new Set());
   const [dismissingIds, setDismissingIds] = useState<Set<string>>(() => new Set());
   const [arrivalAnnouncement, setArrivalAnnouncement] = useState("");
@@ -117,7 +118,7 @@ export function NotificationCenter() {
       if (active) setLoading(false);
     });
     return () => { active = false; };
-  }, [accountVersion]);
+  }, [accountVersion, retryVersion]);
 
   useEffect(() => {
     let active = true;
@@ -164,6 +165,12 @@ export function NotificationCenter() {
   }, []);
 
   const groups = useMemo(() => groupNotifications(items), [items]);
+
+  function retryInitialLoad() {
+    setError("");
+    setLoading(true);
+    setRetryVersion((value) => value + 1);
+  }
 
   async function markAll() {
     const previous = items;
@@ -239,11 +246,11 @@ export function NotificationCenter() {
 
       <div aria-live="polite" className="sr-only">{loading ? "Loading notifications" : `${unreadCount} unread notifications`}</div>
       <p aria-live="polite" className="sr-only">{arrivalAnnouncement}</p>
-      {error ? <div role="alert" data-inline-feedback="" data-state="error" className={styles.error}><span>{error}</span><button type="button" onClick={() => window.location.reload()}>Retry</button></div> : null}
+      {error ? <div role="alert" data-inline-feedback="" data-state="error" className={styles.error}><span>{error}</span>{!items.length ? <button type="button" onClick={retryInitialLoad}>Retry</button> : null}</div> : null}
 
       {loading ? <NotificationSkeleton /> : null}
 
-      {!loading && !items.length ? <section className={styles.empty}>
+      {!loading && !error && !items.length ? <section className={styles.empty}>
         <span className={styles.emptyIcon} aria-hidden="true"><CheckCircleIcon className="h-6 w-6" /></span>
         <h2>You’re all caught up.</h2>
         <p>Important updates about your saved opportunities and Journey will appear here.</p>

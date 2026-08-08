@@ -29,6 +29,9 @@
   --elevation-hover: 0 16px 38px rgb(43 33 26 / .075);
   --loading-base: rgb(43 33 26 / .065);
   --loading-highlight: rgb(255 255 255 / .72);
+  --unlocked-error-text: #991b1b;
+  --unlocked-error-border: rgb(185 28 28 / .22);
+  --unlocked-error-surface: rgb(254 242 242 / .82);
   color: var(--unlocked-text);
   background: var(--unlocked-page);
   color-scheme: light;
@@ -50,6 +53,9 @@
   --unlocked-border: rgb(251 243 232 / .16);
   --loading-base: rgb(251 243 232 / .09);
   --loading-highlight: rgb(251 243 232 / .17);
+  --unlocked-error-text: #fecaca;
+  --unlocked-error-border: rgb(248 113 113 / .34);
+  --unlocked-error-surface: rgb(127 29 29 / .2);
   color: var(--unlocked-text);
   background: var(--unlocked-page);
   color-scheme: dark;
@@ -71,6 +77,9 @@
   --unlocked-border: rgb(251 243 232 / .16);
   --loading-base: rgb(251 243 232 / .1);
   --loading-highlight: rgb(251 243 232 / .18);
+  --unlocked-error-text: #fecaca;
+  --unlocked-error-border: rgb(248 113 113 / .34);
+  --unlocked-error-surface: rgb(127 29 29 / .2);
   color: var(--unlocked-text);
   background: var(--unlocked-page);
   color-scheme: dark;
@@ -82,7 +91,7 @@ button, a, input, select, textarea { transition-duration: var(--motion-micro); }
 button, a, input, select, textarea { touch-action: manipulation; }
 button, input, select, textarea { font: inherit; }
 :focus-visible { outline: 2px solid var(--journey-focus, #1f5f43); outline-offset: 3px; }
-::selection { background: var(--journey-gold); color: var(--journey-text-inverse); }
+::selection { background: var(--journey-gold, #b48a45); color: var(--journey-text-inverse, #fffdf9); }
 .font-editorial { font-family: Iowan Old Style, Baskerville, Georgia, "Times New Roman", serif; }
 .rule-label { font-size: .67rem; font-weight: 750; letter-spacing: .135em; line-height: 1.4; text-transform: uppercase; }
 .scrollbar-none::-webkit-scrollbar { display: none; }
@@ -90,9 +99,9 @@ button, input, select, textarea { font: inherit; }
 .skip-link { position: fixed; left: 1rem; top: 1rem; z-index: 100; min-height: 2.75rem; transform: translateY(-6rem); border-radius: 999px; background: rgb(var(--color-forest)); padding: .7rem 1rem; color: white; font-size: .875rem; font-weight: 750; box-shadow: 0 12px 32px rgb(0 0 0 / .2); }
 .skip-link:focus { transform: translateY(0); }
 .prose-copy h2 { font-size: 1.25rem; font-weight: 800; letter-spacing: -0.02em; }
-.prose-copy p { margin-top: .65rem; color: rgb(43 33 26 / .62); line-height: 1.75; }
+.prose-copy p { margin-top: .65rem; color: var(--unlocked-muted); line-height: 1.75; }
 .input { min-height: 2.75rem; width: 100%; border: 1px solid var(--unlocked-border); background: var(--unlocked-surface); color: var(--unlocked-text); padding-inline: .75rem; font-size: .875rem; outline: none; }
-.input:focus { border-color: var(--journey-focus); }
+.input:focus { border-color: var(--journey-focus, rgb(var(--color-forest))); }
 
 /* Shared interaction vocabulary. Component styles remain authoritative for layout and color. */
 :where(button, a[href], summary, [role="button"]) {
@@ -371,6 +380,23 @@ dialog[open]::backdrop { opacity: 1; }
 
 [data-inline-feedback] {
   animation: unlocked-feedback-in var(--motion-success) var(--motion-ease-emphasis) both;
+}
+[data-inline-feedback][data-state="error"] {
+  border-color: var(--unlocked-error-border) !important;
+  background: var(--unlocked-error-surface) !important;
+  color: var(--unlocked-error-text) !important;
+}
+
+:where(
+  [data-ui-card],
+  [data-discover-opportunity],
+  [data-for-you-card],
+  [data-journey-record],
+  [data-profile-identity-card],
+  [data-journey-card-entry]
+) :where(h2, h3, p, a, button, dd) {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 @keyframes unlocked-feedback-in {
   from { opacity: .35; transform: translateY(3px); }

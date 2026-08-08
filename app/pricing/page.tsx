@@ -16,7 +16,7 @@ export default async function Page() {
   return <main className="bg-paper px-5 py-14 sm:px-8">
     <section className="mx-auto max-w-6xl">
       <p className="rule-label text-forest">UnlockED Pro</p>
-      <h1 className="mt-4 max-w-4xl font-editorial text-5xl font-bold leading-[.98] tracking-[-.055em] text-ink sm:text-7xl">Never miss the right opportunity.</h1>
+      <h1 className="mt-4 max-w-4xl font-editorial text-5xl font-bold leading-[.98] text-ink sm:text-7xl">Never miss the right opportunity.</h1>
       <p className="mt-6 max-w-2xl text-base leading-8 text-ink/58">Free stays useful. Pro unlocks the full personalized feed, deeper explanations, and premium appearance options.</p>
       {pro ? <div className="mt-7 flex max-w-2xl flex-col gap-3 rounded-[1.25rem] border border-forest/20 bg-white/75 p-5 sm:flex-row sm:items-center sm:justify-between" role="status"><p className="text-sm font-bold text-forest">UnlockED Pro is active on this account.</p><Link href="/profile#billing" className="inline-flex min-h-11 items-center text-sm font-bold text-forest hover:text-ink">Manage billing</Link></div> : null}
       <div className="mt-10 grid gap-5 lg:grid-cols-2">

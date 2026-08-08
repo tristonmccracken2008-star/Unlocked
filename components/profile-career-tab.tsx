@@ -23,7 +23,7 @@ function profileBrain(profile: StudentProfile | null, session: AccountSession | 
 
 export function AdvisorBrainProfileTab({ profile, session }: { profile: StudentProfile | null; session: AccountSession | null }) {
   const brain = profileBrain(profile, session);
-  if (!brain) return <main className="px-5 py-10 sm:px-8 sm:py-14"><section className="mx-auto max-w-5xl"><p className="rule-label text-forest">Career Profile</p><h1 className="mt-3 font-editorial text-4xl font-bold tracking-[-.03em]">Complete your profile first.</h1><p className="mt-3 max-w-2xl text-sm leading-7 text-ink/50">UnlockED needs your school, major, graduation year, goals, and interests before it can summarize your direction.</p></section></main>;
+  if (!brain) return <main className="px-5 py-10 sm:px-8 sm:py-14"><section className="mx-auto max-w-5xl"><p className="rule-label text-forest">Career Profile</p><h1 className="mt-3 font-editorial text-4xl font-bold">Complete your profile first.</h1><p className="mt-3 max-w-2xl text-sm leading-7 text-ink/50">UnlockED needs your school, major, graduation year, goals, and interests before it can summarize your direction.</p></section></main>;
   const twin = brain.twin;
   const evidence = brain.evidenceInventory;
   const coverage = brain.interview.competencyCoverage;
@@ -33,13 +33,13 @@ export function AdvisorBrainProfileTab({ profile, session }: { profile: StudentP
   return <main className="px-5 py-10 sm:px-8 sm:py-14">
     <section className="mx-auto max-w-5xl">
       <p className="rule-label text-forest">Career Profile</p>
-      <h1 className="mt-3 font-editorial text-4xl font-bold tracking-[-.03em] sm:text-5xl">A simple read on where you are headed.</h1>
+      <h1 className="mt-3 font-editorial text-4xl font-bold sm:text-5xl">A simple read on where you are headed.</h1>
       <p className="mt-4 max-w-2xl text-sm leading-7 text-ink/55">{twin.profile.academicYear} {twin.profile.major} student at {twin.profile.school}. Current direction: {twin.profile.careerGoal || "still exploring"}.</p>
       <section className="mt-8 rounded-[2rem] bg-white p-6 shadow-soft ring-1 ring-ink/8 sm:p-8">
         <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_300px]">
           <div>
             <p className="rule-label text-forest">Recommended next step</p>
-            <h2 className="mt-3 font-editorial text-3xl font-bold leading-tight tracking-[-.025em]">{nextStep?.title ?? "Keep building your profile."}</h2>
+            <h2 className="mt-3 font-editorial text-3xl font-bold leading-tight">{nextStep?.title ?? "Keep building your profile."}</h2>
             <p className="mt-4 max-w-2xl text-sm leading-7 text-ink/60">{nextStep?.nextAction ?? "Save opportunities and update your interests so UnlockED can make better recommendations."}</p>
             <Link href="/advisor" className="mt-6 inline-flex min-h-12 items-center justify-center rounded-full bg-forest px-6 text-sm font-bold text-white hover:bg-ink">Open For You</Link>
           </div>

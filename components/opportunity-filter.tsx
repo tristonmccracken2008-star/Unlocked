@@ -420,7 +420,7 @@ export function OpportunityFilter({ opportunities: initialOpportunities = [] }: 
   return <>
     <header className="max-w-4xl">
       <p className="rule-label text-forest">Discover opportunities</p>
-      <h1 className="mt-4 font-editorial text-5xl font-bold leading-[.98] tracking-[-.05em] text-ink sm:text-7xl">Find what’s out there.</h1>
+      <h1 className="mt-4 font-editorial text-5xl font-bold leading-[.98] text-ink sm:text-7xl">Find what’s out there.</h1>
       <p className="mt-5 max-w-2xl text-base leading-7 text-ink/60">Search UnlockED’s complete catalog of scholarships, internships, research, student tools, and benefits.</p>
     </header>
 
@@ -440,8 +440,8 @@ export function OpportunityFilter({ opportunities: initialOpportunities = [] }: 
     </section>
 
     {activeFilters.length ? <div className="mt-4 flex max-w-5xl flex-wrap items-center gap-2" aria-label="Active filters">
-      {activeFilters.map((filter) => <button key={filter.key} type="button" onClick={() => update(clearValue(filter.key), filter.key)} className="inline-flex min-h-9 max-w-full items-center gap-2 rounded-full border border-forest/20 bg-white/80 px-3 text-xs font-bold text-ink/60 shadow-[0_4px_14px_rgba(43,33,26,.025)] hover:border-forest/45 hover:text-forest" aria-label={`Remove ${filter.label} filter`}><span className="max-w-[16rem] truncate">{filter.label}</span><CloseIcon className="h-3.5 w-3.5 shrink-0" aria-hidden="true" /></button>)}
-      <button type="button" onClick={clearFilters} className="min-h-9 px-2 text-xs font-bold text-forest hover:text-ink">Clear all</button>
+      {activeFilters.map((filter) => <button key={filter.key} type="button" onClick={() => update(clearValue(filter.key), filter.key)} className="inline-flex min-h-11 max-w-full items-center gap-2 rounded-full border border-forest/20 bg-white/80 px-3 text-xs font-bold text-ink/60 shadow-[0_4px_14px_rgba(43,33,26,.025)] hover:border-forest/45 hover:text-forest" aria-label={`Remove ${filter.label} filter`}><span className="max-w-[16rem] truncate">{filter.label}</span><CloseIcon className="h-3.5 w-3.5 shrink-0" aria-hidden="true" /></button>)}
+      <button type="button" onClick={clearFilters} className="min-h-11 px-2 text-xs font-bold text-forest hover:text-ink">Clear all</button>
     </div> : null}
 
     <div className="mt-9 grid gap-8 lg:grid-cols-[260px_minmax(0,1fr)]">
@@ -453,7 +453,7 @@ export function OpportunityFilter({ opportunities: initialOpportunities = [] }: 
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="rule-label text-forest">Search results</p>
-            <h2 className="mt-2 font-editorial text-3xl font-bold tracking-[-.025em]" role="status" aria-live="polite" aria-atomic="true">{loaded ? `${totalMatches.toLocaleString()} ${totalMatches === 1 ? "opportunity" : "opportunities"}` : "Opportunities"}<span className="sr-only">{refreshing ? ", updating" : ", ready"}</span></h2>
+            <h2 className="mt-2 font-editorial text-3xl font-bold" role="status" aria-live="polite" aria-atomic="true">{loaded ? `${totalMatches.toLocaleString()} ${totalMatches === 1 ? "opportunity" : "opportunities"}` : "Opportunities"}<span className="sr-only">{refreshing ? ", updating" : ", ready"}</span></h2>
             <p className="mt-1 text-sm text-ink/50">{filters.query.trim() ? "Best title, organization, and subject matches appear first." : "The full catalog, ordered by quality and current availability."}</p>
           </div>
           <div className="flex items-center gap-3">
@@ -492,7 +492,7 @@ export function OpportunityFilter({ opportunities: initialOpportunities = [] }: 
 
 function FilterPanel({ filters, update, clearFilters, activeFilterCount, categories, majors }: { filters: FilterState; update: (partial: Partial<FilterState>, eventName?: FilterKey) => void; clearFilters: () => void; activeFilterCount: number; categories: string[]; majors: string[] }) {
   return <section className="rounded-[1.25rem] bg-white/70 p-5 shadow-[0_14px_45px_rgba(43,33,26,.04)] ring-1 ring-ink/10">
-    <div className="flex items-center justify-between gap-3 border-b border-ink/10 pb-4"><p className="rule-label text-ink/45">Filters</p><button type="button" onClick={clearFilters} className="min-h-9 text-xs font-black text-forest hover:text-ink">{activeFilterCount ? "Clear all" : "Reset"}</button></div>
+    <div className="flex items-center justify-between gap-3 border-b border-ink/10 pb-4"><p className="rule-label text-ink/45">Filters</p><button type="button" onClick={clearFilters} className="min-h-11 text-xs font-black text-forest hover:text-ink">{activeFilterCount ? "Clear all" : "Reset"}</button></div>
     <div className="mt-5 space-y-5">
       <FilterGroup title="Opportunity">
         <Select label="Type" value={filters.type} setValue={(value) => update({ type: value as OpportunityType | "All" }, "type")} options={["All", ...listingOpportunityTypes]} />

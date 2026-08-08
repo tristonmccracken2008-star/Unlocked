@@ -34,7 +34,7 @@ export function AccountButton({ compact = false }: { compact?: boolean }) {
   }, []);
   useEffect(() => { setImageFailed(false); }, [session?.user?.image]);
   if (!session) return <span className="inline-flex min-h-11 items-center gap-3 px-3 text-[11px] font-bold uppercase tracking-wider text-ink/45">{error || "Checking account"}{error ? <button type="button" className="min-h-11 text-forest" onClick={() => { setError(""); readAccountSession(true).then(setSession).catch(() => setError("Account status could not be refreshed.")); }}>Retry</button> : null}</span>;
-  if (!session.authenticated) return <span className="inline-flex flex-col items-start gap-1"><a href="/api/auth/google" onClick={() => resetAccountSessionCache()} className="inline-flex min-h-11 shrink-0 items-center justify-center whitespace-nowrap rounded-full bg-forest px-5 text-sm font-bold text-white hover:bg-ink">Sign in</a>{!compact && <span className="text-[11px] font-bold text-ink/35">Save your opportunities across devices.</span>}{error && <span role="alert" className="text-[10px] font-bold text-red-700">{error}</span>}</span>;
+  if (!session.authenticated) return <span className="inline-flex flex-col items-start gap-1"><a href="/api/auth/google" onClick={() => resetAccountSessionCache()} className="inline-flex min-h-11 shrink-0 items-center justify-center whitespace-nowrap rounded-full bg-forest px-5 text-sm font-bold text-white hover:bg-ink">Sign in</a>{!compact && <span className="text-xs font-bold text-ink/40">Save your opportunities across devices.</span>}{error && <span role="alert" className="text-xs font-bold text-red-700">{error}</span>}</span>;
   const label = session.user?.name || session.user?.email || "Signed in";
   return <form action="/api/auth/logout" method="post" aria-busy={signingOut || undefined} onSubmit={async (event) => {
     event.preventDefault();
@@ -71,6 +71,6 @@ export function AccountButton({ compact = false }: { compact?: boolean }) {
     {session.user?.image && !imageFailed ? <span className="relative grid h-7 w-7 shrink-0 place-items-center overflow-hidden rounded-full bg-ink text-[10px] font-bold text-white"><span aria-hidden="true">{session.user?.name?.[0] ?? "U"}</span><img src={session.user.image} alt="" width={28} height={28} decoding="async" className="absolute inset-0 h-7 w-7 object-cover" referrerPolicy="no-referrer" onError={() => setImageFailed(true)}/></span> : <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-ink text-[10px] font-bold text-white">{session.user?.name?.[0] ?? "U"}</span>}
     <span className="flex min-w-0 flex-col"><span className={`${compact ? "max-w-24" : "max-w-44"} truncate text-xs font-bold text-ink/65`}>{label}</span>{!compact&&<span className="text-[11px] font-bold text-trust">Your account is synced.</span>}</span>
     <button type="submit" disabled={signingOut} className="inline-flex min-h-11 min-w-[4.5rem] items-center justify-center rounded-full px-2 text-xs font-bold text-ink/40 hover:bg-white hover:text-forest disabled:cursor-wait disabled:opacity-60">{signingOut ? "Signing out…" : "Sign out"}</button>
-    {error && <span role="alert" className="w-full text-right text-[10px] font-bold text-red-700">{error}</span>}
+    {error && <span role="alert" className="w-full text-right text-xs font-bold text-red-700">{error}</span>}
   </form>;
 }

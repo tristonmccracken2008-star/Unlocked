@@ -25,13 +25,13 @@ const confidence: Record<VerificationStatus, { label: "Verified" | "Needs Review
 
 export function StatusBadge({ status }: { status: VerificationStatus }) {
   const tone = status === "verified" ? "border-trust/25 bg-trust/[.06] text-trust" : ["expired", "broken_source", "archived"].includes(status) ? "border-red-700/25 bg-red-700/[.05] text-red-700" : "border-amber-700/25 bg-amber-700/[.05] text-amber-700";
-  return <span className={`inline-flex items-center gap-1.5 border px-2 py-1 text-[9px] font-bold uppercase tracking-[.1em] ${tone}`}>{status === "verified" && <CheckIcon className="h-3 w-3" />}{labels[status]}</span>;
+  return <span className={`inline-flex items-center gap-1.5 border px-2 py-1 text-[11px] font-bold uppercase tracking-[.08em] ${tone}`}>{status === "verified" && <CheckIcon className="h-3 w-3" />}{labels[status]}</span>;
 }
 
 export function ConfidenceBadge({ status }: { status: VerificationStatus }) {
   const item = confidence[status];
   const tone = item.label === "Verified" ? "border-trust/35 text-trust" : item.label === "Needs Review" ? "border-amber-700/35 text-amber-700" : "border-forest/35 text-forest";
-  return <span tabIndex={0} className={`group relative inline-flex cursor-help items-center border px-2 py-1 text-[10px] font-bold uppercase tracking-wider outline-none ${tone}`} aria-label={`Confidence: ${item.label}. ${item.description}`}><span className="mr-1 text-ink/35">Confidence</span>{item.label}<span role="tooltip" className="pointer-events-none absolute bottom-full left-0 z-40 mb-2 hidden w-64 border border-ink/20 bg-ink p-3 text-left text-[11px] font-normal normal-case leading-5 tracking-normal text-white shadow-[4px_4px_0_rgba(43,33,26,.18)] group-hover:block group-focus:block">{item.description}</span></span>;
+  return <span tabIndex={0} className={`group relative inline-flex cursor-help items-center border px-2 py-1 text-[11px] font-bold uppercase tracking-wider outline-none ${tone}`} aria-label={`Confidence: ${item.label}. ${item.description}`}><span className="mr-1 text-ink/35">Confidence</span>{item.label}<span role="tooltip" className="pointer-events-none absolute bottom-full left-0 z-40 mb-2 hidden w-64 border border-ink/20 bg-ink p-3 text-left text-xs font-normal normal-case leading-5 tracking-normal text-white shadow-[4px_4px_0_rgba(43,33,26,.18)] group-hover:block group-focus:block">{item.description}</span></span>;
 }
 
 export function LifecycleBadge({ state, confidence, label }: { state: OpportunityLifecycleDisplayState; confidence: OpportunityLifecycleConfidence; label: string }) {
@@ -51,5 +51,5 @@ export function LifecycleBadge({ state, confidence, label }: { state: Opportunit
         : confidence === "limited"
           ? "based on limited current evidence"
           : "not confirmed";
-  return <span aria-label={`${label}; ${confidenceText}`} className={`inline-flex items-center border px-2 py-1 text-[9px] font-bold uppercase tracking-[.1em] ${tone}`}>{label}</span>;
+  return <span aria-label={`${label}; ${confidenceText}`} className={`inline-flex items-center border px-2 py-1 text-[11px] font-bold uppercase tracking-[.08em] ${tone}`}>{label}</span>;
 }

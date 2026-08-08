@@ -46,7 +46,7 @@ export function GetAheadPage() {
   const recent = [...new Map(opportunities.filter((item) => item.verification_status !== "expired" && (item.type === "AI" || item.type === "Benefit" || item.hidden_gem)).map((item) => [item.id,item])).values()].sort((a,b) => b.date_added.localeCompare(a.date_added) || a.title.localeCompare(b.title)).slice(0,5);
 
   return <main className="mx-auto max-w-6xl px-5 py-10 sm:px-8 sm:py-14">
-    <header><p className="rule-label text-forest">Student tools and advantages</p><h1 className="mt-3 font-editorial text-5xl font-bold tracking-[-.035em] sm:text-6xl">Get Ahead</h1><p className="mt-4 max-w-2xl text-lg leading-8 text-ink/55">Discover the highest-impact opportunities that give you an advantage during college.</p>
+    <header><p className="rule-label text-forest">Student tools and advantages</p><h1 className="mt-3 font-editorial text-5xl font-bold sm:text-6xl">Get Ahead</h1><p className="mt-4 max-w-2xl text-lg leading-8 text-ink/55">Discover the highest-impact opportunities that give you an advantage during college.</p>
       <div className="mt-9 grid gap-px bg-ink/15 sm:grid-cols-2 lg:grid-cols-4">{categories.map((category)=><Link key={category.title} href={category.href} className="group flex min-h-44 flex-col bg-white p-5 hover:bg-paper"><h2 className="font-editorial text-2xl font-bold group-hover:text-forest">{category.title}</h2><p className="mt-3 text-sm leading-6 text-ink/50">{category.description}</p><p className="mt-auto pt-5 text-xs font-bold uppercase tracking-wider text-forest">{opportunities.filter((item)=>item.verification_status!=="expired"&&category.matches(item)).length} opportunities</p></Link>)}</div>
     </header>
 

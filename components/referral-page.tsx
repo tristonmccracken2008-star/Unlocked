@@ -43,7 +43,7 @@ export function ReferralPage({ initialSession }: { initialSession: AccountSessio
       <section className="grid gap-8 rounded-[2rem] bg-white/70 p-6 shadow-soft ring-1 ring-ink/8 sm:p-8 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-end">
         <div>
           <p className="rule-label text-forest">Invite students</p>
-          <h1 className="mt-3 max-w-3xl font-editorial text-5xl font-bold leading-[.98] tracking-[-.045em] text-forest sm:text-7xl">Share UnlockED with someone who could use it.</h1>
+          <h1 className="mt-3 max-w-3xl font-editorial text-5xl font-bold leading-[.98] text-forest sm:text-7xl">Share UnlockED with someone who could use it.</h1>
           <p className="mt-5 max-w-2xl text-base leading-7 text-ink/58">When a new student joins from your link and completes onboarding, your referral count updates automatically.</p>
         </div>
         <div className="rounded-[1.5rem] bg-paper/80 p-5 ring-1 ring-ink/8">
