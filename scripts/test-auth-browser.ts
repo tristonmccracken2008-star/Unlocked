@@ -91,6 +91,7 @@ async function newAuthenticatedSession(label: string) {
       topics: ["Statistics"],
     },
     onboardingComplete: true,
+    firstLaunchComplete: true,
   });
   return { ...(await createSession(user)), userId: user.id };
 }
@@ -177,6 +178,40 @@ async function verifyNavigation(page: Page, origin: string, label: string, targe
   return duration;
 }
 
+async function verifyContextualNavigation(page: Page, origin: string, engine: string) {
+  await page.route("https://logo.clearbit.com/**", (route) => route.fulfill({
+    status: 200,
+    contentType: "image/svg+xml",
+    body: '<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1" viewBox="0 0 1 1"/>',
+  }));
+  await page.goto(`${origin}/opportunities`, { waitUntil: "domcontentloaded" });
+  const navigation = page.getByRole("navigation", { name: "Primary navigation" });
+  const trigger = navigation.getByRole("link", { name: "Discover", exact: true });
+  const panel = page.locator("#navigation-panel-discover");
+  await trigger.hover();
+  await panel.waitFor({ state: "visible" });
+  assert.equal(await trigger.getAttribute("aria-expanded"), "true", "Hover must expose the Discover contextual panel.");
+  assert.equal(await panel.getAttribute("aria-hidden"), "false", "The open panel must be available to assistive technology.");
+  assert.equal(await panel.getByRole("link", { name: /Scholarships/ }).getAttribute("href"), "/opportunities?type=Scholarship", "Contextual shortcuts must point to real Discover state.");
+  await panel.hover();
+  await page.waitForTimeout(180);
+  assert.equal(await panel.isVisible(), true, "The panel must remain open while moving from its trigger into its surface.");
+  await page.screenshot({ path: `/tmp/unlocked-premium-navigation-${engine}.png`, fullPage: false, caret: "initial" });
+
+  await trigger.focus();
+  const firstShortcut = panel.getByRole("link").first();
+  if (engine === "chromium") {
+    await page.keyboard.press("Tab");
+  } else {
+    // macOS WebKit follows the system's reduced tab-stop model for links.
+    await firstShortcut.focus();
+  }
+  assert.equal(await firstShortcut.evaluate((element) => document.activeElement === element), true, "Contextual shortcuts must accept keyboard focus.");
+  await firstShortcut.press("Escape");
+  await page.waitForFunction(() => document.querySelector("#navigation-panel-discover")?.getAttribute("aria-hidden") === "true");
+  assert.equal(await trigger.evaluate((element) => document.activeElement === element), true, "Escape must dismiss the panel and restore focus to its destination link.");
+}
+
 async function runBrowser(browserType: BrowserType, engine: string, origin: string, viewport: { width: number; height: number }, viewportName: string): Promise<BrowserResult> {
   const browser = await browserType.launch({ headless: true });
   const context = await browser.newContext({ ignoreHTTPSErrors: true, viewport });
@@ -197,6 +232,12 @@ async function runBrowser(browserType: BrowserType, engine: string, origin: stri
     observeConsole(navigationPage, `navigation:${label}`);
     navigationMs[label] = await verifyNavigation(navigationPage, origin, label, target, viewportName);
     await navigationPage.close();
+  }
+  if (viewportName === "desktop") {
+    const contextualPage = await context.newPage();
+    observeConsole(contextualPage, "contextual-navigation");
+    await verifyContextualNavigation(contextualPage, origin, engine);
+    await contextualPage.close();
   }
 
   const logoutSession = await newAuthenticatedSession(`${engine}-${viewportName}-logout`);
