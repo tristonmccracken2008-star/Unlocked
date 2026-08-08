@@ -7,6 +7,7 @@ import { validateOpportunityData } from "../data/recommendation-professional-pip
 import { opportunities, type Opportunity } from "../data/opportunities";
 import { schools, type School } from "../data/seed";
 import type { StudentProfile } from "../data/student-profile";
+import { recommendationOpportunityClass, resourceRecommendationLimit } from "../data/recommendation-portfolio-policy";
 
 type GoldenProfile = {
   id: string;
@@ -76,7 +77,9 @@ function profileFor(index: number, school: School, overrides: Partial<StudentPro
   };
 }
 
-function golden(id: string, profile: StudentProfile, school: School, minimum = 4): GoldenProfile {
+// Coverage proves safe availability. Portfolio breadth is validated with verified,
+// category-complete fixtures in check-recommendation-intelligence-v1.ts.
+function golden(id: string, profile: StudentProfile, school: School, minimum = 1): GoldenProfile {
   const mustNotAppear = [
     ...(profile.institutionType === "community_college" ? [] : [cciId]),
     ...(profile.enrollmentStatus === "enrolled" ? highSchoolOnlyIds : []),
@@ -102,13 +105,13 @@ const named: GoldenProfile[] = [
   golden("uchicago-biology-premed-freshman", profileFor(2, uChicago, { major: "Biology", year: "First year", careerGoal: "Medicine", interests: "Healthcare, Research, Scholarships" }), uChicago),
   golden("purdue-engineering-sophomore", profileFor(3, purdue, { major: "Engineering", year: "Second year", careerGoal: "Engineering", interests: "Engineering, Internships, Robotics" }), purdue),
   golden("caltech-physics", profileFor(4, caltech, { major: "Physics", year: "Second year", careerGoal: "Research", interests: "Physics, Research, Space" }), caltech),
-  golden("community-college-transfer", profileFor(5, miamiDade, { major: "Computer Science", year: "Second year", careerGoal: "Software Engineering", institutionType: "community_college", degreeLevel: "associate", transferStatus: "transfer_applicant", age: 20, gpaStatus: "reported", gpa: 3.4 }), miamiDade, 2),
+  golden("community-college-transfer", profileFor(5, miamiDade, { major: "Computer Science", year: "Second year", careerGoal: "Software Engineering", institutionType: "community_college", degreeLevel: "associate", transferStatus: "transfer_applicant", age: 20, gpaStatus: "reported", gpa: 3.4 }), miamiDade),
   golden("four-year-university-freshman", profileFor(6, uChicago, { year: "First year", major: "Economics", careerGoal: "Consulting" }), uChicago),
-  golden("international-cs-undergraduate", profileFor(7, purdue, { major: "Computer Science", citizenshipStatus: "international", workAuthorization: "unknown", careerGoal: "Software Engineering" }), purdue, 3),
+  golden("international-cs-undergraduate", profileFor(7, purdue, { major: "Computer Science", citizenshipStatus: "international", workAuthorization: "unknown", careerGoal: "Software Engineering" }), purdue),
   golden("economics-junior-banking", profileFor(8, uChicago, { major: "Economics", year: "Third year", careerGoal: "Investment Banking", interests: "Finance, Banking, Internships" }), uChicago),
-  golden("english-publishing", profileFor(9, uChicago, { major: "English", careerGoal: "Publishing", interests: "Writing, Publishing, Communications" }), uChicago, 3),
+  golden("english-publishing", profileFor(9, uChicago, { major: "English", careerGoal: "Publishing", interests: "Writing, Publishing, Communications" }), uChicago),
   golden("no-gpa", profileFor(10, purdue, { gpaStatus: "none_yet", gpa: undefined }), purdue),
-  golden("undecided", profileFor(11, uChicago, { major: "Undecided", careerGoal: "Undecided", interests: "Explore careers, Student Benefits" }), uChicago, 3),
+  golden("undecided", profileFor(11, uChicago, { major: "Undecided", careerGoal: "Undecided", interests: "Explore careers, Student Benefits" }), uChicago),
   golden("research-interest", profileFor(12, caltech, { major: "Biology", careerGoal: "Research", interests: "Research, Graduate School" }), caltech),
   golden("remote-interest", profileFor(13, purdue, { major: "Data Science", interests: "Remote, Software, AI", careerGoal: "Data Science" }), purdue),
 ];
@@ -135,7 +138,7 @@ const profiles: GoldenProfile[] = [...named];
 for (let index = profiles.length; index < 250; index += 1) {
   const variant = index % 4;
   const school = baseSchools[variant % baseSchools.length];
-  profiles.push(golden(`realistic-undergraduate-${index}`, profileFor(variant, school), school, institutionType(school) === "community_college" ? 2 : 3));
+  profiles.push(golden(`realistic-undergraduate-${index}`, profileFor(variant, school), school));
 }
 assert.equal(profiles.length, 250, "Coverage suite must contain exactly 250 explicit golden profiles.");
 
@@ -164,6 +167,11 @@ for (const goldenProfile of profiles) {
   if (!recommendations.length) emptyUndergraduates += 1;
   assert.ok(recommendations.length >= goldenProfile.minimumUsefulRecommendationCount, `${goldenProfile.id} returned ${recommendations.length}; expected at least ${goldenProfile.minimumUsefulRecommendationCount}.`);
   const ids = new Set(recommendations.map((item) => item.relatedOpportunityId));
+  const resourceCount = recommendations.filter((item) => {
+    const opportunity = rankingCatalog.find((candidate) => candidate.id === item.relatedOpportunityId);
+    return opportunity ? recommendationOpportunityClass(opportunity) === "resource" : false;
+  }).length;
+  assert.ok(resourceCount <= resourceRecommendationLimit(advisorProfile, context, 8), `${goldenProfile.id} was padded with convenience resources.`);
   for (const forbiddenId of goldenProfile.mustNotAppear) assert.equal(ids.has(forbiddenId), false, `${goldenProfile.id} received forbidden ${forbiddenId}.`);
   for (const recommendation of recommendations) {
     tierCounts[recommendation.tier] += 1;

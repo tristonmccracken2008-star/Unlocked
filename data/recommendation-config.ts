@@ -1,6 +1,6 @@
 import type { RecommendationMatchLabel } from "./recommendation-service";
 
-export const recommendationRulesVersion = "professional-recommendations-v5-best-mix";
+export const recommendationRulesVersion = "professional-recommendations-v6-intelligence";
 
 export const recommendationConfig = {
   weights: {
@@ -83,6 +83,8 @@ export const recommendationConfig = {
     maxSameSemanticCluster: 1,
     explorationShare: 0.2,
     stableTopSlots: 2,
+    maxConvenienceResources: 1,
+    maxConvenienceResourcesWithStrongEvidence: 2,
   },
   qualityGates: {
     minimumPositiveSignals: 2,

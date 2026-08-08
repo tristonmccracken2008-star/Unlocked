@@ -15,6 +15,7 @@ import { buildRecommendationWeeklyStrategy, type RecommendationWeeklyStrategy } 
 import { labelForRecommendationScore, recommendationConfig } from "./recommendation-config";
 import type { ApplicationRecord, StudentProgress } from "./student-progress";
 import { activeRecommendationFeedback } from "@/lib/advisor/feedback";
+import { recommendationOpportunityClass, resourceRecommendationLimit } from "./recommendation-portfolio-policy";
 
 export type RecommendationKind = "Opportunity" | "Milestone" | "Next Action";
 export type RecommendationTier = "excellent" | "strong" | "explore";
@@ -96,6 +97,20 @@ type RankedOpportunity = {
   previousTop: boolean;
   rotationBoost: number;
   feedRole: "core" | "exploration";
+  repetitionPenalty: number;
+};
+
+export type RecommendationScoreDiagnostics = {
+  baseRelevance: number;
+  eligibility: number;
+  quality: number;
+  impact: number;
+  freshness: number;
+  timing: number;
+  behavioralContribution: number;
+  diversityAdjustment: number;
+  repetitionPenalty: number;
+  finalScore: number;
 };
 
 export type RecommendationReviewRecord = {
@@ -115,6 +130,7 @@ export type RecommendationReviewRecord = {
   dataConfidence: number;
   verificationConfidence: number;
   survivedFinalAudit: boolean;
+  scoreBreakdown: RecommendationScoreDiagnostics;
 };
 
 export type RecommendationDiagnosticReport = {
@@ -278,12 +294,29 @@ function contextWithLearning(context: OpportunityStudentContext, source: readonl
     return [...counts].filter(([, count]) => count >= minimumEvidence).map(([value]) => value);
   };
   const boundedViews = (context.viewedOpportunityIds ?? []).slice(-50);
+  const behaviorCategoryScores: Record<string, number> = {};
+  const behaviorOrganizationScores: Record<string, number> = {};
+  let resourceBehaviorScore = 0;
+  const addBehavior = (id: string, weight: number) => {
+    const opportunity = opportunityById.get(id);
+    if (!opportunity) return;
+    behaviorCategoryScores[opportunity.category] = (behaviorCategoryScores[opportunity.category] ?? 0) + weight;
+    behaviorOrganizationScores[opportunity.organization] = (behaviorOrganizationScores[opportunity.organization] ?? 0) + weight;
+    if (recommendationOpportunityClass(opportunity) === "resource") resourceBehaviorScore += weight;
+  };
+  for (const id of boundedViews) addBehavior(id, 1);
+  for (const id of context.savedOpportunityIds ?? []) addBehavior(id, 5);
+  for (const id of context.activeOpportunityIds ?? []) addBehavior(id, 7);
+  for (const id of context.completedOpportunityIds ?? []) addBehavior(id, 8);
   return {
     ...context,
     savedCategories: unique((context.savedOpportunityIds ?? []).map(categoryFor).filter((item): item is string => Boolean(item))),
     viewedCategories: repeatedValues(boundedViews.map(categoryFor)),
     completedCategories: unique((context.completedOpportunityIds ?? []).map(categoryFor).filter((item): item is string => Boolean(item))),
     interactedOrganizations: repeatedValues(boundedViews.map(organizationFor)),
+    behaviorCategoryScores,
+    behaviorOrganizationScores,
+    resourceBehaviorScore,
   };
 }
 
@@ -332,8 +365,10 @@ function opportunityReasons(profile: AdvisorProfile, ranked: RankedOpportunity) 
   const intelligence = getOpportunityIntelligence(ranked.opportunity);
   const careerFit = scoreCareerRoadmapFit(ranked.opportunity, profile.goals.careerGoal, profile.academics.timelineStage);
   const relationship = ranked.relationship ?? getOpportunityRelationship(ranked.opportunity, [ranked.opportunity]);
+  const behavioralReasons = ranked.score.reasons.filter((reason) => /saved|Journey activity|viewed|explored|organization/i.test(reason));
   return unique([
     `You are a ${profile.academics.timelineStage.toLowerCase()} ${profile.academics.major} student.`,
+    ...behavioralReasons,
     ...ranked.score.reasons,
     ...ranked.milestoneReasons,
     ranked.roadmapBoost > 0 ? `Fits your roadmap priority: ${intelligence.category}.` : "",
@@ -457,6 +492,7 @@ function rankOpportunity(profile: AdvisorProfile, opportunity: Opportunity, cont
     previousTop,
     rotationBoost,
     feedRole: "core",
+    repetitionPenalty: Math.min(15, exposureCount * recommendationConfig.diversity.repeatExposurePenalty),
   };
 }
 
@@ -573,6 +609,8 @@ function diversityAdjustedOpportunityRecommendations(profile: AdvisorProfile, ra
   const semanticClusterCounts = new Map<string, number>();
   const explorationTarget = Math.min(limit, Math.max(1, Math.round(limit * config.explorationShare)));
   let explorationCount = 0;
+  let resourceCount = 0;
+  const resourceLimit = resourceRecommendationLimit(profile, context, limit);
   while (selected.length < limit && remaining.length) {
     const choose = (allowSemanticRepeat: boolean) => {
       let bestIndex = -1;
@@ -586,6 +624,8 @@ function diversityAdjustedOpportunityRecommendations(profile: AdvisorProfile, ra
         const categoryCount = categoryCounts.get(candidate.canonicalCategory) ?? 0;
         const typeCount = typeCounts.get(candidate.opportunity.type) ?? 0;
         const semanticCount = semanticClusterCounts.get(candidate.semanticCluster) ?? 0;
+        const isResource = recommendationOpportunityClass(candidate.opportunity) === "resource";
+        if (isResource && resourceCount >= resourceLimit) continue;
         if (orgCount >= config.maxSameOrganization || categoryCount >= config.maxSameCategory || typeCount >= config.maxSameType) continue;
         if (!allowSemanticRepeat && semanticCount >= config.maxSameSemanticCluster) continue;
         if (canForceExploration && !candidate.explorationCandidate) continue;
@@ -613,8 +653,10 @@ function diversityAdjustedOpportunityRecommendations(profile: AdvisorProfile, ra
     if (bestIndex < 0) break;
     const [next] = remaining.splice(bestIndex, 1);
     const feedRole = selected.length >= config.stableTopSlots && next.explorationCandidate && explorationCount < explorationTarget ? "exploration" : "core";
-    selected.push({ ...next, feedRole });
+    const repetitionPenalty = selected.length < config.stableTopSlots ? 0 : next.repetitionPenalty;
+    selected.push({ ...next, feedRole, repetitionPenalty });
     if (feedRole === "exploration") explorationCount += 1;
+    if (recommendationOpportunityClass(next.opportunity) === "resource") resourceCount += 1;
     organizationCounts.set(next.opportunity.organization, (organizationCounts.get(next.opportunity.organization) ?? 0) + 1);
     categoryCounts.set(next.canonicalCategory, (categoryCounts.get(next.canonicalCategory) ?? 0) + 1);
     typeCounts.set(next.opportunity.type, (typeCounts.get(next.opportunity.type) ?? 0) + 1);
@@ -624,7 +666,7 @@ function diversityAdjustedOpportunityRecommendations(profile: AdvisorProfile, ra
   return selected.map((item) => toOpportunityRecommendation(profile, { ...item, relationship: getOpportunityRelationship(item.opportunity, selectedSource) }, context, forcedTier));
 }
 
-function balancedRecommendationPortfolio(profile: AdvisorProfile, candidates: RecommendationV1[], source: readonly Opportunity[], limit: number, primaryId?: string) {
+function balancedRecommendationPortfolio(profile: AdvisorProfile, context: OpportunityStudentContext, candidates: RecommendationV1[], source: readonly Opportunity[], limit: number, primaryId?: string) {
   const config = recommendationConfig.diversity;
   const opportunityById = new Map(source.map((opportunity) => [opportunity.id, opportunity]));
   const remaining = [...candidates];
@@ -634,6 +676,8 @@ function balancedRecommendationPortfolio(profile: AdvisorProfile, candidates: Re
   const types = new Map<string, number>();
   const semanticClusters = new Map<string, number>();
   const selectionRoles = new Set<RecommendationPortfolioRole>();
+  let resourceCount = 0;
+  const resourceLimit = resourceRecommendationLimit(profile, context, limit);
 
   const roleFor = (candidate: RecommendationV1, opportunity: Opportunity | undefined, index: number): RecommendationPortfolioRole => {
     if (index === 0) return "Best Overall Match";
@@ -651,6 +695,7 @@ function balancedRecommendationPortfolio(profile: AdvisorProfile, candidates: Re
     selected.push(candidate.portfolio ? { ...candidate, portfolio: { ...candidate.portfolio, selectionRole } } : candidate);
     selectionRoles.add(selectionRole);
     if (!opportunity || !candidate.portfolio) return;
+    if (recommendationOpportunityClass(opportunity) === "resource") resourceCount += 1;
     organizations.set(opportunity.organization, (organizations.get(opportunity.organization) ?? 0) + 1);
     categories.set(candidate.portfolio.canonicalCategory, (categories.get(candidate.portfolio.canonicalCategory) ?? 0) + 1);
     types.set(opportunity.type, (types.get(opportunity.type) ?? 0) + 1);
@@ -669,6 +714,7 @@ function balancedRecommendationPortfolio(profile: AdvisorProfile, candidates: Re
         const opportunity = candidate.relatedOpportunityId ? opportunityById.get(candidate.relatedOpportunityId) : undefined;
         const portfolio = candidate.portfolio;
         if (!opportunity || !portfolio) continue;
+        if (recommendationOpportunityClass(opportunity) === "resource" && resourceCount >= resourceLimit) continue;
         const organizationCount = organizations.get(opportunity.organization) ?? 0;
         const categoryCount = categories.get(portfolio.canonicalCategory) ?? 0;
         const typeCount = types.get(opportunity.type) ?? 0;
@@ -750,6 +796,7 @@ export function rankOpportunityRecommendations(input: RecommendationEngineInput)
   const exploreRecommendations = diversityAdjustedOpportunityRecommendations(input.advisorProfile, explore, context, limit, "explore");
   const portfolio = balancedRecommendationPortfolio(
     input.advisorProfile,
+    context,
     [...strictRecommendations, ...exploreRecommendations],
     source,
     limit,
@@ -763,7 +810,7 @@ export function rankOpportunityRecommendations(input: RecommendationEngineInput)
     });
 }
 
-function reviewRecord(ranked: RankedOpportunity, finalRank: number | null, context: OpportunityStudentContext): RecommendationReviewRecord {
+function reviewRecord(ranked: RankedOpportunity, finalRank: number | null, context: OpportunityStudentContext, baseRank: number): RecommendationReviewRecord {
   const failures = qualityGateFailures(ranked);
   const eligibility = evaluateOpportunityEligibility(ranked.opportunity, context);
   return {
@@ -783,6 +830,18 @@ function reviewRecord(ranked: RankedOpportunity, finalRank: number | null, conte
     dataConfidence: opportunityEligibilityDataConfidence(ranked.opportunity),
     verificationConfidence: opportunityVerificationConfidence(ranked.opportunity),
     survivedFinalAudit: finalRank !== null,
+    scoreBreakdown: {
+      baseRelevance: ranked.score.dimensions.relevance + ranked.roadmapBoost + ranked.careerRoadmapBoost,
+      eligibility: ranked.score.dimensions.eligibility,
+      quality: ranked.score.dimensions.quality,
+      impact: ranked.score.dimensions.impact,
+      freshness: ranked.score.dimensions.freshness,
+      timing: ranked.score.dimensions.timing,
+      behavioralContribution: ranked.score.dimensions.behavior + ranked.progressBoost,
+      diversityAdjustment: finalRank === null ? 0 : baseRank - finalRank,
+      repetitionPenalty: finalRank !== null && finalRank <= recommendationConfig.diversity.stableTopSlots ? 0 : ranked.repetitionPenalty,
+      finalScore: ranked.finalScore,
+    },
   };
 }
 
@@ -793,9 +852,10 @@ export function buildRecommendationDiagnosticReport(input: RecommendationEngineI
   const eligibleRanked = allRanked.filter((item) => qualityGateFailures(item).length === 0);
   const diversified = rankOpportunityRecommendations(input);
   const finalIds = new Map(diversified.map((item, index) => [item.relatedOpportunityId, index + 1]));
-  const finalRankingOrder = allRanked.filter((item) => finalIds.has(item.opportunity.id)).sort((a, b) => (finalIds.get(a.opportunity.id) ?? 999) - (finalIds.get(b.opportunity.id) ?? 999)).map((item) => reviewRecord(item, finalIds.get(item.opportunity.id) ?? null, context));
-  const filteredRecommendations = allRanked.filter((item) => qualityGateFailures(item).length > 0 && exploreGateFailures(item, context).length > 0).slice(0, 20).map((item) => reviewRecord(item, null, context));
-  const competingOpportunities = allRanked.filter((item) => !finalIds.has(item.opportunity.id) && (qualityGateFailures(item).length === 0 || exploreGateFailures(item, context).length === 0)).slice(0, 10).map((item) => reviewRecord(item, null, context));
+  const baseRanks = new Map(allRanked.map((item, index) => [item.opportunity.id, index + 1]));
+  const finalRankingOrder = allRanked.filter((item) => finalIds.has(item.opportunity.id)).sort((a, b) => (finalIds.get(a.opportunity.id) ?? 999) - (finalIds.get(b.opportunity.id) ?? 999)).map((item) => reviewRecord(item, finalIds.get(item.opportunity.id) ?? null, context, baseRanks.get(item.opportunity.id) ?? 0));
+  const filteredRecommendations = allRanked.filter((item) => qualityGateFailures(item).length > 0 && exploreGateFailures(item, context).length > 0).slice(0, 20).map((item) => reviewRecord(item, null, context, baseRanks.get(item.opportunity.id) ?? 0));
+  const competingOpportunities = allRanked.filter((item) => !finalIds.has(item.opportunity.id) && (qualityGateFailures(item).length === 0 || exploreGateFailures(item, context).length === 0)).slice(0, 10).map((item) => reviewRecord(item, null, context, baseRanks.get(item.opportunity.id) ?? 0));
   const elapsedMs = Math.round((typeof performance !== "undefined" ? performance.now() : Date.now()) - started);
   return {
     generatedAt: new Date().toISOString(),

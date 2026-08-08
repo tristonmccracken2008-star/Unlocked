@@ -62,6 +62,9 @@ export type OpportunityStudentContext = {
   careerTargetOrganizations?: string[];
   skillPriorities?: string[];
   underusedCategories?: string[];
+  behaviorCategoryScores?: Record<string, number>;
+  behaviorOrganizationScores?: Record<string, number>;
+  resourceBehaviorScore?: number;
 };
 
 export type OpportunityIntelligence = {
@@ -127,6 +130,17 @@ export type OpportunityScore = {
   personalizedSignals: string[];
   reasons: string[];
   breakdown: OpportunityMatchBreakdown;
+  dimensions: RecommendationScoreDimensions;
+};
+
+export type RecommendationScoreDimensions = {
+  relevance: number;
+  eligibility: number;
+  quality: number;
+  impact: number;
+  freshness: number;
+  timing: number;
+  behavior: number;
 };
 
 export type OpportunityRankingSignal = {
@@ -615,7 +629,11 @@ export function scoreOpportunityIntelligence(item: Opportunity, context: Opportu
     score += weights.highlyCompetitivePenalty;
     addSignal("Highly competitive", "negative", weights.highlyCompetitivePenalty);
   }
-  if (context.savedCategories?.includes(item.category)) {
+  const behaviorCategoryScore = Math.min(14, context.behaviorCategoryScores?.[item.category] ?? 0);
+  if (behaviorCategoryScore >= 4) {
+    score += behaviorCategoryScore;
+    addSignal(`Your saved and Journey activity supports ${item.category}`, "positive", behaviorCategoryScore);
+  } else if (context.savedCategories?.includes(item.category)) {
     score += weights.savedSimilarCategory;
     addSignal(`Similar to saved ${item.category} opportunities`, "positive", weights.savedSimilarCategory);
   }
@@ -623,11 +641,15 @@ export function scoreOpportunityIntelligence(item: Opportunity, context: Opportu
     score += weights.preferredCategory;
     addSignal(`Matches your preferred ${item.category} category`, "positive", weights.preferredCategory);
   }
-  if (context.viewedCategories?.includes(item.category)) {
+  if (behaviorCategoryScore < 4 && context.viewedCategories?.includes(item.category)) {
     score += weights.viewedSimilarCategory;
     addSignal(`Similar to viewed ${item.category} opportunities`, "positive", weights.viewedSimilarCategory);
   }
-  if (context.interactedOrganizations?.includes(item.organization)) {
+  const behaviorOrganizationScore = Math.min(10, context.behaviorOrganizationScores?.[item.organization] ?? 0);
+  if (behaviorOrganizationScore >= 4) {
+    score += behaviorOrganizationScore;
+    addSignal(`Your meaningful activity includes ${item.organization}`, "positive", behaviorOrganizationScore);
+  } else if (context.interactedOrganizations?.includes(item.organization)) {
     score += weights.interactedOrganization;
     addSignal("From an organization you explored", "positive", weights.interactedOrganization);
   }
@@ -680,6 +702,24 @@ export function scoreOpportunityIntelligence(item: Opportunity, context: Opportu
   const rawScore = score;
   const normalizedScore = Math.max(0, Math.min(100, rawScore));
   const priority: OpportunityPriority = deadlineDays !== null && deadlineDays >= 0 && deadlineDays <= 10 && normalizedScore >= 55 ? "Critical" : normalizedScore >= 78 ? "High" : normalizedScore >= 50 ? "Recommended" : "Optional";
+  const dimensions = signals.reduce<RecommendationScoreDimensions>((result, signal) => {
+    const label = signal.label.toLowerCase();
+    const key: keyof RecommendationScoreDimensions = /school|class year|gpa|eligible|available nationally/.test(label)
+      ? "eligibility"
+      : /quality|verified from official/.test(label)
+        ? "quality"
+        : /impact|value|return|competitive|application difficulty/.test(label)
+          ? "impact"
+          : /newly added|recently added|recently verified/.test(label)
+            ? "freshness"
+            : /deadline|relevant for (winter|spring|summer|fall)/.test(label)
+              ? "timing"
+              : /saved|journey activity|viewed|organization you explored|meaningful activity|ignored|already opened|already active/.test(label)
+                ? "behavior"
+                : "relevance";
+    result[key] += signal.weight;
+    return result;
+  }, { relevance: 0, eligibility: 0, quality: 0, impact: 0, freshness: 0, timing: 0, behavior: 0 });
   return {
     opportunityId: item.id,
     score: normalizedScore,
@@ -693,6 +733,7 @@ export function scoreOpportunityIntelligence(item: Opportunity, context: Opportu
     personalizedSignals: unique(personalizedSignals),
     reasons: getRecommendationReasons(item, context),
     breakdown: { matchingMajors, matchingMinor, matchingCareerGoals, matchingInterests, matchingCurrentPriority, matchingYears, schoolEligible, gpaRequirement: requirement, gpaEligible: meetsGpa, deadlineDays },
+    dimensions,
   };
 }
 
@@ -715,9 +756,11 @@ export function getRecommendationReasons(item: Opportunity, context: Opportunity
   if (matchingInterests.length) reasons.push(`Matches your opportunity interests: ${matchingInterests.slice(0, 2).join(", ")}.`);
   if (matchingCurrentPriority && matchingGoal) reasons.push(`Supports your current priority: ${matchingGoal}.`);
   if (context.preferredCategories?.some((category) => category === item.category || category === item.type)) reasons.push(`Matches your preferred opportunity type: ${item.category}.`);
-  if (context.savedCategories?.includes(item.category)) reasons.push(`Similar to ${item.category.toLowerCase()} opportunities you saved.`);
+  if ((context.behaviorCategoryScores?.[item.category] ?? 0) >= 4) reasons.push(`Your saved and Journey activity shows interest in ${item.category.toLowerCase()} opportunities.`);
+  else if (context.savedCategories?.includes(item.category)) reasons.push(`Similar to ${item.category.toLowerCase()} opportunities you saved.`);
   if (context.viewedCategories?.includes(item.category)) reasons.push(`Similar to ${item.category.toLowerCase()} opportunities you viewed.`);
-  if (context.interactedOrganizations?.includes(item.organization)) reasons.push(`From an organization you explored: ${item.organization}.`);
+  if ((context.behaviorOrganizationScores?.[item.organization] ?? 0) >= 4) reasons.push(`Your saved or Journey activity includes ${item.organization}.`);
+  else if (context.interactedOrganizations?.includes(item.organization)) reasons.push(`From an organization you explored: ${item.organization}.`);
   if (context.underusedCategories?.includes(item.category) || context.underusedCategories?.includes(item.type)) reasons.push(`Adds variety to your opportunity mix with ${item.category.toLowerCase()}.`);
   if (matchingYears.length) reasons.push(matchingYears.includes("Any Year") ? "Accepts students in any class year." : `Accepts ${matchingYears[0].toLowerCase()} students.`);
   if (schoolEligible) reasons.push(item.school_scope === "National" ? "Available nationally." : `Available at ${context.schoolName ?? "your school"}.`);
