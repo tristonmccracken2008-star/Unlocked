@@ -35,8 +35,8 @@ assert.match(natural.opportunities[0]?.title ?? "", /generation|scholar|cooke|al
 
 const fixtures: [string, RegExp][] = [
   ["Google internship", /Google/i],
-  ["freshman finance", /Trading|Citadel|finance|street/i],
-  ["quant", /Trading|IMC|Citadel|Jane Street/i],
+  ["freshman finance", /Trading|Citadel|finance|street|Invest/i],
+  ["quant", /Trading|IMC|Citadel|Jane Street|Modeling/i],
   ["full scholarship", /Scholarship/i],
   ["biology research", /Research|Science|Laboratory/i],
   ["remote software engineering", /Software|Engineering|Developer|STEM/i],

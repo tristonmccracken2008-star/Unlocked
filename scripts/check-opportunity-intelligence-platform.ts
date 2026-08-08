@@ -58,7 +58,7 @@ for (const group of index.duplicateGroups) {
 
 const base = opportunities.find((item) => item.verification_status === "verified" && item.metadata.eligibilityRules?.recommendationEligibilityStatus === "eligible_for_ranking")!;
 assert.ok(base, "A verified canonical fixture must exist.");
-const expired: Opportunity = { ...base, id: "expired-platform-fixture", application_deadline: "2026-01-01", deadline: "2026-01-01", metadata: { ...base.metadata, deadlineType: "fixed", verification: { ...base.metadata.verification, status: base.verification_status, deadlineVerified: true } } };
+const expired: Opportunity = { ...base, id: "expired-platform-fixture", application_deadline: "2026-01-01", deadline: "2026-01-01", metadata: { ...base.metadata, lifecycle: undefined, deadlineType: "fixed", verification: { ...base.metadata.verification, status: base.verification_status, deadlineVerified: true } } };
 assert.equal(assessOpportunityFreshness(expired, new Date("2026-07-22T12:00:00Z")).state, "expired");
 assert.equal(buildOpportunityCatalogIndex([expired], { now: new Date("2026-07-22T12:00:00Z") }).profiles.get(expired.id)?.recommendationEligible, false);
 

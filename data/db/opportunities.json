@@ -8336,7 +8336,7 @@
     "title": "Science Undergraduate Laboratory Internships (SULI)",
     "type": "Research",
     "category": "Government & National Labs",
-    "description": "Research appointments at Department of Energy national laboratories. This matters because it can build faculty connections, technical skills, research experience, and graduate-school preparation. Natural Sciences, Engineering, Computer Science students who meet the eligibility rules should review the official U.S. Department of Energy source, confirm current requirements, and apply or claim through the provider's published process. Natural Sciences, Biology, Chemistry students who meet the eligibility rules should review the official U.S.",
+    "description": "A paid research appointment at a Department of Energy national laboratory. Eligible undergraduates and recent graduates in STEM fields can identify preferred laboratories, prepare transcripts and references, and apply through DOE's official portal.",
     "organization": "U.S. Department of Energy",
     "school_scope": "National",
     "schools": [],
@@ -8394,9 +8394,9 @@
       "Third year",
       "Fourth year"
     ],
-    "eligibility": "Undergraduate students or recent associate/bachelor’s graduates meeting citizenship, GPA, and enrollment rules.",
+    "eligibility": "Current undergraduates or qualifying recent graduates with required coursework, at least a 3.0 GPA, age 18 by the internship start, and U.S. citizenship or lawful permanent residence.",
     "estimated_value": null,
-    "application_deadline": null,
+    "application_deadline": "2026-09-30",
     "recurring": true,
     "location": "DOE national laboratories",
     "remote": false,
@@ -8453,9 +8453,9 @@
       "User Experience Design",
       "Music"
     ],
-    "official_source": "https://science.osti.gov/wdts/suli",
+    "official_source": "https://science.osti.gov/wdts/suli/How-to-Apply",
     "verification_status": "verified",
-    "last_verified": "2026-07-06",
+    "last_verified": "2026-08-08",
     "difficulty": "Highly Competitive",
     "prestige": "Very High",
     "icon": "research",
@@ -8463,7 +8463,7 @@
     "hidden_gem": false,
     "metadata": {
       "legacySlug": "doe-suli",
-      "deadlineType": "varies",
+      "deadlineType": "fixed",
       "compensation": "Paid",
       "workMode": "In Person",
       "professor": null,
@@ -8474,12 +8474,146 @@
         "Summer",
         "Fall",
         "Spring"
-      ]
+      ],
+      "claimUrl": "https://science.osti.gov/wdts/suli/How-to-Apply",
+      "eligibilityRules": {
+        "educationLevels": [
+          "undergraduate",
+          "recent_graduate"
+        ],
+        "canonicalInstitutionTypes": [
+          "community_college",
+          "four_year_college",
+          "university",
+          "liberal_arts_college"
+        ],
+        "canonicalEnrollmentStatuses": [
+          "currently_enrolled",
+          "graduated"
+        ],
+        "classYears": [
+          "Second year",
+          "Third year",
+          "Fourth year"
+        ],
+        "majors": [
+          "Computer Science",
+          "Data Science",
+          "Mathematics",
+          "Statistics",
+          "Engineering",
+          "Aerospace Engineering",
+          "Biomedical Engineering",
+          "Chemical Engineering",
+          "Civil Engineering",
+          "Computer Engineering",
+          "Electrical Engineering",
+          "Environmental Engineering",
+          "Industrial Engineering",
+          "Materials Science",
+          "Mechanical Engineering",
+          "Nuclear Engineering",
+          "Physics",
+          "Chemistry",
+          "Biology",
+          "Environmental Science",
+          "Earth Science"
+        ],
+        "minimumGpa": 3,
+        "ageRange": {
+          "minimum": 18
+        },
+        "citizenshipStatuses": [
+          "us_citizen",
+          "permanent_resident"
+        ],
+        "availability": "open",
+        "recommendationEligibilityStatus": "eligible_for_ranking",
+        "evidence": [
+          "DOE's official SULI eligibility and application pages confirm the Spring 2027 deadline, enrollment and credit rules, 3.0 GPA, age 18 requirement, and U.S.-citizen or lawful-permanent-resident eligibility."
+        ]
+      },
+      "verification": {
+        "status": "verified",
+        "lastVerifiedAt": "2026-08-08",
+        "verifiedCycle": "Spring 2027",
+        "officialSourceUrl": "https://science.osti.gov/wdts/suli/How-to-Apply",
+        "applicationUrlVerified": true,
+        "deadlineVerified": true,
+        "eligibilityVerified": true,
+        "sourceReachable": true,
+        "sourceAuditStatus": 200,
+        "notes": "DOE's official SULI eligibility and application pages confirm the Spring 2027 deadline, enrollment and credit rules, 3.0 GPA, age 18 requirement, and U.S.-citizen or lawful-permanent-resident eligibility."
+      },
+      "lifecycle": {
+        "schemaVersion": 1,
+        "migrationId": "verified-inventory-2026-08-08",
+        "identity": {
+          "identityId": "research--doe-suli"
+        },
+        "cycle": {
+          "cycleId": "spring-2027",
+          "label": "spring-2027"
+        },
+        "state": "open",
+        "confidence": "confirmed",
+        "reason": "official_status_open",
+        "effectiveAt": "2026-08-08T00:00:00.000Z",
+        "finalDeadline": {
+          "kind": "final_deadline",
+          "sourceValue": "2026-09-30",
+          "normalizedValue": "2026-09-30",
+          "precision": "date",
+          "estimated": false,
+          "verifiedAt": "2026-08-08",
+          "sourceUrl": "https://science.osti.gov/wdts/suli/How-to-Apply"
+        },
+        "recurrence": {
+          "type": "semester",
+          "confidence": "confirmed",
+          "officialStatement": "DOE's official application page lists Spring 2027 applications as open through September 30, 2026."
+        },
+        "evidence": [
+          {
+            "id": "research--doe-suli:spring-2027:official",
+            "source": "official_application_page",
+            "observedAt": "2026-08-08T00:00:00.000Z",
+            "value": "DOE's official application page lists Spring 2027 applications as open through September 30, 2026.",
+            "sourceUrl": "https://science.osti.gov/wdts/suli/How-to-Apply",
+            "confidence": "confirmed"
+          }
+        ],
+        "events": [],
+        "sourceChecks": [
+          {
+            "url": "https://science.osti.gov/wdts/suli/How-to-Apply",
+            "checkedAt": "2026-08-08T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          }
+        ],
+        "fieldVerifiedAt": {
+          "state": "2026-08-08",
+          "deadline": "2026-08-08",
+          "applicationUrl": "2026-08-08",
+          "openingDate": "2026-08-08",
+          "eligibility": "2026-08-08",
+          "award": "2026-08-08",
+          "location": "2026-08-08",
+          "programDates": "2026-08-08",
+          "description": "2026-08-08"
+        },
+        "review": {
+          "note": "DOE's official application page lists Spring 2027 applications as open through September 30, 2026.",
+          "reviewedAt": "2026-08-08T00:00:00.000Z",
+          "reviewer": "UnlockED catalog audit"
+        }
+      }
     },
     "date_added": "2026-07-06",
-    "official_source_url": "https://science.osti.gov/wdts/suli",
-    "deadline": null,
-    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "official_source_url": "https://science.osti.gov/wdts/suli/How-to-Apply",
+    "deadline": "2026-09-30",
+    "reviewer_notes": "DOE's official SULI eligibility and application pages confirm the Spring 2027 deadline, enrollment and credit rules, 3.0 GPA, age 18 requirement, and U.S.-citizen or lawful-permanent-resident eligibility.",
     "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
   },
   {
@@ -8626,13 +8760,23 @@
         "Spring"
       ],
       "eligibilityRules": {
-        "educationLevels": ["community_college"],
-        "canonicalInstitutionTypes": ["community_college"],
-        "canonicalEnrollmentStatuses": ["currently_enrolled"],
-        "degreeLevels": ["associate"],
+        "educationLevels": [
+          "community_college"
+        ],
+        "canonicalInstitutionTypes": [
+          "community_college"
+        ],
+        "canonicalEnrollmentStatuses": [
+          "currently_enrolled"
+        ],
+        "degreeLevels": [
+          "associate"
+        ],
         "citizenship": "us_person",
         "minimumGpa": 2.7,
-        "ageRange": { "minimum": 18 },
+        "ageRange": {
+          "minimum": 18
+        },
         "availability": "open",
         "applicationCycle": "Spring 2027 applications close September 30, 2026 at 5:00 p.m. ET.",
         "recommendationEligibilityStatus": "eligible_for_ranking",
@@ -9503,12 +9647,24 @@
         "Summer"
       ],
       "eligibilityRules": {
-        "educationLevels": ["undergraduate"],
-        "canonicalInstitutionTypes": ["community_college", "four_year_college", "university", "liberal_arts_college"],
-        "canonicalEnrollmentStatuses": ["currently_enrolled"],
+        "educationLevels": [
+          "undergraduate"
+        ],
+        "canonicalInstitutionTypes": [
+          "community_college",
+          "four_year_college",
+          "university",
+          "liberal_arts_college"
+        ],
+        "canonicalEnrollmentStatuses": [
+          "currently_enrolled"
+        ],
         "hostSchoolId": "california-institute-of-technology",
         "acceptsExternalStudents": true,
-        "degreeLevels": ["associate", "undergraduate"],
+        "degreeLevels": [
+          "associate",
+          "undergraduate"
+        ],
         "minimumGpa": 2.5,
         "availability": "closed",
         "applicationCycle": "The 2026 SURF application deadline has passed.",
@@ -11945,12 +12101,26 @@
       "compensation": "Paid",
       "workMode": "Varies",
       "eligibilityRules": {
-        "educationLevels": ["undergraduate"],
-        "canonicalInstitutionTypes": ["community_college", "four_year_college", "university", "liberal_arts_college"],
-        "canonicalEnrollmentStatuses": ["currently_enrolled"],
+        "educationLevels": [
+          "undergraduate"
+        ],
+        "canonicalInstitutionTypes": [
+          "community_college",
+          "four_year_college",
+          "university",
+          "liberal_arts_college"
+        ],
+        "canonicalEnrollmentStatuses": [
+          "currently_enrolled"
+        ],
         "acceptsExternalStudents": true,
-        "degreeLevels": ["associate", "undergraduate"],
-        "demographicRequirements": ["gender_minority_in_aerospace"],
+        "degreeLevels": [
+          "associate",
+          "undergraduate"
+        ],
+        "demographicRequirements": [
+          "gender_minority_in_aerospace"
+        ],
         "availability": "closed",
         "applicationCycle": "Class of 2026 applications are closed.",
         "recommendationEligibilityStatus": "discover_only",
@@ -14095,7 +14265,7 @@
     "title": "SMART Scholarship-for-Service",
     "type": "Scholarship",
     "category": "STEM Scholarships",
-    "description": "Tuition, stipend, mentoring, and Department of Defense employment pathway for eligible STEM students. This matters because it can reduce education costs and point students toward awards with documented eligibility. Computer Science, Mathematics, Engineering students who meet the eligibility rules should review the official U.S. Department of Defense source, confirm current requirements, and apply or claim through the provider's published process. Computer Science, Software Engineering, Cybersecurity students who meet the eligibility rules should review the official U.S.",
+    "description": "A scholarship-for-service program covering tuition and providing a stipend, summer internships, mentoring, and a Department of Defense employment pathway. Eligible STEM students who understand the service commitment can apply through the official SMART portal during the annual cycle.",
     "organization": "U.S. Department of Defense",
     "school_scope": "National",
     "schools": [],
@@ -14158,7 +14328,7 @@
       "Fourth year",
       "Graduate student"
     ],
-    "eligibility": "Eligible undergraduate and graduate STEM students meeting citizenship, academic, security, and service-commitment requirements.",
+    "eligibility": "U.S.-citizen undergraduate or graduate students in an eligible STEM discipline with at least a 3.0 GPA, age 18 by the program's required date, and the ability to complete the degree and service commitments.",
     "estimated_value": null,
     "application_deadline": null,
     "recurring": true,
@@ -14221,7 +14391,7 @@
     ],
     "official_source": "https://www.smartscholarship.org/smart",
     "verification_status": "verified",
-    "last_verified": "2026-07-06",
+    "last_verified": "2026-08-08",
     "difficulty": "Highly Competitive",
     "prestige": "Very High",
     "icon": "scholarship",
@@ -14229,7 +14399,7 @@
     "hidden_gem": false,
     "metadata": {
       "legacySlug": "dod-smart-scholarship",
-      "awardAmountLabel": "Amount varies",
+      "awardAmountLabel": "Full tuition plus $30,000–$46,000 annual stipend",
       "renewable": true,
       "applicationRequirements": [
         "Online application",
@@ -14239,13 +14409,138 @@
       ],
       "deadlineType": "varies",
       "compensation": "Paid",
-      "workMode": "Remote"
+      "workMode": "Remote",
+      "claimUrl": "https://www.smartscholarship.org/smart",
+      "eligibilityRules": {
+        "educationLevels": [
+          "undergraduate",
+          "graduate"
+        ],
+        "canonicalInstitutionTypes": [
+          "four_year_college",
+          "university",
+          "liberal_arts_college",
+          "graduate_school"
+        ],
+        "canonicalEnrollmentStatuses": [
+          "currently_enrolled"
+        ],
+        "classYears": [
+          "First year",
+          "Second year",
+          "Third year",
+          "Fourth year",
+          "Graduate student"
+        ],
+        "majors": [
+          "Computer Science",
+          "Data Science",
+          "Mathematics",
+          "Statistics",
+          "Engineering",
+          "Aerospace Engineering",
+          "Biomedical Engineering",
+          "Chemical Engineering",
+          "Civil Engineering",
+          "Computer Engineering",
+          "Electrical Engineering",
+          "Environmental Engineering",
+          "Industrial Engineering",
+          "Materials Science",
+          "Mechanical Engineering",
+          "Nuclear Engineering",
+          "Physics",
+          "Chemistry",
+          "Biology",
+          "Environmental Science",
+          "Earth Science"
+        ],
+        "minimumGpa": 3,
+        "ageRange": {
+          "minimum": 18
+        },
+        "citizenshipStatuses": [
+          "us_citizen"
+        ],
+        "availability": "open",
+        "recommendationEligibilityStatus": "eligible_for_ranking",
+        "evidence": [
+          "Official SMART materials confirm annual applications beginning August 1, full tuition, a $30,000–$46,000 annual stipend, internships, and post-graduation DoD employment. Ranking is conservatively limited to verified U.S.-citizen profiles because the current profile model cannot represent every partner-country citizenship category."
+        ]
+      },
+      "verification": {
+        "status": "verified",
+        "lastVerifiedAt": "2026-08-08",
+        "verifiedCycle": "2027 award cycle",
+        "officialSourceUrl": "https://www.smartscholarship.org/smart",
+        "applicationUrlVerified": true,
+        "deadlineVerified": false,
+        "eligibilityVerified": true,
+        "sourceReachable": true,
+        "sourceAuditStatus": 200,
+        "notes": "Official SMART materials confirm annual applications beginning August 1, full tuition, a $30,000–$46,000 annual stipend, internships, and post-graduation DoD employment. Ranking is conservatively limited to verified U.S.-citizen profiles because the current profile model cannot represent every partner-country citizenship category."
+      },
+      "lifecycle": {
+        "schemaVersion": 1,
+        "migrationId": "verified-inventory-2026-08-08",
+        "identity": {
+          "identityId": "scholarship--dod-smart-scholarship"
+        },
+        "cycle": {
+          "cycleId": "2027-award",
+          "label": "2027-award"
+        },
+        "state": "open",
+        "confidence": "confirmed",
+        "reason": "official_status_open",
+        "effectiveAt": "2026-08-08T00:00:00.000Z",
+        "recurrence": {
+          "type": "annual",
+          "confidence": "confirmed",
+          "officialStatement": "Official SMART materials state that the annual application opens August 1; no single final deadline was stored because current official references conflict."
+        },
+        "evidence": [
+          {
+            "id": "scholarship--dod-smart-scholarship:2027-award:official",
+            "source": "official_application_page",
+            "observedAt": "2026-08-08T00:00:00.000Z",
+            "value": "Official SMART materials state that the annual application opens August 1; no single final deadline was stored because current official references conflict.",
+            "sourceUrl": "https://www.smartscholarship.org/smart",
+            "confidence": "confirmed"
+          }
+        ],
+        "events": [],
+        "sourceChecks": [
+          {
+            "url": "https://www.smartscholarship.org/smart",
+            "checkedAt": "2026-08-08T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          }
+        ],
+        "fieldVerifiedAt": {
+          "state": "2026-08-08",
+          "deadline": "2026-08-08",
+          "applicationUrl": "2026-08-08",
+          "openingDate": "2026-08-08",
+          "eligibility": "2026-08-08",
+          "award": "2026-08-08",
+          "location": "2026-08-08",
+          "programDates": "2026-08-08",
+          "description": "2026-08-08"
+        },
+        "review": {
+          "note": "Official SMART materials state that the annual application opens August 1; no single final deadline was stored because current official references conflict.",
+          "reviewedAt": "2026-08-08T00:00:00.000Z",
+          "reviewer": "UnlockED catalog audit"
+        }
+      }
     },
     "date_added": "2026-07-06",
     "official_source_url": "https://www.smartscholarship.org/smart",
     "deadline": null,
-    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
-    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
+    "reviewer_notes": "Official SMART materials confirm annual applications beginning August 1, full tuition, a $30,000–$46,000 annual stipend, internships, and post-graduation DoD employment. Ranking is conservatively limited to verified U.S.-citizen profiles because the current profile model cannot represent every partner-country citizenship category.",
+    "estimated_value_note": "Unknown total — official SMART materials publish full tuition plus a $30,000–$46,000 annual stipend and additional allowances, with total value varying by participant."
   },
   {
     "id": "scholarship--noaa-hollings",
@@ -15462,14 +15757,22 @@
       "compensation": "Paid",
       "workMode": "Remote",
       "eligibilityRules": {
-        "educationLevels": ["high_school"],
-        "canonicalInstitutionTypes": ["high_school"],
-        "canonicalEnrollmentStatuses": ["prospective"],
+        "educationLevels": [
+          "high_school"
+        ],
+        "canonicalInstitutionTypes": [
+          "high_school"
+        ],
+        "canonicalEnrollmentStatuses": [
+          "prospective"
+        ],
         "highSchoolSeniorOnly": true,
         "minimumGpa": 2.5,
         "financialNeedRequired": true,
         "citizenship": "international_allowed",
-        "demographicRequirements": ["disability"],
+        "demographicRequirements": [
+          "disability"
+        ],
         "availability": "closed",
         "recommendationEligibilityStatus": "discover_only",
         "evidence": [
@@ -15599,9 +15902,15 @@
       "compensation": "Paid",
       "workMode": "Remote",
       "eligibilityRules": {
-        "educationLevels": ["high_school"],
-        "canonicalInstitutionTypes": ["high_school"],
-        "canonicalEnrollmentStatuses": ["prospective"],
+        "educationLevels": [
+          "high_school"
+        ],
+        "canonicalInstitutionTypes": [
+          "high_school"
+        ],
+        "canonicalEnrollmentStatuses": [
+          "prospective"
+        ],
         "highSchoolSeniorOnly": true,
         "minimumGpa": 2.3,
         "financialNeedRequired": true,
@@ -16187,7 +16496,7 @@
     "title": "Benjamin A. Gilman International Scholarship",
     "type": "Scholarship",
     "category": "Study Abroad Scholarships",
-    "description": "Funding for eligible Pell Grant recipients to study or intern abroad. This matters because it can reduce education costs and point students toward awards with documented eligibility. Students who meet the eligibility rules should review the official U.S. Department of State source, confirm current requirements, and apply or claim through the provider's published process.",
+    "description": "A federal scholarship of up to $5,000 that helps Pell Grant recipients study or intern abroad. Eligible U.S. undergraduates can prepare essays and adviser certifications now, then apply through the official Gilman portal when the fall cycle opens.",
     "organization": "U.S. Department of State",
     "school_scope": "National",
     "schools": [],
@@ -16200,9 +16509,9 @@
       "Third year",
       "Fourth year"
     ],
-    "eligibility": "U.S. citizen undergraduates receiving a Federal Pell Grant and participating in an eligible international program.",
+    "eligibility": "U.S. citizen undergraduates receiving a Federal Pell Grant who are applying to or accepted into an eligible credit-bearing study-abroad or international internship program.",
     "estimated_value": 5000,
-    "application_deadline": null,
+    "application_deadline": "2026-10-01",
     "recurring": false,
     "location": "National / online application",
     "remote": true,
@@ -16212,9 +16521,9 @@
       "Study Abroad Scholarships",
       "Any Major"
     ],
-    "official_source": "https://www.gilmanscholarship.org/",
+    "official_source": "https://www.gilmanscholarship.org/applicants/deadlines-and-timeline/",
     "verification_status": "verified",
-    "last_verified": "2026-07-06",
+    "last_verified": "2026-08-08",
     "difficulty": "Highly Competitive",
     "prestige": "Very High",
     "icon": "scholarship",
@@ -16231,14 +16540,126 @@
         "Essays",
         "Advisor certification"
       ],
-      "deadlineType": "varies",
+      "deadlineType": "fixed",
       "compensation": "Paid",
-      "workMode": "Remote"
+      "workMode": "Remote",
+      "claimUrl": "https://www.gilmanscholarship.org/applicants/deadlines-and-timeline/",
+      "eligibilityRules": {
+        "educationLevels": [
+          "undergraduate"
+        ],
+        "canonicalInstitutionTypes": [
+          "community_college",
+          "four_year_college",
+          "university",
+          "liberal_arts_college"
+        ],
+        "canonicalEnrollmentStatuses": [
+          "currently_enrolled"
+        ],
+        "classYears": [
+          "First year",
+          "Second year",
+          "Third year",
+          "Fourth year"
+        ],
+        "majors": [
+          "Any Major"
+        ],
+        "citizenshipStatuses": [
+          "us_citizen"
+        ],
+        "financialNeedRequired": true,
+        "demographicRequirements": [
+          "pell_grant_recipient"
+        ],
+        "availability": "open",
+        "recommendationEligibilityStatus": "eligible_for_ranking",
+        "evidence": [
+          "The official Gilman pages confirm up to $5,000, U.S.-citizen undergraduate and Federal Pell Grant eligibility, and an October 1, 2026 deadline for the cycle opening in mid-August."
+        ]
+      },
+      "verification": {
+        "status": "verified",
+        "lastVerifiedAt": "2026-08-08",
+        "verifiedCycle": "October 2026",
+        "officialSourceUrl": "https://www.gilmanscholarship.org/applicants/deadlines-and-timeline/",
+        "applicationUrlVerified": true,
+        "deadlineVerified": true,
+        "eligibilityVerified": true,
+        "sourceReachable": true,
+        "sourceAuditStatus": 200,
+        "notes": "The official Gilman pages confirm up to $5,000, U.S.-citizen undergraduate and Federal Pell Grant eligibility, and an October 1, 2026 deadline for the cycle opening in mid-August."
+      },
+      "lifecycle": {
+        "schemaVersion": 1,
+        "migrationId": "verified-inventory-2026-08-08",
+        "identity": {
+          "identityId": "scholarship--gilman-scholarship"
+        },
+        "cycle": {
+          "cycleId": "october-2026",
+          "label": "october-2026"
+        },
+        "state": "upcoming",
+        "confidence": "confirmed",
+        "reason": "opening_date_future",
+        "effectiveAt": "2026-08-08T00:00:00.000Z",
+        "finalDeadline": {
+          "kind": "final_deadline",
+          "sourceValue": "2026-10-01",
+          "normalizedValue": "2026-10-01",
+          "precision": "date",
+          "estimated": false,
+          "verifiedAt": "2026-08-08",
+          "sourceUrl": "https://www.gilmanscholarship.org/applicants/deadlines-and-timeline/"
+        },
+        "recurrence": {
+          "type": "annual",
+          "confidence": "confirmed",
+          "officialStatement": "The official timeline states that the application opens in mid-August 2026 and closes October 1, 2026; no exact opening day is published."
+        },
+        "evidence": [
+          {
+            "id": "scholarship--gilman-scholarship:october-2026:official",
+            "source": "official_opening_date",
+            "observedAt": "2026-08-08T00:00:00.000Z",
+            "value": "The official timeline states that the application opens in mid-August 2026 and closes October 1, 2026; no exact opening day is published.",
+            "sourceUrl": "https://www.gilmanscholarship.org/applicants/deadlines-and-timeline/",
+            "confidence": "confirmed"
+          }
+        ],
+        "events": [],
+        "sourceChecks": [
+          {
+            "url": "https://www.gilmanscholarship.org/applicants/deadlines-and-timeline/",
+            "checkedAt": "2026-08-08T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          }
+        ],
+        "fieldVerifiedAt": {
+          "state": "2026-08-08",
+          "deadline": "2026-08-08",
+          "applicationUrl": "2026-08-08",
+          "openingDate": "2026-08-08",
+          "eligibility": "2026-08-08",
+          "award": "2026-08-08",
+          "location": "2026-08-08",
+          "programDates": "2026-08-08",
+          "description": "2026-08-08"
+        },
+        "review": {
+          "note": "The official timeline states that the application opens in mid-August 2026 and closes October 1, 2026; no exact opening day is published.",
+          "reviewedAt": "2026-08-08T00:00:00.000Z",
+          "reviewer": "UnlockED catalog audit"
+        }
+      }
     },
     "date_added": "2026-07-06",
-    "official_source_url": "https://www.gilmanscholarship.org/",
-    "deadline": null,
-    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
+    "official_source_url": "https://www.gilmanscholarship.org/applicants/deadlines-and-timeline/",
+    "deadline": "2026-10-01",
+    "reviewer_notes": "The official Gilman pages confirm up to $5,000, U.S.-citizen undergraduate and Federal Pell Grant eligibility, and an October 1, 2026 deadline for the cycle opening in mid-August.",
     "estimated_value_note": "Documented value or reasonable calculation; confirm the supporting source during review."
   },
   {
@@ -431427,7 +431848,7 @@
     "title": "NASA OSTEM Internships",
     "type": "Career",
     "category": "Internships",
-    "description": "NASA OSTEM internships are paid short-term project experiences where students contribute to NASA missions with mentor guidance. This matters because students can gain mission-driven experience, technical skills, and career readiness at a federal science and engineering agency. students in STEM and non-STEM majors who want hands-on NASA project experience should review the official source, confirm current eligibility, and apply or claim through the provider's published process.",
+    "description": "Paid, project-based internships let students contribute to NASA missions with guidance from agency mentors. Eligible students in STEM and non-STEM fields can browse current projects and apply through NASA's official STEM Gateway before the published session deadline.",
     "organization": "NASA",
     "school_scope": "National",
     "schools": [],
@@ -431455,9 +431876,9 @@
       "Third year",
       "Fourth year"
     ],
-    "eligibility": "College-level students; NASA lists citizenship, age, GPA, enrollment, and project-specific requirements on the official page.",
+    "eligibility": "U.S. citizens age 16 or older with at least a 3.0 GPA who are enrolled full or part time in a certificate or degree program at an accredited U.S. technical school, college, or university.",
     "estimated_value": null,
-    "application_deadline": "2027-02-26",
+    "application_deadline": "2026-09-14",
     "recurring": true,
     "location": "United States",
     "remote": false,
@@ -431497,9 +431918,9 @@
     "official_source": "https://www.nasa.gov/learning-resources/internship-programs/",
     "official_source_url": "https://www.nasa.gov/learning-resources/internship-programs/",
     "verification_status": "verified",
-    "last_verified": "2026-07-13",
-    "deadline": "2027-02-26",
-    "reviewer_notes": "Official NASA internship page lists OSTEM internships as paid and publishes 2027 term dates/deadlines and baseline eligibility.",
+    "last_verified": "2026-08-08",
+    "deadline": "2026-09-14",
+    "reviewer_notes": "NASA's official internship and FAQ pages confirm paid OSTEM placements, broad major access, U.S. citizenship, age 16, 3.0 GPA, accredited enrollment, and the Spring 2027 deadline.",
     "estimated_value_note": "Unknown — no verified dollar value is documented by the official source.",
     "date_added": "2026-07-12",
     "difficulty": "Highly Competitive",
@@ -431568,13 +431989,118 @@
       "internationalEligibility": "Check official source",
       "verification": {
         "status": "verified",
-        "lastVerifiedAt": "2026-07-13",
-        "verifiedCycle": "Summer 2027",
+        "lastVerifiedAt": "2026-08-08",
+        "verifiedCycle": "Spring 2027",
         "officialSourceUrl": "https://www.nasa.gov/learning-resources/internship-programs/",
         "applicationUrlVerified": true,
         "deadlineVerified": true,
         "eligibilityVerified": true,
-        "notes": "Official NASA internship page lists OSTEM internships as paid and publishes 2027 term dates/deadlines and baseline eligibility."
+        "sourceReachable": true,
+        "sourceAuditStatus": 200,
+        "notes": "NASA's official internship and FAQ pages confirm paid OSTEM placements, broad major access, U.S. citizenship, age 16, 3.0 GPA, accredited enrollment, and the Spring 2027 deadline."
+      },
+      "eligibilityRules": {
+        "educationLevels": [
+          "community_college",
+          "undergraduate",
+          "graduate"
+        ],
+        "canonicalInstitutionTypes": [
+          "community_college",
+          "four_year_college",
+          "university",
+          "liberal_arts_college",
+          "graduate_school"
+        ],
+        "canonicalEnrollmentStatuses": [
+          "currently_enrolled"
+        ],
+        "classYears": [
+          "First year",
+          "Second year",
+          "Third year",
+          "Fourth year",
+          "Graduate student"
+        ],
+        "majors": [
+          "Any Major"
+        ],
+        "minimumGpa": 3,
+        "ageRange": {
+          "minimum": 16
+        },
+        "citizenshipStatuses": [
+          "us_citizen"
+        ],
+        "availability": "open",
+        "recommendationEligibilityStatus": "eligible_for_ranking",
+        "evidence": [
+          "NASA's official internship and FAQ pages confirm paid OSTEM placements, broad major access, U.S. citizenship, age 16, 3.0 GPA, accredited enrollment, and the Spring 2027 deadline."
+        ]
+      },
+      "lifecycle": {
+        "schemaVersion": 1,
+        "migrationId": "verified-inventory-2026-08-08",
+        "identity": {
+          "identityId": "national-curated-2026--nasa--nasa-ostem-internships"
+        },
+        "cycle": {
+          "cycleId": "spring-2027",
+          "label": "spring-2027"
+        },
+        "state": "open",
+        "confidence": "confirmed",
+        "reason": "official_status_open",
+        "effectiveAt": "2026-08-08T00:00:00.000Z",
+        "finalDeadline": {
+          "kind": "final_deadline",
+          "sourceValue": "2026-09-14",
+          "normalizedValue": "2026-09-14",
+          "precision": "date",
+          "estimated": false,
+          "verifiedAt": "2026-08-08",
+          "sourceUrl": "https://www.nasa.gov/learning-resources/internship-programs/"
+        },
+        "recurrence": {
+          "type": "semester",
+          "confidence": "confirmed",
+          "officialStatement": "NASA's official internship page lists the Spring 2027 application deadline as September 14, 2026."
+        },
+        "evidence": [
+          {
+            "id": "national-curated-2026--nasa--nasa-ostem-internships:spring-2027:official",
+            "source": "official_application_page",
+            "observedAt": "2026-08-08T00:00:00.000Z",
+            "value": "NASA's official internship page lists the Spring 2027 application deadline as September 14, 2026.",
+            "sourceUrl": "https://www.nasa.gov/learning-resources/internship-programs/",
+            "confidence": "confirmed"
+          }
+        ],
+        "events": [],
+        "sourceChecks": [
+          {
+            "url": "https://www.nasa.gov/learning-resources/internship-programs/",
+            "checkedAt": "2026-08-08T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          }
+        ],
+        "fieldVerifiedAt": {
+          "state": "2026-08-08",
+          "deadline": "2026-08-08",
+          "applicationUrl": "2026-08-08",
+          "openingDate": "2026-08-08",
+          "eligibility": "2026-08-08",
+          "award": "2026-08-08",
+          "location": "2026-08-08",
+          "programDates": "2026-08-08",
+          "description": "2026-08-08"
+        },
+        "review": {
+          "note": "NASA's official internship page lists the Spring 2027 application deadline as September 14, 2026.",
+          "reviewedAt": "2026-08-08T00:00:00.000Z",
+          "reviewer": "UnlockED catalog audit"
+        }
       }
     }
   },
@@ -431940,10 +432466,10 @@
     ],
     "official_source": "https://www.gilmanscholarship.org/",
     "official_source_url": "https://www.gilmanscholarship.org/",
-    "verification_status": "needs_review",
-    "last_verified": "2026-07-13",
+    "verification_status": "archived",
+    "last_verified": "2026-08-08",
     "deadline": null,
-    "reviewer_notes": "Official provider page exists, but the current application cycle and deadline were not confirmed in the curated record.",
+    "reviewer_notes": "Archived as a duplicate of canonical record scholarship--gilman-scholarship; retained only for historical identifier compatibility.",
     "estimated_value_note": "Unknown — no verified dollar value is documented by the official source.",
     "date_added": "2026-07-12",
     "difficulty": "Competitive",
@@ -431994,14 +432520,65 @@
       "citizenship": "Check official source",
       "internationalEligibility": "Check official source",
       "verification": {
-        "status": "needs_review",
-        "lastVerifiedAt": "2026-07-13",
+        "status": "archived",
+        "lastVerifiedAt": "2026-08-08",
         "verifiedCycle": "cycle-specific",
         "officialSourceUrl": "https://www.gilmanscholarship.org/",
         "applicationUrlVerified": true,
         "deadlineVerified": false,
-        "eligibilityVerified": false,
-        "notes": "Official provider page exists, but the current application cycle and deadline were not confirmed in the curated record."
+        "eligibilityVerified": true,
+        "notes": "Archived as a duplicate of canonical record scholarship--gilman-scholarship; retained only for historical identifier compatibility."
+      },
+      "eligibilityRules": {
+        "availability": "closed",
+        "recommendationEligibilityStatus": "ineligible",
+        "evidence": [
+          "Archived as a duplicate of canonical record scholarship--gilman-scholarship; retained only for historical identifier compatibility."
+        ]
+      },
+      "lifecycle": {
+        "schemaVersion": 1,
+        "migrationId": "verified-inventory-2026-08-08",
+        "identity": {
+          "identityId": "national-curated-2026--u-s-department-of-state--gilman-international-scholarship",
+          "supersededBy": "scholarship--gilman-scholarship"
+        },
+        "cycle": {
+          "cycleId": "archived-duplicate"
+        },
+        "state": "archived",
+        "confidence": "confirmed",
+        "reason": "record_archived",
+        "effectiveAt": "2026-08-08T00:00:00.000Z",
+        "evidence": [
+          {
+            "id": "national-curated-2026--u-s-department-of-state--gilman-international-scholarship:archived",
+            "source": "manual_review",
+            "observedAt": "2026-08-08T00:00:00.000Z",
+            "value": "Archived as a duplicate of canonical record scholarship--gilman-scholarship; retained only for historical identifier compatibility.",
+            "sourceUrl": "https://www.gilmanscholarship.org/",
+            "confidence": "confirmed"
+          }
+        ],
+        "events": [],
+        "sourceChecks": [
+          {
+            "url": "https://www.gilmanscholarship.org/",
+            "checkedAt": "2026-08-08T00:00:00.000Z",
+            "classification": "official_information",
+            "status": 200
+          }
+        ],
+        "fieldVerifiedAt": {
+          "state": "2026-08-08",
+          "eligibility": "2026-08-08",
+          "description": "2026-08-08"
+        },
+        "review": {
+          "note": "Archived as a duplicate of canonical record scholarship--gilman-scholarship; retained only for historical identifier compatibility.",
+          "reviewedAt": "2026-08-08T00:00:00.000Z",
+          "reviewer": "UnlockED catalog audit"
+        }
       }
     }
   },
@@ -432064,10 +432641,10 @@
     ],
     "official_source": "https://www.smartscholarship.org/smart",
     "official_source_url": "https://www.smartscholarship.org/smart",
-    "verification_status": "needs_review",
-    "last_verified": "2026-07-13",
+    "verification_status": "archived",
+    "last_verified": "2026-08-08",
     "deadline": null,
-    "reviewer_notes": "Official program page exists; cycle, award terms, and service requirements need fresh review before recommendation.",
+    "reviewer_notes": "Archived as a duplicate of canonical record scholarship--dod-smart-scholarship; retained only for historical identifier compatibility.",
     "estimated_value_note": "Unknown — no verified dollar value is documented by the official source.",
     "date_added": "2026-07-12",
     "difficulty": "Highly Competitive",
@@ -432128,14 +432705,65 @@
       "citizenship": "Check official source",
       "internationalEligibility": "Check official source",
       "verification": {
-        "status": "needs_review",
-        "lastVerifiedAt": "2026-07-13",
+        "status": "archived",
+        "lastVerifiedAt": "2026-08-08",
         "verifiedCycle": "cycle-specific",
         "officialSourceUrl": "https://www.smartscholarship.org/smart",
         "applicationUrlVerified": true,
         "deadlineVerified": false,
-        "eligibilityVerified": false,
-        "notes": "Official program page exists; cycle, award terms, and service requirements need fresh review before recommendation."
+        "eligibilityVerified": true,
+        "notes": "Archived as a duplicate of canonical record scholarship--dod-smart-scholarship; retained only for historical identifier compatibility."
+      },
+      "eligibilityRules": {
+        "availability": "closed",
+        "recommendationEligibilityStatus": "ineligible",
+        "evidence": [
+          "Archived as a duplicate of canonical record scholarship--dod-smart-scholarship; retained only for historical identifier compatibility."
+        ]
+      },
+      "lifecycle": {
+        "schemaVersion": 1,
+        "migrationId": "verified-inventory-2026-08-08",
+        "identity": {
+          "identityId": "national-curated-2026--u-s-department-of-defense--smart-scholarship-for-service-program",
+          "supersededBy": "scholarship--dod-smart-scholarship"
+        },
+        "cycle": {
+          "cycleId": "archived-duplicate"
+        },
+        "state": "archived",
+        "confidence": "confirmed",
+        "reason": "record_archived",
+        "effectiveAt": "2026-08-08T00:00:00.000Z",
+        "evidence": [
+          {
+            "id": "national-curated-2026--u-s-department-of-defense--smart-scholarship-for-service-program:archived",
+            "source": "manual_review",
+            "observedAt": "2026-08-08T00:00:00.000Z",
+            "value": "Archived as a duplicate of canonical record scholarship--dod-smart-scholarship; retained only for historical identifier compatibility.",
+            "sourceUrl": "https://www.smartscholarship.org/smart",
+            "confidence": "confirmed"
+          }
+        ],
+        "events": [],
+        "sourceChecks": [
+          {
+            "url": "https://www.smartscholarship.org/smart",
+            "checkedAt": "2026-08-08T00:00:00.000Z",
+            "classification": "official_information",
+            "status": 200
+          }
+        ],
+        "fieldVerifiedAt": {
+          "state": "2026-08-08",
+          "eligibility": "2026-08-08",
+          "description": "2026-08-08"
+        },
+        "review": {
+          "note": "Archived as a duplicate of canonical record scholarship--dod-smart-scholarship; retained only for historical identifier compatibility.",
+          "reviewedAt": "2026-08-08T00:00:00.000Z",
+          "reviewer": "UnlockED catalog audit"
+        }
       }
     }
   },
@@ -432400,7 +433028,7 @@
     "title": "Jack Kent Cooke Undergraduate Transfer Scholarship",
     "type": "Scholarship",
     "category": "Transfer Scholarships",
-    "description": "The Jack Kent Cooke Undergraduate Transfer Scholarship supports high-achieving community college students transferring to four-year institutions. This matters because it can substantially reduce transfer cost and support students through a major academic transition. community college students preparing to transfer to a four-year college should review the official source, confirm current eligibility, and apply or claim through the provider's published process.",
+    "description": "A major transfer scholarship providing up to $55,000 per year plus advising for high-achieving community-college students. Eligible sophomores and recent graduates planning a fall 2027 transfer can prepare Common App materials now and apply through the official foundation process after August 19.",
     "organization": "Jack Kent Cooke Foundation",
     "school_scope": "National",
     "schools": [],
@@ -432411,9 +433039,9 @@
       "Second year",
       "Third year"
     ],
-    "eligibility": "Community college students meeting foundation academic, financial, enrollment, and transfer requirements.",
-    "estimated_value": null,
-    "application_deadline": null,
+    "eligibility": "Current U.S. community-college sophomores by January 1, 2027 or qualifying recent graduates, planning full-time fall 2027 transfer, with at least a 3.5 GPA and demonstrated unmet financial need; U.S. citizenship is not required.",
+    "estimated_value": 55000,
+    "application_deadline": "2026-12-09",
     "recurring": true,
     "location": "United States",
     "remote": null,
@@ -432433,13 +433061,13 @@
       "Highly Competitive",
       "Deadline Varies"
     ],
-    "official_source": "https://www.jkcf.org/our-scholarships/undergraduate-transfer-scholarship/",
-    "official_source_url": "https://www.jkcf.org/our-scholarships/undergraduate-transfer-scholarship/",
-    "verification_status": "needs_review",
-    "last_verified": "2026-07-13",
-    "deadline": null,
-    "reviewer_notes": "Official foundation page exists; current application window and transfer-specific eligibility need review.",
-    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source.",
+    "official_source": "https://www.jkcf.org/our-scholarships/undergraduate-transfer-scholarship/how-to-apply/",
+    "official_source_url": "https://www.jkcf.org/our-scholarships/undergraduate-transfer-scholarship/how-to-apply/",
+    "verification_status": "verified",
+    "last_verified": "2026-08-08",
+    "deadline": "2026-12-09",
+    "reviewer_notes": "The official Cooke Foundation pages confirm the August 19–December 9, 2026 cycle, community-college sophomore or recent-graduate status, fall 2027 transfer plan, 3.5 GPA, financial-need limit, no citizenship restriction, and awards up to $55,000 per year.",
+    "estimated_value_note": "Up to $55,000 per year, as published by the Jack Kent Cooke Foundation.",
     "date_added": "2026-07-12",
     "difficulty": "Highly Competitive",
     "prestige": "Very High",
@@ -432447,12 +433075,12 @@
     "featured": false,
     "hidden_gem": false,
     "metadata": {
-      "deadlineType": "unknown",
-      "claimUrl": "https://www.jkcf.org/our-scholarships/undergraduate-transfer-scholarship/",
+      "deadlineType": "fixed",
+      "claimUrl": "https://www.jkcf.org/our-scholarships/undergraduate-transfer-scholarship/how-to-apply/",
       "verificationMethod": "Official provider URL curated for manual verification.",
       "compensation": "Varies",
       "workMode": "Varies",
-      "awardAmountLabel": "Check official maximum annual award",
+      "awardAmountLabel": "Up to $55,000 per year",
       "renewable": true,
       "applicationRequirements": [
         "Review the official provider page.",
@@ -432485,14 +433113,121 @@
       "citizenship": "Check official source",
       "internationalEligibility": "Check official source",
       "verification": {
-        "status": "needs_review",
-        "lastVerifiedAt": "2026-07-13",
-        "verifiedCycle": "cycle-specific",
-        "officialSourceUrl": "https://www.jkcf.org/our-scholarships/undergraduate-transfer-scholarship/",
+        "status": "verified",
+        "lastVerifiedAt": "2026-08-08",
+        "verifiedCycle": "2027 transfer award",
+        "officialSourceUrl": "https://www.jkcf.org/our-scholarships/undergraduate-transfer-scholarship/how-to-apply/",
         "applicationUrlVerified": true,
-        "deadlineVerified": false,
-        "eligibilityVerified": false,
-        "notes": "Official foundation page exists; current application window and transfer-specific eligibility need review."
+        "deadlineVerified": true,
+        "eligibilityVerified": true,
+        "sourceReachable": true,
+        "sourceAuditStatus": 200,
+        "notes": "The official Cooke Foundation pages confirm the August 19–December 9, 2026 cycle, community-college sophomore or recent-graduate status, fall 2027 transfer plan, 3.5 GPA, financial-need limit, no citizenship restriction, and awards up to $55,000 per year."
+      },
+      "eligibilityRules": {
+        "educationLevels": [
+          "community_college",
+          "recent_graduate"
+        ],
+        "canonicalInstitutionTypes": [
+          "community_college"
+        ],
+        "canonicalEnrollmentStatuses": [
+          "currently_enrolled",
+          "transfer_applicant",
+          "graduated"
+        ],
+        "classYears": [
+          "Second year",
+          "Third year"
+        ],
+        "majors": [
+          "Any Major"
+        ],
+        "minimumGpa": 3.5,
+        "citizenshipStatuses": [
+          "unrestricted"
+        ],
+        "financialNeedRequired": true,
+        "transferOnly": true,
+        "availability": "open",
+        "recommendationEligibilityStatus": "eligible_for_ranking",
+        "evidence": [
+          "The official Cooke Foundation pages confirm the August 19–December 9, 2026 cycle, community-college sophomore or recent-graduate status, fall 2027 transfer plan, 3.5 GPA, financial-need limit, no citizenship restriction, and awards up to $55,000 per year."
+        ]
+      },
+      "lifecycle": {
+        "schemaVersion": 1,
+        "migrationId": "verified-inventory-2026-08-08",
+        "identity": {
+          "identityId": "national-curated-2026--jack-kent-cooke-foundation--jack-kent-cooke-undergraduate-transfer-scholarship"
+        },
+        "cycle": {
+          "cycleId": "2027-transfer-award",
+          "label": "2027-transfer-award"
+        },
+        "state": "upcoming",
+        "confidence": "confirmed",
+        "reason": "opening_date_future",
+        "effectiveAt": "2026-08-08T00:00:00.000Z",
+        "openingDate": {
+          "kind": "application_open",
+          "sourceValue": "2026-08-19",
+          "normalizedValue": "2026-08-19",
+          "precision": "date",
+          "estimated": false,
+          "verifiedAt": "2026-08-08",
+          "sourceUrl": "https://www.jkcf.org/our-scholarships/undergraduate-transfer-scholarship/how-to-apply/"
+        },
+        "finalDeadline": {
+          "kind": "final_deadline",
+          "sourceValue": "2026-12-09",
+          "normalizedValue": "2026-12-09",
+          "precision": "date",
+          "estimated": false,
+          "verifiedAt": "2026-08-08",
+          "sourceUrl": "https://www.jkcf.org/our-scholarships/undergraduate-transfer-scholarship/how-to-apply/"
+        },
+        "recurrence": {
+          "type": "annual",
+          "confidence": "confirmed",
+          "officialStatement": "The official application page lists an August 19, 2026 opening and December 9, 2026 deadline."
+        },
+        "evidence": [
+          {
+            "id": "national-curated-2026--jack-kent-cooke-foundation--jack-kent-cooke-undergraduate-transfer-scholarship:2027-transfer-award:official",
+            "source": "official_opening_date",
+            "observedAt": "2026-08-08T00:00:00.000Z",
+            "value": "The official application page lists an August 19, 2026 opening and December 9, 2026 deadline.",
+            "sourceUrl": "https://www.jkcf.org/our-scholarships/undergraduate-transfer-scholarship/how-to-apply/",
+            "confidence": "confirmed"
+          }
+        ],
+        "events": [],
+        "sourceChecks": [
+          {
+            "url": "https://www.jkcf.org/our-scholarships/undergraduate-transfer-scholarship/how-to-apply/",
+            "checkedAt": "2026-08-08T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          }
+        ],
+        "fieldVerifiedAt": {
+          "state": "2026-08-08",
+          "deadline": "2026-08-08",
+          "applicationUrl": "2026-08-08",
+          "openingDate": "2026-08-08",
+          "eligibility": "2026-08-08",
+          "award": "2026-08-08",
+          "location": "2026-08-08",
+          "programDates": "2026-08-08",
+          "description": "2026-08-08"
+        },
+        "review": {
+          "note": "The official application page lists an August 19, 2026 opening and December 9, 2026 deadline.",
+          "reviewedAt": "2026-08-08T00:00:00.000Z",
+          "reviewer": "UnlockED catalog audit"
+        }
       }
     }
   },
@@ -436581,6 +437316,1292 @@
         "deadlineVerified": true,
         "eligibilityVerified": true,
         "notes": "Official Amazon Prime Student page is valid; pricing and bundle terms may change."
+      }
+    }
+  },
+  {
+    "id": "career--seo-career-program",
+    "title": "SEO Career",
+    "type": "Career",
+    "category": "Career Resources",
+    "description": "A structured career-development program that prepares undergraduates for competitive internships through training, coaching, and employer access. First-year through junior students who meet the published GPA and work-authorization rules can submit the official rolling application.",
+    "organization": "SEO Career",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "Any Major"
+    ],
+    "academic_years": [
+      "First year",
+      "Second year",
+      "Third year"
+    ],
+    "eligibility": "Current first-year, sophomore, or junior at an accredited four-year U.S. college or university with at least a 3.2 GPA and authorization to work in the United States.",
+    "estimated_value": null,
+    "application_deadline": null,
+    "recurring": true,
+    "location": "United States / virtual and employer-based programming",
+    "remote": null,
+    "paid": null,
+    "tags": [
+      "Career Development",
+      "Internship Preparation",
+      "Coaching",
+      "Any Major",
+      "Rolling"
+    ],
+    "official_source": "https://career.seo-usa.org/apply-faq/",
+    "official_source_url": "https://career.seo-usa.org/apply-faq/",
+    "verification_status": "verified",
+    "last_verified": "2026-08-08",
+    "deadline": null,
+    "reviewer_notes": "SEO Career's official FAQ confirms rolling applications for first-year, sophomore, and junior students at accredited four-year U.S. institutions, with a published 3.2 GPA standard and U.S. work authorization requirement.",
+    "estimated_value_note": "Unknown — the official source does not publish a single monetary value for program participation.",
+    "date_added": "2026-08-08",
+    "difficulty": "Competitive",
+    "prestige": "High",
+    "icon": "career",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "deadlineType": "rolling",
+      "compensation": "Varies",
+      "workMode": "Varies",
+      "estimatedApplicationTime": "1-2 hours",
+      "skillsGained": [
+        "Interviewing",
+        "Networking",
+        "Professional Communication"
+      ],
+      "careerPaths": [
+        "Business",
+        "Technology",
+        "Consulting"
+      ],
+      "eligibilityRules": {
+        "educationLevels": [
+          "undergraduate"
+        ],
+        "canonicalInstitutionTypes": [
+          "four_year_college",
+          "university",
+          "liberal_arts_college"
+        ],
+        "canonicalEnrollmentStatuses": [
+          "currently_enrolled"
+        ],
+        "classYears": [
+          "First year",
+          "Second year",
+          "Third year"
+        ],
+        "majors": [
+          "Any Major"
+        ],
+        "minimumGpa": 3.2,
+        "citizenshipStatuses": [
+          "us_work_authorized"
+        ],
+        "availability": "rolling",
+        "recommendationEligibilityStatus": "eligible_for_ranking",
+        "evidence": [
+          "SEO Career's official FAQ confirms rolling applications for first-year, sophomore, and junior students at accredited four-year U.S. institutions, with a published 3.2 GPA standard and U.S. work authorization requirement."
+        ]
+      },
+      "verification": {
+        "status": "verified",
+        "lastVerifiedAt": "2026-08-08",
+        "verifiedCycle": "Rolling 2026-27",
+        "officialSourceUrl": "https://career.seo-usa.org/apply-faq/",
+        "applicationUrlVerified": true,
+        "deadlineVerified": false,
+        "eligibilityVerified": true,
+        "sourceReachable": true,
+        "sourceAuditStatus": 200,
+        "notes": "SEO Career's official FAQ confirms rolling applications for first-year, sophomore, and junior students at accredited four-year U.S. institutions, with a published 3.2 GPA standard and U.S. work authorization requirement."
+      },
+      "lifecycle": {
+        "schemaVersion": 1,
+        "migrationId": "verified-inventory-2026-08-08",
+        "identity": {
+          "identityId": "career--seo-career-program"
+        },
+        "cycle": {
+          "cycleId": "rolling-2026-27",
+          "label": "rolling-2026-27"
+        },
+        "state": "rolling",
+        "confidence": "confirmed",
+        "reason": "rolling_confirmed",
+        "effectiveAt": "2026-08-08T00:00:00.000Z",
+        "recurrence": {
+          "type": "rolling_cohort",
+          "confidence": "confirmed",
+          "officialStatement": "The official FAQ states that applications are accepted year-round on a rolling basis."
+        },
+        "evidence": [
+          {
+            "id": "career--seo-career-program:rolling-2026-27:official",
+            "source": "official_application_page",
+            "observedAt": "2026-08-08T00:00:00.000Z",
+            "value": "The official FAQ states that applications are accepted year-round on a rolling basis.",
+            "sourceUrl": "https://career.seo-usa.org/apply-faq/",
+            "confidence": "confirmed"
+          }
+        ],
+        "events": [],
+        "sourceChecks": [
+          {
+            "url": "https://career.seo-usa.org/apply-faq/",
+            "checkedAt": "2026-08-08T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          }
+        ],
+        "fieldVerifiedAt": {
+          "state": "2026-08-08",
+          "deadline": "2026-08-08",
+          "applicationUrl": "2026-08-08",
+          "openingDate": "2026-08-08",
+          "eligibility": "2026-08-08",
+          "award": "2026-08-08",
+          "location": "2026-08-08",
+          "programDates": "2026-08-08",
+          "description": "2026-08-08"
+        },
+        "review": {
+          "note": "The official FAQ states that applications are accepted year-round on a rolling basis.",
+          "reviewedAt": "2026-08-08T00:00:00.000Z",
+          "reviewer": "UnlockED catalog audit"
+        }
+      }
+    }
+  },
+  {
+    "id": "research--naval-research-enterprise-internship-program",
+    "title": "Naval Research Enterprise Internship Program",
+    "type": "Research",
+    "category": "Government & National Labs",
+    "description": "A ten-week paid summer research internship at a participating U.S. Navy laboratory. Eligible four-year STEM students who will be rising sophomores or above can choose laboratory interests and apply through the official NREIP portal.",
+    "organization": "U.S. Navy",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "Computer Science",
+      "Data Science",
+      "Mathematics",
+      "Statistics",
+      "Engineering",
+      "Aerospace Engineering",
+      "Biomedical Engineering",
+      "Chemical Engineering",
+      "Civil Engineering",
+      "Computer Engineering",
+      "Electrical Engineering",
+      "Environmental Engineering",
+      "Industrial Engineering",
+      "Materials Science",
+      "Mechanical Engineering",
+      "Nuclear Engineering",
+      "Physics",
+      "Chemistry",
+      "Biology",
+      "Environmental Science",
+      "Earth Science"
+    ],
+    "academic_years": [
+      "Second year",
+      "Third year",
+      "Fourth year"
+    ],
+    "eligibility": "U.S. citizens enrolled full time at an accredited four-year college or university who will be rising sophomores or above and study a field relevant to a participating laboratory.",
+    "estimated_value": 7500,
+    "application_deadline": "2026-11-01",
+    "recurring": true,
+    "location": "Participating U.S. Navy laboratories",
+    "remote": false,
+    "paid": true,
+    "tags": [
+      "Research",
+      "STEM",
+      "Government",
+      "National Labs",
+      "Paid",
+      "Summer"
+    ],
+    "official_source": "https://www.navalsteminterns.us/nreip/index.html",
+    "official_source_url": "https://www.navalsteminterns.us/nreip/index.html",
+    "verification_status": "verified",
+    "last_verified": "2026-08-08",
+    "deadline": "2026-11-01",
+    "reviewer_notes": "The official NREIP site confirms the August 1–November 1 annual application window, full-time four-year enrollment, rising-sophomore standing, relevant STEM study, U.S. citizenship, and published undergraduate stipends.",
+    "estimated_value_note": "$7,500 published stipend for new undergraduate participants; returning undergraduate participants receive $9,000.",
+    "date_added": "2026-08-08",
+    "difficulty": "Highly Competitive",
+    "prestige": "Very High",
+    "icon": "research",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "deadlineType": "fixed",
+      "compensation": "Paid",
+      "workMode": "In Person",
+      "professor": null,
+      "department": "Naval Research Enterprise Internship Program",
+      "researchArea": "Science and engineering research at participating U.S. Navy laboratories",
+      "stipendAmount": 7500,
+      "semesters": [
+        "Summer"
+      ],
+      "estimatedApplicationTime": "3-5 hours",
+      "internshipDuration": "10 weeks",
+      "skillsGained": [
+        "Research",
+        "Technical Communication",
+        "Laboratory Practice"
+      ],
+      "careerPaths": [
+        "Research",
+        "Engineering",
+        "Public Service"
+      ],
+      "eligibilityRules": {
+        "educationLevels": [
+          "undergraduate"
+        ],
+        "canonicalInstitutionTypes": [
+          "four_year_college",
+          "university",
+          "liberal_arts_college"
+        ],
+        "canonicalEnrollmentStatuses": [
+          "currently_enrolled"
+        ],
+        "classYears": [
+          "Second year",
+          "Third year",
+          "Fourth year"
+        ],
+        "majors": [
+          "Computer Science",
+          "Data Science",
+          "Mathematics",
+          "Statistics",
+          "Engineering",
+          "Aerospace Engineering",
+          "Biomedical Engineering",
+          "Chemical Engineering",
+          "Civil Engineering",
+          "Computer Engineering",
+          "Electrical Engineering",
+          "Environmental Engineering",
+          "Industrial Engineering",
+          "Materials Science",
+          "Mechanical Engineering",
+          "Nuclear Engineering",
+          "Physics",
+          "Chemistry",
+          "Biology",
+          "Environmental Science",
+          "Earth Science"
+        ],
+        "citizenshipStatuses": [
+          "us_citizen"
+        ],
+        "availability": "open",
+        "recommendationEligibilityStatus": "eligible_for_ranking",
+        "evidence": [
+          "The official NREIP site confirms the August 1–November 1 annual application window, full-time four-year enrollment, rising-sophomore standing, relevant STEM study, U.S. citizenship, and published undergraduate stipends."
+        ]
+      },
+      "verification": {
+        "status": "verified",
+        "lastVerifiedAt": "2026-08-08",
+        "verifiedCycle": "Summer 2027",
+        "officialSourceUrl": "https://www.navalsteminterns.us/nreip/index.html",
+        "applicationUrlVerified": true,
+        "deadlineVerified": true,
+        "eligibilityVerified": true,
+        "sourceReachable": true,
+        "sourceAuditStatus": 200,
+        "notes": "The official NREIP site confirms the August 1–November 1 annual application window, full-time four-year enrollment, rising-sophomore standing, relevant STEM study, U.S. citizenship, and published undergraduate stipends."
+      },
+      "lifecycle": {
+        "schemaVersion": 1,
+        "migrationId": "verified-inventory-2026-08-08",
+        "identity": {
+          "identityId": "research--naval-research-enterprise-internship-program"
+        },
+        "cycle": {
+          "cycleId": "summer-2027",
+          "label": "summer-2027"
+        },
+        "state": "open",
+        "confidence": "confirmed",
+        "reason": "official_status_open",
+        "effectiveAt": "2026-08-08T00:00:00.000Z",
+        "finalDeadline": {
+          "kind": "final_deadline",
+          "sourceValue": "2026-11-01",
+          "normalizedValue": "2026-11-01",
+          "precision": "date",
+          "estimated": false,
+          "verifiedAt": "2026-08-08",
+          "sourceUrl": "https://www.navalsteminterns.us/nreip/index.html"
+        },
+        "recurrence": {
+          "type": "annual",
+          "confidence": "confirmed",
+          "officialStatement": "The official program page lists applications from August 1 through November 1 each year."
+        },
+        "evidence": [
+          {
+            "id": "research--naval-research-enterprise-internship-program:summer-2027:official",
+            "source": "official_application_page",
+            "observedAt": "2026-08-08T00:00:00.000Z",
+            "value": "The official program page lists applications from August 1 through November 1 each year.",
+            "sourceUrl": "https://www.navalsteminterns.us/nreip/index.html",
+            "confidence": "confirmed"
+          }
+        ],
+        "events": [],
+        "sourceChecks": [
+          {
+            "url": "https://www.navalsteminterns.us/nreip/index.html",
+            "checkedAt": "2026-08-08T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          }
+        ],
+        "fieldVerifiedAt": {
+          "state": "2026-08-08",
+          "deadline": "2026-08-08",
+          "applicationUrl": "2026-08-08",
+          "openingDate": "2026-08-08",
+          "eligibility": "2026-08-08",
+          "award": "2026-08-08",
+          "location": "2026-08-08",
+          "programDates": "2026-08-08",
+          "description": "2026-08-08"
+        },
+        "review": {
+          "note": "The official program page lists applications from August 1 through November 1 each year.",
+          "reviewedAt": "2026-08-08T00:00:00.000Z",
+          "reviewer": "UnlockED catalog audit"
+        }
+      }
+    }
+  },
+  {
+    "id": "career--comap-mcm-icm-2027",
+    "title": "COMAP Mathematical Contest in Modeling",
+    "type": "Career",
+    "category": "Competitions",
+    "description": "An international team competition where students model a complex real-world problem and communicate a defensible solution. Undergraduates from any major can form a team of up to three, ask a faculty member to register as adviser, and complete registration on COMAP's official site.",
+    "organization": "COMAP",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "Any Major"
+    ],
+    "academic_years": [
+      "First year",
+      "Second year",
+      "Third year",
+      "Fourth year"
+    ],
+    "eligibility": "Current undergraduate students may compete in teams of up to three students from the same institution; a faculty, staff, or administrator adviser must register the team.",
+    "estimated_value": null,
+    "application_deadline": "2027-01-28",
+    "recurring": true,
+    "location": "Remote team competition",
+    "remote": true,
+    "paid": false,
+    "tags": [
+      "Competition",
+      "Modeling",
+      "Teamwork",
+      "Problem Solving",
+      "Any Major",
+      "Remote"
+    ],
+    "official_source": "https://www.contest.comap.com/undergraduate/contests/mcm/instructions.php",
+    "official_source_url": "https://www.contest.comap.com/undergraduate/contests/mcm/instructions.php",
+    "verification_status": "verified",
+    "last_verified": "2026-08-08",
+    "deadline": "2027-01-28",
+    "reviewer_notes": "COMAP's official 2027 instructions confirm undergraduate participation, teams of up to three from one institution, advisor registration, and the January 28, 2027 registration deadline.",
+    "estimated_value_note": "Unknown — recognition varies by final award level and no guaranteed cash value is published.",
+    "date_added": "2026-08-08",
+    "difficulty": "Competitive",
+    "prestige": "High",
+    "icon": "career",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "deadlineType": "fixed",
+      "compensation": "Unpaid",
+      "workMode": "Remote",
+      "estimatedApplicationTime": "15-30 minutes",
+      "skillsGained": [
+        "Quantitative Modeling",
+        "Teamwork",
+        "Technical Writing"
+      ],
+      "careerPaths": [
+        "Data Science",
+        "Research",
+        "Consulting"
+      ],
+      "eligibilityRules": {
+        "educationLevels": [
+          "undergraduate"
+        ],
+        "canonicalInstitutionTypes": [
+          "four_year_college",
+          "university",
+          "liberal_arts_college"
+        ],
+        "canonicalEnrollmentStatuses": [
+          "currently_enrolled"
+        ],
+        "classYears": [
+          "First year",
+          "Second year",
+          "Third year",
+          "Fourth year"
+        ],
+        "majors": [
+          "Any Major"
+        ],
+        "citizenshipStatuses": [
+          "unrestricted"
+        ],
+        "availability": "open",
+        "recommendationEligibilityStatus": "eligible_for_ranking",
+        "evidence": [
+          "COMAP's official 2027 instructions confirm undergraduate participation, teams of up to three from one institution, advisor registration, and the January 28, 2027 registration deadline."
+        ]
+      },
+      "verification": {
+        "status": "verified",
+        "lastVerifiedAt": "2026-08-08",
+        "verifiedCycle": "2027 contest",
+        "officialSourceUrl": "https://www.contest.comap.com/undergraduate/contests/mcm/instructions.php",
+        "applicationUrlVerified": true,
+        "deadlineVerified": true,
+        "eligibilityVerified": true,
+        "sourceReachable": true,
+        "sourceAuditStatus": 200,
+        "notes": "COMAP's official 2027 instructions confirm undergraduate participation, teams of up to three from one institution, advisor registration, and the January 28, 2027 registration deadline."
+      },
+      "lifecycle": {
+        "schemaVersion": 1,
+        "migrationId": "verified-inventory-2026-08-08",
+        "identity": {
+          "identityId": "career--comap-mcm-icm-2027"
+        },
+        "cycle": {
+          "cycleId": "2027-contest",
+          "label": "2027-contest"
+        },
+        "state": "open",
+        "confidence": "confirmed",
+        "reason": "official_status_open",
+        "effectiveAt": "2026-08-08T00:00:00.000Z",
+        "finalDeadline": {
+          "kind": "final_deadline",
+          "sourceValue": "2027-01-28",
+          "normalizedValue": "2027-01-28",
+          "precision": "date",
+          "estimated": false,
+          "verifiedAt": "2026-08-08",
+          "sourceUrl": "https://www.contest.comap.com/undergraduate/contests/mcm/instructions.php"
+        },
+        "recurrence": {
+          "type": "annual",
+          "confidence": "confirmed",
+          "officialStatement": "The official 2027 contest instructions provide an active registration process and a January 28 deadline."
+        },
+        "evidence": [
+          {
+            "id": "career--comap-mcm-icm-2027:2027-contest:official",
+            "source": "official_application_page",
+            "observedAt": "2026-08-08T00:00:00.000Z",
+            "value": "The official 2027 contest instructions provide an active registration process and a January 28 deadline.",
+            "sourceUrl": "https://www.contest.comap.com/undergraduate/contests/mcm/instructions.php",
+            "confidence": "confirmed"
+          }
+        ],
+        "events": [],
+        "sourceChecks": [
+          {
+            "url": "https://www.contest.comap.com/undergraduate/contests/mcm/instructions.php",
+            "checkedAt": "2026-08-08T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          }
+        ],
+        "fieldVerifiedAt": {
+          "state": "2026-08-08",
+          "deadline": "2026-08-08",
+          "applicationUrl": "2026-08-08",
+          "openingDate": "2026-08-08",
+          "eligibility": "2026-08-08",
+          "award": "2026-08-08",
+          "location": "2026-08-08",
+          "programDates": "2026-08-08",
+          "description": "2026-08-08"
+        },
+        "review": {
+          "note": "The official 2027 contest instructions provide an active registration process and a January 28 deadline.",
+          "reviewedAt": "2026-08-08T00:00:00.000Z",
+          "reviewer": "UnlockED catalog audit"
+        }
+      }
+    }
+  },
+  {
+    "id": "career--forte-career-ready-certificate",
+    "title": "Forté Career Ready Certificate",
+    "type": "Career",
+    "category": "Certifications",
+    "description": "A structured career-readiness program covering professional skills, networking, and internship preparation. Current undergraduates of any major or class year can review the published cohort schedule and join through Forté's official application.",
+    "organization": "Forté Foundation",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "Any Major"
+    ],
+    "academic_years": [
+      "First year",
+      "Second year",
+      "Third year",
+      "Fourth year"
+    ],
+    "eligibility": "Current undergraduate students of any major and class year at colleges and universities worldwide may participate; the published program fee and cohort dates apply.",
+    "estimated_value": null,
+    "application_deadline": "2026-10-18",
+    "recurring": true,
+    "location": "Online",
+    "remote": true,
+    "paid": false,
+    "tags": [
+      "Career Development",
+      "Certification",
+      "Networking",
+      "Internship Preparation",
+      "Any Major",
+      "Online"
+    ],
+    "official_source": "https://www.fortefoundation.org/college/career-ready-certificate/",
+    "official_source_url": "https://www.fortefoundation.org/college/career-ready-certificate/",
+    "verification_status": "verified",
+    "last_verified": "2026-08-08",
+    "deadline": "2026-10-18",
+    "reviewer_notes": "Forté's official Career Ready Certificate page lists the Fall 2026 cohort, an October 18 join deadline, and access for undergraduate students of all majors and class years worldwide.",
+    "estimated_value_note": "Unknown — the program publishes a $150 participation fee rather than a guaranteed monetary award.",
+    "date_added": "2026-08-08",
+    "difficulty": "Open",
+    "prestige": "Established",
+    "icon": "career",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "deadlineType": "fixed",
+      "compensation": "Unpaid",
+      "workMode": "Remote",
+      "pricing": "$150; fee waivers may be available through participating institutions.",
+      "estimatedApplicationTime": "15-30 minutes",
+      "skillsGained": [
+        "Networking",
+        "Professional Communication",
+        "Career Preparation"
+      ],
+      "careerPaths": [
+        "Business",
+        "Consulting",
+        "Technology"
+      ],
+      "eligibilityRules": {
+        "educationLevels": [
+          "undergraduate"
+        ],
+        "canonicalInstitutionTypes": [
+          "community_college",
+          "four_year_college",
+          "university",
+          "liberal_arts_college"
+        ],
+        "canonicalEnrollmentStatuses": [
+          "currently_enrolled"
+        ],
+        "classYears": [
+          "First year",
+          "Second year",
+          "Third year",
+          "Fourth year"
+        ],
+        "majors": [
+          "Any Major"
+        ],
+        "citizenshipStatuses": [
+          "unrestricted"
+        ],
+        "availability": "open",
+        "recommendationEligibilityStatus": "eligible_for_ranking",
+        "evidence": [
+          "Forté's official Career Ready Certificate page lists the Fall 2026 cohort, an October 18 join deadline, and access for undergraduate students of all majors and class years worldwide."
+        ]
+      },
+      "verification": {
+        "status": "verified",
+        "lastVerifiedAt": "2026-08-08",
+        "verifiedCycle": "Fall 2026",
+        "officialSourceUrl": "https://www.fortefoundation.org/college/career-ready-certificate/",
+        "applicationUrlVerified": true,
+        "deadlineVerified": true,
+        "eligibilityVerified": true,
+        "sourceReachable": true,
+        "sourceAuditStatus": 200,
+        "notes": "Forté's official Career Ready Certificate page lists the Fall 2026 cohort, an October 18 join deadline, and access for undergraduate students of all majors and class years worldwide."
+      },
+      "lifecycle": {
+        "schemaVersion": 1,
+        "migrationId": "verified-inventory-2026-08-08",
+        "identity": {
+          "identityId": "career--forte-career-ready-certificate"
+        },
+        "cycle": {
+          "cycleId": "fall-2026",
+          "label": "fall-2026"
+        },
+        "state": "open",
+        "confidence": "confirmed",
+        "reason": "official_status_open",
+        "effectiveAt": "2026-08-08T00:00:00.000Z",
+        "finalDeadline": {
+          "kind": "final_deadline",
+          "sourceValue": "2026-10-18",
+          "normalizedValue": "2026-10-18",
+          "precision": "date",
+          "estimated": false,
+          "verifiedAt": "2026-08-08",
+          "sourceUrl": "https://www.fortefoundation.org/college/career-ready-certificate/"
+        },
+        "recurrence": {
+          "type": "seasonal",
+          "confidence": "confirmed",
+          "officialStatement": "The official page lists a Fall 2026 cohort and October 18 as the final day to join."
+        },
+        "evidence": [
+          {
+            "id": "career--forte-career-ready-certificate:fall-2026:official",
+            "source": "official_application_page",
+            "observedAt": "2026-08-08T00:00:00.000Z",
+            "value": "The official page lists a Fall 2026 cohort and October 18 as the final day to join.",
+            "sourceUrl": "https://www.fortefoundation.org/college/career-ready-certificate/",
+            "confidence": "confirmed"
+          }
+        ],
+        "events": [],
+        "sourceChecks": [
+          {
+            "url": "https://www.fortefoundation.org/college/career-ready-certificate/",
+            "checkedAt": "2026-08-08T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          }
+        ],
+        "fieldVerifiedAt": {
+          "state": "2026-08-08",
+          "deadline": "2026-08-08",
+          "applicationUrl": "2026-08-08",
+          "openingDate": "2026-08-08",
+          "eligibility": "2026-08-08",
+          "award": "2026-08-08",
+          "location": "2026-08-08",
+          "programDates": "2026-08-08",
+          "description": "2026-08-08"
+        },
+        "review": {
+          "note": "The official page lists a Fall 2026 cohort and October 18 as the final day to join.",
+          "reviewedAt": "2026-08-08T00:00:00.000Z",
+          "reviewer": "UnlockED catalog audit"
+        }
+      }
+    }
+  },
+  {
+    "id": "research--jpl-year-round-internship",
+    "title": "JPL Year-Round Internship Program",
+    "type": "Research",
+    "category": "Government & National Labs",
+    "description": "Paid academic-year and summer placements let students contribute to science and engineering work at NASA's Jet Propulsion Laboratory. Eligible STEM undergraduates and graduate students can submit a resume and transcript through JPL's year-round application.",
+    "organization": "NASA Jet Propulsion Laboratory",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "Computer Science",
+      "Data Science",
+      "Mathematics",
+      "Statistics",
+      "Engineering",
+      "Aerospace Engineering",
+      "Biomedical Engineering",
+      "Chemical Engineering",
+      "Civil Engineering",
+      "Computer Engineering",
+      "Electrical Engineering",
+      "Environmental Engineering",
+      "Industrial Engineering",
+      "Materials Science",
+      "Mechanical Engineering",
+      "Nuclear Engineering",
+      "Physics",
+      "Chemistry",
+      "Biology",
+      "Environmental Science",
+      "Earth Science"
+    ],
+    "academic_years": [
+      "First year",
+      "Second year",
+      "Third year",
+      "Fourth year",
+      "Graduate student"
+    ],
+    "eligibility": "Current undergraduate or graduate STEM and STEM-adjacent students with at least a 3.0 GPA who are U.S. citizens or lawful permanent residents.",
+    "estimated_value": null,
+    "application_deadline": null,
+    "recurring": true,
+    "location": "Pasadena, California",
+    "remote": false,
+    "paid": true,
+    "tags": [
+      "Research",
+      "NASA",
+      "JPL",
+      "STEM",
+      "Paid",
+      "Year Round"
+    ],
+    "official_source": "https://www.jpl.nasa.gov/edu/internships/apply/jpl-year-round-internship-program/",
+    "official_source_url": "https://www.jpl.nasa.gov/edu/internships/apply/jpl-year-round-internship-program/",
+    "verification_status": "verified",
+    "last_verified": "2026-08-08",
+    "deadline": null,
+    "reviewer_notes": "JPL's official page confirms year-round applications, undergraduate or graduate STEM enrollment, a 3.0 GPA, U.S. citizenship or lawful permanent residence, and monetary awards.",
+    "estimated_value_note": "Unknown — the official source confirms a monetary award but does not publish one standard amount.",
+    "date_added": "2026-08-08",
+    "difficulty": "Highly Competitive",
+    "prestige": "Very High",
+    "icon": "research",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "deadlineType": "rolling",
+      "compensation": "Paid",
+      "workMode": "In Person",
+      "professor": null,
+      "department": "Jet Propulsion Laboratory Education Office",
+      "researchArea": "Space science, engineering, and STEM-adjacent research",
+      "stipendAmount": null,
+      "semesters": [
+        "Fall",
+        "Spring",
+        "Summer"
+      ],
+      "estimatedApplicationTime": "1-2 hours",
+      "skillsGained": [
+        "Research",
+        "Engineering",
+        "Technical Communication"
+      ],
+      "careerPaths": [
+        "Research",
+        "Engineering",
+        "Space Science"
+      ],
+      "eligibilityRules": {
+        "educationLevels": [
+          "undergraduate",
+          "graduate"
+        ],
+        "canonicalInstitutionTypes": [
+          "four_year_college",
+          "university",
+          "liberal_arts_college",
+          "graduate_school"
+        ],
+        "canonicalEnrollmentStatuses": [
+          "currently_enrolled"
+        ],
+        "classYears": [
+          "First year",
+          "Second year",
+          "Third year",
+          "Fourth year",
+          "Graduate student"
+        ],
+        "majors": [
+          "Computer Science",
+          "Data Science",
+          "Mathematics",
+          "Statistics",
+          "Engineering",
+          "Aerospace Engineering",
+          "Biomedical Engineering",
+          "Chemical Engineering",
+          "Civil Engineering",
+          "Computer Engineering",
+          "Electrical Engineering",
+          "Environmental Engineering",
+          "Industrial Engineering",
+          "Materials Science",
+          "Mechanical Engineering",
+          "Nuclear Engineering",
+          "Physics",
+          "Chemistry",
+          "Biology",
+          "Environmental Science",
+          "Earth Science"
+        ],
+        "minimumGpa": 3,
+        "citizenshipStatuses": [
+          "us_citizen",
+          "permanent_resident"
+        ],
+        "availability": "rolling",
+        "recommendationEligibilityStatus": "eligible_for_ranking",
+        "evidence": [
+          "JPL's official page confirms year-round applications, undergraduate or graduate STEM enrollment, a 3.0 GPA, U.S. citizenship or lawful permanent residence, and monetary awards."
+        ]
+      },
+      "verification": {
+        "status": "verified",
+        "lastVerifiedAt": "2026-08-08",
+        "verifiedCycle": "Year-round 2026-27",
+        "officialSourceUrl": "https://www.jpl.nasa.gov/edu/internships/apply/jpl-year-round-internship-program/",
+        "applicationUrlVerified": true,
+        "deadlineVerified": false,
+        "eligibilityVerified": true,
+        "sourceReachable": true,
+        "sourceAuditStatus": 200,
+        "notes": "JPL's official page confirms year-round applications, undergraduate or graduate STEM enrollment, a 3.0 GPA, U.S. citizenship or lawful permanent residence, and monetary awards."
+      },
+      "lifecycle": {
+        "schemaVersion": 1,
+        "migrationId": "verified-inventory-2026-08-08",
+        "identity": {
+          "identityId": "research--jpl-year-round-internship"
+        },
+        "cycle": {
+          "cycleId": "rolling-2026-27",
+          "label": "rolling-2026-27"
+        },
+        "state": "rolling",
+        "confidence": "confirmed",
+        "reason": "rolling_confirmed",
+        "effectiveAt": "2026-08-08T00:00:00.000Z",
+        "recurrence": {
+          "type": "rolling_cohort",
+          "confidence": "confirmed",
+          "officialStatement": "The official JPL page states that opportunities are offered year-round."
+        },
+        "evidence": [
+          {
+            "id": "research--jpl-year-round-internship:rolling-2026-27:official",
+            "source": "official_application_page",
+            "observedAt": "2026-08-08T00:00:00.000Z",
+            "value": "The official JPL page states that opportunities are offered year-round.",
+            "sourceUrl": "https://www.jpl.nasa.gov/edu/internships/apply/jpl-year-round-internship-program/",
+            "confidence": "confirmed"
+          }
+        ],
+        "events": [],
+        "sourceChecks": [
+          {
+            "url": "https://www.jpl.nasa.gov/edu/internships/apply/jpl-year-round-internship-program/",
+            "checkedAt": "2026-08-08T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          }
+        ],
+        "fieldVerifiedAt": {
+          "state": "2026-08-08",
+          "deadline": "2026-08-08",
+          "applicationUrl": "2026-08-08",
+          "openingDate": "2026-08-08",
+          "eligibility": "2026-08-08",
+          "award": "2026-08-08",
+          "location": "2026-08-08",
+          "programDates": "2026-08-08",
+          "description": "2026-08-08"
+        },
+        "review": {
+          "note": "The official JPL page states that opportunities are offered year-round.",
+          "reviewedAt": "2026-08-08T00:00:00.000Z",
+          "reviewer": "UnlockED catalog audit"
+        }
+      }
+    }
+  },
+  {
+    "id": "research--daad-rise-germany-2027",
+    "title": "DAAD RISE Germany",
+    "type": "Research",
+    "category": "Study Abroad",
+    "description": "A funded summer research placement with a German university or research institution. Eligible undergraduates in the listed science and engineering fields can browse projects and apply through the official DAAD portal once the 2027 window opens.",
+    "organization": "German Academic Exchange Service (DAAD)",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "Biology",
+      "Chemistry",
+      "Computer Science",
+      "Physics",
+      "Earth Science",
+      "Environmental Science",
+      "Engineering"
+    ],
+    "academic_years": [
+      "Second year",
+      "Third year"
+    ],
+    "eligibility": "Current undergraduates at eligible four-year institutions in the United States, Canada, the United Kingdom, or Ireland who will have completed at least two years by the internship and remain undergraduates afterward; listed science and engineering fields apply.",
+    "estimated_value": null,
+    "application_deadline": "2026-11-30",
+    "recurring": true,
+    "location": "Germany",
+    "remote": false,
+    "paid": true,
+    "tags": [
+      "Research",
+      "Study Abroad",
+      "STEM",
+      "Germany",
+      "Funded",
+      "Summer"
+    ],
+    "official_source": "https://www.daad.de/rise/en/rise-germany/find-an-internship/what-applicants-need-to-know/",
+    "official_source_url": "https://www.daad.de/rise/en/rise-germany/find-an-internship/what-applicants-need-to-know/",
+    "verification_status": "verified",
+    "last_verified": "2026-08-08",
+    "deadline": "2026-11-30",
+    "reviewer_notes": "DAAD's official RISE Germany page confirms the October 15–November 30, 2026 application window, eligible countries and fields, undergraduate standing, and the published monthly scholarship package.",
+    "estimated_value_note": "Unknown total — the official source publishes €992 per month plus insurance and travel support, with total value varying by placement length and origin.",
+    "date_added": "2026-08-08",
+    "difficulty": "Highly Competitive",
+    "prestige": "Very High",
+    "icon": "research",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "deadlineType": "fixed",
+      "compensation": "Paid",
+      "workMode": "In Person",
+      "professor": null,
+      "department": "DAAD RISE Germany",
+      "researchArea": "Biology, chemistry, computer science, physics, earth science, and engineering research",
+      "stipendAmount": 992,
+      "semesters": [
+        "Summer"
+      ],
+      "salaryEstimate": "€992 per month plus insurance and travel support",
+      "estimatedApplicationTime": "3-5 hours",
+      "skillsGained": [
+        "Research",
+        "Cross-Cultural Communication",
+        "Technical Communication"
+      ],
+      "careerPaths": [
+        "Research",
+        "Graduate School",
+        "Engineering"
+      ],
+      "eligibilityRules": {
+        "educationLevels": [
+          "undergraduate"
+        ],
+        "canonicalInstitutionTypes": [
+          "four_year_college",
+          "university",
+          "liberal_arts_college"
+        ],
+        "canonicalEnrollmentStatuses": [
+          "currently_enrolled"
+        ],
+        "classYears": [
+          "Second year",
+          "Third year"
+        ],
+        "majors": [
+          "Biology",
+          "Chemistry",
+          "Computer Science",
+          "Physics",
+          "Earth Science",
+          "Environmental Science",
+          "Engineering"
+        ],
+        "citizenshipStatuses": [
+          "international_allowed"
+        ],
+        "availability": "open",
+        "recommendationEligibilityStatus": "eligible_for_ranking",
+        "evidence": [
+          "DAAD's official RISE Germany page confirms the October 15–November 30, 2026 application window, eligible countries and fields, undergraduate standing, and the published monthly scholarship package."
+        ]
+      },
+      "verification": {
+        "status": "verified",
+        "lastVerifiedAt": "2026-08-08",
+        "verifiedCycle": "Summer 2027",
+        "officialSourceUrl": "https://www.daad.de/rise/en/rise-germany/find-an-internship/what-applicants-need-to-know/",
+        "applicationUrlVerified": true,
+        "deadlineVerified": true,
+        "eligibilityVerified": true,
+        "sourceReachable": true,
+        "sourceAuditStatus": 200,
+        "notes": "DAAD's official RISE Germany page confirms the October 15–November 30, 2026 application window, eligible countries and fields, undergraduate standing, and the published monthly scholarship package."
+      },
+      "lifecycle": {
+        "schemaVersion": 1,
+        "migrationId": "verified-inventory-2026-08-08",
+        "identity": {
+          "identityId": "research--daad-rise-germany-2027"
+        },
+        "cycle": {
+          "cycleId": "summer-2027",
+          "label": "summer-2027"
+        },
+        "state": "upcoming",
+        "confidence": "confirmed",
+        "reason": "opening_date_future",
+        "effectiveAt": "2026-08-08T00:00:00.000Z",
+        "openingDate": {
+          "kind": "application_open",
+          "sourceValue": "2026-10-15",
+          "normalizedValue": "2026-10-15",
+          "precision": "date",
+          "estimated": false,
+          "verifiedAt": "2026-08-08",
+          "sourceUrl": "https://www.daad.de/rise/en/rise-germany/find-an-internship/what-applicants-need-to-know/"
+        },
+        "finalDeadline": {
+          "kind": "final_deadline",
+          "sourceValue": "2026-11-30",
+          "normalizedValue": "2026-11-30",
+          "precision": "date",
+          "estimated": false,
+          "verifiedAt": "2026-08-08",
+          "sourceUrl": "https://www.daad.de/rise/en/rise-germany/find-an-internship/what-applicants-need-to-know/"
+        },
+        "recurrence": {
+          "type": "annual",
+          "confidence": "confirmed",
+          "officialStatement": "The official page lists the 2027 application period from October 15 through November 30, 2026."
+        },
+        "evidence": [
+          {
+            "id": "research--daad-rise-germany-2027:summer-2027:official",
+            "source": "official_opening_date",
+            "observedAt": "2026-08-08T00:00:00.000Z",
+            "value": "The official page lists the 2027 application period from October 15 through November 30, 2026.",
+            "sourceUrl": "https://www.daad.de/rise/en/rise-germany/find-an-internship/what-applicants-need-to-know/",
+            "confidence": "confirmed"
+          }
+        ],
+        "events": [],
+        "sourceChecks": [
+          {
+            "url": "https://www.daad.de/rise/en/rise-germany/find-an-internship/what-applicants-need-to-know/",
+            "checkedAt": "2026-08-08T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          }
+        ],
+        "fieldVerifiedAt": {
+          "state": "2026-08-08",
+          "deadline": "2026-08-08",
+          "applicationUrl": "2026-08-08",
+          "openingDate": "2026-08-08",
+          "eligibility": "2026-08-08",
+          "award": "2026-08-08",
+          "location": "2026-08-08",
+          "programDates": "2026-08-08",
+          "description": "2026-08-08"
+        },
+        "review": {
+          "note": "The official page lists the 2027 application period from October 15 through November 30, 2026.",
+          "reviewedAt": "2026-08-08T00:00:00.000Z",
+          "reviewer": "UnlockED catalog audit"
+        }
+      }
+    }
+  },
+  {
+    "id": "career--girls-who-invest-scholars-2027",
+    "title": "Girls Who Invest Scholars Program",
+    "type": "Career",
+    "category": "Fellowships",
+    "description": "A tuition-free educational program that introduces first-year and sophomore students to investment management and professional networks. Eligible students of any major or gender identity can prepare now and apply through the official portal when the 2027 application opens.",
+    "organization": "Girls Who Invest",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "Any Major"
+    ],
+    "academic_years": [
+      "First year",
+      "Second year"
+    ],
+    "eligibility": "Current first-year or sophomore students of any major and gender identity at an eligible four-year U.S. or U.S.-style institution, with graduation between fall 2028 and spring 2030 for the 2027 cycle.",
+    "estimated_value": null,
+    "application_deadline": "2026-10-15",
+    "recurring": true,
+    "location": "United States / hybrid program options",
+    "remote": null,
+    "paid": false,
+    "tags": [
+      "Finance",
+      "Investment Management",
+      "Career Development",
+      "Fellowship",
+      "Any Major"
+    ],
+    "official_source": "https://www.girlswhoinvest.org/apply-faq",
+    "official_source_url": "https://www.girlswhoinvest.org/apply-faq",
+    "verification_status": "verified",
+    "last_verified": "2026-08-08",
+    "deadline": "2026-10-15",
+    "reviewer_notes": "Girls Who Invest's official application FAQ confirms first-year and sophomore eligibility across all majors and gender identities, eligible institution rules, and 2027 priority and final deadlines.",
+    "estimated_value_note": "Unknown — the educational program is tuition-free, but no guaranteed cash award is published.",
+    "date_added": "2026-08-08",
+    "difficulty": "Highly Competitive",
+    "prestige": "High",
+    "icon": "career",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "deadlineType": "fixed",
+      "compensation": "Unpaid",
+      "workMode": "Varies",
+      "estimatedApplicationTime": "3-5 hours",
+      "skillsGained": [
+        "Finance",
+        "Networking",
+        "Investment Analysis"
+      ],
+      "careerPaths": [
+        "Investment Management",
+        "Finance",
+        "Business"
+      ],
+      "eligibilityRules": {
+        "educationLevels": [
+          "undergraduate"
+        ],
+        "canonicalInstitutionTypes": [
+          "four_year_college",
+          "university",
+          "liberal_arts_college"
+        ],
+        "canonicalEnrollmentStatuses": [
+          "currently_enrolled"
+        ],
+        "classYears": [
+          "First year",
+          "Second year"
+        ],
+        "majors": [
+          "Any Major"
+        ],
+        "citizenshipStatuses": [
+          "international_allowed"
+        ],
+        "availability": "open",
+        "recommendationEligibilityStatus": "eligible_for_ranking",
+        "evidence": [
+          "Girls Who Invest's official application FAQ confirms first-year and sophomore eligibility across all majors and gender identities, eligible institution rules, and 2027 priority and final deadlines."
+        ]
+      },
+      "verification": {
+        "status": "verified",
+        "lastVerifiedAt": "2026-08-08",
+        "verifiedCycle": "2027 program",
+        "officialSourceUrl": "https://www.girlswhoinvest.org/apply-faq",
+        "applicationUrlVerified": true,
+        "deadlineVerified": true,
+        "eligibilityVerified": true,
+        "sourceReachable": true,
+        "sourceAuditStatus": 200,
+        "notes": "Girls Who Invest's official application FAQ confirms first-year and sophomore eligibility across all majors and gender identities, eligible institution rules, and 2027 priority and final deadlines."
+      },
+      "lifecycle": {
+        "schemaVersion": 1,
+        "migrationId": "verified-inventory-2026-08-08",
+        "identity": {
+          "identityId": "career--girls-who-invest-scholars-2027"
+        },
+        "cycle": {
+          "cycleId": "2027-program",
+          "label": "2027-program"
+        },
+        "state": "upcoming",
+        "confidence": "confirmed",
+        "reason": "opening_date_future",
+        "effectiveAt": "2026-08-08T00:00:00.000Z",
+        "finalDeadline": {
+          "kind": "final_deadline",
+          "sourceValue": "2026-10-15",
+          "normalizedValue": "2026-10-15",
+          "precision": "date",
+          "estimated": false,
+          "verifiedAt": "2026-08-08",
+          "sourceUrl": "https://www.girlswhoinvest.org/apply-faq"
+        },
+        "recurrence": {
+          "type": "annual",
+          "confidence": "confirmed",
+          "officialStatement": "The official FAQ says the 2027 application will be available in late summer 2026 and publishes October 15 as the final deadline."
+        },
+        "evidence": [
+          {
+            "id": "career--girls-who-invest-scholars-2027:2027-program:official",
+            "source": "official_opening_date",
+            "observedAt": "2026-08-08T00:00:00.000Z",
+            "value": "The official FAQ says the 2027 application will be available in late summer 2026 and publishes October 15 as the final deadline.",
+            "sourceUrl": "https://www.girlswhoinvest.org/apply-faq",
+            "confidence": "confirmed"
+          }
+        ],
+        "events": [],
+        "sourceChecks": [
+          {
+            "url": "https://www.girlswhoinvest.org/apply-faq",
+            "checkedAt": "2026-08-08T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          }
+        ],
+        "fieldVerifiedAt": {
+          "state": "2026-08-08",
+          "deadline": "2026-08-08",
+          "applicationUrl": "2026-08-08",
+          "openingDate": "2026-08-08",
+          "eligibility": "2026-08-08",
+          "award": "2026-08-08",
+          "location": "2026-08-08",
+          "programDates": "2026-08-08",
+          "description": "2026-08-08"
+        },
+        "review": {
+          "note": "The official FAQ says the 2027 application will be available in late summer 2026 and publishes October 15 as the final deadline.",
+          "reviewedAt": "2026-08-08T00:00:00.000Z",
+          "reviewer": "UnlockED catalog audit"
+        }
       }
     }
   }

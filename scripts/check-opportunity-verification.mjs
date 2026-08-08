@@ -37,7 +37,7 @@ for (const item of opportunities) {
 for (const item of national) {
   assert.ok(item.metadata?.verification, `${item.id} is missing structured verification metadata.`);
   assert.equal(item.metadata.verification.status, item.verification_status, `${item.id} status mismatch.`);
-  assert.equal(item.last_verified, "2026-07-13", `${item.id} must have current audit date.`);
+  assert.ok(item.last_verified >= "2026-07-13", `${item.id} must retain the July 2026 audit date or a newer verification.`);
   assert.ok(item.reviewer_notes.includes(item.metadata.verification.notes), `${item.id} reviewer notes must expose the verification finding.`);
 }
 
