@@ -79,7 +79,7 @@ function tracked(id: string, status: OpportunityTrackerStatus, index: number, pr
 
 async function seed(label: string, mode: "empty" | "rich" | "heavy" | "alternate", pro = false) {
   const { opportunities } = await import("../data/opportunities");
-  const { createSession, mergeAccountData, updateAccountBilling, upsertUser } = await import("../lib/auth-store");
+  const { createSession, mergeAccountData, mutateJourneyCalendarEvent, updateAccountBilling, upsertUser } = await import("../lib/auth-store");
   const career = opportunities.filter((item) => item.type === "Career");
   const research = opportunities.filter((item) => item.type === "Research");
   const scholarships = opportunities.filter((item) => item.type === "Scholarship");
@@ -103,6 +103,27 @@ async function seed(label: string, mode: "empty" | "rich" | "heavy" | "alternate
     tracker,
     preferences: { appearance: pro ? "midnight" : "light", updatedAt: "2026-07-20T12:00:00.000Z" },
   });
+  if (mode === "rich") {
+    const date = new Date(Date.now() + 2 * 86_400_000).toISOString().slice(0, 10);
+    await mutateJourneyCalendarEvent(user.id, {
+      action: "create",
+      event: {
+        id: `calendar:browser-${label.toLowerCase()}`,
+        type: "interview",
+        title: "Practice interview",
+        date,
+        time: "10:00",
+        opportunityId: selected[0]?.id,
+        source: "user",
+        reminderMinutesBefore: 1_440,
+        completed: false,
+        dismissed: false,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        version: 0,
+      },
+    });
+  }
   if (pro) await updateAccountBilling(user.id, { tier: "pro", status: "active", billingInterval: "month", cancelAtPeriodEnd: false });
   const addCandidate = opportunities.find((item) => item.type === "Career" && !selected.some((selectedItem) => selectedItem.id === item.id));
   return { session: await createSession(user), title: selected[0]?.title ?? "", searchTitle: selected.at(-1)?.title ?? "", addTitle: addCandidate?.title ?? "" };
@@ -220,6 +241,19 @@ try {
     assert.ok(await root.locator("[aria-label='Journey overview'] > *").count() <= 4);
     assert.equal(Number(await root.locator("[aria-label='Journey overview']").getAttribute("data-count")), await root.locator("[aria-label='Journey overview'] > *").count(), "The overview layout must reflect only supported summary items.");
     assert.ok(await root.locator("[data-journey-record]").count() >= 4);
+    const calendar = root.locator("[data-journey-calendar]");
+    await calendar.waitFor({ state: "visible" });
+    await calendar.getByText("Practice interview", { exact: true }).waitFor();
+    await calendar.getByRole("button", { name: "Calendar", exact: true }).click();
+    assert.equal(await calendar.locator('[role="grid"]').count(), 1, "Calendar view must expose a semantic month grid.");
+    await calendar.getByRole("button", { name: "Upcoming", exact: true }).click();
+    await calendar.getByRole("button", { name: "Add date", exact: true }).first().click();
+    const calendarDialog = page.locator("dialog").filter({ hasText: "Add a date" });
+    await calendarDialog.waitFor({ state: "visible" });
+    await calendarDialog.getByLabel("Title").fill("Essay draft due");
+    await calendarDialog.getByLabel("Date", { exact: true }).fill(new Date(Date.now() + 4 * 86_400_000).toISOString().slice(0, 10));
+    await calendarDialog.getByRole("button", { name: "Save date" }).click();
+    await page.getByText("Essay draft due", { exact: true }).waitFor();
     assert.ok(await root.getByRole("heading", { name: /Needs attention/ }).count() <= 1);
     const firstRecord = root.locator("[data-journey-record]").filter({ hasText: rich.title }).first();
     const detailsTrigger = firstRecord.getByRole("button", { name: `View details for ${rich.title}` });
@@ -410,10 +444,10 @@ try {
     const page = await context.newPage();
     await page.goto(origin, { waitUntil: "domcontentloaded" });
     const root = await baseAssertions(page, "Chromium empty");
-    await root.getByRole("heading", { name: "Keep track of the opportunities you care about." }).waitFor();
+    await root.getByRole("heading", { name: "Nothing coming up yet." }).waitFor();
     assert.equal(await root.locator("[aria-label='Journey overview']").count(), 0);
-    assert.equal(await root.getByRole("link", { name: /Explore Discover/ }).count(), 1);
-    assert.equal(await root.getByRole("link", { name: "View For You" }).count(), 1);
+    assert.equal(await root.getByRole("link", { name: "Explore opportunities" }).count(), 1);
+    assert.equal(await root.getByRole("button", { name: "Add date" }).count(), 2);
     await context.close();
   }
   console.log("Journey command-center browser checks passed", { browsers: ["Chromium", "WebKit"], datasets: ["empty", "rich", "100-active", "500-history"], viewports: ["desktop", "tablet", "mobile", "200%-effective-zoom"], screenshots: output });

@@ -1,12 +1,13 @@
 import Link from "next/link";
 import type { JourneyCommandCenterModel, JourneyCommandFilter, JourneyCommandRecord, JourneyCommandSort, JourneyOverviewCard } from "@/lib/journey-command-center";
-import { ArrowIcon, BellIcon, BookmarkIcon, CloseIcon, MoreIcon, SearchIcon, SendIcon, SparkIcon, TargetIcon, TrophyIcon } from "@/components/icons";
+import { ArrowIcon, BellIcon, CloseIcon, MoreIcon, SearchIcon, SendIcon, SparkIcon, TargetIcon, TrophyIcon } from "@/components/icons";
 import { OrganizationLogo, OrganizationMark } from "@/components/organization-logo";
 import { JourneyTimelineControl } from "@/components/journey-timeline-control";
 import { JourneyCardEntry } from "@/components/journey-card-entry";
 import { JourneyAnalytics } from "@/components/journey-analytics";
 import { JourneyCommandActions } from "@/components/journey-command-actions";
 import { JourneySessionFeedback } from "@/components/journey-session-feedback";
+import { JourneyDeadlineCalendar } from "@/components/journey-deadline-calendar";
 import styles from "./journey-command-center.module.css";
 
 const primaryFilters: JourneyCommandFilter[] = ["active", "preparing", "applied", "interviewing", "offers", "saved"];
@@ -118,16 +119,6 @@ function JourneyRecordRow({ record, theme }: { record: JourneyCommandRecord; the
   </article>;
 }
 
-function EmptyJourney() {
-  return <section className={styles.empty} aria-labelledby="journey-empty-heading">
-    <span aria-hidden="true"><BookmarkIcon /></span>
-    <p>Journey</p>
-    <h2 id="journey-empty-heading">Keep track of the opportunities you care about.</h2>
-    <p>Add an opportunity from Discover or For You, then update your progress as things change.</p>
-    <div><Link href="/opportunities">Explore Discover <ArrowIcon /></Link><Link href="/advisor">View For You</Link></div>
-  </section>;
-}
-
 function EmptyRecords({ model }: { model: JourneyCommandCenterModel }) {
   if (model.query) return <div className={styles.noResults}><h3>No Journey records match “{model.query}”.</h3><p>Try another title or organization, or clear the search to see everything again.</p><Link href={hrefFor(model, { query: "" })}>Clear search</Link></div>;
   if (model.filter === "history") return <div className={styles.noResults}><h3>No professional history yet.</h3><p>Completed and archived opportunities will appear here as your record grows.</p><Link href="/#active-opportunities">View active opportunities</Link></div>;
@@ -147,8 +138,7 @@ export function JourneyCommandCenter({ model }: { model: JourneyCommandCenterMod
       </header>
       <JourneySessionFeedback accountKey={model.accountKey} overview={model.overview} attentionCount={model.attentionCount} showHints={model.showFirstUseHints} />
 
-      {!hasRecords ? <EmptyJourney /> : <>
-        {model.overview.length ? <section className={styles.overview} aria-label="Journey overview" data-count={model.overview.length}>
+      {hasRecords && model.overview.length ? <section className={styles.overview} aria-label="Journey overview" data-count={model.overview.length}>
           {model.overview.map((card) => <a key={card.id} href={card.href} data-tone={card.tone} data-overview-id={card.id}>
             <span className={styles.overviewIcon} aria-hidden="true"><OverviewIcon card={card} /></span>
             <small>{card.label}</small>
@@ -158,6 +148,10 @@ export function JourneyCommandCenter({ model }: { model: JourneyCommandCenterMod
             <i aria-hidden="true"><ArrowIcon /></i>
           </a>)}
         </section> : null}
+
+      <JourneyDeadlineCalendar model={model.calendar} />
+
+      {!hasRecords ? null : <>
 
         {model.attention.length ? <section className={styles.attention} aria-labelledby="journey-attention-heading">
           <header><h2 id="journey-attention-heading">Needs attention <span>{model.attentionCount}</span></h2>{model.attentionCount > model.attention.length ? <a href={hrefFor(model, { active: "100" })}>View all</a> : null}</header>

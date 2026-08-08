@@ -63,6 +63,27 @@ export type UserPreferencesRecord = {
 
 export type JourneyProgressRecord = Record<string, boolean>;
 
+export const journeyCalendarEventTypes = ["interview", "personal_target", "follow_up", "essay_deadline", "reminder"] as const;
+export type JourneyCalendarEventType = (typeof journeyCalendarEventTypes)[number];
+
+export type JourneyCalendarEventRecord = {
+  id: string;
+  type: JourneyCalendarEventType;
+  title: string;
+  date: string;
+  time?: string;
+  opportunityId?: string;
+  source: "user";
+  reminderMinutesBefore?: number;
+  completed: boolean;
+  dismissed: boolean;
+  createdAt: string;
+  updatedAt: string;
+  version: number;
+};
+
+export type JourneyCalendarRecord = Record<string, JourneyCalendarEventRecord>;
+
 export type AccountData = {
   profile: ProfileRecord | null;
   onboardingComplete: boolean;
@@ -74,6 +95,7 @@ export type AccountData = {
   tracker: OpportunityTrackerRecord;
   preferences: UserPreferencesRecord | null;
   journeyProgress: JourneyProgressRecord;
+  calendarEvents?: JourneyCalendarRecord;
   advisor: AdvisorAccountData | null;
   referrals: ReferralAccountData | null;
   updatedAt: string;

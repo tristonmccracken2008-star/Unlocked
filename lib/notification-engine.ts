@@ -3,6 +3,7 @@ import type { Opportunity } from "@/data/opportunities";
 import type { RecommendationViewModel } from "@/data/recommendation-service";
 import { createOpportunityLifecycleEvents, resolveOpportunityLifecycle } from "@/data/opportunity-lifecycle";
 import type { TrackedOpportunity } from "@/data/student-activity";
+import type { JourneyCalendarEventRecord } from "./account-types";
 import {
   defaultNotificationPreferences,
   type NotificationPreferences,
@@ -236,6 +237,33 @@ export function buildNotificationSchedules(input: {
     }
   }
   return schedules;
+}
+
+export function buildCalendarEventNotificationSchedule(input: {
+  userId: string;
+  event: JourneyCalendarEventRecord;
+  preferences?: Partial<NotificationPreferences> | null;
+  now?: Date;
+}): NotificationSchedule | null {
+  const now = input.now ?? new Date();
+  const preferences = normalizeNotificationPreferences(input.preferences, now.toISOString());
+  if (!preferences.journeyReminders || input.event.completed || input.event.dismissed || input.event.reminderMinutesBefore === undefined) return null;
+  const local = localDateTimeToUtc(input.event.date, Number(input.event.time?.slice(0, 2) ?? 9), preferences.timezone);
+  if (!local) return null;
+  if (input.event.time) local.setUTCMinutes(local.getUTCMinutes() + Number(input.event.time.slice(3, 5)));
+  const scheduledFor = new Date(local.getTime() - input.event.reminderMinutesBefore * 60_000);
+  if (scheduledFor.getTime() <= now.getTime() - 60_000) return null;
+  const contentVersion = stableHash([input.event.id, input.event.version, input.event.date, input.event.time, input.event.reminderMinutesBefore, input.event.updatedAt]);
+  return {
+    id: notificationIdempotencyKey([input.userId, "calendar", input.event.id, scheduledFor.toISOString(), contentVersion]),
+    userId: input.userId,
+    type: "journey_reminder" as const,
+    calendarEventId: input.event.id,
+    opportunityId: input.event.opportunityId,
+    scheduledFor: scheduledFor.toISOString(),
+    contentVersion,
+    customReminderText: `${input.event.title}${input.event.opportunityId ? "" : " is coming up"}.`,
+  };
 }
 
 function normalizeText(value: string | null | undefined) {

@@ -1,0 +1,111 @@
+.shell { margin-top: 1rem; border: 1px solid var(--journey-line); border-radius: .8rem; background: color-mix(in srgb, var(--journey-panel) 88%, transparent); padding: 1rem 1.05rem; box-shadow: 0 10px 32px rgba(40, 30, 22, .025); }
+.header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.header p, .dialog header p, .dayPanel header p { margin: 0 0 .2rem; color: var(--journey-green); font-size: .56rem; font-weight: 850; letter-spacing: .1em; text-transform: uppercase; }
+.header h2 { margin: 0; font: 700 1.25rem/1.1 var(--font-editorial), Georgia, serif; }
+.headerActions { display: flex; align-items: center; gap: .55rem; }
+.toggle { display: flex; border: 1px solid var(--journey-line); border-radius: .55rem; padding: .2rem; }
+.toggle button, .add, .dayPanel header button { min-height: 44px; border: 0; border-radius: .38rem; background: transparent; color: var(--journey-muted); padding: 0 .75rem; font-size: .66rem; font-weight: 800; cursor: pointer; }
+.toggle button[aria-pressed="true"] { background: var(--journey-panel); color: var(--journey-green); box-shadow: 0 2px 8px rgba(28, 22, 17, .06); }
+.add { min-height: 44px; border: 1px solid var(--journey-green); background: var(--journey-green); color: var(--journey-canvas); }
+.upcoming { display: grid; gap: .8rem; margin-top: .8rem; }
+.group { display: grid; grid-template-columns: 5.4rem minmax(0, 1fr); align-items: start; gap: .8rem; }
+.group > h3 { position: sticky; top: 5rem; margin: .85rem 0 0; color: var(--journey-muted); font-size: .58rem; font-weight: 850; letter-spacing: .08em; text-transform: uppercase; }
+.group > div { border-top: 1px solid var(--journey-line); }
+.event { display: grid; grid-template-columns: 5rem minmax(0, 1fr) auto; min-height: 4.4rem; align-items: center; gap: .85rem; border-bottom: 1px solid var(--journey-line); padding: .65rem .15rem; }
+.event > time { display: grid; gap: .2rem; color: var(--journey-ink); }
+.event > time strong { font: 700 .85rem/1 var(--font-editorial), Georgia, serif; }
+.event > time span { color: var(--journey-muted); font-size: .58rem; }
+.event > div:nth-child(2) { display: grid; min-width: 0; gap: .2rem; }
+.event p { margin: 0; font: 700 .92rem/1.18 var(--font-editorial), Georgia, serif; overflow-wrap: anywhere; }
+.event div > span { color: var(--journey-muted); font-size: .62rem; line-height: 1.35; overflow-wrap: anywhere; }
+.event small { color: var(--journey-muted); font-size: .58rem; font-weight: 700; }
+.event small[data-urgency="today"], .event small[data-urgency="tomorrow"], .event small[data-urgency="overdue"] { color: var(--journey-error); }
+.event small[data-urgency="soon"] { color: var(--journey-gold); }
+.eventActions { display: flex; align-items: center; justify-content: flex-end; gap: .25rem; }
+.eventActions a, .eventActions button { display: inline-flex; min-width: 44px; min-height: 44px; align-items: center; border: 0; border-radius: .4rem; background: transparent; color: var(--journey-green); padding: 0 .55rem; font-size: .61rem; font-weight: 800; text-decoration: none; cursor: pointer; }
+.eventActions a:first-child { width: 44px; justify-content: center; padding: 0; }
+.eventActions svg { width: .8rem; height: .8rem; }
+.eventActions button:last-child { border: 1px solid var(--journey-line); }
+.eventActions :disabled { cursor: wait; opacity: .55; }
+.empty { display: grid; min-height: 13rem; place-items: center; align-content: center; padding: 1rem; text-align: center; }
+.empty > svg { width: 1.4rem; height: 1.4rem; color: var(--journey-green); }
+.empty h3 { margin: .8rem 0 0; font: 700 1.2rem/1.1 var(--font-editorial), Georgia, serif; }
+.empty p { max-width: 28rem; margin: .55rem 0 0; color: var(--journey-muted); font-size: .7rem; line-height: 1.5; }
+.empty div { display: flex; gap: .5rem; margin-top: .9rem; }
+.empty a, .empty button { display: inline-flex; min-height: 44px; align-items: center; border: 1px solid var(--journey-line); border-radius: .45rem; background: transparent; color: var(--journey-green); padding: 0 .8rem; font-size: .67rem; font-weight: 800; text-decoration: none; }
+.empty button { border-color: var(--journey-green); background: var(--journey-green); color: var(--journey-canvas); }
+.calendarLayout { display: grid; grid-template-columns: minmax(22rem, .9fr) minmax(18rem, 1.1fr); gap: 1.1rem; margin-top: 1rem; }
+.calendar { min-width: 0; border-right: 1px solid var(--journey-line); padding-right: 1.1rem; }
+.calendar > header { display: grid; grid-template-columns: 44px minmax(0, 1fr) 44px; align-items: center; }
+.calendar > header h3 { margin: 0; font: 700 1rem/1 var(--font-editorial), Georgia, serif; text-align: center; }
+.calendar > header button { display: grid; width: 44px; height: 44px; place-items: center; border: 0; border-radius: .45rem; background: transparent; color: var(--journey-green); cursor: pointer; }
+.calendar > header button:first-child svg { transform: rotate(180deg); }
+.calendar > header svg { width: .8rem; height: .8rem; }
+.weekdays, .grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
+.weekdays { margin-top: .5rem; color: var(--journey-muted); font-size: .53rem; font-weight: 800; text-align: center; text-transform: uppercase; }
+.weekdays span { padding: .4rem 0; }
+.grid { border-top: 1px solid var(--journey-line); border-left: 1px solid var(--journey-line); }
+.grid button { position: relative; min-width: 0; min-height: 46px; border: 0; border-right: 1px solid var(--journey-line); border-bottom: 1px solid var(--journey-line); background: transparent; color: var(--journey-ink); font: 700 .67rem/1 var(--font-sans), system-ui, sans-serif; cursor: pointer; }
+.grid button[data-outside="true"] { color: var(--journey-muted); opacity: .38; }
+.grid button[aria-selected="true"] { background: var(--journey-green); color: var(--journey-canvas); }
+.grid button[data-events="true"]::after { position: absolute; right: 50%; bottom: .3rem; width: 4px; height: 4px; border-radius: 50%; background: var(--journey-gold); content: ""; transform: translateX(50%); }
+.grid button[aria-selected="true"]::after { background: var(--journey-canvas); }
+.dayPanel { min-width: 0; }
+.dayPanel > header { display: flex; min-height: 44px; align-items: center; justify-content: space-between; gap: .8rem; }
+.dayPanel h3 { margin: 0; font: 700 1rem/1 var(--font-editorial), Georgia, serif; }
+.dayPanel header button { color: var(--journey-green); }
+.dayPanel .event { grid-template-columns: minmax(0, 1fr) auto; }
+.dayPanel .event > time { display: none; }
+.dayPanel .eventActions { flex-wrap: wrap; }
+.noDayEvents { margin: 1.5rem 0; color: var(--journey-muted); font-size: .7rem; text-align: center; }
+.dialog { width: min(34rem, calc(100% - 2rem)); max-width: none; border: 0; border-radius: .85rem; background: transparent; color: var(--journey-ink); padding: 0; }
+.dialog::backdrop { background: rgba(23, 18, 15, .52); backdrop-filter: blur(4px); }
+.dialog form { overflow: hidden; border: 1px solid var(--journey-line); border-radius: .85rem; background: var(--journey-panel); box-shadow: 0 24px 80px rgba(24, 17, 12, .25); }
+.dialog header { display: flex; justify-content: space-between; gap: 1rem; border-bottom: 1px solid var(--journey-line); padding: 1.1rem 1.15rem; }
+.dialog h2 { margin: 0; font: 700 1.55rem/1 var(--font-editorial), Georgia, serif; }
+.dialog header span { display: block; margin-top: .4rem; color: var(--journey-muted); font-size: .68rem; }
+.dialog header button { display: grid; width: 44px; height: 44px; place-items: center; border: 0; background: transparent; color: var(--journey-muted); }
+.dialog header svg { width: 1rem; height: 1rem; }
+.fields { display: grid; gap: .8rem; padding: 1rem 1.15rem; }
+.fields label { display: grid; gap: .35rem; color: var(--journey-ink); font-size: .66rem; font-weight: 800; }
+.fields label span { color: var(--journey-muted); font-size: .56rem; font-weight: 600; }
+.fields > div { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; }
+.fields input, .fields select { width: 100%; min-height: 44px; border: 1px solid var(--journey-line); border-radius: .45rem; background: var(--journey-canvas); color: var(--journey-ink); padding: 0 .65rem; font: 600 .68rem/1 var(--font-sans), system-ui, sans-serif; }
+.dialog footer { display: flex; justify-content: flex-end; gap: .55rem; border-top: 1px solid var(--journey-line); padding: .8rem 1.15rem; }
+.dialog footer button { display: inline-flex; min-height: 44px; align-items: center; gap: .4rem; border: 1px solid var(--journey-line); border-radius: .45rem; background: transparent; color: var(--journey-ink); padding: 0 .9rem; font-size: .68rem; font-weight: 800; }
+.dialog footer button:last-child { border-color: var(--journey-green); background: var(--journey-green); color: var(--journey-canvas); }
+.dialog footer svg { width: .8rem; height: .8rem; }
+.error { margin: .65rem 0 0; color: var(--journey-error); font-size: .67rem; font-weight: 700; }
+
+@media (max-width: 800px) {
+  .shell { margin-inline: -.85rem; border-inline: 0; border-radius: 0; padding: 1rem .85rem; }
+  .group { grid-template-columns: 1fr; gap: .2rem; }
+  .group > h3 { position: static; margin-top: .5rem; }
+  .event { grid-template-columns: 4.4rem minmax(0, 1fr) auto; }
+  .textAction { display: none !important; }
+  .calendarLayout { grid-template-columns: 1fr; }
+  .calendar { border-right: 0; border-bottom: 1px solid var(--journey-line); padding: 0 0 1rem; }
+}
+@media (max-width: 520px) {
+  .header { align-items: flex-start; }
+  .headerActions { align-items: stretch; }
+  .toggle button { padding-inline: .55rem; }
+  .add { padding-inline: .65rem; }
+  .event { grid-template-columns: 3.8rem minmax(0, 1fr); gap: .55rem; }
+  .eventActions { grid-column: 2; justify-content: flex-start; }
+  .eventActions a:first-child { position: absolute; right: .2rem; }
+  .event { position: relative; padding-right: 2.75rem; }
+  .calendarLayout { margin-inline: -.2rem; }
+  .grid button { min-height: 44px; }
+  .dayPanel .event { grid-template-columns: 1fr; padding-right: 0; }
+  .dayPanel .eventActions { grid-column: 1; }
+  .dialog { width: 100%; max-height: 100dvh; margin: auto 0 0; }
+  .dialog form { border-radius: .85rem .85rem 0 0; padding-bottom: env(safe-area-inset-bottom); }
+  .fields > div { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .shell *, .shell *::before, .shell *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
+}
+@media (forced-colors: active) {
+  .shell, .toggle, .group > div, .event, .calendar, .grid, .grid button, .dialog form, .fields input, .fields select { border-color: CanvasText; }
+}

@@ -1,5 +1,5 @@
 import crypto from "node:crypto";
-import type { AccountData, AuthUser, DatabaseUser } from "./account-types";
+import type { AccountData, AuthUser, DatabaseUser, JourneyCalendarEventRecord } from "./account-types";
 import type { AdvisorAccountData } from "./advisor/types";
 import { defaultBillingRecord, normalizeBillingRecord, type BillingRecord } from "./billing";
 import { applyReferralProGrant, newlyUnlockedReferralRewards, normalizeReferralData, sanitizeReferralCode, type ReferralAccountData, type ReferralAdminSummary, type ReferralParticipant } from "./referrals";
@@ -32,7 +32,7 @@ const kvTimeoutMs = 2800;
 const kvRetryDelayMs = 120;
 const releaseLockScript = "if redis.call('GET',KEYS[1]) == ARGV[1] then return redis.call('DEL',KEYS[1]) else return 0 end";
 
-const emptyData = (): AccountData => ({ profile: null, onboardingComplete: false, firstLaunchComplete: false, billing: defaultBillingRecord(), activity: null, savedOpportunities: [], tracker: {}, preferences: null, journeyProgress: {}, advisor: null, referrals: null, updatedAt: new Date().toISOString() });
+const emptyData = (): AccountData => ({ profile: null, onboardingComplete: false, firstLaunchComplete: false, billing: defaultBillingRecord(), activity: null, savedOpportunities: [], tracker: {}, preferences: null, journeyProgress: {}, calendarEvents: {}, advisor: null, referrals: null, updatedAt: new Date().toISOString() });
 
 function requireProductionStore() {
   if (!hasKv && process.env.NODE_ENV === "production") throw new Error("A production data store is required. Set KV_REST_API_URL/KV_REST_API_TOKEN or UPSTASH_REDIS_REST_URL/UPSTASH_REDIS_REST_TOKEN.");
@@ -369,6 +369,7 @@ function normalizeAccountData(value: AccountData | null | undefined): AccountDat
     tracker: tracked,
     preferences: value.preferences ?? null,
     journeyProgress: value.journeyProgress ?? {},
+    calendarEvents: value.calendarEvents ?? {},
     advisor: normalizeAdvisorData(value.advisor),
     referrals: normalizeReferralData(value.referrals),
     updatedAt: value.updatedAt ?? new Date().toISOString(),
@@ -413,6 +414,7 @@ export async function mergeAccountData(userId: string, incoming: Partial<Account
     tracker,
     preferences: incoming.preferences ?? current.preferences ?? null,
     journeyProgress: { ...(current.journeyProgress ?? {}), ...(incoming.journeyProgress ?? {}) },
+    calendarEvents: current.calendarEvents ?? {},
     advisor: profileChangedForAdvisor ? null : normalizeAdvisorData(incoming.advisor ?? current.advisor),
     referrals: current.referrals,
     updatedAt: new Date().toISOString(),
@@ -423,6 +425,43 @@ export async function mergeAccountData(userId: string, incoming: Partial<Account
     return await readAccountData(userId);
   }
   return next;
+}
+
+export async function mutateJourneyCalendarEvent(userId: string, input: {
+  action: "create" | "update" | "complete" | "dismiss";
+  event: JourneyCalendarEventRecord;
+  expectedVersion?: number;
+}) {
+  return await withSecurityLock("journey-calendar", userId, async () => {
+    const account = await readAccountData(userId);
+    const events = { ...(account.calendarEvents ?? {}) };
+    const current = events[input.event.id];
+    if (input.action === "create") {
+      if (current) return { account, event: current, duplicate: true };
+    } else {
+      if (!current) {
+        const error = new Error("Calendar item not found.");
+        error.name = "CalendarEventNotFoundError";
+        throw error;
+      }
+      if (input.expectedVersion !== current.version) {
+        const error = new Error("This calendar item changed elsewhere. Refresh and try again.");
+        error.name = "CalendarEventConflictError";
+        throw error;
+      }
+    }
+    const nextEvent = input.action === "complete"
+      ? { ...current!, completed: true, dismissed: false, updatedAt: input.event.updatedAt, version: current!.version + 1 }
+      : input.action === "dismiss"
+        ? { ...current!, dismissed: true, updatedAt: input.event.updatedAt, version: current!.version + 1 }
+        : input.action === "update"
+          ? { ...input.event, createdAt: current!.createdAt, version: current!.version + 1 }
+          : input.event;
+    events[nextEvent.id] = nextEvent;
+    const next = { ...account, calendarEvents: events, updatedAt: nextEvent.updatedAt };
+    await writeAccountData(userId, next);
+    return { account: next, event: nextEvent, duplicate: false };
+  });
 }
 
 export async function resetRecommendationSignals(userId: string) {

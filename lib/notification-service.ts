@@ -8,6 +8,7 @@ import { productIntelligenceEvents } from "./analytics-types";
 import {
   buildNotificationRecord,
   buildNotificationSchedules,
+  buildCalendarEventNotificationSchedule,
   detectMaterialOpportunityChanges,
   evaluateNotificationQuality,
   inQuietHours,
@@ -80,6 +81,7 @@ export async function syncUserNotificationSchedules(userId: string, accountInput
     account.preferences?.notifications?.updatedAt,
     Object.keys(account.tracker ?? {}).length,
     account.savedOpportunities?.length ?? 0,
+    Object.values(account.calendarEvents ?? {}).map((event) => `${event.id}:${event.version}:${event.updatedAt}`).sort().join(","),
   ]);
   if (!await claimNotificationSync(userId, syncVersion)) return { tracked: trackedIds(account).length, scheduled: 0, skipped: true };
   await archiveExpiredNotifications(userId, now);
@@ -105,6 +107,14 @@ export async function syncUserNotificationSchedules(userId: string, accountInput
       schedule.organization = opportunity.organization;
       if (await scheduleNotification(schedule)) scheduled += 1;
     }
+  }
+  for (const event of Object.values(account.calendarEvents ?? {})) {
+    const schedule = buildCalendarEventNotificationSchedule({ userId, event, preferences: account.preferences?.notifications, now });
+    if (!schedule) continue;
+    const opportunity = event.opportunityId ? byId.get(event.opportunityId) : undefined;
+    schedule.opportunityTitle = opportunity?.title;
+    schedule.organization = opportunity?.organization;
+    if (await scheduleNotification(schedule)) scheduled += 1;
   }
   const preferences = normalizeNotificationPreferences(account.preferences?.notifications, now.toISOString());
   if (preferences.weeklyDigest) {
@@ -476,7 +486,18 @@ async function sendEmailIfEligible(userId: string, record: NotificationRecord, n
   }) ?? record;
 }
 
-function currentScheduleStillValid(schedule: NotificationSchedule, account: AccountData, opportunity: Opportunity, now: Date) {
+function currentScheduleStillValid(schedule: NotificationSchedule, account: AccountData, opportunity: Opportunity | undefined, now: Date) {
+  if (schedule.calendarEventId) {
+    const event = account.calendarEvents?.[schedule.calendarEventId];
+    if (!event) return false;
+    return buildCalendarEventNotificationSchedule({
+      userId: schedule.userId,
+      event,
+      preferences: account.preferences?.notifications,
+      now: new Date(Math.min(now.getTime(), Date.parse(schedule.scheduledFor) - 1)),
+    })?.id === schedule.id;
+  }
+  if (!opportunity) return false;
   const record = schedule.opportunityId ? trackedRecord(account, schedule.opportunityId) : undefined;
   if (!record || !activeStatuses.has(record.status)) return false;
   if (schedule.type === "follow_up" && schedule.followUpKind !== "saved_check_in") {
@@ -528,7 +549,7 @@ export async function processNotificationSchedule(schedule: NotificationSchedule
       return { status: "suppressed" as const, reason: "preference_or_account" };
     }
     if (schedule.type !== "opportunity_change" && schedule.type !== "weekly_digest") {
-      if (!opportunity || !currentScheduleStillValid(schedule, account, opportunity, now)) {
+      if (!currentScheduleStillValid(schedule, account, opportunity, now)) {
         await completeNotificationSchedule(schedule.id);
         await notificationAnalytics(productIntelligenceEvents.notificationSuppressed, schedule.userId, {
           category: mappedType,

@@ -57,6 +57,7 @@ export type NotificationRecord = {
   body: string;
   organization?: string;
   opportunityId?: string;
+  calendarEventId?: string;
   journeyStatus?: OpportunityTrackerStatus;
   actionLabel: string;
   actionHref: string;
@@ -82,6 +83,7 @@ export type NotificationSchedule = {
   notificationId?: string;
   attempt?: number;
   opportunityId?: string;
+  calendarEventId?: string;
   opportunityTitle?: string;
   organization?: string;
   scheduledFor: string;

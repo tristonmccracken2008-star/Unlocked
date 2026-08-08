@@ -14,6 +14,7 @@ import { resolveOrganizationLogo } from "@/data/organization-logos";
 import type { AccountData, AuthUser } from "./account-types";
 import type { JourneyTimelineControl, JourneyTimelineModel } from "./journey-timeline";
 import { buildJourneyTimelineModel } from "./journey-timeline";
+import { buildJourneyCalendarModel, type JourneyCalendarModel } from "./journey-calendar";
 
 export const journeyCommandFilters = ["active", "saved", "preparing", "applied", "interviewing", "offers", "accepted", "paused", "history"] as const;
 export type JourneyCommandFilter = (typeof journeyCommandFilters)[number];
@@ -98,6 +99,7 @@ export type JourneyCommandCenterModel = {
   cardEligible: boolean;
   theme: JourneyTimelineModel["theme"];
   showFirstUseHints: boolean;
+  calendar: JourneyCalendarModel;
 };
 
 const terminalStatuses = new Set<OpportunityTrackerStatus>(["Rejected", "Completed"]);
@@ -499,6 +501,7 @@ export function buildJourneyCommandCenterModel(input: {
       || Object.values(input.account.journeyProgress ?? {}).some(Boolean),
     theme: timeline.theme,
     showFirstUseHints: records.length > 0 && !records.some((record) => record.history.some((item) => item.transition !== "choose")),
+    calendar: buildJourneyCalendarModel({ account: input.account, opportunities: input.opportunities, now }),
   };
 }
 
