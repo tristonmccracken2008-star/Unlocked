@@ -6,7 +6,7 @@ import { authenticatedFetch } from "@/data/authenticated-request";
 import { accountSessionEvent, resetAccountSessionCache } from "@/data/account-sync";
 import { trackProductEvent } from "@/data/product-analytics";
 import type { AccountSession } from "@/lib/account-types";
-import { BrandMark } from "./brand-mark";
+import { FirstLaunchPreview } from "./first-launch-preview";
 import styles from "./first-launch-walkthrough.module.css";
 import { DelayedPendingLabel } from "./delayed-pending-label";
 
@@ -15,8 +15,6 @@ type WalkthroughStep = {
   eyebrow: string;
   headline: string;
   paragraphs: readonly string[];
-  desktopImage: string;
-  mobileImage: string;
 };
 
 const steps: readonly WalkthroughStep[] = [
@@ -24,33 +22,25 @@ const steps: readonly WalkthroughStep[] = [
     id: "discover",
     eyebrow: "Discover",
     headline: "Discover Opportunities",
-    paragraphs: ["Browse thousands of verified opportunities.", "Search, filter, and save opportunities that match your goals."],
-    desktopImage: "/walkthrough/discover-desktop.png",
-    mobileImage: "/walkthrough/discover-mobile.png",
+    paragraphs: ["Browse thousands of opportunities across internships, scholarships, research, programs, benefits, and more.", "Search, filter, and save what matters to you."],
   },
   {
     id: "for-you",
     eyebrow: "For You",
     headline: "Personalized For You",
-    paragraphs: ["UnlockED learns from your school, interests, and goals to recommend opportunities tailored to you."],
-    desktopImage: "/walkthrough/for-you-desktop.png",
-    mobileImage: "/walkthrough/for-you-mobile.png",
+    paragraphs: ["UnlockED uses your school, interests, goals, and activity to surface opportunities worth your attention."],
   },
   {
     id: "journey",
     eyebrow: "Journey",
     headline: "Build Your Journey",
-    paragraphs: ["Save opportunities, track applications, celebrate milestones, and build your professional story throughout college."],
-    desktopImage: "/walkthrough/journey-desktop.png",
-    mobileImage: "/walkthrough/journey-mobile.png",
+    paragraphs: ["Save opportunities, track applications, stay on top of what’s next, and record the milestones you accomplish along the way."],
   },
   {
     id: "ready",
     eyebrow: "Welcome to UnlockED",
     headline: "You’re Ready",
-    paragraphs: ["Start exploring opportunities, build your Journey, and let UnlockED help you discover what’s next."],
-    desktopImage: "/walkthrough/discover-desktop.png",
-    mobileImage: "/walkthrough/discover-mobile.png",
+    paragraphs: ["UnlockED is ready to help you discover opportunities, stay organized, and make more of your time in college."],
   },
 ] as const;
 
@@ -93,8 +83,6 @@ export function FirstLaunchWalkthrough({ initialSession, pro }: { initialSession
     try { sessionStorage.setItem(storageKey, String(step)); } catch { /* Session progress is best effort. */ }
     window.requestAnimationFrame(() => headingRef.current?.focus());
     trackProductEvent("first_launch_step_viewed", { stepId: steps[step]!.id, stepIndex: String(step + 1), stepCount: String(steps.length) });
-    const next = steps[step + 1];
-    if (next) for (const src of [next.desktopImage, next.mobileImage]) new Image().src = src;
   }, [restored, step, storageKey]);
 
   useEffect(() => {
@@ -126,7 +114,7 @@ export function FirstLaunchWalkthrough({ initialSession, pro }: { initialSession
       setStep(next);
       setTransition(null);
       transitionTimer.current = null;
-    }, 240);
+    }, 360);
   }, [step, transition]);
 
   useEffect(() => {
@@ -161,7 +149,7 @@ export function FirstLaunchWalkthrough({ initialSession, pro }: { initialSession
       window.setTimeout(() => {
         router.replace("/opportunities");
         router.refresh();
-      }, window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 180);
+      }, window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 360);
     } catch (caught) {
       savingRef.current = false;
       setSaving(false);
@@ -189,49 +177,49 @@ export function FirstLaunchWalkthrough({ initialSession, pro }: { initialSession
       if (dx > 0 && step > 0) goTo(step - 1);
     }}
   >
-    <div className="absolute inset-0" aria-hidden="true">
-      <picture key={steps[displayedStep]!.id}>
-        <source media="(max-width: 639px)" srcSet={steps[displayedStep]!.mobileImage} />
-        <img src={steps[displayedStep]!.desktopImage} alt="" loading="eager" decoding="async" className={`${styles.backdrop} h-full w-full object-cover object-top`} />
-      </picture>
-      <div className={`${styles.veil} absolute inset-0`} />
+    <div className={styles.previewStage} aria-hidden="true">
+      {visible.map((index) => {
+        const item = steps[index]!;
+        const entering = transition && index === transition.to;
+        const motionClass = transition
+          ? entering ? transition.direction === "forward" ? styles.previewEnterForward : styles.previewEnterBack : transition.direction === "forward" ? styles.previewExitForward : styles.previewExitBack
+          : "";
+        return <div key={`preview-${item.id}-${entering ? "enter" : "current"}`} className={`${styles.previewLayer} ${item.id === "ready" ? styles.readyPreview : ""} ${motionClass}`}><FirstLaunchPreview step={item.id} /></div>;
+      })}
+      <div className={styles.veil} />
     </div>
 
-    <div className="relative mx-auto flex h-full max-w-7xl flex-col px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-[max(1.25rem,env(safe-area-inset-top))] sm:px-8 sm:py-8">
-      <div className="flex min-h-11 items-center gap-3" aria-label="UnlockED">
-        <BrandMark className="h-8 w-8 object-contain" />
-        <span className="font-editorial text-2xl font-bold">Unlock<span className="text-forest">ED</span></span>
-      </div>
-
-      <div className="relative flex flex-1 items-center justify-center py-5 sm:py-8">
+    <div className={styles.walkthroughShell}>
+      <div className={styles.panelStage}>
         {visible.map((index) => {
           const item = steps[index]!;
           const entering = transition && index === transition.to;
           const motionClass = transition
             ? entering ? transition.direction === "forward" ? styles.enterForward : styles.enterBack : transition.direction === "forward" ? styles.exitForward : styles.exitBack
             : "";
-          return <article key={`${item.id}-${entering ? "enter" : "current"}`} aria-hidden={transition ? !entering : undefined} className={`${styles.panel} ${motionClass} absolute w-full max-w-xl rounded-2xl border border-ink/10 bg-paper/95 px-6 py-8 text-center backdrop-blur-xl sm:px-12 sm:py-12`}>
+          return <article key={`${item.id}-${entering ? "enter" : "current"}`} aria-hidden={transition ? !entering : undefined} className={`${styles.panel} ${item.id === "ready" ? styles.readyPanel : ""} ${motionClass}`}>
+            {item.id === "ready" ? <span className={styles.readyMark} aria-hidden="true">✓</span> : null}
             <p className="rule-label text-forest">{item.eyebrow}</p>
-            <h1 ref={index === displayedStep ? headingRef : undefined} tabIndex={-1} style={{ outline: "none" }} className="mt-3 font-editorial text-4xl font-bold leading-[1.04] sm:text-5xl">{item.headline}</h1>
-            <div className="mx-auto mt-5 max-w-md space-y-2 text-sm leading-6 text-ink/58 sm:text-base sm:leading-7">
+            <h1 ref={index === displayedStep ? headingRef : undefined} tabIndex={-1}>{item.headline}</h1>
+            <div className={styles.panelCopy}>
               {item.paragraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
-              {item.id === "for-you" && !pro ? <p className="pt-2 text-xs text-ink/45">Upgrade anytime to unlock your complete personalized feed.</p> : null}
+              {item.id === "for-you" && !pro ? <p className={styles.freeNote}>Upgrade anytime to unlock your complete personalized feed.</p> : null}
             </div>
 
-            <div className="mt-8 flex min-h-12 items-center gap-3">
-              {index > 0 ? <button type="button" onClick={() => goTo(index - 1)} disabled={Boolean(transition) || saving} className="inline-flex min-h-12 min-w-24 items-center justify-center rounded-xl border border-ink/15 bg-transparent px-5 text-sm font-bold text-ink/60 transition hover:border-forest hover:text-forest disabled:opacity-45">Back</button> : <span className="min-w-24" aria-hidden="true" />}
-              <button type="button" onClick={() => index === steps.length - 1 ? void finish() : goTo(index + 1)} disabled={Boolean(transition) || saving} aria-busy={saving ? "true" : undefined} data-action-state={saving ? "loading" : "idle"} className="inline-flex min-h-12 flex-1 items-center justify-center rounded-xl bg-forest px-6 text-sm font-bold text-white shadow-[0_12px_28px_rgba(31,95,67,.2)] transition hover:bg-ink active:scale-[.99] disabled:opacity-55">
+            <div className={styles.panelActions}>
+              {index > 0 ? <button type="button" onClick={() => goTo(index - 1)} disabled={Boolean(transition) || saving} className={styles.backButton}>Back</button> : <span className={styles.actionSpacer} aria-hidden="true" />}
+              <button type="button" onClick={() => index === steps.length - 1 ? void finish() : goTo(index + 1)} disabled={Boolean(transition) || saving} aria-busy={saving ? "true" : undefined} data-action-state={saving ? "loading" : "idle"} className={styles.nextButton}>
                 <DelayedPendingLabel pending={saving} idle={index === steps.length - 1 ? "Start Exploring" : "Next"} pendingLabel="Saving your progress…" /><span aria-hidden="true" className="ml-2">→</span>
               </button>
             </div>
-            {error && index === displayedStep ? <p role="alert" aria-live="polite" className="mt-4 text-sm font-bold text-red-700">{error}</p> : null}
+            {error && index === displayedStep ? <p role="alert" aria-live="polite" data-inline-feedback="" data-state="error" className={styles.panelError}>{error}</p> : null}
           </article>;
         })}
       </div>
 
-      <nav aria-label="Walkthrough progress" className="flex min-h-11 items-center justify-center gap-2">
-        <ol className="flex items-center gap-2">
-          {steps.map((item, index) => <li key={item.id}><span aria-current={index === displayedStep ? "step" : undefined} className={`block h-2 rounded-full transition-all motion-reduce:transition-none ${index === displayedStep ? "w-7 bg-forest" : "w-2 bg-ink/20"}`}><span className="sr-only">{index === displayedStep ? `Step ${index + 1} of ${steps.length}: ${item.eyebrow}` : item.eyebrow}</span></span></li>)}
+      <nav aria-label="Walkthrough progress" className={styles.progress}>
+        <ol>
+          {steps.map((item, index) => <li key={item.id}><span aria-current={index === displayedStep ? "step" : undefined} data-active={index === displayedStep}><span className="sr-only">{index === displayedStep ? `Step ${index + 1} of ${steps.length}: ${item.eyebrow}` : item.eyebrow}</span></span></li>)}
         </ol>
       </nav>
     </div>

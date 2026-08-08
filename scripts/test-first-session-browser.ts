@@ -227,9 +227,11 @@ async function completeOnboarding(page: Page, origin: string) {
   });
   const walkthrough = page.locator("[data-first-launch-walkthrough]");
   assert.equal(await walkthrough.getAttribute("data-first-launch-step"), "discover");
+  assert.ok(await page.locator("[data-preview-kind='discover']").isVisible(), "Discover must have an art-directed product preview.");
   assert.equal(await page.getByRole("navigation", { name: "Walkthrough progress" }).getByText("Step 1 of 4: Discover").count(), 1);
   await page.getByRole("button", { name: "Next", exact: true }).click();
   await page.getByRole("heading", { name: "Personalized For You" }).waitFor({ state: "visible" });
+  assert.ok(await page.locator("[data-preview-kind='for-you']").isVisible(), "For You must visibly preview recommendation intelligence.");
   assert.equal(await page.getByText("Upgrade anytime to unlock your complete personalized feed.", { exact: true }).count(), 1, "Free users should receive one quiet expectation-setting line.");
   await page.reload({ waitUntil: "domcontentloaded" });
   await page.getByRole("heading", { name: "Personalized For You" }).waitFor({ state: "visible" });
@@ -240,6 +242,8 @@ async function completeOnboarding(page: Page, origin: string) {
   await walkthrough.dispatchEvent("touchstart", { touches: [{ identifier: 1, clientX: 320, clientY: 420 }], changedTouches: [{ identifier: 1, clientX: 320, clientY: 420 }] });
   await walkthrough.dispatchEvent("touchend", { touches: [], changedTouches: [{ identifier: 1, clientX: 80, clientY: 422 }] });
   await page.getByRole("heading", { name: "Build Your Journey" }).waitFor({ state: "visible" });
+  assert.ok(await page.locator("[data-preview-kind='journey']").isVisible(), "Journey must visibly preview deadlines, statuses, and active opportunities.");
+  await page.screenshot({ path: "/tmp/unlocked-first-launch-journey-mobile.png", fullPage: false });
   await page.keyboard.press("ArrowRight");
   await page.getByRole("heading", { name: "You’re Ready" }).waitFor({ state: "visible" });
   await page.screenshot({ path: "/tmp/unlocked-first-launch-mobile.png", fullPage: false });
@@ -315,7 +319,8 @@ async function verifyDesktopDarkWalkthrough(browser: Browser, origin: string, to
   await page.getByRole("heading", { name: "Discover Opportunities" }).waitFor({ state: "visible" });
   await page.waitForFunction(() => document.documentElement.dataset.theme === "midnight");
   assert.equal(await page.getByText("Upgrade anytime to unlock your complete personalized feed.", { exact: true }).count(), 0, "Pro users must not receive Free walkthrough copy.");
-  assert.ok(await page.locator("picture img[src='/walkthrough/discover-desktop.png']").isVisible(), "Desktop walkthrough must render a real responsive product capture.");
+  assert.ok(await page.locator("[data-preview-kind='discover']").isVisible(), "Desktop walkthrough must render the art-directed Discover preview.");
+  assert.equal(await page.locator("[data-preview-kind] button").count(), 0, "Decorative previews must not add keyboard-focusable controls.");
   assert.ok(await page.getByRole("button", { name: "Next", exact: true }).isVisible());
   await page.screenshot({ path: "/tmp/unlocked-first-launch-desktop-dark.png", fullPage: false });
   assert.ok(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth <= 1), "Desktop walkthrough must not overflow horizontally.");

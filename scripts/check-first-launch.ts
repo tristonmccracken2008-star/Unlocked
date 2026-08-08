@@ -30,14 +30,21 @@ assert.match(guard, /redirect\("\/welcome"\)/, "Protected product routes must st
 assert.match(guard, /requireFirstLaunchSession/, "The walkthrough must have a dedicated server guard.");
 
 const walkthrough = source("components/first-launch-walkthrough.tsx");
-for (const copy of ["Discover Opportunities", "Personalized For You", "Build Your Journey", "You’re Ready", "Start Exploring"]) {
+const preview = source("components/first-launch-preview.tsx");
+const presentation = source("components/first-launch-walkthrough.module.css");
+for (const copy of ["Discover Opportunities", "Personalized For You", "Build Your Journey", "You’re Ready", "Start Exploring", "Browse thousands of opportunities", "surface opportunities worth your attention", "stay on top of what’s next", "make more of your time in college"]) {
   assert.ok(walkthrough.includes(copy), `Walkthrough must include ${copy}.`);
 }
 for (const behavior of ["ArrowRight", "ArrowLeft", "onTouchStart", "onTouchEnd", "prefers-reduced-motion", "first_launch_completed", "sessionStorage", "accountSessionEvent"]) {
   assert.ok(walkthrough.includes(behavior), `Walkthrough must support ${behavior}.`);
 }
-assert.match(walkthrough, /\/walkthrough\/discover-desktop\.png/);
-assert.match(walkthrough, /\/walkthrough\/for-you-desktop\.png/);
-assert.match(walkthrough, /\/walkthrough\/journey-desktop\.png/);
+for (const feature of ["previewSearch", "previewCardGrid", "matchSignals", "recommendationFeature", "journeySummary", "journeyActions", "journeyRecords"]) {
+  assert.ok(preview.includes(feature), `The art-directed product preview must include ${feature}.`);
+}
+assert.doesNotMatch(walkthrough, /<picture|<img|\/walkthrough\//, "The tour must not depend on incidental page screenshots.");
+assert.doesNotMatch(preview, /<button/, "Decorative product previews must not add hidden keyboard stops.");
+for (const behavior of ["preview-enter-forward", "preview-enter-back", "tour-crossfade", "data-theme=\"midnight\"", "backdrop-filter", ".finish .veil", "min-height: 430px"]) {
+  assert.ok(presentation.includes(behavior), `Walkthrough presentation must preserve ${behavior}.`);
+}
 
 console.log("First-launch walkthrough regression checks passed.");
