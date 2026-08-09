@@ -350,6 +350,8 @@ async function verifyFirstSave(page: Page, origin: string, browserName: string) 
   const addedState = page.getByText("Added to Journey", { exact: false }).first();
   assert.ok(await addedState.isVisible());
   assert.equal(await page.locator("[data-journey-save-flight]").count(), 0, "Reduced-motion users must not receive the travel animation.");
+  assert.equal(await page.locator("[data-journey-save-burst]").count(), 0, "Reduced-motion users must not receive the success particle burst.");
+  assert.equal(await page.locator("[data-action-state='loading'][data-journey-save-state]").count(), 0, "A completed save must never retain a loading control.");
   await page.screenshot({ path: `/tmp/unlocked-save-${browserName.toLowerCase()}-mobile-reduced.png`, fullPage: true });
 
   const opportunityId = await page.locator("[data-for-you-page] article").first().evaluate((node) => {
@@ -416,6 +418,7 @@ async function runPro(browser: Browser, origin: string, token: string, browserNa
           for (const node of mutation.addedNodes) {
             if (!(node instanceof HTMLElement)) continue;
             if (node.matches("[data-journey-save-flight]")) root.dataset.saveFlightObserved = "true";
+            if (node.matches("[data-journey-save-burst]")) root.dataset.saveBurstObserved = "true";
             if (node.matches("[data-journey-save-chip]")) root.dataset.saveChipObserved = "true";
           }
         }
@@ -447,13 +450,16 @@ async function runPro(browser: Browser, origin: string, token: string, browserNa
   await page.waitForFunction(() => document.documentElement.dataset.saveArrivalObserved === "true");
   const observations = await page.evaluate(() => ({
     flight: document.documentElement.dataset.saveFlightObserved,
+    burst: document.documentElement.dataset.saveBurstObserved,
     chip: document.documentElement.dataset.saveChipObserved,
     arrival: document.documentElement.dataset.saveArrivalObserved,
     card: document.documentElement.dataset.saveCardObserved,
   }));
-  assert.deepEqual(observations, { flight: "true", chip: "true", arrival: "true", card: "true" }, "Desktop save must complete the flight, confirmation, destination, and card acknowledgement sequence.");
+  assert.deepEqual(observations, { flight: "true", burst: "true", chip: "true", arrival: "true", card: "true" }, "Desktop save must complete the burst, flight, confirmation, destination, and card acknowledgement sequence.");
   const confirmedControl = page.locator("[data-journey-save-confirmed='true']").first();
   assert.ok(await confirmedControl.isVisible());
+  assert.notEqual(await confirmedControl.evaluate((node) => getComputedStyle(node).cursor), "wait", "The settled save control must not retain a native busy cursor.");
+  assert.equal(await page.locator("[data-action-state='loading'][data-journey-save-state]").count(), 0, "The request resolving must remove every save loading state immediately.");
   const confirmedButtonBox = await confirmedControl.boundingBox();
   assert.ok(confirmedButtonBox, "The confirmed Journey control must have measurable dimensions.");
   assert.ok(Math.abs(confirmedButtonBox.width - idleButtonBox.width) <= 1 && Math.abs(confirmedButtonBox.height - idleButtonBox.height) <= 1, "Confirmation must not resize the action control.");
@@ -482,7 +488,7 @@ async function runPro(browser: Browser, origin: string, token: string, browserNa
   assert.equal(await secondRapidSave.getAttribute("data-journey-save-state"), "loading");
   await secondRapidSave.getByText("Saving…", { exact: true }).waitFor({ state: "visible" });
   await page.waitForFunction(() => document.querySelectorAll("[data-journey-save-confirmed='true']").length >= 3, undefined, { timeout: 15_000 });
-  await page.waitForFunction(() => !document.querySelector("[data-journey-save-flight]") && !document.querySelector("[data-journey-save-chip]"), undefined, { timeout: 15_000 });
+  await page.waitForFunction(() => !document.querySelector("[data-journey-save-flight]") && !document.querySelector("[data-journey-save-burst]") && !document.querySelector("[data-journey-save-chip]"), undefined, { timeout: 15_000 });
   assert.equal(maximumConcurrentSaveRequests, 1, "Rapid saves must serialize client requests instead of colliding with the account lock.");
   assert.ok(Number(await page.locator("html").getAttribute("data-maximum-concurrent-save-flights")) <= 2, "Transfer motion must remain bounded during rapid saves.");
   assert.equal(await page.locator("[data-journey-save-state='error'], [id^='journey-add-error-']").count(), 0, "Rapid saves must not produce a lock or retry error.");

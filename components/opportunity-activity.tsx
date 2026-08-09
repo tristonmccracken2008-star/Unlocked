@@ -38,7 +38,10 @@ export function OpportunityActivityActions({ opportunityId, type, officialSource
 }
 
 export function AddToJourneyButton({ opportunityId, recommendationId, recommendationCategory, recommendationExposureCount, className = "" }: { opportunityId: string; recommendationId?: string; recommendationCategory?: string; recommendationExposureCount?: number; className?: string }) {
-  const [added, setAdded] = useState(false);
+  const [added, setAdded] = useState(() => {
+    const activity = readStudentActivity();
+    return Boolean(activity.tracked?.[opportunityId] || activity.saved.includes(opportunityId));
+  });
   const [confirmedThisSession, setConfirmedThisSession] = useState(false);
   const [pending, setPending] = useState(false);
   const [firstSave, setFirstSave] = useState(false);
@@ -114,6 +117,8 @@ export function AddToJourneyButton({ opportunityId, recommendationId, recommenda
       activity.saved = [...new Set([...activity.saved, opportunityId])];
       replaceStudentActivity(activity);
       if (!body.duplicate) playJourneySaveMotion(buttonRef.current);
+      pendingRef.current = false;
+      setPending(false);
       setAdded(true);
       setConfirmedThisSession(!body.duplicate);
       setFirstSave(Boolean(body.firstSave));
@@ -135,7 +140,7 @@ export function AddToJourneyButton({ opportunityId, recommendationId, recommenda
 
   if (added) return <div className="grid gap-2"><JourneyAddedState className={className} confirmed={confirmedThisSession} />{firstSave ? <p className="max-w-sm text-xs font-medium leading-5 text-ink/55" role="status">Added to your Journey. Return there when you have a real update, such as starting or submitting an application.</p> : null}</div>;
   return <div className="grid gap-2">
-    <button ref={buttonRef} type="button" onClick={() => void add()} disabled={pending} aria-busy={pending ? "true" : undefined} data-action-state={error ? "error" : pending ? "loading" : "idle"} data-journey-save-state={error ? "error" : pending ? "loading" : "idle"} data-journey-save-opportunity={opportunityId} aria-describedby={error ? `journey-add-error-${opportunityId}` : undefined} className={`${styles.saveButton} inline-flex min-h-11 min-w-[11rem] items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider disabled:cursor-wait ${className}`}>
+    <button ref={buttonRef} type="button" onClick={() => void add()} disabled={pending} aria-busy={pending ? "true" : undefined} data-action-state={error ? "error" : pending ? "loading" : "idle"} data-journey-save-state={error ? "error" : pending ? "loading" : "idle"} data-journey-save-opportunity={opportunityId} aria-describedby={error ? `journey-add-error-${opportunityId}` : undefined} className={`${styles.saveButton} inline-flex min-h-11 min-w-[11rem] items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider ${className}`}>
       <span className={styles.buttonIcon} aria-hidden="true">{error ? <svg className={styles.errorIcon} viewBox="0 0 18 18" fill="none"><path d="M5.2 5.5A5.2 5.2 0 1 1 4 10.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/><path d="M2.8 6.2 5.5 5.5l-.7-2.7" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/></svg> : <BookmarkIcon className={styles.saveIcon}/>}</span>
       <DelayedPendingLabel pending={pending} idle={error ? "Try again" : "Save to Journey"} pendingLabel="Saving…" />
     </button>
@@ -144,7 +149,7 @@ export function AddToJourneyButton({ opportunityId, recommendationId, recommenda
 }
 
 function JourneyAddedState({ className = "", confirmed = false }: { className?: string; confirmed?: boolean }) {
-  return <div className={styles.addedGroup}><span role="status" aria-live="polite" data-action-state="success" data-journey-save-confirmed={confirmed ? "true" : undefined} className={`${styles.addedState} unlocked-save-confirmation inline-flex min-h-11 min-w-[11rem] items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider ${className}`}><span className={styles.addedIcon} data-confirmed={confirmed ? "true" : "false"} aria-hidden="true"><BookmarkIcon className={styles.addedBookmark}/><CheckIcon className={styles.addedCheck}/></span><span className={styles.addedLabel}>Added to Journey</span></span><LinkToJourney /></div>;
+  return <div className={styles.addedGroup} data-confirmed={confirmed ? "true" : "false"}><span role="status" aria-live="polite" data-action-state="success" data-journey-save-confirmed={confirmed ? "true" : undefined} className={`${styles.addedState} unlocked-save-confirmation inline-flex min-h-11 min-w-[11rem] items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider ${className}`}><span className={styles.addedIcon} data-confirmed={confirmed ? "true" : "false"} aria-hidden="true"><BookmarkIcon className={styles.addedBookmark}/><CheckIcon className={styles.addedCheck}/></span><span className={styles.addedLabel}>Added to Journey</span></span><LinkToJourney /></div>;
 }
 
 function LinkToJourney() {

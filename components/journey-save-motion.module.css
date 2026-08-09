@@ -16,6 +16,67 @@
   will-change: transform, opacity;
 }
 
+.burst {
+  position: fixed;
+  z-index: 82;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+  animation: journey-save-burst-life 720ms linear both;
+}
+
+.burst::before {
+  position: absolute;
+  inset: -28px;
+  border: 1px solid rgb(var(--color-forest) / 0.46);
+  border-radius: 999px;
+  content: "";
+  animation: journey-save-ring 520ms var(--motion-ease-emphasis) both;
+  box-shadow: 0 0 24px rgb(var(--color-gold) / 0.16);
+}
+
+.burst > i {
+  --particle-x: 0px;
+  --particle-y: -32px;
+  --particle-rotation: 20deg;
+  position: absolute;
+  top: -3px;
+  left: -2px;
+  width: 4px;
+  height: 7px;
+  border-radius: 1px;
+  background: rgb(var(--color-forest));
+  animation: journey-save-particle 620ms var(--motion-ease-emphasis) both;
+  will-change: transform, opacity;
+}
+
+.burst > i:nth-child(2n) { background: rgb(var(--color-gold)); }
+.burst > i:nth-child(1) { --particle-x: 0px; --particle-y: -39px; --particle-rotation: 16deg; }
+.burst > i:nth-child(2) { --particle-x: 29px; --particle-y: -27px; --particle-rotation: 54deg; animation-delay: 25ms; }
+.burst > i:nth-child(3) { --particle-x: 38px; --particle-y: 1px; --particle-rotation: 88deg; animation-delay: 45ms; }
+.burst > i:nth-child(4) { --particle-x: 25px; --particle-y: 30px; --particle-rotation: 132deg; }
+.burst > i:nth-child(5) { --particle-x: -2px; --particle-y: 38px; --particle-rotation: 176deg; animation-delay: 35ms; }
+.burst > i:nth-child(6) { --particle-x: -30px; --particle-y: 25px; --particle-rotation: 218deg; }
+.burst > i:nth-child(7) { --particle-x: -39px; --particle-y: -2px; --particle-rotation: 264deg; animation-delay: 45ms; }
+.burst > i:nth-child(8) { --particle-x: -26px; --particle-y: -29px; --particle-rotation: 310deg; animation-delay: 20ms; }
+
+@keyframes journey-save-ring {
+  0% { opacity: 0; transform: scale(0.34); }
+  28% { opacity: 0.72; }
+  100% { opacity: 0; transform: scale(1.42); }
+}
+
+@keyframes journey-save-particle {
+  0% { opacity: 0; transform: translate3d(0, 0, 0) rotate(0) scale(0.55); }
+  20% { opacity: 0.9; }
+  100% { opacity: 0; transform: translate3d(var(--particle-x), var(--particle-y), 0) rotate(var(--particle-rotation)) scale(0.78); }
+}
+
+@keyframes journey-save-burst-life {
+  from { opacity: 1; }
+  to { opacity: 0.99; }
+}
+
 .flight::before {
   position: absolute;
   top: 4px;
@@ -97,6 +158,10 @@
 
 @media (prefers-reduced-motion: reduce) {
   .flight {
+    display: none;
+  }
+
+  .burst {
     display: none;
   }
 

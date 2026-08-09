@@ -3,6 +3,7 @@ import styles from "./journey-save-motion.module.css";
 const activeFlights = new Set<HTMLElement>();
 const activeAnimations = new Map<HTMLElement, Animation>();
 const activeChips = new Set<HTMLElement>();
+const activeBursts = new Set<HTMLElement>();
 const decoratedCards = new Set<HTMLElement>();
 const decoratedDestinations = new Set<HTMLElement>();
 const destinationTimers = new WeakMap<HTMLElement, number>();
@@ -94,6 +95,29 @@ function provideSoftHaptic() {
   navigator.vibrate(8);
 }
 
+function showSuccessBurst(sourceRect: DOMRect) {
+  const burst = document.createElement("span");
+  burst.className = styles.burst;
+  burst.setAttribute("data-journey-save-burst", "");
+  burst.setAttribute("aria-hidden", "true");
+  burst.style.left = `${sourceRect.left + sourceRect.width / 2}px`;
+  burst.style.top = `${sourceRect.top + sourceRect.height / 2}px`;
+  for (let index = 0; index < 8; index += 1) burst.append(document.createElement("i"));
+  document.body.append(burst);
+  activeBursts.add(burst);
+  let removed = false;
+  const remove = () => {
+    if (removed) return;
+    removed = true;
+    activeBursts.delete(burst);
+    burst.remove();
+  };
+  burst.addEventListener("animationend", (event) => {
+    if (event.target === burst && event.pseudoElement === "") remove();
+  });
+  window.setTimeout(remove, 900);
+}
+
 function startTransfer(sourceRect: DOMRect) {
   const destination = visibleJourneyDestination();
   if (!destination) {
@@ -171,6 +195,7 @@ export function playJourneySaveMotion(source: HTMLElement | null) {
   provideSoftHaptic();
 
   if (reducedMotion) return;
+  showSuccessBurst(sourceRect);
   transferQueue.push(sourceRect);
   drainTransferQueue();
 }
@@ -190,6 +215,8 @@ export function cancelJourneySaveMotion() {
   activeFlights.clear();
   for (const chip of activeChips) chip.remove();
   activeChips.clear();
+  for (const burst of activeBursts) burst.remove();
+  activeBursts.clear();
   for (const card of decoratedCards) card.removeAttribute("data-journey-save-card");
   decoratedCards.clear();
   for (const destination of decoratedDestinations) destination.removeAttribute("data-journey-arrival");

@@ -5,6 +5,11 @@
   transform-origin: center;
 }
 
+.saveButton:disabled,
+.saveButton[data-journey-save-state="loading"] {
+  cursor: default;
+}
+
 .saveButton::before {
   position: absolute;
   inset: 0;
@@ -120,6 +125,10 @@
   line-height: 1;
 }
 
+.addedGroup[data-confirmed="true"] .journeyLink {
+  animation: save-link-arrive 360ms var(--motion-ease-emphasis) 160ms both;
+}
+
 .addedState[data-journey-save-confirmed="true"] .addedIcon {
   animation: save-icon-settle 420ms var(--motion-ease-emphasis) both;
 }
@@ -156,6 +165,11 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes save-link-arrive {
+  from { opacity: 0; transform: translateY(3px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 @keyframes save-error-enter {
   from { opacity: 0.35; transform: translateY(-2px); }
   to { opacity: 1; transform: translateY(0); }
@@ -170,6 +184,7 @@
   .addedIcon[data-confirmed="true"] .addedBookmark,
   .addedIcon[data-confirmed="true"] .addedCheck,
   .addedLabel,
+  .addedGroup[data-confirmed="true"] .journeyLink,
   .error {
     animation-duration: 1ms;
   }
