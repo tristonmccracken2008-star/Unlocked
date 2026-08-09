@@ -1,0 +1,60 @@
+.workspace { margin-top: 0 !important; border-top: 0 !important; padding: 1.15rem 0 .2rem !important; }
+.summary { display: flex; align-items: flex-end; justify-content: space-between; gap: 1.5rem; }
+.summary p { margin: 0 0 .35rem; color: var(--journey-green); font-size: .58rem; font-weight: 850; letter-spacing: .09em; text-transform: uppercase; }
+.summary h4 { margin: 0; color: var(--journey-ink); font: 700 1.45rem/1.08 var(--font-editorial), Georgia, serif; letter-spacing: 0; text-transform: none; }
+.summary > div:last-child { display: grid; flex: 0 0 auto; justify-items: end; gap: .22rem; }
+.summary span, .progress span { color: var(--journey-muted); font-size: .6rem; font-weight: 750; }
+.summary strong { font-size: .75rem; }
+.progress { margin-top: 1.1rem; }
+.progress > div:first-child { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.progress strong { font-size: .68rem; }
+.progressBar { height: 4px; margin-top: .55rem; overflow: hidden; border-radius: 999px; background: color-mix(in srgb, var(--journey-green) 11%, transparent); }
+.progress i { display: block; height: 100%; border-radius: inherit; background: var(--journey-green); transition: width 240ms var(--motion-ease); }
+.progress > p { margin: .5rem 0 0; color: var(--journey-muted); font-size: .68rem; }
+.tasks { list-style: none; margin: 1rem 0 0 !important; padding: 0 !important; }
+.tasks li { display: grid !important; grid-template-columns: 44px minmax(0, 1fr) auto; min-height: 3.45rem; align-items: center; gap: .6rem; border-top: 1px solid var(--journey-line); padding: .35rem 0 !important; }
+.check { display: grid; width: 44px; height: 44px; place-items: center; border: 0; background: transparent; color: var(--journey-green); cursor: pointer; }
+.check::before { width: 1.1rem; height: 1.1rem; border: 1px solid color-mix(in srgb, var(--journey-green) 45%, var(--journey-line)); border-radius: 50%; content: ""; }
+.check[aria-pressed="true"]::before { display: none; }
+.check svg { width: 1.15rem; height: 1.15rem; padding: .15rem; border-radius: 50%; background: var(--journey-green); color: var(--journey-canvas); animation: application-check 180ms var(--motion-ease) both; }
+@keyframes application-check { from { opacity: .55; transform: scale(.84); } to { opacity: 1; transform: scale(1); } }
+.tasks li > div { display: grid; gap: .18rem; min-width: 0; }
+.tasks li > div > span { color: var(--journey-ink); font-size: .76rem; line-height: 1.4; overflow-wrap: anywhere; }
+.tasks li[data-completed="true"] > div > span { color: var(--journey-muted); text-decoration: line-through; text-decoration-thickness: 1px; }
+.tasks time, .tasks small { color: var(--journey-muted); font-size: .6rem; }
+.remove { min-height: 44px; border: 0; background: transparent; color: var(--journey-muted); padding: 0 .35rem; font-size: .62rem; cursor: pointer; }
+.remove:hover { color: var(--journey-error); }
+.unverified { margin-top: 1rem !important; border-top: 1px solid var(--journey-line) !important; padding-top: 1rem !important; }
+.unverified h5 { margin: 0; font: 700 1rem/1.15 var(--font-editorial), Georgia, serif; }
+.unverified p { max-width: 30rem; margin: .45rem 0 0; }
+.addTask { margin-top: .75rem; border-top: 1px solid var(--journey-line); }
+.addTask summary { display: inline-flex; min-height: 44px; align-items: center; color: var(--journey-green); font-size: .7rem; font-weight: 800; cursor: pointer; list-style: none; }
+.addTask summary::-webkit-details-marker { display: none; }
+.addTask > div { display: grid; grid-template-columns: minmax(0, 1fr) minmax(9rem, .55fr) auto; align-items: end; gap: .65rem; padding: .1rem 0 .8rem; }
+.addTask label { display: grid; gap: .35rem; color: var(--journey-ink); font-size: .65rem; font-weight: 800; }
+.addTask label span { color: var(--journey-muted); font-size: .56rem; font-weight: 600; }
+.addTask input { min-width: 0; min-height: 44px; border: 1px solid var(--journey-line); border-radius: .45rem; background: var(--journey-canvas); color: var(--journey-ink); padding: 0 .65rem; font: 500 .7rem var(--font-sans), system-ui, sans-serif; }
+.addTask button, .ready button { min-height: 44px; border: 1px solid var(--journey-green); border-radius: .45rem; background: var(--journey-green); color: var(--journey-canvas); padding: 0 .85rem; font-size: .67rem; font-weight: 800; cursor: pointer; }
+.addTask button:disabled, .ready button:disabled, .tasks button:disabled { cursor: wait; opacity: .58; }
+.ready { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-top: .75rem; border-top: 1px solid var(--journey-line); padding-top: .9rem; }
+.ready > div { display: grid; gap: .2rem; }
+.ready strong { font: 700 .95rem/1.15 var(--font-editorial), Georgia, serif; }
+.ready span { color: var(--journey-muted); font-size: .66rem; }
+.error { margin: .7rem 0 0 !important; color: var(--journey-error) !important; font-size: .68rem !important; font-weight: 700; }
+.official { display: inline-flex; min-height: 44px; align-items: center; gap: .4rem; margin-top: .75rem; color: var(--journey-green); font-size: .7rem; font-weight: 800; text-decoration: none; }
+.official svg { width: .8rem; height: .8rem; }
+.submitted { display: flex; align-items: flex-start; gap: .75rem; }
+.submitted > span { display: grid; width: 2rem; height: 2rem; flex: 0 0 auto; place-items: center; border-radius: 50%; background: color-mix(in srgb, var(--journey-green) 10%, transparent); color: var(--journey-green); }
+.submitted svg { width: 1rem; height: 1rem; }
+.submitted h4 { margin: 0; color: var(--journey-ink); font: 700 1.2rem/1.1 var(--font-editorial), Georgia, serif; letter-spacing: 0; text-transform: none; }
+.submitted p { margin: .4rem 0 0; }
+@media (max-width: 620px) {
+  .summary { align-items: flex-start; }
+  .addTask > div { grid-template-columns: 1fr; }
+  .addTask button { width: 100%; }
+  .ready { align-items: stretch; flex-direction: column; }
+  .ready button { width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .progress i, .check svg { transition: none; animation: none; }
+}

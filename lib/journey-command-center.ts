@@ -15,6 +15,7 @@ import type { AccountData, AuthUser } from "./account-types";
 import type { JourneyTimelineControl, JourneyTimelineModel } from "./journey-timeline";
 import { buildJourneyTimelineModel } from "./journey-timeline";
 import { buildJourneyCalendarModel, type JourneyCalendarModel } from "./journey-calendar";
+import { projectApplicationWorkspace, type ApplicationWorkspaceProjection } from "./application-workspace";
 
 export const journeyCommandFilters = ["active", "saved", "preparing", "applied", "interviewing", "offers", "accepted", "paused", "history"] as const;
 export type JourneyCommandFilter = (typeof journeyCommandFilters)[number];
@@ -46,6 +47,13 @@ export type JourneyCommandRecord = {
   opportunity?: Opportunity;
   control?: JourneyTimelineControl;
   unavailable: boolean;
+  applicationWorkspace?: ApplicationWorkspaceProjection;
+  applicationSubmission?: {
+    professionalStageId: string;
+    transition: "submit";
+    expectedStatus: OpportunityTrackerStatus;
+    expectedVersion: number;
+  };
 };
 
 export type JourneyAttentionItem = {
@@ -225,12 +233,14 @@ function controlFor(record: TrackedOpportunity, opportunity: Opportunity, now: D
   };
 }
 
-function projectRecord(record: TrackedOpportunity, opportunity: Opportunity | undefined, now: Date, timezone: string): JourneyCommandRecord {
+function projectRecord(record: TrackedOpportunity, opportunity: Opportunity | undefined, account: AccountData, now: Date, timezone: string): JourneyCommandRecord {
   const workflow = opportunity ? getJourneyProfessionalWorkflow(opportunity) : undefined;
   const resolvedStage = workflow ? resolveJourneyProfessionalStage(record, workflow) : undefined;
   const stageLabel = resolvedStage?.label ?? fallbackStatusLabels[record.status];
   const details = latestDetails(record);
   const lifecycle = opportunity ? resolveOpportunityLifecycle(opportunity, now) : undefined;
+  const applicationWorkspace = opportunity ? projectApplicationWorkspace({ opportunity, record, workspace: account.applicationWorkspaces?.[record.id], now }) : undefined;
+  const submitAction = workflow ? getJourneyProfessionalActions(record, workflow).find((action) => action.resultingStatus === "Submitted" && action.stage) : undefined;
   return {
     id: record.id,
     title: opportunity?.title ?? "Unavailable opportunity",
@@ -259,6 +269,13 @@ function projectRecord(record: TrackedOpportunity, opportunity: Opportunity | un
     opportunity,
     control: opportunity ? controlFor(record, opportunity, now) : undefined,
     unavailable: !opportunity,
+    applicationWorkspace: applicationWorkspace?.eligible ? applicationWorkspace : undefined,
+    applicationSubmission: submitAction?.stage ? {
+      professionalStageId: submitAction.stage.id,
+      transition: "submit",
+      expectedStatus: record.status,
+      expectedVersion: record.version ?? 0,
+    } : undefined,
   };
 }
 
@@ -444,7 +461,7 @@ export function buildJourneyCommandCenterModel(input: {
   const timezone = input.account.preferences?.notifications?.timezone ?? "UTC";
   const opportunityById = new Map(input.opportunities.map((item) => [item.id, item]));
   const recordsById = { ...(input.account.activity?.tracked ?? {}), ...(input.account.tracker ?? {}) };
-  const records = Object.values(recordsById).map((record) => projectRecord(record, opportunityById.get(record.id), now, timezone));
+  const records = Object.values(recordsById).map((record) => projectRecord(record, opportunityById.get(record.id), input.account, now, timezone));
   const allActive = records.filter((record) => !terminalStatuses.has(record.status));
   const allHistory = records.filter((record) => terminalStatuses.has(record.status));
   const allAttention = attentionItems(allActive, now);

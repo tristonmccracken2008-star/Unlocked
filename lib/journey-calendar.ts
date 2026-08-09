@@ -1,8 +1,9 @@
 import type { Opportunity } from "@/data/opportunities";
 import type { TrackedOpportunity } from "@/data/student-activity";
 import type { AccountData, JourneyCalendarEventRecord, JourneyCalendarEventType } from "./account-types";
+import { applicationTaskCalendarEvents } from "./application-workspace";
 
-export type JourneyCalendarSource = "official" | "user";
+export type JourneyCalendarSource = "official" | "user" | "application_task";
 export type JourneyCalendarUrgency = "overdue" | "today" | "tomorrow" | "soon" | "later";
 
 export type JourneyCalendarItem = {
@@ -164,7 +165,11 @@ export function buildJourneyCalendarModel(input: {
     if (record.dismissed || record.completed || record.date < minDate || record.date > maxDate) return [];
     return [projectUserEvent(record, record.opportunityId ? byId.get(record.opportunityId) : undefined, now, timezone)];
   });
-  const items = [...official, ...personal].sort(eventSort);
+  const applicationTasks = applicationTaskCalendarEvents(input.account).flatMap((record): JourneyCalendarItem[] => {
+    if (record.completed || record.date < minDate || record.date > maxDate) return [];
+    return [projectUserEvent(record, record.opportunityId ? byId.get(record.opportunityId) : undefined, now, timezone)];
+  });
+  const items = [...official, ...personal, ...applicationTasks].sort(eventSort);
   const endOfWeek = new Date(dateValue(today) + 7 * 86_400_000).toISOString().slice(0, 10);
   const endOfMonth = `${today.slice(0, 8)}${String(new Date(Date.UTC(Number(today.slice(0, 4)), Number(today.slice(5, 7)), 0)).getUTCDate()).padStart(2, "0")}`;
   const groups: JourneyCalendarGroup[] = [

@@ -76,6 +76,7 @@ const workflows: Record<JourneyWorkflowKind, JourneyProfessionalWorkflow> = {
     stages: [
       stage("saved", "Saved", "Keep saved", "Saved to Journey", "This research opportunity is part of your private Journey.", "Saved", "choose"),
       stage("contacted_lab", "Contacted lab", "Record lab contact", "Contacted the research team", "You reached out about joining the research work.", "Applying", "start"),
+      stage("research_application_submitted", "Application submitted", "Record submission", "Submitted a research application", "You recorded a completed research application submission.", "Submitted", "submit", true),
       stage("research_interview", "Research interview", "Record interview", "Interviewed with the research team", "The research team invited you to discuss the opportunity.", "Interview", "interview", true),
       stage("research_accepted", "Research position accepted", "Record acceptance", "Accepted a research opportunity", "You reported that you were accepted into the research opportunity.", "Accepted", "accept", true),
       stage("research_active", "Research underway", "Mark research active", "Began the research experience", "The research opportunity became active work.", "Accepted", "accept", true),

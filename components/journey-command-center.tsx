@@ -8,6 +8,7 @@ import { JourneyAnalytics } from "@/components/journey-analytics";
 import { JourneyCommandActions } from "@/components/journey-command-actions";
 import { JourneySessionFeedback } from "@/components/journey-session-feedback";
 import { JourneyDeadlineCalendar } from "@/components/journey-deadline-calendar";
+import { ApplicationWorkspace } from "@/components/application-workspace";
 import styles from "./journey-command-center.module.css";
 
 const primaryFilters: JourneyCommandFilter[] = ["active", "preparing", "applied", "interviewing", "offers", "saved"];
@@ -69,12 +70,13 @@ function RecordDetails({ record }: { record: JourneyCommandRecord }) {
   const panelId = `journey-record-details-${record.id}`;
   const titleId = `${panelId}-title`;
   return <div className={styles.recordDetails} data-journey-record-details="">
-    <button type="button" popoverTarget={panelId} aria-label={`View details for ${record.title}`} aria-haspopup="dialog"><MoreIcon /><span className="sr-only">View record details</span></button>
+    <button type="button" popoverTarget={panelId} aria-label={`${record.applicationWorkspace ? "Continue application" : "View details"} for ${record.title}`} aria-haspopup="dialog" data-application-trigger={record.applicationWorkspace ? "true" : undefined}>{record.applicationWorkspace ? <><span>Continue application</span><ArrowIcon /></> : <><MoreIcon /><span className="sr-only">View record details</span></>}</button>
     <section id={panelId} popover="auto" className={styles.detailGrid} role="dialog" aria-labelledby={titleId}>
       <header className={styles.detailHeader}>
-        <div><p>Journey details</p><h3 id={titleId}>{record.title}</h3><span>{record.organization}</span></div>
+        <div><p>{record.applicationWorkspace ? "Application workspace" : "Journey details"}</p><h3 id={titleId}>{record.title}</h3><span>{record.organization}</span></div>
         <button type="button" popoverTarget={panelId} popoverTargetAction="hide" aria-label={`Close details for ${record.title}`}><CloseIcon /></button>
       </header>
+      {record.applicationWorkspace ? <ApplicationWorkspace initial={record.applicationWorkspace} opportunityTitle={record.title} submission={record.applicationSubmission} /> : null}
       <dl>
         <div><dt>Journey stage</dt><dd>{record.stageLabel}</dd></div>
         <div><dt>Public listing</dt><dd>{record.lifecycle?.label ?? "Listing unavailable"}{record.lifecycle && !record.lifecycle.actionable ? " · Journey stage unchanged" : ""}</dd></div>
@@ -108,7 +110,9 @@ function JourneyRecordRow({ record, theme }: { record: JourneyCommandRecord; the
     </div>
     <div className={styles.recordStage} data-record-progress="">
       <span className={styles.stage} data-stage={record.stageFilter}>{record.stageLabel}</span>
-      {record.nextDate ? <span data-urgency={record.nextDate.urgency}>{record.nextDate.timingLabel}{record.nextDate.urgency === "normal" ? ` ${formatDate(record.nextDate.value)}` : ""}</span> : <span>{record.statusDetail}</span>}
+      {record.applicationWorkspace && !record.applicationWorkspace.submitted && record.applicationWorkspace.totalCount
+        ? <span>{record.applicationWorkspace.completedCount}/{record.applicationWorkspace.totalCount} tasks complete{record.applicationWorkspace.deadline ? ` · ${formatDate(record.applicationWorkspace.deadline)}` : ""}</span>
+        : record.nextDate ? <span data-urgency={record.nextDate.urgency}>{record.nextDate.timingLabel}{record.nextDate.urgency === "normal" ? ` ${formatDate(record.nextDate.value)}` : ""}</span> : <span>{record.statusDetail}</span>}
     </div>
     <div className={styles.recordUpdated}><span>Updated</span><strong>{relativeUpdated(record.updatedAt)}</strong></div>
     <div className={styles.recordActions} data-record-actions="">

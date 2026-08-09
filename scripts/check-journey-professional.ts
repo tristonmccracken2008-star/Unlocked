@@ -11,7 +11,7 @@ function base(id: string): TrackedOpportunity {
 const requiredStages = {
   career: ["Saved", "Preparing application", "Application submitted", "Interview received", "Final round interview", "Offer received", "Offer accepted", "Experience completed", "Archived"],
   scholarship: ["Saved", "Preparing submission", "Application submitted", "Finalist", "Awarded", "Funds received", "Archived"],
-  research: ["Saved", "Contacted lab", "Research interview", "Research position accepted", "Research underway", "Research completed", "Archived"],
+  research: ["Saved", "Contacted lab", "Application submitted", "Research interview", "Research position accepted", "Research underway", "Research completed", "Archived"],
   competition: ["Saved", "Registered", "Competition entered", "Finalist", "Competition won", "Competition completed", "Archived"],
   resource: ["Saved", "Resource activated", "Resource completed", "Archived"],
 } as const;

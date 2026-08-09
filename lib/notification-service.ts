@@ -5,6 +5,7 @@ import type { Opportunity } from "@/data/opportunities";
 import type { RecommendationViewModel } from "@/data/recommendation-service";
 import { recordAnalyticsEvent } from "./analytics-store";
 import { productIntelligenceEvents } from "./analytics-types";
+import { applicationTaskCalendarEvents } from "./application-workspace";
 import {
   buildNotificationRecord,
   buildNotificationSchedules,
@@ -82,6 +83,7 @@ export async function syncUserNotificationSchedules(userId: string, accountInput
     Object.keys(account.tracker ?? {}).length,
     account.savedOpportunities?.length ?? 0,
     Object.values(account.calendarEvents ?? {}).map((event) => `${event.id}:${event.version}:${event.updatedAt}`).sort().join(","),
+    applicationTaskCalendarEvents(account).map((event) => `${event.id}:${event.version}:${event.updatedAt}`).sort().join(","),
   ]);
   if (!await claimNotificationSync(userId, syncVersion)) return { tracked: trackedIds(account).length, scheduled: 0, skipped: true };
   await archiveExpiredNotifications(userId, now);
@@ -109,6 +111,14 @@ export async function syncUserNotificationSchedules(userId: string, accountInput
     }
   }
   for (const event of Object.values(account.calendarEvents ?? {})) {
+    const schedule = buildCalendarEventNotificationSchedule({ userId, event, preferences: account.preferences?.notifications, now });
+    if (!schedule) continue;
+    const opportunity = event.opportunityId ? byId.get(event.opportunityId) : undefined;
+    schedule.opportunityTitle = opportunity?.title;
+    schedule.organization = opportunity?.organization;
+    if (await scheduleNotification(schedule)) scheduled += 1;
+  }
+  for (const event of applicationTaskCalendarEvents(account)) {
     const schedule = buildCalendarEventNotificationSchedule({ userId, event, preferences: account.preferences?.notifications, now });
     if (!schedule) continue;
     const opportunity = event.opportunityId ? byId.get(event.opportunityId) : undefined;
@@ -488,7 +498,8 @@ async function sendEmailIfEligible(userId: string, record: NotificationRecord, n
 
 function currentScheduleStillValid(schedule: NotificationSchedule, account: AccountData, opportunity: Opportunity | undefined, now: Date) {
   if (schedule.calendarEventId) {
-    const event = account.calendarEvents?.[schedule.calendarEventId];
+    const event = account.calendarEvents?.[schedule.calendarEventId]
+      ?? applicationTaskCalendarEvents(account).find((candidate) => candidate.id === schedule.calendarEventId);
     if (!event) return false;
     return buildCalendarEventNotificationSchedule({
       userId: schedule.userId,

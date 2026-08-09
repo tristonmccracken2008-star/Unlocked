@@ -15,6 +15,30 @@
 5. **Journey Cards**: a secondary factual export action shown only when the account
    has card-worthy data.
 
+## Application workspace
+
+Application-based Journey records may expose a progressively disclosed workspace.
+The workspace is intentionally not a second tracker:
+
+- `TrackedOpportunity` remains the sole source of truth for Journey status.
+- Verified catalog `metadata.applicationRequirements` seed deterministic,
+  read-only requirement tasks. Unverified requirements never appear as facts.
+- Private user tasks live in `AccountData.applicationWorkspaces`, keyed by the
+  canonical opportunity ID. A task may have only a name and optional due date.
+- Dated, incomplete tasks project into the existing Journey calendar as
+  `application_task` events. The notification service schedules those projected
+  events through the existing calendar reminder pipeline.
+- Completing every task only exposes an explicit `Mark as Applied` action. The
+  existing Journey transition route remains authoritative for submission.
+- Benefits, no-application listings, career resources, student organizations, and
+  certifications do not receive an application workspace.
+
+All workspace writes go through `/api/journey/application`. The route requires a
+valid session and same-origin request, applies rate limits, checks Journey
+ownership again while holding the account security lock, and uses expected
+workspace versions plus idempotency keys. The catalog is never mutated by a
+student checklist update.
+
 ## Data model
 
 - **Journey record**: the existing `TrackedOpportunity`. It remains the present,

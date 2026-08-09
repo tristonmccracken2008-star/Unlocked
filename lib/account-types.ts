@@ -73,7 +73,7 @@ export type JourneyCalendarEventRecord = {
   date: string;
   time?: string;
   opportunityId?: string;
-  source: "user";
+  source: "user" | "application_task";
   reminderMinutesBefore?: number;
   completed: boolean;
   dismissed: boolean;
@@ -83,6 +83,28 @@ export type JourneyCalendarEventRecord = {
 };
 
 export type JourneyCalendarRecord = Record<string, JourneyCalendarEventRecord>;
+
+export type ApplicationTaskRecord = {
+  id: string;
+  title: string;
+  dueDate?: string;
+  source: "verified_requirement" | "user";
+  completed: boolean;
+  completedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+  version: number;
+};
+
+export type ApplicationWorkspaceRecord = {
+  opportunityId: string;
+  tasks: Record<string, ApplicationTaskRecord>;
+  createdAt: string;
+  updatedAt: string;
+  version: number;
+};
+
+export type ApplicationWorkspaceStore = Record<string, ApplicationWorkspaceRecord>;
 
 export type AccountData = {
   profile: ProfileRecord | null;
@@ -96,6 +118,7 @@ export type AccountData = {
   preferences: UserPreferencesRecord | null;
   journeyProgress: JourneyProgressRecord;
   calendarEvents?: JourneyCalendarRecord;
+  applicationWorkspaces?: ApplicationWorkspaceStore;
   advisor: AdvisorAccountData | null;
   referrals: ReferralAccountData | null;
   updatedAt: string;

@@ -75,7 +75,9 @@ function EventRow({ item, onEdit, onAction, pending }: {
       <p>{item.source === "official" ? item.opportunityTitle ?? item.title : item.title}</p>
       <span>{item.source === "official"
         ? `${eventLabel(item)}${item.organization ? ` · ${item.organization}` : ""}`
-        : `${eventLabel(item)}${item.opportunityTitle ? ` · ${item.opportunityTitle}` : ""}`}</span>
+        : item.source === "application_task"
+          ? `Application task${item.opportunityTitle ? ` · ${item.opportunityTitle}` : ""}`
+          : `${eventLabel(item)}${item.opportunityTitle ? ` · ${item.opportunityTitle}` : ""}`}</span>
       <small data-urgency={item.urgency}>{item.timingLabel}{item.source === "official" ? " · Verified date" : ""}</small>
     </div>
     <div className={styles.eventActions}>

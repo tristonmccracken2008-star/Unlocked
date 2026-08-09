@@ -1,5 +1,5 @@
 import crypto from "node:crypto";
-import type { AccountData, AuthUser, DatabaseUser, JourneyCalendarEventRecord } from "./account-types";
+import type { AccountData, ApplicationWorkspaceRecord, AuthUser, DatabaseUser, JourneyCalendarEventRecord } from "./account-types";
 import type { AdvisorAccountData } from "./advisor/types";
 import { defaultBillingRecord, normalizeBillingRecord, type BillingRecord } from "./billing";
 import { applyReferralProGrant, newlyUnlockedReferralRewards, normalizeReferralData, sanitizeReferralCode, type ReferralAccountData, type ReferralAdminSummary, type ReferralParticipant } from "./referrals";
@@ -8,6 +8,7 @@ import { isCompletedStudentProfile, normalizeStudentProfile } from "@/data/stude
 import { meaningfulAdvisorProfileChanged } from "./advisor/profile-version";
 import { constantTimeEqual, requiredAuthSecret } from "./security";
 import { normalizedFirstLaunchComplete } from "./first-launch-state";
+import { normalizeApplicationWorkspaces } from "./application-workspace";
 
 export const sessionCookieName = "unlocked_session";
 export const oauthStateCookieName = "unlocked_oauth_state";
@@ -32,7 +33,7 @@ const kvTimeoutMs = 2800;
 const kvRetryDelayMs = 120;
 const releaseLockScript = "if redis.call('GET',KEYS[1]) == ARGV[1] then return redis.call('DEL',KEYS[1]) else return 0 end";
 
-const emptyData = (): AccountData => ({ profile: null, onboardingComplete: false, firstLaunchComplete: false, billing: defaultBillingRecord(), activity: null, savedOpportunities: [], tracker: {}, preferences: null, journeyProgress: {}, calendarEvents: {}, advisor: null, referrals: null, updatedAt: new Date().toISOString() });
+const emptyData = (): AccountData => ({ profile: null, onboardingComplete: false, firstLaunchComplete: false, billing: defaultBillingRecord(), activity: null, savedOpportunities: [], tracker: {}, preferences: null, journeyProgress: {}, calendarEvents: {}, applicationWorkspaces: {}, advisor: null, referrals: null, updatedAt: new Date().toISOString() });
 
 function requireProductionStore() {
   if (!hasKv && process.env.NODE_ENV === "production") throw new Error("A production data store is required. Set KV_REST_API_URL/KV_REST_API_TOKEN or UPSTASH_REDIS_REST_URL/UPSTASH_REDIS_REST_TOKEN.");
@@ -370,6 +371,7 @@ function normalizeAccountData(value: AccountData | null | undefined): AccountDat
     preferences: value.preferences ?? null,
     journeyProgress: value.journeyProgress ?? {},
     calendarEvents: value.calendarEvents ?? {},
+    applicationWorkspaces: normalizeApplicationWorkspaces(value.applicationWorkspaces),
     advisor: normalizeAdvisorData(value.advisor),
     referrals: normalizeReferralData(value.referrals),
     updatedAt: value.updatedAt ?? new Date().toISOString(),
@@ -415,6 +417,7 @@ export async function mergeAccountData(userId: string, incoming: Partial<Account
     preferences: incoming.preferences ?? current.preferences ?? null,
     journeyProgress: { ...(current.journeyProgress ?? {}), ...(incoming.journeyProgress ?? {}) },
     calendarEvents: current.calendarEvents ?? {},
+    applicationWorkspaces: current.applicationWorkspaces ?? {},
     advisor: profileChangedForAdvisor ? null : normalizeAdvisorData(incoming.advisor ?? current.advisor),
     referrals: current.referrals,
     updatedAt: new Date().toISOString(),
@@ -461,6 +464,29 @@ export async function mutateJourneyCalendarEvent(userId: string, input: {
     const next = { ...account, calendarEvents: events, updatedAt: nextEvent.updatedAt };
     await writeAccountData(userId, next);
     return { account: next, event: nextEvent, duplicate: false };
+  });
+}
+
+export async function mutateApplicationWorkspace(userId: string, input: {
+  opportunityId: string;
+  expectedVersion: number;
+  mutate: (workspace: ApplicationWorkspaceRecord | undefined, account: AccountData) => { workspace: ApplicationWorkspaceRecord; duplicate: boolean };
+}) {
+  return await withSecurityLock("journey-application", userId, async () => {
+    const account = await readAccountData(userId);
+    const workspaces = { ...(account.applicationWorkspaces ?? {}) };
+    const current = workspaces[input.opportunityId];
+    const result = input.mutate(current, account);
+    if (result.duplicate) return { account, workspace: result.workspace, duplicate: true };
+    if ((current?.version ?? 0) !== input.expectedVersion) {
+      const error = new Error("This application changed elsewhere. Refresh and try again.");
+      error.name = "ApplicationWorkspaceConflictError";
+      throw error;
+    }
+    workspaces[input.opportunityId] = result.workspace;
+    const next = { ...account, applicationWorkspaces: workspaces, updatedAt: result.workspace.updatedAt };
+    await writeAccountData(userId, next);
+    return { account: next, workspace: result.workspace, duplicate: false };
   });
 }
 
