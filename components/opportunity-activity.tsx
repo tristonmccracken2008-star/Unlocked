@@ -19,7 +19,7 @@ export function OpportunityViewTracker({ opportunityId }: { opportunityId: strin
   return null;
 }
 
-export function OpportunityActivityActions({ opportunityId, type, officialSource, lifecycle }: { opportunityId: string; type: OpportunityType; officialSource: string; lifecycle: OpportunityLifecyclePresentation }) {
+export function OpportunityActivityActions({ opportunityId, type, officialSource, lifecycle, officialActionLabel }: { opportunityId: string; type: OpportunityType; officialSource: string; lifecycle: OpportunityLifecyclePresentation; officialActionLabel?: string }) {
   const [activity, setActivity] = useState(() => readStudentActivity());
   useEffect(() => {
     setActivity(trackOpportunityView(opportunityId));
@@ -28,9 +28,9 @@ export function OpportunityActivityActions({ opportunityId, type, officialSource
     return () => window.removeEventListener(studentActivityEvent, update);
   }, [opportunityId]);
   const added = Boolean(activity.tracked?.[opportunityId] || activity.saved.includes(opportunityId));
-  const primaryLabel = lifecycle.actionable
+  const primaryLabel = officialActionLabel ?? (lifecycle.actionable
     ? type === "Benefit" || type === "AI" ? "View official offer" : lifecycle.actionLabel
-    : "View official source";
+    : "View official source");
   return <div className="mt-6 space-y-3">
     {lifecycle.actionAllowed ? <a href={officialSource} target="_blank" rel="noreferrer" className="flex min-h-12 items-center justify-center gap-2 bg-ink px-5 text-center font-bold text-white hover:bg-forest">{primaryLabel} <ArrowIcon/><span className="sr-only">(opens in a new tab)</span></a> : <p className="border border-amber-700/25 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900">The official link needs review. UnlockED is not presenting an application action.</p>}
     {added ? <JourneyAddedState className="w-full border border-forest/25 px-4 text-forest" /> : <AddToJourneyButton opportunityId={opportunityId} className="w-full border border-ink/20 px-4 text-ink/65 hover:border-forest hover:text-forest" />}

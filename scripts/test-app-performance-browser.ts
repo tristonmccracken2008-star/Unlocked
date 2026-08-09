@@ -347,8 +347,8 @@ async function verifyOpportunityDetails(page: Page, origin: string, screenshotLa
     { id: "benefit--github-student-developer-pack", kind: "benefit", heading: "GitHub Student Developer Pack", facts: ["Value", "Access", "Deadline"] },
     { id: "scholarship--goldwater-scholarship", kind: "scholarship", heading: "Barry Goldwater Scholarship", facts: ["Award", "Deadline", "Application", "Renewal"] },
     { id: "career--google-student-internships", kind: "internship", heading: "Google Student Internships", facts: ["Location", "Format", "Compensation", "Deadline"] },
-    { id: "research--nsf-reu-sites", kind: "research", heading: "NSF Research Experiences for Undergraduates Sites", facts: ["Research focus", "Term", "Location", "Funding"] },
-    { id: "career--icpc", kind: "competition", heading: "International Collegiate Programming Contest", facts: ["Prize", "Deadline", "Format", "Difficulty"] },
+    { id: "research--nsf-reu-sites", kind: "research", heading: "NSF Research Experiences for Undergraduates Sites", facts: ["Research focus", "Term", "Location", "Funding", "Deadline"] },
+    { id: "career--icpc", kind: "competition", heading: "International Collegiate Programming Contest", facts: ["Deadline", "Format", "Difficulty"] },
   ];
   const renderedHeights = new Map<string, number>();
   for (const scenario of scenarios) {
@@ -370,6 +370,12 @@ async function verifyOpportunityDetails(page: Page, origin: string, screenshotLa
     const learnMore = page.locator("details[data-learn-more]");
     assert.equal(await learnMore.getAttribute("open"), null, `${scenario.kind} lower-priority detail must start collapsed.`);
     assert.equal(await page.getByText(/This matters because/, { exact: false }).count(), 0, `${scenario.kind} detail retained generated catalog prose.`);
+    if (screenshotLabel === "mobile" && scenario.kind === "scholarship") {
+      const saveAction = page.getByRole("button", { name: "Save to Journey", exact: true });
+      const mobileNavigation = page.getByRole("navigation", { name: "Mobile navigation", exact: true });
+      const [saveBox, navigationBox] = await Promise.all([saveAction.boundingBox(), mobileNavigation.boundingBox()]);
+      assert.ok(saveBox && navigationBox && saveBox.y + saveBox.height <= navigationBox.y - 4, "The mobile navigation must not cover the primary Journey action in the first viewport.");
+    }
     await assertStableLayout(page, `${screenshotLabel} ${scenario.kind} detail`);
     renderedHeights.set(scenario.kind, await page.evaluate(() => document.documentElement.scrollHeight));
     if (screenshotLabel === "desktop" || (screenshotLabel === "mobile" && scenario.kind === "scholarship")) {

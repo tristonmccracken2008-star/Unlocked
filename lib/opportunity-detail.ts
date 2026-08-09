@@ -50,21 +50,21 @@ export function opportunityValueLabel(item: Opportunity) {
     ?? item.metadata.studentOffer
     ?? item.metadata.freeTier
     ?? item.metadata.pricing
-    ?? "Not listed";
+    ?? "Not published by the provider";
 }
 
 function workMode(item: Opportunity) {
   if (item.metadata.workMode) return item.metadata.workMode;
   if (item.remote === true) return "Remote";
   if (item.remote === false) return "In person";
-  return "Not listed";
+  return null;
 }
 
 function compensation(item: Opportunity) {
   if (item.metadata.compensation) return item.metadata.compensation;
   if (item.paid === true) return "Paid";
   if (item.paid === false) return "Unpaid";
-  return "Not listed";
+  return null;
 }
 
 function accessMethod(item: Opportunity) {
@@ -77,46 +77,70 @@ function applicationEffort(item: Opportunity) {
   if (item.metadata.estimatedApplicationTime && item.metadata.estimatedApplicationTime !== "Unknown") return item.metadata.estimatedApplicationTime;
   const count = specificRequirements(item).length;
   if (count) return `${count} listed requirement${count === 1 ? "" : "s"}`;
-  return "Not listed";
+  return null;
+}
+
+function applicationDeadline(item: Opportunity) {
+  const label = deadlineLabel(item);
+  if (item.metadata.deadlineType === "unknown") return "Not specified by the provider";
+  if (item.metadata.deadlineType === "not_announced") return "Not announced by the provider";
+  return label;
+}
+
+function meaningfulValue(item: Opportunity) {
+  const value = opportunityValueLabel(item);
+  return value === "Not published by the provider" ? null : value;
+}
+
+function fact(label: string, value: string | null | undefined): OpportunityDetailFact | null {
+  const normalized = value?.trim();
+  return normalized ? { label, value: normalized } : null;
+}
+
+function compactFacts(facts: Array<OpportunityDetailFact | null>) {
+  return facts.filter((entry): entry is OpportunityDetailFact => Boolean(entry));
 }
 
 export function primaryOpportunityFacts(item: Opportunity): OpportunityDetailFact[] {
   const kind = opportunityDetailKind(item);
-  if (kind === "benefit") return [
-    { label: "Value", value: opportunityValueLabel(item) },
-    { label: "Access", value: accessMethod(item) },
-    { label: "Deadline", value: deadlineLabel(item) },
-  ];
-  if (kind === "scholarship") return [
-    { label: "Award", value: opportunityValueLabel(item) },
-    { label: "Deadline", value: deadlineLabel(item) },
-    { label: "Application", value: applicationEffort(item) },
-    { label: "Renewal", value: item.metadata.renewable === true ? "Renewable" : item.metadata.renewable === false ? "One-time" : "Varies" },
-  ];
-  if (kind === "internship") return [
-    { label: "Location", value: item.location || "Not listed" },
-    { label: "Format", value: workMode(item) },
-    { label: "Compensation", value: compensation(item) },
-    { label: "Deadline", value: deadlineLabel(item) },
-  ];
-  if (kind === "research") return [
-    { label: "Research focus", value: item.metadata.researchArea ?? item.category },
-    { label: "Term", value: item.metadata.semesters?.join(", ") || item.metadata.applicationSeason || "Not listed" },
-    { label: "Location", value: item.location || workMode(item) },
-    { label: "Funding", value: item.metadata.stipendAmount ? new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(item.metadata.stipendAmount) : compensation(item) },
-  ];
-  if (kind === "competition") return [
-    { label: "Prize", value: opportunityValueLabel(item) },
-    { label: "Deadline", value: deadlineLabel(item) },
-    { label: "Format", value: workMode(item) },
-    { label: "Difficulty", value: item.difficulty ?? item.metadata.estimatedCompetitiveness ?? "Not listed" },
-  ];
-  return [
-    { label: "Location", value: item.location || "Not listed" },
-    { label: "Format", value: workMode(item) },
-    { label: "Compensation", value: compensation(item) },
-    { label: "Deadline", value: deadlineLabel(item) },
-  ];
+  if (kind === "benefit") return compactFacts([
+    fact("Value", meaningfulValue(item)),
+    fact("Access", accessMethod(item)),
+    fact("Deadline", applicationDeadline(item)),
+  ]);
+  if (kind === "scholarship") return compactFacts([
+    fact("Award", meaningfulValue(item) ?? "Not published by the provider"),
+    fact("Deadline", applicationDeadline(item)),
+    fact("Application", applicationEffort(item)),
+    fact("Renewal", item.metadata.renewable === true ? "Renewable" : item.metadata.renewable === false ? "One-time" : null),
+  ]);
+  if (kind === "internship") return compactFacts([
+    fact("Location", item.location),
+    fact("Format", workMode(item)),
+    fact("Compensation", compensation(item)),
+    fact("Duration", item.metadata.internshipDuration),
+    fact("Deadline", applicationDeadline(item)),
+  ]);
+  if (kind === "research") return compactFacts([
+    fact("Research focus", item.metadata.researchArea ?? item.category),
+    fact("Term", item.metadata.semesters?.join(", ") || item.metadata.applicationSeason),
+    fact("Location", item.location || workMode(item)),
+    fact("Funding", item.metadata.stipendAmount ? new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(item.metadata.stipendAmount) : compensation(item)),
+    fact("Deadline", applicationDeadline(item)),
+  ]);
+  if (kind === "competition") return compactFacts([
+    fact("Prize", meaningfulValue(item)),
+    fact("Deadline", applicationDeadline(item)),
+    fact("Format", workMode(item)),
+    fact("Difficulty", item.difficulty ?? item.metadata.estimatedCompetitiveness),
+  ]);
+  return compactFacts([
+    fact("Location", item.location),
+    fact("Format", workMode(item)),
+    fact("Compensation", compensation(item)),
+    fact("Duration", item.metadata.internshipDuration),
+    fact("Deadline", applicationDeadline(item)),
+  ]);
 }
 
 export function specificRequirements(item: Opportunity) {
@@ -140,13 +164,39 @@ export function opportunityApplicationSteps(item: Opportunity) {
 }
 
 export function applicationSectionTitle(item: Opportunity) {
-  return opportunityDetailKind(item) === "benefit" ? "How to access it" : "How to apply";
+  return opportunityDetailKind(item) === "benefit" ? "How to claim it" : "How to apply";
 }
 
 export function eligibilityScopeFacts(item: Opportunity, schoolNames: string[]): OpportunityDetailFact[] {
   const facts: OpportunityDetailFact[] = [];
-  if (item.school_scope === "School Specific") facts.push({ label: "School", value: schoolNames.length > 3 ? `${schoolNames.length} listed schools · Full list in Learn More` : schoolNames.join(", ") || "See official eligibility" });
-  if (!item.majors.includes("Any Major")) facts.push({ label: "Majors", value: item.majors.length > 6 ? `${item.majors.length} listed majors · Full list in Learn More` : item.majors.join(", ") });
+  if (item.school_scope === "School Specific") facts.push({ label: "School", value: schoolNames.length > 3 ? `${schoolNames.length} listed schools · Full list in details` : schoolNames.join(", ") || "See official eligibility" });
+  if (!item.majors.includes("Any Major")) facts.push({ label: "Majors", value: item.majors.length > 6 ? `${item.majors.length} listed majors · Full list in details` : item.majors.join(", ") });
   if (!item.academic_years.includes("Any Year")) facts.push({ label: "Class years", value: item.academic_years.join(", ") });
   return facts;
+}
+
+function humanize(values: string[]) {
+  return values.map((value) => value.replaceAll("_", " ")).join(", ");
+}
+
+export function opportunityEligibilityCriteria(item: Opportunity, schoolNames: string[]): OpportunityDetailFact[] {
+  const rules = item.metadata.eligibilityRules;
+  const criteria = [...eligibilityScopeFacts(item, schoolNames)];
+  if (rules?.educationLevels?.length) criteria.push({ label: "Education level", value: humanize(rules.educationLevels) });
+  if (rules?.enrollmentStatuses?.length) criteria.push({ label: "Enrollment", value: humanize(rules.enrollmentStatuses) });
+  if (rules?.citizenship && rules.citizenship !== "unknown") criteria.push({ label: "Citizenship", value: rules.citizenship.replaceAll("_", " ") });
+  if (rules?.minimumGpa) criteria.push({ label: "Minimum GPA", value: `${rules.minimumGpa}+` });
+  if (rules?.residency?.length) criteria.push({ label: "Residency", value: rules.residency.join(", ") });
+  return criteria.filter((entry, index) => criteria.findIndex((candidate) => candidate.label === entry.label && candidate.value === entry.value) === index);
+}
+
+export function opportunityOfficialActionLabel(item: Opportunity, actionable: boolean) {
+  if (!actionable) return "View official source";
+  const kind = opportunityDetailKind(item);
+  if (kind === "benefit") return item.type === "AI" ? "View official tool" : "Claim student benefit";
+  if (kind === "scholarship") return "View scholarship";
+  if (kind === "research") return "View research program";
+  if (kind === "competition") return "View competition";
+  if (kind === "internship" && item.organization.length <= 28) return `Apply on ${item.organization}`;
+  return "Visit official program";
 }
