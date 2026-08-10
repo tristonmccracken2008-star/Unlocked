@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, type FocusEvent, type KeyboardEvent } from "react";
 import { Logo } from "./logo";
@@ -8,6 +9,8 @@ import { accountSessionEvent, readAccountSession } from "@/data/account-sync";
 import type { AccountSession } from "@/lib/account-types";
 import { NotificationNavButton } from "./notification-nav-button";
 import { ArrowIcon, BookmarkIcon, PenLineIcon, SearchIcon, SparkIcon, TrophyIcon } from "./icons";
+
+const UniversalCommandCenter = dynamic(() => import("./universal-command-center").then((module) => module.UniversalCommandCenter), { ssr: false });
 
 const destinations = [["Discover", "/opportunities"], ["For You", "/advisor"], ["Journey", "/"]] as const;
 type DestinationLabel = (typeof destinations)[number][0];
@@ -47,10 +50,13 @@ function isServerProtectedProductPath(pathname: string) {
 export function Header() {
   const [session, setSession] = useState<AccountSession | null>(null);
   const [openDestination, setOpenDestination] = useState<DestinationLabel | null>(null);
+  const [commandOpen, setCommandOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
   const closeTimer = useRef<number | null>(null);
+  const commandTrigger = useRef<HTMLButtonElement>(null);
   const destinationTriggers = useRef<Partial<Record<DestinationLabel, HTMLAnchorElement | null>>>({});
+  const authenticated = Boolean(session?.authenticated || !session && isServerProtectedProductPath(pathname));
 
   useEffect(() => {
     let active = true;
@@ -80,13 +86,24 @@ export function Header() {
 
   useEffect(() => {
     setOpenDestination(null);
+    setCommandOpen(false);
   }, [pathname]);
+
+  useEffect(() => {
+    if (!authenticated) return;
+    const openSearch = (event: globalThis.KeyboardEvent) => {
+      if (event.key.toLocaleLowerCase() !== "k" || (!event.metaKey && !event.ctrlKey) || event.altKey) return;
+      event.preventDefault();
+      setOpenDestination(null);
+      setCommandOpen((current) => !current);
+    };
+    window.addEventListener("keydown", openSearch);
+    return () => window.removeEventListener("keydown", openSearch);
+  }, [authenticated]);
 
   useEffect(() => () => {
     if (closeTimer.current !== null) window.clearTimeout(closeTimer.current);
   }, []);
-
-  const authenticated = Boolean(session?.authenticated || !session && isServerProtectedProductPath(pathname));
 
   function cancelClose() {
     if (closeTimer.current === null) return;
@@ -200,6 +217,9 @@ export function Header() {
           {destinations.map(([label, href]) => desktopDestination(label, href))}
         </nav>
         <div className="flex items-center gap-3">
+          <button ref={commandTrigger} type="button" onClick={() => { setOpenDestination(null); setCommandOpen(true); }} aria-label="Search UnlockED" aria-keyshortcuts="Meta+K Control+K" data-universal-search-trigger="" className="inline-flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-full px-2.5 text-xs font-bold text-ink/45 transition hover:bg-white/75 hover:text-forest lg:px-3">
+            <SearchIcon className="h-4 w-4" /><span className="hidden lg:inline">Search</span><kbd className="hidden rounded border border-ink/10 bg-white/45 px-1.5 py-0.5 text-[10px] text-ink/35 xl:inline">⌘K</kbd>
+          </button>
           <NotificationNavButton active={pathname?.startsWith("/notifications")} />
           <a href="/learn" className="hidden min-h-11 items-center rounded-full px-3 text-xs font-bold text-ink/45 transition hover:bg-white/75 hover:text-forest lg:inline-flex">Learn</a>
           <a href="/profile" data-navigation-item="" data-active={pathname?.startsWith("/profile") ? "true" : undefined} className={`inline-flex min-h-11 items-center rounded-full px-3 text-xs font-bold transition duration-200 active:scale-[.98] ${pathname?.startsWith("/profile") ? "bg-white text-forest shadow-[0_8px_20px_rgba(43,33,26,.08)]" : "text-ink/45 hover:bg-white/75 hover:text-forest"}`}>Profile</a>
@@ -210,5 +230,6 @@ export function Header() {
     <nav aria-label="Mobile navigation" data-primary-navigation="" className="fixed inset-x-4 bottom-[max(1rem,env(safe-area-inset-bottom))] z-40 grid grid-cols-3 rounded-full bg-ink/95 p-1 text-xs font-bold text-white shadow-[0_20px_60px_rgba(43,33,26,.24)] backdrop-blur sm:hidden">
       {destinations.map(([label, href]) => navigationLink(label, href, true))}
     </nav>
+    {commandOpen ? <UniversalCommandCenter onClose={() => setCommandOpen(false)} restoreFocus={() => commandTrigger.current?.focus()} /> : null}
   </>;
 }

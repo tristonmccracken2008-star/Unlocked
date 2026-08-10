@@ -13,7 +13,8 @@ assert.equal(existsSync("app/advisor/loading.tsx"), true, "For You needs an App 
 assert.match(header, /return <a[\s\S]*href=\{href\}/, "For You navigation must use a native semantic link with immediate document navigation.");
 assert.match(header, /\["For You", "\/advisor"\]/, "Desktop and mobile destinations must include For You.");
 assert.doesNotMatch(header, /from "next\/link"/, "Authenticated header navigation must not wait for an App Router RSC transition.");
-assert.doesNotMatch(header, /onClick=|preventDefault\(\)/, "Header links must not intercept browser navigation.");
+assert.doesNotMatch(header, /<a[\s\S]{0,500}onClick=\{[^}]*preventDefault/, "Header links must not intercept browser navigation.");
+assert.match(header, /const openSearch = [\s\S]*event\.preventDefault\(\)/, "The explicit command shortcut must replace the browser's default Command-K behavior.");
 assert.doesNotMatch(header, /disabled=|pointer-events-none/, "For You links must never be silently disabled.");
 assert.match(header, /aria-label="Primary navigation"/, "Desktop navigation must remain keyboard accessible.");
 assert.match(header, /aria-label="Mobile navigation"/, "Mobile navigation must use the same semantic links.");

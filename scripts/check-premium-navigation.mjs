@@ -24,7 +24,8 @@ for (const href of [
 for (const token of ["data-context-destination", "data-context-trigger", "data-context-panel", "aria-expanded", "aria-controls", "onMouseEnter", "onMouseLeave", "onFocusCapture", "onBlurCapture", 'event.key !== "Escape"', "140"]) {
   assert.ok(header.includes(token), `Premium contextual navigation must include ${token}.`);
 }
-assert.doesNotMatch(header, /onClick=|preventDefault\(\)|from "next\/link"/, "Premium panels must not intercept or delay native product navigation.");
+assert.doesNotMatch(header, /<a[\s\S]{0,500}onClick=\{[^}]*preventDefault|from "next\/link"/, "Premium panels must not intercept or delay native product navigation.");
+assert.match(header, /const openSearch = [\s\S]*event\.preventDefault\(\)/, "The explicit command shortcut must replace the browser's default Command-K behavior.");
 assert.doesNotMatch(header, /framer-motion|gsap|motion\//, "Premium navigation must not add a heavy animation runtime.");
 assert.match(header, /hidden w-\[21rem\][\s\S]*lg:grid/, "Contextual panels must remain desktop-only.");
 assert.match(header, /data-product-header[\s\S]*data-scrolled/, "The sticky product header must expose a restrained scrolled state.");
