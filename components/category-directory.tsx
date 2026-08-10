@@ -11,6 +11,7 @@ import { CareerSection } from "./career-section";
 import { ResearchSection } from "./research-section";
 import { ScholarshipSection } from "./scholarship-section";
 import { OpportunityCard } from "./opportunity-card";
+import { SmartEmptyState } from "./smart-empty-state";
 
 export type DirectoryKind = "ai" | "career" | "research" | "scholarships" | "software" | "benefits" | "financial" | "local";
 
@@ -54,5 +55,5 @@ export function CategoryDirectory({ kind }: { kind: DirectoryKind }) {
 }
 
 function GenericList({ records, empty }: { records: Opportunity[]; empty: string }) {
-  return <section className="px-5 py-10 sm:px-8 sm:py-14">{records.length ? <div>{records.map((item)=><OpportunityCard key={item.id} opportunity={item}/>)}</div> : <div className="bg-white py-16 text-center"><p className="font-editorial text-2xl font-bold">Nothing verified here yet</p><p className="mx-auto mt-3 max-w-lg text-sm leading-6 text-ink/45">{empty}</p></div>}</section>;
+  return <section className="px-5 py-10 sm:px-8 sm:py-14">{records.length ? <div>{records.map((item)=><OpportunityCard key={item.id} opportunity={item}/>)}</div> : <SmartEmptyState title="Nothing available here right now." description={empty} primaryAction={{ label: "Browse all opportunities", href: "/opportunities" }} />}</section>;
 }

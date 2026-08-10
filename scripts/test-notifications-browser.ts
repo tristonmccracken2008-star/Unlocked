@@ -240,7 +240,8 @@ try {
   const emptyPage = await emptyContext.newPage();
   await emptyPage.goto(`${origin}/notifications`, { waitUntil: "domcontentloaded", timeout: 60_000 });
   await emptyPage.getByRole("heading", { name: "You’re all caught up." }).waitFor();
-  await emptyPage.getByText("Important updates about your saved opportunities and Journey will appear here.").waitFor();
+  await emptyPage.getByText("Important deadline reminders, opportunity changes, and Journey updates will appear here.").waitFor();
+  await emptyPage.getByRole("link", { name: "Review notification preferences" }).waitFor();
   assert.equal(await emptyPage.locator("[data-notification-item]").count(), 0);
   await emptyContext.close();
 

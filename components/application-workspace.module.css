@@ -60,3 +60,4 @@
 @media (prefers-reduced-motion: reduce) {
   .progress i, .check svg { transition: none; animation: none; }
 }
+.smartEmpty { margin-top: .8rem; }

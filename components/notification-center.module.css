@@ -135,6 +135,7 @@
   border-radius: 999px;
 }
 
+.notificationEmpty { margin-top: 1.25rem; }
 .empty {
   padding: 72px 20px;
   text-align: center;

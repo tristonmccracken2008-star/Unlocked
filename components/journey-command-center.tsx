@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { JourneyCommandCenterModel, JourneyCommandFilter, JourneyCommandRecord, JourneyCommandSort, JourneyOverviewCard } from "@/lib/journey-command-center";
-import { ArrowIcon, BellIcon, CloseIcon, MoreIcon, SearchIcon, SendIcon, SparkIcon, TargetIcon, TrophyIcon } from "@/components/icons";
+import { ArrowIcon, BellIcon, BookmarkIcon, CloseIcon, MoreIcon, SearchIcon, SendIcon, SparkIcon, TargetIcon, TrophyIcon } from "@/components/icons";
 import { OrganizationLogo, OrganizationMark } from "@/components/organization-logo";
 import { JourneyTimelineControl } from "@/components/journey-timeline-control";
 import { JourneyCardEntry } from "@/components/journey-card-entry";
@@ -9,6 +9,7 @@ import { JourneyCommandActions } from "@/components/journey-command-actions";
 import { JourneySessionFeedback } from "@/components/journey-session-feedback";
 import { JourneyDeadlineCalendar } from "@/components/journey-deadline-calendar";
 import { JourneyGuidance } from "@/components/contextual-guidance";
+import { SmartEmptyState } from "@/components/smart-empty-state";
 import { ApplicationWorkspace } from "@/components/application-workspace";
 import styles from "./journey-command-center.module.css";
 
@@ -126,10 +127,11 @@ function JourneyRecordRow({ record, theme }: { record: JourneyCommandRecord; the
 }
 
 function EmptyRecords({ model }: { model: JourneyCommandCenterModel }) {
-  if (model.query) return <div className={styles.noResults}><h3>No Journey records match “{model.query}”.</h3><p>Try another title or organization, or clear the search to see everything again.</p><Link href={hrefFor(model, { query: "" })}>Clear search</Link></div>;
-  if (model.filter === "history") return <div className={styles.noResults}><h3>No professional history yet.</h3><p>Completed and archived opportunities will appear here as your record grows.</p><Link href="/#active-opportunities">View active opportunities</Link></div>;
-  const heading = model.filter === "active" ? "No active opportunities right now." : `No opportunities in ${filterLabels[model.filter]} right now.`;
-  return <div className={styles.noResults}><h3>{heading}</h3><p>Choose another stage or add an opportunity when you find one worth pursuing.</p><Link href="/#active-opportunities">Show all active opportunities</Link></div>;
+  if (model.query) return <SmartEmptyState compact title={`No Journey records match “${model.query}”.`} description="Try another title or organization, or clear the search to see your full Journey." primaryAction={{ label: "Clear search", href: hrefFor(model, { query: "" }) }} />;
+  if (model.filter === "history") return <SmartEmptyState compact title="No professional history yet." description="Completed, closed, and archived opportunities will appear here as your private record grows." primaryAction={{ label: "View active opportunities", href: "/#active-opportunities" }} />;
+  if (model.filter === "active" && model.activeCount === 0 && model.historyCount > 0) return <SmartEmptyState compact title="Nothing active right now." description="Your completed and closed opportunities are still saved in professional history." primaryAction={{ label: "View professional history", href: hrefFor(model, { stage: "history" }) }} />;
+  const heading = model.filter === "active" ? "No active opportunities match this view." : `No opportunities in ${filterLabels[model.filter]} right now.`;
+  return <SmartEmptyState compact title={heading} description="Choose another stage to return to the opportunities already in your Journey." primaryAction={{ label: "Show all active opportunities", href: "/#active-opportunities" }} />;
 }
 
 export function JourneyCommandCenter({ model }: { model: JourneyCommandCenterModel }) {
@@ -144,6 +146,8 @@ export function JourneyCommandCenter({ model }: { model: JourneyCommandCenterMod
       </header>
       <JourneyGuidance initialState={model.guidance.state} eligibility={model.guidance.eligibility} />
       <JourneySessionFeedback accountKey={model.accountKey} overview={model.overview} attentionCount={model.attentionCount} showHints={model.showFirstUseHints} />
+
+      {!hasRecords && model.calendar.groups.length === 0 ? <SmartEmptyState className={styles.primaryEmpty} eyebrow="Journey" title="Start building your Journey." description="Add an opportunity from Discover and UnlockED will help you organize deadlines, applications, and meaningful progress in one private place." primaryAction={{ label: "Explore opportunities", href: "/opportunities" }} icon={BookmarkIcon} /> : null}
 
       {hasRecords && model.overview.length ? <section className={styles.overview} aria-label="Journey overview" data-count={model.overview.length}>
           {model.overview.map((card) => <a key={card.id} href={card.href} data-tone={card.tone} data-overview-id={card.id}>
@@ -215,7 +219,7 @@ export function JourneyCommandCenter({ model }: { model: JourneyCommandCenterMod
         {model.cardEligible ? <section className={styles.cards} id="journey-cards" data-guide-anchor="journey-cards" aria-labelledby="journey-card-heading">
           <div><span aria-hidden="true"><SendIcon /></span><div><p>Journey Cards</p><h2 id="journey-card-heading">Present a confirmed milestone.</h2><small>Create a polished record of factual progress. Nothing is published automatically.</small></div></div>
           <JourneyCardEntry card={model.card} theme={model.theme} />
-        </section> : null}
+        </section> : <SmartEmptyState compact className={styles.cardEmpty} eyebrow="Journey Cards" title="Nothing to share yet." description="Journey Cards become available after you record a meaningful milestone such as an interview, acceptance, award, or completed experience." primaryAction={model.activeCount ? { label: "Review active opportunities", href: "/#active-opportunities" } : { label: "View professional history", href: hrefFor(model, { stage: "history" }) }} icon={SendIcon} />}
       </>}
     </div>
   </main>;

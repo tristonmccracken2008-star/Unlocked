@@ -17,6 +17,7 @@ import { ArrowIcon, CloseIcon, SearchIcon } from "./icons";
 import { OpportunityCard } from "./opportunity-card";
 import { LoadingRegion, SkeletonBlock } from "./loading-system";
 import { DelayedPendingLabel } from "./delayed-pending-label";
+import { SmartEmptyState } from "./smart-empty-state";
 
 type FilterState = {
   query: string;
@@ -525,15 +526,21 @@ function ResultSkeleton() {
 }
 
 function EmptyResults({ recovery, removeRecovery, clearQuery, clearFilters, hasQuery, hasFilters }: { recovery: DiscoverRecovery | null; removeRecovery: () => void; clearQuery: () => void; clearFilters: () => void; hasQuery: boolean; hasFilters: boolean }) {
-  return <div className="mt-2 rounded-[1.5rem] bg-white/70 px-6 py-14 text-center shadow-[0_16px_50px_rgba(43,33,26,.04)] ring-1 ring-ink/10">
-    <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-forest/10 text-forest"><SearchIcon className="h-6 w-6" /></div>
-    <p className="mt-5 font-editorial text-3xl font-bold">{hasFilters ? "No opportunities match these filters." : "No exact matches yet."}</p>
-    <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-ink/50">{recovery ? `Removing one filter reveals ${recovery.resultCount.toLocaleString()} ${recovery.resultCount === 1 ? "opportunity" : "opportunities"}.` : hasFilters ? "Try removing a filter or broadening your search." : "Try fewer search terms or browse the complete catalog."}</p>
-    <div className="mt-7 flex flex-wrap justify-center gap-3">
-      {recovery ? <button type="button" onClick={removeRecovery} className="min-h-12 rounded-full bg-forest px-6 text-sm font-bold text-white hover:bg-ink">Use {recovery.label}</button> : hasQuery ? <button type="button" onClick={clearQuery} className="min-h-12 rounded-full bg-forest px-6 text-sm font-bold text-white hover:bg-ink">Clear search</button> : null}
-      <button type="button" onClick={clearFilters} className="min-h-12 rounded-full border border-ink/15 bg-white px-6 text-sm font-bold text-forest hover:border-forest">Browse all opportunities</button>
-    </div>
-  </div>;
+  const title = hasFilters || hasQuery ? "No opportunities match this search." : "Nothing available here right now.";
+  const description = recovery
+    ? `Removing one filter reveals ${recovery.resultCount.toLocaleString()} ${recovery.resultCount === 1 ? "opportunity" : "opportunities"}.`
+    : hasFilters || hasQuery
+      ? "Try adjusting your keywords or removing the filters that are narrowing this view."
+      : "New verified opportunities are added and updated over time.";
+  const primaryAction = recovery
+    ? { label: `Use ${recovery.label}`, onClick: removeRecovery }
+    : hasQuery
+      ? { label: "Clear search", onClick: clearQuery }
+      : hasFilters
+        ? { label: "Clear filters", onClick: clearFilters }
+        : undefined;
+  const secondaryAction = (hasQuery && hasFilters) || recovery ? { label: "Browse all opportunities", onClick: clearFilters } : undefined;
+  return <SmartEmptyState className="mt-2" title={title} description={description} primaryAction={primaryAction} secondaryAction={secondaryAction} icon={SearchIcon} />;
 }
 
 function LowResultRecovery({ total, broadenFilters, hasQuery }: { total: number; broadenFilters: () => void; hasQuery: boolean }) {

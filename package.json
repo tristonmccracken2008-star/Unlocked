@@ -94,6 +94,7 @@
     "check:journey-calendar": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-journey-calendar.ts",
     "check:application-command-center": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-application-command-center.ts",
     "check:contextual-guidance": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-contextual-guidance.ts",
+    "check:smart-empty-states": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-smart-empty-states.ts",
     "check:microinteractions": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-microinteractions.ts",
     "check:for-you": "node scripts/check-for-you-redesign.mjs && node scripts/check-for-you-client-contract.mjs && node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-for-you-intelligence.ts && node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-for-you-premium.ts",
     "check:for-you-reliability": "node scripts/check-for-you-reliability.mjs",

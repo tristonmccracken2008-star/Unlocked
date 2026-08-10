@@ -22,6 +22,7 @@ import type { FeedbackType } from "@/lib/advisor/types";
 import styles from "./advisor-page.module.css";
 import { AdvisorRecommendationLoading } from "./loading-system";
 import { DelayedPendingLabel } from "./delayed-pending-label";
+import { SmartEmptyState } from "./smart-empty-state";
 
 type ForYouPageState = "loading" | "pro_ready" | "free_preview" | "profile_incomplete" | "empty" | "preparing" | "error";
 type SessionReadiness = "checking" | "authenticated" | "unauthenticated" | "error";
@@ -563,7 +564,7 @@ function ForYouLoading() {
 }
 
 function ForYouEmptyState() {
-  return <StateShell eyebrow="For You" title="No strong matches yet." text="Nothing cleared our eligibility, source-quality, and relevance checks today. We’d rather show fewer results than questionable ones." actionHref="/opportunities" actionLabel="Browse Discover" secondaryHref="/profile" secondaryLabel="Review your profile" Icon={SearchIcon} />;
+  return <main className={styles.page}><div className={`${styles.container} ${styles.stateContainer}`}><SmartEmptyState eyebrow="For You" title="No strong matches yet." description="We’re still looking. UnlockED only recommends opportunities that clear its eligibility, source-quality, and relevance standards." primaryAction={{ label: "Explore Discover", href: "/opportunities" }} secondaryAction={{ label: "Review interests", href: "/profile" }} icon={SearchIcon} /></div></main>;
 }
 
 function LimitedInventoryNote() {

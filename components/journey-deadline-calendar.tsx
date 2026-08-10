@@ -10,6 +10,7 @@ import type { JourneyCalendarItem, JourneyCalendarModel } from "@/lib/journey-ca
 import { calendarEventTypeLabels } from "@/lib/journey-calendar";
 import type { JourneyCalendarEventType } from "@/lib/account-types";
 import styles from "./journey-deadline-calendar.module.css";
+import { SmartEmptyState } from "./smart-empty-state";
 
 type View = "upcoming" | "calendar";
 type Draft = {
@@ -215,7 +216,7 @@ export function JourneyDeadlineCalendar({ model }: { model: JourneyCalendarModel
     {error && !dialogRef.current?.open ? <p className={styles.error} role="alert">{error}</p> : null}
 
     {view === "upcoming" ? <div className={styles.upcoming}>
-      {model.groups.length ? model.groups.map((group) => <section key={group.id} className={styles.group} aria-labelledby={`calendar-group-${group.id}`}><h3 id={`calendar-group-${group.id}`}>{group.label}</h3><div>{group.items.slice(0, group.id === "passed" ? 3 : 6).map((item) => <EventRow key={item.id} item={item} onEdit={openEdit} onAction={updateState} pending={pending} />)}</div></section>) : <div className={styles.empty}><CalendarIcon /><h3>Nothing coming up yet.</h3><p>Save opportunities with verified deadlines or add a personal date to start your timeline.</p><div><Link href="/opportunities">Explore opportunities</Link><button type="button" onClick={() => openAdd()}>Add date</button></div></div>}
+      {model.groups.length ? model.groups.map((group) => <section key={group.id} className={styles.group} aria-labelledby={`calendar-group-${group.id}`}><h3 id={`calendar-group-${group.id}`}>{group.label}</h3><div>{group.items.slice(0, group.id === "passed" ? 3 : 6).map((item) => <EventRow key={item.id} item={item} onEdit={openEdit} onAction={updateState} pending={pending} />)}</div></section>) : <SmartEmptyState compact title="Nothing coming up yet." description="Opportunity deadlines and the dates you add yourself will appear here." primaryAction={{ label: "Add date", onClick: () => openAdd() }} secondaryAction={model.trackedOptions.length ? { label: "Explore opportunities", href: "/opportunities" } : undefined} icon={CalendarIcon} />}
     </div> : <div className={styles.calendarLayout}>
       <div className={styles.calendar}>
         <header><button type="button" onClick={() => setMonth(shiftMonth(month, -1))} aria-label="Previous month"><ArrowIcon /></button><h3 aria-live="polite">{formatMonth(month)}</h3><button type="button" onClick={() => setMonth(shiftMonth(month, 1))} aria-label="Next month"><ArrowIcon /></button></header>

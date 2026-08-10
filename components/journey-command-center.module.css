@@ -226,6 +226,8 @@
 .noResults h3 { margin: 0; font: 700 1.5rem/1.1 var(--font-editorial), Georgia, serif; }
 .noResults p, .limitNotice { color: var(--journey-muted); font-size: .72rem; }
 .noResults a { display: inline-flex; min-height: 44px; align-items: center; margin-top: .5rem; color: var(--journey-green); font-size: .72rem; font-weight: 800; }
+.primaryEmpty { margin-top: clamp(2rem, 6vw, 4rem); }
+.cardEmpty { margin-top: 2.35rem; }
 .limitNotice { margin: 1rem 0 0; }
 .addDialog { width: min(44rem, calc(100% - 2rem)); max-width: none; max-height: min(50rem, calc(100dvh - 2rem)); border: 0; border-radius: .9rem; background: transparent; color: var(--journey-ink); padding: 0; }
 .addDialog::backdrop { background: rgba(23, 18, 15, .55); backdrop-filter: blur(5px); }

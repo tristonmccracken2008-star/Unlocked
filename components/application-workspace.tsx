@@ -7,6 +7,7 @@ import { accountSessionEvent } from "@/data/account-sync";
 import type { OpportunityTrackerStatus } from "@/data/student-activity";
 import type { ApplicationWorkspaceProjection } from "@/lib/application-workspace";
 import { ArrowIcon, CheckIcon } from "@/components/icons";
+import { SmartEmptyState } from "@/components/smart-empty-state";
 import styles from "./application-workspace.module.css";
 
 type SubmissionAction = {
@@ -160,7 +161,7 @@ export function ApplicationWorkspace({ initial, opportunityTitle, submission }: 
       <button type="button" className={styles.check} aria-pressed={task.completed} aria-label={`${task.completed ? "Mark incomplete" : "Mark complete"}: ${task.title}`} disabled={Boolean(pending)} onClick={() => void mutate({ action: "set_completion", taskId: task.id, completed: !task.completed }, task.id)}>{task.completed ? <CheckIcon /> : null}</button>
       <div><span>{task.title}</span>{task.dueDate ? <time dateTime={task.dueDate}>Due {formatDate(task.dueDate)}</time> : task.source === "verified_requirement" ? <small>{task.recentlyUpdated ? "Updated by the provider" : "Listed by the provider"}</small> : null}</div>
       {task.source === "user" ? <button type="button" className={styles.remove} disabled={Boolean(pending)} onClick={() => void mutate({ action: "delete_task", taskId: task.id }, `delete:${task.id}`)}>Remove<span className="sr-only"> {task.title}</span></button> : null}
-    </li>)}</ul> : <div className={styles.unverified}><h5>Get organized</h5><p>UnlockED hasn’t verified the application materials for this opportunity yet. Check the official application, then add only the tasks you need.</p></div>}
+    </li>)}</ul> : <SmartEmptyState compact className={styles.smartEmpty} title="No application tasks yet." description="UnlockED hasn’t verified the application materials for this opportunity. Review the official requirements, then add only the tasks you need." primaryAction={{ label: "Open official application", href: workspace.officialSource, external: true }} />}
 
     <details className={styles.addTask}>
       <summary>+ Add task</summary>

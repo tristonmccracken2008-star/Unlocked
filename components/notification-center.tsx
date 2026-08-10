@@ -12,6 +12,7 @@ import { DelayedPendingLabel } from "./delayed-pending-label";
 import styles from "./notification-center.module.css";
 import { NotificationGuidance } from "./contextual-guidance";
 import type { GuidanceState } from "@/lib/guidance";
+import { SmartEmptyState } from "./smart-empty-state";
 
 type CenterResponse = {
   notifications: NotificationRecord[];
@@ -253,12 +254,7 @@ export function NotificationCenter({ guidanceState = {} }: { guidanceState?: Gui
       {loading ? <NotificationSkeleton /> : null}
       {!loading && items.length ? <NotificationGuidance state={guidanceState} eligible /> : null}
 
-      {!loading && !error && !items.length ? <section className={styles.empty}>
-        <span className={styles.emptyIcon} aria-hidden="true"><CheckCircleIcon className="h-6 w-6" /></span>
-        <h2>You’re all caught up.</h2>
-        <p>Important updates about your saved opportunities and Journey will appear here.</p>
-        <Link href="/opportunities">Explore opportunities</Link>
-      </section> : null}
+      {!loading && !error && !items.length ? <SmartEmptyState className={styles.notificationEmpty} title="You’re all caught up." description="Important deadline reminders, opportunity changes, and Journey updates will appear here." secondaryAction={{ label: "Review notification preferences", href: "/profile#notifications" }} icon={CheckCircleIcon} /> : null}
 
       <div ref={groupsRef} className={styles.groups}>
         {groups.map((group) => {
