@@ -31,6 +31,9 @@
   --journey-line: rgba(255, 248, 238, .16);
 }
 .container { width: min(100%, 88rem); margin: 0 auto; }
+.page [data-guide-anchor][data-guide-highlight="true"] { animation: journey-guide-highlight 1.6s ease both; }
+@keyframes journey-guide-highlight { 0%, 100% { box-shadow: none; } 25%, 70% { box-shadow: 0 0 0 3px color-mix(in srgb, var(--journey-green) 24%, transparent), 0 12px 34px rgba(35, 28, 22, .08); } }
+@media (prefers-reduced-motion: reduce) { .page [data-guide-anchor][data-guide-highlight="true"] { animation: none; outline: 2px solid color-mix(in srgb, var(--journey-green) 35%, transparent); outline-offset: 3px; } }
 .page a:focus-visible,
 .page button:focus-visible,
 .page summary:focus-visible,

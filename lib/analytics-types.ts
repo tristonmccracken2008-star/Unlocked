@@ -63,6 +63,11 @@ export const productIntelligenceEvents = {
   notificationDigestGenerated: "notification_digest_generated_v1",
   notificationDigestSkipped: "notification_digest_skipped_v1",
   notificationEmailBounced: "notification_email_bounced_v1",
+  guideShown: "guide_shown_v1",
+  guideCompleted: "guide_completed_v1",
+  guideDismissed: "guide_dismissed_v1",
+  guideShowMeClicked: "guide_show_me_clicked_v1",
+  learnUnlockedOpened: "learn_unlocked_opened_v1",
   productHealthTiming: "product_health_timing_v1",
   operationalError: "product_operational_error_v1",
 } as const;
@@ -218,6 +223,11 @@ export const productIntelligenceDefinitions: Record<ProductIntelligenceEventName
   notification_digest_generated_v1: action("Measure useful digest generation.", ["bundled"]),
   notification_digest_skipped_v1: action("Measure empty digests without storing account context.", ["suppressionReason"]),
   notification_email_bounced_v1: error("Measure provider bounce and complaint categories."),
+  guide_shown_v1: action("Measure whether contextual guidance appears when relevant.", ["control"]),
+  guide_completed_v1: action("Measure contextual guidance completion.", ["control"]),
+  guide_dismissed_v1: action("Measure contextual guidance dismissal.", ["control"]),
+  guide_show_me_clicked_v1: action("Measure whether contextual guidance leads to the real feature.", ["control"]),
+  learn_unlocked_opened_v1: action("Measure use of the permanent product reference."),
   product_health_timing_v1: timing("Aggregate bounded performance timings without retaining individual traces."),
   product_operational_error_v1: error("Aggregate safe error categories without messages, content, or stack traces."),
 };

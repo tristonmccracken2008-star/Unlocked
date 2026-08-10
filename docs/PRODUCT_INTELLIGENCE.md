@@ -41,6 +41,16 @@ Notification analytics use the same aggregate-only contract. They may retain a b
 
 Provider acceptance is not counted as delivery. Only the signed delivery webhook emits `notification_delivered_v1`.
 
+## Contextual guidance events
+
+Guidance analytics retain only an allowlisted guide ID in `control`. They never include guide copy, profile answers, Journey content, opportunity details, or account identifiers.
+
+- `guide_shown_v1`: an eligible guide was presented.
+- `guide_completed_v1`: the user finished or acknowledged a guide.
+- `guide_dismissed_v1`: the user dismissed a guide.
+- `guide_show_me_clicked_v1`: the user asked to move to the real feature anchor.
+- `learn_unlocked_opened_v1`: the permanent Learn UnlockED reference was opened.
+
 ## Journey Events
 
 All Journey action aggregates are retained for 90 days.

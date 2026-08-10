@@ -8,6 +8,7 @@ import { JourneyAnalytics } from "@/components/journey-analytics";
 import { JourneyCommandActions } from "@/components/journey-command-actions";
 import { JourneySessionFeedback } from "@/components/journey-session-feedback";
 import { JourneyDeadlineCalendar } from "@/components/journey-deadline-calendar";
+import { JourneyGuidance } from "@/components/contextual-guidance";
 import { ApplicationWorkspace } from "@/components/application-workspace";
 import styles from "./journey-command-center.module.css";
 
@@ -98,7 +99,7 @@ function RecordDetails({ record }: { record: JourneyCommandRecord }) {
 
 function JourneyRecordRow({ record, theme }: { record: JourneyCommandRecord; theme: JourneyCommandCenterModel["theme"] }) {
   const urgency = record.nextDate?.urgency ?? (record.stageFilter === "interviewing" ? "interview" : "normal");
-  return <article id={`journey-record-${record.id}`} className={styles.record} data-journey-record="" data-stage={record.stageFilter} data-urgency={urgency} data-unavailable={record.unavailable ? "true" : undefined}>
+  return <article id={`journey-record-${record.id}`} className={styles.record} data-journey-record="" data-guide-anchor={record.recentChange ? "journey-changelog" : record.applicationWorkspace ? "application-workspace" : undefined} data-stage={record.stageFilter} data-urgency={urgency} data-unavailable={record.unavailable ? "true" : undefined}>
     <div className={styles.recordMain} data-record-identity="">
       {record.opportunity
         ? <OrganizationLogo opportunity={record.opportunity} size="sm" className={theme === "dark" ? styles.darkLogo : ""} />
@@ -141,6 +142,7 @@ export function JourneyCommandCenter({ model }: { model: JourneyCommandCenterMod
         <div><h1>Journey</h1><span>Your private record of what you saved, pursued, and accomplished.</span></div>
         <JourneyCommandActions trackedIds={model.trackedIds} />
       </header>
+      <JourneyGuidance initialState={model.guidance.state} eligibility={model.guidance.eligibility} />
       <JourneySessionFeedback accountKey={model.accountKey} overview={model.overview} attentionCount={model.attentionCount} showHints={model.showFirstUseHints} />
 
       {hasRecords && model.overview.length ? <section className={styles.overview} aria-label="Journey overview" data-count={model.overview.length}>
@@ -168,7 +170,7 @@ export function JourneyCommandCenter({ model }: { model: JourneyCommandCenterMod
           </li>)}</ol>
         </section> : null}
 
-        <section className={styles.active} id="active-opportunities" aria-labelledby="active-opportunities-heading">
+        <section className={styles.active} id="active-opportunities" data-guide-anchor="active-opportunities" aria-labelledby="active-opportunities-heading">
           <div className={styles.sectionHeading}><h2 id="active-opportunities-heading">Active opportunities <span>{model.activeCount}</span></h2></div>
           <div className={styles.toolbar}>
             <nav aria-label="Journey stages">
@@ -200,7 +202,7 @@ export function JourneyCommandCenter({ model }: { model: JourneyCommandCenterMod
           {model.activeLimit === 100 && model.activeCount > 100 ? <p className={styles.limitNotice}>Showing the 100 most relevant active records. Use search or a stage filter to narrow the list.</p> : null}
         </section>
 
-        {model.historyCount ? <section className={styles.history} id="journey-history" aria-labelledby="journey-history-heading">
+        {model.historyCount ? <section className={styles.history} id="journey-history" data-guide-anchor="journey-history" aria-labelledby="journey-history-heading">
           <header><h2 id="journey-history-heading">Professional history</h2>{model.shownHistoryCount < model.historyCount ? <Link href={hrefFor(model, { stage: "history", history: "100" })}>View full history</Link> : null}</header>
           <div className={styles.historyGroups}>
             {model.historyGroups.map((group) => <details key={group.year} open={model.filter === "history" || Boolean(model.query)}>
@@ -210,7 +212,7 @@ export function JourneyCommandCenter({ model }: { model: JourneyCommandCenterMod
           </div>
         </section> : null}
 
-        {model.cardEligible ? <section className={styles.cards} id="journey-cards" aria-labelledby="journey-card-heading">
+        {model.cardEligible ? <section className={styles.cards} id="journey-cards" data-guide-anchor="journey-cards" aria-labelledby="journey-card-heading">
           <div><span aria-hidden="true"><SendIcon /></span><div><p>Journey Cards</p><h2 id="journey-card-heading">Present a confirmed milestone.</h2><small>Create a polished record of factual progress. Nothing is published automatically.</small></div></div>
           <JourneyCardEntry card={model.card} theme={model.theme} />
         </section> : null}

@@ -204,7 +204,7 @@ export function JourneyDeadlineCalendar({ model }: { model: JourneyCalendarModel
     }
   }
 
-  return <section className={styles.shell} aria-labelledby="journey-upcoming-heading" data-journey-calendar="">
+  return <section className={styles.shell} aria-labelledby="journey-upcoming-heading" data-journey-calendar="" data-guide-anchor="journey-calendar">
     <header className={styles.header}>
       <div><p>Schedule</p><h2 id="journey-upcoming-heading">Upcoming</h2></div>
       <div className={styles.headerActions}>

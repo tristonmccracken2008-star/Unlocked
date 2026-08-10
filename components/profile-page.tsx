@@ -192,7 +192,7 @@ export function ProfilePage({ initialSession }: { initialSession: AccountSession
           <h1 className="mt-2 font-editorial text-4xl font-bold text-[var(--unlocked-text)] sm:text-5xl">Your account.</h1>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-ink/50">Manage your private profile, preferences, and account.</p>
         </div>
-        <Link href="/referral" className="inline-flex min-h-11 items-center self-start text-sm font-bold text-forest hover:text-ink sm:self-auto">Referrals</Link>
+        <div className="flex flex-wrap items-center gap-5 self-start sm:self-auto"><Link href="/learn" className="inline-flex min-h-11 items-center text-sm font-bold text-forest hover:text-ink">Learn UnlockED</Link><Link href="/referral" className="inline-flex min-h-11 items-center text-sm font-bold text-forest hover:text-ink">Referrals</Link></div>
       </header>
 
       <div className="mt-7 grid gap-8 lg:grid-cols-[13rem_minmax(0,1fr)]">

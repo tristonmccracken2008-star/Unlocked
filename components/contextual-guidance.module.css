@@ -1,0 +1,35 @@
+.guide {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: .9rem;
+  margin-top: 1rem;
+  border: 1px solid color-mix(in srgb, var(--journey-green, #075b3d) 22%, transparent);
+  border-radius: .7rem;
+  background: color-mix(in srgb, var(--journey-panel, #fffdfa) 94%, var(--journey-green, #075b3d) 6%);
+  color: var(--journey-ink, #241d18);
+  padding: .9rem 1rem;
+  box-shadow: 0 10px 30px rgba(35, 28, 22, .05);
+  animation: guide-in 180ms cubic-bezier(.2,.7,.2,1) both;
+}
+.index { display: grid; width: 2rem; height: 2rem; place-items: center; border-radius: 50%; background: color-mix(in srgb, var(--journey-green, #075b3d) 10%, transparent); color: var(--journey-green, #075b3d); font-size: .68rem; font-weight: 850; }
+.copy { min-width: 0; }
+.copy strong { display: block; font: 700 1.02rem/1.2 var(--font-editorial), Georgia, serif; }
+.copy p { max-width: 46rem; margin: .25rem 0 0; color: var(--journey-muted, #716962); font-size: .74rem; line-height: 1.5; }
+.actions { display: flex; align-items: center; gap: .35rem; }
+.actions button, .actions a { display: inline-flex; min-height: 44px; align-items: center; justify-content: center; border: 0; border-radius: .45rem; background: transparent; color: var(--journey-green, #075b3d); padding: 0 .75rem; font-size: .7rem; font-weight: 800; text-decoration: none; cursor: pointer; }
+.actions .primary { background: var(--journey-green, #075b3d); color: var(--journey-canvas, #f8f4ec); }
+.actions button:focus-visible, .actions a:focus-visible { outline: 2px solid color-mix(in srgb, var(--journey-green, #075b3d) 50%, transparent); outline-offset: 2px; }
+.progress { position: absolute; inset: auto 1rem .4rem auto; color: var(--journey-muted, #716962); font-size: .58rem; font-weight: 750; }
+.error { grid-column: 2 / -1; margin: -.35rem 0 0; color: #a3342c; font-size: .68rem; }
+@keyframes guide-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+@media (max-width: 640px) {
+  .guide { position: relative; grid-template-columns: auto minmax(0, 1fr); align-items: start; padding: .9rem; }
+  .actions { grid-column: 1 / -1; justify-content: flex-end; }
+  .actions button, .actions a { flex: 1; }
+  .progress { position: static; grid-column: 1 / -1; text-align: right; }
+  .error { grid-column: 1 / -1; }
+}
+@media (prefers-reduced-motion: reduce) { .guide { animation: none; } }
+

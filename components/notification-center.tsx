@@ -10,6 +10,8 @@ import { OrganizationMark } from "./organization-logo";
 import { LoadingRegion, SkeletonBlock } from "./loading-system";
 import { DelayedPendingLabel } from "./delayed-pending-label";
 import styles from "./notification-center.module.css";
+import { NotificationGuidance } from "./contextual-guidance";
+import type { GuidanceState } from "@/lib/guidance";
 
 type CenterResponse = {
   notifications: NotificationRecord[];
@@ -58,7 +60,7 @@ function NotificationSkeleton() {
   </LoadingRegion></div>;
 }
 
-export function NotificationCenter() {
+export function NotificationCenter({ guidanceState = {} }: { guidanceState?: GuidanceState }) {
   const [items, setItems] = useState<NotificationRecord[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [nextCursor, setNextCursor] = useState<number | null>(null);
@@ -249,6 +251,7 @@ export function NotificationCenter() {
       {error ? <div role="alert" data-inline-feedback="" data-state="error" className={styles.error}><span>{error}</span>{!items.length ? <button type="button" onClick={retryInitialLoad}>Retry</button> : null}</div> : null}
 
       {loading ? <NotificationSkeleton /> : null}
+      {!loading && items.length ? <NotificationGuidance state={guidanceState} eligible /> : null}
 
       {!loading && !error && !items.length ? <section className={styles.empty}>
         <span className={styles.emptyIcon} aria-hidden="true"><CheckCircleIcon className="h-6 w-6" /></span>

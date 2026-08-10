@@ -37,6 +37,7 @@ function isServerProtectedProductPath(pathname: string) {
   return pathname === "/advisor"
     || pathname === "/profile"
     || pathname === "/notifications"
+    || pathname === "/learn"
     || pathname === "/referral"
     || pathname === "/my-opportunities"
     || pathname.startsWith("/opportunities")
@@ -200,6 +201,7 @@ export function Header() {
         </nav>
         <div className="flex items-center gap-3">
           <NotificationNavButton active={pathname?.startsWith("/notifications")} />
+          <a href="/learn" className="hidden min-h-11 items-center rounded-full px-3 text-xs font-bold text-ink/45 transition hover:bg-white/75 hover:text-forest lg:inline-flex">Learn</a>
           <a href="/profile" data-navigation-item="" data-active={pathname?.startsWith("/profile") ? "true" : undefined} className={`inline-flex min-h-11 items-center rounded-full px-3 text-xs font-bold transition duration-200 active:scale-[.98] ${pathname?.startsWith("/profile") ? "bg-white text-forest shadow-[0_8px_20px_rgba(43,33,26,.08)]" : "text-ink/45 hover:bg-white/75 hover:text-forest"}`}>Profile</a>
           <AccountButton compact />
         </div>

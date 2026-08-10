@@ -1,5 +1,6 @@
 import crypto from "node:crypto";
 import type { AccountData, ApplicationWorkspaceRecord, AuthUser, DatabaseUser, JourneyCalendarEventRecord } from "./account-types";
+import { guidanceVersions, normalizeGuidanceState, type GuidanceId, type GuidanceStatus } from "./guidance";
 import type { AdvisorAccountData } from "./advisor/types";
 import { defaultBillingRecord, normalizeBillingRecord, type BillingRecord } from "./billing";
 import { applyReferralProGrant, newlyUnlockedReferralRewards, normalizeReferralData, sanitizeReferralCode, type ReferralAccountData, type ReferralAdminSummary, type ReferralParticipant } from "./referrals";
@@ -33,7 +34,7 @@ const kvTimeoutMs = 2800;
 const kvRetryDelayMs = 120;
 const releaseLockScript = "if redis.call('GET',KEYS[1]) == ARGV[1] then return redis.call('DEL',KEYS[1]) else return 0 end";
 
-const emptyData = (): AccountData => ({ profile: null, onboardingComplete: false, firstLaunchComplete: false, billing: defaultBillingRecord(), activity: null, savedOpportunities: [], tracker: {}, preferences: null, journeyProgress: {}, calendarEvents: {}, applicationWorkspaces: {}, advisor: null, referrals: null, updatedAt: new Date().toISOString() });
+const emptyData = (): AccountData => ({ profile: null, onboardingComplete: false, firstLaunchComplete: false, billing: defaultBillingRecord(), activity: null, savedOpportunities: [], tracker: {}, preferences: null, journeyProgress: {}, calendarEvents: {}, applicationWorkspaces: {}, guidance: {}, advisor: null, referrals: null, updatedAt: new Date().toISOString() });
 
 function requireProductionStore() {
   if (!hasKv && process.env.NODE_ENV === "production") throw new Error("A production data store is required. Set KV_REST_API_URL/KV_REST_API_TOKEN or UPSTASH_REDIS_REST_URL/UPSTASH_REDIS_REST_TOKEN.");
@@ -372,6 +373,7 @@ function normalizeAccountData(value: AccountData | null | undefined): AccountDat
     journeyProgress: value.journeyProgress ?? {},
     calendarEvents: value.calendarEvents ?? {},
     applicationWorkspaces: normalizeApplicationWorkspaces(value.applicationWorkspaces),
+    guidance: normalizeGuidanceState(value.guidance),
     advisor: normalizeAdvisorData(value.advisor),
     referrals: normalizeReferralData(value.referrals),
     updatedAt: value.updatedAt ?? new Date().toISOString(),
@@ -418,6 +420,7 @@ export async function mergeAccountData(userId: string, incoming: Partial<Account
     journeyProgress: { ...(current.journeyProgress ?? {}), ...(incoming.journeyProgress ?? {}) },
     calendarEvents: current.calendarEvents ?? {},
     applicationWorkspaces: current.applicationWorkspaces ?? {},
+    guidance: normalizeGuidanceState(current.guidance),
     advisor: profileChangedForAdvisor ? null : normalizeAdvisorData(incoming.advisor ?? current.advisor),
     referrals: current.referrals,
     updatedAt: new Date().toISOString(),
@@ -428,6 +431,23 @@ export async function mergeAccountData(userId: string, incoming: Partial<Account
     return await readAccountData(userId);
   }
   return next;
+}
+
+export async function updateGuidanceState(userId: string, input: { id: GuidanceId; status: GuidanceStatus }) {
+  return await withSecurityLock("guidance", userId, async () => {
+    const current = await readAccountData(userId);
+    const now = new Date().toISOString();
+    const next: AccountData = {
+      ...current,
+      guidance: {
+        ...normalizeGuidanceState(current.guidance),
+        [input.id]: { status: input.status, guideVersion: guidanceVersions[input.id], updatedAt: now },
+      },
+      updatedAt: now,
+    };
+    await writeAccountData(userId, next);
+    return next;
+  });
 }
 
 export async function mutateJourneyCalendarEvent(userId: string, input: {

@@ -17,6 +17,7 @@ import { buildJourneyTimelineModel } from "./journey-timeline";
 import { buildJourneyCalendarModel, type JourneyCalendarModel } from "./journey-calendar";
 import { projectApplicationWorkspace, type ApplicationWorkspaceProjection } from "./application-workspace";
 import { opportunityChangeLabel, recentOpportunityChanges } from "@/data/opportunity-changelog";
+import { journeyGuidanceEligibility, normalizeGuidanceState, type GuidanceState } from "./guidance";
 
 export const journeyCommandFilters = ["active", "saved", "preparing", "applied", "interviewing", "offers", "accepted", "paused", "history"] as const;
 export type JourneyCommandFilter = (typeof journeyCommandFilters)[number];
@@ -110,6 +111,10 @@ export type JourneyCommandCenterModel = {
   theme: JourneyTimelineModel["theme"];
   showFirstUseHints: boolean;
   calendar: JourneyCalendarModel;
+  guidance: {
+    state: GuidanceState;
+    eligibility: ReturnType<typeof journeyGuidanceEligibility>;
+  };
 };
 
 const terminalStatuses = new Set<OpportunityTrackerStatus>(["Rejected", "Completed"]);
@@ -503,6 +508,9 @@ export function buildJourneyCommandCenterModel(input: {
     key === "active" ? allActive.length : key === "history" ? allHistory.length : allActive.filter((record) => record.stageFilter === key).length,
   ])) as Record<JourneyCommandFilter, number>;
   const timeline = buildJourneyTimelineModel({ user: input.user, account: input.account, opportunities: input.opportunities, resolvedTheme: input.resolvedTheme, now });
+  const calendar = buildJourneyCalendarModel({ account: input.account, opportunities: input.opportunities, now });
+  const cardEligible = records.some((record) => record.history.some((item) => validationTransitions.has(item.transition)))
+    || Object.values(input.account.journeyProgress ?? {}).some(Boolean);
   return {
     accountKey: input.user.id,
     overview: overviewCards(records, now),
@@ -523,11 +531,20 @@ export function buildJourneyCommandCenterModel(input: {
     query,
     activeLimit,
     card: timeline.card,
-    cardEligible: records.some((record) => record.history.some((item) => validationTransitions.has(item.transition)))
-      || Object.values(input.account.journeyProgress ?? {}).some(Boolean),
+    cardEligible,
     theme: timeline.theme,
     showFirstUseHints: records.length > 0 && !records.some((record) => record.history.some((item) => item.transition !== "choose")),
-    calendar: buildJourneyCalendarModel({ account: input.account, opportunities: input.opportunities, now }),
+    calendar,
+    guidance: {
+      state: normalizeGuidanceState(input.account.guidance),
+      eligibility: journeyGuidanceEligibility(input.account, {
+        hasRecords: records.length > 0,
+        hasCalendarContent: calendar.groups.length > 0 || Object.keys(input.account.calendarEvents ?? {}).length > 0,
+        hasApplicationWorkspace: records.some((record) => Boolean(record.applicationWorkspace)),
+        hasJourneyCard: cardEligible,
+        hasOpportunityChange: records.some((record) => Boolean(record.recentChange)),
+      }),
+    },
   };
 }
 
