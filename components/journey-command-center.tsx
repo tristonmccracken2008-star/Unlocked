@@ -106,6 +106,7 @@ function JourneyRecordRow({ record, theme }: { record: JourneyCommandRecord; the
       <div className={styles.recordIdentity}>
         <h3>{record.title}</h3>
         <p>{record.organization}</p>
+        {record.recentChange ? <span className={styles.recordChange} data-importance={record.recentChange.importance}>{record.recentChange.label}</span> : null}
       </div>
     </div>
     <div className={styles.recordStage} data-record-progress="">

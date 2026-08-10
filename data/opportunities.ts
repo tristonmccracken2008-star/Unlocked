@@ -3,6 +3,7 @@ import { canonicalOpportunity } from "./opportunity-enrichment";
 import { auditOpportunity } from "./opportunity-quality";
 import { academicYears, opportunityCategories, opportunityMajors, opportunityTypes, type OpportunityCategory, type OpportunityType } from "./opportunity-taxonomy";
 import type { OpportunityLifecycleMetadata } from "./opportunity-lifecycle-types";
+import type { OpportunityChangeEvent } from "./opportunity-changelog-types";
 
 export { academicYears, opportunityCategories, opportunityMajors, opportunityTypes } from "./opportunity-taxonomy";
 export type { OpportunityCategory, OpportunityType } from "./opportunity-taxonomy";
@@ -109,6 +110,7 @@ export type OpportunityMetadata = {
   eligibilityRules?: OpportunityEligibilityRules;
   verification?: OpportunityVerification;
   lifecycle?: OpportunityLifecycleMetadata;
+  changelog?: OpportunityChangeEvent[];
 };
 
 export type Opportunity = {

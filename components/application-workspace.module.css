@@ -11,6 +11,8 @@
 .progressBar { height: 4px; margin-top: .55rem; overflow: hidden; border-radius: 999px; background: color-mix(in srgb, var(--journey-green) 11%, transparent); }
 .progress i { display: block; height: 100%; border-radius: inherit; background: var(--journey-green); transition: width 240ms var(--motion-ease); }
 .progress > p { margin: .5rem 0 0; color: var(--journey-muted); font-size: .68rem; }
+.providerUpdate { margin: .9rem 0 0 !important; border-left: 2px solid var(--journey-gold); padding: .15rem 0 .15rem .7rem !important; color: var(--journey-muted); font-size: .66rem !important; line-height: 1.5; }
+.providerUpdate strong { display: block; color: var(--journey-ink); font-size: .68rem; }
 .tasks { list-style: none; margin: 1rem 0 0 !important; padding: 0 !important; }
 .tasks li { display: grid !important; grid-template-columns: 44px minmax(0, 1fr) auto; min-height: 3.45rem; align-items: center; gap: .6rem; border-top: 1px solid var(--journey-line); padding: .35rem 0 !important; }
 .check { display: grid; width: 44px; height: 44px; place-items: center; border: 0; background: transparent; color: var(--journey-green); cursor: pointer; }

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAdminSession } from "@/lib/admin-auth";
 import { createOpportunity, validateOpportunityInput } from "@/lib/content-validation";
-import { listManagedRecords, readContentAuditLog, saveManagedOpportunity } from "@/lib/content-store";
+import { listManagedRecords, readContentAuditLog, readOpportunityChangeDiagnostics, saveManagedOpportunity } from "@/lib/content-store";
 import { assertSameOrigin, enforceRateLimit, readBoundedJson, securityErrorResponse } from "@/lib/security";
 import { applyOpportunityLifecycleReview } from "@/data/opportunity-lifecycle";
 
@@ -14,7 +14,8 @@ export async function GET(request: Request) {
   if (!session) return NextResponse.json({ error: "Administrator access required" }, { status: 403, headers: noStoreHeaders });
   try {
     await enforceRateLimit(request, "admin-content-read", 60, 60, session.user.id);
-    return NextResponse.json({ records: await listManagedRecords(), auditLog: await readContentAuditLog() }, { headers: noStoreHeaders });
+    const [records, auditLog, changeDiagnostics] = await Promise.all([listManagedRecords(), readContentAuditLog(), readOpportunityChangeDiagnostics()]);
+    return NextResponse.json({ records, auditLog, changeDiagnostics }, { headers: noStoreHeaders });
   } catch (error) {
     console.error("[UnlockED CMS] list failed", { errorCategory: error instanceof Error ? error.name : "unknown" });
     return securityErrorResponse(error, "Content database unavailable.");

@@ -1,7 +1,12 @@
 import crypto from "node:crypto";
 import type { Opportunity } from "@/data/opportunities";
 import type { RecommendationViewModel } from "@/data/recommendation-service";
-import { createOpportunityLifecycleEvents, resolveOpportunityLifecycle } from "@/data/opportunity-lifecycle";
+import { resolveOpportunityLifecycle } from "@/data/opportunity-lifecycle";
+import {
+  detectMeaningfulOpportunityChanges,
+  opportunityChangeLabel,
+  opportunityChangeSummary,
+} from "@/data/opportunity-changelog";
 import type { TrackedOpportunity } from "@/data/student-activity";
 import type { JourneyCalendarEventRecord } from "./account-types";
 import {
@@ -275,57 +280,19 @@ function normalizeText(value: string | null | undefined) {
     .toLowerCase();
 }
 
-function normalizeUrl(value: string | null | undefined) {
-  try {
-    const url = new URL(value ?? "");
-    for (const key of [...url.searchParams.keys()]) {
-      if (/^(utm_|fbclid|gclid|ref$|source$)/i.test(key)) url.searchParams.delete(key);
-    }
-    url.hash = "";
-    return url.toString().replace(/\/$/, "").toLowerCase();
-  } catch {
-    return normalizeText(value);
-  }
-}
-
-function displayValue(value: string | null | undefined, fallback = "Not provided") {
-  return (value ?? "").replace(/\s+/g, " ").trim().slice(0, 180) || fallback;
-}
-
-export function detectMaterialOpportunityChanges(before: Opportunity, after: Opportunity): OpportunityMaterialChange[] {
-  const changes: OpportunityMaterialChange[] = [];
-  const add = (field: OpportunityMaterialChange["field"], previous: string, next: string, label: string) => {
-    const contentVersion = stableHash([after.id, field, previous, next, after.last_verified]);
-    changes.push({ field, before: previous, after: next, label, contentVersion });
-  };
-  if (normalizeText(before.application_deadline) !== normalizeText(after.application_deadline)) {
-    add("deadline", displayValue(before.application_deadline, "Not announced"), displayValue(after.application_deadline, "Not announced"), "The deadline changed");
-  }
-  const lifecycleEvents = createOpportunityLifecycleEvents(before, after);
-  const statusEvent = lifecycleEvents.find((event) => ["application_opened", "application_reopened", "application_closed", "opportunity_canceled", "cycle_archived"].includes(event.type));
-  if (statusEvent) {
-    const beforeLifecycle = resolveOpportunityLifecycle(before);
-    const afterLifecycle = resolveOpportunityLifecycle(after);
-    add("application_status", beforeLifecycle.label, afterLifecycle.label, statusEvent.type === "application_reopened" ? "Applications reopened" : afterLifecycle.label);
-  }
-  if (normalizeUrl(before.official_source_url) !== normalizeUrl(after.official_source_url)) {
-    add("application_url", displayValue(before.official_source_url), displayValue(after.official_source_url), "The official application link changed");
-  }
-  if (normalizeText(before.eligibility) !== normalizeText(after.eligibility)) {
-    add("eligibility", displayValue(before.eligibility), displayValue(after.eligibility), "Eligibility changed");
-  }
-  if (before.estimated_value !== after.estimated_value || normalizeText(before.estimated_value_note) !== normalizeText(after.estimated_value_note)) {
-    add("award", before.estimated_value === null ? displayValue(before.estimated_value_note, "Unknown") : `$${before.estimated_value.toLocaleString()}`, after.estimated_value === null ? displayValue(after.estimated_value_note, "Unknown") : `$${after.estimated_value.toLocaleString()}`, "The award or compensation changed");
-  }
-  if (normalizeText(before.location) !== normalizeText(after.location) || before.remote !== after.remote) {
-    add("location", `${displayValue(before.location)}${before.remote === true ? " · Remote" : ""}`, `${displayValue(after.location)}${after.remote === true ? " · Remote" : ""}`, "The location format changed");
-  }
-  const beforeDates = [before.metadata.internshipDuration, before.metadata.applicationSeason, ...(before.metadata.semesters ?? [])].join(" · ");
-  const afterDates = [after.metadata.internshipDuration, after.metadata.applicationSeason, ...(after.metadata.semesters ?? [])].join(" · ");
-  if (normalizeText(beforeDates) !== normalizeText(afterDates)) {
-    add("program_dates", displayValue(beforeDates), displayValue(afterDates), "The program dates changed");
-  }
-  return changes;
+export function detectMaterialOpportunityChanges(before: Opportunity, after: Opportunity, now = new Date()): OpportunityMaterialChange[] {
+  return detectMeaningfulOpportunityChanges(before, after, now)
+    .filter((event) => event.notificationEligible)
+    .map((event) => ({
+      field: event.field,
+      before: event.previousValue ?? "Not listed",
+      after: event.newValue ?? "Not listed",
+      label: opportunityChangeLabel(event),
+      message: opportunityChangeSummary(event),
+      eventId: event.id,
+      importance: event.importance,
+      contentVersion: event.id,
+    }));
 }
 
 export function notificationCategoryEnabled(type: NotificationType, preferences: NotificationPreferences) {
@@ -345,7 +312,7 @@ export function emailEligible(type: NotificationType, priority: NotificationPrio
   if (!preferences.emailEnabled || !notificationCategoryEnabled(type, preferences)) return false;
   if (type === "journey_reminder") return true;
   if (type === "deadline_reminder") return priority === "high" || preferences.frequency === "balanced";
-  if (type === "opportunity_change") return priority === "high" || preferences.frequency === "balanced";
+  if (type === "opportunity_change") return false;
   if (type === "weekly_digest") return preferences.weeklyDigest;
   if (type === "recommendation_update") return false;
   if (type === "milestone" || type === "account" || type === "product_announcement") return false;

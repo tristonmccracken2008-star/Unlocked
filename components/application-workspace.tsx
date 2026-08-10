@@ -155,9 +155,10 @@ export function ApplicationWorkspace({ initial, opportunityTitle, submission }: 
         : null}
     </div> : null}
 
+    {workspace.recentProviderUpdate ? <p className={styles.providerUpdate} role="status"><strong>{workspace.recentProviderUpdate.label}</strong> {workspace.recentProviderUpdate.summary}</p> : null}
     {workspace.tasks.length ? <ul className={styles.tasks}>{workspace.tasks.map((task) => <li key={task.id} data-completed={task.completed ? "true" : undefined}>
       <button type="button" className={styles.check} aria-pressed={task.completed} aria-label={`${task.completed ? "Mark incomplete" : "Mark complete"}: ${task.title}`} disabled={Boolean(pending)} onClick={() => void mutate({ action: "set_completion", taskId: task.id, completed: !task.completed }, task.id)}>{task.completed ? <CheckIcon /> : null}</button>
-      <div><span>{task.title}</span>{task.dueDate ? <time dateTime={task.dueDate}>Due {formatDate(task.dueDate)}</time> : task.source === "verified_requirement" ? <small>Listed by the provider</small> : null}</div>
+      <div><span>{task.title}</span>{task.dueDate ? <time dateTime={task.dueDate}>Due {formatDate(task.dueDate)}</time> : task.source === "verified_requirement" ? <small>{task.recentlyUpdated ? "Updated by the provider" : "Listed by the provider"}</small> : null}</div>
       {task.source === "user" ? <button type="button" className={styles.remove} disabled={Boolean(pending)} onClick={() => void mutate({ action: "delete_task", taskId: task.id }, `delete:${task.id}`)}>Remove<span className="sr-only"> {task.title}</span></button> : null}
     </li>)}</ul> : <div className={styles.unverified}><h5>Get organized</h5><p>UnlockED hasn’t verified the application materials for this opportunity yet. Check the official application, then add only the tasks you need.</p></div>}
 

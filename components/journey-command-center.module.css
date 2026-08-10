@@ -137,6 +137,8 @@
 .recordIdentity { min-width: 0; }
 .recordIdentity h3 { margin: 0; font: 700 clamp(1rem, 1.4vw, 1.12rem)/1.18 var(--font-editorial), Georgia, serif; overflow-wrap: anywhere; }
 .recordIdentity p { margin: .3rem 0 0; color: var(--journey-muted); font-size: .66rem; font-weight: 650; line-height: 1.35; overflow-wrap: anywhere; }
+.recordChange { display: block; margin-top: .32rem; color: var(--journey-gold); font-size: .61rem; font-weight: 750; line-height: 1.35; }
+.recordChange[data-importance="critical"] { color: var(--journey-error); }
 .recordStage { display: grid; justify-items: start; gap: .32rem; min-width: 0; }
 .stage { border-radius: 999px; background: color-mix(in srgb, var(--journey-green) 10%, transparent); color: var(--journey-green); padding: .28rem .58rem; font-size: .59rem; font-weight: 850; }
 .stage[data-stage="applied"] { background: color-mix(in srgb, var(--journey-orange) 10%, transparent); color: var(--journey-orange); }

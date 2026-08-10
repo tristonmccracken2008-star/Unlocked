@@ -1,9 +1,10 @@
 import type { Opportunity } from "@/data/opportunities";
 import type { OpportunityTrackerStatus, TrackedOpportunity } from "@/data/student-activity";
 import { journeyWorkflowKind } from "@/data/journey-professional";
+import { recentOpportunityChanges, requirementAddedByRecentChange, opportunityChangeLabel, opportunityChangeSummary } from "@/data/opportunity-changelog";
 import type { AccountData, ApplicationTaskRecord, ApplicationWorkspaceRecord, JourneyCalendarEventRecord } from "./account-types";
 
-export type ApplicationWorkspaceTask = ApplicationTaskRecord;
+export type ApplicationWorkspaceTask = ApplicationTaskRecord & { recentlyUpdated?: boolean };
 
 export type ApplicationWorkspaceProjection = {
   opportunityId: string;
@@ -21,6 +22,7 @@ export type ApplicationWorkspaceProjection = {
   deadline?: string;
   deadlineDaysRemaining?: number;
   unfinishedCount: number;
+  recentProviderUpdate?: { label: string; summary: string; detectedAt: string };
 };
 
 const terminalPreparationStatuses = new Set<OpportunityTrackerStatus>(["Submitted", "Interview", "Accepted", "Completed"]);
@@ -97,7 +99,10 @@ export function projectApplicationWorkspace(input: {
 }) {
   const eligible = applicationWorkspaceEligible(input.opportunity);
   const workspace = materializeApplicationWorkspace(input.workspace, input.opportunity, input.record.savedAt);
-  const tasks = Object.values(workspace.tasks).sort((left, right) => {
+  const tasks = Object.values(workspace.tasks).map((task): ApplicationWorkspaceTask => ({
+    ...task,
+    recentlyUpdated: task.source === "verified_requirement" && requirementAddedByRecentChange(input.opportunity, task.title, input.now),
+  })).sort((left, right) => {
     if (left.completed !== right.completed) return Number(left.completed) - Number(right.completed);
     if (left.dueDate !== right.dueDate) return (left.dueDate ?? "9999-12-31").localeCompare(right.dueDate ?? "9999-12-31");
     if (left.source !== right.source) return left.source === "verified_requirement" ? -1 : 1;
@@ -110,6 +115,8 @@ export function projectApplicationWorkspace(input: {
     : undefined;
   const submittedEvent = [...(input.record.history ?? [])].reverse().find((event) => event.transition === "submit");
   const submitted = terminalPreparationStatuses.has(input.record.status);
+  const providerUpdate = recentOpportunityChanges(input.opportunity, 8).find((event) => event.workspaceImpact
+    && (input.now ?? new Date()).getTime() - Date.parse(event.detectedAt) <= 30 * 86_400_000);
   return {
     opportunityId: input.opportunity.id,
     eligible,
@@ -126,6 +133,11 @@ export function projectApplicationWorkspace(input: {
     deadline,
     deadlineDaysRemaining,
     unfinishedCount: tasks.length - completedCount,
+    recentProviderUpdate: providerUpdate ? {
+      label: opportunityChangeLabel(providerUpdate),
+      summary: opportunityChangeSummary(providerUpdate),
+      detectedAt: providerUpdate.detectedAt,
+    } : undefined,
   } satisfies ApplicationWorkspaceProjection;
 }
 

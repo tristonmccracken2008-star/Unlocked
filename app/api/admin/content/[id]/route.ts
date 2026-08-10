@@ -1,15 +1,43 @@
 import { after, NextResponse } from "next/server";
 import { getAdminSession } from "@/lib/admin-auth";
 import { validateOpportunityInput } from "@/lib/content-validation";
-import { deleteManagedOpportunity, getManagedRecord, saveManagedOpportunity, setManagedArchive } from "@/lib/content-store";
+import { deleteManagedOpportunity, getManagedRecord, recordOpportunityChangeDiagnostic, saveManagedOpportunity, setManagedArchive } from "@/lib/content-store";
 import type { Opportunity } from "@/data/opportunities";
 import { assertSameOrigin, enforceRateLimit, readBoundedJson, securityErrorResponse } from "@/lib/security";
 import { queueMaterialOpportunityChanges } from "@/lib/notification-service";
 import { applyOpportunityLifecycleReview } from "@/data/opportunity-lifecycle";
+import { detectMeaningfulOpportunityChanges } from "@/data/opportunity-changelog";
 
 export const dynamic = "force-dynamic";
 const noStoreHeaders = { "Cache-Control": "no-store, max-age=0" };
 const idPattern = /^[A-Za-z0-9][A-Za-z0-9._:-]{0,159}$/;
+
+async function processChangeEffects(before: Opportunity, afterOpportunity: Opportunity) {
+  const events = detectMeaningfulOpportunityChanges(before, afterOpportunity);
+  if (!events.length) return;
+  try {
+    const result = await queueMaterialOpportunityChanges(before, afterOpportunity);
+    await recordOpportunityChangeDiagnostic({
+      opportunityId: afterOpportunity.id,
+      eventIds: events.map((event) => event.id),
+      recipients: result.recipients,
+      notificationsScheduled: result.scheduled,
+      calendarProjected: events.some((event) => event.calendarImpact),
+      workspaceProjected: events.some((event) => event.workspaceImpact),
+    });
+  } catch (error) {
+    await recordOpportunityChangeDiagnostic({
+      opportunityId: afterOpportunity.id,
+      eventIds: events.map((event) => event.id),
+      recipients: 0,
+      notificationsScheduled: 0,
+      calendarProjected: events.some((event) => event.calendarImpact),
+      workspaceProjected: events.some((event) => event.workspaceImpact),
+      errorCategory: error instanceof Error ? error.name : "unknown",
+    }).catch(() => undefined);
+    throw error;
+  }
+}
 
 async function authorizedMutation(request: Request, params: Promise<{ id: string }>) {
   assertSameOrigin(request);
@@ -66,7 +94,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     const changed = (Object.keys(input) as (keyof typeof input)[]).filter((field) => JSON.stringify(previous[field as keyof typeof previous]) !== JSON.stringify(input[field]));
     const record = await saveManagedOpportunity(next, auth.session!.user.email, changed);
     after(async () => {
-      await queueMaterialOpportunityChanges(current.opportunity, next).catch((error) => {
+      await processChangeEffects(current.opportunity, record.opportunity).catch((error) => {
         console.warn("[UnlockED notifications] Opportunity change queue failed", { errorCategory: error instanceof Error ? error.name : "unknown" });
       });
     });
@@ -89,7 +117,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     const beforeOpportunity: Opportunity = current.opportunity;
     const changedOpportunity: Opportunity = record.opportunity;
     after(async () => {
-      await queueMaterialOpportunityChanges(beforeOpportunity, changedOpportunity).catch((error) => {
+      await processChangeEffects(beforeOpportunity, changedOpportunity).catch((error) => {
         console.warn("[UnlockED notifications] Archive change queue failed", { errorCategory: error instanceof Error ? error.name : "unknown" });
       });
     });
@@ -108,7 +136,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
     if (!current || current.deleted) return NextResponse.json({ error: "Opportunity not found" }, { status: 404, headers: noStoreHeaders });
     await deleteManagedOpportunity(auth.id!, auth.session!.user.email);
     after(async () => {
-      await queueMaterialOpportunityChanges(current.opportunity, { ...current.opportunity, verification_status: "archived" }).catch((error) => {
+      await processChangeEffects(current.opportunity, { ...current.opportunity, verification_status: "archived" }).catch((error) => {
         console.warn("[UnlockED notifications] Delete change queue failed", { errorCategory: error instanceof Error ? error.name : "unknown" });
       });
     });

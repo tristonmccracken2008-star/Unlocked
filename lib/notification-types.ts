@@ -97,12 +97,18 @@ export type NotificationSchedule = {
 
 export type OpportunityMaterialChangeField =
   | "deadline"
+  | "opening_date"
   | "application_status"
   | "application_url"
   | "eligibility"
   | "award"
+  | "compensation"
   | "location"
-  | "program_dates";
+  | "work_mode"
+  | "program_dates"
+  | "cycle"
+  | "requirements"
+  | "application_process";
 
 export type OpportunityMaterialChange = {
   field: OpportunityMaterialChangeField;
@@ -110,6 +116,9 @@ export type OpportunityMaterialChange = {
   after: string;
   label: string;
   contentVersion: string;
+  message?: string;
+  eventId?: string;
+  importance?: "critical" | "important" | "informational";
 };
 
 export const defaultNotificationPreferences = (updatedAt = new Date().toISOString()): NotificationPreferences => ({

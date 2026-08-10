@@ -10,6 +10,7 @@ import { createAdvisorProfile } from "@/data/advisor-engine";
 import { explainOpportunityWithAdvisorBrain } from "@/data/advisor-brain";
 import { inferApplicationsFromActivity, normalizeStudentProgress } from "@/data/student-progress";
 import { resolveOpportunityLifecycle } from "@/data/opportunity-lifecycle";
+import { opportunityChangeLabel, opportunityChangeSummary, recentOpportunityChanges } from "@/data/opportunity-changelog";
 import { type Opportunity } from "@/data/opportunities";
 import { schools } from "@/data/seed";
 import { maintenanceStatus } from "@/data/opportunity-maintenance";
@@ -99,6 +100,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   const secondaryEligibilityFacts = detailedEligibilityFacts(item, schoolNames);
   const timingFacts = lifecycleFacts(item, lifecycle);
   const officialActionLabel = opportunityOfficialActionLabel(item, lifecycle.actionable);
+  const recentChanges = recentOpportunityChanges(item, 4);
   const hasAdditionalDetails = secondaryEligibilityFacts.length > 0 || eligibilityNotes.length > 0 || timingFacts.length > 0 || Boolean(advisorExplanation);
   const jsonLd = {
     "@context": "https://schema.org",
@@ -200,6 +202,17 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
           </div>
         </details> : null}
 
+        {recentChanges.length ? <section aria-labelledby="recent-updates" className="mt-12 border-t border-ink/15 pt-8">
+          <p className="rule-label text-forest">Catalog history</p>
+          <h2 id="recent-updates" className="mt-2 font-editorial text-2xl font-bold">Recent updates</h2>
+          <ol className="mt-6 divide-y divide-ink/10 border-y border-ink/10">
+            {recentChanges.map((change) => <li key={change.id} className="grid gap-2 py-5 sm:grid-cols-[10rem_minmax(0,1fr)] sm:gap-6">
+              <time dateTime={change.detectedAt} className="text-xs font-bold text-ink/40">{formatTimestamp(change.detectedAt)}</time>
+              <div><h3 className="text-sm font-bold text-ink/80">{opportunityChangeLabel(change)}</h3><p className="mt-1 text-sm leading-6 text-ink/60">{opportunityChangeSummary(change)}</p></div>
+            </li>)}
+          </ol>
+        </section> : null}
+
         <section aria-labelledby="source-verification" className="mt-12 border-t border-ink/15 pt-8">
           <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_16rem] lg:items-end">
             <div>
@@ -296,6 +309,10 @@ function AdvisorFact({ label, value }: { label: string; value: string }) {
 
 function formatDate(value: string) {
   return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" }).format(new Date(`${value}T00:00:00Z`));
+}
+
+function formatTimestamp(value: string) {
+  return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric" }).format(new Date(value));
 }
 
 function formatLifecycleDate(value: string, estimated: boolean) {

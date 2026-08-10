@@ -48,7 +48,25 @@ function opportunity(overrides: Partial<Opportunity> = {}): Opportunity {
     verification_status: "verified",
     official_source_url: "https://example.edu/program",
     ...overrides,
-    metadata: { ...base.metadata, deadlineType: "fixed", semesters: ["Fall 2026"], ...(overrides.metadata ?? {}) },
+    metadata: {
+      ...base.metadata,
+      deadlineType: "fixed",
+      semesters: ["Fall 2026"],
+      verification: { status: "verified", deadlineVerified: true, eligibilityVerified: true, applicationUrlVerified: true, sourceReachable: true },
+      lifecycle: {
+        schemaVersion: 1,
+        identity: { identityId: "notification-fixture" },
+        cycle: { cycleId: "notification-fixture:2026" },
+        state: "open",
+        confidence: "confirmed",
+        reason: "official_status_open",
+        effectiveAt: "2026-03-01T12:00:00.000Z",
+        finalDeadline: { kind: "final_deadline", sourceValue: "2026-03-21", normalizedValue: "2026-03-21", precision: "date", estimated: false, verifiedAt: "2026-03-01", sourceUrl: "https://example.edu/program" },
+        evidence: [{ id: "notification-evidence", source: "manual_review", observedAt: "2026-03-01T12:00:00.000Z", value: "Applications open", confidence: "confirmed" }],
+        events: [],
+      },
+      ...(overrides.metadata ?? {}),
+    },
   };
 }
 
@@ -179,6 +197,7 @@ assert.equal(balancedRecord.channels.email.state, "scheduled");
 assert.equal(emailEligible("milestone", "high", defaults), false);
 assert.equal(emailEligible("account", "high", defaults), false);
 assert.equal(emailEligible("recommendation_update", "high", defaults), false);
+assert.equal(emailEligible("opportunity_change", "high", defaults), false, "Opportunity changes are in-app only");
 
 assert.deepEqual(evaluateNotificationQuality({ relevance: 95, usefulness: 90, urgency: 70, uniqueness: 100 }), { allowed: true, score: 90, reason: "useful" });
 assert.equal(evaluateNotificationQuality({ relevance: 60, usefulness: 95, urgency: 90, uniqueness: 100 }).allowed, false);
@@ -210,10 +229,12 @@ const before = opportunity();
 assert.deepEqual(detectMaterialOpportunityChanges(before, { ...before, description: `${before.description} ` }), []);
 assert.deepEqual(detectMaterialOpportunityChanges(before, { ...before, eligibility: `${before.eligibility}.` }), []);
 assert.deepEqual(detectMaterialOpportunityChanges(before, { ...before, official_source_url: `${before.official_source_url}?utm_source=test` }), []);
-assert.deepEqual(detectMaterialOpportunityChanges(before, { ...before, application_deadline: "2026-03-28" }).map((item) => item.field), ["deadline"]);
-assert.deepEqual(detectMaterialOpportunityChanges(before, { ...before, verification_status: "temporarily_closed" }).map((item) => item.field), ["application_status"]);
-assert.deepEqual(detectMaterialOpportunityChanges({ ...before, verification_status: "temporarily_closed" }, before).map((item) => item.field), ["application_status"]);
-assert.deepEqual(detectMaterialOpportunityChanges(before, { ...before, metadata: { ...before.metadata, semesters: ["Spring 2027"] } }).map((item) => item.field), ["program_dates"]);
+const extendedDeadline = opportunity({ application_deadline: "2026-03-28", deadline: "2026-03-28", metadata: { ...before.metadata, lifecycle: { ...before.metadata.lifecycle!, finalDeadline: { ...before.metadata.lifecycle!.finalDeadline!, sourceValue: "2026-03-28", normalizedValue: "2026-03-28" } } } });
+assert.deepEqual(detectMaterialOpportunityChanges(before, extendedDeadline, now).map((item) => item.field), ["deadline"]);
+const temporarilyClosed = opportunity({ metadata: { ...before.metadata, lifecycle: { ...before.metadata.lifecycle!, state: "temporarily_closed", reason: "official_status_closed" } } });
+assert.deepEqual(detectMaterialOpportunityChanges(before, temporarilyClosed, now).map((item) => item.field), ["application_status"]);
+assert.deepEqual(detectMaterialOpportunityChanges(temporarilyClosed, before, now).map((item) => item.field), ["application_status"]);
+assert.deepEqual(detectMaterialOpportunityChanges(before, { ...before, metadata: { ...before.metadata, semesters: ["Spring 2027"] } }, now).map((item) => item.field), ["program_dates"]);
 
 const { claimNotificationSchedule, claimNotificationSync, claimProviderWebhook, readNotifications, releaseNotificationSchedule, storeNotification, updateNotificationState } = await import("../lib/notification-store");
 const firstStored = await storeNotification("account-a", emailOffRecord);
@@ -246,6 +267,19 @@ const integrationOpportunity = opportunity({
   last_verified: integrationDate,
   application_deadline: integrationDeadline,
   deadline: integrationDeadline,
+  metadata: {
+    ...opportunity().metadata,
+    lifecycle: {
+      ...opportunity().metadata.lifecycle!,
+      effectiveAt: integrationNow.toISOString(),
+      finalDeadline: {
+        ...opportunity().metadata.lifecycle!.finalDeadline!,
+        sourceValue: integrationDeadline,
+        normalizedValue: integrationDeadline,
+        verifiedAt: integrationDate,
+      },
+    },
+  },
 });
 const integrationMatch = { ...newMatch, opportunity: integrationOpportunity } as RecommendationViewModel;
 const integrationUser = await auth.upsertUser({

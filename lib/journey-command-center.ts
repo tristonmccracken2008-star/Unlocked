@@ -16,6 +16,7 @@ import type { JourneyTimelineControl, JourneyTimelineModel } from "./journey-tim
 import { buildJourneyTimelineModel } from "./journey-timeline";
 import { buildJourneyCalendarModel, type JourneyCalendarModel } from "./journey-calendar";
 import { projectApplicationWorkspace, type ApplicationWorkspaceProjection } from "./application-workspace";
+import { opportunityChangeLabel, recentOpportunityChanges } from "@/data/opportunity-changelog";
 
 export const journeyCommandFilters = ["active", "saved", "preparing", "applied", "interviewing", "offers", "accepted", "paused", "history"] as const;
 export type JourneyCommandFilter = (typeof journeyCommandFilters)[number];
@@ -48,6 +49,7 @@ export type JourneyCommandRecord = {
   control?: JourneyTimelineControl;
   unavailable: boolean;
   applicationWorkspace?: ApplicationWorkspaceProjection;
+  recentChange?: { label: string; detectedAt: string; importance: "critical" | "important" };
   applicationSubmission?: {
     professionalStageId: string;
     transition: "submit";
@@ -240,6 +242,8 @@ function projectRecord(record: TrackedOpportunity, opportunity: Opportunity | un
   const details = latestDetails(record);
   const lifecycle = opportunity ? resolveOpportunityLifecycle(opportunity, now) : undefined;
   const applicationWorkspace = opportunity ? projectApplicationWorkspace({ opportunity, record, workspace: account.applicationWorkspaces?.[record.id], now }) : undefined;
+  const recentChangeEvent = opportunity ? recentOpportunityChanges(opportunity, 4).find((event) => event.importance !== "informational"
+    && now.getTime() - Date.parse(event.detectedAt) <= 30 * 86_400_000) : undefined;
   const submitAction = workflow ? getJourneyProfessionalActions(record, workflow).find((action) => action.resultingStatus === "Submitted" && action.stage) : undefined;
   return {
     id: record.id,
@@ -270,6 +274,11 @@ function projectRecord(record: TrackedOpportunity, opportunity: Opportunity | un
     control: opportunity ? controlFor(record, opportunity, now) : undefined,
     unavailable: !opportunity,
     applicationWorkspace: applicationWorkspace?.eligible ? applicationWorkspace : undefined,
+    recentChange: recentChangeEvent && recentChangeEvent.importance !== "informational" ? {
+      label: opportunityChangeLabel(recentChangeEvent),
+      detectedAt: recentChangeEvent.detectedAt,
+      importance: recentChangeEvent.importance,
+    } : undefined,
     applicationSubmission: submitAction?.stage ? {
       professionalStageId: submitAction.stage.id,
       transition: "submit",
