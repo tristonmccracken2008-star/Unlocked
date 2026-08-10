@@ -2,6 +2,13 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 process.env.AUTH_SECRET ||= "application-command-center-test-secret-with-thirty-two-bytes";
+delete process.env.KV_REST_API_URL;
+delete process.env.KV_REST_API_TOKEN;
+delete process.env.UPSTASH_REDIS_REST_URL;
+delete process.env.UPSTASH_REDIS_REST_TOKEN;
+
+assert.equal(process.env.KV_REST_API_URL, undefined, "Build checks must never write Application Command Center fixtures to configured production storage.");
+assert.equal(process.env.UPSTASH_REDIS_REST_URL, undefined, "Build checks must remain isolated from configured Upstash storage.");
 
 const { opportunities } = await import("../data/opportunities");
 const { defaultBillingRecord } = await import("../lib/billing");
