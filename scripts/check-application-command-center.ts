@@ -6,9 +6,11 @@ delete process.env.KV_REST_API_URL;
 delete process.env.KV_REST_API_TOKEN;
 delete process.env.UPSTASH_REDIS_REST_URL;
 delete process.env.UPSTASH_REDIS_REST_TOKEN;
+Reflect.set(process.env, "NODE_ENV", "test");
 
 assert.equal(process.env.KV_REST_API_URL, undefined, "Build checks must never write Application Command Center fixtures to configured production storage.");
 assert.equal(process.env.UPSTASH_REDIS_REST_URL, undefined, "Build checks must remain isolated from configured Upstash storage.");
+assert.equal(process.env.NODE_ENV, "test", "Application Command Center fixtures must use the process-local test store.");
 
 const { opportunities } = await import("../data/opportunities");
 const { defaultBillingRecord } = await import("../lib/billing");
