@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { authenticatedFetch } from "@/data/authenticated-request";
 import { accountSessionEvent } from "@/data/account-sync";
@@ -61,6 +61,7 @@ export function ApplicationWorkspace({ initial, opportunityTitle, submission }: 
   const [retry, setRetry] = useState<(() => void) | null>(null);
   const [title, setTitle] = useState("");
   const [dueDate, setDueDate] = useState("");
+  const orderedTasks = useMemo(() => [...workspace.tasks].sort((left, right) => Number(left.completed) - Number(right.completed)), [workspace.tasks]);
 
   useEffect(() => setWorkspace(initial), [initial]);
   useEffect(() => {
@@ -224,7 +225,7 @@ export function ApplicationWorkspace({ initial, opportunityTitle, submission }: 
     </div> : null}
 
     {workspace.recentProviderUpdate ? <p className={styles.providerUpdate} role="status"><strong>{workspace.recentProviderUpdate.label}</strong> {workspace.recentProviderUpdate.summary}</p> : null}
-    {workspace.tasks.length ? <ul className={styles.tasks}>{workspace.tasks.map((task) => <li key={task.id} data-completed={task.completed ? "true" : undefined} data-pending={pending === task.id ? "true" : undefined}>
+    {workspace.tasks.length ? <section className={styles.taskSection} aria-labelledby={`application-tasks-${workspace.opportunityId}`}><header><h5 id={`application-tasks-${workspace.opportunityId}`}>{workspace.unfinishedCount ? "What’s left" : "Application tasks"}</h5><span>{workspace.unfinishedCount ? `${workspace.unfinishedCount} remaining` : "All complete"}</span></header><ul className={styles.tasks}>{orderedTasks.map((task) => <li key={task.id} data-completed={task.completed ? "true" : undefined} data-pending={pending === task.id ? "true" : undefined}>
       <button type="button" className={styles.check} aria-pressed={task.completed} aria-busy={pending === task.id ? "true" : undefined} aria-label={`${task.completed ? "Mark incomplete" : "Mark complete"}: ${task.title}`} disabled={Boolean(pending)} onClick={() => {
         const completed = !task.completed;
         void mutate({ action: "set_completion", taskId: task.id, completed }, task.id, {
@@ -232,7 +233,7 @@ export function ApplicationWorkspace({ initial, opportunityTitle, submission }: 
           announce: completed ? `Task completed: ${task.title}` : `Task reopened: ${task.title}`,
         });
       }}>{task.completed ? <CheckIcon /> : null}</button>
-      <div><span>{task.title}</span>{task.dueDate ? <time dateTime={task.dueDate}>Due {formatDate(task.dueDate)}</time> : task.source === "verified_requirement" ? <small>{task.recentlyUpdated ? "Updated by the provider" : "Listed by the provider"}</small> : null}</div>
+      <div><span>{task.title}</span><small>{task.source === "verified_requirement" ? (task.recentlyUpdated ? "Verified requirement · Updated by the provider" : "Verified requirement") : "Your task"}{task.dueDate ? <> · <time dateTime={task.dueDate}>Due {formatDate(task.dueDate)}</time></> : null}</small></div>
       {task.source === "user" ? <button type="button" className={styles.remove} disabled={Boolean(pending)} onClick={() => void mutate({ action: "delete_task", taskId: task.id }, `delete:${task.id}`, {
         onSuccess: (next) => offerUndo({
           message: "Task deleted.",
@@ -240,7 +241,7 @@ export function ApplicationWorkspace({ initial, opportunityTitle, submission }: 
           undo: () => restoreTask(task.id, next.workspaceVersion),
         }),
       })}>Remove<span className="sr-only"> {task.title}</span></button> : null}
-    </li>)}</ul> : <SmartEmptyState compact className={styles.smartEmpty} title="No application tasks yet." description="UnlockED hasn’t verified the application materials for this opportunity. Review the official requirements, then add only the tasks you need." primaryAction={{ label: "Open official application", href: workspace.officialSource, external: true }} />}
+    </li>)}</ul></section> : <SmartEmptyState compact className={styles.smartEmpty} title="No application tasks yet." description="UnlockED hasn’t verified the application materials for this opportunity. Review the official requirements, then add only the tasks you need." primaryAction={{ label: "Open official application", href: workspace.officialSource, external: true }} />}
 
     <details className={styles.addTask}>
       <summary>+ Add task</summary>

@@ -116,7 +116,7 @@
 .activeQuery { display: flex; min-height: 36px; align-items: center; gap: .65rem; margin: .25rem 0 0; color: var(--journey-muted); font-size: .67rem; }
 .activeQuery a { color: var(--journey-green); font-weight: 800; }
 .records { margin-top: .7rem; border: 1px solid var(--journey-line); border-radius: .8rem; background: color-mix(in srgb, var(--journey-panel) 90%, transparent); overflow: visible; box-shadow: 0 10px 30px rgba(40, 30, 22, .025); }
-.record { position: relative; display: grid; grid-template-columns: minmax(15rem, 1.8fr) minmax(10rem, .9fr) minmax(6.5rem, .48fr) auto; min-height: 4.75rem; align-items: center; gap: 1.1rem; border-bottom: 1px solid var(--journey-line); padding: .78rem .8rem .78rem 1.15rem; content-visibility: auto; contain-intrinsic-size: auto 86px; scroll-margin-top: 6rem; transition: background 160ms ease; }
+.record { position: relative; display: grid; grid-template-columns: minmax(15rem, 1.8fr) minmax(10rem, .9fr) auto; min-height: 4.75rem; align-items: center; gap: 1.1rem; border-bottom: 1px solid var(--journey-line); padding: .78rem .8rem .78rem 1.15rem; content-visibility: auto; contain-intrinsic-size: auto 86px; scroll-margin-top: 6rem; transition: background 160ms ease; }
 .record:hover { background: color-mix(in srgb, var(--journey-green) 2.5%, transparent); }
 .record::before { position: absolute; inset: .7rem auto .7rem 0; width: 3px; border-radius: 0 3px 3px 0; background: var(--journey-green); content: ""; }
 .record[data-stage="applied"]::before { background: var(--journey-orange); }
@@ -140,6 +140,7 @@
 .recordIdentity { min-width: 0; }
 .recordIdentity h3 { margin: 0; font: 700 clamp(1rem, 1.4vw, 1.12rem)/1.18 var(--font-editorial), Georgia, serif; overflow-wrap: anywhere; }
 .recordIdentity p { margin: .3rem 0 0; color: var(--journey-muted); font-size: .66rem; font-weight: 650; line-height: 1.35; overflow-wrap: anywhere; }
+.inlineUpdated { font-size: .59rem; font-weight: 600; }
 .recordChange { display: block; margin-top: .32rem; color: var(--journey-gold); font-size: .61rem; font-weight: 750; line-height: 1.35; }
 .recordChange[data-importance="critical"] { color: var(--journey-error); }
 .recordStage { display: grid; justify-items: start; gap: .32rem; min-width: 0; }
@@ -153,15 +154,13 @@
 .recordStage > span[data-urgency="tomorrow"],
 .recordStage > span[data-urgency="today"],
 .recordStage > span[data-urgency="overdue"] { color: var(--journey-error); font-weight: 750; }
-.recordUpdated { display: grid; gap: .28rem; color: var(--journey-muted); font-size: .56rem; font-weight: 750; letter-spacing: .04em; text-transform: uppercase; }
-.recordUpdated strong { color: var(--journey-ink); font-size: .63rem; letter-spacing: 0; text-transform: none; }
 .recordActions { display: flex; align-items: center; justify-content: flex-end; gap: .35rem; }
 .recordDetails { position: relative; }
 .recordDetails > button { display: grid; width: 44px; height: 44px; place-items: center; border: 0; border-radius: .45rem; background: transparent; color: var(--journey-muted); cursor: pointer; transition: background 150ms ease, color 150ms ease; }
 .recordDetails > button:hover { background: color-mix(in srgb, var(--journey-ink) 6%, transparent); color: var(--journey-ink); }
 .recordDetails > button svg { width: 1rem; height: 1rem; }
-.recordDetails > button[data-application-trigger="true"] { display: inline-flex; width: auto; min-width: 44px; gap: .4rem; border: 1px solid color-mix(in srgb, var(--journey-green) 34%, var(--journey-line)); color: var(--journey-green); padding: 0 .72rem; font-size: .66rem; font-weight: 800; }
-.recordDetails > button[data-application-trigger="true"]:hover { border-color: var(--journey-green); background: color-mix(in srgb, var(--journey-green) 7%, transparent); color: var(--journey-green); }
+.recordDetails > button[data-application-trigger="true"] { display: inline-flex; width: auto; min-width: 44px; gap: .4rem; border: 1px solid var(--journey-green); background: var(--journey-green); color: var(--journey-canvas); padding: 0 .78rem; font-size: .66rem; font-weight: 800; box-shadow: 0 6px 16px color-mix(in srgb, var(--journey-green) 13%, transparent); }
+.recordDetails > button[data-application-trigger="true"]:hover { border-color: var(--journey-green-strong); background: var(--journey-green-strong); color: #fffdf8; }
 .recordDetails > button[data-application-trigger="true"] svg { width: .75rem; height: .75rem; }
 .detailGrid { position: fixed; inset: 0; box-sizing: border-box; width: min(40rem, calc(100vw - 2.5rem)); max-height: min(34rem, calc(100dvh - 2.5rem)); margin: auto; overflow: auto; overscroll-behavior: contain; border: 1px solid var(--journey-line); border-radius: .7rem; background: var(--journey-panel); color: var(--journey-ink); padding: 0 1.2rem 1.2rem; box-shadow: 0 18px 55px rgba(24, 17, 12, .24); scrollbar-gutter: stable; }
 .detailGrid::backdrop { background: rgba(24, 17, 12, .28); backdrop-filter: blur(2px); }
@@ -227,7 +226,18 @@
 .noResults p, .limitNotice { color: var(--journey-muted); font-size: .72rem; }
 .noResults a { display: inline-flex; min-height: 44px; align-items: center; margin-top: .5rem; color: var(--journey-green); font-size: .72rem; font-weight: 800; }
 .primaryEmpty { margin-top: clamp(2rem, 6vw, 4rem); }
-.cardEmpty { margin-top: 2.35rem; }
+.cardEmpty { margin-top: 2.35rem; border-top: 1px solid var(--journey-line); }
+.cardEmpty > summary { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; min-height: 4.5rem; align-items: center; gap: .8rem; color: var(--journey-muted); cursor: pointer; list-style: none; }
+.cardEmpty > summary::-webkit-details-marker { display: none; }
+.cardEmpty > summary > span:first-child { display: grid; width: 2.25rem; height: 2.25rem; place-items: center; border-radius: 50%; background: color-mix(in srgb, var(--journey-green) 7%, transparent); color: var(--journey-green); }
+.cardEmpty summary svg { width: .9rem; height: .9rem; }
+.cardEmpty summary > span:nth-child(2) { display: grid; gap: .2rem; }
+.cardEmpty summary strong { color: var(--journey-ink); font: 700 .95rem/1.1 var(--font-editorial), Georgia, serif; }
+.cardEmpty summary small { font-size: .64rem; }
+.cardEmpty > div { padding: 0 0 1rem 3.05rem; }
+.cardEmpty > div > strong { display: block; margin-bottom: .25rem; color: var(--journey-ink); font-size: .7rem; }
+.cardEmpty p { max-width: 36rem; margin: 0; color: var(--journey-muted); font-size: .7rem; line-height: 1.5; }
+.cardEmpty a { display: inline-flex; min-height: 44px; align-items: center; margin-top: .35rem; color: var(--journey-green); font-size: .68rem; font-weight: 800; }
 .limitNotice { margin: 1rem 0 0; }
 .addDialog { width: min(44rem, calc(100% - 2rem)); max-width: none; max-height: min(50rem, calc(100dvh - 2rem)); border: 0; border-radius: .9rem; background: transparent; color: var(--journey-ink); padding: 0; }
 .addDialog::backdrop { background: rgba(23, 18, 15, .55); backdrop-filter: blur(5px); }
@@ -266,7 +276,6 @@
   .overview { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .toolbar { align-items: flex-end; }
   .record { grid-template-columns: minmax(13rem, 1.45fr) minmax(9rem, 1fr) auto; }
-  .recordUpdated { display: none; }
   .historyGroups { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 700px) {
@@ -306,7 +315,7 @@
   .recordDetails > button[data-application-trigger="true"] { max-width: 8.5rem; }
   .recordDetails > button[data-application-trigger="true"] span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .lifecycle { grid-column: 1 / -1; margin-left: 3.25rem; }
-  .detailGrid { inset: auto 0 0; width: 100%; max-height: 78dvh; margin: 0; border-radius: .9rem .9rem 0 0; padding: 0 1rem max(1.2rem, env(safe-area-inset-bottom)); }
+  .detailGrid { inset: auto .35rem .35rem; width: calc(100% - .7rem); max-height: calc(100dvh - 13rem); margin: 0; border-radius: .9rem; padding: 0 1rem max(1.2rem, env(safe-area-inset-bottom)); }
   .detailHeader { margin-inline: -1rem; padding: 1rem; }
   .detailGrid dl { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .history { margin-top: 2rem; }

@@ -6,11 +6,18 @@
 .toggle { display: flex; border: 1px solid var(--journey-line); border-radius: .55rem; padding: .2rem; }
 .toggle button, .add, .dayPanel header button { min-height: 44px; border: 0; border-radius: .38rem; background: transparent; color: var(--journey-muted); padding: 0 .75rem; font-size: .66rem; font-weight: 800; cursor: pointer; }
 .toggle button[aria-pressed="true"] { background: var(--journey-panel); color: var(--journey-green); box-shadow: 0 2px 8px rgba(28, 22, 17, .06); }
-.add { min-height: 44px; border: 1px solid var(--journey-green); background: var(--journey-green); color: var(--journey-canvas); }
+.add { min-height: 44px; border: 1px solid color-mix(in srgb, var(--journey-green) 42%, var(--journey-line)); background: transparent; color: var(--journey-green); }
+.add:hover { border-color: var(--journey-green); background: color-mix(in srgb, var(--journey-green) 6%, transparent); }
 .upcoming { display: grid; gap: .8rem; margin-top: .8rem; }
 .group { display: grid; grid-template-columns: 5.4rem minmax(0, 1fr); align-items: start; gap: .8rem; }
 .group > h3 { position: sticky; top: 5rem; margin: .85rem 0 0; color: var(--journey-muted); font-size: .58rem; font-weight: 850; letter-spacing: .08em; text-transform: uppercase; }
 .group > div { border-top: 1px solid var(--journey-line); }
+.additional { border-top: 1px solid var(--journey-line); }
+.additional > summary { display: inline-flex; min-height: 44px; align-items: center; color: var(--journey-green); font-size: .67rem; font-weight: 800; cursor: pointer; list-style: none; }
+.additional > summary::-webkit-details-marker { display: none; }
+.additional > summary::after { margin-left: .4rem; content: "⌄"; transition: transform 160ms ease; }
+.additional[open] > summary::after { transform: rotate(180deg); }
+.additional > div { display: grid; gap: .8rem; padding-bottom: .25rem; }
 .event { display: grid; grid-template-columns: 5rem minmax(0, 1fr) auto; min-height: 4.4rem; align-items: center; gap: .85rem; border-bottom: 1px solid var(--journey-line); padding: .65rem .15rem; }
 .event > time { display: grid; gap: .2rem; color: var(--journey-ink); }
 .event > time strong { font: 700 .85rem/1 var(--font-editorial), Georgia, serif; }

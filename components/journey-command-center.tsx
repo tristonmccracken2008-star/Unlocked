@@ -13,6 +13,7 @@ import { SmartEmptyState } from "@/components/smart-empty-state";
 import { ApplicationWorkspace } from "@/components/application-workspace";
 import { ReturnBriefing } from "@/components/return-briefing";
 import type { ReturnBriefingModel } from "@/data/return-experience";
+import { guidanceHasBeenSeen } from "@/lib/guidance";
 import styles from "./journey-command-center.module.css";
 
 const primaryFilters: JourneyCommandFilter[] = ["active", "preparing", "applied", "interviewing", "offers", "saved"];
@@ -109,7 +110,7 @@ function JourneyRecordRow({ record, theme }: { record: JourneyCommandRecord; the
         : <OrganizationMark organization="" category={record.category} size="sm" className={theme === "dark" ? styles.darkLogo : ""} />}
       <div className={styles.recordIdentity}>
         <h3>{record.title}</h3>
-        <p>{record.organization}</p>
+        <p>{record.organization}<span aria-hidden="true"> · </span><span className={styles.inlineUpdated}>Updated {relativeUpdated(record.updatedAt)}</span></p>
         {record.recentChange ? <span className={styles.recordChange} data-importance={record.recentChange.importance}>{record.recentChange.label}</span> : null}
       </div>
     </div>
@@ -119,10 +120,9 @@ function JourneyRecordRow({ record, theme }: { record: JourneyCommandRecord; the
         ? <span>{record.applicationWorkspace.completedCount}/{record.applicationWorkspace.totalCount} tasks complete{record.applicationWorkspace.deadline ? ` · ${formatDate(record.applicationWorkspace.deadline)}` : ""}</span>
         : record.nextDate ? <span data-urgency={record.nextDate.urgency}>{record.nextDate.timingLabel}{record.nextDate.urgency === "normal" ? ` ${formatDate(record.nextDate.value)}` : ""}</span> : <span>{record.statusDetail}</span>}
     </div>
-    <div className={styles.recordUpdated}><span>Updated</span><strong>{relativeUpdated(record.updatedAt)}</strong></div>
     <div className={styles.recordActions} data-record-actions="">
-      {record.control ? <JourneyTimelineControl control={record.control} compactLabel="Update" showFollowUp={false} /> : null}
       <RecordDetails record={record} />
+      {record.control ? <JourneyTimelineControl control={record.control} compactLabel="Update" showFollowUp={false} /> : null}
     </div>
     {record.lifecycle && !record.lifecycle.actionable ? <p className={styles.lifecycle}>Public listing: {record.lifecycle.label}. Your Journey stage remains {record.stageLabel}.</p> : null}
   </article>;
@@ -138,6 +138,7 @@ function EmptyRecords({ model }: { model: JourneyCommandCenterModel }) {
 
 export function JourneyCommandCenter({ model, returnBriefing = null }: { model: JourneyCommandCenterModel; returnBriefing?: ReturnBriefingModel | null }) {
   const hasRecords = model.activeCount + model.historyCount > 0;
+  const introGuidePending = model.guidance.eligibility.journey_intro && !guidanceHasBeenSeen(model.guidance.state, "journey_intro");
   const briefingReplacesSummary = Boolean(returnBriefing?.items.length);
   const analyticsState = !hasRecords ? "empty" : model.activeCount ? "active" : "validated";
   return <main className={styles.page} data-journey-command-center="" data-theme={model.theme}>
@@ -147,8 +148,8 @@ export function JourneyCommandCenter({ model, returnBriefing = null }: { model: 
         <div><h1>Journey</h1><span>Your private record of what you saved, pursued, and accomplished.</span></div>
         <JourneyCommandActions trackedIds={model.trackedIds} />
       </header>
-      <JourneyGuidance initialState={model.guidance.state} eligibility={model.guidance.eligibility} />
-      <JourneySessionFeedback accountKey={model.accountKey} overview={model.overview} attentionCount={model.attentionCount} showHints={model.showFirstUseHints} />
+      <JourneyGuidance initialState={model.guidance.state} eligibility={model.guidance.eligibility} suppressed={Boolean(returnBriefing)} />
+      <JourneySessionFeedback accountKey={model.accountKey} overview={model.overview} attentionCount={model.attentionCount} showHints={!introGuidePending && !returnBriefing && model.showFirstUseHints} />
       {returnBriefing ? <ReturnBriefing model={returnBriefing} /> : null}
 
       {!hasRecords && model.calendar.groups.length === 0 ? <SmartEmptyState className={styles.primaryEmpty} eyebrow="Journey" title="Start building your Journey." description="Add an opportunity from Discover and UnlockED will help you organize deadlines, applications, and meaningful progress in one private place." primaryAction={{ label: "Explore opportunities", href: "/opportunities" }} icon={BookmarkIcon} /> : null}
@@ -164,8 +165,6 @@ export function JourneyCommandCenter({ model, returnBriefing = null }: { model: 
           </a>)}
         </section> : null}
 
-      <JourneyDeadlineCalendar model={model.calendar} />
-
       {!hasRecords ? null : <>
 
         {model.attention.length && !briefingReplacesSummary ? <section className={styles.attention} aria-labelledby="journey-attention-heading">
@@ -177,6 +176,8 @@ export function JourneyCommandCenter({ model, returnBriefing = null }: { model: 
             <a href={`#journey-record-${item.recordId}`} aria-label={`Review ${item.title}`}><ArrowIcon /></a>
           </li>)}</ol>
         </section> : null}
+
+        <JourneyDeadlineCalendar model={model.calendar} />
 
         <section className={styles.active} id="active-opportunities" data-guide-anchor="active-opportunities" aria-labelledby="active-opportunities-heading">
           <div className={styles.sectionHeading}><h2 id="active-opportunities-heading">Active opportunities <span>{model.activeCount}</span></h2></div>
@@ -223,8 +224,12 @@ export function JourneyCommandCenter({ model, returnBriefing = null }: { model: 
         {model.cardEligible ? <section className={styles.cards} id="journey-cards" data-guide-anchor="journey-cards" aria-labelledby="journey-card-heading">
           <div><span aria-hidden="true"><SendIcon /></span><div><p>Journey Cards</p><h2 id="journey-card-heading">Present a confirmed milestone.</h2><small>Create a polished record of factual progress. Nothing is published automatically.</small></div></div>
           <JourneyCardEntry card={model.card} theme={model.theme} />
-        </section> : <SmartEmptyState compact className={styles.cardEmpty} eyebrow="Journey Cards" title="Nothing to share yet." description="Journey Cards become available after you record a meaningful milestone such as an interview, acceptance, award, or completed experience." primaryAction={model.activeCount ? { label: "Review active opportunities", href: "/#active-opportunities" } : { label: "View professional history", href: hrefFor(model, { stage: "history" }) }} icon={SendIcon} />}
+        </section> : <details className={styles.cardEmpty} id="journey-cards" data-guide-anchor="journey-cards">
+          <summary><span><SendIcon /></span><span><strong>Journey Cards</strong><small>Available after a confirmed milestone</small></span><ArrowIcon /></summary>
+          <div><strong>Nothing to share yet.</strong><p>Record an interview, acceptance, award, or completed experience to create a private, shareable card.</p><a href={model.activeCount ? "/#active-opportunities" : hrefFor(model, { stage: "history" })}>{model.activeCount ? "Review active opportunities" : "View professional history"}</a></div>
+        </details>}
       </>}
+      {!hasRecords ? <JourneyDeadlineCalendar model={model.calendar} /> : null}
     </div>
   </main>;
 }

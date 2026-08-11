@@ -11,6 +11,9 @@ assert.match(component, /data-record-identity=/);
 assert.match(component, /data-record-progress=/);
 assert.match(component, /data-record-actions=/);
 assert.match(component, /data-stage=\{record\.stageFilter\}/, "Progress color must be derived from the canonical Journey stage.");
+assert.ok(component.indexOf("Needs attention") < component.indexOf("<JourneyDeadlineCalendar"), "Immediate attention must precede secondary schedule management.");
+assert.match(component, /<RecordDetails record=\{record\} \/>[\s\S]*?<JourneyTimelineControl/, "The contextual next action must precede status management in each Journey row.");
+assert.match(component, /suppressed=\{Boolean\(returnBriefing\)\}/, "Smart Return must defer contextual guidance unless the user explicitly replays it.");
 
 assert.match(styles, /\.active\s*\{[^}]*padding-top:\s*2\.35rem/, "Primary workspace content needs deliberate separation from the summary.");
 assert.match(styles, /\.toolbar nav\s*\{[^}]*border:\s*1px solid[^}]*border-radius:/, "Stage filters must read as one organized control group.");
@@ -19,7 +22,8 @@ assert.match(styles, /\.record\s*\{[^}]*grid-template-columns:\s*minmax\(15rem,\
 assert.match(styles, /\.record\[data-stage="applied"\]::before/);
 assert.match(styles, /\.record\[data-stage="interviewing"\]::before/);
 assert.match(styles, /\.record\[data-stage="offers"\]::before/);
-assert.match(styles, /\.recordUpdated[^}]*text-transform:\s*uppercase/, "Metadata should remain visually subordinate to titles and progress.");
+assert.match(styles, /\.inlineUpdated[^}]*font-size:\s*\.59rem/, "Updated metadata should remain visually subordinate and stay with opportunity identity.");
+assert.match(styles, /data-application-trigger="true"[^}]*background:\s*var\(--journey-green\)/, "Continue application must be the dominant application-row action.");
 assert.match(styles, /\.history\s*\{[^}]*margin-top:\s*2\.35rem/);
 assert.match(styles, /\.cards\s*\{[^}]*margin-top:\s*2\.35rem/);
 assert.match(styles, /@media\s*\(max-width:\s*700px\)[\s\S]*?\.recordMain\s*\{\s*grid-column:\s*1\s*\/\s*-1/, "Mobile titles must use the full first row.");

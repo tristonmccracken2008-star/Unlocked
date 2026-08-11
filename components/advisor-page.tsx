@@ -429,7 +429,7 @@ function cleanValueLabel(value: string) {
   return /^unknown/i.test(value) ? "Not listed" : value;
 }
 
-function recommendationSignals(view: RecommendationViewModel, limit = 4) {
+function recommendationSignals(view: RecommendationViewModel, limit = 3) {
   if (view.signals?.length) return view.signals.slice(0, limit);
   const opportunity = view.opportunity;
   const reasons = view.reasons.join(" ");
@@ -583,7 +583,7 @@ function StateShell({ eyebrow, title, text, actionHref, actionLabel, secondaryHr
 
 function RecommendationCard({ view, index, onFeedback }: { view: RecommendationViewModel; index: number; onFeedback: RecommendationFeedbackHandler }) {
   const opportunity = view.opportunity;
-  const signals = recommendationSignals(view, 4);
+  const signals = recommendationSignals(view, 3);
   const score = scoreFor(view);
   const timing = timingFor(view);
   return <article className={styles.recommendation} data-for-you-card="recommendation" aria-labelledby={`recommendation-${view.recommendation.id}`}>

@@ -92,6 +92,16 @@ function EventRow({ item, onEdit, onAction, pending }: {
   </article>;
 }
 
+function EventGroups({ groups, onEdit, onAction, pending, idPrefix = "primary" }: {
+  groups: JourneyCalendarModel["groups"];
+  onEdit: (item: JourneyCalendarItem) => void;
+  onAction: (item: JourneyCalendarItem, action: "complete" | "dismiss") => void;
+  pending: string;
+  idPrefix?: string;
+}) {
+  return groups.map((group) => <section key={group.id} className={styles.group} aria-labelledby={`calendar-group-${idPrefix}-${group.id}`}><h3 id={`calendar-group-${idPrefix}-${group.id}`}>{group.label}</h3><div>{group.items.map((item) => <EventRow key={item.id} item={item} onEdit={onEdit} onAction={onAction} pending={pending} />)}</div></section>);
+}
+
 export function JourneyDeadlineCalendar({ model }: { model: JourneyCalendarModel }) {
   const router = useRouter();
   const { offerUndo } = useUndoRecovery();
@@ -112,6 +122,19 @@ export function JourneyDeadlineCalendar({ model }: { model: JourneyCalendarModel
   const cells = useMemo(() => monthCells(month), [month]);
   const selectedItems = model.items.filter((item) => item.date === selectedDate);
   const datesWithEvents = useMemo(() => new Set(model.items.map((item) => item.date)), [model.items]);
+  const { primaryGroups, additionalGroups, additionalCount } = useMemo(() => {
+    let remaining = 5;
+    const primary: JourneyCalendarModel["groups"] = [];
+    const additional: JourneyCalendarModel["groups"] = [];
+    for (const group of model.groups) {
+      const primaryItems = group.id === "passed" ? [] : group.items.slice(0, remaining);
+      const additionalItems = group.items.slice(primaryItems.length);
+      if (primaryItems.length) primary.push({ ...group, items: primaryItems });
+      if (additionalItems.length) additional.push({ ...group, items: additionalItems });
+      remaining -= primaryItems.length;
+    }
+    return { primaryGroups: primary, additionalGroups: additional, additionalCount: additional.reduce((count, group) => count + group.items.length, 0) };
+  }, [model.groups]);
 
   useEffect(() => {
     const reset = () => {
@@ -257,7 +280,7 @@ export function JourneyDeadlineCalendar({ model }: { model: JourneyCalendarModel
     {error && !dialogRef.current?.open ? <ActionFeedback message={error} state="error" action={retry ? { label: "Try again", onClick: retry, pending: Boolean(pending) } : undefined} /> : null}
 
     {view === "upcoming" ? <div className={styles.upcoming}>
-      {model.groups.length ? model.groups.map((group) => <section key={group.id} className={styles.group} aria-labelledby={`calendar-group-${group.id}`}><h3 id={`calendar-group-${group.id}`}>{group.label}</h3><div>{group.items.slice(0, group.id === "passed" ? 3 : 6).map((item) => <EventRow key={item.id} item={item} onEdit={openEdit} onAction={updateState} pending={pending} />)}</div></section>) : <SmartEmptyState compact title="Nothing coming up yet." description="Opportunity deadlines and the dates you add yourself will appear here." primaryAction={{ label: "Add date", onClick: () => openAdd() }} secondaryAction={model.trackedOptions.length ? { label: "Explore opportunities", href: "/opportunities" } : undefined} icon={CalendarIcon} />}
+      {model.groups.length ? <><EventGroups groups={primaryGroups} onEdit={openEdit} onAction={updateState} pending={pending} />{additionalCount ? <details className={styles.additional}><summary>Show {additionalCount} more {additionalCount === 1 ? "date" : "dates"}</summary><div><EventGroups groups={additionalGroups} onEdit={openEdit} onAction={updateState} pending={pending} idPrefix="additional" /></div></details> : null}</> : <SmartEmptyState compact title="Nothing coming up yet." description="Opportunity deadlines and the dates you add yourself will appear here." primaryAction={{ label: "Add date", onClick: () => openAdd() }} secondaryAction={model.trackedOptions.length ? { label: "Explore opportunities", href: "/opportunities" } : undefined} icon={CalendarIcon} />}
     </div> : <div className={styles.calendarLayout}>
       <div className={styles.calendar}>
         <header><button type="button" onClick={() => setMonth(shiftMonth(month, -1))} aria-label="Previous month"><ArrowIcon /></button><h3 aria-live="polite">{formatMonth(month)}</h3><button type="button" onClick={() => setMonth(shiftMonth(month, 1))} aria-label="Next month"><ArrowIcon /></button></header>

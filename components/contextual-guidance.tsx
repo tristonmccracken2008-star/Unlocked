@@ -51,7 +51,7 @@ function showAnchor(anchor: string) {
   window.setTimeout(() => delete element.dataset.guideHighlight, 1_600);
 }
 
-export function JourneyGuidance({ initialState, eligibility }: { initialState: GuidanceState; eligibility: JourneyEligibility }) {
+export function JourneyGuidance({ initialState, eligibility, suppressed = false }: { initialState: GuidanceState; eligibility: JourneyEligibility; suppressed?: boolean }) {
   const [state, setState] = useState(initialState);
   const [replay, setReplay] = useState<GuidanceId | null>(null);
   const [stepIndex, setStepIndex] = useState(0);
@@ -90,7 +90,7 @@ export function JourneyGuidance({ initialState, eligibility }: { initialState: G
     if (id) trackProductEvent("guide_shown_v1", { control: id }, { dedupeKey: `guide-shown:${id}`, dedupeWindowMs: 86_400_000 });
   }, [id]);
 
-  if (sessionSuppressed || !id || !current) return null;
+  if ((suppressed && !replay) || sessionSuppressed || !id || !current) return null;
 
   async function finish(status: GuidanceStatus) {
     if (pending) return;
