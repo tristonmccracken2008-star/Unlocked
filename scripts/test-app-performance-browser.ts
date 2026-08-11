@@ -326,7 +326,7 @@ async function verifyDiscover(page: Page, origin: string, screenshotLabel: strin
   assert.equal(await search.evaluate((node) => document.activeElement === node), true, "The slash shortcut must focus Discover search outside editable controls.");
 
   await page.goto(`${origin}/opportunities?type=AI&category=Scholarships`, { waitUntil: "domcontentloaded" });
-  await page.getByText("No opportunities match these filters.", { exact: true }).waitFor({ state: "visible" });
+  await page.getByText("No opportunities match this search.", { exact: true }).waitFor({ state: "visible" });
   await page.getByRole("button", { name: "Use Any category" }).click();
   await page.getByRole("link", { name: "Open Opportunity" }).first().waitFor({ state: "visible", timeout: 20_000 });
   if (screenshotLabel === "narrow-desktop") {

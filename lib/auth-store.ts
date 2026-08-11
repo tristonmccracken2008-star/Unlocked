@@ -451,7 +451,7 @@ export async function updateGuidanceState(userId: string, input: { id: GuidanceI
 }
 
 export async function mutateJourneyCalendarEvent(userId: string, input: {
-  action: "create" | "update" | "complete" | "dismiss";
+  action: "create" | "update" | "complete" | "dismiss" | "restore";
   event: JourneyCalendarEventRecord;
   expectedVersion?: number;
 }) {
@@ -467,6 +467,13 @@ export async function mutateJourneyCalendarEvent(userId: string, input: {
         error.name = "CalendarEventNotFoundError";
         throw error;
       }
+      const alreadyApplied = input.expectedVersion !== undefined && current.version === input.expectedVersion + 1 && (
+        input.action === "restore" ? !current.completed && !current.dismissed
+          : input.action === "complete" ? current.completed
+            : input.action === "dismiss" ? current.dismissed
+              : false
+      );
+      if (alreadyApplied) return { account, event: current, duplicate: true };
       if (input.expectedVersion !== current.version) {
         const error = new Error("This calendar item changed elsewhere. Refresh and try again.");
         error.name = "CalendarEventConflictError";
@@ -477,6 +484,8 @@ export async function mutateJourneyCalendarEvent(userId: string, input: {
       ? { ...current!, completed: true, dismissed: false, updatedAt: input.event.updatedAt, version: current!.version + 1 }
       : input.action === "dismiss"
         ? { ...current!, dismissed: true, updatedAt: input.event.updatedAt, version: current!.version + 1 }
+        : input.action === "restore"
+          ? { ...current!, completed: false, dismissed: false, updatedAt: input.event.updatedAt, version: current!.version + 1 }
         : input.action === "update"
           ? { ...input.event, createdAt: current!.createdAt, version: current!.version + 1 }
           : input.event;

@@ -213,17 +213,50 @@ export async function archiveExpiredNotifications(userId: string, now = new Date
   });
 }
 
-export async function markAllNotificationsRead(userId: string, now = new Date()) {
+export async function markAllNotificationsReadWithReceipt(userId: string, now = new Date()) {
   return await withSecurityLock("notifications", userId, async () => {
     const records = await readAll(userId);
     let changed = 0;
+    const operationAt = now.toISOString();
     const next = records.map((item) => {
       if (item.readAt || item.channels.inApp.state !== "delivered") return item;
       changed += 1;
-      return { ...item, state: item.state === "delivered" ? "read" as const : item.state, readAt: now.toISOString() };
+      return { ...item, state: item.state === "delivered" ? "read" as const : item.state, readAt: operationAt };
     });
     if (changed) await writeAll(userId, next);
-    return changed;
+    return { updated: changed, operationAt };
+  });
+}
+
+export async function markAllNotificationsRead(userId: string, now = new Date()) {
+  return (await markAllNotificationsReadWithReceipt(userId, now)).updated;
+}
+
+export async function restoreNotificationReadBatch(userId: string, operationAt: string) {
+  return await withSecurityLock("notifications", userId, async () => {
+    const records = await readAll(userId);
+    let restored = 0;
+    const next = records.map((item) => {
+      if (item.readAt !== operationAt || item.state !== "read") return item;
+      restored += 1;
+      return { ...item, state: "delivered" as const, readAt: undefined };
+    });
+    if (restored) await writeAll(userId, next);
+    return restored;
+  });
+}
+
+export async function restoreNotificationDismissal(userId: string, notificationId: string, dismissedAt: string) {
+  return await withSecurityLock("notifications", userId, async () => {
+    const records = await readAll(userId);
+    const index = records.findIndex((item) => item.id === notificationId);
+    if (index < 0) return null;
+    const current = records[index];
+    if (current.restoredDismissedAt === dismissedAt && current.state !== "dismissed") return current;
+    if (current.dismissedAt !== dismissedAt || current.state !== "dismissed") return null;
+    records[index] = { ...current, state: current.readAt ? "read" : "delivered", dismissedAt: undefined, restoredDismissedAt: dismissedAt };
+    await writeAll(userId, records);
+    return records[index];
   });
 }
 

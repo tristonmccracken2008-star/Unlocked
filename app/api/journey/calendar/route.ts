@@ -95,12 +95,12 @@ export async function PATCH(request: Request) {
     const id = cleanText(body.id, 127);
     const expectedVersion = Number(body.expectedVersion);
     const action = body.action;
-    if (!safeId.test(id) || !Number.isInteger(expectedVersion) || expectedVersion < 0 || !["update", "complete", "dismiss"].includes(String(action))) throw new SecurityError("Invalid calendar update.", 400, "invalid_request");
+    if (!safeId.test(id) || !Number.isInteger(expectedVersion) || expectedVersion < 0 || !["update", "complete", "dismiss", "restore"].includes(String(action))) throw new SecurityError("Invalid calendar update.", 400, "invalid_request");
     const account = await readAccountData(session.user.id);
     const existing = account.calendarEvents?.[id];
     if (!existing) throw new SecurityError("Calendar item not found.", 404, "calendar_event_not_found");
     const event = action === "update" ? await parseEvent({ ...body, idempotencyKey: id.replace(/^calendar:/, "") }, session.user.id, existing) : { ...existing, updatedAt: new Date().toISOString() };
-    const result = await mutateJourneyCalendarEvent(session.user.id, { action: action as "update" | "complete" | "dismiss", event, expectedVersion });
+    const result = await mutateJourneyCalendarEvent(session.user.id, { action: action as "update" | "complete" | "dismiss" | "restore", event, expectedVersion });
     after(async () => { await syncUserNotificationSchedules(session.user.id, result.account).catch(() => undefined); });
     return NextResponse.json({ ok: true, event: result.event }, { headers: noStore });
   } catch (error) {

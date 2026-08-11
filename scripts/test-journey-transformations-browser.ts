@@ -206,7 +206,6 @@ async function runBrowser(browser: Browser, origin: string, sessions: Awaited<Re
   const page = await context.newPage();
   await page.goto(origin, { waitUntil: "domcontentloaded", timeout: 45_000 });
   await page.locator("[data-journey-command-center]").waitFor({ state: "visible" });
-  await page.waitForLoadState("networkidle");
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   assert.ok(overflow <= 1, `Journey transformation UI must not overflow; received ${overflow}px.`);
   if (full) {
@@ -216,21 +215,21 @@ async function runBrowser(browser: Browser, origin: string, sessions: Awaited<Re
     await page.evaluate(() => localStorage.clear());
     await installSession(context, origin, sessions[1].token);
     await page.goto(origin, { waitUntil: "domcontentloaded" });
-    await page.waitForLoadState("networkidle");
+    await page.locator("[data-journey-command-center]").waitFor({ state: "visible" });
     await verifyPauseResumeClose(page);
 
     await context.clearCookies();
     await page.evaluate(() => localStorage.clear());
     await installSession(context, origin, sessions[2].token);
     await page.goto(origin, { waitUntil: "domcontentloaded" });
-    await page.waitForLoadState("networkidle");
+    await page.locator("[data-journey-command-center]").waitFor({ state: "visible" });
     await verifyFailures(page, origin);
 
     await context.clearCookies();
     await page.evaluate(() => localStorage.clear());
     await installSession(context, origin, sessions[3].token);
     await page.goto(origin, { waitUntil: "domcontentloaded" });
-    await page.waitForLoadState("networkidle");
+    await page.locator("[data-journey-command-center]").waitFor({ state: "visible" });
     await page.route("**/api/journey/transition", async (route) => { await new Promise((resolve) => setTimeout(resolve, 600)); await route.continue(); }, { times: 1 });
     const dialog = await openUpdate(page);
     await dialog.getByRole("button", { name: "Save milestone" }).click();

@@ -174,6 +174,7 @@ function cleanTracker(value: unknown) {
       professionalStageId: safeId(record.professionalStageId) ?? undefined,
       pausedFromProfessionalStageId: safeId(record.pausedFromProfessionalStageId) ?? undefined,
       history,
+      undoneTransitionIds: Array.isArray(record.undoneTransitionIds) ? record.undoneTransitionIds.flatMap((value) => safeId(value) ?? []).slice(-20) : [],
     }]);
   }
   return Object.fromEntries(entries);

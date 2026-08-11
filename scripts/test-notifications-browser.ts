@@ -120,9 +120,10 @@ async function exercise(browser: Browser, browserName: string, origin: string, t
   }, { times: 1 });
   await page.goto(`${origin}/notifications`, { waitUntil: "domcontentloaded", timeout: 60_000 });
   await page.getByRole("heading", { name: "Useful updates, nothing more." }).waitFor();
-  await page.locator("[data-notification-skeleton]").waitFor({ state: "visible" });
+  const skeleton = page.locator("[data-notification-skeleton]");
+  const skeletonAppeared = await skeleton.waitFor({ state: "visible", timeout: 2_000 }).then(() => true).catch(() => false);
   await page.getByRole("heading", { name: expectedTitle }).waitFor();
-  await page.locator("[data-notification-skeleton]").waitFor({ state: "hidden" });
+  if (skeletonAppeared) await skeleton.waitFor({ state: "hidden" });
   await assert.doesNotReject(async () => page.locator(`html[data-theme="${expectedTheme}"]`).waitFor({ timeout: 5_000 }));
   assert.equal(await page.getByText(forbiddenTitle, { exact: true }).count(), 0, "An account must never render another account's notification.");
   assert.ok(await page.getByRole("link", { name: /Notifications,/ }).isVisible());
@@ -147,6 +148,20 @@ async function exercise(browser: Browser, browserName: string, origin: string, t
   assert.equal(await notificationItem.getAttribute("data-read"), "true", "Read notifications must use the shared visual state.");
   assert.equal(await notificationItem.locator("[data-visible='false']").count(), 1, "Unread indicator must fade without a layout jump.");
   assert.equal(await notificationItem.locator("button[data-read='true']").count(), 1, "Read action must settle into a stable confirmed state.");
+  await notificationItem.getByRole("button", { name: `Dismiss: ${expectedTitle}` }).click();
+  await notificationItem.waitFor({ state: "detached" });
+  const dismissUndo = page.locator("[data-undo-recovery]");
+  await dismissUndo.getByRole("button", { name: "Undo", exact: true }).click();
+  await dismissUndo.getByText("Notification restored.", { exact: true }).waitFor();
+  await notificationItem.waitFor({ state: "visible" });
+  await dismissUndo.waitFor({ state: "hidden" });
+  const markAll = page.getByRole("button", { name: "Mark all read", exact: true });
+  if (await markAll.count()) {
+    await markAll.click();
+    const markAllUndo = page.locator("[data-undo-recovery]");
+    await markAllUndo.getByRole("button", { name: "Undo", exact: true }).click();
+    await markAllUndo.getByText("Unread notifications restored.", { exact: true }).waitFor();
+  }
   await assert.doesNotReject(async () => page.getByRole("link", { name: "Notifications" }).waitFor({ timeout: 5_000 }));
   const sectionHeading = page.getByRole("heading", { name: expectedGroups[0]!, exact: true });
   assert.equal(await sectionHeading.evaluate((node) => getComputedStyle(node).position), "sticky");

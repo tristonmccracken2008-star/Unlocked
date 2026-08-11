@@ -29,6 +29,14 @@ export type JourneyTransitionResult = {
   duplicate: boolean;
 };
 
+export type JourneyUndoRequest = {
+  eventId: string;
+  expectedStatus: OpportunityTrackerStatus;
+  expectedVersion: number;
+  idempotencyKey: string;
+  occurredAt: string;
+};
+
 export type JourneyProfessionalUpdateRequest = {
   targetStageId: string;
   expectedStatus: OpportunityTrackerStatus;
@@ -156,6 +164,33 @@ export function applyJourneyProfessionalUpdate(
   return { record: next, historyRecord, duplicate: false };
 }
 
+export function applyJourneyUndo(record: TrackedOpportunity, request: JourneyUndoRequest) {
+  if (!validIdempotencyKey(request.idempotencyKey) || !validIdempotencyKey(request.eventId) || !Number.isInteger(request.expectedVersion) || request.expectedVersion < 0 || Number.isNaN(Date.parse(request.occurredAt))) {
+    throw new JourneyTransitionError("The Journey recovery request is malformed.", "invalid_request");
+  }
+  if ((record.undoneTransitionIds ?? []).includes(request.idempotencyKey)) return { record, duplicate: true };
+  if (record.status !== request.expectedStatus || (record.version ?? 0) !== request.expectedVersion) throw new JourneyTransitionError("The Journey changed before Undo could be applied.", "stale_state");
+  const history = [...(record.history ?? [])];
+  const latest = history.at(-1);
+  if (!latest || latest.id !== request.eventId) throw new JourneyTransitionError("Only the latest Journey update can be undone.", "stale_state");
+  history.pop();
+  const remainingProfessional = [...history].reverse().find((item) => item.professionalStageId && item.professionalStageId !== "paused");
+  return {
+    duplicate: false,
+    record: {
+      ...record,
+      status: latest.priorStatus,
+      updatedAt: request.occurredAt,
+      version: (record.version ?? 0) + 1,
+      history,
+      professionalStageId: latest.professionalStageId && latest.professionalStageId !== "paused" ? remainingProfessional?.professionalStageId : record.professionalStageId,
+      pausedFrom: latest.priorStatus === "Paused" ? record.pausedFrom : undefined,
+      pausedFromProfessionalStageId: latest.priorStatus === "Paused" ? record.pausedFromProfessionalStageId : undefined,
+      undoneTransitionIds: [...new Set([...(record.undoneTransitionIds ?? []), request.idempotencyKey])].slice(-20),
+    } satisfies TrackedOpportunity,
+  };
+}
+
 export function accountSyncPreservesJourneyState(current: TrackedOpportunity | undefined, incoming: TrackedOpportunity) {
   if (!current) return incoming.status === "Saved" && (incoming.version ?? 0) === 0 && (incoming.history?.length ?? 0) === 0;
   return incoming.status === current.status
@@ -163,5 +198,6 @@ export function accountSyncPreservesJourneyState(current: TrackedOpportunity | u
     && incoming.pausedFrom === current.pausedFrom
     && incoming.professionalStageId === current.professionalStageId
     && incoming.pausedFromProfessionalStageId === current.pausedFromProfessionalStageId
+    && JSON.stringify(incoming.undoneTransitionIds ?? []) === JSON.stringify(current.undoneTransitionIds ?? [])
     && JSON.stringify(incoming.history ?? []) === JSON.stringify(current.history ?? []);
 }

@@ -4,7 +4,7 @@ import type { AccountData, AuthUser } from "./account-types";
 import { mergeAccountData, readAccountData, withSecurityLock } from "./auth-store";
 import { listPublishedOpportunitiesByIds } from "./content-store";
 import { buildJourneyEditorialProjection } from "./journey-editorial";
-import { applyJourneyProfessionalUpdate, applyJourneyTransition, JourneyTransitionError, type JourneyTransitionRequest } from "@/data/journey-transformations";
+import { applyJourneyProfessionalUpdate, applyJourneyTransition, applyJourneyUndo, JourneyTransitionError, type JourneyTransitionRequest } from "@/data/journey-transformations";
 import { getJourneyProfessionalWorkflow, professionalStageById, resolveJourneyProfessionalStage } from "@/data/journey-professional";
 import { createOpenLineMotionPlan, type OpenLineMotionPlan } from "@/data/open-line";
 import type { JourneyMilestoneDetails, JourneyProgressTransition, OpportunityTrackerStatus, TrackedOpportunity } from "@/data/student-activity";
@@ -16,6 +16,14 @@ export type JourneyTransitionMutation = {
   transition?: JourneyProgressTransition;
   professionalStageId?: string;
   details?: JourneyMilestoneDetails;
+  expectedStatus: OpportunityTrackerStatus;
+  expectedVersion: number;
+  idempotencyKey: string;
+};
+
+export type JourneyUndoMutation = {
+  opportunityId: string;
+  eventId: string;
   expectedStatus: OpportunityTrackerStatus;
   expectedVersion: number;
   idempotencyKey: string;
@@ -210,5 +218,23 @@ export async function transformJourneyProgress(user: Pick<AuthUser, "id" | "name
       });
     }
     return result;
+  });
+}
+
+export async function undoJourneyProgress(user: Pick<AuthUser, "id">, mutation: JourneyUndoMutation) {
+  return await withSecurityLock("journey-transition", user.id, async () => {
+    const account = await readAccountData(user.id);
+    const current = trackedRecord(account, mutation.opportunityId);
+    if (!current) throw new JourneyTransitionError("This opportunity is not part of your Journey.", "invalid_request");
+    const now = new Date().toISOString();
+    const applied = applyJourneyUndo(current, { ...mutation, occurredAt: now });
+    if (applied.duplicate) return { ok: true as const, duplicate: true, record: current };
+    const restored = applied.record;
+    const tracked = { ...(account.activity?.tracked ?? {}), ...(account.tracker ?? {}), [mutation.opportunityId]: restored };
+    const activity = { viewed: account.activity?.viewed ?? [], saved: [...new Set([...(account.activity?.saved ?? []), mutation.opportunityId])], claimed: account.activity?.claimed ?? [], tracked };
+    const persisted = await mergeAccountData(user.id, { tracker: tracked, activity });
+    const record = trackedRecord(persisted, mutation.opportunityId);
+    if (!record || record.version !== restored.version || record.status !== restored.status) throw new JourneyTransitionError("The Journey changed before Undo could be saved.", "stale_state");
+    return { ok: true as const, duplicate: false, record };
   });
 }

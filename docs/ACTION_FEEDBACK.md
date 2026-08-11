@@ -24,3 +24,15 @@ UnlockED uses one restrained interaction language for authenticated mutations. T
 ## Accessibility and motion
 
 Pending controls use `aria-busy`. Important success and error text uses polite status or assertive alert semantics. Routine updates use one concise live-region announcement. Focus does not move after completion. Feedback uses text and icons in addition to color, supports 44 px actions, and removes entrance motion when reduced motion is requested.
+
+## Undo and recovery
+
+Meaningful reversible actions use the global, bounded Undo queue. Its eight-second window pauses while hovered or focused and clears immediately when the account session changes. Undo callbacks always call authenticated, same-origin server mutations; the UI never restores authoritative data from a client snapshot alone.
+
+- Journey reverses only the latest canonical transition and advances record versioning.
+- Deleted private application tasks remain in a bounded server-side tombstone until restored; their derived calendar date returns through the normal projection.
+- Personal calendar completion and dismissal use expected-version restoration.
+- Notification recovery is scoped to the exact server operation timestamp.
+- Recommendation recovery writes a semantic `undo` feedback record.
+
+Directly reversible controls, such as checking and unchecking a task, do not create redundant Undo messages. Irreversible account and privacy operations retain their existing confirmation requirements.

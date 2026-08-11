@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { after, NextResponse } from "next/server";
 import { getSession, sessionCookieName } from "@/lib/auth-store";
-import { markAllNotificationsRead, unreadNotificationCount, updateNotificationState } from "@/lib/notification-store";
+import { markAllNotificationsReadWithReceipt, restoreNotificationDismissal, restoreNotificationReadBatch, unreadNotificationCount, updateNotificationState } from "@/lib/notification-store";
 import { readNotificationCenter, syncUserNotificationSchedules } from "@/lib/notification-service";
 import { assertSameOrigin, enforceRateLimit, readBoundedJson, SecurityError, securityErrorResponse } from "@/lib/security";
 import { recordAnalyticsEvent } from "@/lib/analytics-store";
@@ -56,9 +56,20 @@ export async function PATCH(request: Request) {
     const body = await readBoundedJson<Record<string, unknown>>(request, 4 * 1024);
     const action = body.action;
     if (action === "mark_all_read") {
-      const updated = await markAllNotificationsRead(session.user.id);
+      const { updated, operationAt } = await markAllNotificationsReadWithReceipt(session.user.id);
       after(async () => { await recordAnalyticsEvent(productIntelligenceEvents.notificationRead, session.user.id, { category: "all" }).catch(() => undefined); });
-      return NextResponse.json({ ok: true, updated }, { headers: noStore });
+      return NextResponse.json({ ok: true, updated, operationAt }, { headers: noStore });
+    }
+    if (action === "undo_mark_all_read") {
+      const operationAt = typeof body.operationAt === "string" && Number.isFinite(Date.parse(body.operationAt)) ? body.operationAt : "";
+      if (!operationAt) throw new SecurityError("Invalid notification recovery request.", 400, "invalid_request");
+      return NextResponse.json({ ok: true, restored: await restoreNotificationReadBatch(session.user.id, operationAt) }, { headers: noStore });
+    }
+    if (action === "undo_dismiss") {
+      if (typeof body.notificationId !== "string" || !notificationId.test(body.notificationId) || typeof body.dismissedAt !== "string" || !Number.isFinite(Date.parse(body.dismissedAt))) throw new SecurityError("Invalid notification recovery request.", 400, "invalid_request");
+      const notification = await restoreNotificationDismissal(session.user.id, body.notificationId, body.dismissedAt);
+      if (!notification) throw new SecurityError("This notification changed after it was dismissed.", 409, "stale_notification");
+      return NextResponse.json({ ok: true, notification }, { headers: noStore });
     }
     if (!["read", "dismiss", "archive", "acted"].includes(String(action)) || typeof body.notificationId !== "string" || !notificationId.test(body.notificationId)) {
       throw new SecurityError("Invalid notification action.", 400, "invalid_request");

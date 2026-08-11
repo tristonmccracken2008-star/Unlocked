@@ -9,6 +9,7 @@ import type { ApplicationWorkspaceProjection } from "@/lib/application-workspace
 import { ArrowIcon, CheckIcon } from "@/components/icons";
 import { SmartEmptyState } from "@/components/smart-empty-state";
 import { ActionButtonLabel, ActionFeedback } from "@/components/action-feedback";
+import { useUndoRecovery } from "@/components/undo-recovery";
 import styles from "./application-workspace.module.css";
 
 type SubmissionAction = {
@@ -49,6 +50,7 @@ export function ApplicationWorkspace({ initial, opportunityTitle, submission }: 
   submission?: SubmissionAction;
 }) {
   const router = useRouter();
+  const { offerUndo } = useUndoRecovery();
   const workspaceRef = useRef<HTMLElement | null>(null);
   const requestRef = useRef<AbortController | null>(null);
   const [workspace, setWorkspace] = useState(initial);
@@ -56,7 +58,6 @@ export function ApplicationWorkspace({ initial, opportunityTitle, submission }: 
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [announcement, setAnnouncement] = useState("");
-  const [confirmRemove, setConfirmRemove] = useState("");
   const [retry, setRetry] = useState<(() => void) | null>(null);
   const [title, setTitle] = useState("");
   const [dueDate, setDueDate] = useState("");
@@ -80,7 +81,6 @@ export function ApplicationWorkspace({ initial, opportunityTitle, submission }: 
       setError("");
       setMessage("");
       setAnnouncement("");
-      setConfirmRemove("");
       setRetry(null);
       setTitle("");
       setDueDate("");
@@ -93,6 +93,7 @@ export function ApplicationWorkspace({ initial, opportunityTitle, submission }: 
     optimistic?: (current: ApplicationWorkspaceProjection) => ApplicationWorkspaceProjection;
     success?: string;
     announce?: string;
+    onSuccess?: (workspace: ApplicationWorkspaceProjection) => void;
   } = {}) {
     if (pending) return null;
     const previous = workspace;
@@ -124,7 +125,7 @@ export function ApplicationWorkspace({ initial, opportunityTitle, submission }: 
       setWorkspace(result.workspace);
       if (options.success) setMessage(options.success);
       if (options.announce) setAnnouncement(options.announce);
-      setConfirmRemove("");
+      options.onSuccess?.(result.workspace);
       return result.workspace;
     } catch {
       if (options.optimistic) setWorkspace(previous);
@@ -144,6 +145,19 @@ export function ApplicationWorkspace({ initial, opportunityTitle, submission }: 
     if (!title.trim()) return;
     const result = await mutate({ action: "add_task", idempotencyKey: `application-task:${crypto.randomUUID()}`, title, dueDate: dueDate || undefined }, "add", { success: "Task added." });
     if (result) { setTitle(""); setDueDate(""); }
+  }
+
+  async function restoreTask(taskId: string, expectedVersion: number) {
+    const response = await authenticatedFetch("/api/journey/application", {
+      method: "POST",
+      credentials: "same-origin",
+      cache: "no-store",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "restore_task", opportunityId: workspace.opportunityId, expectedVersion, taskId }),
+    });
+    const result = await response.json().catch(() => null) as { ok?: boolean; workspace?: ApplicationWorkspaceProjection } | null;
+    if (!response.ok || !result?.ok || !result.workspace) throw new Error("Task restore failed");
+    setWorkspace(result.workspace);
   }
 
   async function markApplied() {
@@ -219,10 +233,13 @@ export function ApplicationWorkspace({ initial, opportunityTitle, submission }: 
         });
       }}>{task.completed ? <CheckIcon /> : null}</button>
       <div><span>{task.title}</span>{task.dueDate ? <time dateTime={task.dueDate}>Due {formatDate(task.dueDate)}</time> : task.source === "verified_requirement" ? <small>{task.recentlyUpdated ? "Updated by the provider" : "Listed by the provider"}</small> : null}</div>
-      {task.source === "user" ? <button type="button" className={styles.remove} disabled={Boolean(pending)} data-confirm={confirmRemove === task.id ? "true" : undefined} onClick={() => {
-        if (confirmRemove !== task.id) { setConfirmRemove(task.id); setMessage(""); return; }
-        void mutate({ action: "delete_task", taskId: task.id }, `delete:${task.id}`, { success: "Task removed." });
-      }}>{confirmRemove === task.id ? "Confirm remove" : "Remove"}<span className="sr-only"> {task.title}</span></button> : null}
+      {task.source === "user" ? <button type="button" className={styles.remove} disabled={Boolean(pending)} onClick={() => void mutate({ action: "delete_task", taskId: task.id }, `delete:${task.id}`, {
+        onSuccess: (next) => offerUndo({
+          message: "Task deleted.",
+          restoredMessage: "Task restored.",
+          undo: () => restoreTask(task.id, next.workspaceVersion),
+        }),
+      })}>Remove<span className="sr-only"> {task.title}</span></button> : null}
     </li>)}</ul> : <SmartEmptyState compact className={styles.smartEmpty} title="No application tasks yet." description="UnlockED hasn’t verified the application materials for this opportunity. Review the official requirements, then add only the tasks you need." primaryAction={{ label: "Open official application", href: workspace.officialSource, external: true }} />}
 
     <details className={styles.addTask}>

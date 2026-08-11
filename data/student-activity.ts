@@ -47,6 +47,7 @@ export type TrackedOpportunity = {
   professionalStageId?: string;
   pausedFromProfessionalStageId?: string;
   history?: JourneyTransitionHistoryRecord[];
+  undoneTransitionIds?: string[];
 };
 
 export type StudentActivity = {
@@ -81,10 +82,11 @@ export function readStudentActivity(): StudentActivity {
         professionalStageId: typeof value.professionalStageId === "string" ? value.professionalStageId : undefined,
         pausedFromProfessionalStageId: typeof value.pausedFromProfessionalStageId === "string" ? value.pausedFromProfessionalStageId : undefined,
         history: Array.isArray(value.history) ? value.history : [],
+        undoneTransitionIds: uniqueStrings(value.undoneTransitionIds).slice(-20),
       }];
     }));
     for (const id of saved) {
-      if (!tracked[id]) tracked[id] = { id, status: "Saved", savedAt: new Date().toISOString(), updatedAt: new Date().toISOString(), version: 0, pausedFrom: undefined, professionalStageId: undefined, pausedFromProfessionalStageId: undefined, history: [] };
+      if (!tracked[id]) tracked[id] = { id, status: "Saved", savedAt: new Date().toISOString(), updatedAt: new Date().toISOString(), version: 0, pausedFrom: undefined, professionalStageId: undefined, pausedFromProfessionalStageId: undefined, history: [], undoneTransitionIds: [] };
     }
     return {
       viewed: uniqueStrings(parsed?.viewed),
@@ -133,6 +135,7 @@ export function saveOpportunity(id: string, status: OpportunityTrackerStatus = "
     professionalStageId: existing?.professionalStageId,
     pausedFromProfessionalStageId: existing?.pausedFromProfessionalStageId,
     history: existing?.history ?? [],
+    undoneTransitionIds: existing?.undoneTransitionIds ?? [],
   };
   activity.tracked = tracked;
   activity.saved = [...new Set([...activity.saved, id])];

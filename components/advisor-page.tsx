@@ -23,10 +23,10 @@ import styles from "./advisor-page.module.css";
 import { AdvisorRecommendationLoading } from "./loading-system";
 import { DelayedPendingLabel } from "./delayed-pending-label";
 import { SmartEmptyState } from "./smart-empty-state";
+import { useUndoRecovery } from "./undo-recovery";
 
 type ForYouPageState = "loading" | "pro_ready" | "free_preview" | "profile_incomplete" | "empty" | "preparing" | "error";
 type SessionReadiness = "checking" | "authenticated" | "unauthenticated" | "error";
-type UndoableFeedback = { view: RecommendationViewModel; index: number };
 
 type AdvisorState = {
   pageState: Exclude<ForYouPageState, "loading">;
@@ -126,13 +126,13 @@ function trackRecommendationOpen(view: RecommendationViewModel) {
 }
 
 export function AdvisorPage({ initialState = null, serverAuthenticated = false }: { initialState?: ForYouServerState | null; serverAuthenticated?: boolean }) {
+  const { offerUndo } = useUndoRecovery();
   const initial = initialState ? normalizeForYouPayload(initialState) : null;
   const [state, setState] = useState<AdvisorState | null>(initial?.state ?? null);
   const [pageState, setPageState] = useState<ForYouPageState>(initial?.pageState ?? "loading");
   const [sessionReadiness, setSessionReadiness] = useState<SessionReadiness>(initialState || serverAuthenticated ? "authenticated" : "checking");
   const [errorMessage, setErrorMessage] = useState("");
   const [feedbackMessage, setFeedbackMessage] = useState("");
-  const [undoableFeedback, setUndoableFeedback] = useState<UndoableFeedback | null>(null);
   const [requestActive, setRequestActive] = useState(false);
   const trackedRecommendation = useRef("");
   const trackedImpressions = useRef(new Set<string>());
@@ -152,7 +152,6 @@ export function AdvisorPage({ initialState = null, serverAuthenticated = false }
         trackedFeedSignature.current = "";
         setState(null);
         setPageState("loading");
-        setUndoableFeedback(null);
       }
       sessionKey.current = nextSessionKey;
       setSessionReadiness("authenticated");
@@ -164,7 +163,6 @@ export function AdvisorPage({ initialState = null, serverAuthenticated = false }
     setRequestActive(false);
     setState(null);
     lastValidResponse.current = null;
-    setUndoableFeedback(null);
     setSessionReadiness("unauthenticated");
     setPageState("error");
     setErrorMessage("Please sign in to load your recommendations.");
@@ -358,9 +356,20 @@ export function AdvisorPage({ initialState = null, serverAuthenticated = false }
       const removesFromFeed = ["dismissed", "not-interested", "show-fewer", "not-eligible", "already-applied", "already-completed", "completed"].includes(feedbackType);
       if (removesFromFeed) {
         setState((current) => current ? { ...current, recommendations: current.recommendations.filter((item) => item.recommendation.id !== view.recommendation.id) } : current);
-        setUndoableFeedback({ view, index: Math.max(0, currentIndex) });
-      } else {
-        setUndoableFeedback(null);
+        offerUndo({
+          message: "Recommendation hidden.",
+          restoredMessage: "Recommendation restored.",
+          undo: async () => {
+            const restored = await sendFeedback(view, "undo", "Recommendation restored.");
+            if (!restored) throw new Error("Recommendation recovery failed");
+            setState((current) => {
+              if (!current || current.recommendations.some((item) => item.recommendation.id === view.recommendation.id)) return current;
+              const recommendations = [...current.recommendations];
+              recommendations.splice(Math.min(Math.max(0, currentIndex), recommendations.length), 0, view);
+              return { ...current, recommendations };
+            });
+          },
+        });
       }
       setFeedbackMessage(label);
       return true;
@@ -368,21 +377,6 @@ export function AdvisorPage({ initialState = null, serverAuthenticated = false }
       setFeedbackMessage("We couldn’t save that preference. Try again.");
       return false;
     }
-  }
-
-  async function undoFeedback() {
-    const undo = undoableFeedback;
-    if (!undo) return;
-    setFeedbackMessage("Restoring this recommendation…");
-    const restored = await sendFeedback(undo.view, "undo", "Recommendation restored.");
-    if (!restored) return;
-    setState((current) => {
-      if (!current || current.recommendations.some((item) => item.recommendation.id === undo.view.recommendation.id)) return current;
-      const recommendations = [...current.recommendations];
-      recommendations.splice(Math.min(undo.index, recommendations.length), 0, undo.view);
-      return { ...current, recommendations };
-    });
-    setUndoableFeedback(null);
   }
 
   if (sessionReadiness === "checking" || pageState === "loading") return <ForYouLoading />;
@@ -398,7 +392,7 @@ export function AdvisorPage({ initialState = null, serverAuthenticated = false }
     <section className={styles.container}>
       <Hero state={state} firstName={firstName} count={recommended.length} />
       <TopRecommendation view={top} onFeedback={sendFeedback} />
-      {feedbackMessage ? <div role="status" aria-live="polite" className={styles.feedbackStatus}><span>{feedbackMessage}</span>{undoableFeedback ? <button type="button" onClick={() => void undoFeedback()}>Undo</button> : null}</div> : null}
+      {feedbackMessage ? <div role="status" aria-live="polite" className={styles.feedbackStatus}><span>{feedbackMessage}</span></div> : null}
       <RecommendedGrid recommendations={recommended.slice(1)} onFeedback={sendFeedback} />
       {recommended.length < 4 ? <LimitedInventoryNote /> : null}
       {pageState === "free_preview" ? <ForYouUpgradeGate totalMatches={state.totalMatches} shown={state.recommendations.length} /> : null}

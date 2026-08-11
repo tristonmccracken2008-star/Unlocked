@@ -66,6 +66,7 @@ export type NotificationRecord = {
   expiresAt: string;
   readAt?: string;
   dismissedAt?: string;
+  restoredDismissedAt?: string;
   actedAt?: string;
   idempotencyKey: string;
   contentVersion: string;

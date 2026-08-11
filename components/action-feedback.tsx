@@ -35,7 +35,7 @@ export function ActionFeedback({
   state: Exclude<ActionPhase, "idle" | "pending">;
   level?: ActionFeedbackLevel;
   id?: string;
-  action?: { label: string; onClick: () => void; pending?: boolean };
+  action?: { label: string; onClick: () => void; pending?: boolean; pendingLabel?: string };
   className?: string;
 }) {
   if (!message) return null;
@@ -52,6 +52,6 @@ export function ActionFeedback({
   >
     <span className={styles.icon} aria-hidden="true">{state === "success" ? <CheckIcon /> : "!"}</span>
     <span>{message}</span>
-    {action ? <button type="button" disabled={action.pending} onClick={action.onClick}>{action.pending ? "Trying again…" : action.label}</button> : null}
+    {action ? <button type="button" disabled={action.pending} onClick={action.onClick}>{action.pending ? action.pendingLabel ?? "Trying again…" : action.label}</button> : null}
   </div>;
 }

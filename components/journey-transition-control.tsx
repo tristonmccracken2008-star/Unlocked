@@ -14,12 +14,15 @@ import { recommendationAttributionDetailsFor, trackProductEvent, trackProductTim
 import styles from "./journey-editorial.module.css";
 import { DelayedPendingLabel } from "./delayed-pending-label";
 import { ActionFeedback } from "./action-feedback";
+import { useUndoRecovery } from "./undo-recovery";
 
 type TransitionResponse = {
   ok: true;
   duplicate: boolean;
   transition: JourneyProgressTransition;
   record: TrackedOpportunity;
+  milestoneEventId: string;
+  stageChange?: { before: string; after: string };
   narrative: { title: string; accomplishment: string; whatChanged: string; storyType: string };
   geometries: JourneyEditorialModel["geometries"];
   horizonGeometries: JourneyEditorialModel["horizon"]["geometries"];
@@ -37,6 +40,7 @@ function messageForStatus(status: number, fallback?: string) {
 
 export function JourneyTransitionControl({ control }: { control: NonNullable<JourneyEditorialModel["transitionControl"]> }) {
   const router = useRouter();
+  const { offerUndo } = useUndoRecovery();
   const [record, setRecord] = useState<TrackedOpportunity>({
     id: control.opportunityId,
     status: control.status,
@@ -136,6 +140,26 @@ export function JourneyTransitionControl({ control }: { control: NonNullable<Jou
       activity.tracked = { ...(activity.tracked ?? {}), [body.record.id]: body.record };
       activity.saved = [...new Set([...activity.saved, body.record.id])];
       replaceStudentActivity(activity);
+      const undoRequestId = `journey-undo:${crypto.randomUUID()}`;
+      if (!body.duplicate) offerUndo({
+        message: body.stageChange ? `Marked as ${body.stageChange.after}.` : "Journey updated.",
+        restoredMessage: body.stageChange ? `Restored to ${body.stageChange.before}.` : "Journey update restored.",
+        undo: async () => {
+          const undoResponse = await authenticatedFetch("/api/journey/transition", {
+            method: "POST",
+            credentials: "same-origin",
+            cache: "no-store",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ action: "undo", opportunityId: control.opportunityId, eventId: body.milestoneEventId, expectedStatus: body.record.status, expectedVersion: body.record.version ?? 0, idempotencyKey: undoRequestId }),
+          });
+          const undone = await undoResponse.json().catch(() => null) as { ok?: boolean; record?: TrackedOpportunity } | null;
+          if (!undoResponse.ok || !undone?.ok || !undone.record) throw new Error("Journey recovery failed");
+          const latest = readStudentActivity();
+          latest.tracked = { ...(latest.tracked ?? {}), [undone.record.id]: undone.record };
+          replaceStudentActivity(latest);
+          router.refresh();
+        },
+      });
       window.dispatchEvent(new CustomEvent(journeyTransformationEvent, { detail: {
         geometries: body.geometries,
         horizonGeometries: body.horizonGeometries,

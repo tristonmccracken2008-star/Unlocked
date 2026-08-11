@@ -4,7 +4,7 @@ import { Component, lazy, Suspense, useEffect, useMemo, useRef, useState, type R
 import { useRouter } from "next/navigation";
 import { authenticatedFetch } from "@/data/authenticated-request";
 import { accountSessionEvent } from "@/data/account-sync";
-import type { JourneyMilestoneDocumentReference, JourneyProgressTransition, TrackedOpportunity } from "@/data/student-activity";
+import { readStudentActivity, replaceStudentActivity, type JourneyMilestoneDocumentReference, type JourneyProgressTransition, type TrackedOpportunity } from "@/data/student-activity";
 import type { MilestoneCelebration } from "@/data/milestone-celebrations";
 import type { JourneyProfessionalAction } from "@/data/journey-professional";
 import type { JourneyTimelineControl } from "@/lib/journey-timeline";
@@ -12,6 +12,7 @@ import { CheckCircleIcon, CloseIcon } from "@/components/icons";
 import { ResolvedOrganizationMark } from "@/components/organization-logo";
 import styles from "./journey-timeline.module.css";
 import { DelayedPendingLabel } from "./delayed-pending-label";
+import { useUndoRecovery } from "./undo-recovery";
 
 const MilestoneCelebrationEffect = lazy(() => import("./milestone-celebration-effect"));
 const celebrationStorageKey = "unlocked-shown-milestone-celebrations";
@@ -74,6 +75,7 @@ function documentsFrom(files: FileList | null): JourneyMilestoneDocumentReferenc
 
 export function JourneyTimelineControl({ control, compactLabel = "Update Journey", showFollowUp = true }: { control: JourneyTimelineControl; compactLabel?: string; showFollowUp?: boolean }) {
   const router = useRouter();
+  const { offerUndo } = useUndoRecovery();
   const dialogRef = useRef<HTMLDialogElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const alternateStagesRef = useRef<HTMLDetailsElement>(null);
@@ -193,6 +195,27 @@ export function JourneyTimelineControl({ control, compactLabel = "Update Journey
         return;
       }
       setResult(body);
+      const undoRequestId = `journey-undo:${crypto.randomUUID()}`;
+      if (!body.duplicate) offerUndo({
+        message: body.stageChange ? `Marked as ${body.stageChange.after}.` : "Journey updated.",
+        restoredMessage: body.stageChange ? `Restored to ${body.stageChange.before}.` : "Journey update restored.",
+        undo: async () => {
+          const undoResponse = await authenticatedFetch("/api/journey/transition", {
+            method: "POST",
+            credentials: "same-origin",
+            cache: "no-store",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ action: "undo", opportunityId: control.opportunityId, eventId: body.milestoneEventId, expectedStatus: body.record.status, expectedVersion: body.record.version ?? 0, idempotencyKey: undoRequestId }),
+          });
+          const undone = await undoResponse.json().catch(() => null) as { ok?: boolean; record?: TrackedOpportunity } | null;
+          if (!undoResponse.ok || !undone?.ok || !undone.record) throw new Error("Journey recovery failed");
+          const activity = readStudentActivity();
+          activity.tracked = { ...(activity.tracked ?? {}), [undone.record.id]: undone.record };
+          replaceStudentActivity(activity);
+          close(true);
+          router.refresh();
+        },
+      });
       const row = dialogRef.current?.closest<HTMLElement>("[data-journey-record]");
       if (row) {
         row.dataset.recentlyUpdated = "true";

@@ -17,7 +17,7 @@ const transition = source("components/journey-transition-control.tsx");
 const save = source("components/opportunity-activity.tsx");
 const docs = source("docs/ACTION_FEEDBACK.md");
 
-for (const token of ["ActionButtonLabel", "ActionFeedback", 'role={state === "error" ? "alert" : "status"}', 'aria-atomic="true"', "data-action-feedback", "action?: { label: string; onClick: () => void; pending?: boolean }"]) {
+for (const token of ["ActionButtonLabel", "ActionFeedback", 'role={state === "error" ? "alert" : "status"}', 'aria-atomic="true"', "data-action-feedback", "action?: { label: string; onClick: () => void; pending?: boolean; pendingLabel?: string }"]) {
   assert.ok(shared.includes(token), `Shared feedback must preserve ${token}.`);
 }
 for (const token of ["min-height: 44px", "var(--unlocked-error-surface)", "prefers-reduced-motion", "@media (max-width: 520px)"]) assert.ok(styles.includes(token), `Feedback styles must preserve ${token}.`);
@@ -25,7 +25,7 @@ for (const state of ["loading", "success", "error"]) assert.ok(globalStyles.incl
 
 assert.ok(application.indexOf("if (options.optimistic) setWorkspace") < application.indexOf('authenticatedFetch("/api/journey/application"'), "Reversible task completion must acknowledge input before awaiting the server.");
 assert.ok((application.match(/setWorkspace\(previous\)/g) ?? []).length >= 2, "Optimistic task updates must roll back on response and network failure.");
-for (const token of ["Task added.", "Task removed.", "Task completed:", "Your previous version is still intact.", "Confirm remove", "Try again"]) assert.ok(application.includes(token), `Application feedback must preserve ${token}.`);
+for (const token of ["Task added.", "Task deleted.", "Task restored.", "Task completed:", "Your previous version is still intact.", "Try again"]) assert.ok(application.includes(token), `Application feedback must preserve ${token}.`);
 for (const token of ["Date added.", "Date updated.", "Date completed.", "Reminder dismissed.", "Your previous calendar is still intact.", "ActionButtonLabel", "ActionFeedback"]) assert.ok(calendar.includes(token), `Calendar feedback must preserve ${token}.`);
 for (const token of ["markingAll", "setItems(previous)", "ActionButtonLabel", "ActionFeedback", "authenticatedFetch"]) assert.ok(notifications.includes(token), `Notification feedback must preserve ${token}.`);
 for (const token of ["Notification settings saved.", "Your previous choices are unchanged.", "ActionButtonLabel", "ActionFeedback", "authenticatedFetch"]) assert.ok(notificationSettings.includes(token), `Notification settings feedback must preserve ${token}.`);

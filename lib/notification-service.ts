@@ -318,6 +318,7 @@ export async function queueJourneyMilestoneNotification(input: {
   const opportunity = opportunities.find((item) => item.id === input.opportunityId);
   if (!opportunity) return { status: "suppressed" as const, reason: "missing_opportunity" };
   const event = (record.history ?? []).find((entry) => entry.id === input.eventId);
+  if (!event) return { status: "suppressed" as const, reason: "missing_event" };
   const records = Object.values({ ...(account.activity?.tracked ?? {}), ...(account.tracker ?? {}) });
   const category = categoryLabel(opportunity);
   const opportunityById = new Map(opportunities.map((item) => [item.id, item]));

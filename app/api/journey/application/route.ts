@@ -40,7 +40,7 @@ function parseMutation(value: unknown): ApplicationWorkspaceMutation {
   const taskId = cleanText(body.taskId, 128);
   if (!safeRequestId.test(taskId)) throw new SecurityError("Invalid application task.", 400, "invalid_request");
   if (body.action === "set_completion" && typeof body.completed === "boolean") return { action: "set_completion", opportunityId, expectedVersion, taskId, completed: body.completed };
-  if (body.action === "delete_task") return { action: "delete_task", opportunityId, expectedVersion, taskId };
+  if (body.action === "delete_task" || body.action === "restore_task") return { action: body.action, opportunityId, expectedVersion, taskId };
   throw new SecurityError("Invalid application task action.", 400, "invalid_request");
 }
 

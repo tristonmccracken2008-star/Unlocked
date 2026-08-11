@@ -4,7 +4,7 @@ import { journeyProgressTransitions, opportunityTrackerStatuses, type JourneyMil
 import { isJourneyProfessionalStageId } from "@/data/journey-professional";
 import { JourneyTransitionError } from "@/data/journey-transformations";
 import { getSession, sessionCookieName } from "@/lib/auth-store";
-import { transformJourneyProgress } from "@/lib/journey-transition-service";
+import { transformJourneyProgress, undoJourneyProgress } from "@/lib/journey-transition-service";
 import { queueJourneyMilestoneNotification, syncUserNotificationSchedules } from "@/lib/notification-service";
 import { assertSameOrigin, enforceRateLimit, readBoundedJson, SecurityError, securityErrorResponse } from "@/lib/security";
 
@@ -15,19 +15,25 @@ function parseBody(value: unknown) {
   if (!value || typeof value !== "object" || Array.isArray(value)) throw new SecurityError("Invalid transition request.", 400, "invalid_request");
   const body = value as Record<string, unknown>;
   if (typeof body.opportunityId !== "string" || !/^[A-Za-z0-9][A-Za-z0-9._:-]{0,159}$/.test(body.opportunityId)) throw new SecurityError("Invalid opportunity.", 400, "invalid_request");
+  const expectedStatus = body.expectedStatus as OpportunityTrackerStatus;
+  if (!opportunityTrackerStatuses.includes(expectedStatus)) throw new SecurityError("Invalid current status.", 400, "invalid_request");
+  if (!Number.isInteger(body.expectedVersion) || Number(body.expectedVersion) < 0) throw new SecurityError("Invalid record version.", 400, "invalid_request");
+  if (typeof body.idempotencyKey !== "string" || !/^[A-Za-z0-9][A-Za-z0-9._:-]{7,127}$/.test(body.idempotencyKey)) throw new SecurityError("Invalid request identifier.", 400, "invalid_request");
+  if (body.action === "undo") {
+    if (typeof body.eventId !== "string" || !/^[A-Za-z0-9][A-Za-z0-9._:-]{7,127}$/.test(body.eventId)) throw new SecurityError("Invalid Journey recovery event.", 400, "invalid_request");
+    return { action: "undo" as const, opportunityId: body.opportunityId as string, eventId: body.eventId, expectedStatus, expectedVersion: Number(body.expectedVersion), idempotencyKey: body.idempotencyKey };
+  }
   const professionalStageId = typeof body.professionalStageId === "string" && isJourneyProfessionalStageId(body.professionalStageId) ? body.professionalStageId : undefined;
   const transition = journeyProgressTransitions.includes(body.transition as JourneyProgressTransition) ? body.transition as JourneyProgressTransition : undefined;
   if (!professionalStageId && !transition) throw new SecurityError("Invalid transition.", 422, "invalid_transition");
-  if (!opportunityTrackerStatuses.includes(body.expectedStatus as OpportunityTrackerStatus)) throw new SecurityError("Invalid current status.", 400, "invalid_request");
-  if (!Number.isInteger(body.expectedVersion) || Number(body.expectedVersion) < 0) throw new SecurityError("Invalid record version.", 400, "invalid_request");
-  if (typeof body.idempotencyKey !== "string" || !/^[A-Za-z0-9][A-Za-z0-9._:-]{7,127}$/.test(body.idempotencyKey)) throw new SecurityError("Invalid request identifier.", 400, "invalid_request");
   const details = cleanDetails(body.details);
   return {
+    action: "transition" as const,
     opportunityId: body.opportunityId,
     transition,
     professionalStageId,
     details,
-    expectedStatus: body.expectedStatus as OpportunityTrackerStatus,
+    expectedStatus,
     expectedVersion: Number(body.expectedVersion),
     idempotencyKey: body.idempotencyKey,
   };
@@ -62,11 +68,11 @@ export async function POST(request: Request) {
     if (!session) return NextResponse.json({ error: "Your session has ended. Sign in again to update your Journey.", code: "not_authenticated" }, { status: 401, headers: { "Cache-Control": "no-store, max-age=0" } });
     await enforceRateLimit(request, "journey-transition", 60, 60, session.user.id);
     const mutation = parseBody(await readBoundedJson(request, 8 * 1024));
-    const result = await transformJourneyProgress(session.user, mutation);
+    const result = mutation.action === "undo" ? await undoJourneyProgress(session.user, mutation) : await transformJourneyProgress(session.user, mutation);
     after(async () => {
       await Promise.allSettled([
         syncUserNotificationSchedules(session.user.id),
-        result.duplicate ? Promise.resolve() : queueJourneyMilestoneNotification({
+        result.duplicate || !("milestoneEventId" in result) || typeof result.milestoneEventId !== "string" ? Promise.resolve() : queueJourneyMilestoneNotification({
           userId: session.user.id,
           opportunityId: mutation.opportunityId,
           eventId: result.milestoneEventId,

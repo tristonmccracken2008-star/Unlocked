@@ -8,7 +8,8 @@ import { listPublishedOpportunitiesByIds } from "./content-store";
 export type ApplicationWorkspaceMutation =
   | { action: "add_task"; opportunityId: string; expectedVersion: number; idempotencyKey: string; title: string; dueDate?: string }
   | { action: "set_completion"; opportunityId: string; expectedVersion: number; taskId: string; completed: boolean }
-  | { action: "delete_task"; opportunityId: string; expectedVersion: number; taskId: string };
+  | { action: "delete_task"; opportunityId: string; expectedVersion: number; taskId: string }
+  | { action: "restore_task"; opportunityId: string; expectedVersion: number; taskId: string };
 
 function mutationError(message: string, name: string) {
   const error = new Error(message);
@@ -35,6 +36,7 @@ export async function updateApplicationWorkspace(user: Pick<AuthUser, "id">, mut
       if (!currentRecord) throw mutationError("Only opportunities in your Journey can have application tasks.", "ApplicationWorkspaceOwnershipError");
       const now = new Date().toISOString();
       const workspace = materializeApplicationWorkspace(existing, opportunity, now);
+      workspace.deletedTasks = { ...(workspace.deletedTasks ?? {}) };
       if (mutation.action === "add_task") {
         const id = customApplicationTaskId(mutation.opportunityId, mutation.idempotencyKey);
         if (workspace.tasks[id]) return { workspace, duplicate: true };
@@ -49,8 +51,16 @@ export async function updateApplicationWorkspace(user: Pick<AuthUser, "id">, mut
           updatedAt: now,
           version: 0,
         };
+      } else if (mutation.action === "restore_task") {
+        const existingTask = workspace.tasks[mutation.taskId];
+        if (existingTask) return { workspace, duplicate: true };
+        const deleted = workspace.deletedTasks[mutation.taskId];
+        if (!deleted) throw mutationError("This task is no longer available to restore.", "ApplicationTaskNotFoundError");
+        workspace.tasks[deleted.id] = { ...deleted, updatedAt: now, version: deleted.version + 1 };
+        delete workspace.deletedTasks[deleted.id];
       } else {
         const task = workspace.tasks[mutation.taskId];
+        if (mutation.action === "delete_task" && !task && workspace.deletedTasks[mutation.taskId]) return { workspace, duplicate: true };
         if (!task) throw mutationError("This application task no longer exists.", "ApplicationTaskNotFoundError");
         if (mutation.action === "set_completion") {
           if (task.completed === mutation.completed) return { workspace, duplicate: true };
@@ -61,8 +71,11 @@ export async function updateApplicationWorkspace(user: Pick<AuthUser, "id">, mut
             updatedAt: now,
             version: task.version + 1,
           };
-        } else {
+        } else if (mutation.action === "delete_task") {
           if (task.source !== "user") throw mutationError("Verified requirements can be completed, but not removed.", "ApplicationTaskProtectedError");
+          workspace.deletedTasks[task.id] = { ...task, updatedAt: now };
+          const retained = Object.values(workspace.deletedTasks).sort((left, right) => right.updatedAt.localeCompare(left.updatedAt)).slice(0, 10);
+          workspace.deletedTasks = Object.fromEntries(retained.map((item) => [item.id, item]));
           delete workspace.tasks[task.id];
         }
       }

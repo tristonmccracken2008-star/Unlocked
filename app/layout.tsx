@@ -7,6 +7,7 @@ import { ProductAnalytics } from "@/components/product-analytics";
 import { AuthBoundary } from "@/components/auth-boundary";
 import { ThemeBootstrapScript, ThemeController } from "@/components/theme-controller";
 import { journeyThemeCss } from "@/lib/journey-theme";
+import { UndoRecoveryHost } from "@/components/undo-recovery";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.unlockededu.com"),
@@ -23,5 +24,5 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en" data-scroll-behavior="smooth" data-theme="light" suppressHydrationWarning><head><style id="unlocked-journey-theme-tokens" dangerouslySetInnerHTML={{ __html: journeyThemeCss() }} /></head><body><ThemeBootstrapScript/><AccountSync /><ThemeController/><ProductAnalytics/><a href="#main-content" className="skip-link">Skip to main content</a><Header /><div id="main-content" tabIndex={-1}><AuthBoundary>{children}</AuthBoundary></div><Footer /></body></html>;
+  return <html lang="en" data-scroll-behavior="smooth" data-theme="light" suppressHydrationWarning><head><style id="unlocked-journey-theme-tokens" dangerouslySetInnerHTML={{ __html: journeyThemeCss() }} /></head><body><ThemeBootstrapScript/><AccountSync /><ThemeController/><ProductAnalytics/><a href="#main-content" className="skip-link">Skip to main content</a><Header /><div id="main-content" tabIndex={-1}><AuthBoundary>{children}</AuthBoundary></div><Footer /><UndoRecoveryHost /></body></html>;
 }

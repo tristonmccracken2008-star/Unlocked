@@ -15,6 +15,7 @@ import type { GuidanceState } from "@/lib/guidance";
 import { SmartEmptyState } from "./smart-empty-state";
 import { authenticatedFetch } from "@/data/authenticated-request";
 import { ActionButtonLabel, ActionFeedback } from "./action-feedback";
+import { useUndoRecovery } from "./undo-recovery";
 
 type CenterResponse = {
   notifications: NotificationRecord[];
@@ -22,14 +23,14 @@ type CenterResponse = {
   nextCursor: number | null;
 };
 
-async function updateNotification(action: "read" | "dismiss" | "acted" | "mark_all_read", notificationId?: string) {
+async function updateNotification(action: "read" | "dismiss" | "acted" | "mark_all_read" | "undo_mark_all_read" | "undo_dismiss", notificationId?: string, recovery?: Record<string, unknown>) {
   const response = await authenticatedFetch("/api/notifications", {
     method: "PATCH",
     credentials: "same-origin",
     cache: "no-store",
     keepalive: action === "acted",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ action, notificationId }),
+    body: JSON.stringify({ action, notificationId, ...recovery }),
   });
   if (!response.ok) throw new Error("Notification update failed.");
   return await response.json();
@@ -64,6 +65,7 @@ function NotificationSkeleton() {
 }
 
 export function NotificationCenter({ guidanceState = {} }: { guidanceState?: GuidanceState }) {
+  const { offerUndo } = useUndoRecovery();
   const [items, setItems] = useState<NotificationRecord[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [nextCursor, setNextCursor] = useState<number | null>(null);
@@ -187,7 +189,18 @@ export function NotificationCenter({ guidanceState = {} }: { guidanceState?: Gui
     setItems((current) => current.map((item) => ({ ...item, readAt: item.readAt ?? now, state: item.state === "delivered" ? "read" : item.state })));
     setUnreadCount(0);
     try {
-      await updateNotification("mark_all_read");
+      const receipt = await updateNotification("mark_all_read") as { operationAt?: string };
+      if (receipt.operationAt) offerUndo({
+        message: "All notifications marked read.",
+        restoredMessage: "Unread notifications restored.",
+        undo: async () => {
+          const result = await updateNotification("undo_mark_all_read", undefined, { operationAt: receipt.operationAt });
+          if (!result?.ok) throw new Error("Notification recovery failed");
+          setItems(previous);
+          setUnreadCount(previous.filter((item) => !item.readAt).length);
+          window.dispatchEvent(new Event("unlocked:notifications-updated"));
+        },
+      });
       window.dispatchEvent(new Event("unlocked:notifications-updated"));
     } catch {
       setItems(previous);
@@ -218,7 +231,7 @@ export function NotificationCenter({ guidanceState = {} }: { guidanceState?: Gui
     if (dismissingIds.has(item.id)) return;
     const requestAccountVersion = accountVersionRef.current;
     setDismissingIds((current) => new Set(current).add(item.id));
-    const request = updateNotification("dismiss", item.id).then(() => true).catch(() => false);
+    const request = updateNotification("dismiss", item.id).then((body) => body as { notification?: NotificationRecord }).catch(() => null);
     await new Promise((resolve) => window.setTimeout(resolve, 150));
     if (accountVersionRef.current !== requestAccountVersion) return;
     capturePositions();
@@ -226,7 +239,20 @@ export function NotificationCenter({ guidanceState = {} }: { guidanceState?: Gui
     if (!item.readAt) setUnreadCount((count) => Math.max(0, count - 1));
     const saved = await request;
     if (accountVersionRef.current !== requestAccountVersion) return;
-    if (saved) {
+    if (saved?.notification?.dismissedAt) {
+      const dismissedAt = saved.notification.dismissedAt;
+      offerUndo({
+        message: "Notification dismissed.",
+        restoredMessage: "Notification restored.",
+        undo: async () => {
+          const restored = await updateNotification("undo_dismiss", item.id, { dismissedAt }) as { notification?: NotificationRecord };
+          if (!restored.notification) throw new Error("Notification recovery failed");
+          capturePositions();
+          setItems((current) => current.some((candidate) => candidate.id === item.id) ? current : [restored.notification!, ...current].sort((left, right) => right.createdAt.localeCompare(left.createdAt)));
+          if (!restored.notification.readAt) setUnreadCount((count) => count + 1);
+          window.dispatchEvent(new Event("unlocked:notifications-updated"));
+        },
+      });
       window.dispatchEvent(new Event("unlocked:notifications-updated"));
     } else {
       capturePositions();

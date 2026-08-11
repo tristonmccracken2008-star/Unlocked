@@ -85,6 +85,7 @@ export function materializeApplicationWorkspace(existing: ApplicationWorkspaceRe
   return {
     opportunityId: opportunity.id,
     tasks,
+    deletedTasks: existing?.deletedTasks ?? {},
     createdAt: existing?.createdAt ?? now,
     updatedAt: existing?.updatedAt ?? now,
     version: existing?.version ?? 0,
@@ -181,7 +182,19 @@ export function normalizeApplicationWorkspaces(value: AccountData["applicationWo
         version: Number.isInteger(task.version) && task.version >= 0 ? task.version : 0,
       };
     }
-    workspaces[opportunityId] = { ...candidate, opportunityId, tasks, version: Number.isInteger(candidate.version) && candidate.version >= 0 ? candidate.version : 0 };
+    const deletedTasks: Record<string, ApplicationTaskRecord> = {};
+    for (const [id, task] of Object.entries(candidate.deletedTasks ?? {}).slice(-10)) {
+      if (!task || task.id !== id || task.source !== "user" || typeof task.title !== "string" || !task.title.trim()) continue;
+      deletedTasks[id] = {
+        ...task,
+        title: task.title.replace(/\s+/g, " ").trim().slice(0, 120),
+        dueDate: typeof task.dueDate === "string" && /^\d{4}-\d{2}-\d{2}$/.test(task.dueDate) ? task.dueDate : undefined,
+        source: "user",
+        completed: Boolean(task.completed),
+        version: Number.isInteger(task.version) && task.version >= 0 ? task.version : 0,
+      };
+    }
+    workspaces[opportunityId] = { ...candidate, opportunityId, tasks, deletedTasks, version: Number.isInteger(candidate.version) && candidate.version >= 0 ? candidate.version : 0 };
   }
   return workspaces;
 }

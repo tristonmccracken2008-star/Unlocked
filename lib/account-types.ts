@@ -100,6 +100,7 @@ export type ApplicationTaskRecord = {
 export type ApplicationWorkspaceRecord = {
   opportunityId: string;
   tasks: Record<string, ApplicationTaskRecord>;
+  deletedTasks?: Record<string, ApplicationTaskRecord>;
   createdAt: string;
   updatedAt: string;
   version: number;

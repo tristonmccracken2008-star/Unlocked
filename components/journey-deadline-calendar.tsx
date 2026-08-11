@@ -12,6 +12,7 @@ import type { JourneyCalendarEventType } from "@/lib/account-types";
 import styles from "./journey-deadline-calendar.module.css";
 import { SmartEmptyState } from "./smart-empty-state";
 import { ActionButtonLabel, ActionFeedback } from "./action-feedback";
+import { useUndoRecovery } from "./undo-recovery";
 
 type View = "upcoming" | "calendar";
 type Draft = {
@@ -93,6 +94,7 @@ function EventRow({ item, onEdit, onAction, pending }: {
 
 export function JourneyDeadlineCalendar({ model }: { model: JourneyCalendarModel }) {
   const router = useRouter();
+  const { offerUndo } = useUndoRecovery();
   const dialogRef = useRef<HTMLDialogElement>(null);
   const addButtonRef = useRef<HTMLButtonElement>(null);
   const requestRef = useRef<AbortController | null>(null);
@@ -210,14 +212,30 @@ export function JourneyDeadlineCalendar({ model }: { model: JourneyCalendarModel
     setRetry(null);
     try {
       const response = await authenticatedFetch("/api/journey/calendar", { method: "PATCH", credentials: "same-origin", cache: "no-store", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: item.id, expectedVersion: item.version, action }) });
-      const body = await response.json().catch(() => null) as { ok?: boolean; error?: string } | null;
+      const body = await response.json().catch(() => null) as { ok?: boolean; error?: string; event?: { version: number } } | null;
       if (!response.ok || !body?.ok) {
         setError(errorMessage(response.status, body?.error));
         setRetry(() => () => void updateState(item, action));
         if (response.status === 409) router.refresh();
         return;
       }
-      setFeedback(action === "complete" ? "Date completed." : "Reminder dismissed.");
+      const version = body.event?.version;
+      if (version === undefined) throw new Error("Calendar response was incomplete");
+      offerUndo({
+        message: action === "complete" ? "Date completed." : "Reminder dismissed.",
+        restoredMessage: action === "complete" ? "Date restored." : "Reminder restored.",
+        undo: async () => {
+          const restored = await authenticatedFetch("/api/journey/calendar", {
+            method: "PATCH",
+            credentials: "same-origin",
+            cache: "no-store",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id: item.id, expectedVersion: version, action: "restore" }),
+          });
+          if (!restored.ok) throw new Error("Calendar restore failed");
+          router.refresh();
+        },
+      });
       router.refresh();
     } catch {
       setError("We couldn’t reach UnlockED. Your calendar is unchanged.");
