@@ -59,6 +59,9 @@ All Journey action aggregates are retained for 90 days.
 | --- | --- | --- |
 | `journey_viewed_v1` | `status` | Did students reach Journey in a meaningful state? |
 | `journey_returned_v1` | none | Did a student return on a later UTC day? |
+| `return_briefing_shown_v1` | `status`, `category`, `priority` | Was a concise return briefing available without recording its content? |
+| `return_briefing_action_v1` | `category`, `priority`, `action` | Did the briefing lead into an existing product workflow? |
+| `return_briefing_dismissed_v1` | `category`, `priority` | Did a student dismiss a non-critical return item? |
 | `journey_opportunity_added_v1` | `opportunityId`, `source` | Did an opportunity enter Journey from Discover or For You? |
 | `first_opportunity_saved_v1` | `source` | Did the account complete its first server-confirmed save? |
 | `activation_achieved_v1` | `source` | Did the account reach the first-session activation definition? |
@@ -82,7 +85,7 @@ All Journey action aggregates are retained for 90 days.
 
 Journey Card events never include the card headline, identity choice, school, dates, statistics, highlights, image bytes, or share destination.
 
-First-save and activation events are emitted only by the authenticated Journey-add service after persistence succeeds. Replayed requests and opportunities already present in Journey do not increment them. They contain no profile answers, recommendation content, or account identifiers in their properties.
+Return briefing events contain no greeting, item copy, opportunity title, profile answer, notification content, or account identifier. First-save and activation events are emitted only by the authenticated Journey-add service after persistence succeeds. Replayed requests and opportunities already present in Journey do not increment them. They contain no profile answers, recommendation content, or account identifiers in their properties.
 
 ## Path Moment Events
 

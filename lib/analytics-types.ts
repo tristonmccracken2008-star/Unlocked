@@ -3,6 +3,9 @@ export const analyticsSchemaVersion = 1 as const;
 export const productIntelligenceEvents = {
   journeyViewed: "journey_viewed_v1",
   journeyReturned: "journey_returned_v1",
+  returnBriefingShown: "return_briefing_shown_v1",
+  returnBriefingAction: "return_briefing_action_v1",
+  returnBriefingDismissed: "return_briefing_dismissed_v1",
   journeyOpportunityAdded: "journey_opportunity_added_v1",
   waypointClicked: "journey_waypoint_clicked_v1",
   waypointCompleted: "journey_waypoint_completed_v1",
@@ -163,6 +166,9 @@ const error = (purpose: string): AnalyticsEventDefinition => ({ kind: "operation
 export const productIntelligenceDefinitions: Record<ProductIntelligenceEventName, AnalyticsEventDefinition> = {
   journey_viewed_v1: action("Measure whether students reach and understand Journey.", ["status"]),
   journey_returned_v1: action("Measure whether Journey gives students a reason to return."),
+  return_briefing_shown_v1: action("Measure whether a concise return briefing is available without recording its content.", ["status", "category", "priority"]),
+  return_briefing_action_v1: action("Measure whether a return briefing leads to an existing product workflow.", ["category", "priority", "action"]),
+  return_briefing_dismissed_v1: action("Measure dismissal of a non-critical return item without recording its content.", ["category", "priority"]),
   journey_opportunity_added_v1: action("Measure when an opportunity first enters a student's Journey.", ["opportunityId", "source"]),
   journey_waypoint_clicked_v1: action("Measure whether the current next step is clear.", ["source"]),
   journey_waypoint_completed_v1: action("Measure whether students complete the next step presented by Journey.", ["transition"]),

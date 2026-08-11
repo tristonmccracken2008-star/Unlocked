@@ -5,6 +5,9 @@ import { getServerSessionForProduct } from "@/lib/onboarding";
 import { accountHasCompletedOnboarding } from "@/lib/auth-store";
 import { listPublishedOpportunitiesByIds } from "@/lib/content-store";
 import { buildJourneyCommandCenterModel } from "@/lib/journey-command-center";
+import { buildReturnBriefing } from "@/lib/return-experience";
+import { readReturnExperienceReceipt, returnExperienceCookieName } from "@/lib/return-experience-receipt";
+import { readNotifications } from "@/lib/notification-store";
 import { cookies } from "next/headers";
 import { isProUser } from "@/lib/billing";
 import { redirect } from "next/navigation";
@@ -18,6 +21,17 @@ export const dynamic = "force-dynamic";
 
 function first(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
+}
+
+async function returnNotifications(userId: string) {
+  let timeout: ReturnType<typeof setTimeout> | undefined;
+  const fallback = new Promise<{ notifications: []; unreadCount: 0; nextCursor: null }>((resolve) => {
+    timeout = setTimeout(() => resolve({ notifications: [], unreadCount: 0, nextCursor: null }), 500);
+  });
+  return await Promise.race([
+    readNotifications(userId, 0, 30).catch(() => ({ notifications: [], unreadCount: 0, nextCursor: null })),
+    fallback,
+  ]).finally(() => { if (timeout) clearTimeout(timeout); });
 }
 
 export default async function Home({ searchParams }: { searchParams?: Promise<Record<string, string | string[] | undefined>> }) {
@@ -38,9 +52,13 @@ export default async function Home({ searchParams }: { searchParams?: Promise<Re
   ])];
   try {
     const query = await searchParams;
-    const opportunities = await listPublishedOpportunitiesByIds(trackedIds, { includeArchived: true });
+    const cookieStore = await cookies();
+    const [opportunities, notificationCenter] = await Promise.all([
+      listPublishedOpportunitiesByIds(trackedIds, { includeArchived: true }),
+      returnNotifications(session.user.id),
+    ]);
     const appearance = session.data.preferences?.appearance ?? "light";
-    const systemScheme = (await cookies()).get("unlocked-color-scheme")?.value;
+    const systemScheme = cookieStore.get("unlocked-color-scheme")?.value;
     const resolvedTheme = isProUser(session.data.billing) && (appearance === "midnight" || appearance === "forest" || (appearance === "system" && systemScheme === "dark")) ? "dark" as const : "light" as const;
     const model = buildJourneyCommandCenterModel({
       user: session.user,
@@ -53,8 +71,17 @@ export default async function Home({ searchParams }: { searchParams?: Promise<Re
       historyLimit: first(query?.history) === "100" ? 100 : 24,
       activeLimit: first(query?.active) === "100" ? 100 : 6,
     });
+    const isDefaultReturnView = !["stage", "sort", "q", "history", "active", "guide"].some((key) => first(query?.[key]));
+    const freshnessCutoff = readReturnExperienceReceipt(cookieStore.get(returnExperienceCookieName)?.value, session.user.id)
+      ?? session.data.firstLaunchCompletedAt;
+    const returnBriefing = isDefaultReturnView ? buildReturnBriefing({
+      profile: session.data.profile,
+      journey: model,
+      notifications: notificationCenter.notifications,
+      freshnessCutoff,
+    }) : null;
     return <div data-unlocked-home="journey-command-center-v1">
-      <JourneyCommandCenter model={model} />
+      <JourneyCommandCenter model={model} returnBriefing={returnBriefing} />
     </div>;
   } catch (error) {
     console.error("[UnlockED Journey] command center composition failed", process.env.NODE_ENV === "production"

@@ -11,6 +11,8 @@ import { JourneyDeadlineCalendar } from "@/components/journey-deadline-calendar"
 import { JourneyGuidance } from "@/components/contextual-guidance";
 import { SmartEmptyState } from "@/components/smart-empty-state";
 import { ApplicationWorkspace } from "@/components/application-workspace";
+import { ReturnBriefing } from "@/components/return-briefing";
+import type { ReturnBriefingModel } from "@/data/return-experience";
 import styles from "./journey-command-center.module.css";
 
 const primaryFilters: JourneyCommandFilter[] = ["active", "preparing", "applied", "interviewing", "offers", "saved"];
@@ -134,8 +136,9 @@ function EmptyRecords({ model }: { model: JourneyCommandCenterModel }) {
   return <SmartEmptyState compact title={heading} description="Choose another stage to return to the opportunities already in your Journey." primaryAction={{ label: "Show all active opportunities", href: "/#active-opportunities" }} />;
 }
 
-export function JourneyCommandCenter({ model }: { model: JourneyCommandCenterModel }) {
+export function JourneyCommandCenter({ model, returnBriefing = null }: { model: JourneyCommandCenterModel; returnBriefing?: ReturnBriefingModel | null }) {
   const hasRecords = model.activeCount + model.historyCount > 0;
+  const briefingReplacesSummary = Boolean(returnBriefing?.items.length);
   const analyticsState = !hasRecords ? "empty" : model.activeCount ? "active" : "validated";
   return <main className={styles.page} data-journey-command-center="" data-theme={model.theme}>
     <JourneyAnalytics state={analyticsState} />
@@ -146,10 +149,11 @@ export function JourneyCommandCenter({ model }: { model: JourneyCommandCenterMod
       </header>
       <JourneyGuidance initialState={model.guidance.state} eligibility={model.guidance.eligibility} />
       <JourneySessionFeedback accountKey={model.accountKey} overview={model.overview} attentionCount={model.attentionCount} showHints={model.showFirstUseHints} />
+      {returnBriefing ? <ReturnBriefing model={returnBriefing} /> : null}
 
       {!hasRecords && model.calendar.groups.length === 0 ? <SmartEmptyState className={styles.primaryEmpty} eyebrow="Journey" title="Start building your Journey." description="Add an opportunity from Discover and UnlockED will help you organize deadlines, applications, and meaningful progress in one private place." primaryAction={{ label: "Explore opportunities", href: "/opportunities" }} icon={BookmarkIcon} /> : null}
 
-      {hasRecords && model.overview.length ? <section className={styles.overview} aria-label="Journey overview" data-count={model.overview.length}>
+      {hasRecords && model.overview.length && !briefingReplacesSummary ? <section className={styles.overview} aria-label="Journey overview" data-count={model.overview.length}>
           {model.overview.map((card) => <a key={card.id} href={card.href} data-tone={card.tone} data-overview-id={card.id}>
             <span className={styles.overviewIcon} aria-hidden="true"><OverviewIcon card={card} /></span>
             <small>{card.label}</small>
@@ -164,7 +168,7 @@ export function JourneyCommandCenter({ model }: { model: JourneyCommandCenterMod
 
       {!hasRecords ? null : <>
 
-        {model.attention.length ? <section className={styles.attention} aria-labelledby="journey-attention-heading">
+        {model.attention.length && !briefingReplacesSummary ? <section className={styles.attention} aria-labelledby="journey-attention-heading">
           <header><h2 id="journey-attention-heading">Needs attention <span>{model.attentionCount}</span></h2>{model.attentionCount > model.attention.length ? <a href={hrefFor(model, { active: "100" })}>View all</a> : null}</header>
           <ol>{model.attention.map((item) => <li key={item.id} data-priority={item.priority}>
             <span className={styles.attentionIcon} aria-hidden="true">{item.id.startsWith("deadline") ? <TargetIcon /> : item.id.startsWith("reminder") ? <BellIcon /> : <SparkIcon />}</span>
