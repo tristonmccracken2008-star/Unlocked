@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { defaultNotificationPreferences, type NotificationPreferences } from "@/lib/notification-types";
 import { accountSessionEvent } from "@/data/account-sync";
 import { SectionLoading } from "./loading-system";
-import { DelayedPendingLabel } from "./delayed-pending-label";
+import { authenticatedFetch } from "@/data/authenticated-request";
+import { ActionButtonLabel, ActionFeedback } from "./action-feedback";
 
 const commonTimezones = [
   "America/New_York",
@@ -42,7 +43,7 @@ export function NotificationSettings({ embedded = false }: { embedded?: boolean 
     setLoading(true);
     setMessage("");
     setMessageKind(null);
-    fetch("/api/notifications/preferences", { credentials: "same-origin", cache: "no-store" })
+    authenticatedFetch("/api/notifications/preferences", { credentials: "same-origin", cache: "no-store" })
       .then((response) => response.ok ? response.json() : Promise.reject())
       .then((body: { preferences: NotificationPreferences }) => {
         if (active) setPreferences(body.preferences);
@@ -76,7 +77,11 @@ export function NotificationSettings({ embedded = false }: { embedded?: boolean 
   if (loading) return <section id="notifications" className={embedded ? "pt-7" : "px-5 pt-6 sm:px-8"}><SectionLoading label="Loading notification settings" rows={2} className={embedded ? "" : "mx-auto max-w-5xl rounded-[2rem] bg-[var(--unlocked-surface)] p-5 shadow-soft ring-1 ring-ink/8 sm:p-6"} /></section>;
   if (!preferences) return <section id="notifications" className={embedded ? "pt-7" : "px-5 pt-6 sm:px-8"}><div className={embedded ? "rounded-xl border border-red-800/20 bg-white p-5" : "mx-auto max-w-5xl rounded-[1.5rem] border border-red-800/20 bg-white p-6 shadow-soft"} role="alert"><p className="text-sm font-bold text-red-800">{message || "Notification settings could not be loaded."}</p><button type="button" onClick={() => setReloadVersion((value) => value + 1)} className="mt-3 min-h-11 text-sm font-bold text-forest hover:text-ink">Retry notification settings</button></div></section>;
 
-  const update = <K extends keyof NotificationPreferences>(key: K, value: NotificationPreferences[K]) => setPreferences((current) => current ? { ...current, [key]: value } : current);
+  const update = <K extends keyof NotificationPreferences>(key: K, value: NotificationPreferences[K]) => {
+    setMessage("");
+    setMessageKind(null);
+    setPreferences((current) => current ? { ...current, [key]: value } : current);
+  };
 
   return <section id="notifications" className={embedded ? "scroll-mt-28 pt-7" : "scroll-mt-28 px-5 pt-6 sm:px-8"}>
     <div className={embedded ? "" : "mx-auto max-w-5xl rounded-[2rem] bg-[var(--unlocked-surface)] p-5 shadow-soft ring-1 ring-ink/8 sm:p-6"}>
@@ -120,7 +125,7 @@ export function NotificationSettings({ embedded = false }: { embedded?: boolean 
           setMessage("");
           setMessageKind(null);
           try {
-            const response = await fetch("/api/notifications/preferences", {
+            const response = await authenticatedFetch("/api/notifications/preferences", {
               method: "PUT",
               credentials: "same-origin",
               cache: "no-store",
@@ -138,9 +143,9 @@ export function NotificationSettings({ embedded = false }: { embedded?: boolean 
           } finally {
             setSaving(false);
           }
-        }} aria-busy={saving ? "true" : undefined} data-action-state={saving ? "loading" : "idle"} className="min-h-11 rounded-full bg-forest px-5 text-sm font-bold text-white hover:bg-ink disabled:cursor-wait disabled:opacity-60"><DelayedPendingLabel pending={saving} idle="Save notification settings" pendingLabel="Saving settings…" /></button>
+        }} aria-busy={saving ? "true" : undefined} data-action-state={saving ? "loading" : messageKind === "success" ? "success" : messageKind === "error" ? "error" : "idle"} className="min-h-11 min-w-52 rounded-full bg-forest px-5 text-sm font-bold text-white hover:bg-ink disabled:cursor-wait disabled:opacity-60"><ActionButtonLabel phase={saving ? "pending" : messageKind === "success" ? "success" : messageKind === "error" ? "error" : "idle"} idle="Save notification settings" pending="Saving settings…" success="Settings saved" /></button>
         <a href="/notifications" className="inline-flex min-h-11 items-center text-sm font-bold text-forest hover:text-ink">Open notifications</a>
-        {message ? <p role={messageKind === "error" ? "alert" : "status"} className={`w-full text-sm font-bold ${messageKind === "error" ? "text-red-800" : "text-forest"}`}>{message}</p> : null}
+        {message ? <ActionFeedback className="w-full" message={message} state={messageKind === "error" ? "error" : "success"} level="routine" /> : null}
       </div>
     </div>
   </section>;

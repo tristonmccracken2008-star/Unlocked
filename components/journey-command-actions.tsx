@@ -8,6 +8,7 @@ import { accountSessionEvent } from "@/data/account-sync";
 import { CloseIcon, SearchIcon } from "@/components/icons";
 import styles from "./journey-command-center.module.css";
 import { DelayedPendingLabel } from "./delayed-pending-label";
+import { ActionButtonLabel, ActionFeedback } from "./action-feedback";
 
 type CatalogResponse = { opportunities?: OpportunityListing[]; error?: string };
 type AddResponse = { ok?: boolean; duplicate?: boolean; error?: string };
@@ -195,7 +196,7 @@ export function JourneyCommandActions({ trackedIds }: { trackedIds: string[] }) 
       <button ref={addTriggerRef} type="button" className={styles.addButton} onClick={open}>Add opportunity</button>
       <button type="button" className={styles.exportButton} onClick={() => void exportData()} disabled={exporting} aria-busy={exporting ? "true" : undefined} data-action-state={exporting ? "loading" : "idle"}><DelayedPendingLabel pending={exporting} idle="Export data" pendingLabel="Preparing export…" /></button>
     </div>
-    {error && !dialogRef.current?.open ? <p role="alert">{error}</p> : null}
+    {error && !dialogRef.current?.open ? <ActionFeedback message={error} state="error" level="confirmatory" /> : null}
     <dialog ref={dialogRef} className={styles.addDialog} aria-labelledby={titleId} onCancel={(event) => { if (saving || dirty) event.preventDefault(); if (!saving) close(); }}>
       <div className={styles.addDialogShell}>
         <header>
@@ -226,8 +227,8 @@ export function JourneyCommandActions({ trackedIds }: { trackedIds: string[] }) 
             {reminderAt ? <label>Reminder note <span>Optional</span><input value={reminderText} maxLength={160} onChange={(event) => setReminderText(event.target.value)} /></label> : null}
           </div>
         </section>
-        {error ? <p className={styles.actionError} role="alert">{error}</p> : null}
-        <footer><button type="button" onClick={() => close()} disabled={saving}>Cancel</button><button type="button" onClick={() => void add()} disabled={!selectedId || saving || tracked.has(selectedId)}>{saving ? "Adding…" : "Add to Journey"}</button></footer>
+        {error ? <ActionFeedback className={styles.actionError} message={error} state="error" level="confirmatory" /> : null}
+        <footer><button type="button" onClick={() => close()} disabled={saving}>Cancel</button><button type="button" onClick={() => void add()} disabled={!selectedId || saving || tracked.has(selectedId)} aria-busy={saving ? "true" : undefined} data-action-state={saving ? "loading" : "idle"}><ActionButtonLabel phase={saving ? "pending" : "idle"} idle="Add to Journey" pending="Adding to Journey…" /></button></footer>
       </div>
     </dialog>
   </div>;

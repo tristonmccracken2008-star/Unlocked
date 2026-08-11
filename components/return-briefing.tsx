@@ -7,6 +7,7 @@ import { productIntelligenceEvents } from "@/lib/analytics-types";
 import { trackProductEvent } from "@/data/product-analytics";
 import { ArrowIcon, BellIcon, CalendarIcon, CloseIcon, PenLineIcon, SearchIcon, SparkIcon, TargetIcon } from "./icons";
 import styles from "./return-briefing.module.css";
+import { ActionFeedback } from "./action-feedback";
 
 function BriefingIcon({ kind }: { kind: ReturnBriefingKind }) {
   if (kind === "deadline") return <CalendarIcon />;
@@ -83,6 +84,6 @@ export function ReturnBriefing({ model }: { model: ReturnBriefingModel }) {
       }}>{item.actionLabel}<ArrowIcon /></a>
       {item.dismissible ? <button type="button" disabled={pending === item.id} onClick={() => void dismiss(item)} aria-label={`Dismiss ${item.title}`}><CloseIcon /></button> : null}
     </li>)}</ol> : <a className={styles.explore} href="/opportunities">Explore opportunities <ArrowIcon /></a>}
-    {error ? <p className={styles.error} role="status">{error}</p> : null}
+    {error ? <ActionFeedback className={styles.error} message={error} state="error" level="routine" /> : null}
   </section>;
 }

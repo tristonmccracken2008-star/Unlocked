@@ -8,6 +8,7 @@ import type { OpportunityTrackerStatus } from "@/data/student-activity";
 import type { ApplicationWorkspaceProjection } from "@/lib/application-workspace";
 import { ArrowIcon, CheckIcon } from "@/components/icons";
 import { SmartEmptyState } from "@/components/smart-empty-state";
+import { ActionButtonLabel, ActionFeedback } from "@/components/action-feedback";
 import styles from "./application-workspace.module.css";
 
 type SubmissionAction = {
@@ -29,25 +30,58 @@ function errorMessage(status: number, fallback?: string) {
   return fallback || "We couldn’t save this update. Your application is unchanged.";
 }
 
+function optimisticCompletion(workspace: ApplicationWorkspaceProjection, taskId: string, completed: boolean) {
+  const tasks = workspace.tasks.map((task) => task.id === taskId ? { ...task, completed } : task);
+  const completedCount = tasks.filter((task) => task.completed).length;
+  return {
+    ...workspace,
+    tasks,
+    completedCount,
+    unfinishedCount: tasks.length - completedCount,
+    progressPercent: tasks.length ? Math.round((completedCount / tasks.length) * 100) : 0,
+    readyForSubmission: !workspace.submitted && tasks.length > 0 && completedCount === tasks.length,
+  };
+}
+
 export function ApplicationWorkspace({ initial, opportunityTitle, submission }: {
   initial: ApplicationWorkspaceProjection;
   opportunityTitle: string;
   submission?: SubmissionAction;
 }) {
   const router = useRouter();
+  const workspaceRef = useRef<HTMLElement | null>(null);
   const requestRef = useRef<AbortController | null>(null);
   const [workspace, setWorkspace] = useState(initial);
   const [pending, setPending] = useState("");
   const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
+  const [announcement, setAnnouncement] = useState("");
+  const [confirmRemove, setConfirmRemove] = useState("");
+  const [retry, setRetry] = useState<(() => void) | null>(null);
   const [title, setTitle] = useState("");
   const [dueDate, setDueDate] = useState("");
 
   useEffect(() => setWorkspace(initial), [initial]);
   useEffect(() => {
+    const popover = workspaceRef.current?.closest<HTMLElement>("[popover]");
+    if (!popover) return;
+    const restoreFocus = (event: Event) => {
+      if ((event as ToggleEvent).newState !== "closed") return;
+      const trigger = popover.parentElement?.querySelector<HTMLButtonElement>(`[popovertarget="${popover.id}"]`);
+      trigger?.focus();
+    };
+    popover.addEventListener("toggle", restoreFocus);
+    return () => popover.removeEventListener("toggle", restoreFocus);
+  }, []);
+  useEffect(() => {
     const reset = () => {
       requestRef.current?.abort("account-changed");
       setPending("");
       setError("");
+      setMessage("");
+      setAnnouncement("");
+      setConfirmRemove("");
+      setRetry(null);
       setTitle("");
       setDueDate("");
     };
@@ -55,10 +89,18 @@ export function ApplicationWorkspace({ initial, opportunityTitle, submission }: 
     return () => { requestRef.current?.abort("unmounted"); window.removeEventListener(accountSessionEvent, reset); };
   }, []);
 
-  async function mutate(body: Record<string, unknown>, pendingKey: string) {
+  async function mutate(body: Record<string, unknown>, pendingKey: string, options: {
+    optimistic?: (current: ApplicationWorkspaceProjection) => ApplicationWorkspaceProjection;
+    success?: string;
+    announce?: string;
+  } = {}) {
     if (pending) return null;
+    const previous = workspace;
     setPending(pendingKey);
     setError("");
+    setMessage("");
+    setRetry(null);
+    if (options.optimistic) setWorkspace(options.optimistic(previous));
     const controller = new AbortController();
     requestRef.current = controller;
     const timeout = window.setTimeout(() => controller.abort("timeout"), 8_000);
@@ -73,15 +115,23 @@ export function ApplicationWorkspace({ initial, opportunityTitle, submission }: 
       });
       const result = await response.json().catch(() => null) as { ok?: boolean; error?: string; workspace?: ApplicationWorkspaceProjection } | null;
       if (!response.ok || !result?.ok || !result.workspace) {
+        if (options.optimistic) setWorkspace(previous);
         setError(errorMessage(response.status, result?.error));
+        setRetry(() => () => void mutate(body, pendingKey, options));
         if (response.status === 409) router.refresh();
         return null;
       }
       setWorkspace(result.workspace);
-      router.refresh();
+      if (options.success) setMessage(options.success);
+      if (options.announce) setAnnouncement(options.announce);
+      setConfirmRemove("");
       return result.workspace;
     } catch {
-      if (controller.signal.reason !== "account-changed" && controller.signal.reason !== "unmounted") setError(controller.signal.reason === "timeout" ? "Saving took too long. Nothing changed; try again." : "We couldn’t reach UnlockED. Nothing changed.");
+      if (options.optimistic) setWorkspace(previous);
+      if (controller.signal.reason !== "account-changed" && controller.signal.reason !== "unmounted") {
+        setError(controller.signal.reason === "timeout" ? "Saving took too long. Your previous version is still intact." : "We couldn’t reach UnlockED. Your previous version is still intact.");
+        setRetry(() => () => void mutate(body, pendingKey, options));
+      }
       return null;
     } finally {
       window.clearTimeout(timeout);
@@ -92,7 +142,7 @@ export function ApplicationWorkspace({ initial, opportunityTitle, submission }: 
 
   async function addTask() {
     if (!title.trim()) return;
-    const result = await mutate({ action: "add_task", idempotencyKey: `application-task:${crypto.randomUUID()}`, title, dueDate: dueDate || undefined }, "add");
+    const result = await mutate({ action: "add_task", idempotencyKey: `application-task:${crypto.randomUUID()}`, title, dueDate: dueDate || undefined }, "add", { success: "Task added." });
     if (result) { setTitle(""); setDueDate(""); }
   }
 
@@ -100,6 +150,8 @@ export function ApplicationWorkspace({ initial, opportunityTitle, submission }: 
     if (!submission || pending) return;
     setPending("submit");
     setError("");
+    setMessage("");
+    setRetry(null);
     const controller = new AbortController();
     requestRef.current = controller;
     const timeout = window.setTimeout(() => controller.abort("timeout"), 8_000);
@@ -127,6 +179,7 @@ export function ApplicationWorkspace({ initial, opportunityTitle, submission }: 
         return;
       }
       setWorkspace({ ...workspace, submitted: true, readyForSubmission: false, submittedAt: new Date().toISOString() });
+      setAnnouncement("Application marked as submitted.");
       router.refresh();
     } catch {
       if (controller.signal.reason !== "account-changed" && controller.signal.reason !== "unmounted") setError(controller.signal.reason === "timeout" ? "Saving took too long. Your Journey stage is unchanged." : "We couldn’t reach UnlockED. Your Journey stage is unchanged.");
@@ -137,12 +190,12 @@ export function ApplicationWorkspace({ initial, opportunityTitle, submission }: 
     }
   }
 
-  if (workspace.submitted) return <section className={styles.workspace} aria-labelledby={`application-${workspace.opportunityId}`} data-application-workspace="submitted">
+  if (workspace.submitted) return <section ref={workspaceRef} className={styles.workspace} aria-labelledby={`application-${workspace.opportunityId}`} data-application-workspace="submitted">
     <div className={styles.submitted}><span aria-hidden="true"><CheckIcon /></span><div><h4 id={`application-${workspace.opportunityId}`}>Application submitted</h4><p>{workspace.submittedAt ? `Submitted ${formatDate(workspace.submittedAt)}. ` : ""}Keep Journey updated when you hear back.</p></div></div>
     <a className={styles.official} href={workspace.officialSource} target="_blank" rel="noreferrer">Open official application <ArrowIcon /><span className="sr-only">(opens in a new tab)</span></a>
   </section>;
 
-  return <section className={styles.workspace} aria-labelledby={`application-${workspace.opportunityId}`} data-application-workspace="active">
+  return <section ref={workspaceRef} className={styles.workspace} aria-labelledby={`application-${workspace.opportunityId}`} data-application-workspace="active">
     <header className={styles.summary}>
       <div><p>Application</p><h4 id={`application-${workspace.opportunityId}`}>Prepare your application</h4></div>
       {workspace.deadline ? <div><span>Deadline</span><strong>{formatDate(workspace.deadline)}</strong></div> : null}
@@ -157,19 +210,30 @@ export function ApplicationWorkspace({ initial, opportunityTitle, submission }: 
     </div> : null}
 
     {workspace.recentProviderUpdate ? <p className={styles.providerUpdate} role="status"><strong>{workspace.recentProviderUpdate.label}</strong> {workspace.recentProviderUpdate.summary}</p> : null}
-    {workspace.tasks.length ? <ul className={styles.tasks}>{workspace.tasks.map((task) => <li key={task.id} data-completed={task.completed ? "true" : undefined}>
-      <button type="button" className={styles.check} aria-pressed={task.completed} aria-label={`${task.completed ? "Mark incomplete" : "Mark complete"}: ${task.title}`} disabled={Boolean(pending)} onClick={() => void mutate({ action: "set_completion", taskId: task.id, completed: !task.completed }, task.id)}>{task.completed ? <CheckIcon /> : null}</button>
+    {workspace.tasks.length ? <ul className={styles.tasks}>{workspace.tasks.map((task) => <li key={task.id} data-completed={task.completed ? "true" : undefined} data-pending={pending === task.id ? "true" : undefined}>
+      <button type="button" className={styles.check} aria-pressed={task.completed} aria-busy={pending === task.id ? "true" : undefined} aria-label={`${task.completed ? "Mark incomplete" : "Mark complete"}: ${task.title}`} disabled={Boolean(pending)} onClick={() => {
+        const completed = !task.completed;
+        void mutate({ action: "set_completion", taskId: task.id, completed }, task.id, {
+          optimistic: (current) => optimisticCompletion(current, task.id, completed),
+          announce: completed ? `Task completed: ${task.title}` : `Task reopened: ${task.title}`,
+        });
+      }}>{task.completed ? <CheckIcon /> : null}</button>
       <div><span>{task.title}</span>{task.dueDate ? <time dateTime={task.dueDate}>Due {formatDate(task.dueDate)}</time> : task.source === "verified_requirement" ? <small>{task.recentlyUpdated ? "Updated by the provider" : "Listed by the provider"}</small> : null}</div>
-      {task.source === "user" ? <button type="button" className={styles.remove} disabled={Boolean(pending)} onClick={() => void mutate({ action: "delete_task", taskId: task.id }, `delete:${task.id}`)}>Remove<span className="sr-only"> {task.title}</span></button> : null}
+      {task.source === "user" ? <button type="button" className={styles.remove} disabled={Boolean(pending)} data-confirm={confirmRemove === task.id ? "true" : undefined} onClick={() => {
+        if (confirmRemove !== task.id) { setConfirmRemove(task.id); setMessage(""); return; }
+        void mutate({ action: "delete_task", taskId: task.id }, `delete:${task.id}`, { success: "Task removed." });
+      }}>{confirmRemove === task.id ? "Confirm remove" : "Remove"}<span className="sr-only"> {task.title}</span></button> : null}
     </li>)}</ul> : <SmartEmptyState compact className={styles.smartEmpty} title="No application tasks yet." description="UnlockED hasn’t verified the application materials for this opportunity. Review the official requirements, then add only the tasks you need." primaryAction={{ label: "Open official application", href: workspace.officialSource, external: true }} />}
 
     <details className={styles.addTask}>
       <summary>+ Add task</summary>
-      <div><label>Task name<input value={title} onChange={(event) => setTitle(event.target.value)} maxLength={120} placeholder="Ask professor for recommendation" /></label><label>Due date <span>Optional</span><input type="date" value={dueDate} onChange={(event) => setDueDate(event.target.value)} /></label><button type="button" disabled={!title.trim() || Boolean(pending)} onClick={() => void addTask()}>{pending === "add" ? "Adding…" : "Add task"}</button></div>
+      <div><label>Task name<input value={title} onChange={(event) => setTitle(event.target.value)} maxLength={120} placeholder="Ask professor for recommendation" /></label><label>Due date <span>Optional</span><input type="date" value={dueDate} onChange={(event) => setDueDate(event.target.value)} /></label><button type="button" disabled={!title.trim() || Boolean(pending)} aria-busy={pending === "add" ? "true" : undefined} data-action-state={pending === "add" ? "loading" : "idle"} onClick={() => void addTask()}><ActionButtonLabel phase={pending === "add" ? "pending" : "idle"} idle="Add task" pending="Adding task…" /></button></div>
     </details>
 
-    {workspace.readyForSubmission ? <div className={styles.ready}><div><strong>Everything looks ready.</strong><span>Did you submit your application?</span></div>{submission ? <button type="button" disabled={Boolean(pending)} onClick={() => void markApplied()}>{pending === "submit" ? "Saving…" : "Mark as Applied"}</button> : null}</div> : null}
-    {error ? <p className={styles.error} role="alert">{error}</p> : null}
+    {workspace.readyForSubmission ? <div className={styles.ready}><div><strong>Everything looks ready.</strong><span>Did you submit your application?</span></div>{submission ? <button type="button" disabled={Boolean(pending)} aria-busy={pending === "submit" ? "true" : undefined} data-action-state={pending === "submit" ? "loading" : "idle"} onClick={() => void markApplied()}><ActionButtonLabel phase={pending === "submit" ? "pending" : "idle"} idle="Mark as Applied" pending="Saving application…" /></button> : null}</div> : null}
+    {message ? <ActionFeedback message={message} state="success" level="routine" /> : null}
+    {error ? <ActionFeedback message={error} state="error" level="confirmatory" action={retry ? { label: "Try again", onClick: retry, pending: Boolean(pending) } : undefined} /> : null}
+    <p className="sr-only" aria-live="polite" aria-atomic="true">{announcement}</p>
     <a className={styles.official} href={workspace.officialSource} target="_blank" rel="noreferrer">Open official application <ArrowIcon /><span className="sr-only">(opens in a new tab)</span></a>
     <p className="sr-only">Application workspace for {opportunityTitle}.</p>
   </section>;

@@ -144,7 +144,7 @@ function observe(page: Page) {
   return (allowIntentionalSaveFailure = false, allowIntentionalSecurityFailure = false) => {
     const intentionalSaveFailure: string = "Failed to load resource: the server responded with a status of 500 (Internal Server Error)";
     const intentionalSecurityFailure: string = "Failed to load resource: the server responded with a status of 400 (Bad Request)";
-    const isWebKitNavigationCancellation = (message: string) => /\/api\/(?:auth\/session|notifications\?view=count) due to access control checks\.$/.test(message);
+    const isWebKitNavigationCancellation = (message: string) => /\/api\/(?:auth\/session|notifications\?view=count|return-experience) due to access control checks\.$/.test(message);
     const expectedSave = errors.filter((message) => message === intentionalSaveFailure);
     const expectedSecurity = errors.filter((message) => message === intentionalSecurityFailure);
     const unexpected = errors.filter((message) => message !== intentionalSaveFailure && message !== intentionalSecurityFailure && !isWebKitNavigationCancellation(message));
@@ -182,7 +182,8 @@ async function completeOnboarding(page: Page, origin: string) {
   await page.getByRole("heading", { name: "What are you studying?" }).waitFor({ state: "visible" });
   const majorInput = page.locator("#onboarding-major");
   await majorInput.fill("Mathematics");
-  await page.waitForFunction(() => Object.keys(localStorage).some((key) => key.startsWith("unlocked-onboarding-draft-v2:") && localStorage.getItem(key)?.includes('"major":"Mathematics"')));
+  await page.waitForFunction(() => Array.from({ length: localStorage.length }, (_, index) => localStorage.key(index))
+    .some((key) => key?.startsWith("unlocked-onboarding-draft-v2:") && localStorage.getItem(key)?.includes('"major":"Mathematics"')));
   await majorInput.press("Escape");
   await page.locator("#onboarding-major-listbox").waitFor({ state: "hidden" });
   await page.getByRole("button", { name: "Continue" }).click();
@@ -375,7 +376,6 @@ async function verifyFirstSave(page: Page, origin: string, browserName: string) 
   await page.getByRole("heading", { name: "Journey", exact: true }).waitFor({ state: "visible" });
   assert.equal(await page.getByText("Your private record of what you saved, pursued, and accomplished.", { exact: true }).count(), 1);
   await page.getByRole("button", { name: "Update", exact: true }).first().waitFor({ state: "visible", timeout: 15_000 });
-  await page.waitForLoadState("networkidle");
   const firstJourneyMs = performance.now() - journeyStartedAt;
 
   const returnStartedAt = performance.now();

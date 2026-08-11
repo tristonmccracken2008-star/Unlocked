@@ -1,0 +1,55 @@
+.feedback {
+  display: flex;
+  min-height: 44px;
+  align-items: center;
+  gap: .65rem;
+  border: 1px solid color-mix(in srgb, rgb(var(--color-forest)) 18%, var(--unlocked-border));
+  border-radius: .55rem;
+  background: color-mix(in srgb, rgb(var(--color-forest)) 5%, var(--unlocked-surface));
+  color: rgb(var(--color-forest));
+  padding: .55rem .7rem;
+  font-size: .72rem;
+  font-weight: 700;
+  line-height: 1.45;
+}
+.feedback[data-level="routine"] { border-color: transparent; background: transparent; padding-inline: 0; }
+.feedback[data-level="important"] { border-left-width: 3px; }
+.feedback[data-state="error"] {
+  border-color: var(--unlocked-error-border);
+  background: var(--unlocked-error-surface);
+  color: var(--unlocked-error-text);
+}
+.icon {
+  display: grid;
+  width: 1.35rem;
+  height: 1.35rem;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 50%;
+  background: color-mix(in srgb, currentColor 10%, transparent);
+  font-size: .7rem;
+}
+.icon svg { width: .75rem; height: .75rem; }
+.feedback > span:nth-child(2) { min-width: 0; flex: 1; overflow-wrap: anywhere; }
+.feedback button {
+  min-height: 44px;
+  flex: 0 0 auto;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  padding: 0 .3rem;
+  font-weight: 850;
+  text-decoration: underline;
+  text-underline-offset: .18rem;
+  cursor: pointer;
+}
+.feedback button:disabled { cursor: wait; opacity: .55; }
+.buttonSuccess { display: inline-flex; align-items: center; justify-content: center; gap: .4rem; }
+.buttonSuccess svg { width: .85rem; height: .85rem; }
+@media (max-width: 520px) {
+  .feedback { align-items: flex-start; flex-wrap: wrap; }
+  .feedback button { margin-left: 2rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .feedback { animation: none; }
+}

@@ -10,6 +10,7 @@ const footer = read("components/footer.tsx");
 const profile = read("components/profile-page.tsx");
 const notifications = read("components/notification-settings.tsx");
 const notificationCenter = read("components/notification-center.tsx");
+const actionFeedback = read("components/action-feedback.tsx");
 const pricing = read("app/pricing/page.tsx");
 const billingSuccess = read("app/billing/success/page.tsx");
 const home = read("components/personalized-home.tsx");
@@ -48,7 +49,8 @@ assert.match(billingSuccess, /href="\/profile#billing"/, "Checkout success must 
 assert.match(notifications, /if \(loading\)/, "Notification settings must model loading explicitly.");
 assert.match(notifications, /if \(!preferences\)/, "Notification settings must render a durable failure state.");
 assert.match(notifications, /Retry notification settings/, "Notification settings failures must be retryable.");
-assert.match(notifications, /messageKind === "error" \? "alert" : "status"/, "Notification settings failures and successes must use distinct semantics.");
+assert.match(notifications, /ActionFeedback[\s\S]*state=\{messageKind/, "Notification settings must use the shared semantic feedback surface.");
+assert.match(actionFeedback, /role=\{state === "error" \? "alert" : "status"\}/, "Shared feedback must distinguish failures from successful status updates.");
 assert.match(notificationCenter, /\.catch\(\(\) => setError\(/, "Notification destination state failures must be observable without blocking navigation.");
 
 for (const token of ["getServerSessionForProduct", "isProUser", 'dynamic = "force-dynamic"', 'href="/profile#billing"', "Current plan"]) {

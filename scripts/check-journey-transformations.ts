@@ -154,12 +154,13 @@ for (let index = 1; index < records.length; index += 1) {
 
 const route = readFileSync("app/api/journey/transition/route.ts", "utf8");
 const control = readFileSync("components/journey-transition-control.tsx", "utf8");
+const actionFeedback = readFileSync("components/action-feedback.tsx", "utf8");
 const service = readFileSync("lib/journey-transition-service.ts", "utf8");
 for (const requirement of ["assertSameOrigin", "getSession", "withSecurityLock", "expectedVersion", "idempotencyKey"]) {
   assert.ok(route.includes(requirement) || service.includes(requirement), `Journey mutations must preserve ${requirement}.`);
 }
 for (const status of ["401", "403", "409", "423", "422"]) assert.ok(control.includes(`status === ${status}`), `Client recovery must distinguish HTTP ${status}.`);
-assert.ok(control.includes('aria-live="polite"') && control.includes('role="alert"'), "Status changes and errors must be announced accessibly.");
+assert.ok(control.includes('aria-live="polite"') && control.includes("ActionFeedback") && actionFeedback.includes('role={state === "error" ? "alert" : "status"}'), "Status changes and errors must be announced accessibly.");
 assert.ok(control.includes("accountSessionEvent") && control.includes("controllerRef.current?.abort"), "Account changes must abort pending transformations.");
 assert.ok(service.includes("moment?.title ?? pathEvent!.title") && service.includes("moment?.body ?? pathEvent!.narrative"), "Routine transitions suppressed from editorial history must still return their canonical Path event narrative.");
 assert.ok(service.includes("freshMoment ?? (pathEvent ? undefined : currentMoments.at(-1))"), "A fresh routine Path event cannot be replaced by an unrelated older editorial moment.");

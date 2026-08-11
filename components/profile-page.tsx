@@ -17,6 +17,7 @@ import { ProfileIdentityCard } from "./profile-identity-card";
 import { StudentProfileForm } from "./personalized-home";
 import { AccountPageLoading, SectionLoading, SkeletonBlock } from "./loading-system";
 import { DelayedPendingLabel } from "./delayed-pending-label";
+import { ActionFeedback } from "./action-feedback";
 
 const AdvisorBrainProfileTab = dynamic(() => import("./profile-career-tab").then((module) => module.AdvisorBrainProfileTab), {
   ssr: false,
@@ -415,7 +416,7 @@ function SectionHeading({ id, eyebrow, title, description }: { id: string; eyebr
 
 function StatusMessages({ message, error }: { message: string; error: string }) {
   if (!message && !error) return null;
-  return <div role={error ? "alert" : "status"} data-inline-feedback="" data-state={error ? "error" : "success"} className={`mb-6 rounded-md border px-4 py-3 text-sm font-bold ${error ? "border-red-800/20 bg-red-50 text-red-800" : "border-forest/20 bg-forest/5 text-forest"}`}>{error || message}</div>;
+  return <ActionFeedback className="mb-6" message={error || message} state={error ? "error" : "success"} level="confirmatory" />;
 }
 
 function SettingToggle({ checked, label, description, onChange }: { checked: boolean; label: string; description: string; onChange: (checked: boolean) => void }) {

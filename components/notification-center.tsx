@@ -13,6 +13,8 @@ import styles from "./notification-center.module.css";
 import { NotificationGuidance } from "./contextual-guidance";
 import type { GuidanceState } from "@/lib/guidance";
 import { SmartEmptyState } from "./smart-empty-state";
+import { authenticatedFetch } from "@/data/authenticated-request";
+import { ActionButtonLabel, ActionFeedback } from "./action-feedback";
 
 type CenterResponse = {
   notifications: NotificationRecord[];
@@ -21,7 +23,7 @@ type CenterResponse = {
 };
 
 async function updateNotification(action: "read" | "dismiss" | "acted" | "mark_all_read", notificationId?: string) {
-  const response = await fetch("/api/notifications", {
+  const response = await authenticatedFetch("/api/notifications", {
     method: "PATCH",
     credentials: "same-origin",
     cache: "no-store",
@@ -67,6 +69,7 @@ export function NotificationCenter({ guidanceState = {} }: { guidanceState?: Gui
   const [nextCursor, setNextCursor] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [markingAll, setMarkingAll] = useState(false);
   const [error, setError] = useState("");
   const [accountVersion, setAccountVersion] = useState(0);
   const [retryVersion, setRetryVersion] = useState(0);
@@ -176,8 +179,11 @@ export function NotificationCenter({ guidanceState = {} }: { guidanceState?: Gui
   }
 
   async function markAll() {
+    if (markingAll) return;
     const previous = items;
     const now = new Date().toISOString();
+    setMarkingAll(true);
+    setError("");
     setItems((current) => current.map((item) => ({ ...item, readAt: item.readAt ?? now, state: item.state === "delivered" ? "read" : item.state })));
     setUnreadCount(0);
     try {
@@ -187,6 +193,8 @@ export function NotificationCenter({ guidanceState = {} }: { guidanceState?: Gui
       setItems(previous);
       setUnreadCount(previous.filter((item) => !item.readAt).length);
       setError("We couldn’t mark those updates as read.");
+    } finally {
+      setMarkingAll(false);
     }
   }
 
@@ -243,13 +251,13 @@ export function NotificationCenter({ guidanceState = {} }: { guidanceState?: Gui
         </div>
         <div className={styles.headerActions}>
           <Link href="/profile#notifications" className={styles.settings}>Settings</Link>
-          {unreadCount ? <button type="button" onClick={() => void markAll()} className={styles.markAll}>Mark all read</button> : null}
+          {unreadCount ? <button type="button" onClick={() => void markAll()} disabled={markingAll} aria-busy={markingAll ? "true" : undefined} data-action-state={markingAll ? "loading" : "idle"} className={styles.markAll}><ActionButtonLabel phase={markingAll ? "pending" : "idle"} idle="Mark all read" pending="Marking read…" /></button> : null}
         </div>
       </header>
 
       <div aria-live="polite" className="sr-only">{loading ? "Loading notifications" : `${unreadCount} unread notifications`}</div>
       <p aria-live="polite" className="sr-only">{arrivalAnnouncement}</p>
-      {error ? <div role="alert" data-inline-feedback="" data-state="error" className={styles.error}><span>{error}</span>{!items.length ? <button type="button" onClick={retryInitialLoad}>Retry</button> : null}</div> : null}
+      {error ? <ActionFeedback className={styles.error} message={error} state="error" level="confirmatory" action={!items.length ? { label: "Retry", onClick: retryInitialLoad, pending: loading } : undefined} /> : null}
 
       {loading ? <NotificationSkeleton /> : null}
       {!loading && items.length ? <NotificationGuidance state={guidanceState} eligible /> : null}

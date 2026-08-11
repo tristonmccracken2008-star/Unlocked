@@ -23,9 +23,11 @@
 .tasks li > div { display: grid; gap: .18rem; min-width: 0; }
 .tasks li > div > span { color: var(--journey-ink); font-size: .76rem; line-height: 1.4; overflow-wrap: anywhere; }
 .tasks li[data-completed="true"] > div > span { color: var(--journey-muted); text-decoration: line-through; text-decoration-thickness: 1px; }
+.tasks li[data-pending="true"] { background: color-mix(in srgb, var(--journey-green) 3%, transparent); }
 .tasks time, .tasks small { color: var(--journey-muted); font-size: .6rem; }
 .remove { min-height: 44px; border: 0; background: transparent; color: var(--journey-muted); padding: 0 .35rem; font-size: .62rem; cursor: pointer; }
 .remove:hover { color: var(--journey-error); }
+.remove[data-confirm="true"] { color: var(--journey-error); font-weight: 800; }
 .unverified { margin-top: 1rem !important; border-top: 1px solid var(--journey-line) !important; padding-top: 1rem !important; }
 .unverified h5 { margin: 0; font: 700 1rem/1.15 var(--font-editorial), Georgia, serif; }
 .unverified p { max-width: 30rem; margin: .45rem 0 0; }

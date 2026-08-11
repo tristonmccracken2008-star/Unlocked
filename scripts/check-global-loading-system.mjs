@@ -5,6 +5,7 @@ import { join } from "node:path";
 const read = (path) => readFileSync(path, "utf8");
 const loadingSystem = read("components/loading-system.tsx");
 const pendingLabel = read("components/delayed-pending-label.tsx");
+const actionFeedback = read("components/action-feedback.tsx");
 const globals = read("app/globals.css");
 const rootLoading = read("app/loading.tsx");
 const advisorLoading = read("app/advisor/loading.tsx");
@@ -18,6 +19,7 @@ assert.match(loadingSystem, /export function AdvisorRecommendationLoading/);
 assert.match(pendingLabel, /window\.setTimeout\(\(\) => setVisible\(true\), delay\)/);
 assert.match(pendingLabel, /delay = 300/);
 assert.match(pendingLabel, /unlocked-button-label/);
+assert.match(actionFeedback, /DelayedPendingLabel/, "The shared action label must preserve delayed pending feedback.");
 assert.match(globals, /--loading-base:/);
 assert.match(globals, /unlocked-skeleton-shimmer/);
 assert.match(globals, /translate3d/);
@@ -42,7 +44,7 @@ const requiredPendingFiles = [
 ];
 for (const file of requiredPendingFiles) {
   const source = read(file);
-  assert.match(source, /DelayedPendingLabel/, `${file} must use the shared delayed button state.`);
+  assert.match(source, /(?:DelayedPendingLabel|ActionButtonLabel)/, `${file} must use an approved shared delayed button state.`);
   assert.match(source, /aria-busy=/, `${file} must expose pending state to assistive technology.`);
   assert.match(source, /data-action-state=/, `${file} must use the shared action-state styling.`);
 }

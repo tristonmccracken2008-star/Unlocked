@@ -13,6 +13,7 @@ import { productIntelligenceEvents } from "@/lib/analytics-types";
 import { recommendationAttributionDetailsFor, trackProductEvent, trackProductTiming } from "@/data/product-analytics";
 import styles from "./journey-editorial.module.css";
 import { DelayedPendingLabel } from "./delayed-pending-label";
+import { ActionFeedback } from "./action-feedback";
 
 type TransitionResponse = {
   ok: true;
@@ -181,7 +182,7 @@ export function JourneyTransitionControl({ control }: { control: NonNullable<Jou
         <a href="/my-opportunities" className={styles.manageApplicationsLink} data-journey-analytics="application-management">Open application management <ArrowIcon /></a>
       </div>
     </details> : <a href="/my-opportunities" className={styles.manageApplicationsLink} data-journey-analytics="application-management">Manage applications <ArrowIcon /></a>}
-    {error ? <p id="journey-transition-error" className={styles.transitionError} role="alert">{error}</p> : null}
+    {error ? <ActionFeedback id="journey-transition-error" className={styles.transitionError} message={error} state="error" level="important" action={primary ? { label: "Try again", onClick: () => void run(primary), pending: Boolean(pending) } : undefined} /> : null}
     <p className={styles.srOnly} aria-live="polite" aria-atomic="true">{pending ? `Saving ${primary?.label ?? "Journey update"}.` : ""}</p>
   </div>;
 }

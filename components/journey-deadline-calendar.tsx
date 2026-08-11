@@ -11,6 +11,7 @@ import { calendarEventTypeLabels } from "@/lib/journey-calendar";
 import type { JourneyCalendarEventType } from "@/lib/account-types";
 import styles from "./journey-deadline-calendar.module.css";
 import { SmartEmptyState } from "./smart-empty-state";
+import { ActionButtonLabel, ActionFeedback } from "./action-feedback";
 
 type View = "upcoming" | "calendar";
 type Draft = {
@@ -85,7 +86,7 @@ function EventRow({ item, onEdit, onAction, pending }: {
       {destination ? <Link href={destination} aria-label={`Open Journey item for ${item.opportunityTitle ?? item.title}`}><ArrowIcon /></Link> : null}
       {item.opportunityId ? <Link href={`/opportunities/${encodeURIComponent(item.opportunityId)}`} className={styles.textAction}>View opportunity</Link> : null}
       {item.source === "user" ? <button type="button" onClick={() => onEdit(item)} disabled={Boolean(pending)}>Edit</button> : null}
-      {item.source === "user" ? <button type="button" onClick={() => onAction(item, item.urgency === "overdue" ? "dismiss" : "complete")} disabled={Boolean(pending)}>{pending === item.id ? "Saving…" : item.urgency === "overdue" ? "Dismiss" : "Done"}</button> : null}
+      {item.source === "user" ? <button type="button" onClick={() => onAction(item, item.urgency === "overdue" ? "dismiss" : "complete")} disabled={Boolean(pending)} aria-busy={pending === item.id ? "true" : undefined} data-action-state={pending === item.id ? "loading" : "idle"}><ActionButtonLabel phase={pending === item.id ? "pending" : "idle"} idle={item.urgency === "overdue" ? "Dismiss" : "Done"} pending="Saving…" /></button> : null}
     </div>
   </article>;
 }
@@ -104,6 +105,8 @@ export function JourneyDeadlineCalendar({ model }: { model: JourneyCalendarModel
   const [saving, setSaving] = useState(false);
   const [pending, setPending] = useState("");
   const [error, setError] = useState("");
+  const [feedback, setFeedback] = useState("");
+  const [retry, setRetry] = useState<(() => void) | null>(null);
   const cells = useMemo(() => monthCells(month), [month]);
   const selectedItems = model.items.filter((item) => item.date === selectedDate);
   const datesWithEvents = useMemo(() => new Set(model.items.map((item) => item.date)), [model.items]);
@@ -115,6 +118,8 @@ export function JourneyDeadlineCalendar({ model }: { model: JourneyCalendarModel
       setSaving(false);
       setPending("");
       setError("");
+      setFeedback("");
+      setRetry(null);
       setDraft(emptyDraft());
       createRequestIdRef.current = "";
     };
@@ -126,6 +131,8 @@ export function JourneyDeadlineCalendar({ model }: { model: JourneyCalendarModel
     createRequestIdRef.current = `event:${crypto.randomUUID()}`;
     setDraft({ ...emptyDraft(), date });
     setError("");
+    setFeedback("");
+    setRetry(null);
     dialogRef.current?.showModal();
   }
 
@@ -133,6 +140,8 @@ export function JourneyDeadlineCalendar({ model }: { model: JourneyCalendarModel
     if (item.source !== "user" || item.type === "application_deadline" || item.type === "application_open" || item.type === "program_start") return;
     setDraft({ id: item.id, version: item.version, title: item.title, type: item.type, date: item.date, time: item.time ?? "", opportunityId: item.opportunityId ?? "", reminderMinutesBefore: item.reminderMinutesBefore === undefined ? "" : String(item.reminderMinutesBefore) });
     setError("");
+    setFeedback("");
+    setRetry(null);
     dialogRef.current?.showModal();
   }
 
@@ -148,6 +157,8 @@ export function JourneyDeadlineCalendar({ model }: { model: JourneyCalendarModel
     if (!draft.title.trim() || !draft.date || saving) return;
     setSaving(true);
     setError("");
+    setFeedback("");
+    setRetry(null);
     const controller = new AbortController();
     requestRef.current = controller;
     const timeout = window.setTimeout(() => controller.abort("timeout"), 8_000);
@@ -171,13 +182,19 @@ export function JourneyDeadlineCalendar({ model }: { model: JourneyCalendarModel
       const body = await response.json().catch(() => null) as { ok?: boolean; error?: string } | null;
       if (!response.ok || !body?.ok) {
         setError(errorMessage(response.status, body?.error));
+        setRetry(() => () => void save());
         if (response.status === 409) router.refresh();
         return;
       }
+      const savedMessage = draft.id ? "Date updated." : "Date added.";
       close();
+      setFeedback(savedMessage);
       router.refresh();
     } catch {
-      if (!controller.signal.aborted || controller.signal.reason === "timeout") setError(controller.signal.reason === "timeout" ? "Saving took too long. Nothing changed; try again." : "We couldn’t reach UnlockED. Nothing changed.");
+      if (!controller.signal.aborted || controller.signal.reason === "timeout") {
+        setError(controller.signal.reason === "timeout" ? "Saving took too long. Your previous calendar is still intact." : "We couldn’t reach UnlockED. Your previous calendar is still intact.");
+        setRetry(() => () => void save());
+      }
     } finally {
       window.clearTimeout(timeout);
       if (requestRef.current === controller) requestRef.current = null;
@@ -189,17 +206,22 @@ export function JourneyDeadlineCalendar({ model }: { model: JourneyCalendarModel
     if (pending) return;
     setPending(item.id);
     setError("");
+    setFeedback("");
+    setRetry(null);
     try {
       const response = await authenticatedFetch("/api/journey/calendar", { method: "PATCH", credentials: "same-origin", cache: "no-store", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: item.id, expectedVersion: item.version, action }) });
       const body = await response.json().catch(() => null) as { ok?: boolean; error?: string } | null;
       if (!response.ok || !body?.ok) {
         setError(errorMessage(response.status, body?.error));
+        setRetry(() => () => void updateState(item, action));
         if (response.status === 409) router.refresh();
         return;
       }
+      setFeedback(action === "complete" ? "Date completed." : "Reminder dismissed.");
       router.refresh();
     } catch {
       setError("We couldn’t reach UnlockED. Your calendar is unchanged.");
+      setRetry(() => () => void updateState(item, action));
     } finally {
       setPending("");
     }
@@ -213,7 +235,8 @@ export function JourneyDeadlineCalendar({ model }: { model: JourneyCalendarModel
         <button ref={addButtonRef} type="button" className={styles.add} onClick={() => openAdd()}>Add date</button>
       </div>
     </header>
-    {error && !dialogRef.current?.open ? <p className={styles.error} role="alert">{error}</p> : null}
+    {feedback ? <ActionFeedback message={feedback} state="success" level="routine" /> : null}
+    {error && !dialogRef.current?.open ? <ActionFeedback message={error} state="error" action={retry ? { label: "Try again", onClick: retry, pending: Boolean(pending) } : undefined} /> : null}
 
     {view === "upcoming" ? <div className={styles.upcoming}>
       {model.groups.length ? model.groups.map((group) => <section key={group.id} className={styles.group} aria-labelledby={`calendar-group-${group.id}`}><h3 id={`calendar-group-${group.id}`}>{group.label}</h3><div>{group.items.slice(0, group.id === "passed" ? 3 : 6).map((item) => <EventRow key={item.id} item={item} onEdit={openEdit} onAction={updateState} pending={pending} />)}</div></section>) : <SmartEmptyState compact title="Nothing coming up yet." description="Opportunity deadlines and the dates you add yourself will appear here." primaryAction={{ label: "Add date", onClick: () => openAdd() }} secondaryAction={model.trackedOptions.length ? { label: "Explore opportunities", href: "/opportunities" } : undefined} icon={CalendarIcon} />}
@@ -240,8 +263,8 @@ export function JourneyDeadlineCalendar({ model }: { model: JourneyCalendarModel
           <label>Journey opportunity <span>Optional</span><select value={draft.opportunityId} onChange={(event) => setDraft({ ...draft, opportunityId: event.target.value })}><option value="">Not linked</option>{model.trackedOptions.map((option) => <option key={option.id} value={option.id}>{option.title} · {option.organization}</option>)}</select></label>
           <label>Reminder <span>Optional</span><select value={draft.reminderMinutesBefore} onChange={(event) => setDraft({ ...draft, reminderMinutesBefore: event.target.value })}><option value="">No reminder</option><option value="0">At the time</option><option value="60">1 hour before</option><option value="1440">1 day before</option><option value="10080">7 days before</option></select></label>
         </div>
-        {error ? <p className={styles.error} role="alert">{error}</p> : null}
-        <footer><button type="button" onClick={close} disabled={saving}>Cancel</button><button type="submit" disabled={saving || !draft.title.trim() || !draft.date}>{saving ? "Saving…" : <><CheckIcon /> Save date</>}</button></footer>
+        {error ? <ActionFeedback message={error} state="error" level="confirmatory" /> : null}
+        <footer><button type="button" onClick={close} disabled={saving}>Cancel</button><button type="submit" disabled={saving || !draft.title.trim() || !draft.date} aria-busy={saving ? "true" : undefined} data-action-state={saving ? "loading" : "idle"}><ActionButtonLabel phase={saving ? "pending" : "idle"} idle={<><CheckIcon /> Save date</>} pending={draft.id ? "Updating date…" : "Adding date…"} /></button></footer>
       </form>
     </dialog>
   </section>;

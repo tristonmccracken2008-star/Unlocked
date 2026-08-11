@@ -5,6 +5,7 @@ import { authenticatedFetch } from "@/data/authenticated-request";
 import { trackProductEvent } from "@/data/product-analytics";
 import { guidanceHasBeenSeen, type GuidanceId, type GuidanceState, type GuidanceStatus } from "@/lib/guidance";
 import styles from "./contextual-guidance.module.css";
+import { ActionButtonLabel, ActionFeedback } from "./action-feedback";
 
 type JourneyEligibility = {
   journey_intro: boolean;
@@ -56,6 +57,7 @@ export function JourneyGuidance({ initialState, eligibility }: { initialState: G
   const [stepIndex, setStepIndex] = useState(0);
   const [error, setError] = useState("");
   const [sessionSuppressed, setSessionSuppressed] = useState(false);
+  const [pending, setPending] = useState<GuidanceStatus | null>(null);
 
   const introSteps = useMemo(() => {
     const steps: Step[] = [
@@ -91,14 +93,17 @@ export function JourneyGuidance({ initialState, eligibility }: { initialState: G
   if (sessionSuppressed || !id || !current) return null;
 
   async function finish(status: GuidanceStatus) {
+    if (pending) return;
     setError("");
+    setPending(status);
     try {
       await saveGuide(id!, status);
       setState((value) => ({ ...value, [id!]: { status, guideVersion: 1, updatedAt: new Date().toISOString() } }));
       if (replay) setReplay(null);
       setSessionSuppressed(true);
       trackProductEvent(status === "completed" ? "guide_completed_v1" : "guide_dismissed_v1", { control: id! });
-    } catch { setError("Your preference could not be synced. Try again when your connection is stable."); }
+    } catch { setError("We couldn’t save this guide preference. Nothing changed; try again."); }
+    finally { setPending(null); }
   }
 
   const last = introVisible && stepIndex === introSteps.length - 1;
@@ -106,29 +111,33 @@ export function JourneyGuidance({ initialState, eligibility }: { initialState: G
     <span className={styles.index} aria-hidden="true">{introVisible ? stepIndex + 1 : "?"}</span>
     <div className={styles.copy}><strong>{current.title}</strong><p>{current.explanation}</p></div>
     <div className={styles.actions}>
-      {introVisible && stepIndex > 0 ? <button type="button" onClick={() => setStepIndex((value) => value - 1)}>Back</button> : null}
+      {introVisible && stepIndex > 0 ? <button type="button" disabled={Boolean(pending)} onClick={() => setStepIndex((value) => value - 1)}>Back</button> : null}
       {!introVisible ? <button type="button" onClick={() => { showAnchor(current.anchor); trackProductEvent("guide_show_me_clicked_v1", { control: id }); }}>Show me</button> : null}
-      {introVisible && !last ? <button type="button" className={styles.primary} onClick={() => setStepIndex((value) => value + 1)}>Next</button> : <button type="button" className={styles.primary} onClick={() => void finish("completed")}>{introVisible ? "Finish" : "Got it"}</button>}
-      <button type="button" onClick={() => void finish("dismissed")} aria-label={`Dismiss ${current.title}`}>Dismiss</button>
+      {introVisible && !last ? <button type="button" className={styles.primary} disabled={Boolean(pending)} onClick={() => setStepIndex((value) => value + 1)}>Next</button> : <button type="button" className={styles.primary} disabled={Boolean(pending)} aria-busy={pending === "completed" ? "true" : undefined} data-action-state={pending === "completed" ? "loading" : "idle"} onClick={() => void finish("completed")}><ActionButtonLabel phase={pending === "completed" ? "pending" : "idle"} idle={introVisible ? "Finish" : "Got it"} pending="Saving…" /></button>}
+      <button type="button" disabled={Boolean(pending)} aria-busy={pending === "dismissed" ? "true" : undefined} data-action-state={pending === "dismissed" ? "loading" : "idle"} onClick={() => void finish("dismissed")} aria-label={`Dismiss ${current.title}`}><ActionButtonLabel phase={pending === "dismissed" ? "pending" : "idle"} idle="Dismiss" pending="Dismissing…" /></button>
     </div>
     {introVisible ? <span className={styles.progress}>{stepIndex + 1} of {introSteps.length}</span> : null}
-    {error ? <p className={styles.error} role="status">{error}</p> : null}
+    {error ? <ActionFeedback className={styles.error} message={error} state="error" level="routine" /> : null}
   </aside>;
 }
 
 export function NotificationGuidance({ state, eligible }: { state: GuidanceState; eligible: boolean }) {
   const [visible, setVisible] = useState(eligible && !guidanceHasBeenSeen(state, "notifications_intro"));
   const [error, setError] = useState("");
+  const [pending, setPending] = useState<GuidanceStatus | null>(null);
   if (!visible) return null;
   async function finish(status: GuidanceStatus) {
+    if (pending) return;
     setVisible(false);
+    setPending(status);
     trackProductEvent(status === "completed" ? "guide_completed_v1" : "guide_dismissed_v1", { control: "notifications_intro" });
-    try { await saveGuide("notifications_intro", status); } catch { setError("This preference could not be synced."); setVisible(true); }
+    try { await saveGuide("notifications_intro", status); } catch { setError("We couldn’t save this guide preference. Nothing changed; try again."); setVisible(true); }
+    finally { setPending(null); }
   }
   return <aside className={styles.guide} aria-label="Notification guide" data-contextual-guide="notifications_intro">
     <span className={styles.index} aria-hidden="true">?</span>
     <div className={styles.copy}><strong>Useful updates, nothing more</strong><p>UnlockED brings together deadlines, saved-opportunity changes, Journey reminders, and strong new matches.</p></div>
-    <div className={styles.actions}><button type="button" className={styles.primary} onClick={() => void finish("completed")}>Got it</button><button type="button" onClick={() => void finish("dismissed")}>Dismiss</button></div>
-    {error ? <p className={styles.error} role="status">{error}</p> : null}
+    <div className={styles.actions}><button type="button" className={styles.primary} disabled={Boolean(pending)} aria-busy={pending === "completed" ? "true" : undefined} data-action-state={pending === "completed" ? "loading" : "idle"} onClick={() => void finish("completed")}><ActionButtonLabel phase={pending === "completed" ? "pending" : "idle"} idle="Got it" pending="Saving…" /></button><button type="button" disabled={Boolean(pending)} aria-busy={pending === "dismissed" ? "true" : undefined} data-action-state={pending === "dismissed" ? "loading" : "idle"} onClick={() => void finish("dismissed")}><ActionButtonLabel phase={pending === "dismissed" ? "pending" : "idle"} idle="Dismiss" pending="Dismissing…" /></button></div>
+    {error ? <ActionFeedback className={styles.error} message={error} state="error" level="routine" /> : null}
   </aside>;
 }

@@ -252,8 +252,11 @@ try {
     await calendarDialog.waitFor({ state: "visible" });
     await calendarDialog.getByLabel("Title").fill("Essay draft due");
     await calendarDialog.getByLabel("Date", { exact: true }).fill(new Date(Date.now() + 4 * 86_400_000).toISOString().slice(0, 10));
+    await page.route("**/api/journey/calendar", async (route) => { await new Promise((resolve) => setTimeout(resolve, 550)); await route.continue(); }, { times: 1 });
     await calendarDialog.getByRole("button", { name: "Save date" }).click();
+    await calendarDialog.getByText("Adding date…", { exact: true }).waitFor();
     await page.getByText("Essay draft due", { exact: true }).waitFor();
+    await calendar.getByText("Date added.", { exact: true }).waitFor();
     assert.ok(await root.getByRole("heading", { name: /Needs attention/ }).count() <= 1);
     const firstRecord = root.locator("[data-journey-record]").filter({ hasText: rich.title }).first();
     const detailsTrigger = firstRecord.getByRole("button", { name: `Continue application for ${rich.title}` });
@@ -266,8 +269,10 @@ try {
     await detailsPanel.getByText("+ Add task", { exact: true }).click();
     await detailsPanel.getByLabel("Task name").fill("Finish application review");
     await detailsPanel.getByLabel("Due date").fill(new Date(Date.now() + 5 * 86_400_000).toISOString().slice(0, 10));
+    await page.route("**/api/journey/application", async (route) => { await new Promise((resolve) => setTimeout(resolve, 550)); await route.continue(); }, { times: 1 });
     await detailsPanel.getByRole("button", { name: "Add task", exact: true }).click();
-    await page.waitForTimeout(300);
+    await detailsPanel.getByText("Adding task…", { exact: true }).waitFor();
+    await page.waitForTimeout(350);
     const refreshedRecord = root.locator("[data-journey-record]").filter({ hasText: rich.title }).first();
     const refreshedPanel = refreshedRecord.locator("section[popover]");
     const refreshedDetailsTrigger = refreshedRecord.getByRole("button", { name: `Continue application for ${rich.title}` });
@@ -276,12 +281,24 @@ try {
       await refreshedPanel.waitFor({ state: "hidden" });
     }
     await refreshedDetailsTrigger.click();
-    await refreshedPanel.locator("li").filter({ hasText: "Finish application review" }).first().waitFor();
+    const addedTask = refreshedPanel.locator("li").filter({ hasText: "Finish application review" }).first();
+    await addedTask.waitFor();
+    const taskToggle = addedTask.locator("button[aria-pressed]").first();
+    await page.route("**/api/journey/application", (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ ok: false, error: "Couldn’t save this task. Your previous version is still intact." }) }), { times: 1 });
+    await taskToggle.click();
+    assert.equal(await taskToggle.getAttribute("aria-pressed"), "true", "A reversible task check must respond optimistically.");
+    await refreshedPanel.getByText("Couldn’t save this task. Your previous version is still intact.", { exact: true }).waitFor();
+    assert.equal(await taskToggle.getAttribute("aria-pressed"), "false", "A rejected task check must restore the authoritative prior state.");
+    await page.route("**/api/journey/application", async (route) => { await new Promise((resolve) => setTimeout(resolve, 550)); await route.continue(); }, { times: 1 });
+    await refreshedPanel.getByRole("button", { name: "Try again", exact: true }).click();
+    assert.equal(await taskToggle.getAttribute("aria-pressed"), "true", "Retry must preserve immediate optimistic feedback.");
+    await page.waitForTimeout(700);
     const detailsBox = await detailsPanel.boundingBox();
     assert.ok(detailsBox && detailsBox.x >= 0 && detailsBox.y >= 0 && detailsBox.x + detailsBox.width <= 1440 && detailsBox.y + detailsBox.height <= 1000, "Record details must remain fully visible in the desktop viewport.");
     await detailsPanel.screenshot({ path: path.join(output, "journey-record-details-desktop.png"), caret: "initial" });
     await page.keyboard.press("Escape");
     await detailsPanel.waitFor({ state: "hidden" });
+    await page.waitForFunction((label) => document.activeElement?.getAttribute("aria-label") === label, `Continue application for ${rich.title}`);
     assert.equal(await refreshedDetailsTrigger.evaluate((node) => document.activeElement === node), true, "Light-dismiss must restore focus to the record-details trigger.");
     const updateTrigger = firstRecord.getByRole("button", { name: "Update", exact: true });
     await updateTrigger.click();
@@ -331,13 +348,18 @@ try {
       const top = (selector: string) => root.querySelector<HTMLElement>(selector)?.getBoundingClientRect().top ?? -1;
       return {
         header: top(":scope > div > header"),
+        briefing: top("[data-return-briefing]"),
         overview: top("[aria-label='Journey overview']"),
         attention: top("section[aria-labelledby='journey-attention-heading']"),
         active: top("#active-opportunities"),
         history: top("#journey-history"),
       };
     });
-    assert.ok(hierarchy.header >= 0 && hierarchy.header < hierarchy.overview && hierarchy.overview < hierarchy.attention && hierarchy.attention < hierarchy.active && hierarchy.active < hierarchy.history, `Journey sections must retain a clear reading order: ${JSON.stringify(hierarchy)}`);
+    const briefingOrder = hierarchy.briefing >= 0 && hierarchy.overview < 0 && hierarchy.attention < 0
+      && hierarchy.header < hierarchy.briefing && hierarchy.briefing < hierarchy.active;
+    const summaryOrder = hierarchy.briefing < 0 && hierarchy.overview >= 0 && hierarchy.attention >= 0
+      && hierarchy.header < hierarchy.overview && hierarchy.overview < hierarchy.attention && hierarchy.attention < hierarchy.active;
+    assert.ok(hierarchy.header >= 0 && (briefingOrder || summaryOrder) && hierarchy.active < hierarchy.history, `Journey sections must retain a clear reading order: ${JSON.stringify(hierarchy)}`);
     const desktopRecord = page.locator("[data-journey-record]").first();
     const desktopRecordBox = await desktopRecord.boundingBox();
     const desktopIdentityBox = await desktopRecord.locator("[data-record-identity]").boundingBox();
@@ -424,7 +446,7 @@ try {
     const mobileDetailsPanel = record.locator("section[popover]:popover-open");
     await mobileDetailsPanel.getByText("Public listing", { exact: true }).waitFor();
     const mobileDetailsBox = await mobileDetailsPanel.boundingBox();
-    assert.ok(mobileDetailsBox && mobileDetailsBox.x >= 0 && mobileDetailsBox.y >= 0 && mobileDetailsBox.x + mobileDetailsBox.width <= 390 && mobileDetailsBox.y + mobileDetailsBox.height <= 844, "Mobile record details must render as a visible, unclipped sheet.");
+    assert.ok(mobileDetailsBox && mobileDetailsBox.x >= 0 && mobileDetailsBox.y >= 0 && mobileDetailsBox.x + mobileDetailsBox.width <= 390 && mobileDetailsBox.y + mobileDetailsBox.height <= 844, `Mobile record details must render as a visible, unclipped sheet: ${JSON.stringify(mobileDetailsBox)}`);
     await page.screenshot({ path: path.join(output, "journey-record-details-mobile.png"), caret: "initial" });
     await mobileDetailsPanel.getByRole("button", { name: /^Close details for/ }).press("Enter");
     await mobileDetailsPanel.waitFor({ state: "hidden" });

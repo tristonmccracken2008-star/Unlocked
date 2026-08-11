@@ -157,6 +157,10 @@ button, input, select, textarea { font: inherit; }
   border-color: rgb(var(--color-forest) / .35);
   color: rgb(var(--color-forest));
 }
+[data-action-state="error"] {
+  border-color: var(--unlocked-error-border);
+  color: var(--unlocked-error-text);
+}
 :where(button, a[href], summary, [role="button"]):not(:disabled):not(.skip-link):active {
   transform: translateY(1px) scale(.995);
   transition-duration: 80ms;
