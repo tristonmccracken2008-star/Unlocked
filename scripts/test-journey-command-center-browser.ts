@@ -271,6 +271,17 @@ try {
     await detailsPanel.waitFor({ state: "visible" });
     await detailsPanel.getByRole("heading", { name: rich.title, exact: true }).waitFor();
     await detailsPanel.getByRole("heading", { name: "Prepare your application", exact: true }).waitFor();
+    await detailsPanel.getByRole("button", { name: "Add personal date", exact: true }).click();
+    const contextualDateDialog = page.locator("dialog").filter({ hasText: "Add a date" });
+    await contextualDateDialog.waitFor({ state: "visible" });
+    assert.equal(await contextualDateDialog.getByLabel("Title").inputValue(), "Personal application target");
+    await contextualDateDialog.getByText(rich.title, { exact: true }).waitFor();
+    assert.equal(await contextualDateDialog.getByLabel("Journey opportunity").count(), 0, "Contextual dates must not ask users to select the application they already came from.");
+    await contextualDateDialog.getByText("More options", { exact: true }).click();
+    await contextualDateDialog.getByLabel("Reminder Suggested, optional").waitFor();
+    await contextualDateDialog.getByRole("button", { name: "Cancel", exact: true }).click();
+    await detailsTrigger.click();
+    await detailsPanel.waitFor({ state: "visible" });
     await detailsPanel.getByRole("paragraph").filter({ hasText: "Private command-center note." }).waitFor();
     await detailsPanel.getByText("+ Add task", { exact: true }).click();
     await detailsPanel.getByLabel("Task name").fill("Finish application review");

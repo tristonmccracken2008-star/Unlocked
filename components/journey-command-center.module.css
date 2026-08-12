@@ -176,6 +176,12 @@
 .detailHeader svg { width: 1rem; height: 1rem; }
 .detailGrid dl { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; margin: 0; }
 .detailGrid [data-application-workspace] + dl { margin-top: 1rem; border-top: 1px solid var(--journey-line); padding-top: 1rem; }
+.interviewDateAction { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-top: 1rem; border-top: 1px solid var(--journey-line); padding-top: .9rem; }
+.interviewDateAction > div { display: grid; gap: .2rem; }
+.interviewDateAction strong { font: 700 .95rem/1.15 var(--font-editorial), Georgia, serif; }
+.interviewDateAction span { color: var(--journey-muted); font-size: .65rem; }
+.interviewDateAction button { display: inline-flex; min-height: 44px; flex: 0 0 auto; align-items: center; gap: .4rem; border: 1px solid var(--journey-green); border-radius: .45rem; background: transparent; color: var(--journey-green); padding: 0 .8rem; font-size: .66rem; font-weight: 800; cursor: pointer; }
+.interviewDateAction button svg { width: .85rem; height: .85rem; }
 .detailGrid dt, .detailGrid h4 { color: var(--journey-muted); font-size: .62rem; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; }
 .detailGrid dd { margin: .25rem 0 0; font-size: .73rem; line-height: 1.45; }
 .detailGrid section { margin-top: 1rem; border-top: 1px solid var(--journey-line); padding-top: 1rem; }
@@ -318,6 +324,7 @@
   .detailGrid { inset: auto .35rem .35rem; width: calc(100% - .7rem); max-height: calc(100dvh - 13rem); margin: 0; border-radius: .9rem; padding: 0 1rem max(1.2rem, env(safe-area-inset-bottom)); }
   .detailHeader { margin-inline: -1rem; padding: 1rem; }
   .detailGrid dl { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .interviewDateAction { align-items: flex-start; flex-direction: column; gap: .35rem; }
   .history { margin-top: 2rem; }
   .historyGroups { grid-template-columns: 1fr; }
   .historyGroups details[open] { grid-column: 1; }

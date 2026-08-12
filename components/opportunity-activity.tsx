@@ -13,6 +13,7 @@ import { recommendationAttributionDetailsFor, rememberRecommendationAttribution,
 import { cancelJourneySaveMotion, playJourneySaveMotion } from "./journey-save-motion";
 import { DelayedPendingLabel } from "./delayed-pending-label";
 import styles from "./opportunity-activity.module.css";
+import type { JourneySmartDefaults } from "@/lib/journey-add-service";
 
 export function OpportunityViewTracker({ opportunityId }: { opportunityId: string }) {
   useEffect(() => { trackOpportunityView(opportunityId); trackProductEvent("opportunity_view", { opportunityId }); }, [opportunityId]);
@@ -45,6 +46,7 @@ export function AddToJourneyButton({ opportunityId, recommendationId, recommenda
   const [confirmedThisSession, setConfirmedThisSession] = useState(false);
   const [pending, setPending] = useState(false);
   const [firstSave, setFirstSave] = useState(false);
+  const [smartDefaults, setSmartDefaults] = useState<JourneySmartDefaults | null>(null);
   const [error, setError] = useState("");
   const controllerRef = useRef<AbortController | null>(null);
   const pendingRef = useRef(false);
@@ -60,6 +62,7 @@ export function AddToJourneyButton({ opportunityId, recommendationId, recommenda
       pendingRef.current = false;
       setPending(false);
       setFirstSave(false);
+      setSmartDefaults(null);
       setConfirmedThisSession(false);
       setError("");
       update();
@@ -107,7 +110,7 @@ export function AddToJourneyButton({ opportunityId, recommendationId, recommenda
           if (timeout !== undefined) window.clearTimeout(timeout);
         }
       }, controller.signal);
-      const body = await response.json().catch(() => null) as { ok?: boolean; duplicate?: boolean; firstSave?: boolean; record?: TrackedOpportunity; error?: string } | null;
+      const body = await response.json().catch(() => null) as { ok?: boolean; duplicate?: boolean; firstSave?: boolean; record?: TrackedOpportunity; defaults?: JourneySmartDefaults; error?: string } | null;
       if (!response.ok || !body?.ok || !body.record) {
         setError(response.status === 401 ? "Sign in again to add this opportunity." : response.status === 423 ? "Another Journey update is still saving. Try again." : body?.error || "We couldn’t add this opportunity. Try again.");
         return;
@@ -122,6 +125,7 @@ export function AddToJourneyButton({ opportunityId, recommendationId, recommenda
       setAdded(true);
       setConfirmedThisSession(!body.duplicate);
       setFirstSave(Boolean(body.firstSave));
+      setSmartDefaults(body.defaults ?? null);
       trackProductEvent("opportunity_added_to_journey", { opportunityId });
       if (attribution) {
         rememberRecommendationAttribution(opportunityId, attribution, category, exposureCount);
@@ -138,7 +142,12 @@ export function AddToJourneyButton({ opportunityId, recommendationId, recommenda
     }
   }
 
-  if (added) return <div className="grid gap-2"><JourneyAddedState className={className} confirmed={confirmedThisSession} />{firstSave ? <p className="max-w-sm text-xs font-medium leading-5 text-ink/55" role="status">Added to your Journey. Return there when you have a real update, such as starting or submitting an application.</p> : null}</div>;
+  const setupSummary = smartDefaults ? smartDefaultSummary(smartDefaults) : "";
+  if (added) return <div className="grid gap-2">
+    <JourneyAddedState className={className} confirmed={confirmedThisSession} />
+    {confirmedThisSession ? <p className={styles.setupSummary} role="status">Added to your Journey.</p> : null}
+    {setupSummary ? <p className={styles.setupSummary}>{setupSummary}</p> : firstSave ? <p className={styles.setupSummary}>Your Journey is ready. Record progress only when something changes.</p> : null}
+  </div>;
   return <div className="grid gap-2">
     <button ref={buttonRef} type="button" onClick={() => void add()} disabled={pending} aria-busy={pending ? "true" : undefined} data-action-state={error ? "error" : pending ? "loading" : "idle"} data-journey-save-state={error ? "error" : pending ? "loading" : "idle"} data-journey-save-opportunity={opportunityId} aria-describedby={error ? `journey-add-error-${opportunityId}` : undefined} className={`${styles.saveButton} inline-flex min-h-11 min-w-[11rem] items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider ${className}`}>
       <span className={styles.buttonIcon} aria-hidden="true">{error ? <svg className={styles.errorIcon} viewBox="0 0 18 18" fill="none"><path d="M5.2 5.5A5.2 5.2 0 1 1 4 10.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/><path d="M2.8 6.2 5.5 5.5l-.7-2.7" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/></svg> : <BookmarkIcon className={styles.saveIcon}/>}</span>
@@ -146,6 +155,14 @@ export function AddToJourneyButton({ opportunityId, recommendationId, recommenda
     </button>
     {error ? <p id={`journey-add-error-${opportunityId}`} role="alert" data-inline-feedback="" data-state="error" className={`${styles.error} max-w-sm text-xs font-bold leading-5 text-red-700`}>{error}</p> : null}
   </div>;
+}
+
+function smartDefaultSummary(defaults: JourneySmartDefaults) {
+  const details: string[] = [];
+  if (defaults.officialDeadline) details.push(`Official deadline added · ${new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", timeZone: "UTC" }).format(new Date(`${defaults.officialDeadline}T12:00:00.000Z`))}`);
+  if (defaults.verifiedRequirementCount) details.push(`${defaults.verifiedRequirementCount} verified ${defaults.verifiedRequirementCount === 1 ? "requirement" : "requirements"} ready`);
+  if (defaults.deadlineReminderOffsets.length) details.push("Deadline reminders follow your preferences");
+  return details.join(" · ");
 }
 
 function JourneyAddedState({ className = "", confirmed = false }: { className?: string; confirmed?: boolean }) {

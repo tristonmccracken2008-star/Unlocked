@@ -65,6 +65,7 @@ All Journey action aggregates are retained for 90 days.
 | `journey_opportunity_added_v1` | `opportunityId`, `source` | Did an opportunity enter Journey from Discover or For You? |
 | `first_opportunity_saved_v1` | `source` | Did the account complete its first server-confirmed save? |
 | `activation_achieved_v1` | `source` | Did the account reach the first-session activation definition? |
+| `smart_default_interaction_v1` | `action`, `source` | Was a deterministic default accepted, changed, or expanded? |
 | `journey_waypoint_clicked_v1` | `source` | Was the current next step clear enough to act on? |
 | `journey_waypoint_completed_v1` | `transition` | Did the presented step reach a canonical completion? |
 | `journey_history_expanded_v1` | none | Did students ask for historical detail? |

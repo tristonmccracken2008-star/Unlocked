@@ -10,6 +10,7 @@ import { ArrowIcon, CheckIcon } from "@/components/icons";
 import { SmartEmptyState } from "@/components/smart-empty-state";
 import { ActionButtonLabel, ActionFeedback } from "@/components/action-feedback";
 import { useUndoRecovery } from "@/components/undo-recovery";
+import { ContextualCalendarAction } from "@/components/contextual-calendar-action";
 import styles from "./application-workspace.module.css";
 
 type SubmissionAction = {
@@ -223,6 +224,11 @@ export function ApplicationWorkspace({ initial, opportunityTitle, submission }: 
         ? <p>{workspace.deadlineDaysRemaining === 0 ? "Due today" : `${workspace.deadlineDaysRemaining} ${workspace.deadlineDaysRemaining === 1 ? "day" : "days"} remaining`} · {workspace.unfinishedCount} {workspace.unfinishedCount === 1 ? "task" : "tasks"} left</p>
         : null}
     </div> : null}
+
+    <div className={styles.smartSetup}>
+      <span>{workspace.requirementsVerified ? "Verified requirements were added automatically." : "Add only the private steps you need."}{workspace.deadline ? " The official deadline is already in Upcoming." : ""}</span>
+      <ContextualCalendarAction className={styles.dateAction} label="Add personal date" context={{ opportunityId: workspace.opportunityId, opportunityTitle, type: "personal_target", title: "Personal application target" }} />
+    </div>
 
     {workspace.recentProviderUpdate ? <p className={styles.providerUpdate} role="status"><strong>{workspace.recentProviderUpdate.label}</strong> {workspace.recentProviderUpdate.summary}</p> : null}
     {workspace.tasks.length ? <section className={styles.taskSection} aria-labelledby={`application-tasks-${workspace.opportunityId}`}><header><h5 id={`application-tasks-${workspace.opportunityId}`}>{workspace.unfinishedCount ? "What’s left" : "Application tasks"}</h5><span>{workspace.unfinishedCount ? `${workspace.unfinishedCount} remaining` : "All complete"}</span></header><ul className={styles.tasks}>{orderedTasks.map((task) => <li key={task.id} data-completed={task.completed ? "true" : undefined} data-pending={pending === task.id ? "true" : undefined}>

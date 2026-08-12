@@ -3,6 +3,7 @@
 .header p, .dialog header p, .dayPanel header p { margin: 0 0 .2rem; color: var(--journey-green); font-size: .56rem; font-weight: 850; letter-spacing: .1em; text-transform: uppercase; }
 .header h2 { margin: 0; font: 700 1.25rem/1.1 var(--font-editorial), Georgia, serif; }
 .headerActions { display: flex; align-items: center; gap: .55rem; }
+.automaticNote { max-width: 34rem; margin: .35rem 0 .25rem; color: var(--journey-muted); font-size: .64rem; line-height: 1.5; }
 .toggle { display: flex; border: 1px solid var(--journey-line); border-radius: .55rem; padding: .2rem; }
 .toggle button, .add, .dayPanel header button { min-height: 44px; border: 0; border-radius: .38rem; background: transparent; color: var(--journey-muted); padding: 0 .75rem; font-size: .66rem; font-weight: 800; cursor: pointer; }
 .toggle button[aria-pressed="true"] { background: var(--journey-panel); color: var(--journey-green); box-shadow: 0 2px 8px rgba(28, 22, 17, .06); }
@@ -78,6 +79,15 @@
 .fields label span { color: var(--journey-muted); font-size: .56rem; font-weight: 600; }
 .fields > div { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; }
 .fields input, .fields select { width: 100%; min-height: 44px; border: 1px solid var(--journey-line); border-radius: .45rem; background: var(--journey-canvas); color: var(--journey-ink); padding: 0 .65rem; font: 600 .68rem/1 var(--font-sans), system-ui, sans-serif; }
+.contextLink { display: grid; gap: .2rem; margin: 0; border-left: 2px solid var(--journey-green); padding: .2rem 0 .2rem .7rem; }
+.contextLink span { color: var(--journey-muted); font-size: .57rem; font-weight: 750; }
+.contextLink strong { font-size: .69rem; }
+.moreOptions { border-top: 1px solid var(--journey-line); }
+.moreOptions > summary { display: inline-flex; min-height: 44px; align-items: center; color: var(--journey-green); font-size: .67rem; font-weight: 800; cursor: pointer; list-style: none; }
+.moreOptions > summary::-webkit-details-marker { display: none; }
+.moreOptions > summary::after { margin-left: .4rem; content: "⌄"; transition: transform 160ms ease; }
+.moreOptions[open] > summary::after { transform: rotate(180deg); }
+.moreOptions > div { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; padding-bottom: .2rem; }
 .dialog footer { display: flex; justify-content: flex-end; gap: .55rem; border-top: 1px solid var(--journey-line); padding: .8rem 1.15rem; }
 .dialog footer button { display: inline-flex; min-height: 44px; align-items: center; gap: .4rem; border: 1px solid var(--journey-line); border-radius: .45rem; background: transparent; color: var(--journey-ink); padding: 0 .9rem; font-size: .68rem; font-weight: 800; }
 .dialog footer button:last-child { border-color: var(--journey-green); background: var(--journey-green); color: var(--journey-canvas); }
@@ -108,6 +118,7 @@
   .dayPanel .eventActions { grid-column: 1; }
   .dialog { width: 100%; max-height: 100dvh; margin: auto 0 0; }
   .dialog form { border-radius: .85rem .85rem 0 0; padding-bottom: env(safe-area-inset-bottom); }
+  .moreOptions > div { grid-template-columns: 1fr; }
   .fields > div { grid-template-columns: 1fr; }
 }
 @media (prefers-reduced-motion: reduce) {

@@ -131,8 +131,8 @@ function latestCustomReminder(record: TrackedOpportunity) {
 }
 
 function deadlineOffsets(record: TrackedOpportunity) {
-  if (record.status === "Applying") return [7, 3, 1];
-  if (record.status === "Saved" || record.status === "Interested") return [7, 3, 1];
+  if (record.status === "Applying") return [7, 1];
+  if (record.status === "Saved" || record.status === "Interested") return [7, 1];
   return [];
 }
 

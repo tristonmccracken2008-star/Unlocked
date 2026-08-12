@@ -13,6 +13,10 @@
 .progress > p { margin: .5rem 0 0; color: var(--journey-muted); font-size: .68rem; }
 .providerUpdate { margin: .9rem 0 0 !important; border-left: 2px solid var(--journey-gold); padding: .15rem 0 .15rem .7rem !important; color: var(--journey-muted); font-size: .66rem !important; line-height: 1.5; }
 .providerUpdate strong { display: block; color: var(--journey-ink); font-size: .68rem; }
+.smartSetup { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-top: .85rem; border-top: 1px solid var(--journey-line); padding-top: .75rem; }
+.smartSetup > span { max-width: 28rem; color: var(--journey-muted); font-size: .64rem; line-height: 1.5; }
+.dateAction { display: inline-flex; min-height: 44px; flex: 0 0 auto; align-items: center; gap: .4rem; border: 0; background: transparent; color: var(--journey-green); font-size: .66rem; font-weight: 800; cursor: pointer; }
+.dateAction svg { width: .85rem; height: .85rem; }
 .taskSection { margin-top: 1rem; }
 .taskSection > header { display: flex; min-height: 2rem; align-items: center; justify-content: space-between; gap: 1rem; }
 .taskSection h5 { margin: 0; color: var(--journey-ink); font: 700 .95rem/1.15 var(--font-editorial), Georgia, serif; }
@@ -62,6 +66,7 @@
   .addTask > div { grid-template-columns: 1fr; }
   .addTask button { width: 100%; }
   .ready { align-items: stretch; flex-direction: column; }
+  .smartSetup { align-items: flex-start; flex-direction: column; gap: .25rem; }
   .ready button { width: 100%; }
 }
 @media (prefers-reduced-motion: reduce) {

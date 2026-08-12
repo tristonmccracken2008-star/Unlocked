@@ -14,6 +14,7 @@ import { ApplicationWorkspace } from "@/components/application-workspace";
 import { ReturnBriefing } from "@/components/return-briefing";
 import type { ReturnBriefingModel } from "@/data/return-experience";
 import { guidanceHasBeenSeen } from "@/lib/guidance";
+import { ContextualCalendarAction } from "@/components/contextual-calendar-action";
 import styles from "./journey-command-center.module.css";
 
 const primaryFilters: JourneyCommandFilter[] = ["active", "preparing", "applied", "interviewing", "offers", "saved"];
@@ -82,6 +83,7 @@ function RecordDetails({ record }: { record: JourneyCommandRecord }) {
         <button type="button" popoverTarget={panelId} popoverTargetAction="hide" aria-label={`Close details for ${record.title}`}><CloseIcon /></button>
       </header>
       {record.applicationWorkspace ? <ApplicationWorkspace initial={record.applicationWorkspace} opportunityTitle={record.title} submission={record.applicationSubmission} /> : null}
+      {record.stageFilter === "interviewing" && !record.latestDetails?.milestoneDate ? <div className={styles.interviewDateAction}><div><strong>Add the interview details</strong><span>This date stays linked to {record.title}.</span></div><ContextualCalendarAction label="Add interview date" context={{ opportunityId: record.id, opportunityTitle: record.title, type: "interview", title: `Interview · ${record.title}`, reminderMinutesBefore: 1440 }} /></div> : null}
       <dl>
         <div><dt>Journey stage</dt><dd>{record.stageLabel}</dd></div>
         <div><dt>Public listing</dt><dd>{record.lifecycle?.label ?? "Listing unavailable"}{record.lifecycle && !record.lifecycle.actionable ? " · Journey stage unchanged" : ""}</dd></div>

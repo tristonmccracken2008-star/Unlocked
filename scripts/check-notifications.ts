@@ -99,8 +99,8 @@ assert.equal(defaults.accountUpdates, true);
 assert.equal(defaults.productAnnouncements, false);
 
 const savedSchedules = buildNotificationSchedules({ userId: "user-a", record: tracker(), opportunity: opportunity(), now });
-assert.deepEqual(savedSchedules.map((item) => item.type), ["deadline", "deadline", "deadline", "follow_up"]);
-assert.deepEqual(savedSchedules.filter((item) => item.type === "deadline").map((item) => item.offsetDays), [7, 3, 1]);
+assert.deepEqual(savedSchedules.map((item) => item.type), ["deadline", "deadline", "follow_up"]);
+assert.deepEqual(savedSchedules.filter((item) => item.type === "deadline").map((item) => item.offsetDays), [7, 1]);
 
 const twoWeekCheckIn = buildNotificationSchedules({
   userId: "user-a",
@@ -117,7 +117,7 @@ assert.equal(buildNotificationSchedules({
 }).some((item) => item.followUpKind === "saved_check_in"), false);
 
 const applyingSchedules = buildNotificationSchedules({ userId: "user-a", record: tracker("Applying"), opportunity: opportunity(), now });
-assert.deepEqual(applyingSchedules.filter((item) => item.type === "deadline").map((item) => item.offsetDays), [7, 3, 1]);
+assert.deepEqual(applyingSchedules.filter((item) => item.type === "deadline").map((item) => item.offsetDays), [7, 1]);
 
 const dueSoon = buildNotificationSchedules({
   userId: "user-a",

@@ -5,8 +5,10 @@ import { applyJourneyProfessionalUpdate } from "@/data/journey-transformations";
 import { getJourneyProfessionalWorkflow } from "@/data/journey-professional";
 import type { JourneyMilestoneDetails, TrackedOpportunity } from "@/data/student-activity";
 import type { AuthUser } from "./account-types";
+import { trustedApplicationRequirements } from "./application-workspace";
 import { accountHasCompletedOnboarding, mergeAccountData, readAccountData, withSecurityLock } from "./auth-store";
 import { listPublishedOpportunitiesByIds } from "./content-store";
+import { officialDeadlineIsCalendarReady } from "./journey-calendar";
 
 export type JourneyAddMutation = {
   opportunityId: string;
@@ -15,6 +17,28 @@ export type JourneyAddMutation = {
   initialStage: "saved" | "preparing" | "applied";
   details?: JourneyMilestoneDetails;
 };
+
+export type JourneySmartDefaults = {
+  initialStatus: "Saved";
+  officialDeadline?: string;
+  verifiedRequirementCount: number;
+  deadlineReminderOffsets: number[];
+};
+
+export function journeySmartDefaults(opportunity: Parameters<typeof trustedApplicationRequirements>[0], account: Awaited<ReturnType<typeof readAccountData>>, now = new Date()): JourneySmartDefaults {
+  const officialDeadline = officialDeadlineIsCalendarReady(opportunity, now)
+    && opportunity.application_deadline
+    && opportunity.application_deadline >= now.toISOString().slice(0, 10)
+    ? opportunity.application_deadline
+    : undefined;
+  const deadlineRemindersEnabled = account.preferences?.notifications?.deadlineReminders !== false;
+  return {
+    initialStatus: "Saved",
+    officialDeadline,
+    verifiedRequirementCount: trustedApplicationRequirements(opportunity).length,
+    deadlineReminderOffsets: officialDeadline && deadlineRemindersEnabled ? [7, 1] : [],
+  };
+}
 
 export async function addJourneyOpportunity(user: Pick<AuthUser, "id">, mutation: JourneyAddMutation) {
   return await withSecurityLock("journey-add", user.id, async () => {
@@ -89,6 +113,7 @@ export async function addJourneyOpportunity(user: Pick<AuthUser, "id">, mutation
       record: persistedRecord,
       savedCount: persisted.savedOpportunities.length,
       source: mutation.source,
+      defaults: journeySmartDefaults(opportunity, persisted),
     };
   });
 }
