@@ -11,6 +11,7 @@ import { SmartEmptyState } from "@/components/smart-empty-state";
 import { ActionButtonLabel, ActionFeedback } from "@/components/action-feedback";
 import { useUndoRecovery } from "@/components/undo-recovery";
 import { ContextualCalendarAction } from "@/components/contextual-calendar-action";
+import { dateAfterOfficialDeadline, dateShortcutOptions, explicitDateFromShortcut } from "@/data/form-experience";
 import styles from "./application-workspace.module.css";
 
 type SubmissionAction = {
@@ -53,6 +54,8 @@ export function ApplicationWorkspace({ initial, opportunityTitle, submission }: 
   const router = useRouter();
   const { offerUndo } = useUndoRecovery();
   const workspaceRef = useRef<HTMLElement | null>(null);
+  const addTaskRef = useRef<HTMLDetailsElement | null>(null);
+  const taskTitleRef = useRef<HTMLInputElement | null>(null);
   const requestRef = useRef<AbortController | null>(null);
   const [workspace, setWorkspace] = useState(initial);
   const [pending, setPending] = useState("");
@@ -119,7 +122,7 @@ export function ApplicationWorkspace({ initial, opportunityTitle, submission }: 
       const result = await response.json().catch(() => null) as { ok?: boolean; error?: string; workspace?: ApplicationWorkspaceProjection } | null;
       if (!response.ok || !result?.ok || !result.workspace) {
         if (options.optimistic) setWorkspace(previous);
-        setError(errorMessage(response.status, result?.error));
+        setError(pendingKey === "add" ? `${errorMessage(response.status, result?.error)} Your task name and due date are still here.` : errorMessage(response.status, result?.error));
         setRetry(() => () => void mutate(body, pendingKey, options));
         if (response.status === 409) router.refresh();
         return null;
@@ -132,7 +135,9 @@ export function ApplicationWorkspace({ initial, opportunityTitle, submission }: 
     } catch {
       if (options.optimistic) setWorkspace(previous);
       if (controller.signal.reason !== "account-changed" && controller.signal.reason !== "unmounted") {
-        setError(controller.signal.reason === "timeout" ? "Saving took too long. Your previous version is still intact." : "We couldn’t reach UnlockED. Your previous version is still intact.");
+        setError(pendingKey === "add"
+          ? controller.signal.reason === "timeout" ? "Saving took too long. Your task name and due date are still here." : "We couldn’t save this task. Your work is still here."
+          : controller.signal.reason === "timeout" ? "Saving took too long. Your previous version is still intact." : "We couldn’t reach UnlockED. Your previous version is still intact.");
         setRetry(() => () => void mutate(body, pendingKey, options));
       }
       return null;
@@ -146,7 +151,12 @@ export function ApplicationWorkspace({ initial, opportunityTitle, submission }: 
   async function addTask() {
     if (!title.trim()) return;
     const result = await mutate({ action: "add_task", idempotencyKey: `application-task:${crypto.randomUUID()}`, title, dueDate: dueDate || undefined }, "add", { success: "Task added." });
-    if (result) { setTitle(""); setDueDate(""); }
+    if (result) {
+      setTitle("");
+      setDueDate("");
+      setMessage("Task added. Add another or close this form.");
+      window.requestAnimationFrame(() => taskTitleRef.current?.focus());
+    }
   }
 
   async function restoreTask(taskId: string, expectedVersion: number) {
@@ -227,7 +237,7 @@ export function ApplicationWorkspace({ initial, opportunityTitle, submission }: 
 
     <div className={styles.smartSetup}>
       <span>{workspace.requirementsVerified ? "Verified requirements were added automatically." : "Add only the private steps you need."}{workspace.deadline ? " The official deadline is already in Upcoming." : ""}</span>
-      <ContextualCalendarAction className={styles.dateAction} label="Add personal date" context={{ opportunityId: workspace.opportunityId, opportunityTitle, type: "personal_target", title: "Personal application target" }} />
+      <ContextualCalendarAction className={styles.dateAction} label="Add personal date" context={{ opportunityId: workspace.opportunityId, opportunityTitle, type: "personal_target", title: "Target submission", officialDeadline: workspace.deadline }} />
     </div>
 
     {workspace.recentProviderUpdate ? <p className={styles.providerUpdate} role="status"><strong>{workspace.recentProviderUpdate.label}</strong> {workspace.recentProviderUpdate.summary}</p> : null}
@@ -249,9 +259,14 @@ export function ApplicationWorkspace({ initial, opportunityTitle, submission }: 
       })}>Remove<span className="sr-only"> {task.title}</span></button> : null}
     </li>)}</ul></section> : <SmartEmptyState compact className={styles.smartEmpty} title="No application tasks yet." description="UnlockED hasn’t verified the application materials for this opportunity. Review the official requirements, then add only the tasks you need." primaryAction={{ label: "Open official application", href: workspace.officialSource, external: true }} />}
 
-    <details className={styles.addTask}>
+    <details ref={addTaskRef} className={styles.addTask} onToggle={(event) => { if (event.currentTarget.open) window.requestAnimationFrame(() => taskTitleRef.current?.focus()); }}>
       <summary>+ Add task</summary>
-      <div><label>Task name<input value={title} onChange={(event) => setTitle(event.target.value)} maxLength={120} placeholder="Ask professor for recommendation" /></label><label>Due date <span>Optional</span><input type="date" value={dueDate} onChange={(event) => setDueDate(event.target.value)} /></label><button type="button" disabled={!title.trim() || Boolean(pending)} aria-busy={pending === "add" ? "true" : undefined} data-action-state={pending === "add" ? "loading" : "idle"} onClick={() => void addTask()}><ActionButtonLabel phase={pending === "add" ? "pending" : "idle"} idle="Add task" pending="Adding task…" /></button></div>
+      <form onSubmit={(event) => { event.preventDefault(); void addTask(); }}>
+        <label>Task name<input ref={taskTitleRef} required value={title} onChange={(event) => { setTitle(event.target.value); setError(""); }} maxLength={120} placeholder="e.g. Draft personal statement" /></label>
+        <div className={styles.taskDate}><label>Due date <span>Optional</span><input type="date" value={dueDate} onChange={(event) => { setDueDate(event.target.value); setError(""); }} /></label><div className={styles.dateShortcuts} aria-label="Quick dates">{dateShortcutOptions.map((option) => <button key={option.id} type="button" onClick={() => setDueDate(explicitDateFromShortcut(option.days))}>{option.label}</button>)}</div></div>
+        {dateAfterOfficialDeadline(dueDate, workspace.deadline) ? <p className={styles.dateWarning} role="status">This task is after the official application deadline of {formatDate(workspace.deadline!)}.</p> : null}
+        <div className={styles.taskActions}><button type="submit" disabled={!title.trim() || Boolean(pending)} aria-busy={pending === "add" ? "true" : undefined} data-action-state={pending === "add" ? "loading" : "idle"}><ActionButtonLabel phase={pending === "add" ? "pending" : "idle"} idle="Add task" pending="Adding task…" /></button><button type="button" onClick={() => { setTitle(""); setDueDate(""); setError(""); if (addTaskRef.current) addTaskRef.current.open = false; }}>Close</button></div>
+      </form>
     </details>
 
     {workspace.readyForSubmission ? <div className={styles.ready}><div><strong>Everything looks ready.</strong><span>Did you submit your application?</span></div>{submission ? <button type="button" disabled={Boolean(pending)} aria-busy={pending === "submit" ? "true" : undefined} data-action-state={pending === "submit" ? "loading" : "idle"} onClick={() => void markApplied()}><ActionButtonLabel phase={pending === "submit" ? "pending" : "idle"} idle="Mark as Applied" pending="Saving application…" /></button> : null}</div> : null}

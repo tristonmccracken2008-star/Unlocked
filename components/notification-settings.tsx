@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { defaultNotificationPreferences, type NotificationPreferences } from "@/lib/notification-types";
 import { accountSessionEvent } from "@/data/account-sync";
 import { SectionLoading } from "./loading-system";
@@ -37,6 +37,7 @@ export function NotificationSettings({ embedded = false }: { embedded?: boolean 
   const [saving, setSaving] = useState(false);
   const [accountVersion, setAccountVersion] = useState(0);
   const [reloadVersion, setReloadVersion] = useState(0);
+  const savedPreferencesRef = useRef<NotificationPreferences | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -46,7 +47,7 @@ export function NotificationSettings({ embedded = false }: { embedded?: boolean 
     authenticatedFetch("/api/notifications/preferences", { credentials: "same-origin", cache: "no-store" })
       .then((response) => response.ok ? response.json() : Promise.reject())
       .then((body: { preferences: NotificationPreferences }) => {
-        if (active) setPreferences(body.preferences);
+        if (active) { savedPreferencesRef.current = body.preferences; setPreferences(body.preferences); }
       })
       .catch(() => {
         if (active) {
@@ -62,6 +63,7 @@ export function NotificationSettings({ embedded = false }: { embedded?: boolean 
   useEffect(() => {
     const accountChanged = () => {
       setPreferences(null);
+      savedPreferencesRef.current = null;
       setMessage("");
       setMessageKind(null);
       setLoading(true);
@@ -82,6 +84,7 @@ export function NotificationSettings({ embedded = false }: { embedded?: boolean 
     setMessageKind(null);
     setPreferences((current) => current ? { ...current, [key]: value } : current);
   };
+  const changed = JSON.stringify(preferences) !== JSON.stringify(savedPreferencesRef.current);
 
   return <section id="notifications" className={embedded ? "scroll-mt-28 pt-7" : "scroll-mt-28 px-5 pt-6 sm:px-8"}>
     <div className={embedded ? "" : "mx-auto max-w-5xl rounded-[2rem] bg-[var(--unlocked-surface)] p-5 shadow-soft ring-1 ring-ink/8 sm:p-6"}>
@@ -120,7 +123,7 @@ export function NotificationSettings({ embedded = false }: { embedded?: boolean 
       </label>
 
       <div className="mt-6 flex flex-wrap items-center gap-4">
-        <button type="button" disabled={saving} onClick={async () => {
+        <button type="button" onClick={async () => {
           setSaving(true);
           setMessage("");
           setMessageKind(null);
@@ -134,16 +137,17 @@ export function NotificationSettings({ embedded = false }: { embedded?: boolean 
             });
             if (!response.ok) throw new Error("save_failed");
             const body = await response.json() as { preferences: NotificationPreferences };
+            savedPreferencesRef.current = body.preferences;
             setPreferences(body.preferences);
             setMessageKind("success");
             setMessage("Notification settings saved.");
           } catch {
             setMessageKind("error");
-            setMessage("We couldn’t save these settings. Your previous choices are unchanged.");
+            setMessage("We couldn’t save these settings. Your choices are still here.");
           } finally {
             setSaving(false);
           }
-        }} aria-busy={saving ? "true" : undefined} data-action-state={saving ? "loading" : messageKind === "success" ? "success" : messageKind === "error" ? "error" : "idle"} className="min-h-11 min-w-52 rounded-full bg-forest px-5 text-sm font-bold text-white hover:bg-ink disabled:cursor-wait disabled:opacity-60"><ActionButtonLabel phase={saving ? "pending" : messageKind === "success" ? "success" : messageKind === "error" ? "error" : "idle"} idle="Save notification settings" pending="Saving settings…" success="Settings saved" /></button>
+        }} disabled={saving || !changed} aria-busy={saving ? "true" : undefined} data-action-state={saving ? "loading" : messageKind === "success" ? "success" : messageKind === "error" ? "error" : "idle"} className="min-h-11 min-w-52 rounded-full bg-forest px-5 text-sm font-bold text-white hover:bg-ink disabled:cursor-not-allowed disabled:opacity-45"><ActionButtonLabel phase={saving ? "pending" : messageKind === "success" ? "success" : messageKind === "error" ? "error" : "idle"} idle={changed ? "Save notification settings" : "No changes to save"} pending="Saving settings…" success="Settings saved" /></button>
         <a href="/notifications" className="inline-flex min-h-11 items-center text-sm font-bold text-forest hover:text-ink">Open notifications</a>
         {message ? <ActionFeedback className="w-full" message={message} state={messageKind === "error" ? "error" : "success"} level="routine" /> : null}
       </div>

@@ -79,6 +79,11 @@
 .fields label span { color: var(--journey-muted); font-size: .56rem; font-weight: 600; }
 .fields > div { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; }
 .fields input, .fields select { width: 100%; min-height: 44px; border: 1px solid var(--journey-line); border-radius: .45rem; background: var(--journey-canvas); color: var(--journey-ink); padding: 0 .65rem; font: 600 .68rem/1 var(--font-sans), system-ui, sans-serif; }
+.dateShortcuts { display: flex !important; grid-template-columns: none !important; flex-wrap: wrap; gap: .3rem !important; }
+.dateShortcuts button { min-height: 36px; border: 1px solid var(--journey-line); border-radius: .4rem; background: transparent; color: var(--journey-green); padding: 0 .65rem; font-size: .61rem; font-weight: 800; cursor: pointer; }
+.explicitDate { margin: -.25rem 0 0; color: var(--journey-muted); font-size: .61rem; line-height: 1.45; }
+.explicitDate strong { color: var(--journey-ink); }
+.deadlineWarning { margin: 0; border-left: 2px solid var(--journey-gold); padding: .2rem 0 .2rem .7rem; color: var(--journey-ink); font-size: .64rem; font-weight: 700; line-height: 1.5; }
 .contextLink { display: grid; gap: .2rem; margin: 0; border-left: 2px solid var(--journey-green); padding: .2rem 0 .2rem .7rem; }
 .contextLink span { color: var(--journey-muted); font-size: .57rem; font-weight: 750; }
 .contextLink strong { font-size: .69rem; }

@@ -43,11 +43,17 @@
 .addTask { margin-top: .75rem; border-top: 1px solid var(--journey-line); }
 .addTask summary { display: inline-flex; min-height: 44px; align-items: center; color: var(--journey-green); font-size: .7rem; font-weight: 800; cursor: pointer; list-style: none; }
 .addTask summary::-webkit-details-marker { display: none; }
-.addTask > div { display: grid; grid-template-columns: minmax(0, 1fr) minmax(9rem, .55fr) auto; align-items: end; gap: .65rem; padding: .1rem 0 .8rem; }
+.addTask > form { display: grid; grid-template-columns: minmax(0, 1fr) minmax(10rem, .62fr); align-items: start; gap: .65rem; padding: .1rem 0 .8rem; }
 .addTask label { display: grid; gap: .35rem; color: var(--journey-ink); font-size: .65rem; font-weight: 800; }
 .addTask label span { color: var(--journey-muted); font-size: .56rem; font-weight: 600; }
 .addTask input { min-width: 0; min-height: 44px; border: 1px solid var(--journey-line); border-radius: .45rem; background: var(--journey-canvas); color: var(--journey-ink); padding: 0 .65rem; font: 500 .7rem var(--font-sans), system-ui, sans-serif; }
 .addTask button, .ready button { min-height: 44px; border: 1px solid var(--journey-green); border-radius: .45rem; background: var(--journey-green); color: var(--journey-canvas); padding: 0 .85rem; font-size: .67rem; font-weight: 800; cursor: pointer; }
+.taskDate { display: grid; gap: .35rem; }
+.dateShortcuts { display: flex; flex-wrap: wrap; gap: .25rem; }
+.dateShortcuts button { min-height: 32px; border-color: var(--journey-line); background: transparent; color: var(--journey-green); padding-inline: .55rem; font-size: .58rem; }
+.taskActions { display: flex; grid-column: 1 / -1; justify-content: flex-end; gap: .45rem; }
+.taskActions button:last-child { border-color: var(--journey-line); background: transparent; color: var(--journey-muted); }
+.dateWarning { grid-column: 1 / -1; margin: 0; color: var(--journey-error); font-size: .64rem; font-weight: 700; line-height: 1.45; }
 .addTask button:disabled, .ready button:disabled, .tasks button:disabled { cursor: wait; opacity: .58; }
 .ready { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-top: .75rem; border-top: 1px solid var(--journey-line); padding-top: .9rem; }
 .ready > div { display: grid; gap: .2rem; }
@@ -63,8 +69,9 @@
 .submitted p { margin: .4rem 0 0; }
 @media (max-width: 620px) {
   .summary { align-items: flex-start; }
-  .addTask > div { grid-template-columns: 1fr; }
-  .addTask button { width: 100%; }
+  .addTask > form { grid-template-columns: 1fr; }
+  .taskActions { flex-direction: column; }
+  .taskActions button { width: 100%; }
   .ready { align-items: stretch; flex-direction: column; }
   .smartSetup { align-items: flex-start; flex-direction: column; gap: .25rem; }
   .ready button { width: 100%; }

@@ -16,6 +16,7 @@ import { useUndoRecovery } from "./undo-recovery";
 import { journeyCalendarAddEvent, type JourneyCalendarAddContext } from "@/data/journey-calendar-context";
 import { productIntelligenceEvents } from "@/lib/analytics-types";
 import { trackProductEvent } from "@/data/product-analytics";
+import { dateAfterOfficialDeadline, dateShortcutOptions, explicitDateFromShortcut } from "@/data/form-experience";
 
 type View = "upcoming" | "calendar";
 type Draft = {
@@ -85,7 +86,7 @@ function EventRow({ item, onEdit, onAction, pending }: {
         : item.source === "application_task"
           ? `Application task${item.opportunityTitle ? ` · ${item.opportunityTitle}` : ""}`
           : `${eventLabel(item)}${item.opportunityTitle ? ` · ${item.opportunityTitle}` : ""}`}</span>
-      <small data-urgency={item.urgency}>{item.timingLabel}{item.source === "official" ? " · Verified date" : ""}</small>
+      <small data-urgency={item.urgency}>{item.timingLabel}{item.source === "official" ? " · Official date · Verified" : item.source === "user" ? " · Your date · Editable" : ""}</small>
     </div>
     <div className={styles.eventActions}>
       {destination ? <Link href={destination} aria-label={`Open Journey item for ${item.opportunityTitle ?? item.title}`}><ArrowIcon /></Link> : null}
@@ -114,6 +115,7 @@ export function JourneyDeadlineCalendar({ model }: { model: JourneyCalendarModel
   const requestRef = useRef<AbortController | null>(null);
   const createRequestIdRef = useRef("");
   const contextualTriggerRef = useRef<HTMLButtonElement | null>(null);
+  const openedDraftRef = useRef<Draft>(emptyDraft());
   const titleId = useId();
   const [view, setView] = useState<View>("upcoming");
   const [month, setMonth] = useState(model.initialMonth);
@@ -125,6 +127,7 @@ export function JourneyDeadlineCalendar({ model }: { model: JourneyCalendarModel
   const [feedback, setFeedback] = useState("");
   const [retry, setRetry] = useState<(() => void) | null>(null);
   const [context, setContext] = useState<JourneyCalendarAddContext | null>(null);
+  const dirty = JSON.stringify(draft) !== JSON.stringify(openedDraftRef.current);
   const cells = useMemo(() => monthCells(month), [month]);
   const selectedItems = model.items.filter((item) => item.date === selectedDate);
   const datesWithEvents = useMemo(() => new Set(model.items.map((item) => item.date)), [model.items]);
@@ -179,7 +182,9 @@ export function JourneyDeadlineCalendar({ model }: { model: JourneyCalendarModel
   function openAdd(date = "", addContext: JourneyCalendarAddContext | null = null) {
     createRequestIdRef.current = `event:${crypto.randomUUID()}`;
     setContext(addContext);
-    setDraft({ ...emptyDraft(), date, ...(addContext ? { title: addContext.title, type: addContext.type, opportunityId: addContext.opportunityId, reminderMinutesBefore: addContext.reminderMinutesBefore === undefined ? "" : String(addContext.reminderMinutesBefore) } : {}) });
+    const nextDraft = { ...emptyDraft(), date, ...(addContext ? { title: addContext.title, type: addContext.type, opportunityId: addContext.opportunityId, reminderMinutesBefore: addContext.reminderMinutesBefore === undefined ? "" : String(addContext.reminderMinutesBefore) } : {}) };
+    openedDraftRef.current = nextDraft;
+    setDraft(nextDraft);
     setError("");
     setFeedback("");
     setRetry(null);
@@ -188,16 +193,23 @@ export function JourneyDeadlineCalendar({ model }: { model: JourneyCalendarModel
 
   function openEdit(item: JourneyCalendarItem) {
     if (item.source !== "user" || item.type === "application_deadline" || item.type === "application_open" || item.type === "program_start") return;
-    setDraft({ id: item.id, version: item.version, title: item.title, type: item.type, date: item.date, time: item.time ?? "", opportunityId: item.opportunityId ?? "", reminderMinutesBefore: item.reminderMinutesBefore === undefined ? "" : String(item.reminderMinutesBefore) });
+    const nextDraft = { id: item.id, version: item.version, title: item.title, type: item.type, date: item.date, time: item.time ?? "", opportunityId: item.opportunityId ?? "", reminderMinutesBefore: item.reminderMinutesBefore === undefined ? "" : String(item.reminderMinutesBefore) };
+    openedDraftRef.current = nextDraft;
+    setContext(null);
+    setDraft(nextDraft);
     setError("");
     setFeedback("");
     setRetry(null);
     dialogRef.current?.showModal();
   }
 
-  function close() {
+  function close(force = false) {
+    if (saving) return;
+    if (!force && dirty && !window.confirm("Discard this unsaved date?")) return;
     dialogRef.current?.close();
-    setDraft(emptyDraft());
+    const cleared = emptyDraft();
+    openedDraftRef.current = cleared;
+    setDraft(cleared);
     setContext(null);
     setError("");
     createRequestIdRef.current = "";
@@ -240,7 +252,7 @@ export function JourneyDeadlineCalendar({ model }: { model: JourneyCalendarModel
       }
       const savedMessage = draft.id ? "Date updated." : "Date added.";
       if (!draft.id && context) trackProductEvent(productIntelligenceEvents.smartDefaultInteraction, { action: "accepted", source: context.type });
-      close();
+      close(true);
       setFeedback(savedMessage);
       router.refresh();
     } catch {
@@ -323,12 +335,15 @@ export function JourneyDeadlineCalendar({ model }: { model: JourneyCalendarModel
       <aside className={styles.dayPanel} aria-live="polite"><header><div><p>Selected day</p><h3>{formatDay(selectedDate)}</h3></div><button type="button" onClick={() => openAdd(selectedDate)}>Add date</button></header>{selectedItems.length ? selectedItems.map((item) => <EventRow key={item.id} item={item} onEdit={openEdit} onAction={updateState} pending={pending} />) : <p className={styles.noDayEvents}>No dates on this day.</p>}</aside>
     </div>}
 
-    <dialog ref={dialogRef} className={styles.dialog} aria-labelledby={titleId} onCancel={(event) => { if (saving) event.preventDefault(); else close(); }}>
+    <dialog ref={dialogRef} className={styles.dialog} aria-labelledby={titleId} onCancel={(event) => { event.preventDefault(); if (!saving) close(); }}>
       <form method="dialog" onSubmit={(event) => { event.preventDefault(); void save(); }}>
-        <header><div><p>Journey date</p><h2 id={titleId}>{draft.id ? "Edit date" : "Add a date"}</h2><span>Keep only what you need to remember.</span></div><button type="button" onClick={close} disabled={saving} aria-label="Close date form"><CloseIcon /></button></header>
+        <header><div><p>Journey date</p><h2 id={titleId}>{draft.id ? "Edit date" : "Add a date"}</h2><span>Keep only what you need to remember.</span></div><button type="button" onClick={() => close()} disabled={saving} aria-label="Close date form"><CloseIcon /></button></header>
         <div className={styles.fields}>
           <label>Title<input required maxLength={120} value={draft.title} onChange={(event) => setDraft({ ...draft, title: event.target.value })} placeholder="Essay draft due" /></label>
-          <label>Date<input required type="date" value={draft.date} onChange={(event) => setDraft({ ...draft, date: event.target.value })} /></label>
+          <label>Date<input required type="date" value={draft.date} onChange={(event) => { setDraft({ ...draft, date: event.target.value }); setError(""); }} /></label>
+          {!draft.id ? <div className={styles.dateShortcuts} aria-label="Date shortcuts">{dateShortcutOptions.map((option) => <button key={option.id} type="button" onClick={() => setDraft({ ...draft, date: explicitDateFromShortcut(option.days) })}>{option.label}</button>)}</div> : null}
+          {draft.date ? <p className={styles.explicitDate}>Selected date: <strong>{formatDay(draft.date)}</strong>{model.timezone ? ` · ${model.timezone.replaceAll("_", " ")}` : ""}</p> : null}
+          {dateAfterOfficialDeadline(draft.date, context?.officialDeadline) ? <p className={styles.deadlineWarning} role="status">This personal target is after the verified official deadline of {formatDay(context!.officialDeadline!)}. You can still save it.</p> : null}
           {context && !draft.id ? <p className={styles.contextLink}><span>Linked opportunity</span><strong>{context.opportunityTitle}</strong></p> : null}
           <details className={styles.moreOptions} open={Boolean(draft.id)} onToggle={(event) => { if (event.currentTarget.open && !draft.id) trackProductEvent(productIntelligenceEvents.smartDefaultInteraction, { action: "optional_settings_opened", source: context?.type ?? "global_calendar" }); }}>
             <summary>More options</summary>
@@ -340,8 +355,8 @@ export function JourneyDeadlineCalendar({ model }: { model: JourneyCalendarModel
             </div>
           </details>
         </div>
-        {error ? <ActionFeedback message={error} state="error" level="confirmatory" /> : null}
-        <footer><button type="button" onClick={close} disabled={saving}>Cancel</button><button type="submit" disabled={saving || !draft.title.trim() || !draft.date} aria-busy={saving ? "true" : undefined} data-action-state={saving ? "loading" : "idle"}><ActionButtonLabel phase={saving ? "pending" : "idle"} idle={<><CheckIcon /> Save date</>} pending={draft.id ? "Updating date…" : "Adding date…"} /></button></footer>
+        {error ? <ActionFeedback message={`${error} Your entries are still here.`} state="error" level="confirmatory" /> : null}
+        <footer><button type="button" onClick={() => close()} disabled={saving}>Cancel</button><button type="submit" disabled={saving || !draft.title.trim() || !draft.date} aria-busy={saving ? "true" : undefined} data-action-state={saving ? "loading" : "idle"}><ActionButtonLabel phase={saving ? "pending" : "idle"} idle={<><CheckIcon /> Save date</>} pending={draft.id ? "Updating date…" : "Adding date…"} /></button></footer>
       </form>
     </dialog>
   </section>;

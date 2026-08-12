@@ -28,7 +28,7 @@ assert.ok((application.match(/setWorkspace\(previous\)/g) ?? []).length >= 2, "O
 for (const token of ["Task added.", "Task deleted.", "Task restored.", "Task completed:", "Your previous version is still intact.", "Try again"]) assert.ok(application.includes(token), `Application feedback must preserve ${token}.`);
 for (const token of ["Date added.", "Date updated.", "Date completed.", "Reminder dismissed.", "Your previous calendar is still intact.", "ActionButtonLabel", "ActionFeedback"]) assert.ok(calendar.includes(token), `Calendar feedback must preserve ${token}.`);
 for (const token of ["markingAll", "setItems(previous)", "ActionButtonLabel", "ActionFeedback", "authenticatedFetch"]) assert.ok(notifications.includes(token), `Notification feedback must preserve ${token}.`);
-for (const token of ["Notification settings saved.", "Your previous choices are unchanged.", "ActionButtonLabel", "ActionFeedback", "authenticatedFetch"]) assert.ok(notificationSettings.includes(token), `Notification settings feedback must preserve ${token}.`);
+for (const token of ["Notification settings saved.", "Your choices are still here.", "ActionButtonLabel", "ActionFeedback", "authenticatedFetch"]) assert.ok(notificationSettings.includes(token), `Notification settings feedback must preserve ${token}.`);
 assert.ok(profile.includes("<ActionFeedback"), "Profile confirmations must use shared feedback.");
 assert.ok(profileForm.includes("<ActionFeedback"), "Profile validation must use shared feedback.");
 for (const token of ["if (pending) return", "Nothing changed; try again.", "ActionButtonLabel", "ActionFeedback"]) assert.ok(guidance.includes(token), `Guidance feedback must preserve ${token}.`);

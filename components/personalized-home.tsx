@@ -175,6 +175,9 @@ export function StudentProfileForm({ mode, session, initialProfile, onSave, onCa
   const [showMinorSuggestions, setShowMinorSuggestions] = useState(false);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
+  const formState = JSON.stringify({ firstName, lastName, schoolQuery, schoolSlug: selectedSchool?.slug ?? "", useCustomSchool, major, secondaryMajor, graduationYear, opportunityTypeInterests, fieldInterests, otherFieldInterest, goals, specificCareerInterests, otherCareerInterest, locationFormats, compensationPreference, timeCommitments, minorStatus, minor, gpaStatus, gpa, gpaScale });
+  const savedFormStateRef = useRef(formState);
+  const changed = mode === "onboarding" || formState !== savedFormStateRef.current;
   const normalized = normalizeSchoolQuery(schoolQuery);
   const matches = useMemo(() => findSchoolMatches(schools, schoolQuery, 6), [schoolQuery]);
   const majorMatches = useMemo(() => canonicalMajors.filter((item) => item.toLowerCase().includes(major.trim().toLowerCase())).slice(0, 6), [major]);
@@ -251,8 +254,9 @@ export function StudentProfileForm({ mode, session, initialProfile, onSave, onCa
       });
       nextProfile.advisorInterview = { ...(nextProfile.advisorInterview ?? {}), completedAt: initialProfile?.advisorInterview?.completedAt ?? initialProfile?.onboardingCompletedAt };
       await onSave(nextProfile);
+      savedFormStateRef.current = formState;
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : "Your profile could not be saved. Please try again.");
+      setError(reason instanceof Error ? `${reason.message} Your changes are still here.` : "Your profile could not be saved. Your changes are still here.");
     } finally {
       setSaving(false);
     }
@@ -338,7 +342,7 @@ export function StudentProfileForm({ mode, session, initialProfile, onSave, onCa
         </div>
         {error ? <ActionFeedback message={error} state="error" level="confirmatory" /> : null}
         <div className="flex flex-col gap-3 border-t border-ink/15 pt-6 sm:flex-row">
-          <button type="submit" disabled={saving} aria-busy={saving ? "true" : undefined} data-action-state={saving ? "loading" : "idle"} className="inline-flex min-h-12 items-center justify-center bg-forest px-6 text-sm font-bold uppercase tracking-wider text-white hover:bg-ink disabled:opacity-60"><DelayedPendingLabel pending={saving} idle={mode === "edit" ? "Save profile" : "Open UnlockED"} pendingLabel="Saving profile…" /></button>
+          <button type="submit" disabled={saving || !changed} aria-busy={saving ? "true" : undefined} data-action-state={saving ? "loading" : "idle"} className="inline-flex min-h-12 items-center justify-center bg-forest px-6 text-sm font-bold uppercase tracking-wider text-white hover:bg-ink disabled:cursor-not-allowed disabled:opacity-45"><DelayedPendingLabel pending={saving} idle={mode === "edit" ? changed ? "Save profile" : "No changes to save" : "Open UnlockED"} pendingLabel="Saving profile…" /></button>
           {onCancel && <button type="button" onClick={onCancel} className="inline-flex min-h-12 items-center justify-center border border-ink/20 px-6 text-sm font-bold uppercase tracking-wider text-ink/60 hover:border-forest hover:text-forest">Cancel</button>}
         </div>
       </form>

@@ -7,6 +7,7 @@ export type JourneyCalendarAddContext = {
   opportunityTitle: string;
   type: JourneyCalendarEventType;
   title: string;
+  officialDeadline?: string;
   reminderMinutesBefore?: number;
   trigger?: HTMLButtonElement;
 };

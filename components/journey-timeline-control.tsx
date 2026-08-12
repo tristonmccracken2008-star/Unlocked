@@ -73,6 +73,22 @@ function documentsFrom(files: FileList | null): JourneyMilestoneDocumentReferenc
   }));
 }
 
+function studentActionLabel(action: JourneyProfessionalAction) {
+  if (action.correction || action.id === "resume" || action.id === "paused" || action.id === "archived") return action.label;
+  const stage = action.stage?.label.toLowerCase() ?? "";
+  if (stage.includes("application submitted")) return "I submitted my application";
+  if (stage.includes("interview")) return stage.includes("final") ? "I reached the final interview" : "I got an interview";
+  if (stage.includes("offer received")) return "I received an offer";
+  if (stage.includes("offer accepted")) return "I accepted the offer";
+  if (stage.includes("position accepted") || stage === "accepted") return "I accepted the opportunity";
+  if (stage.includes("finalist")) return "I became a finalist";
+  if (stage.includes("awarded")) return "I received the scholarship";
+  if (stage.includes("completed") || stage.includes("funds received")) return "I completed this step";
+  if (action.transition === "start") return "I started working on this";
+  if (action.transition === "submit") return "I submitted this";
+  return action.label;
+}
+
 export function JourneyTimelineControl({ control, compactLabel = "Update Journey", showFollowUp = true }: { control: JourneyTimelineControl; compactLabel?: string; showFollowUp?: boolean }) {
   const router = useRouter();
   const { offerUndo } = useUndoRecovery();
@@ -106,11 +122,7 @@ export function JourneyTimelineControl({ control, compactLabel = "Update Journey
             : "Relevant date";
   const supportsDocuments = /prepar|submit|application|interview/i.test(selectedStageText);
   const initialActionId = control.actions[0]?.id ?? "";
-  const draftDirty = selectedId !== initialActionId
-    || notes !== (control.details?.notes ?? "")
-    || milestoneDate !== (control.details?.milestoneDate ?? "")
-    || reminderAt !== (control.details?.reminderAt ? control.details.reminderAt.slice(0, 16) : "")
-    || reminderText !== (control.details?.reminderText ?? "")
+  const substantialDraftDirty = notes !== (control.details?.notes ?? "")
     || JSON.stringify(documents) !== JSON.stringify(control.details?.documents ?? []);
 
   function resetDraft() {
@@ -150,7 +162,7 @@ export function JourneyTimelineControl({ control, compactLabel = "Update Journey
 
   function close(force = false) {
     if (pending) return;
-    if (!force && !result && draftDirty && !window.confirm("Close without saving these Journey changes?")) return;
+    if (!force && !result && substantialDraftDirty && !window.confirm("Close without saving these Journey changes?")) return;
     const refresh = Boolean(result);
     dialogRef.current?.close();
     resetDraft();
@@ -282,7 +294,7 @@ export function JourneyTimelineControl({ control, compactLabel = "Update Journey
               <div className={styles.stageChoices}>
                 {control.actions.slice(0, 1).map((action) => <label key={action.id} data-destructive={action.destructive ? "true" : undefined}>
                   <input type="radio" name={`journey-stage-${control.opportunityId}`} value={action.id} checked={selectedId === action.id} onChange={() => setSelectedId(action.id)} />
-                  <span><strong>{action.id === "resume" || action.correction ? action.label : action.stage?.label ?? action.label}</strong><small>{action.correction ? "Correct the current record while preserving its stage history." : action.stage?.description ?? (action.id === "paused" ? "Keep the opportunity without moving it forward." : "Keep this opportunity in your history.")}</small></span>
+                  <span><strong>{studentActionLabel(action)}</strong>{action.stage && !action.correction ? <span className={styles.canonicalStage}>{action.stage.label}</span> : null}<small>{action.correction ? "Correct the current record while preserving its stage history." : action.stage?.description ?? (action.id === "paused" ? "Keep the opportunity without moving it forward." : "Keep this opportunity in your history.")}</small></span>
                 </label>)}
               </div>
               {alternateActions.length ? <details ref={alternateStagesRef} className={styles.alternateStages}>
@@ -290,7 +302,7 @@ export function JourneyTimelineControl({ control, compactLabel = "Update Journey
                 <div className={styles.stageChoices}>
                   {alternateActions.map((action) => <label key={action.id} data-destructive={action.destructive ? "true" : undefined}>
                     <input type="radio" name={`journey-stage-${control.opportunityId}`} value={action.id} checked={selectedId === action.id} onChange={() => setSelectedId(action.id)} />
-                    <span><strong>{action.id === "resume" || action.correction ? action.label : action.stage?.label ?? action.label}</strong><small>{action.correction ? "Correct the current record while preserving its stage history." : action.stage?.description ?? (action.id === "paused" ? "Keep the opportunity without moving it forward." : "Keep this opportunity in your history.")}</small></span>
+                    <span><strong>{studentActionLabel(action)}</strong>{action.stage && !action.correction ? <span className={styles.canonicalStage}>{action.stage.label}</span> : null}<small>{action.correction ? "Correct the current record while preserving its stage history." : action.stage?.description ?? (action.id === "paused" ? "Keep the opportunity without moving it forward." : "Keep this opportunity in your history.")}</small></span>
                   </label>)}
                 </div>
               </details> : null}

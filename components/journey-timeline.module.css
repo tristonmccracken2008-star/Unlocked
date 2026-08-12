@@ -175,6 +175,7 @@
 .updateForm fieldset > p { margin: .55rem 0 0; color: var(--journey-muted); font-size: .78rem; line-height: 1.55; }
 .stageChoices { display: grid; gap: .65rem; margin-top: 1.25rem; }
 .stageChoices label { display: flex; min-height: 66px; align-items: flex-start; gap: .8rem; border: 1px solid var(--journey-line); border-radius: .7rem; padding: .9rem 1rem; cursor: pointer; transition: border-color 160ms ease, background 160ms ease; }
+.canonicalStage { display: block; margin-top: .2rem; color: var(--journey-green); font-size: .62rem; font-weight: 800; }
 .stageChoices label:has(input:checked) { border-color: var(--journey-green); background: color-mix(in srgb, var(--journey-green) 6%, var(--journey-panel)); }
 .stageChoices label[data-destructive="true"] { color: #a13c32; }
 .stageChoices input { width: 1rem; height: 1rem; flex: 0 0 auto; margin-top: .1rem; accent-color: var(--journey-green); }
