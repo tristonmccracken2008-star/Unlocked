@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
-import type { ReactNode } from "react";
+import { cache, type ReactNode } from "react";
 import type { StudentActivity } from "@/data/student-activity";
 import type { OpportunityAdvisorExplanation } from "@/data/advisor-brain";
 import type { OpportunityLifecyclePresentation } from "@/data/opportunity-listing";
@@ -19,8 +18,7 @@ import { OpportunityActivityActions, OpportunityViewTracker } from "@/components
 import { OrganizationLogo } from "@/components/organization-logo";
 import { ReportOutdatedButton } from "@/components/report-outdated-button";
 import { ConfidenceBadge, LifecycleBadge, StatusBadge } from "@/components/status-badge";
-import { getManagedOpportunity, listPublishedOpportunities } from "@/lib/content-store";
-import { getSession, sessionCookieName } from "@/lib/auth-store";
+import { getManagedOpportunity, listPublishedOpportunitiesByIds } from "@/lib/content-store";
 import { serializeJsonLd } from "@/lib/json-ld";
 import { requireCompletedOnboarding } from "@/lib/onboarding";
 import {
@@ -36,18 +34,17 @@ import {
 } from "@/lib/opportunity-detail";
 
 export const dynamic = "force-dynamic";
+const getOpportunity = cache((id: string) => getManagedOpportunity(id, { includeArchived: true }));
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
-  const item = await getManagedOpportunity((await params).id, { includeArchived: true });
+  const item = await getOpportunity((await params).id);
   if (!item) return { title: "Opportunity not found" };
   const title = `${item.title} | Eligibility and Official Link`;
   const description = conciseOpportunityDescription(item);
   return { title, description, alternates: { canonical: `/opportunities/${item.id}` }, openGraph: { title, description, url: `/opportunities/${item.id}`, type: "article" } };
 }
 
-async function personalizedExplanation(item: Opportunity, catalog: readonly Opportunity[]): Promise<OpportunityAdvisorExplanation | null> {
-  const cookieStore = await cookies();
-  const session = await getSession(cookieStore.get(sessionCookieName)?.value);
+async function personalizedExplanation(item: Opportunity, session: Awaited<ReturnType<typeof requireCompletedOnboarding>>): Promise<OpportunityAdvisorExplanation | null> {
   const profile = session?.data.profile;
   if (!profile || !session.data.onboardingComplete) return null;
   const school = schools.find((candidate) => candidate.slug === profile.schoolSlug);
@@ -58,7 +55,9 @@ async function personalizedExplanation(item: Opportunity, catalog: readonly Oppo
     claimed: [],
     tracked: session.data.tracker,
   };
-  const progress = inferApplicationsFromActivity(activity, catalog, normalizeStudentProgress({
+  const relatedIds = [...new Set([...(activity.saved ?? []), ...Object.keys(activity.tracked ?? {})])];
+  const related = await listPublishedOpportunitiesByIds(relatedIds, { includeArchived: true });
+  const progress = inferApplicationsFromActivity(activity, related, normalizeStudentProgress({
     milestones: Object.fromEntries(Object.entries(session.data.journeyProgress ?? {}).map(([milestoneId, completed]) => [milestoneId, {
       milestoneId,
       status: completed ? "completed" : "not_started",
@@ -70,10 +69,9 @@ async function personalizedExplanation(item: Opportunity, catalog: readonly Oppo
 }
 
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
-  await requireCompletedOnboarding();
-  const item = await getManagedOpportunity((await params).id, { includeArchived: true });
+  const [{ id }, session] = await Promise.all([params, requireCompletedOnboarding()]);
+  const item = await getOpportunity(id);
   if (!item) notFound();
-  const catalog = await listPublishedOpportunities();
   const lifecycle = resolveOpportunityLifecycle(item);
   const lifecyclePresentation: OpportunityLifecyclePresentation = {
     state: lifecycle.state,
@@ -89,7 +87,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   const displayedStatus = maintenanceStatus(item);
   const schoolNames = item.schools.map((slug) => schools.find((school) => school.slug === slug)?.name ?? slug);
   const requirements = specificRequirements(item);
-  const advisorExplanation = await personalizedExplanation(item, catalog);
+  const advisorExplanation = await personalizedExplanation(item, session);
   const detailKind = opportunityDetailKind(item);
   const conciseDetail = detailKind === "benefit";
   const summary = conciseOpportunityDescription(item);

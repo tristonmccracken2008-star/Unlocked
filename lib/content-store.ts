@@ -14,6 +14,7 @@ const indexKey = "unlocked:content:opportunity-ids";
 const auditKey = "unlocked:content:audit-log";
 const changeDiagnosticKey = "unlocked:content:change-diagnostics";
 const recordKey = (id: string) => `unlocked:content:opportunity:${id}`;
+const seedOpportunityById = new Map(seedOpportunities.map((opportunity) => [opportunity.id, opportunity]));
 const publishedCacheTtlMs = 60_000;
 let publishedCache: { opportunities: Opportunity[]; expiresAt: number } | null = null;
 let publishedRequest: Promise<Opportunity[]> | null = null;
@@ -68,12 +69,21 @@ export async function listPublishedOpportunitiesByIds(ids: readonly string[], op
   const records = await Promise.all(uniqueIds.map(async (id) => {
     const managed = parse<ManagedOpportunity>(await command<string>(["GET", recordKey(id)]));
     if (managed) return managed.deleted || managed.archived && !options.includeArchived ? undefined : managed.opportunity;
-    return seedOpportunities.find((opportunity) => opportunity.id === id);
+    return seedOpportunityById.get(id);
   }));
   return records.filter((opportunity): opportunity is Opportunity => Boolean(opportunity));
 }
-export async function getManagedOpportunity(id:string,options:{includeArchived?:boolean}={}){return (await listManagedRecords()).find((item)=>item.opportunity.id===id&&(options.includeArchived||!item.archived)&&!item.deleted)?.opportunity}
-export async function getManagedRecord(id:string){return (await listManagedRecords()).find((item)=>item.opportunity.id===id)}
+export async function getManagedOpportunity(id:string,options:{includeArchived?:boolean}={}){
+  const managed=parse<ManagedOpportunity>(await command<string>(["GET",recordKey(id)]));
+  if(managed)return managed.deleted||(managed.archived&&!options.includeArchived)?undefined:managed.opportunity;
+  return seedOpportunityById.get(id);
+}
+export async function getManagedRecord(id:string){
+  const managed=parse<ManagedOpportunity>(await command<string>(["GET",recordKey(id)]));
+  if(managed)return managed;
+  const opportunity=seedOpportunityById.get(id);
+  return opportunity?{opportunity,archived:false,deleted:false,createdAt:opportunity.date_added,updatedAt:opportunity.last_verified}:undefined;
+}
 
 async function logEdit(entry:Omit<ContentAuditLog,"id"|"timestamp">){const log:ContentAuditLog={...entry,id:crypto.randomUUID(),timestamp:new Date().toISOString()};await command(["LPUSH",auditKey,JSON.stringify(log)]);await command(["LTRIM",auditKey,"0","499"])}
 export async function saveManagedOpportunity(opportunity:Opportunity,adminEmail:string,fieldsChanged:string[],isCreate=false){requireWritableStore();const current=await getManagedRecord(opportunity.id);const now=new Date().toISOString();const detected=opportunityWithDetectedChanges(isCreate?undefined:current?.opportunity,opportunity,new Date(now));const record:ManagedOpportunity={opportunity:detected.opportunity,archived:current?.archived??false,deleted:false,createdAt:current?.createdAt??now,updatedAt:now};await command(["SET",recordKey(opportunity.id),JSON.stringify(record)]);await command(["SADD",indexKey,opportunity.id]);await logEdit({opportunityId:opportunity.id,adminEmail,action:isCreate?"create":"update",fieldsChanged});invalidatePublishedCache();return record}

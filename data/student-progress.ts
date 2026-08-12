@@ -159,12 +159,13 @@ function deadlineDays(deadline?: string | null) {
 
 export function inferApplicationsFromActivity(activity: StudentActivity | undefined, opportunities: readonly Opportunity[] = [], existing: StudentProgress = emptyProgress()): StudentProgress {
   const applications = { ...existing.applications };
+  const opportunitiesById = new Map(opportunities.map((opportunity) => [opportunity.id, opportunity]));
   for (const id of activity?.saved ?? []) {
-    const opportunity = opportunities.find((item) => item.id === id);
+    const opportunity = opportunitiesById.get(id);
     if (!applications[id]) applications[id] = { opportunityId: id, status: "saved", deadline: opportunity?.application_deadline ?? null, priority: "Recommended", lastUpdated: now(), nextAction: opportunity?.application_deadline ? "Review requirements before the deadline." : "Review requirements and decide whether to apply.", source: "inferred" };
   }
   for (const [id, tracked] of Object.entries(activity?.tracked ?? {})) {
-    const opportunity = opportunities.find((item) => item.id === id);
+    const opportunity = opportunitiesById.get(id);
     const mapped = normalizeApplicationStatus(tracked.status.toLowerCase());
     applications[id] = { ...applications[id], opportunityId: id, status: mapped, deadline: opportunity?.application_deadline ?? applications[id]?.deadline ?? null, priority: applications[id]?.priority ?? "Recommended", lastUpdated: tracked.updatedAt, nextAction: applications[id]?.nextAction ?? "Keep this application moving.", source: applications[id]?.source ?? "inferred" };
   }

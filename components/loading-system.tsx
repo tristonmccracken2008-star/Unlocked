@@ -112,3 +112,46 @@ export function AdvisorRecommendationLoading() {
     </LoadingRegion>
   </main>;
 }
+
+export function DiscoverPageLoading() {
+  return <main className="min-h-[70vh] bg-paper px-5 py-10 sm:px-8 sm:py-14">
+    <LoadingRegion label="Opening Discover" className="mx-auto max-w-[112rem]">
+      <SkeletonBlock className="h-3 w-24 rounded-full" />
+      <SkeletonBlock className="mt-4 h-12 w-[min(100%,34rem)] rounded-md sm:h-16" />
+      <SkeletonBlock className="mt-5 h-4 w-[min(82%,28rem)] rounded-full" />
+      <SkeletonBlock className="mt-8 h-14 w-full rounded-lg" />
+      <div className="mt-5 flex gap-2 overflow-hidden">
+        {["w-28", "w-32", "w-24", "w-28", "w-20"].map((width, index) => <SkeletonBlock key={index} className={`h-10 ${width} shrink-0 rounded-full`} />)}
+      </div>
+      <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        {[1, 2, 3, 4, 5, 6, 7, 8].map((item) => <div key={item} className="min-h-72 rounded-lg border border-ink/10 bg-[var(--unlocked-surface)] p-5">
+          <div className="flex items-center gap-3"><SkeletonBlock className="h-11 w-11 rounded-lg" /><LoadingLines widths={["62%", "38%"]} className="flex-1" /></div>
+          <SkeletonBlock className="mt-6 h-7 w-4/5 rounded-md" />
+          <LoadingLines widths={["100%", "88%", "64%"]} className="mt-5" />
+          <SkeletonBlock className="mt-8 h-11 w-full rounded-lg" />
+        </div>)}
+      </div>
+    </LoadingRegion>
+  </main>;
+}
+
+export function OpportunityDetailLoading() {
+  return <main className="min-h-[70vh] bg-[var(--unlocked-surface)] px-5 py-10 sm:px-8 sm:py-16">
+    <LoadingRegion label="Opening opportunity" className="mx-auto max-w-6xl">
+      <SkeletonBlock className="h-3 w-36 rounded-full" />
+      <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_19rem]">
+        <div><div className="flex items-center gap-4"><SkeletonBlock className="h-14 w-14 rounded-lg" /><SkeletonBlock className="h-4 w-40 rounded-full" /></div><SkeletonBlock className="mt-6 h-14 w-[min(100%,42rem)] rounded-md sm:h-20" /><LoadingLines widths={["88%", "72%"]} className="mt-6 max-w-3xl" /></div>
+        <div className="h-48 rounded-lg border border-ink/10 bg-paper p-5"><SkeletonBlock className="h-3 w-28 rounded-full" /><SkeletonBlock className="mt-7 h-12 w-full rounded-lg" /><SkeletonBlock className="mt-4 h-11 w-full rounded-lg" /></div>
+      </div>
+      <div className="mt-12 grid gap-6 border-y border-ink/10 py-7 sm:grid-cols-2 lg:grid-cols-4">{[1, 2, 3, 4].map((item) => <LoadingLines key={item} widths={["42%", "72%"]} />)}</div>
+      <div className="mt-10 grid gap-8 md:grid-cols-[11rem_minmax(0,1fr)]"><SkeletonBlock className="h-8 w-32 rounded-md" /><LoadingLines widths={["96%", "88%", "72%"]} /></div>
+    </LoadingRegion>
+  </main>;
+}
+
+export function NotificationsPageLoading() {
+  return <main className="min-h-[65vh] px-5 py-10 sm:px-8 sm:py-14"><LoadingRegion label="Opening notifications" className="mx-auto max-w-4xl">
+    <SkeletonBlock className="h-3 w-28 rounded-full" /><SkeletonBlock className="mt-4 h-12 w-72 rounded-md" /><SkeletonBlock className="mt-4 h-4 w-96 max-w-full rounded-full" />
+    <div className="mt-9 rounded-lg border border-ink/10 bg-[var(--unlocked-surface)] p-4 sm:p-6"><SectionLoading label="Loading notification updates" rows={5} /></div>
+  </LoadingRegion></main>;
+}

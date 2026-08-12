@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type FocusEvent, type KeyboardEvent } from "react";
 import { Logo } from "./logo";
 import { AccountButton } from "./account-auth";
@@ -10,7 +10,8 @@ import type { AccountSession } from "@/lib/account-types";
 import { NotificationNavButton } from "./notification-nav-button";
 import { ArrowIcon, BookmarkIcon, PenLineIcon, SearchIcon, SparkIcon, TrophyIcon } from "./icons";
 
-const UniversalCommandCenter = dynamic(() => import("./universal-command-center").then((module) => module.UniversalCommandCenter), { ssr: false });
+const loadUniversalCommandCenter = () => import("./universal-command-center").then((module) => module.UniversalCommandCenter);
+const UniversalCommandCenter = dynamic(loadUniversalCommandCenter, { ssr: false });
 
 const destinations = [["Discover", "/opportunities"], ["For You", "/advisor"], ["Journey", "/"]] as const;
 type DestinationLabel = (typeof destinations)[number][0];
@@ -53,6 +54,7 @@ export function Header() {
   const [commandOpen, setCommandOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
   const closeTimer = useRef<number | null>(null);
   const commandTrigger = useRef<HTMLButtonElement>(null);
   const destinationTriggers = useRef<Partial<Record<DestinationLabel, HTMLAnchorElement | null>>>({});
@@ -88,6 +90,23 @@ export function Header() {
     setOpenDestination(null);
     setCommandOpen(false);
   }, [pathname]);
+
+  useEffect(() => {
+    if (!authenticated) return;
+    const connection = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection;
+    if (connection?.saveData) return;
+    const preload = () => void loadUniversalCommandCenter();
+    const idleWindow = window as Window & typeof globalThis & {
+      requestIdleCallback?: (callback: () => void, options?: { timeout: number }) => number;
+      cancelIdleCallback?: (id: number) => void;
+    };
+    if (idleWindow.requestIdleCallback) {
+      const id = idleWindow.requestIdleCallback(preload, { timeout: 1_500 });
+      return () => idleWindow.cancelIdleCallback?.(id);
+    }
+    const id = window.setTimeout(preload, 600);
+    return () => window.clearTimeout(id);
+  }, [authenticated]);
 
   useEffect(() => {
     if (!authenticated) return;
@@ -150,6 +169,8 @@ export function Header() {
     return <a
       key={href}
       href={href}
+      onPointerEnter={() => router.prefetch(href)}
+      onFocus={() => router.prefetch(href)}
       aria-current={active ? "page" : undefined}
       data-navigation-item=""
       data-active={active ? "true" : undefined}
@@ -181,6 +202,7 @@ export function Header() {
       <a
         ref={(node) => { destinationTriggers.current[label] = node; }}
         href={href}
+        onPointerEnter={() => router.prefetch(href)}
         aria-current={active ? "page" : undefined}
         aria-haspopup="true"
         aria-expanded={expanded}
@@ -217,7 +239,7 @@ export function Header() {
           {destinations.map(([label, href]) => desktopDestination(label, href))}
         </nav>
         <div className="flex items-center gap-3">
-          <button ref={commandTrigger} type="button" onClick={() => { setOpenDestination(null); setCommandOpen(true); }} aria-label="Search UnlockED" aria-keyshortcuts="Meta+K Control+K" data-universal-search-trigger="" className="inline-flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-full px-2.5 text-xs font-bold text-ink/45 transition hover:bg-white/75 hover:text-forest lg:px-3">
+          <button ref={commandTrigger} type="button" onPointerEnter={() => void loadUniversalCommandCenter()} onFocus={() => void loadUniversalCommandCenter()} onClick={() => { setOpenDestination(null); setCommandOpen(true); }} aria-label="Search UnlockED" aria-keyshortcuts="Meta+K Control+K" data-universal-search-trigger="" className="inline-flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-full px-2.5 text-xs font-bold text-ink/45 transition hover:bg-white/75 hover:text-forest lg:px-3">
             <SearchIcon className="h-4 w-4" /><span className="hidden lg:inline">Search</span><kbd className="hidden rounded border border-ink/10 bg-white/45 px-1.5 py-0.5 text-[10px] text-ink/35 xl:inline">⌘K</kbd>
           </button>
           <NotificationNavButton active={pathname?.startsWith("/notifications")} />
