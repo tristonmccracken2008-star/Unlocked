@@ -13,8 +13,9 @@ assert.ok(advisor.includes("normalizeForYouPayload"), "Client must normalize the
 assert.ok(advisor.includes("validForYouPageStates"), "Client must validate pageState values.");
 assert.ok(advisor.includes('pageState === "pro_ready" && recommendations.length === 0'), "Client must convert impossible pro_ready-without-recommendations into empty.");
 assert.ok(advisor.includes('pageState === "free_preview" && !top'), "Free preview with zero recommendations must still render the Pro conversion page.");
-assert.ok(advisor.includes("<TopRecommendation view={top}") && advisor.includes("<RecommendedGrid"), "pro_ready must render recommendation cards.");
-assert.ok(advisor.includes('pageState === "free_preview" ? <ForYouUpgradeGate'), "free_preview with recommendations must render preview cards plus the Pro upsell.");
+assert.ok(advisor.includes("<ProIntelligenceExperience") && advisor.includes("<TopRecommendation view={lead}"), "pro_ready must render the briefing and recommendation cards.");
+assert.ok(advisor.includes("state.briefing"), "Client must consume the typed server briefing instead of rebuilding premium intelligence locally.");
+assert.ok(advisor.includes('premium={false}') && advisor.includes('<ForYouUpgradeGate totalMatches={state.totalMatches}'), "free_preview with recommendations must render one preview card plus the Pro intelligence boundary.");
 assert.ok(advisor.includes("<ForYouSetupState"), "profile_incomplete must render profile guidance.");
 assert.ok(advisor.includes("<ForYouEmptyState"), "empty must render an honest empty state.");
 assert.ok(advisor.includes("<ForYouPreparingState"), "preparing must render an intentional non-error loading state.");
@@ -22,6 +23,8 @@ assert.ok(advisor.includes("<ForYouErrorState"), "error must render a retryable 
 
 assert.ok(api.includes("logResponseShape"), "API must log response field names only.");
 assert.ok(api.includes("topLevel: Object.keys(body).sort()"), "API response-shape logging must avoid user data.");
+assert.ok(api.includes("briefing"), "API response must expose the server-authoritative opportunity briefing.");
+assert.ok(advisor.includes('pageState === "pro_ready" && state.briefing'), "Client may render premium intelligence only for the server-authorized Pro state.");
 assert.ok(api.includes("session: null"), "API response must include the session key expected by the client.");
 
 for (const stale of ["payload.items", "payload.results", "payload.opportunities", "state.items", "state.results"]) {

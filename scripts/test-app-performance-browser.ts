@@ -404,7 +404,7 @@ async function verifyPrimaryRoutes(page: Page, origin: string, screenshotLabel: 
   const forYouStartedAt = performance.now();
   await page.goto(`${origin}/advisor`, { waitUntil: "domcontentloaded", timeout: 45_000 });
   try {
-    await page.getByRole("heading", { name: /Your opportunities are ready|A shortlist built around you|Opportunities worth your attention|No strong matches yet/ }).waitFor({ state: "visible", timeout: 45_000 });
+    await page.getByRole("heading", { name: /Your opportunities are ready|A shortlist built around you|Opportunities worth your attention|opportunit(?:y|ies) deserve(?:s)? your attention|No strong matches yet/ }).waitFor({ state: "visible", timeout: 45_000 });
   } catch (error) {
     await page.screenshot({ path: path.join(outputDirectory, `${screenshotLabel}-for-you-failure.png`), fullPage: true });
     console.error("For You browser readiness failure", {

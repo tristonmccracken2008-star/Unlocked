@@ -82,7 +82,7 @@ for (const token of ["getEntitlementsForBilling", "canViewRecommendationExplanat
 assert.ok(forYouSnapshot.includes("const allowed = service.recommendations.slice(0, pro ? 8 : 1)"), "For You must expose one Free preview recommendation and no more than eight Pro recommendations.");
 
 assert.ok(forYou.includes("pro_gate_viewed"), "For You must show a Pro gate for Free preview.");
-assert.ok(forYou.includes("See your complete personalized shortlist"), "For You must explain the preview gate.");
+assert.ok(forYou.includes("Unlock your full opportunity intelligence"), "For You must explain that Pro unlocks intelligence rather than only more recommendations.");
 assert.ok(!forYou.includes("buildRecommendationService"), "For You client must not build the full recommendation feed.");
 
 for (const token of ["UnlockED Free", "UnlockED Pro", "Manage subscription", "past_due", "Appearance", "Premium appearance"]) {

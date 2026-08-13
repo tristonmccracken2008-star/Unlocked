@@ -11,6 +11,7 @@ import type { AccountSession } from "@/lib/account-types";
 import type { AdvisorAccessState } from "@/lib/advisor-access";
 import type { Entitlements } from "@/lib/entitlements";
 import type { ForYouServerState } from "@/lib/for-you-snapshot";
+import type { ForYouBriefing, ForYouRecommendationInsight } from "@/lib/advisor/types";
 import { accountSessionEvent, readAccountSession } from "@/data/account-sync";
 import { authenticatedFetch } from "@/data/authenticated-request";
 import { rememberRecommendationAttribution, trackProductError, trackProductEvent } from "@/data/product-analytics";
@@ -37,6 +38,7 @@ type AdvisorState = {
   access: AdvisorAccessState;
   entitlements: Entitlements | null;
   recommendations: RecommendationViewModel[];
+  briefing: ForYouBriefing | null;
   totalMatches: number;
   snapshotStatus?: string;
   isRefreshing?: boolean;
@@ -70,6 +72,7 @@ export function normalizeForYouPayload(payload: unknown): { pageState: Exclude<F
       access,
       entitlements: input.entitlements ?? null,
       recommendations,
+      briefing: input.briefing?.version === "for-you-briefing-v1" ? input.briefing : null,
       totalMatches: typeof input.totalMatches === "number" ? input.totalMatches : recommendations.length,
       snapshotStatus: typeof input.snapshotStatus === "string" ? input.snapshotStatus : undefined,
       isRefreshing: Boolean(input.isRefreshing),
@@ -137,6 +140,7 @@ export function AdvisorPage({ initialState = null, serverAuthenticated = false }
   const trackedRecommendation = useRef("");
   const trackedImpressions = useRef(new Set<string>());
   const trackedFeedSignature = useRef("");
+  const trackedBriefingSignature = useRef("");
   const requestId = useRef(0);
   const sessionKey = useRef(serverAuthenticated ? "server-authenticated" : "");
   const activeRequestKey = useRef("");
@@ -150,6 +154,7 @@ export function AdvisorPage({ initialState = null, serverAuthenticated = false }
         trackedRecommendation.current = "";
         trackedImpressions.current.clear();
         trackedFeedSignature.current = "";
+        trackedBriefingSignature.current = "";
         setState(null);
         setPageState("loading");
       }
@@ -314,6 +319,16 @@ export function AdvisorPage({ initialState = null, serverAuthenticated = false }
   }, [recommended]);
 
   useEffect(() => {
+    const briefing = state?.briefing;
+    if (pageState !== "pro_ready" || !briefing || trackedBriefingSignature.current === briefing.generatedAt) return;
+    trackedBriefingSignature.current = briefing.generatedAt;
+    trackProductEvent(productIntelligenceEvents.forYouBriefingViewed, {
+      source: "for_you",
+      category: briefing.radar.length ? "radar_updates" : "caught_up",
+    });
+  }, [pageState, state?.briefing]);
+
+  useEffect(() => {
     if (!top || trackedRecommendation.current === top.recommendation.id) return;
     trackedRecommendation.current = top.recommendation.id;
     trackProductEvent("recommendation_viewed", { recommendationId: top.recommendation.id, section: "for-you" });
@@ -388,17 +403,100 @@ export function AdvisorPage({ initialState = null, serverAuthenticated = false }
   if (pageState === "free_preview" && !top) return <ForYouFreePreviewOnly />;
   if (pageState === "empty" || !top) return <ForYouEmptyState />;
 
-  return <main className={styles.page} data-for-you-page="premium-v2">
+  return <main className={styles.page} data-for-you-page="opportunity-intelligence-v2">
     <section className={styles.container}>
-      <Hero state={state} firstName={firstName} count={recommended.length} />
-      <TopRecommendation view={top} onFeedback={sendFeedback} />
+      {pageState === "pro_ready" && state.briefing
+        ? <OpportunityBriefingHeader state={state} firstName={firstName} briefing={state.briefing} />
+        : <Hero state={state} firstName={firstName} count={recommended.length} />}
       {feedbackMessage ? <div role="status" aria-live="polite" className={styles.feedbackStatus}><span>{feedbackMessage}</span></div> : null}
-      <RecommendedGrid recommendations={recommended.slice(1)} onFeedback={sendFeedback} />
-      {recommended.length < 4 ? <LimitedInventoryNote /> : null}
-      {pageState === "free_preview" ? <ForYouUpgradeGate totalMatches={state.totalMatches} shown={state.recommendations.length} /> : null}
+      {pageState === "pro_ready" && state.briefing
+        ? <ProIntelligenceExperience state={state} briefing={state.briefing} onFeedback={sendFeedback} />
+        : <><TopRecommendation view={top} onFeedback={sendFeedback} premium={false} /><ForYouUpgradeGate totalMatches={state.totalMatches} shown={state.recommendations.length} /></>}
       <FooterNote />
     </section>
   </main>;
+}
+
+function opportunityId(view: RecommendationViewModel) {
+  return view.recommendation.relatedOpportunityId ?? view.opportunity?.id ?? "";
+}
+
+function viewsForIds(recommendations: RecommendationViewModel[], ids: string[]) {
+  const byId = new Map(recommendations.map((view) => [opportunityId(view), view]));
+  return ids.flatMap((id) => byId.get(id) ?? []);
+}
+
+function OpportunityBriefingHeader({ state, firstName, briefing }: { state: AdvisorState; firstName: string; briefing: ForYouBriefing }) {
+  const updated = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" }).format(new Date(briefing.generatedAt));
+  return <header className={styles.briefingHeader}>
+    <div>
+      <p className={styles.eyebrow}>For {firstName}</p>
+      <h1>{briefing.title}</h1>
+      <p className={styles.heroCopy}>{briefing.summary}</p>
+    </div>
+    <div className={styles.briefingContext}>
+      <span>Updated {updated}{state.isRefreshing ? " · Refreshing quietly" : ""}</span>
+      <Link href="/profile">Tune For You <ArrowIcon /></Link>
+    </div>
+  </header>;
+}
+
+function ProIntelligenceExperience({ state, briefing, onFeedback }: { state: AdvisorState; briefing: ForYouBriefing; onFeedback: RecommendationFeedbackHandler }) {
+  const topPicks = viewsForIds(state.recommendations, briefing.topPickIds);
+  const dontMiss = viewsForIds(state.recommendations, briefing.dontMissIds);
+  const exploration = viewsForIds(state.recommendations, briefing.explorationIds);
+  const more = viewsForIds(state.recommendations, briefing.moreMatchIds);
+  const lead = topPicks[0];
+  return <>
+    <section className={styles.intelligenceLayout} aria-label="Your opportunity briefing">
+      <div className={styles.primaryBriefing}>
+        <div className={styles.sectionHeading}><div><p>Top picks</p><h2>Your strongest opportunities right now</h2></div><span>{topPicks.length} selected</span></div>
+        {lead ? <TopRecommendation view={lead} insight={briefing.insights[opportunityId(lead)]} onFeedback={onFeedback} premium /> : null}
+        {topPicks.length > 1 ? <ol className={styles.topPickList}>{topPicks.slice(1).map((view, index) => <li key={view.recommendation.id}><RecommendationCard view={view} insight={briefing.insights[opportunityId(view)]} index={index + 2} onFeedback={onFeedback} /></li>)}</ol> : null}
+      </div>
+      <aside className={styles.intelligenceRail} aria-label="Opportunity intelligence">
+        <OpportunityRadar briefing={briefing} />
+        <OpportunityPortfolio briefing={briefing} />
+        <HowForYouWorks signals={briefing.profileSignals} />
+      </aside>
+    </section>
+    <IntelligenceGroup eyebrow="Don’t miss" title="Strong matches with meaningful timing" recommendations={dontMiss} briefing={briefing} onFeedback={onFeedback} />
+    <IntelligenceGroup eyebrow="Expand your options" title="High-quality paths outside your usual search" recommendations={exploration} briefing={briefing} onFeedback={onFeedback} />
+    <IntelligenceGroup eyebrow="More matches" title="Also worth reviewing" recommendations={more} briefing={briefing} onFeedback={onFeedback} />
+    {state.recommendations.length < 4 ? <LimitedInventoryNote /> : null}
+  </>;
+}
+
+function OpportunityRadar({ briefing }: { briefing: ForYouBriefing }) {
+  return <section className={styles.radar} aria-labelledby="opportunity-radar-title">
+    <div className={styles.railHeading}><p>Opportunity Radar</p><h2 id="opportunity-radar-title">What changed</h2></div>
+    {briefing.radar.length ? <ol>{briefing.radar.map((event) => <li key={event.id}><Link href={event.href} onClick={() => trackProductEvent(productIntelligenceEvents.forYouRadarOpened, { opportunityId: event.opportunityId, category: event.type, source: "for_you" })}><span>{event.label}</span><strong>{event.detail}</strong><ArrowIcon /></Link></li>)}</ol> : <p className={styles.railEmpty}>You’re caught up. UnlockED will surface meaningful new matches and verified changes here.</p>}
+  </section>;
+}
+
+function OpportunityPortfolio({ briefing }: { briefing: ForYouBriefing }) {
+  const portfolio = briefing.portfolio;
+  return <section className={styles.portfolio} aria-labelledby="opportunity-mix-title">
+    <div className={styles.railHeading}><p>Your opportunity mix</p><h2 id="opportunity-mix-title">{portfolio.active ? `${portfolio.active} active` : "Ready to begin"}</h2></div>
+    {portfolio.categories.length ? <dl>{portfolio.categories.slice(0, 4).map((item) => <div key={item.id}><dt>{item.label}</dt><dd>{item.count}</dd></div>)}</dl> : null}
+    <p>{portfolio.observation}</p>
+    <Link href="/">Open Journey <ArrowIcon /></Link>
+  </section>;
+}
+
+function HowForYouWorks({ signals }: { signals: string[] }) {
+  return <details className={styles.method}>
+    <summary>How this briefing was selected</summary>
+    <div><p>UnlockED checks documented eligibility first, then weighs relevance, opportunity quality, timing, your Journey, and variety.</p>{signals.length ? <p><strong>Current profile signals:</strong> {signals.join(" · ")}</p> : null}<p>Recommended does not guarantee eligibility. Always confirm current terms with the official source.</p></div>
+  </details>;
+}
+
+function IntelligenceGroup({ eyebrow, title, recommendations, briefing, onFeedback }: { eyebrow: string; title: string; recommendations: RecommendationViewModel[]; briefing: ForYouBriefing; onFeedback: RecommendationFeedbackHandler }) {
+  if (!recommendations.length) return null;
+  return <section className={styles.intelligenceGroup} aria-labelledby={`${eyebrow.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-title`}>
+    <div className={styles.sectionHeading}><div><p>{eyebrow}</p><h2 id={`${eyebrow.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-title`}>{title}</h2></div><span>{recommendations.length}</span></div>
+    <ol className={styles.recommendationList}>{recommendations.map((view, index) => <li key={view.recommendation.id}><RecommendationCard view={view} insight={briefing.insights[opportunityId(view)]} index={index + 1} onFeedback={onFeedback} /></li>)}</ol>
+  </section>;
 }
 
 function Hero({ state, firstName, count }: { state: AdvisorState; firstName: string; count: number }) {
@@ -484,7 +582,7 @@ function portfolioRoleSlug(view: RecommendationViewModel) {
   return portfolioRole(view).toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "");
 }
 
-function TopRecommendation({ view, onFeedback }: { view: RecommendationViewModel; onFeedback: RecommendationFeedbackHandler }) {
+function TopRecommendation({ view, insight, onFeedback, premium = true }: { view: RecommendationViewModel; insight?: ForYouRecommendationInsight; onFeedback: RecommendationFeedbackHandler; premium?: boolean }) {
   const opportunity = view.opportunity;
   const signals = recommendationSignals(view);
   const score = scoreFor(view);
@@ -502,7 +600,8 @@ function TopRecommendation({ view, onFeedback }: { view: RecommendationViewModel
         </div>
         <p className={styles.featuredDescription}>{opportunity?.description ?? view.recommendation.description}</p>
         <div className={styles.signals} aria-label="Why this matches">{signals.map((signal) => <span key={signal.label} data-signal-kind={signal.kind}><CheckCircleIcon />{signal.label}</span>)}</div>
-        <p className={styles.reason}><strong>Why it fits:</strong> {strongestReason(view)}</p>
+        <p className={styles.reason}><strong>Why it fits:</strong> {insight?.whyItFits ?? strongestReason(view)}</p>
+        {premium && insight?.whatItAdds ? <p className={styles.adds}><strong>What this adds:</strong> {insight.whatItAdds}</p> : null}
       </div>
       <aside className={styles.featuredDecision} aria-label="Opportunity details and actions">
         <div className={styles.score} aria-label={`UnlockED match quality: ${score.label}`}>
@@ -512,6 +611,7 @@ function TopRecommendation({ view, onFeedback }: { view: RecommendationViewModel
         <dl className={styles.featuredMeta}>
           <div><dt>Deadline</dt><dd>{trustedDeadlineLabel(view)}</dd></div>
           <div><dt>Estimated value</dt><dd>{cleanValueLabel(view.recommendation.estimatedValueLabel)}</dd></div>
+          {premium && insight?.estimatedApplicationTime !== "Unknown" ? <div><dt>Estimated effort</dt><dd>{insight?.estimatedApplicationTime}</dd></div> : null}
         </dl>
         {timing ? <p className={styles.timing} data-urgency={timing.urgency}><strong>{timing.label}</strong><span>{timing.detail}</span></p> : null}
         <Link href={view.href} onClick={() => trackRecommendationOpen(view)} className={styles.primaryAction}>Open Opportunity <ArrowIcon /></Link>
@@ -523,19 +623,10 @@ function TopRecommendation({ view, onFeedback }: { view: RecommendationViewModel
   </article>;
 }
 
-function RecommendedGrid({ recommendations, onFeedback }: { recommendations: RecommendationViewModel[]; onFeedback: RecommendationFeedbackHandler }) {
-  if (!recommendations.length) return null;
-  return <section className={styles.more} aria-labelledby="more-matches-title">
-    <div className={styles.sectionHeading}><div><p>Your shortlist</p><h2 id="more-matches-title">More opportunities selected for you</h2></div><span>{recommendations.length} to review</span></div>
-    <ol className={styles.recommendationList}>{recommendations.map((view, index) => <li key={view.recommendation.id}><RecommendationCard view={view} index={index + 2} onFeedback={onFeedback} /></li>)}</ol>
-    <Link href="/opportunities" className={styles.discoverLink}>Explore all opportunities in Discover <ArrowIcon /></Link>
-  </section>;
-}
-
 function ForYouUpgradeGate({ totalMatches, shown }: { totalMatches: number; shown: number }) {
   const lockedCount = Math.max(totalMatches - shown, 0);
   return <section className={styles.upgrade} aria-labelledby="for-you-pro-title">
-    <div><p>UnlockED Pro</p><h2 id="for-you-pro-title">See your complete personalized shortlist.</h2><span>Free shows {shown} verified match{shown === 1 ? "" : "es"}. Pro adds {lockedCount} more with deeper reasoning and continuously refined discovery.</span></div>
+    <div><p>UnlockED Pro</p><h2 id="for-you-pro-title">Unlock your full opportunity intelligence.</h2><span>Your preview includes {shown} verified match{shown === 1 ? "" : "es"}. Pro adds a selective Top Picks briefing, Opportunity Radar, Journey-aware context, and {lockedCount || "additional"} more safe match{lockedCount === 1 ? "" : "es"} when available.</span></div>
     <Link href="/pricing" onClick={() => trackProductEvent("pro_upgrade_clicked", { section: "for-you" })}>See Pro options <ArrowIcon /></Link>
   </section>;
 }
@@ -585,7 +676,7 @@ function StateShell({ eyebrow, title, text, actionHref, actionLabel, secondaryHr
   return <main className={styles.page}><section className={styles.state}>{Icon ? <span className={styles.stateIcon}><Icon /></span> : null}<p>{eyebrow}</p><h1>{title}</h1><span>{text}</span><div className={styles.stateActions}><Link href={actionHref}>{actionLabel}</Link>{secondaryHref && secondaryLabel ? <Link href={secondaryHref}>{secondaryLabel}</Link> : null}</div></section></main>;
 }
 
-function RecommendationCard({ view, index, onFeedback }: { view: RecommendationViewModel; index: number; onFeedback: RecommendationFeedbackHandler }) {
+function RecommendationCard({ view, insight, index, onFeedback }: { view: RecommendationViewModel; insight?: ForYouRecommendationInsight; index: number; onFeedback: RecommendationFeedbackHandler }) {
   const opportunity = view.opportunity;
   const signals = recommendationSignals(view, 3);
   const score = scoreFor(view);
@@ -594,7 +685,8 @@ function RecommendationCard({ view, index, onFeedback }: { view: RecommendationV
     <span className={styles.rank} aria-hidden="true">{String(index).padStart(2, "0")}</span>
     <div className={styles.recommendationBody}>
       <div className={styles.recommendationTitle}>{opportunity ? <OrganizationLogo opportunity={opportunity} size="md" className={styles.logo} /> : null}<div><p>{opportunity?.organization ?? view.recommendation.kind}</p><h3 id={`recommendation-${view.recommendation.id}`}>{opportunity?.title ?? view.recommendation.title}</h3><span className={styles.trace}>{portfolioRole(view)}{view.freshnessLabel ? ` · ${view.freshnessLabel}` : ""}</span></div></div>
-      <p className={styles.recommendationReason}>{strongestReason(view)}</p>
+      <p className={styles.recommendationReason}><strong>Why it fits:</strong> {insight?.whyItFits ?? strongestReason(view)}</p>
+      {insight?.whatItAdds ? <p className={styles.recommendationAdds}><strong>What it adds:</strong> {insight.whatItAdds}</p> : null}
       <div className={styles.signals} aria-label="Why this matches">{signals.map((signal) => <span key={signal.label} data-signal-kind={signal.kind}><CheckCircleIcon />{signal.label}</span>)}</div>
       <RecommendationIntelligence view={view} compact />
       <RecommendationFeedback view={view} onFeedback={onFeedback} compact />

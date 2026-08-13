@@ -128,6 +128,8 @@ These 90-day events measure outcomes without changing ranking and intentionally 
 
 | Event | Allowed fields | Product question |
 | --- | --- | --- |
+| `for_you_briefing_viewed_v1` | `source`, `category` | Did Pro students reach the structured opportunity briefing and which bounded briefing state was available? |
+| `for_you_radar_opened_v1` | `opportunityId`, `category`, `source` | Did a factual Radar update lead to opportunity review? |
 | `recommendation_feed_viewed_v1` | `diversityScore` | Did the visible shortlist maintain a healthy mix? |
 | `recommendation_impression_v1` | `opportunityId`, `recommendationId`, `category`, `feedRole`, `exposureCount` | Which coarse recommendation cohort was shown? |
 | `recommendation_opportunity_opened_v1` | `opportunityId`, `recommendationId`, `category`, `exposureCount` | Did a recommendation lead to review? |
@@ -138,7 +140,7 @@ These 90-day events measure outcomes without changing ranking and intentionally 
 | `recommendation_dismissed_v1` | `opportunityId`, `recommendationId`, `category`, `exposureCount` | Did the student explicitly reject it? |
 | `recommendation_feedback_v1` | `opportunityId`, `recommendationId`, `category`, `feedRole`, `exposureCount`, `action` | Which bounded feedback or undo action refined the feed? |
 
-Attribution is browser-session scoped and cleared on logout or account switch.
+Attribution is browser-session scoped and cleared on logout or account switch. For You briefing events never include profile answers, recommendation titles, explanations, scores, deadlines, or Radar copy; `category` is restricted to a bounded briefing or Radar classification.
 
 ## Discover Events
 

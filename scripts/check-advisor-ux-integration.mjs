@@ -65,10 +65,13 @@ assert.ok(header.includes("/profile"), "Profile must remain available as seconda
 assert.ok(header.includes("Mobile navigation"), "Authenticated mobile users must have a simple bottom navigation.");
 
 for (const label of [
-  "Opportunities worth your attention.",
+  "OpportunityBriefingHeader",
+  "Your strongest opportunities right now",
+  "Opportunity Radar",
+  "Your opportunity mix",
   "portfolioRole",
   "Why it fits:",
-  "More opportunities selected for you",
+  "What this adds:",
   "Not quite right?",
   "AddToJourneyButton",
 ]) {

@@ -63,6 +63,7 @@ const personas: Array<{ id: string; profile: StudentProfile; activity?: StudentA
 ];
 
 const timings: number[] = [];
+const personaResults: Array<{ id: string; recommendations: number; categories: string[]; organizations: string[] }> = [];
 for (const persona of personas) {
   const startedAt = performance.now();
   const service = buildRecommendationService({
@@ -81,6 +82,12 @@ for (const persona of personas) {
   assert.equal(new Set(ids).size, ids.length, `${persona.id} must not receive duplicate opportunities.`);
   const organizations = service.recommendations.map((view) => view.opportunity?.organization);
   assert.equal(new Set(organizations).size, organizations.length, `${persona.id} must not receive repeated organizations.`);
+  personaResults.push({
+    id: persona.id,
+    recommendations: service.recommendations.length,
+    categories: [...new Set(service.recommendations.map((view) => view.recommendation.portfolio?.canonicalCategory ?? view.opportunity?.category ?? "Unknown"))],
+    organizations: organizations.filter((organization): organization is string => Boolean(organization)),
+  });
   const context = buildOpportunityStudentContext(service.advisorProfile);
   for (const view of service.recommendations) {
     assert.ok(view.opportunity);
@@ -244,6 +251,7 @@ assert.ok(averageMs < 1_000, `Representative persona average must remain under 1
 
 console.log("Premium For You portfolio checks passed", {
   personas: personas.length,
+  personaResults,
   averageMs: Number(averageMs.toFixed(2)),
   p95Ms: Number(p95Ms.toFixed(2)),
   worstMs: Number(worstMs.toFixed(2)),

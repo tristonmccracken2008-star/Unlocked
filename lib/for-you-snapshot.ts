@@ -19,8 +19,9 @@ import { nextAdvisorData } from "@/lib/advisor/api";
 import type { ForYouRecommendationSnapshot, ForYouSnapshotState } from "@/lib/advisor/types";
 import { activeRecommendationFeedback } from "@/lib/advisor/feedback";
 import { listPublishedOpportunities } from "@/lib/content-store";
+import { buildForYouBriefing } from "@/lib/for-you-briefing";
 
-export const forYouSnapshotEngineVersion = "for-you-snapshot-v8-first-session-preview";
+export const forYouSnapshotEngineVersion = "for-you-snapshot-v9-opportunity-intelligence";
 export const forYouSnapshotTtlMs = 1000 * 60 * 60 * 6;
 const generationTimeoutMs = 2800;
 const globalIndexTimeoutMs = 1000;
@@ -56,6 +57,7 @@ export type ForYouServerState = {
   activity: StudentActivity;
   session: null;
   recommendations: ForYouRecommendationSnapshot["recommendations"];
+  briefing: ForYouRecommendationSnapshot["briefing"] | null;
   totalMatches: number;
   snapshotStatus: ForYouSnapshotState;
   isRefreshing: boolean;
@@ -190,6 +192,12 @@ function latestSnapshot(data: AccountData, userId: string) {
   return snapshots.filter((snapshot) => snapshot.userId === userId).sort((a, b) => b.generatedAt.localeCompare(a.generatedAt))[0] ?? null;
 }
 
+function priorCompatibleSnapshot(data: AccountData, userId: string) {
+  return (data.advisor?.forYouSnapshots ?? [])
+    .filter((snapshot) => snapshot.userId === userId)
+    .sort((left, right) => right.generatedAt.localeCompare(left.generatedAt))[0] ?? null;
+}
+
 function previousFeedContext(data: AccountData, userId: string, now: Date) {
   const snapshots = (data.advisor?.forYouSnapshots ?? [])
     .filter((snapshot) => snapshot.userId === userId)
@@ -292,6 +300,15 @@ async function generateSnapshot(user: AuthUser, data: AccountData, profile: Stud
     });
   }
   const allowed = service.recommendations.slice(0, pro ? 8 : 1);
+  const briefing = pro ? buildForYouBriefing({
+    recommendations: allowed,
+    totalMatches: service.recommendations.length,
+    profile,
+    activity,
+    opportunityById: index.opportunityById,
+    priorSnapshot: priorCompatibleSnapshot(data, user.id),
+    now,
+  }) : undefined;
   const snapshot: ForYouRecommendationSnapshot = {
     userId: user.id,
     profileVersion: forYouProfileVersion(profile, data),
@@ -306,6 +323,7 @@ async function generateSnapshot(user: AuthUser, data: AccountData, profile: Stud
       reasons: entitlements.canViewRecommendationExplanations ? view.reasons : view.reasons.slice(0, 1),
     })),
     totalMatches: service.recommendations.length,
+    briefing,
     sourceSignalsVersion,
     pageState: pro ? service.recommendations.length ? "pro_ready" : "empty" : "free_preview",
   };
@@ -333,6 +351,7 @@ function stateFromSnapshot(snapshot: ForYouRecommendationSnapshot, access: Advis
     activity,
     session: null,
     recommendations: snapshot.recommendations,
+    briefing: snapshot.briefing ?? null,
     totalMatches: snapshot.totalMatches,
     snapshotStatus,
     isRefreshing,
@@ -355,7 +374,7 @@ export async function resolveForYouState(user: AuthUser, data: AccountData, opti
   const entitlements = getEntitlementsForBilling(data.billing);
   const access: AdvisorAccessState = entitlements.canUseFullForYou ? "pro" : "preview";
   if (!profile || !school) {
-    return { pageState: "profile_incomplete", access: "unavailable", entitlements, profile: profile ?? null, school, activity, session: null, recommendations: [], totalMatches: 0, snapshotStatus: "missing", isRefreshing: false, errorCode: "profile_incomplete" };
+    return { pageState: "profile_incomplete", access: "unavailable", entitlements, profile: profile ?? null, school, activity, session: null, recommendations: [], briefing: null, totalMatches: 0, snapshotStatus: "missing", isRefreshing: false, errorCode: "profile_incomplete" };
   }
   const version = forYouProfileVersion(profile, data);
   const snapshot = latestSnapshot(data, user.id);
@@ -371,18 +390,18 @@ export async function resolveForYouState(user: AuthUser, data: AccountData, opti
       const generated = await withTimeout(active, "active recommendation snapshot", options.waitForActiveGenerationMs ?? 450);
       return stateFromSnapshot(generated, access, entitlements, profile, school, activity, "fresh", false);
     } catch {
-      return { pageState: "preparing", access, entitlements, profile, school, activity, session: null, recommendations: [], totalMatches: 0, snapshotStatus: "generating", isRefreshing: true, errorCode: "snapshot_generation_pending" };
+      return { pageState: "preparing", access, entitlements, profile, school, activity, session: null, recommendations: [], briefing: null, totalMatches: 0, snapshotStatus: "generating", isRefreshing: true, errorCode: "snapshot_generation_pending" };
     }
   }
   if (options.allowGeneration === false) {
-    return { pageState: "preparing", access, entitlements, profile, school, activity, session: null, recommendations: [], totalMatches: 0, snapshotStatus: "missing", isRefreshing: true, errorCode: "snapshot_generation_pending" };
+    return { pageState: "preparing", access, entitlements, profile, school, activity, session: null, recommendations: [], briefing: null, totalMatches: 0, snapshotStatus: "missing", isRefreshing: true, errorCode: "snapshot_generation_pending" };
   }
   try {
     const generated = await withTimeout(generateSingleFlight(user, data, profile, school, entitlements), "initial recommendation snapshot", generationTimeoutMs);
     return stateFromSnapshot(generated, access, entitlements, profile, school, activity, "fresh", false);
   } catch (error) {
     console.error("[UnlockED For You] initial snapshot generation failed", { errorCategory: error instanceof Error ? error.name : "unknown" });
-    return { pageState: "preparing", access, entitlements, profile, school, activity, session: null, recommendations: [], totalMatches: 0, snapshotStatus: "generating", isRefreshing: true, errorCode: "snapshot_generation_pending" };
+    return { pageState: "preparing", access, entitlements, profile, school, activity, session: null, recommendations: [], briefing: null, totalMatches: 0, snapshotStatus: "generating", isRefreshing: true, errorCode: "snapshot_generation_pending" };
   }
 }
 

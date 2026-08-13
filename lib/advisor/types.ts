@@ -246,6 +246,52 @@ export type AdvisorAccountData = {
 
 export type ForYouSnapshotState = "fresh" | "stale" | "missing" | "generating" | "failed";
 
+export type ForYouPortfolioCategory = {
+  id: string;
+  label: string;
+  count: number;
+};
+
+export type ForYouPortfolioBrief = {
+  total: number;
+  active: number;
+  categories: ForYouPortfolioCategory[];
+  observation: string;
+};
+
+export type ForYouRadarEvent = {
+  id: string;
+  type: "new_match" | "newly_added" | "recently_verified" | "deadline_soon" | "applications_reopened" | "meaningful_change";
+  label: string;
+  detail: string;
+  opportunityId: string;
+  href: string;
+  occurredAt?: string;
+};
+
+export type ForYouRecommendationInsight = {
+  opportunityId: string;
+  whyItFits: string;
+  whyNow?: string;
+  whatItAdds?: string;
+  estimatedApplicationTime: string;
+};
+
+export type ForYouBriefing = {
+  version: "for-you-briefing-v1";
+  generatedAt: string;
+  title: string;
+  summary: string;
+  topPickIds: string[];
+  dontMissIds: string[];
+  explorationIds: string[];
+  moreMatchIds: string[];
+  insights: Record<string, ForYouRecommendationInsight>;
+  radar: ForYouRadarEvent[];
+  portfolio: ForYouPortfolioBrief;
+  profileSignals: string[];
+};
+
 export type ForYouRecommendationSnapshot = {
   userId: string;
   profileVersion: string;
@@ -257,6 +303,7 @@ export type ForYouRecommendationSnapshot = {
   expiresAt: string;
   recommendations: RecommendationViewModel[];
   totalMatches: number;
+  briefing?: ForYouBriefing;
   sourceSignalsVersion: string;
   pageState: "pro_ready" | "free_preview" | "empty";
 };

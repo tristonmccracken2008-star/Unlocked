@@ -13,7 +13,249 @@
 
 .container {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 48px;
+}
+
+.briefingHeader {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 48px;
+  animation: enter 360ms ease-out both;
+}
+
+.briefingHeader h1 {
+  max-width: 760px;
+  margin: 12px 0 0;
+  font-family: Iowan Old Style, Baskerville, Georgia, "Times New Roman", serif;
+  font-size: clamp(44px, 5vw, 64px);
+  font-weight: 700;
+  line-height: 1.02;
+  letter-spacing: 0;
+}
+
+.briefingContext {
+  display: grid;
+  flex: 0 0 auto;
+  gap: 10px;
+  justify-items: end;
+  padding-bottom: 5px;
+  color: var(--unlocked-muted);
+  font-size: 11px;
+}
+
+.briefingContext a {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  gap: 7px;
+  color: rgb(var(--color-forest));
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.briefingContext svg,
+.portfolio svg,
+.radar svg {
+  width: 14px;
+  height: 14px;
+}
+
+.intelligenceLayout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 310px;
+  gap: 38px;
+  align-items: start;
+}
+
+.primaryBriefing,
+.intelligenceRail {
+  min-width: 0;
+}
+
+.intelligenceRail {
+  display: grid;
+  gap: 14px;
+  position: sticky;
+  top: 92px;
+}
+
+.railHeading p {
+  margin: 0;
+  color: rgb(var(--color-forest));
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.railHeading h2 {
+  margin: 7px 0 0;
+  font-family: Iowan Old Style, Baskerville, Georgia, "Times New Roman", serif;
+  font-size: 24px;
+  line-height: 1.15;
+}
+
+.radar,
+.portfolio,
+.method {
+  border: 1px solid var(--unlocked-border);
+  border-radius: 8px;
+  background: var(--unlocked-surface);
+}
+
+.radar,
+.portfolio {
+  padding: 24px;
+}
+
+.radar ol {
+  display: grid;
+  margin: 18px -8px -8px;
+  padding: 0;
+  list-style: none;
+}
+
+.radar li + li {
+  border-top: 1px solid var(--unlocked-border);
+}
+
+.radar a {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 4px 12px;
+  min-height: 68px;
+  align-content: center;
+  padding: 10px 8px;
+  border-radius: 5px;
+}
+
+.radar a:hover,
+.radar a:focus-visible {
+  background: var(--unlocked-surface-muted);
+}
+
+.radar a span {
+  color: rgb(var(--color-forest));
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.radar a strong {
+  display: -webkit-box;
+  grid-column: 1;
+  overflow: hidden;
+  color: var(--unlocked-text);
+  font-size: 11px;
+  font-weight: 650;
+  line-height: 1.45;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.radar a svg {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  align-self: center;
+  color: rgb(var(--color-forest));
+}
+
+.railEmpty {
+  margin: 18px 0 0;
+  color: var(--unlocked-muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.portfolio dl {
+  display: grid;
+  gap: 8px;
+  margin: 18px 0;
+}
+
+.portfolio dl div {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--unlocked-border);
+}
+
+.portfolio dt,
+.portfolio dd {
+  margin: 0;
+  color: var(--unlocked-muted);
+  font-size: 11px;
+}
+
+.portfolio dd {
+  color: var(--unlocked-text);
+  font-weight: 800;
+}
+
+.portfolio > p {
+  margin: 16px 0 0;
+  color: var(--unlocked-muted);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.portfolio > a {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  color: rgb(var(--color-forest));
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.method summary {
+  display: flex;
+  min-height: 54px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  cursor: pointer;
+  color: var(--unlocked-text);
+  font-size: 11px;
+  font-weight: 800;
+  list-style: none;
+}
+
+.method summary::-webkit-details-marker { display: none; }
+.method summary::after { color: rgb(var(--color-forest)); content: "+"; font-size: 16px; }
+.method[open] summary::after { content: "−"; }
+
+.method > div {
+  display: grid;
+  gap: 10px;
+  padding: 0 20px 20px;
+  color: var(--unlocked-muted);
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+.method p { margin: 0; }
+.method strong { color: var(--unlocked-text); }
+
+.topPickList {
+  margin: 18px 0 0;
+  padding: 0;
+  border-top: 1px solid var(--unlocked-border);
+  list-style: none;
+}
+
+.topPickList > li,
+.intelligenceGroup .recommendationList > li {
+  border-bottom: 1px solid var(--unlocked-border);
+}
+
+.intelligenceGroup {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 420px;
 }
 
 .hero {
@@ -187,6 +429,11 @@
   gap: 18px;
 }
 
+.titleLockup > div,
+.recommendationTitle > div {
+  min-width: 0;
+}
+
 .logo {
   flex: 0 0 auto;
   border: 1px solid var(--unlocked-border);
@@ -210,6 +457,7 @@
   font-weight: 700;
   line-height: 1.08;
   letter-spacing: 0;
+  overflow-wrap: anywhere;
 }
 
 .featuredDescription {
@@ -269,6 +517,20 @@
 }
 
 .reason strong {
+  color: var(--unlocked-text);
+}
+
+.adds {
+  max-width: 690px;
+  margin: 12px 0 0;
+  color: var(--unlocked-muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.adds strong,
+.recommendationReason strong,
+.recommendationAdds strong {
   color: var(--unlocked-text);
 }
 
@@ -760,6 +1022,7 @@
   font-weight: 700;
   line-height: 1.18;
   letter-spacing: 0;
+  overflow-wrap: anywhere;
 }
 
 .trace {
@@ -778,6 +1041,14 @@
   color: var(--unlocked-muted);
   font-size: 13px;
   line-height: 1.55;
+}
+
+.recommendationAdds {
+  max-width: 660px;
+  margin: 7px 0 0;
+  color: var(--unlocked-muted);
+  font-size: 12px;
+  line-height: 1.5;
 }
 
 .recommendation .signals {
@@ -1130,6 +1401,23 @@
     padding: 56px 24px 72px;
   }
 
+  .briefingHeader {
+    align-items: start;
+  }
+
+  .intelligenceLayout {
+    grid-template-columns: 1fr;
+  }
+
+  .intelligenceRail {
+    position: static;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .method {
+    grid-column: 1 / -1;
+  }
+
   .featuredMain {
     grid-template-columns: 1fr;
   }
@@ -1196,6 +1484,37 @@
 
   .container {
     gap: 38px;
+  }
+
+  .briefingHeader {
+    display: grid;
+    gap: 20px;
+  }
+
+  .briefingHeader h1 {
+    font-size: 42px;
+  }
+
+  .briefingContext {
+    width: 100%;
+    justify-items: start;
+  }
+
+  .intelligenceLayout {
+    gap: 30px;
+  }
+
+  .intelligenceRail {
+    grid-template-columns: 1fr;
+  }
+
+  .method {
+    grid-column: auto;
+  }
+
+  .radar,
+  .portfolio {
+    padding: 22px;
   }
 
   .hero h1,
@@ -1308,8 +1627,12 @@
   }
 
   .rowMeta {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     margin-top: 3px;
+  }
+
+  .rowMeta dd {
+    overflow-wrap: anywhere;
   }
 
   .rowMeta > :last-child {

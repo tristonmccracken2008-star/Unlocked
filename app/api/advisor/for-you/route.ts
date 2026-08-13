@@ -33,11 +33,13 @@ function logResponseShape(body: Record<string, unknown>) {
   const first = recommendations[0] && typeof recommendations[0] === "object" ? recommendations[0] as Record<string, unknown> : null;
   const opportunity = first?.opportunity && typeof first.opportunity === "object" ? first.opportunity as Record<string, unknown> : null;
   const recommendation = first?.recommendation && typeof first.recommendation === "object" ? first.recommendation as Record<string, unknown> : null;
+  const briefing = body.briefing && typeof body.briefing === "object" ? body.briefing as Record<string, unknown> : null;
   console.info("[UnlockED For You] response fields", {
     topLevel: Object.keys(body).sort(),
     firstRecommendation: first ? Object.keys(first).sort() : [],
     firstOpportunity: opportunity ? Object.keys(opportunity).sort() : [],
     firstRecommendationModel: recommendation ? Object.keys(recommendation).sort() : [],
+    briefing: briefing ? Object.keys(briefing).sort() : [],
   });
 }
 
@@ -63,7 +65,7 @@ export async function GET(request: Request) {
     checkpoint("auth complete", { authenticated: Boolean(session) });
     if (!session) {
       console.info("[UnlockED For You] unauthenticated request", { durationMs: Date.now() - startedAt });
-      const body = { pageState: "error", errorCode: "not_authenticated", error: "not_authenticated", access: "unavailable", entitlements: null, profile: null, school: null, activity: { viewed: [], saved: [], claimed: [], tracked: {} }, session: null, recommendations: [], totalMatches: 0, snapshotStatus: "failed", isRefreshing: false };
+      const body = { pageState: "error", errorCode: "not_authenticated", error: "not_authenticated", access: "unavailable", entitlements: null, profile: null, school: null, activity: { viewed: [], saved: [], claimed: [], tracked: {} }, session: null, recommendations: [], briefing: null, totalMatches: 0, snapshotStatus: "failed", isRefreshing: false };
       logResponseShape(body);
       return NextResponse.json(body, { status: 401, headers: { "Cache-Control": "no-store, max-age=0" } });
     }
@@ -118,7 +120,7 @@ export async function GET(request: Request) {
       lastCheckpoint,
       durationMs: Date.now() - startedAt,
     });
-    const body = { pageState: "error", errorCode: "unexpected", error: "recommendations_unavailable", access: "unavailable", entitlements: null, profile: null, school: null, activity: { viewed: [], saved: [], claimed: [], tracked: {} }, session: null, recommendations: [], totalMatches: 0, snapshotStatus: "failed", isRefreshing: false };
+    const body = { pageState: "error", errorCode: "unexpected", error: "recommendations_unavailable", access: "unavailable", entitlements: null, profile: null, school: null, activity: { viewed: [], saved: [], claimed: [], tracked: {} }, session: null, recommendations: [], briefing: null, totalMatches: 0, snapshotStatus: "failed", isRefreshing: false };
     logResponseShape(body);
     const status = error instanceof SecurityError ? error.status : 500;
     const headers: Record<string, string> = { "Cache-Control": "no-store, max-age=0" };

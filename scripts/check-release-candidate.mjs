@@ -58,6 +58,7 @@ assert.match(journeyDashboard, /router\.refresh\(\)/, "Journey client recovery m
 
 assert.match(forYouSnapshot, /recommendations: allowed\.map/, "For You snapshots must store serialized recommendation view models.");
 assert.match(forYouSnapshot, /const allowed = service\.recommendations\.slice\(0,\s*pro \? 8 : 1\)/, "Free For You must expose one verified recommendation while Pro remains bounded to eight.");
+assert.match(forYouSnapshot, /const briefing = pro \? buildForYouBriefing/, "The server must not serialize Pro opportunity intelligence into Free snapshots.");
 assert.match(advisorRoute, /const session = await requireCompletedOnboarding\(\)/, "For You must remain protected server-side.");
 assert.match(advisorRoute, /<AdvisorPage initialState=\{initialState\} serverAuthenticated \/>/, "For You must reuse a safe existing snapshot when one is available.");
 assert.match(advisorRoute, /allowGeneration: false/, "For You document navigation must not block on recommendation generation.");
@@ -73,7 +74,7 @@ assert.match(advisorPage, /type ForYouPageState = "loading" \| "pro_ready" \| "f
 assert.match(advisorPage, /AbortController/, "For You client must abort stale or slow requests.");
 assert.match(advisorPage, /ForYouErrorState/, "For You must render a real error state.");
 assert.match(advisorPage, /ForYouFreePreviewOnly/, "Free users with zero previews must still see a Pro conversion state.");
-assert.match(advisorPage, /See your complete personalized shortlist/, "Free For You page must show a polished upgrade preview.");
+assert.match(advisorPage, /Unlock your full opportunity intelligence/, "Free For You page must show a polished Pro intelligence preview.");
 assert.match(advisorPage, /No strong matches yet/, "For You must show an honest unavailable state when recommendations are empty.");
 
 assert.match(themeController, /referralProGrantedUntil/, "Theme bootstrap should honor referral-earned Pro access.");

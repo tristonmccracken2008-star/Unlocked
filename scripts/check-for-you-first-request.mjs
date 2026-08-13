@@ -43,6 +43,7 @@ assert.match(snapshot, /withTimeout\(generateSingleFlight\(user, data, profile, 
 assert.match(snapshot, /withTimeout\(active, "active recommendation snapshot"/, "Concurrent missing-snapshot requests must wait only briefly.");
 assert.match(snapshot, /entitlements\.canUseFullForYou/, "Pro and Free states must be decided server-side.");
 assert.match(snapshot, /const allowed = service\.recommendations\.slice\(0, pro \? 8 : 1\)/, "Free users must receive one safe preview while Pro receives the bounded precision-first portfolio.");
+assert.match(snapshot, /const briefing = pro \? buildForYouBriefing/, "Free snapshots must not serialize Pro briefing intelligence.");
 assert.match(snapshot, /getForYouGlobalIndex/, "Global opportunity indexes must be initialized through a shared helper.");
 assert.match(snapshot, /globalIndexPromise/, "Global index initialization must be single-flight.");
 assert.match(snapshot, /sourceSignalsVersion/, "Opportunity database changes must affect snapshot freshness.");
