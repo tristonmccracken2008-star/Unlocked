@@ -17,7 +17,7 @@ export default async function Page() {
     <section className="mx-auto max-w-6xl">
       <p className="rule-label text-forest">UnlockED Pro</p>
       <h1 className="mt-4 max-w-4xl font-editorial text-5xl font-bold leading-[.98] text-ink sm:text-7xl">Never miss the right opportunity.</h1>
-      <p className="mt-6 max-w-2xl text-base leading-8 text-ink/58">Free stays useful. Pro unlocks the full personalized feed, deeper explanations, and premium appearance options.</p>
+      <p className="mt-6 max-w-2xl text-base leading-8 text-ink/58">Free includes Discover and Journey. Pro adds your full For You shortlist, timely updates, and premium appearance options.</p>
       {pro ? <div className="mt-7 flex max-w-2xl flex-col gap-3 rounded-[1.25rem] border border-forest/20 bg-white/75 p-5 sm:flex-row sm:items-center sm:justify-between" role="status"><p className="text-sm font-bold text-forest">UnlockED Pro is active on this account.</p><Link href="/profile#billing" className="inline-flex min-h-11 items-center text-sm font-bold text-forest hover:text-ink">Manage billing</Link></div> : null}
       <div className="mt-10 grid gap-5 lg:grid-cols-2">
         <PlanCard planId="pro_monthly" configured={stripeCheckoutConfigured("pro_monthly")} signedIn={signedIn} pro={pro} current={pro && currentInterval === "month"} />
@@ -25,7 +25,7 @@ export default async function Page() {
       </div>
       <div className="mt-10 grid gap-5 rounded-[1.5rem] bg-white/72 p-6 ring-1 ring-ink/8 lg:grid-cols-2">
         <section><h2 className="font-editorial text-2xl font-bold">Free includes</h2><ul className="mt-4 space-y-2 text-sm leading-6 text-ink/58"><li>Discover, search, filters, and opportunity pages</li><li>Add opportunities and update progress in Journey</li><li>Journey Card image export and sharing</li><li>Limited For You preview</li></ul></section>
-        <section><h2 className="font-editorial text-2xl font-bold">Pro unlocks</h2><ul className="mt-4 space-y-2 text-sm leading-6 text-ink/58"><li>Full personalized For You feed</li><li>Recommendation explanations</li><li>Deeper recommendation context</li><li>Dark mode and premium appearance</li></ul></section>
+        <section><h2 className="font-editorial text-2xl font-bold">Pro includes</h2><ul className="mt-4 space-y-2 text-sm leading-6 text-ink/58"><li>Your full For You shortlist</li><li>New matches and deadline updates</li><li>Matches shaped by your Journey</li><li>Dark mode and premium appearance</li></ul></section>
       </div>
       <p className="mt-6 max-w-3xl text-xs leading-6 text-ink/45">Subscriptions renew automatically until canceled in Stripe Billing. You can manage or cancel from your Billing settings. Taxes, if applicable, depend on Stripe account configuration. See <Link href="/terms" className="font-bold text-forest">Terms</Link> and <Link href="/privacy" className="font-bold text-forest">Privacy</Link>.</p>
     </section>

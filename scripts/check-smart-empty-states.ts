@@ -44,8 +44,8 @@ assert.match(discover, /CatalogUnavailable/);
 assert.match(discover, /catalogError/);
 
 const advisor = source("components/advisor-page.tsx");
-assert.match(advisor, /No strong matches yet/);
-assert.match(advisor, /We’re still looking/);
+assert.match(advisor, /No matches yet/);
+assert.match(advisor, /Nothing has cleared the eligibility and source checks/);
 assert.match(advisor, /ForYouErrorState/);
 assert.match(advisor, /ForYouLoading/);
 

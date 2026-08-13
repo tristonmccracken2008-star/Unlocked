@@ -66,7 +66,9 @@ assert.deepEqual(new Set(sectionIds), new Set(baselineRecommendations.map((view)
 assert.ok(Object.values(baseline.insights).every((insight) => insight.whyItFits.length > 0), "Every recommendation must have a deterministic explanation.");
 assert.doesNotMatch(JSON.stringify(baseline), /\d{1,3}% match|limited seats|students like you|historically fills early/i, "The briefing cannot introduce fake precision, demand, or urgency.");
 assert.equal(baseline.portfolio.active, 0);
-assert.match(baseline.portfolio.observation, /Journey is open/);
+assert.equal(baseline.title, "Top picks for you");
+assert.equal(baseline.portfolio.observation, "");
+assert.doesNotMatch(JSON.stringify(baseline), /deserve(?:s)? your attention|opportunity portfolio|opportunity landscape|strategically aligned|continuously monitors/i, "Briefing copy must remain plain and factual.");
 
 for (const event of baseline.radar) {
   assert.ok(opportunityById.has(event.opportunityId), "Radar events must reference real catalog records.");

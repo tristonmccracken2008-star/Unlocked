@@ -108,7 +108,7 @@ const styles = readFileSync("components/return-briefing.module.css", "utf8");
 const route = readFileSync("app/api/return-experience/route.ts", "utf8");
 const page = readFileSync("app/page.tsx", "utf8");
 for (const contract of ["You’re all caught up.", "applicationTargetId", "returnBriefingDismissed", "aria-labelledby=\"return-briefing-heading\""]) assert.ok(component.includes(contract), `Return UI must preserve ${contract}.`);
-assert.match(projection, /Here’s what matters right now\./);
+assert.match(projection, /Since your last visit/);
 assert.match(styles, /@media \(max-width: 700px\)/);
 assert.match(styles, /@media \(prefers-reduced-motion: reduce\)/);
 assert.match(styles, /min-height: 44px/);

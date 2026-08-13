@@ -115,7 +115,7 @@ try {
   const briefing = page.locator("[data-return-briefing]");
   await briefing.waitFor({ timeout: 60_000 });
   await receipt;
-  assert.match(await briefing.getByRole("heading", { level: 2 }).innerText(), /Here’s what matters right now/);
+  assert.match(await briefing.getByRole("heading", { level: 2 }).innerText(), /Since your last visit/);
   assert.ok(await briefing.locator("li").count() <= 3, "The return briefing must never exceed three items.");
   await briefing.getByRole("link", { name: /Continue application|Review application/ }).click();
   await page.getByRole("dialog", { name: new RegExp(owner.opportunity.title) }).waitFor();

@@ -73,7 +73,7 @@ assert.deepEqual(criteria.slice(-3), [
 ]);
 
 const page = readFileSync("app/opportunities/[id]/page.tsx", "utf8");
-for (const token of ["data-opportunity-kind", "Who qualifies", "Official source", "About this opportunity", "How this fit was calculated", "officialActionLabel", "Checked against the provider"]) {
+for (const token of ["data-opportunity-kind", "Who qualifies", "Official source", "About this opportunity", "More details", "officialActionLabel", "Checked against the provider"]) {
   assert.ok(page.includes(token), `Opportunity details must retain ${token}.`);
 }
 for (const removed of ["whyThisMatters", "Frequently asked questions", "What is documented—and what is not", "Explore related listings"]) {

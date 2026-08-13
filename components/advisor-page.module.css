@@ -161,13 +161,6 @@
   color: rgb(var(--color-forest));
 }
 
-.railEmpty {
-  margin: 18px 0 0;
-  color: var(--unlocked-muted);
-  font-size: 12px;
-  line-height: 1.6;
-}
-
 .portfolio dl {
   display: grid;
   gap: 8px;
@@ -506,20 +499,6 @@
   color: rgb(var(--color-forest));
 }
 
-.reason {
-  max-width: 690px;
-  margin: 24px 0 0;
-  padding-top: 20px;
-  border-top: 1px solid var(--unlocked-border);
-  color: var(--unlocked-muted);
-  font-size: 14px;
-  line-height: 1.65;
-}
-
-.reason strong {
-  color: var(--unlocked-text);
-}
-
 .adds {
   max-width: 690px;
   margin: 12px 0 0;
@@ -529,7 +508,6 @@
 }
 
 .adds strong,
-.recommendationReason strong,
 .recommendationAdds strong {
   color: var(--unlocked-text);
 }
@@ -542,30 +520,6 @@
   padding: 40px 32px;
   border-left: 1px solid var(--unlocked-border);
   background: var(--unlocked-surface-muted);
-}
-
-.score {
-  display: grid;
-  gap: 5px;
-  padding-bottom: 22px;
-  border-bottom: 1px solid var(--unlocked-border);
-}
-
-.score strong {
-  color: rgb(var(--color-forest));
-  font-family: Iowan Old Style, Baskerville, Georgia, "Times New Roman", serif;
-  font-size: 24px;
-  font-weight: 700;
-  line-height: 1.15;
-}
-
-.score small {
-  margin-top: 2px;
-  color: var(--unlocked-muted);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: .07em;
-  text-transform: uppercase;
 }
 
 .featuredMeta {
@@ -1035,14 +989,6 @@
   text-transform: uppercase;
 }
 
-.recommendationReason {
-  max-width: 660px;
-  margin: 14px 0 0;
-  color: var(--unlocked-muted);
-  font-size: 13px;
-  line-height: 1.55;
-}
-
 .recommendationAdds {
   max-width: 660px;
   margin: 7px 0 0;
@@ -1063,10 +1009,6 @@
 
 .rowMeta dd {
   font-size: 12px;
-}
-
-.rowScore dd {
-  color: rgb(var(--color-forest));
 }
 
 .rowActions {
@@ -1430,11 +1372,6 @@
     border-left: 0;
   }
 
-  .score {
-    padding: 0;
-    border: 0;
-  }
-
   .featuredMeta {
     grid-template-columns: 1fr 1fr;
     margin: 0;
@@ -1562,11 +1499,6 @@
     display: grid;
     grid-template-columns: 1fr;
     padding: 26px 22px;
-  }
-
-  .score {
-    padding-bottom: 20px;
-    border-bottom: 1px solid var(--unlocked-border);
   }
 
   .featuredMeta {

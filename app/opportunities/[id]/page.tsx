@@ -299,11 +299,11 @@ function lifecycleFacts(item: Opportunity, lifecycle: ReturnType<typeof resolveO
 
 function OpportunityAdvisorBrainSection({ explanation }: { explanation: OpportunityAdvisorExplanation }) {
   return <section aria-labelledby="advisor-fit" className="mt-12 border-t border-ink/10 pt-8">
-    <p className="rule-label text-forest">Personalized context</p>
-    <h3 id="advisor-fit" className="mt-2 font-editorial text-2xl font-bold">Why this is recommended for you</h3>
+    <p className="rule-label text-forest">For You</p>
+    <h3 id="advisor-fit" className="mt-2 font-editorial text-2xl font-bold">Why this match</h3>
     <ul className="mt-5 max-w-3xl space-y-2 text-sm leading-6 text-ink/65">{explanation.whyRecommended.map((reason) => <li key={reason}>{reason}</li>)}</ul>
     <details className="mt-6 max-w-4xl border-y border-ink/10 py-4">
-      <summary className="cursor-pointer text-sm font-bold text-forest">How this fit was calculated</summary>
+      <summary className="cursor-pointer text-sm font-bold text-forest">More details</summary>
       <dl className="mt-5 grid gap-x-8 gap-y-5 sm:grid-cols-2">
         <AdvisorFact label="Skills gained" value={explanation.skillsGained.join(", ")} />
         <AdvisorFact label="Competencies strengthened" value={explanation.competenciesStrengthened.join(", ")} />

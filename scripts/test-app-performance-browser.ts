@@ -404,7 +404,7 @@ async function verifyPrimaryRoutes(page: Page, origin: string, screenshotLabel: 
   const forYouStartedAt = performance.now();
   await page.goto(`${origin}/advisor`, { waitUntil: "domcontentloaded", timeout: 45_000 });
   try {
-    await page.getByRole("heading", { name: /Your opportunities are ready|A shortlist built around you|Opportunities worth your attention|opportunit(?:y|ies) deserve(?:s)? your attention|No strong matches yet/ }).waitFor({ state: "visible", timeout: 45_000 });
+    await page.getByRole("heading", { name: /Your first match|A match for you|Matches for you|Top picks for you|No matches yet/ }).waitFor({ state: "visible", timeout: 45_000 });
   } catch (error) {
     await page.screenshot({ path: path.join(outputDirectory, `${screenshotLabel}-for-you-failure.png`), fullPage: true });
     console.error("For You browser readiness failure", {
@@ -416,21 +416,21 @@ async function verifyPrimaryRoutes(page: Page, origin: string, screenshotLabel: 
   }
   const forYouReadyMs = Math.round(performance.now() - forYouStartedAt);
   await assertOrganizationMarks(page, `${screenshotLabel} For You`);
-  assert.equal(await page.getByRole("heading", { name: "We couldn’t load your shortlist." }).count(), 0, "For You must not enter an error state on the first authenticated visit.");
-  const intelligenceDisclosures = page.getByText("Why this opportunity?", { exact: true });
+  assert.equal(await page.getByRole("heading", { name: "We couldn’t load your matches." }).count(), 0, "For You must not enter an error state on the first authenticated visit.");
+  const intelligenceDisclosures = page.getByText("Why this match", { exact: true });
   const disclosureCount = await intelligenceDisclosures.count();
   if (disclosureCount) {
     await intelligenceDisclosures.first().click();
-    const openIntelligence = page.locator("details[open]").filter({ hasText: "Why it fits" });
+    const openIntelligence = page.locator("details[open]").filter({ hasText: "Match details" });
     await openIntelligence.first().waitFor({ state: "visible" });
-    assert.ok(await openIntelligence.getByText("Related paths", { exact: true }).count(), "Expanded recommendation intelligence must expose eligible related paths.");
+    assert.ok(await openIntelligence.getByText("Similar opportunities", { exact: true }).count(), "Expanded recommendation details must expose eligible similar opportunities.");
     await intelligenceDisclosures.first().click();
   }
   if (screenshotLabel === "desktop") {
     const firstRecommendation = page.locator("[data-for-you-page] article").first();
     const firstTitle = (await firstRecommendation.locator("h2").textContent())?.trim();
     assert.ok(firstTitle, "The premium portfolio must render a top recommendation title.");
-    await firstRecommendation.getByText("Not quite right?", { exact: true }).click();
+    await firstRecommendation.getByText("Not for you?", { exact: true }).click();
     await firstRecommendation.getByRole("button", { name: "Not for me", exact: true }).click();
     await page.getByRole("button", { name: "Undo", exact: true }).waitFor({ state: "visible" });
     await page.getByRole("button", { name: "Undo", exact: true }).click();

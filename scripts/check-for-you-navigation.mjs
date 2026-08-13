@@ -22,7 +22,7 @@ assert.match(header, /active:scale-\[\.98\]/, "Header links must provide immedia
 
 assert.match(loading, /AdvisorRecommendationLoading/, "Cold route loading must use the shared recommendation skeleton.");
 assert.match(loadingSystem, /aria-busy="true"/, "Cold route loading must be announced to assistive technology.");
-assert.match(loadingSystem, /Selecting your For You recommendations/, "Cold starts need a calm, specific loading status.");
+assert.match(loadingSystem, /Loading For You/, "Cold starts need a calm, specific loading status.");
 assert.match(advisorPage, /requireCompletedOnboarding\(\)/, "The destination must remain server-authenticated.");
 assert.match(advisorPage, /<AdvisorPage initialState=\{initialState\} serverAuthenticated \/>/, "The destination must reuse safe server state immediately after authentication.");
 assert.match(advisorPage, /allowGeneration: false/, "The route document must not wait for recommendation generation.");

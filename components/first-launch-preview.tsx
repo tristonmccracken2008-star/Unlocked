@@ -50,13 +50,13 @@ function ForYouPreview() {
   return <div className={`${styles.productPreview} ${styles.forYouPreview}`} data-preview-kind="for-you">
     <ProductChrome active="for-you" />
     <div className={styles.forYouCanvas}>
-      <div className={styles.previewIntro}><span>For you</span><h2>Selected around you.</h2><p>Based on your profile, goals, and activity.</p></div>
+      <div className={styles.previewIntro}><span>For you</span><h2>Top picks for you.</h2><p>A short list based on your profile and Journey.</p></div>
       <div className={styles.previewProfileLine}><span>University of Chicago</span><span>Mathematics</span><span>First year</span><span>Research</span></div>
       <div className={styles.recommendationFeature} data-preview-focus="true">
-        <div className={styles.recommendationMain}><span className={styles.previewCategory}>Top recommendation</span><div className={styles.recommendationIdentity}><span className={styles.previewOrganization} data-tone="green">NS</span><div><small>National Science Foundation</small><strong>Undergraduate Research Program</strong></div></div><p>A mentored research experience selected for your academic interests.</p><div className={styles.matchSignals}><span>Matches your major</span><span>First-year friendly</span><span>Official source</span></div></div>
-        <aside><small>Match quality</small><strong>Strong match</strong><hr /><small>Why now</small><b>Applications open</b><span className={styles.previewAction}>Review opportunity</span></aside>
+        <div className={styles.recommendationMain}><span className={styles.previewCategory}>Top pick</span><div className={styles.recommendationIdentity}><span className={styles.previewOrganization} data-tone="green">NS</span><div><small>National Science Foundation</small><strong>Undergraduate Research Program</strong></div></div><p>A mentored research experience for undergraduates.</p><div className={styles.matchSignals}><span>Matches your major</span><span>First-year friendly</span><span>Official source</span></div></div>
+        <aside><small>Deadline</small><strong>Applications open</strong><hr /><small>Source</small><b>Official</b><span className={styles.previewAction}>Open opportunity</span></aside>
       </div>
-      <div className={styles.previewRecommendationRows}><span>02</span><strong>COMAP Mathematical Contest</strong><i>Excellent fit</i><span>03</span><strong>Career Ready Certificate</strong><i>Strong match</i></div>
+      <div className={styles.previewRecommendationRows}><span>02</span><strong>COMAP Mathematical Contest</strong><i>New for you</i><span>03</span><strong>Career Ready Certificate</strong><i>Deadline soon</i></div>
     </div>
   </div>;
 }

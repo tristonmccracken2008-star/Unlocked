@@ -101,7 +101,7 @@ export function SectionLoading({ label, rows = 3, className = "" }: { label: str
 
 export function AdvisorRecommendationLoading() {
   return <main className="mx-auto min-h-[70vh] w-full max-w-[88rem] px-5 py-10 sm:px-8 sm:py-16">
-    <LoadingRegion label="Selecting your For You recommendations" className="grid gap-4">
+    <LoadingRegion label="Loading For You" className="grid gap-4">
       <p className="rule-label text-forest">For You</p>
       <SkeletonBlock className="h-14 w-[min(78%,40rem)] rounded-md sm:h-16" />
       <SkeletonBlock className="h-5 w-[min(68%,32rem)] rounded-full" />

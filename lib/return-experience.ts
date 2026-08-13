@@ -117,8 +117,8 @@ function notificationItems(records: readonly NotificationRecord[], freshnessCuto
   const recommendation = recommendations.length ? [{
     id: `recommendations:${recommendations.map((record) => record.id).sort().join(":")}`,
     kind: "recommendation" as const,
-    title: recommendations.length === 1 ? "A new match fits your profile" : `${recommendations.length} new matches fit your profile`,
-    detail: recommendations.length === 1 ? recommendations[0]!.body : "New opportunities passed UnlockED’s recommendation safeguards.",
+    title: recommendations.length === 1 ? "1 new match" : `${recommendations.length} new matches`,
+    detail: recommendations.length === 1 ? recommendations[0]!.body : "New for you since your last visit.",
     href: "/advisor",
     actionLabel: "See matches",
     urgency: "normal" as const,
@@ -193,7 +193,7 @@ export function buildReturnBriefing(input: {
   }
   return {
     greeting: greeting(input.profile, now, input.journey.calendar.timezone),
-    heading: selected.length ? "Here’s what matters right now." : "You’re all caught up.",
+    heading: selected.length ? "Since your last visit" : "You’re all caught up.",
     items: selected.map(({ rank: _rank, occurredAt: _occurredAt, ...item }) => item),
     allCaughtUp: selected.length === 0,
     generatedAt: now.toISOString(),

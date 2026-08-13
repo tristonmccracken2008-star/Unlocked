@@ -64,7 +64,7 @@ for (const relationship of ["prerequisites", "followUps", "alternatives", "easie
 
 assert.ok(weekly.includes("deadlineCount") && weekly.includes("bestNextStep"), "Weekly strategy must summarize deadlines and next step.");
 
-for (const label of ["More like this", "Not for me", "Show fewer like this", "Not eligible", "Already applied"]) {
+for (const label of ["More like this", "Not for me", "Fewer like this", "Not eligible", "Already applied"]) {
   assert.ok(advisor.includes(label), `For You feedback UI must include ${label}.`);
 }
 assert.ok(advisor.includes('type: "helpful"'), "The positive preference action must retain the canonical helpful signal.");

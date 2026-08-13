@@ -275,8 +275,8 @@ export async function syncPersonalizedOpportunityNotification(input: {
   const record = buildNotificationRecord({
     type: "recommendation_update",
     priority: candidate.whyApplyNow?.urgency === "high" ? "high" : "normal",
-    title: "A new opportunity fits your profile",
-    body: `${opportunity.title} is a ${candidate.opportunityScore.label.toLowerCase()} based on your saved profile and eligibility.`,
+    title: "New for you",
+    body: `${opportunity.title} from ${opportunity.organization}`,
     organization: opportunity.organization,
     opportunityId: opportunity.id,
     actionLabel: "Review match",

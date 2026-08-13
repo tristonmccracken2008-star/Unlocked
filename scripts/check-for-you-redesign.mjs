@@ -15,21 +15,19 @@ const pkg = read("package.json");
 
 for (const label of [
   "OpportunityBriefingHeader",
-  "Your strongest opportunities right now",
+  "Top picks for you",
   "Opportunity Radar",
-  "Your opportunity mix",
-  "What this adds:",
+  "Your Journey",
+  "Try something different",
   "portfolioRole",
-  "Why it fits:",
-  "Why this opportunity?",
-  "Why now",
-  "Match quality",
-  "Related paths",
+  "Why this match",
+  "Timing",
+  "Similar opportunities",
   "Open Opportunity",
   "AddToJourneyButton",
-  "More matches",
-  "Not quite right?",
-  "Adjust profile",
+  "More for you",
+  "Not for you?",
+  "Edit preferences",
 ]) {
   assert.ok(advisor.includes(label), `For You must render ${label}.`);
 }
@@ -40,8 +38,7 @@ for (const removed of ["Your profile at a glance", "Your activity at a glance", 
 
 assert.ok(advisor.includes('data-for-you-page="opportunity-intelligence-v2"'), "For You must expose the opportunity intelligence layout for browser QA.");
 assert.ok(advisor.includes("recommendationSignals") && advisor.includes("strongestReason"), "Recommendation presentation must use concise structured signals and reasons.");
-assert.ok(advisor.includes("RecommendationIntelligence") && advisor.includes("similarOpportunities"), "For You must use progressive disclosure for factual reasoning and related paths.");
-assert.ok(advisor.includes("scoreFor") && advisor.includes("opportunityScore"), "For You must derive bounded qualitative match language from the internal Opportunity Score.");
+assert.ok(advisor.includes("RecommendationIntelligence") && advisor.includes("similarOpportunities"), "For You must use progressive disclosure for factual reasoning and similar opportunities.");
 assert.ok(!advisor.includes("<strong>{score.value}</strong>") && !advisor.includes("Opportunity Score:"), "For You must not present internal scores as false precision.");
 assert.ok(advisor.includes('projectOpportunityTrust(opportunity).source.state === "official_source"'), "For You must surface field-level official-source trust signals rather than broad record status.");
 assert.ok(advisor.includes("Estimated value") && !advisor.includes("Est. effort"), "For You must label recommendation value truthfully.");
@@ -96,8 +93,9 @@ assert.ok(advisor.includes("ForYouErrorState") && advisor.includes("Retry"), "Fo
 assert.ok(advisor.includes("ForYouPreparingState"), "For You client must show a preparing state instead of normal retry during first snapshot generation.");
 assert.ok(advisor.includes("ForYouFreePreviewOnly"), "Free users with no previews must still see the Pro conversion page.");
 assert.ok(!journey.includes("buildRecommendationService"), "Journey must not build recommendations or bypass For You Pro gating.");
-assert.ok(advisor.includes("Unlock your full opportunity intelligence"), "Free For You should render a clear Pro intelligence preview instead of an empty state.");
+assert.ok(advisor.includes("See all your matches") && advisor.includes("New for you since your last visit") === false, "Free For You should explain tangible Pro value without algorithm narration.");
 assert.ok(advisor.includes("Free") && advisor.includes("Pro"), "Free For You should explain the Free vs Pro difference.");
+assert.doesNotMatch(advisor, /deserve(?:s)? your attention|opportunity intelligence|your opportunity mix|unlock your full|strongest opportunities right now|What this adds:|Why it fits:|Match quality/i, "For You primary copy must avoid AI-style narration and redundant grading.");
 assert.doesNotMatch(advisor, /% confidence|Evidence and confidence|Alternatives/, "For You primary UI must not expose old confidence/debug framing.");
 assert.doesNotMatch(advisor, /markMilestoneCompleted/, "For You should not use separate milestone completion logic for opportunity recommendations.");
 assert.doesNotMatch(advisor, /Track this|Tracked as active interest|updateApplicationStatus/, "For You must use Add to Journey instead of Track/status terminology.");

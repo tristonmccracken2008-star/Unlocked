@@ -66,13 +66,13 @@ assert.ok(header.includes("Mobile navigation"), "Authenticated mobile users must
 
 for (const label of [
   "OpportunityBriefingHeader",
-  "Your strongest opportunities right now",
+  "Top picks for you",
   "Opportunity Radar",
-  "Your opportunity mix",
+  "Your Journey",
   "portfolioRole",
-  "Why it fits:",
-  "What this adds:",
-  "Not quite right?",
+  "Why this match",
+  "Try something different",
+  "Not for you?",
   "AddToJourneyButton",
 ]) {
   assert.ok(advisorPage.includes(label), `Advisor page must render ${label}.`);
@@ -95,7 +95,7 @@ for (const state of ["free", "preview", "pro", "unavailable"]) {
 }
 
 for (const label of [
-  "Why this is recommended for you",
+  "Why this match",
   "Skills gained",
   "Competencies strengthened",
   "Evidence generated",

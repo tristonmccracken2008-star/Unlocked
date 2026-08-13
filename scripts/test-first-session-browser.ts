@@ -264,7 +264,7 @@ async function completeOnboarding(page: Page, origin: string) {
   await page.goto(`${origin}/welcome`, { waitUntil: "domcontentloaded", timeout: 60_000 });
   await page.waitForURL("**/opportunities", { timeout: 60_000 });
   await page.goto(`${origin}/advisor`, { waitUntil: "domcontentloaded", timeout: 60_000 });
-  await page.getByRole("heading", { name: "Your opportunities are ready." }).waitFor({ state: "visible", timeout: 60_000 });
+  await page.getByRole("heading", { name: "Your first match." }).waitFor({ state: "visible", timeout: 60_000 });
   await page.getByRole("button", { name: "Add to Journey" }).first().waitFor({ state: "visible" });
   timings.discoverToForYou = performance.now() - startedAt - timings.onboardingToWalkthrough - timings.walkthroughToDiscover;
   return timings;
@@ -381,7 +381,7 @@ async function verifyFirstSave(page: Page, origin: string, browserName: string) 
   const returnStartedAt = performance.now();
   await page.goto(`${origin}/advisor`, { waitUntil: "domcontentloaded", timeout: 60_000 });
   await page.getByRole("button", { name: "Add to Journey" }).first().waitFor({ state: "visible", timeout: 60_000 });
-  assert.equal(await page.getByRole("heading", { name: "Your opportunities are ready." }).count(), 0, "Returning activated users must not see first-session welcome copy.");
+  assert.equal(await page.getByRole("heading", { name: "Your first match." }).count(), 0, "Returning activated users must not see first-session welcome copy.");
   return { firstSaveMs, firstJourneyMs, returnMs: performance.now() - returnStartedAt };
 }
 

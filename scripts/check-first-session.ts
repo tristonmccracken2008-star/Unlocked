@@ -80,7 +80,7 @@ assert.match(snapshot, /entitlements\.canViewRecommendationExplanations \? view\
 const advisorPage = source("components/advisor-page.tsx");
 assert.match(advisorPage, /premium=\{false\}/);
 assert.match(advisorPage, /<ForYouUpgradeGate totalMatches=\{state\.totalMatches\}/);
-assert.match(advisorPage, /Your opportunities are ready\./);
+assert.match(advisorPage, /Your first match\./);
 const journey = source("components/journey-timeline.tsx");
 assert.match(journey, /Saved is not the same as applied\./);
 assert.match(journey, /Nothing moves forward automatically\./);
