@@ -34,7 +34,7 @@ export function OpportunityActivityActions({ opportunityId, type, officialSource
     : "View official source");
   return <div className="mt-6 space-y-3">
     {lifecycle.actionAllowed ? <a href={officialSource} target="_blank" rel="noreferrer" className="flex min-h-12 items-center justify-center gap-2 bg-ink px-5 text-center font-bold text-white hover:bg-forest">{primaryLabel} <ArrowIcon/><span className="sr-only">(opens in a new tab)</span></a> : <p className="border border-amber-700/25 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900">The official link needs review. UnlockED is not presenting an application action.</p>}
-    {added ? <JourneyAddedState className="w-full border border-forest/25 px-4 text-forest" /> : <AddToJourneyButton opportunityId={opportunityId} className="w-full border border-ink/20 px-4 text-ink/65 hover:border-forest hover:text-forest" />}
+    {added ? <JourneyAddedState opportunityId={opportunityId} className="w-full border border-forest/25 px-4 text-forest" /> : <AddToJourneyButton opportunityId={opportunityId} className="w-full border border-ink/20 px-4 text-ink/65 hover:border-forest hover:text-forest" />}
   </div>;
 }
 
@@ -144,14 +144,14 @@ export function AddToJourneyButton({ opportunityId, recommendationId, recommenda
 
   const setupSummary = smartDefaults ? smartDefaultSummary(smartDefaults) : "";
   if (added) return <div className="grid gap-2">
-    <JourneyAddedState className={className} confirmed={confirmedThisSession} />
+    <JourneyAddedState className={className} confirmed={confirmedThisSession} opportunityId={opportunityId} />
     {confirmedThisSession ? <p className={styles.setupSummary} role="status">Added to your Journey.</p> : null}
     {setupSummary ? <p className={styles.setupSummary}>{setupSummary}</p> : firstSave ? <p className={styles.setupSummary}>Your Journey is ready. Record progress only when something changes.</p> : null}
   </div>;
   return <div className="grid gap-2">
     <button ref={buttonRef} type="button" onClick={() => void add()} disabled={pending} aria-busy={pending ? "true" : undefined} data-action-state={error ? "error" : pending ? "loading" : "idle"} data-journey-save-state={error ? "error" : pending ? "loading" : "idle"} data-journey-save-opportunity={opportunityId} aria-describedby={error ? `journey-add-error-${opportunityId}` : undefined} className={`${styles.saveButton} inline-flex min-h-11 min-w-[11rem] items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider ${className}`}>
       <span className={styles.buttonIcon} aria-hidden="true">{error ? <svg className={styles.errorIcon} viewBox="0 0 18 18" fill="none"><path d="M5.2 5.5A5.2 5.2 0 1 1 4 10.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/><path d="M2.8 6.2 5.5 5.5l-.7-2.7" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/></svg> : <BookmarkIcon className={styles.saveIcon}/>}</span>
-      <DelayedPendingLabel pending={pending} idle={error ? "Try again" : "Save to Journey"} pendingLabel="Saving…" />
+      <DelayedPendingLabel pending={pending} idle={error ? "Try again" : "Add to Journey"} pendingLabel="Adding to Journey…" />
     </button>
     {error ? <p id={`journey-add-error-${opportunityId}`} role="alert" data-inline-feedback="" data-state="error" className={`${styles.error} max-w-sm text-xs font-bold leading-5 text-red-700`}>{error}</p> : null}
   </div>;
@@ -165,10 +165,10 @@ function smartDefaultSummary(defaults: JourneySmartDefaults) {
   return details.join(" · ");
 }
 
-function JourneyAddedState({ className = "", confirmed = false }: { className?: string; confirmed?: boolean }) {
-  return <div className={styles.addedGroup} data-confirmed={confirmed ? "true" : "false"}><span role="status" aria-live="polite" data-action-state="success" data-journey-save-confirmed={confirmed ? "true" : undefined} className={`${styles.addedState} unlocked-save-confirmation inline-flex min-h-11 min-w-[11rem] items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider ${className}`}><span className={styles.addedIcon} data-confirmed={confirmed ? "true" : "false"} aria-hidden="true"><BookmarkIcon className={styles.addedBookmark}/><CheckIcon className={styles.addedCheck}/></span><span className={styles.addedLabel}>Added to Journey</span></span><LinkToJourney /></div>;
+function JourneyAddedState({ className = "", confirmed = false, opportunityId }: { className?: string; confirmed?: boolean; opportunityId: string }) {
+  return <div className={styles.addedGroup} data-confirmed={confirmed ? "true" : "false"}><span role="status" aria-live="polite" data-action-state="success" data-journey-save-confirmed={confirmed ? "true" : undefined} className={`${styles.addedState} unlocked-save-confirmation inline-flex min-h-11 min-w-[11rem] items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider ${className}`}><span className={styles.addedIcon} data-confirmed={confirmed ? "true" : "false"} aria-hidden="true"><BookmarkIcon className={styles.addedBookmark}/><CheckIcon className={styles.addedCheck}/></span><span className={styles.addedLabel}>Added to Journey</span></span><LinkToJourney opportunityId={opportunityId} /></div>;
 }
 
-function LinkToJourney() {
-  return <a href="/" className={styles.journeyLink}>View Journey</a>;
+function LinkToJourney({ opportunityId }: { opportunityId: string }) {
+  return <a href={`/#journey-record-${encodeURIComponent(opportunityId)}`} className={styles.journeyLink}>View in Journey</a>;
 }

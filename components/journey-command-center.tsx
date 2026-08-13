@@ -76,10 +76,10 @@ function RecordDetails({ record }: { record: JourneyCommandRecord }) {
   const panelId = `journey-record-details-${record.id}`;
   const titleId = `${panelId}-title`;
   return <div className={styles.recordDetails} data-journey-record-details="">
-    <button type="button" popoverTarget={panelId} aria-label={`${record.applicationWorkspace ? "Continue application" : "View details"} for ${record.title}`} aria-haspopup="dialog" data-application-trigger={record.applicationWorkspace ? "true" : undefined}>{record.applicationWorkspace ? <><span>Continue application</span><ArrowIcon /></> : <><MoreIcon /><span className="sr-only">View record details</span></>}</button>
+    <button type="button" popoverTarget={panelId} aria-label={`${record.applicationWorkspace ? "Continue application" : "More actions"} for ${record.title}`} aria-haspopup="dialog" data-application-trigger={record.applicationWorkspace ? "true" : undefined}>{record.applicationWorkspace ? <><span>Continue application</span><ArrowIcon /></> : <><MoreIcon /><span className="sr-only">More actions</span></>}</button>
     <section id={panelId} popover="auto" className={styles.detailGrid} role="dialog" aria-labelledby={titleId}>
       <header className={styles.detailHeader}>
-        <div><p>{record.applicationWorkspace ? "Application workspace" : "Journey details"}</p><h3 id={titleId}>{record.title}</h3><span>{record.organization}</span></div>
+        <div><p>{record.applicationWorkspace ? "Application Command Center" : "Journey details"}</p><h3 id={titleId}>{record.title}</h3><span>{record.organization}</span></div>
         <button type="button" popoverTarget={panelId} popoverTargetAction="hide" aria-label={`Close details for ${record.title}`}><CloseIcon /></button>
       </header>
       {record.applicationWorkspace ? <ApplicationWorkspace initial={record.applicationWorkspace} opportunityTitle={record.title} submission={record.applicationSubmission} /> : null}
@@ -96,8 +96,8 @@ function RecordDetails({ record }: { record: JourneyCommandRecord }) {
       {record.latestDetails?.documents?.length ? <section><h4>Document references</h4><ul>{record.latestDetails.documents.map((document) => <li key={document.id}>{document.name}</li>)}</ul><p>References only. Files are not stored by UnlockED.</p></section> : null}
       {record.history.length ? <section><h4>Recent progress</h4><ol>{record.history.map((item) => <li key={item.id}><span>{item.label}</span><time dateTime={item.occurredAt}>{formatDate(item.occurredAt)}</time></li>)}</ol></section> : null}
       <div className={styles.detailLinks}>
-        {record.opportunity ? <Link href={`/opportunities/${record.id}`}>View details <ArrowIcon /></Link> : <span>The original public listing is no longer available.</span>}
-        {record.opportunity?.official_source_url ? <a href={record.opportunity.official_source_url} target="_blank" rel="noreferrer">Official source <ArrowIcon /><span className="sr-only">(opens in a new tab)</span></a> : null}
+        {record.opportunity ? <Link href={`/opportunities/${record.id}`}>View opportunity <ArrowIcon /></Link> : <span>The original public listing is no longer available.</span>}
+        {record.opportunity?.official_source_url ? <a href={record.opportunity.official_source_url} target="_blank" rel="noreferrer">View official source <ArrowIcon /><span className="sr-only">(opens in a new tab)</span></a> : null}
       </div>
     </section>
   </div>;

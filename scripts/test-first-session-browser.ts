@@ -265,7 +265,7 @@ async function completeOnboarding(page: Page, origin: string) {
   await page.waitForURL("**/opportunities", { timeout: 60_000 });
   await page.goto(`${origin}/advisor`, { waitUntil: "domcontentloaded", timeout: 60_000 });
   await page.getByRole("heading", { name: "Your opportunities are ready." }).waitFor({ state: "visible", timeout: 60_000 });
-  await page.getByRole("button", { name: "Save to Journey" }).first().waitFor({ state: "visible" });
+  await page.getByRole("button", { name: "Add to Journey" }).first().waitFor({ state: "visible" });
   timings.discoverToForYou = performance.now() - startedAt - timings.onboardingToWalkthrough - timings.walkthroughToDiscover;
   return timings;
 }
@@ -336,7 +336,7 @@ async function verifyFirstSave(page: Page, origin: string, browserName: string) 
   });
   await page.route("**/api/journey/add", (route) => route.fulfill({ status: 500, contentType: "application/json", body: JSON.stringify({ error: "We couldn’t add this opportunity. Nothing changed." }) }), { times: 1 });
   const button = page.locator("button[data-journey-save-state]").first();
-  await button.getByText("Save to Journey", { exact: true }).waitFor({ state: "visible" });
+  await button.getByText("Add to Journey", { exact: true }).waitFor({ state: "visible" });
   await button.click();
   await page.getByRole("alert").getByText(/couldn’t add/i).waitFor({ state: "visible" });
   assert.equal(await page.getByText("Added to Journey", { exact: false }).count(), 0, "A failed save must not show success.");
@@ -380,7 +380,7 @@ async function verifyFirstSave(page: Page, origin: string, browserName: string) 
 
   const returnStartedAt = performance.now();
   await page.goto(`${origin}/advisor`, { waitUntil: "domcontentloaded", timeout: 60_000 });
-  await page.getByRole("button", { name: "Save to Journey" }).first().waitFor({ state: "visible", timeout: 60_000 });
+  await page.getByRole("button", { name: "Add to Journey" }).first().waitFor({ state: "visible", timeout: 60_000 });
   assert.equal(await page.getByRole("heading", { name: "Your opportunities are ready." }).count(), 0, "Returning activated users must not see first-session welcome copy.");
   return { firstSaveMs, firstJourneyMs, returnMs: performance.now() - returnStartedAt };
 }
@@ -405,7 +405,7 @@ async function runPro(browser: Browser, origin: string, token: string, browserNa
   const page = await context.newPage();
   const assertNoErrors = observe(page);
   await page.goto(`${origin}/advisor`, { waitUntil: "domcontentloaded", timeout: 60_000 });
-  await page.getByRole("button", { name: "Save to Journey" }).first().waitFor({ state: "visible", timeout: 60_000 });
+  await page.getByRole("button", { name: "Add to Journey" }).first().waitFor({ state: "visible", timeout: 60_000 });
   const button = page.locator("button[data-journey-save-state]").first();
   assert.equal(await page.getByText("See your complete personalized shortlist", { exact: false }).count(), 0, "Pro must not receive Free upgrade messaging.");
   assert.ok(await page.locator("[data-for-you-page] article").count() > 1, "Pro should receive the full shortlist.");
@@ -436,10 +436,10 @@ async function runPro(browser: Browser, origin: string, token: string, browserNa
     await route.continue();
   }, { times: 1 });
   const idleButtonBox = await button.boundingBox();
-  assert.ok(idleButtonBox, "The idle Save to Journey control must have measurable dimensions.");
+  assert.ok(idleButtonBox, "The idle Add to Journey control must have measurable dimensions.");
   await button.click();
   assert.equal(await button.getAttribute("data-journey-save-state"), "loading");
-  await button.getByText("Saving…", { exact: true }).waitFor({ state: "visible" });
+  await button.getByText("Adding to Journey…", { exact: true }).waitFor({ state: "visible" });
   const loadingButtonBox = await button.boundingBox();
   assert.ok(loadingButtonBox, "The saving control must preserve measurable dimensions.");
   assert.ok(Math.abs(loadingButtonBox.width - idleButtonBox.width) <= 1 && Math.abs(loadingButtonBox.height - idleButtonBox.height) <= 1, "Saving must not resize the action control.");
@@ -486,7 +486,7 @@ async function runPro(browser: Browser, origin: string, token: string, browserNa
   }, rapidOpportunityIds);
   assert.equal(await firstRapidSave.getAttribute("data-journey-save-state"), "loading");
   assert.equal(await secondRapidSave.getAttribute("data-journey-save-state"), "loading");
-  await secondRapidSave.getByText("Saving…", { exact: true }).waitFor({ state: "visible" });
+  await secondRapidSave.getByText("Adding to Journey…", { exact: true }).waitFor({ state: "visible" });
   await page.waitForFunction(() => document.querySelectorAll("[data-journey-save-confirmed='true']").length >= 3, undefined, { timeout: 15_000 });
   await page.waitForFunction(() => !document.querySelector("[data-journey-save-flight]") && !document.querySelector("[data-journey-save-burst]") && !document.querySelector("[data-journey-save-chip]"), undefined, { timeout: 15_000 });
   assert.equal(maximumConcurrentSaveRequests, 1, "Rapid saves must serialize client requests instead of colliding with the account lock.");

@@ -482,7 +482,7 @@ try {
     assert.ok(mobileRecordBox && mobileIdentityBox && mobileIdentityBox.width >= mobileRecordBox.width * .85, "Mobile opportunity identity must use the full first row for readable titles.");
     assert.ok(mobileProgressBox && mobileActionsBox && mobileProgressBox.x + mobileProgressBox.width <= mobileActionsBox.x + 1, "Mobile progress and actions must not overlap.");
     await page.screenshot({ path: path.join(output, "journey-command-mobile.png"), fullPage: true, caret: "initial" });
-    const mobileDetailsTrigger = record.getByRole("button", { name: /^(View details|Continue application) for/ });
+    const mobileDetailsTrigger = record.getByRole("button", { name: /^(More actions|Continue application) for/ });
     await mobileDetailsTrigger.press("Enter");
     const mobileDetailsPanel = record.locator("section[popover]:popover-open");
     await mobileDetailsPanel.getByText("Public listing", { exact: true }).waitFor();

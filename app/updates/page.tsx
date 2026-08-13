@@ -13,10 +13,10 @@ export default function UpdatesPage() {
     <section className="px-5 py-10 sm:px-8 sm:py-14">
       <div className="mx-auto max-w-4xl">
         <nav aria-label="Breadcrumb" className="text-xs font-bold uppercase tracking-wider text-ink/45">
-          <Link href="/" className="hover:text-forest">Dashboard</Link> / What&apos;s New
+          <Link href="/" className="hover:text-forest">Journey</Link> / Opportunity updates
         </nav>
         <p className="rule-label mt-6 text-forest">Opportunity updates</p>
-        <h1 className="mt-3 font-editorial text-4xl font-bold sm:text-5xl">What&apos;s New</h1>
+        <h1 className="mt-3 font-editorial text-4xl font-bold sm:text-5xl">Opportunity updates</h1>
         <p className="mt-4 max-w-2xl text-base leading-7 text-ink/55">
           Newly added, newly verified, and recently updated opportunities, sorted by the latest documented change.
         </p>

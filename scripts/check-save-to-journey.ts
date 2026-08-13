@@ -9,9 +9,11 @@ const motion = source("components/journey-save-motion.ts");
 const motionStyles = source("components/journey-save-motion.module.css");
 const header = source("components/header.tsx");
 
-assert.match(activity, /Save to Journey/);
-assert.match(activity, /pendingLabel="Saving…"/);
+assert.match(activity, /Add to Journey/);
+assert.match(activity, /pendingLabel="Adding to Journey…"/);
 assert.match(activity, /Added to Journey/);
+assert.match(activity, /#journey-record-/);
+assert.match(activity, /View in Journey/);
 assert.match(activity, /queueJourneySaveRequest/);
 assert.match(activity, /cancelJourneySaveMotion/);
 assert.match(activity, /aria-busy=/);

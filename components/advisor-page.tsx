@@ -514,7 +514,7 @@ function TopRecommendation({ view, onFeedback }: { view: RecommendationViewModel
           <div><dt>Estimated value</dt><dd>{cleanValueLabel(view.recommendation.estimatedValueLabel)}</dd></div>
         </dl>
         {timing ? <p className={styles.timing} data-urgency={timing.urgency}><strong>{timing.label}</strong><span>{timing.detail}</span></p> : null}
-        <Link href={view.href} onClick={() => trackRecommendationOpen(view)} className={styles.primaryAction}>Review opportunity <ArrowIcon /></Link>
+        <Link href={view.href} onClick={() => trackRecommendationOpen(view)} className={styles.primaryAction}>Open Opportunity <ArrowIcon /></Link>
         {view.recommendation.relatedOpportunityId ? <AddToJourneyButton opportunityId={view.recommendation.relatedOpportunityId} recommendationId={view.recommendation.id} recommendationCategory={analyticsCategory(view)} recommendationExposureCount={view.recommendation.portfolio?.exposureCount ?? 0} className={styles.addAction} /> : null}
       </aside>
     </div>
@@ -600,7 +600,7 @@ function RecommendationCard({ view, index, onFeedback }: { view: RecommendationV
       <RecommendationFeedback view={view} onFeedback={onFeedback} compact />
     </div>
     <dl className={styles.rowMeta}><div className={styles.rowScore}><dt>Match quality</dt><dd>{score.label}</dd></div>{timing ? <div><dt>Why now</dt><dd>{timing.label}</dd></div> : null}<div><dt>Deadline</dt><dd>{trustedDeadlineLabel(view)}</dd></div></dl>
-    <div className={styles.rowActions}><Link href={view.href} onClick={() => trackRecommendationOpen(view)}>Review <ArrowIcon /></Link>{view.recommendation.relatedOpportunityId ? <AddToJourneyButton opportunityId={view.recommendation.relatedOpportunityId} recommendationId={view.recommendation.id} recommendationCategory={analyticsCategory(view)} recommendationExposureCount={view.recommendation.portfolio?.exposureCount ?? 0} className={styles.rowAddAction} /> : null}</div>
+    <div className={styles.rowActions}><Link href={view.href} onClick={() => trackRecommendationOpen(view)}>Open Opportunity <ArrowIcon /></Link>{view.recommendation.relatedOpportunityId ? <AddToJourneyButton opportunityId={view.recommendation.relatedOpportunityId} recommendationId={view.recommendation.id} recommendationCategory={analyticsCategory(view)} recommendationExposureCount={view.recommendation.portfolio?.exposureCount ?? 0} className={styles.rowAddAction} /> : null}</div>
   </article>;
 }
 

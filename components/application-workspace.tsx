@@ -226,7 +226,7 @@ export function ApplicationWorkspace({ initial, opportunityTitle, submission }: 
 
   return <section ref={workspaceRef} className={styles.workspace} aria-labelledby={`application-${workspace.opportunityId}`} data-application-workspace="active">
     <header className={styles.summary}>
-      <div><p>Application</p><h4 id={`application-${workspace.opportunityId}`}>Prepare your application</h4></div>
+      <div><p>Application Command Center</p><h4 id={`application-${workspace.opportunityId}`}>Prepare your application</h4></div>
       {workspace.deadline ? <div><span>Official deadline</span><strong>{formatDate(workspace.deadline)}</strong></div> : null}
     </header>
 

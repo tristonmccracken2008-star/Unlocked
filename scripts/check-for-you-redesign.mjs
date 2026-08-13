@@ -21,7 +21,7 @@ for (const label of [
   "Why now",
   "Match quality",
   "Related paths",
-  "Review opportunity",
+  "Open Opportunity",
   "AddToJourneyButton",
   "More opportunities selected for you",
   "Not quite right?",

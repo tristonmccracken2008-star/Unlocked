@@ -151,7 +151,7 @@ export function JourneyTimeline({ model }: { model: JourneyTimelineModel }) {
 
       {hasEvents ? <>
         {!hasRecordedProgress ? <section className={styles.savedContext} aria-labelledby="journey-saved-context-title">
-          <p>Saved to Journey</p>
+          <p>Added to Journey</p>
           <h2 id="journey-saved-context-title">Saved is not the same as applied.</h2>
           <span>These opportunities are here so you can find them again. Nothing moves forward automatically. When something actually changes, use <strong>Update Journey</strong> to record it.</span>
         </section> : null}

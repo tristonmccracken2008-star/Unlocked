@@ -376,7 +376,7 @@ async function verifyOpportunityDetails(page: Page, origin: string, screenshotLa
     assert.equal(await page.getByText(/This matters because/, { exact: false }).count(), 0, `${scenario.kind} detail retained generated catalog prose.`);
     assert.ok(await page.getByRole("heading", { name: "Similar opportunities", exact: true }).count(), `${scenario.kind} detail must continue into a deterministic exploration chain.`);
     if (screenshotLabel === "mobile" && scenario.kind === "scholarship") {
-      const saveAction = page.getByRole("button", { name: "Save to Journey", exact: true });
+      const saveAction = page.getByRole("button", { name: "Add to Journey", exact: true });
       const mobileNavigation = page.getByRole("navigation", { name: "Mobile navigation", exact: true });
       const [saveBox, navigationBox] = await Promise.all([saveAction.boundingBox(), mobileNavigation.boundingBox()]);
       assert.ok(saveBox && navigationBox && saveBox.y + saveBox.height <= navigationBox.y - 4, "The mobile navigation must not cover the primary Journey action in the first viewport.");

@@ -117,7 +117,7 @@ assert.match(activity, /setConfirmedThisSession\(!body\.duplicate\)/);
 assert.match(activity, /playJourneySaveMotion\(buttonRef\.current\)/);
 assert.match(activity, /data-journey-save-state=/);
 assert.match(activity, /DelayedPendingLabel/);
-assert.match(activity, /Save to Journey/);
+assert.match(activity, /Add to Journey/);
 assert.match(activity, /queueJourneySaveRequest/);
 assert.doesNotMatch(activity, /data-journey-save-progress=/);
 assert.match(activity, /error \? "Try again"/);
