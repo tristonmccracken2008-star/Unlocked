@@ -33,6 +33,14 @@ const natural = buildDiscoverCatalog(opportunities, { ...baseQuery, query: "firs
 assert.ok(natural.total > 0 && natural.total < typo.total, "Multi-term intent must narrow rather than broaden the catalog.");
 assert.match(natural.opportunities[0]?.title ?? "", /generation|scholar|cooke|alger/i, "Natural-language intent must prioritize a relevant result.");
 
+const collegeFunding = buildDiscoverCatalog(opportunities, { ...baseQuery, query: "money for college" });
+assert.ok(collegeFunding.total > 0, "Goal-based funding language must resolve to scholarships.");
+assert.ok(collegeFunding.opportunities.slice(0, 8).every((item) => item.type === "Scholarship"), "Money-for-college intent must not broaden into unrelated catalog records.");
+
+const reu = buildDiscoverCatalog(opportunities, { ...baseQuery, query: "REU" });
+assert.ok(reu.total > 0, "The common REU acronym must find undergraduate research programs.");
+assert.ok(reu.opportunities.slice(0, 5).some((item) => /REU|Research Experiences for Undergraduates/i.test(`${item.title} ${item.description}`)), "REU results must preserve precise acronym relevance.");
+
 const fixtures: [string, RegExp][] = [
   ["Google internship", /Google/i],
   ["freshman finance", /Trading|Citadel|finance|street|Invest/i],
@@ -45,6 +53,9 @@ const fixtures: [string, RegExp][] = [
   ["Googel internship", /Google/i],
   ["no GPA requirement", /Internship|Scholarship|Fellowship/i],
   ["women in STEM scholarships", /Women|Scholarship|STEM/i],
+  ["paid summer research", /Research|Laborator|Science|NIST|MIT|Stanford|Naval/i],
+  ["economics research", /Research|Economics|Economic|Elicit|Data/i],
+  ["clinical research", /Research|Clinical|Health|Medical|Science/i],
 ];
 for (const [query, expected] of fixtures) {
   const result = buildDiscoverCatalog(opportunities, { ...baseQuery, query });
@@ -65,6 +76,11 @@ assert.ok(newest.opportunities.every((item) => !["archived", "broken_source"].in
 const defaultResults = buildDiscoverCatalog(opportunities, { ...baseQuery, limit: 64 });
 assert.ok(defaultResults.opportunities.slice(0, 16).every((item) => !["expired", "temporarily_closed"].includes(item.verification_status)), "Closed opportunities must not dominate default results.");
 assert.ok(defaultResults.opportunities.slice(0, 16).filter((item) => item.verification_status === "verified").length >= 12, "Trusted records must dominate the default first page.");
+assert.ok(Object.values(defaultResults.facets.explorationCounts).some((count) => count > 0), "Blank exploration must expose evidence-backed catalog paths.");
+
+const deadlineSorted = buildDiscoverCatalog(opportunities, { ...baseQuery, sort: "Deadline", limit: 64 });
+const datedDeadlineResults = deadlineSorted.opportunities.filter((item) => item.application_deadline);
+assert.ok(datedDeadlineResults.every((item) => item.metadata.verification?.deadlineVerified === true), "Deadline sort must not elevate unconfirmed dates.");
 
 for (let index = 0; index < 4; index += 1) buildDiscoverCatalog(opportunities, { ...baseQuery, query: "software internship" });
 const durations = Array.from({ length: 20 }, (_, index) => {

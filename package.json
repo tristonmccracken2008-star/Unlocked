@@ -83,7 +83,7 @@
     "preview:open-line-renderer": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/render-open-line-preview.tsx",
     "preview:open-line-markers": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/render-open-line-marker-gallery.tsx",
     "preview:open-line-motion": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/render-open-line-motion-laboratory.tsx",
-    "check:discover": "node scripts/check-discover-redesign.mjs && node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-discover-search.ts && node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-opportunity-report.ts",
+    "check:discover": "node scripts/check-discover-redesign.mjs && node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-discover-search.ts && node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-discovery-quality.ts && node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-opportunity-report.ts",
     "check:universal-search": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-universal-search.ts",
     "check:return-experience": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-return-experience.ts",
     "check:journey-redesign": "node scripts/check-journey-redesign.mjs",

@@ -22,8 +22,33 @@ export type DiscoverCatalogPayload = {
     categories: string[];
     majors: string[];
     typeCounts: Record<string, number>;
+    explorationCounts: Record<string, number>;
   };
 };
+
+export type DiscoverExplorationPath = {
+  label: string;
+  description: string;
+  type?: OpportunityType;
+  category?: string;
+};
+
+// These are catalog navigation paths, not personalized recommendations.
+export const discoverExplorationPaths: readonly DiscoverExplorationPath[] = [
+  { label: "Scholarships", description: "Funding for tuition, projects, and study", type: "Scholarship" },
+  { label: "Internships", description: "Practical experience across industries", type: "Career", category: "Internships" },
+  { label: "Research", description: "Labs, summer programs, and faculty projects", type: "Research" },
+  { label: "Fellowships", description: "Selective academic and career programs", type: "Career", category: "Fellowships" },
+  { label: "AI tools", description: "Assistants for learning, writing, and projects", type: "AI" },
+  { label: "Student benefits", description: "Discounts and services for students", type: "Benefit" },
+] as const;
+
+export const discoverSearchStarters = [
+  "Paid summer research",
+  "First-year internships",
+  "Money for college",
+  "Remote student tools",
+] as const;
 
 export type OpportunityLifecyclePresentation = {
   state: OpportunityLifecycleState;

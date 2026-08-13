@@ -3,7 +3,8 @@ import "server-only";
 import { isCanonicalCatalogOpportunity } from "@/data/opportunity-catalog-canonical";
 import { filterOpportunities, type Opportunity, type OpportunityDifficulty, type OpportunityType } from "@/data/opportunities";
 import { resolveOpportunityLifecycle, type OpportunityLifecycleSnapshot } from "@/data/opportunity-lifecycle";
-import type { DiscoverCatalogPayload, DiscoverRecovery, DiscoverSortMode, OpportunityListing } from "@/data/opportunity-listing";
+import { discoverExplorationPaths, type DiscoverCatalogPayload, type DiscoverRecovery, type DiscoverSortMode, type OpportunityListing } from "@/data/opportunity-listing";
+import { projectOpportunityTrust } from "@/data/opportunity-trust";
 
 export type DiscoverCatalogQuery = {
   query: string;
@@ -46,6 +47,7 @@ type PreparedSearchTerm = {
 type PreparedSearchQuery = {
   normalized: string;
   terms: PreparedSearchTerm[];
+  exactAlias: boolean;
 };
 
 const quickFilters: { label: string; type?: OpportunityType; category?: string }[] = [
@@ -83,7 +85,24 @@ const synonymGroups = [
   ["remote", "virtual", "online"],
   ["competition", "challenge", "hackathon", "contest", "cash prize", "prize"],
   ["biology", "biological science", "life science", "pre-med"],
+  ["economics", "econ"],
+  ["finance", "financial services"],
+  ["investment banking", "ib"],
+  ["consulting", "strategy consulting", "management consulting"],
+  ["data science", "data analytics", "analytics", "statistics"],
+  ["medicine", "medical", "healthcare", "clinical", "pre-med"],
+  ["environment", "environmental", "climate", "sustainability"],
+  ["student benefit", "student discount", "perk"],
+  ["fellowship", "fellowships", "early insight program"],
 ] as const;
+
+const exactQueryAliases = new Map<string, string>([
+  ["money for college", "scholarship"],
+  ["college money", "scholarship"],
+  ["student discounts", "student benefit"],
+  ["summer lab", "summer research"],
+  ["reu", "research experience undergraduates"],
+]);
 
 function normalizeText(value: string) {
   return value.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/&/g, " and ").replace(/[^a-z0-9]+/g, " ").trim().replace(/\s+/g, " ");
@@ -173,6 +192,10 @@ function discoverIndex(source: readonly Opportunity[]) {
         filter.label,
         filter.label === "All" ? source.length : source.filter((item) => (!filter.type || item.type === filter.type) && (!filter.category || item.category === filter.category)).length,
       ])),
+      explorationCounts: Object.fromEntries(discoverExplorationPaths.map((path) => [
+        path.label,
+        source.filter((item) => (!path.type || item.type === path.type) && (!path.category || item.category === path.category)).length,
+      ])),
     },
   };
   indexBySource.set(source, index);
@@ -198,7 +221,7 @@ function qualityScore(item: Opportunity, lifecycle: OpportunityLifecycleSnapshot
   if (item.description.trim().length >= 80) score += 4;
   if (item.official_source.startsWith("https://")) score += 4;
   if (item.academic_years.includes("Any Year") || item.academic_years.includes("First year") || item.category === "Freshman Programs") score += 12;
-  if (item.application_deadline && item.application_deadline >= today) score += 8;
+  if (item.application_deadline && item.application_deadline >= today && projectOpportunityTrust(item).deadline.state === "verified") score += 8;
   if (item.last_verified >= recentVerificationCutoff) score += 6;
   if (item.estimated_value) score += Math.min(12, Math.log10(Math.max(item.estimated_value, 1)) * 2);
   if (item.verification_status === "needs_review") score -= 10;
@@ -238,9 +261,11 @@ function tokenScore(token: string, document: SearchDocument, allowPrefix = true)
 }
 
 function prepareSearchQuery(query: string, index: DiscoverIndex): PreparedSearchQuery {
-  const normalized = normalizeText(query);
+  const normalizedInput = normalizeText(query);
+  const normalized = exactQueryAliases.get(normalizedInput) ?? normalizedInput;
+  const exactAlias = normalized !== normalizedInput;
   const terms = tokenize(normalized).map((token) => {
-    const synonyms = [...(synonymTokens.get(token) ?? [])].filter((candidate) => candidate !== token);
+    const synonyms = exactAlias ? [] : [...(synonymTokens.get(token) ?? [])].filter((candidate) => candidate !== token);
     const known = index.vocabulary.includes(token) || index.vocabulary.some((candidate) => candidate.startsWith(token));
     const typos: string[] = [];
     if (!known && token.length >= 4) {
@@ -253,7 +278,7 @@ function prepareSearchQuery(query: string, index: DiscoverIndex): PreparedSearch
     }
     return { token, synonyms, typos };
   });
-  return { normalized, terms };
+  return { normalized, terms, exactAlias };
 }
 
 function searchScore(query: PreparedSearchQuery, document: SearchDocument) {
@@ -294,11 +319,29 @@ function sortOpportunities(items: Opportunity[], sort: DiscoverSortMode, index: 
   }
   if (sort === "Newest") return next.sort((a, b) => b.date_added.localeCompare(a.date_added) || a.title.localeCompare(b.title));
   if (sort === "Deadline") return next.sort((a, b) => {
-    const aDeadline = lifecycle.get(a.id)?.actionable ? a.application_deadline ?? "9999-12-30" : "9999-12-31";
-    const bDeadline = lifecycle.get(b.id)?.actionable ? b.application_deadline ?? "9999-12-30" : "9999-12-31";
+    const aDeadline = lifecycle.get(a.id)?.actionable && projectOpportunityTrust(a).deadline.state === "verified" ? a.application_deadline ?? "9999-12-30" : "9999-12-31";
+    const bDeadline = lifecycle.get(b.id)?.actionable && projectOpportunityTrust(b).deadline.state === "verified" ? b.application_deadline ?? "9999-12-30" : "9999-12-31";
     return aDeadline.localeCompare(bDeadline) || a.title.localeCompare(b.title);
   });
   return next.sort((a, b) => a.title.localeCompare(b.title));
+}
+
+function contextualTypeCounts(source: readonly Opportunity[], query: DiscoverCatalogQuery, preparedQuery: PreparedSearchQuery, index: DiscoverIndex, lifecycle: Map<string, OpportunityLifecycleSnapshot>) {
+  const baseQuery = { ...query, type: "All" as const, category: "All" };
+  const base = queryMatches(structuredMatches(source, baseQuery, lifecycle), preparedQuery, index);
+  return Object.fromEntries(quickFilters.map((filter) => [
+    filter.label,
+    filter.label === "All" ? base.length : base.filter((item) => (!filter.type || item.type === filter.type) && (!filter.category || item.category === filter.category)).length,
+  ]));
+}
+
+function contextualExplorationCounts(source: readonly Opportunity[], query: DiscoverCatalogQuery, preparedQuery: PreparedSearchQuery, index: DiscoverIndex, lifecycle: Map<string, OpportunityLifecycleSnapshot>) {
+  const baseQuery = { ...query, type: "All" as const, category: "All" };
+  const base = queryMatches(structuredMatches(source, baseQuery, lifecycle), preparedQuery, index);
+  return Object.fromEntries(discoverExplorationPaths.map((path) => [
+    path.label,
+    base.filter((item) => (!path.type || item.type === path.type) && (!path.category || item.category === path.category)).length,
+  ]));
 }
 
 function structuredMatches(source: readonly Opportunity[], query: DiscoverCatalogQuery, lifecycle: Map<string, OpportunityLifecycleSnapshot>) {
@@ -389,6 +432,10 @@ export function buildDiscoverCatalog(source: readonly Opportunity[], query: Disc
     total: sorted.length,
     limit: query.limit,
     recovery: sorted.length ? null : zeroResultRecovery(visibleSource, query, preparedQuery, index, lifecycle),
-    facets: index.facets,
+    facets: {
+      ...index.facets,
+      typeCounts: contextualTypeCounts(visibleSource, query, preparedQuery, index, lifecycle),
+      explorationCounts: contextualExplorationCounts(visibleSource, query, preparedQuery, index, lifecycle),
+    },
   };
 }

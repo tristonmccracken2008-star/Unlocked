@@ -10,7 +10,7 @@ const api = read("app/api/opportunities/route.ts");
 const catalog = read("lib/discover-catalog.ts");
 const pkg = read("package.json");
 
-for (const label of ["Discover opportunities", "Find what’s out there.", "Search results", "Opportunities", "Browse all opportunities"]) {
+for (const label of ["Discover opportunities", "Find what’s out there.", "Search results", "Opportunities", "Browse all opportunities", "Start exploring", "More filters"]) {
   assert.ok(filter.includes(label), `Discover must render ${label}.`);
 }
 assert.doesNotMatch(filter, /Recommended for you|Personalized by search/, "Discover must not present the generic directory as the personalized For You experience.");
@@ -52,9 +52,12 @@ assert.ok(filter.includes("recovery.resultCount"), "Discover must offer evidence
 assert.doesNotMatch(filter, /searchValue:\s*filters\.query|filterValue:\s*JSON\.stringify\(filters\)/, "Discover analytics must not record raw search or filter state.");
 assert.ok(api.includes("buildDiscoverCatalog"), "The opportunity API must provide the server-side Discover projection.");
 assert.ok(catalog.includes("sorted.slice(0, query.limit)"), "The Discover projection must enforce its visible result limit.");
-for (const token of ["prepareSearchQuery", "searchScore", "synonymGroups", "editDistanceWithin", "zeroResultRecovery", "isCanonicalCatalogOpportunity"]) {
+for (const token of ["prepareSearchQuery", "searchScore", "synonymGroups", "exactQueryAliases", "editDistanceWithin", "zeroResultRecovery", "contextualExplorationCounts", "isCanonicalCatalogOpportunity"]) {
   assert.ok(catalog.includes(token), `Discover search must preserve ${token}.`);
 }
+assert.ok(filter.includes("discoverExplorationPaths") && filter.includes("discoverSearchStarters"), "Blank Discover must offer grounded exploration paths and search starters.");
+assert.ok(filter.includes("do not use your profile") || filter.includes("does not use your profile"), "Discover must clearly distinguish catalog exploration from personalization.");
+assert.ok(catalog.includes('projectOpportunityTrust(a).deadline.state === "verified"'), "Deadline sorting must only use confirmed dates.");
 assert.ok(pkg.includes("check:discover"), "Package scripts must include the Discover regression check.");
 assert.doesNotMatch(filter, /Advanced filters|Best matches|divide-y divide-ink\/10/, "Discover must not use the old advanced-filter/list-row layout.");
 

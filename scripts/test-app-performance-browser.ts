@@ -231,6 +231,10 @@ async function verifyDiscover(page: Page, origin: string, screenshotLabel: strin
 
   const cardsBefore = await page.getByRole("link", { name: "Open Opportunity" }).count();
   assert.ok(cardsBefore > 0 && cardsBefore <= 16, `Discover should render a bounded first window; received ${cardsBefore}.`);
+  assert.ok(await page.getByRole("heading", { name: "Browse by what you’re looking for." }).count(), "Blank Discover must expose guided catalog exploration.");
+  for (const path of ["Scholarships", "Internships", "Research", "Fellowships", "AI tools", "Student benefits"]) {
+    assert.ok(await page.getByRole("button", { name: new RegExp(`^${path}`) }).count(), `Blank Discover must expose the ${path} exploration path.`);
+  }
 
   let releaseSearch!: () => void;
   const searchRelease = new Promise<void>((resolve) => { releaseSearch = resolve; });
@@ -370,6 +374,7 @@ async function verifyOpportunityDetails(page: Page, origin: string, screenshotLa
     const learnMore = page.locator("details[data-learn-more]");
     assert.equal(await learnMore.getAttribute("open"), null, `${scenario.kind} lower-priority detail must start collapsed.`);
     assert.equal(await page.getByText(/This matters because/, { exact: false }).count(), 0, `${scenario.kind} detail retained generated catalog prose.`);
+    assert.ok(await page.getByRole("heading", { name: "Similar opportunities", exact: true }).count(), `${scenario.kind} detail must continue into a deterministic exploration chain.`);
     if (screenshotLabel === "mobile" && scenario.kind === "scholarship") {
       const saveAction = page.getByRole("button", { name: "Save to Journey", exact: true });
       const mobileNavigation = page.getByRole("navigation", { name: "Mobile navigation", exact: true });

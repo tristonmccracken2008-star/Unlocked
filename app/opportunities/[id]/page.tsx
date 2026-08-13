@@ -19,6 +19,7 @@ import { OrganizationLogo } from "@/components/organization-logo";
 import { ReportOutdatedButton } from "@/components/report-outdated-button";
 import { LifecycleBadge } from "@/components/status-badge";
 import { getManagedOpportunity, listPublishedOpportunitiesByIds } from "@/lib/content-store";
+import { relatedDiscoverOpportunityIds } from "@/lib/discover-related";
 import { serializeJsonLd } from "@/lib/json-ld";
 import { requireCompletedOnboarding } from "@/lib/onboarding";
 import {
@@ -68,9 +69,10 @@ async function personalizedExplanation(item: Opportunity, session: Awaited<Retur
 }
 
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
-  const [{ id }, session] = await Promise.all([params, requireCompletedOnboarding()]);
-  const item = await getOpportunity(id);
+  const { id } = await params;
+  const [session, item] = await Promise.all([requireCompletedOnboarding(), getOpportunity(id)]);
   if (!item) notFound();
+  const related = await listPublishedOpportunitiesByIds(relatedDiscoverOpportunityIds(item, 3));
   const lifecycle = resolveOpportunityLifecycle(item);
   const lifecyclePresentation: OpportunityLifecyclePresentation = {
     state: lifecycle.state,
@@ -211,6 +213,19 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
               <div><h3 className="text-sm font-bold text-ink/80">{opportunityChangeLabel(change)}</h3><p className="mt-1 text-sm leading-6 text-ink/60">{opportunityChangeSummary(change)}</p></div>
             </li>)}
           </ol>
+        </section> : null}
+
+        {related.length ? <section aria-labelledby="related-opportunities" className="mt-12 border-t border-ink/15 pt-8">
+          <p className="rule-label text-forest">Keep exploring</p>
+          <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between"><div><h2 id="related-opportunities" className="font-editorial text-2xl font-bold">Similar opportunities</h2><p className="mt-2 text-sm leading-6 text-ink/50">Related by category, subject, or career path. This list does not use your profile.</p></div><Link href={`/opportunities?type=${encodeURIComponent(item.type)}&category=${encodeURIComponent(item.category)}`} className="inline-flex min-h-11 items-center gap-2 text-sm font-bold text-forest hover:text-ink">Browse this category <ArrowIcon /></Link></div>
+          <div className="mt-6 divide-y divide-ink/10 border-y border-ink/10">{related.map((candidate) => {
+            const candidateTrust = projectOpportunityTrust(candidate);
+            return <Link key={candidate.id} href={`/opportunities/${candidate.id}`} className="group grid min-h-20 gap-3 py-4 sm:grid-cols-[2.75rem_minmax(0,1fr)_auto] sm:items-center sm:gap-4">
+              <OrganizationLogo opportunity={candidate} size="sm" />
+              <span className="min-w-0"><span className="block font-editorial text-lg font-bold group-hover:text-forest">{candidate.title}</span><span className="mt-1 block text-xs text-ink/45">{candidate.organization} · {candidate.type === "Career" ? candidate.category : candidate.type}</span></span>
+              <span className="text-xs font-bold text-ink/45 sm:text-right">{candidateTrust.deadline.displayValue}</span>
+            </Link>;
+          })}</div>
         </section> : null}
 
         <section aria-labelledby="source-verification" className="mt-12 border-t border-ink/15 pt-8">

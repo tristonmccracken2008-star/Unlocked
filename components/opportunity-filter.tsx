@@ -4,6 +4,8 @@ import type { ReactNode } from "react";
 import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import type { Opportunity, OpportunityDifficulty, OpportunityType } from "@/data/opportunities";
 import {
+  discoverExplorationPaths,
+  discoverSearchStarters,
   listingOpportunityTypes,
   type DiscoverCatalogPayload,
   type DiscoverRecovery,
@@ -194,6 +196,7 @@ export function OpportunityFilter({ opportunities: initialOpportunities = [] }: 
   const [categories, setCategories] = useState(["All", ...new Set(initialOpportunities.map((item) => item.category).sort())]);
   const [majors, setMajors] = useState(["All", ...new Set(initialOpportunities.flatMap((item) => item.majors).filter((item) => item !== "Any Major").sort())]);
   const [typeCounts, setTypeCounts] = useState<Record<string, number>>({});
+  const [explorationCounts, setExplorationCounts] = useState<Record<string, number>>({});
   const [recovery, setRecovery] = useState<DiscoverRecovery | null>(null);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const [reloadToken, setReloadToken] = useState(0);
@@ -267,6 +270,7 @@ export function OpportunityFilter({ opportunities: initialOpportunities = [] }: 
         setCategories(["All", ...body.facets.categories]);
         setMajors(["All", ...body.facets.majors]);
         setTypeCounts(body.facets.typeCounts);
+        setExplorationCounts(body.facets.explorationCounts);
         setRecovery(body.recovery);
         loadedRef.current = true;
         setLoaded(true);
@@ -416,6 +420,14 @@ export function OpportunityFilter({ opportunities: initialOpportunities = [] }: 
     trackProductEvent("filter_applied", { filterName: "type" });
   }
 
+  function applyExplorationPath(path: (typeof discoverExplorationPaths)[number]) {
+    setVisibleCount(resultPageSize);
+    setFilters((current) => ({ ...current, query: "", type: path.type ?? "All", category: path.category ?? "All", sort: "Relevant" }));
+    trackProductEvent("filter_applied", { filterName: "exploration_path" });
+  }
+
+  const isBlankExploration = !filters.query.trim() && activeFilters.length === 0;
+
   const hasRestrictiveFilters = activeFilters.some((filter) => filter.key !== "query");
 
   return <>
@@ -440,6 +452,8 @@ export function OpportunityFilter({ opportunities: initialOpportunities = [] }: 
       </div>
     </section>
 
+    {isBlankExploration ? <StartExploring explorationCounts={explorationCounts} choosePath={applyExplorationPath} chooseSearch={(query) => { update({ query }); searchInput.current?.focus(); }} /> : null}
+
     {activeFilters.length ? <div className="mt-4 flex max-w-5xl flex-wrap items-center gap-2" aria-label="Active filters">
       {activeFilters.map((filter) => <button key={filter.key} type="button" onClick={() => update(clearValue(filter.key), filter.key)} className="inline-flex min-h-11 max-w-full items-center gap-2 rounded-full border border-forest/20 bg-white/80 px-3 text-xs font-bold text-ink/60 shadow-[0_4px_14px_rgba(43,33,26,.025)] hover:border-forest/45 hover:text-forest" aria-label={`Remove ${filter.label} filter`}><span className="max-w-[16rem] truncate">{filter.label}</span><CloseIcon className="h-3.5 w-3.5 shrink-0" aria-hidden="true" /></button>)}
       <button type="button" onClick={clearFilters} className="min-h-11 px-2 text-xs font-bold text-forest hover:text-ink">Clear all</button>
@@ -453,9 +467,9 @@ export function OpportunityFilter({ opportunities: initialOpportunities = [] }: 
       <main aria-busy={refreshing} data-filter-results="" data-refreshing={refreshing ? "true" : undefined}>
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="rule-label text-forest">Search results</p>
+            <p className="rule-label text-forest">{filters.query.trim() ? "Search results" : activeFilters.length ? "Filtered catalog" : "Browse all opportunities"}</p>
             <h2 className="mt-2 font-editorial text-3xl font-bold" role="status" aria-live="polite" aria-atomic="true">{loaded ? `${totalMatches.toLocaleString()} ${totalMatches === 1 ? "opportunity" : "opportunities"}` : "Opportunities"}<span className="sr-only">{refreshing ? ", updating" : ", ready"}</span></h2>
-            <p className="mt-1 text-sm text-ink/50">{filters.query.trim() ? "Best title, organization, and subject matches appear first." : "The full catalog, ordered by quality and current availability."}</p>
+            <p className="mt-1 text-sm text-ink/50">{filters.query.trim() ? "Best title, organization, and subject matches appear first." : "Explore the catalog without personalized ranking or hidden profile filters."}</p>
           </div>
           <div className="flex items-center gap-3">
             <button ref={filterTrigger} type="button" onClick={() => setMobileFiltersOpen(true)} className="inline-flex min-h-11 items-center justify-center rounded-full border border-ink/15 bg-white px-4 text-sm font-bold text-ink/60 shadow-[0_8px_22px_rgba(43,33,26,.04)] lg:hidden">Filters{activeFilters.length ? ` · ${activeFilters.length}` : ""}</button>
@@ -474,7 +488,7 @@ export function OpportunityFilter({ opportunities: initialOpportunities = [] }: 
         {catalogError && opportunities.length ? <div className="mt-1 flex items-center justify-between gap-4 rounded-xl bg-white/70 px-4 py-3 text-sm text-ink/55" role="alert"><span>{catalogError}</span><button type="button" onClick={() => setReloadToken((value) => value + 1)} className="min-h-11 font-bold text-forest">Retry</button></div> : null}
         {!loaded ? <ResultSkeleton /> : catalogError && !opportunities.length ? <CatalogUnavailable retry={() => setReloadToken((value) => value + 1)} /> : opportunities.length ? <>
           {totalMatches > 0 && totalMatches <= 4 && hasRestrictiveFilters ? <LowResultRecovery total={totalMatches} broadenFilters={broadenFilters} hasQuery={Boolean(filters.query.trim())} /> : null}
-          <div ref={resultGrid} className="mt-2 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          <div ref={resultGrid} className="mt-2 grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
             {opportunities.map((item) => <OpportunityCard key={item.id} opportunity={item} source="discover" />)}
           </div>
           {totalMatches > opportunities.length ? <div className="py-7 text-center"><button type="button" onClick={() => setVisibleCount((count) => Math.min(count + resultPageSize, totalMatches))} disabled={refreshing} aria-busy={refreshing ? "true" : undefined} data-action-state={refreshing ? "loading" : "idle"} className="min-h-12 rounded-full border border-ink/15 bg-white px-6 text-sm font-bold text-forest shadow-[0_8px_22px_rgba(43,33,26,.04)] hover:border-forest disabled:cursor-wait disabled:opacity-60"><DelayedPendingLabel pending={refreshing} idle={<>Show more ({(totalMatches - opportunities.length).toLocaleString()} remaining) <ArrowIcon className="inline h-3.5 w-3.5" /></>} pendingLabel="Updating results…" /></button></div> : null}
@@ -499,18 +513,34 @@ function FilterPanel({ filters, update, clearFilters, activeFilterCount, categor
         <Select label="Type" value={filters.type} setValue={(value) => update({ type: value as OpportunityType | "All" }, "type")} options={["All", ...listingOpportunityTypes]} />
         <Select label="Category" value={filters.category} setValue={(value) => update({ category: value }, "category")} options={categories} />
       </FilterGroup>
-      <FilterGroup title="Eligibility">
-        <SchoolFilter value={filters.school} setValue={(value) => update({ school: value }, "school")} />
-        <Select label="Major" value={filters.major} setValue={(value) => update({ major: value }, "major")} options={majors} />
-        <label data-discover-filter-row="" data-active={filters.freshmanFriendly ? "true" : "false"} className="flex min-h-11 items-center gap-3 rounded-xl border border-transparent bg-paper/70 px-3 text-sm font-bold text-ink/60"><input type="checkbox" checked={filters.freshmanFriendly} onChange={(event) => update({ freshmanFriendly: event.target.checked }, "freshmanFriendly")} className="h-5 w-5 rounded accent-forest" /> Freshman-friendly</label>
-      </FilterGroup>
-      <FilterGroup title="Details">
+      <FilterGroup title="Availability">
         <Select label="Deadline" value={filters.deadline} setValue={(value) => update({ deadline: value }, "deadline")} options={deadlineOptions} />
-        <Select label="Value" value={filters.paid} setValue={(value) => update({ paid: value }, "paid")} options={["All", "Paid", "Unpaid"]} />
-        <Select label="Format" value={filters.remote} setValue={(value) => update({ remote: value }, "remote")} options={["All", "Remote", "In Person"]} />
-        <Select label="Difficulty" value={filters.difficulty} setValue={(value) => update({ difficulty: value as FilterState["difficulty"] }, "difficulty")} options={["All", "Open", "Competitive", "Highly Competitive"]} />
       </FilterGroup>
+      <details className="group border-t border-ink/10 pt-2">
+        <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between text-sm font-black text-ink"><span>More filters</span><span aria-hidden="true" className="text-ink/35 transition group-open:rotate-180">⌄</span></summary>
+        <p className="mb-3 text-xs leading-5 text-ink/45">Use these when the listing provides enough detail.</p>
+        <div className="space-y-5">
+          <FilterGroup title="Eligibility">
+            <SchoolFilter value={filters.school} setValue={(value) => update({ school: value }, "school")} />
+            <Select label="Major" value={filters.major} setValue={(value) => update({ major: value }, "major")} options={majors} />
+            <label data-discover-filter-row="" data-active={filters.freshmanFriendly ? "true" : "false"} className="flex min-h-11 items-center gap-3 rounded-xl border border-transparent bg-paper/70 px-3 text-sm font-bold text-ink/60"><input type="checkbox" checked={filters.freshmanFriendly} onChange={(event) => update({ freshmanFriendly: event.target.checked }, "freshmanFriendly")} className="h-5 w-5 rounded accent-forest" /> Freshman-friendly</label>
+          </FilterGroup>
+          <FilterGroup title="Details">
+            <Select label="Value" value={filters.paid} setValue={(value) => update({ paid: value }, "paid")} options={["All", "Paid", "Unpaid"]} />
+            <Select label="Format" value={filters.remote} setValue={(value) => update({ remote: value }, "remote")} options={["All", "Remote", "In Person"]} />
+            <Select label="Difficulty" value={filters.difficulty} setValue={(value) => update({ difficulty: value as FilterState["difficulty"] }, "difficulty")} options={["All", "Open", "Competitive", "Highly Competitive"]} />
+          </FilterGroup>
+        </div>
+      </details>
     </div>
+  </section>;
+}
+
+function StartExploring({ explorationCounts, choosePath, chooseSearch }: { explorationCounts: Record<string, number>; choosePath: (path: (typeof discoverExplorationPaths)[number]) => void; chooseSearch: (query: string) => void }) {
+  return <section className="mt-9 max-w-5xl border-y border-ink/10 py-6" aria-labelledby="start-exploring-title">
+    <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between"><div><p className="rule-label text-forest">Start exploring</p><h2 id="start-exploring-title" className="mt-2 font-editorial text-2xl font-bold">Browse by what you’re looking for.</h2></div><p className="max-w-md text-sm leading-6 text-ink/50">These paths organize the complete catalog. They do not use your profile or activity.</p></div>
+    <div className="mt-5 grid gap-x-8 sm:grid-cols-2 lg:grid-cols-3">{discoverExplorationPaths.map((path) => <button key={path.label} type="button" onClick={() => choosePath(path)} className="group flex min-h-20 items-center justify-between gap-4 border-b border-ink/10 py-3 text-left focus:outline-none focus:ring-2 focus:ring-forest/25"><span><span className="block text-sm font-bold text-ink group-hover:text-forest">{path.label}</span><span className="mt-1 block text-xs leading-5 text-ink/45">{path.description}</span></span><span className="shrink-0 font-mono text-xs text-ink/35">{(explorationCounts[path.label] ?? 0).toLocaleString()}</span></button>)}</div>
+    <div className="mt-5 flex flex-wrap items-center gap-2"><span className="mr-1 text-xs font-bold text-ink/40">Try a search</span>{discoverSearchStarters.map((query) => <button key={query} type="button" onClick={() => chooseSearch(query)} className="min-h-11 rounded-full border border-ink/10 bg-white px-3 text-xs font-bold text-ink/55 hover:border-forest/30 hover:text-forest">{query}</button>)}</div>
   </section>;
 }
 
@@ -522,7 +552,7 @@ function FilterGroup({ title, children }: { title: string; children: ReactNode }
 }
 
 function ResultSkeleton() {
-  return <LoadingRegion label="Loading opportunities" className="mt-2 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">{Array.from({ length: 6 }, (_, index) => <div key={index} className="h-[25rem] rounded-[1.25rem] bg-white/70 p-5 shadow-[0_14px_40px_rgba(43,33,26,.04)] ring-1 ring-ink/10"><SkeletonBlock className="h-3 w-24 rounded-full" /><SkeletonBlock className="mt-5 h-8 rounded-md" /><SkeletonBlock className="mt-3 h-4 w-2/3 rounded-full" /><SkeletonBlock className="mt-6 h-16 rounded-lg" /><SkeletonBlock className="mt-8 h-11 rounded-xl" /></div>)}</LoadingRegion>;
+  return <LoadingRegion label="Loading opportunities" className="mt-2 grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">{Array.from({ length: 8 }, (_, index) => <div key={index} className="h-[23rem] rounded-[1.25rem] bg-white/70 p-5 shadow-[0_14px_40px_rgba(43,33,26,.04)] ring-1 ring-ink/10"><SkeletonBlock className="h-3 w-24 rounded-full" /><SkeletonBlock className="mt-5 h-8 rounded-md" /><SkeletonBlock className="mt-3 h-4 w-2/3 rounded-full" /><SkeletonBlock className="mt-6 h-16 rounded-lg" /><SkeletonBlock className="mt-8 h-11 rounded-xl" /></div>)}</LoadingRegion>;
 }
 
 function EmptyResults({ recovery, removeRecovery, clearQuery, clearFilters, hasQuery, hasFilters }: { recovery: DiscoverRecovery | null; removeRecovery: () => void; clearQuery: () => void; clearFilters: () => void; hasQuery: boolean; hasFilters: boolean }) {
