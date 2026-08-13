@@ -41,7 +41,7 @@ const opportunity = {
   icon: null,
   featured: false,
   hidden_gem: false,
-  metadata: { deadlineType: "fixed", applicationRequirements: ["Application", "Résumé", "Transcript"] },
+  metadata: { deadlineType: "fixed", applicationRequirements: ["Application", "Résumé", "Transcript"], verification: { status: "verified", officialSourceUrl: "https://example.edu/apply", applicationUrlVerified: true, deadlineVerified: true, eligibilityVerified: true, sourceReachable: true } },
 } satisfies Opportunity;
 const record = { id: opportunity.id, status: "Saved" as const, savedAt: now.toISOString(), updatedAt: now.toISOString(), version: 0, history: [] };
 const account = (deadlineReminders = true): AccountData => ({
@@ -83,7 +83,7 @@ const workspaceUi = readFileSync("components/application-workspace.tsx", "utf8")
 const journeyUi = readFileSync("components/journey-command-center.tsx", "utf8");
 const saveUi = readFileSync("components/opportunity-activity.tsx", "utf8");
 for (const token of ["More options", "Linked opportunity", "journeyCalendarAddEvent", "viewStorageKey", "Verified official dates appear automatically"]) assert.ok(calendarUi.includes(token), `Calendar smart setup must retain ${token}.`);
-assert.match(workspaceUi, /Verified requirements were added automatically/);
+assert.match(workspaceUi, /Official requirements are separated from your private tasks/);
 assert.match(workspaceUi, /Add personal date/);
 assert.match(journeyUi, /Add interview date/);
 assert.match(saveUi, /Official deadline added/);

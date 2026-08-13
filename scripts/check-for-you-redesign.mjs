@@ -39,7 +39,7 @@ assert.ok(advisor.includes("recommendationSignals") && advisor.includes("stronge
 assert.ok(advisor.includes("RecommendationIntelligence") && advisor.includes("similarOpportunities"), "For You must use progressive disclosure for factual reasoning and related paths.");
 assert.ok(advisor.includes("scoreFor") && advisor.includes("opportunityScore"), "For You must derive bounded qualitative match language from the internal Opportunity Score.");
 assert.ok(!advisor.includes("<strong>{score.value}</strong>") && !advisor.includes("Opportunity Score:"), "For You must not present internal scores as false precision.");
-assert.ok(advisor.includes('opportunity?.verification_status === "verified"'), "For You must surface verified-source trust signals from opportunity data.");
+assert.ok(advisor.includes('projectOpportunityTrust(opportunity).source.state === "official_source"'), "For You must surface field-level official-source trust signals rather than broad record status.");
 assert.ok(advisor.includes("Estimated value") && !advisor.includes("Est. effort"), "For You must label recommendation value truthfully.");
 assert.ok(advisor.includes("<ol") && advisor.includes("RecommendationCard"), "Secondary recommendations must use a calm ordered shortlist.");
 assert.ok(advisorStyles.includes("border-radius: 8px") && advisorStyles.includes("content-visibility: auto"), "For You styling must keep restrained geometry and defer below-fold rendering.");

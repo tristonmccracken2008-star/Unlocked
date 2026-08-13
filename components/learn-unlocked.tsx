@@ -3,11 +3,12 @@
 import Link from "next/link";
 import { useEffect } from "react";
 import { trackProductEvent } from "@/data/product-analytics";
-import { ArrowIcon, BellIcon, BookmarkIcon, CalendarIcon, PenLineIcon, SearchIcon, SparkIcon, TargetIcon } from "./icons";
+import { ArrowIcon, BellIcon, BookmarkIcon, CalendarIcon, CheckIcon, PenLineIcon, SearchIcon, SparkIcon, TargetIcon } from "./icons";
 
 const sections = [
   { id: "getting-started", title: "Getting started", copy: "Build your private profile once. UnlockED uses it to check eligibility and keep the rest of the product relevant.", href: "/profile", action: "Review profile", icon: PenLineIcon },
   { id: "discover", title: "Discover", copy: "Search the complete catalog, use filters to narrow it, and open the official source before applying.", href: "/opportunities", action: "Open Discover", icon: SearchIcon },
+  { id: "trust", title: "How verification works", copy: "UnlockED labels verified deadlines and requirements field by field. A recommendation can fit your profile without guaranteeing eligibility.", href: "/opportunities", action: "Review opportunities", icon: CheckIcon },
   { id: "for-you", title: "For You", copy: "A smaller set prioritized from your profile, interests, and Journey activity. Match labels show the strongest factual reasons.", href: "/advisor", action: "Open For You", icon: SparkIcon },
   { id: "journey", title: "Journey", copy: "Keep opportunities, progress, important dates, and confirmed outcomes in one private record.", href: "/?guide=journey", action: "Replay Journey guide", icon: BookmarkIcon },
   { id: "applications", title: "Applications", copy: "Verified requirements and your private tasks stay attached to the opportunity you are pursuing.", href: "/?guide=journey_application_workspace#active-opportunities", action: "Learn about applications", icon: TargetIcon },

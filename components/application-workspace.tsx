@@ -42,7 +42,7 @@ function optimisticCompletion(workspace: ApplicationWorkspaceProjection, taskId:
     completedCount,
     unfinishedCount: tasks.length - completedCount,
     progressPercent: tasks.length ? Math.round((completedCount / tasks.length) * 100) : 0,
-    readyForSubmission: !workspace.submitted && tasks.length > 0 && completedCount === tasks.length,
+    readyForSubmission: !workspace.submitted && workspace.requirementsVerified && tasks.length > 0 && completedCount === tasks.length,
   };
 }
 
@@ -65,7 +65,10 @@ export function ApplicationWorkspace({ initial, opportunityTitle, submission }: 
   const [retry, setRetry] = useState<(() => void) | null>(null);
   const [title, setTitle] = useState("");
   const [dueDate, setDueDate] = useState("");
-  const orderedTasks = useMemo(() => [...workspace.tasks].sort((left, right) => Number(left.completed) - Number(right.completed)), [workspace.tasks]);
+  const orderedTasks = useMemo(() => [...workspace.tasks].sort((left, right) => {
+    if (left.source !== right.source) return left.source === "verified_requirement" ? -1 : 1;
+    return Number(left.completed) - Number(right.completed);
+  }), [workspace.tasks]);
 
   useEffect(() => setWorkspace(initial), [initial]);
   useEffect(() => {
@@ -218,13 +221,13 @@ export function ApplicationWorkspace({ initial, opportunityTitle, submission }: 
 
   if (workspace.submitted) return <section ref={workspaceRef} className={styles.workspace} aria-labelledby={`application-${workspace.opportunityId}`} data-application-workspace="submitted">
     <div className={styles.submitted}><span aria-hidden="true"><CheckIcon /></span><div><h4 id={`application-${workspace.opportunityId}`}>Application submitted</h4><p>{workspace.submittedAt ? `Submitted ${formatDate(workspace.submittedAt)}. ` : ""}Keep Journey updated when you hear back.</p></div></div>
-    <a className={styles.official} href={workspace.officialSource} target="_blank" rel="noreferrer">Open official application <ArrowIcon /><span className="sr-only">(opens in a new tab)</span></a>
+    <a className={styles.official} href={workspace.officialSource} target="_blank" rel="noreferrer">{workspace.sourceVerified ? "Open official application" : "Open provider source"} <ArrowIcon /><span className="sr-only">(opens in a new tab)</span></a>
   </section>;
 
   return <section ref={workspaceRef} className={styles.workspace} aria-labelledby={`application-${workspace.opportunityId}`} data-application-workspace="active">
     <header className={styles.summary}>
       <div><p>Application</p><h4 id={`application-${workspace.opportunityId}`}>Prepare your application</h4></div>
-      {workspace.deadline ? <div><span>Deadline</span><strong>{formatDate(workspace.deadline)}</strong></div> : null}
+      {workspace.deadline ? <div><span>Official deadline</span><strong>{formatDate(workspace.deadline)}</strong></div> : null}
     </header>
 
     {workspace.totalCount ? <div className={styles.progress} aria-label={`${workspace.completedCount} of ${workspace.totalCount} application tasks complete`}>
@@ -236,12 +239,12 @@ export function ApplicationWorkspace({ initial, opportunityTitle, submission }: 
     </div> : null}
 
     <div className={styles.smartSetup}>
-      <span>{workspace.requirementsVerified ? "Verified requirements were added automatically." : "Add only the private steps you need."}{workspace.deadline ? " The official deadline is already in Upcoming." : ""}</span>
+      <span>{workspace.requirementsVerified ? "Official requirements are separated from your private tasks." : "Requirements haven’t been verified. Add only the private steps you need."}{workspace.deadline ? " The verified official deadline is already in Upcoming." : ""}</span>
       <ContextualCalendarAction className={styles.dateAction} label="Add personal date" context={{ opportunityId: workspace.opportunityId, opportunityTitle, type: "personal_target", title: "Target submission", officialDeadline: workspace.deadline }} />
     </div>
 
     {workspace.recentProviderUpdate ? <p className={styles.providerUpdate} role="status"><strong>{workspace.recentProviderUpdate.label}</strong> {workspace.recentProviderUpdate.summary}</p> : null}
-    {workspace.tasks.length ? <section className={styles.taskSection} aria-labelledby={`application-tasks-${workspace.opportunityId}`}><header><h5 id={`application-tasks-${workspace.opportunityId}`}>{workspace.unfinishedCount ? "What’s left" : "Application tasks"}</h5><span>{workspace.unfinishedCount ? `${workspace.unfinishedCount} remaining` : "All complete"}</span></header><ul className={styles.tasks}>{orderedTasks.map((task) => <li key={task.id} data-completed={task.completed ? "true" : undefined} data-pending={pending === task.id ? "true" : undefined}>
+    {workspace.tasks.length ? <section className={styles.taskSection} aria-labelledby={`application-tasks-${workspace.opportunityId}`}><header><h5 id={`application-tasks-${workspace.opportunityId}`}>Application requirements and your tasks</h5><span>{workspace.unfinishedCount ? `${workspace.unfinishedCount} remaining` : "All complete"}</span></header><ul className={styles.tasks}>{orderedTasks.map((task, index) => <li key={task.id} data-task-source={task.source} data-source-start={index === 0 || orderedTasks[index - 1]?.source !== task.source ? "true" : undefined} data-completed={task.completed ? "true" : undefined} data-pending={pending === task.id ? "true" : undefined}>
       <button type="button" className={styles.check} aria-pressed={task.completed} aria-busy={pending === task.id ? "true" : undefined} aria-label={`${task.completed ? "Mark incomplete" : "Mark complete"}: ${task.title}`} disabled={Boolean(pending)} onClick={() => {
         const completed = !task.completed;
         void mutate({ action: "set_completion", taskId: task.id, completed }, task.id, {
@@ -257,7 +260,7 @@ export function ApplicationWorkspace({ initial, opportunityTitle, submission }: 
           undo: () => restoreTask(task.id, next.workspaceVersion),
         }),
       })}>Remove<span className="sr-only"> {task.title}</span></button> : null}
-    </li>)}</ul></section> : <SmartEmptyState compact className={styles.smartEmpty} title="No application tasks yet." description="UnlockED hasn’t verified the application materials for this opportunity. Review the official requirements, then add only the tasks you need." primaryAction={{ label: "Open official application", href: workspace.officialSource, external: true }} />}
+    </li>)}</ul></section> : <SmartEmptyState compact className={styles.smartEmpty} title="No application tasks yet." description="UnlockED hasn’t verified the application materials for this opportunity. Review the provider’s requirements, then add only the tasks you need." primaryAction={{ label: workspace.sourceVerified ? "Open official application" : "Open provider source", href: workspace.officialSource, external: true }} />}
 
     <details ref={addTaskRef} className={styles.addTask} onToggle={(event) => { if (event.currentTarget.open) window.requestAnimationFrame(() => taskTitleRef.current?.focus()); }}>
       <summary>+ Add task</summary>
@@ -273,7 +276,7 @@ export function ApplicationWorkspace({ initial, opportunityTitle, submission }: 
     {message ? <ActionFeedback message={message} state="success" level="routine" /> : null}
     {error ? <ActionFeedback message={error} state="error" level="confirmatory" action={retry ? { label: "Try again", onClick: retry, pending: Boolean(pending) } : undefined} /> : null}
     <p className="sr-only" aria-live="polite" aria-atomic="true">{announcement}</p>
-    <a className={styles.official} href={workspace.officialSource} target="_blank" rel="noreferrer">Open official application <ArrowIcon /><span className="sr-only">(opens in a new tab)</span></a>
+    <a className={styles.official} href={workspace.officialSource} target="_blank" rel="noreferrer">{workspace.sourceVerified ? "Open official application" : "Open provider source"} <ArrowIcon /><span className="sr-only">(opens in a new tab)</span></a>
     <p className="sr-only">Application workspace for {opportunityTitle}.</p>
   </section>;
 }

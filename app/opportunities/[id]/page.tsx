@@ -11,13 +11,13 @@ import { inferApplicationsFromActivity, normalizeStudentProgress } from "@/data/
 import { resolveOpportunityLifecycle } from "@/data/opportunity-lifecycle";
 import { opportunityChangeLabel, opportunityChangeSummary, recentOpportunityChanges } from "@/data/opportunity-changelog";
 import { type Opportunity } from "@/data/opportunities";
+import { projectOpportunityTrust, type OpportunityFieldTrust } from "@/data/opportunity-trust";
 import { schools } from "@/data/seed";
-import { maintenanceStatus } from "@/data/opportunity-maintenance";
 import { ArrowIcon } from "@/components/icons";
 import { OpportunityActivityActions, OpportunityViewTracker } from "@/components/opportunity-activity";
 import { OrganizationLogo } from "@/components/organization-logo";
 import { ReportOutdatedButton } from "@/components/report-outdated-button";
-import { ConfidenceBadge, LifecycleBadge, StatusBadge } from "@/components/status-badge";
+import { LifecycleBadge } from "@/components/status-badge";
 import { getManagedOpportunity, listPublishedOpportunitiesByIds } from "@/lib/content-store";
 import { serializeJsonLd } from "@/lib/json-ld";
 import { requireCompletedOnboarding } from "@/lib/onboarding";
@@ -29,7 +29,6 @@ import {
   opportunityEligibilityCriteria,
   opportunityOfficialActionLabel,
   primaryOpportunityFacts,
-  specificRequirements,
   type OpportunityDetailFact,
 } from "@/lib/opportunity-detail";
 
@@ -84,9 +83,9 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
     actionLabel: lifecycle.actionLabel,
     actionAllowed: lifecycle.actionAllowed,
   };
-  const displayedStatus = maintenanceStatus(item);
+  const trust = projectOpportunityTrust(item);
   const schoolNames = item.schools.map((slug) => schools.find((school) => school.slug === slug)?.name ?? slug);
-  const requirements = specificRequirements(item);
+  const requirements = trust.verifiedRequirements;
   const advisorExplanation = await personalizedExplanation(item, session);
   const detailKind = opportunityDetailKind(item);
   const conciseDetail = detailKind === "benefit";
@@ -97,7 +96,10 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   const eligibilityNotes = [...new Set(item.metadata.eligibilityNotes ?? [])].filter((note) => note !== item.eligibility);
   const secondaryEligibilityFacts = detailedEligibilityFacts(item, schoolNames);
   const timingFacts = lifecycleFacts(item, lifecycle);
-  const officialActionLabel = opportunityOfficialActionLabel(item, lifecycle.actionable);
+  const sourceIsOfficial = trust.source.state === "official_source";
+  const officialActionLabel = sourceIsOfficial
+    ? opportunityOfficialActionLabel(item, lifecycle.actionable && item.metadata.verification?.applicationUrlVerified === true)
+    : "View provider source";
   const recentChanges = recentOpportunityChanges(item, 4);
   const hasAdditionalDetails = secondaryEligibilityFacts.length > 0 || eligibilityNotes.length > 0 || timingFacts.length > 0 || Boolean(advisorExplanation);
   const jsonLd = {
@@ -137,7 +139,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
           </div>
 
           <aside aria-label="Official opportunity actions" className="rounded-lg border border-ink/10 bg-paper p-5 shadow-soft lg:sticky lg:top-24">
-            <p className="rule-label text-forest">Official source</p>
+            <p className="rule-label text-forest">{trust.source.state === "official_source" ? "Official source" : "Provider source"}</p>
             <OpportunityActivityActions opportunityId={item.id} type={item.type} officialSource={item.official_source} lifecycle={lifecyclePresentation} officialActionLabel={officialActionLabel} />
             <p className="mt-4 text-xs leading-5 text-ink/50">Opens the provider’s official page in a new tab. Final terms are set there.</p>
           </aside>
@@ -146,7 +148,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
         <section aria-labelledby="quick-facts" className="mt-12 border-y border-ink/10 py-6">
           <h2 id="quick-facts" className="sr-only">Key opportunity facts</h2>
           <dl className={`grid gap-x-8 gap-y-6 sm:grid-cols-2 ${facts.length > 4 ? "lg:grid-cols-5" : facts.length > 3 ? "lg:grid-cols-4" : "lg:grid-cols-3"}`}>
-            {facts.map((fact) => <Fact key={fact.label} fact={fact} />)}
+            {facts.map((fact) => <Fact key={fact.label} fact={fact} trust={fact.label === "Deadline" ? trust.deadline : undefined} />)}
           </dl>
         </section>
 
@@ -154,8 +156,8 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
           <div><p className="rule-label text-forest">Eligibility</p><h2 id="eligibility-summary" className="mt-2 font-editorial text-2xl font-bold">Who qualifies</h2></div>
           <div>
             <p className="max-w-3xl leading-7 text-ink/70">{item.eligibility}</p>
-            {eligibilityCriteria.length ? <ul className="mt-5 grid gap-x-8 gap-y-3 sm:grid-cols-2">{eligibilityCriteria.map((criterion) => <EligibilityCriterion key={`${criterion.label}-${criterion.value}`} criterion={criterion} />)}</ul> : null}
-            {item.verification_status !== "verified" ? <p className="mt-5 max-w-3xl text-xs leading-5 text-ink/50">Some eligibility details still require confirmation. Review the official source before applying.</p> : null}
+            {eligibilityCriteria.length ? <ul className="mt-5 grid gap-x-8 gap-y-3 sm:grid-cols-2">{eligibilityCriteria.map((criterion) => <EligibilityCriterion key={`${criterion.label}-${criterion.value}`} criterion={criterion} verified={trust.eligibility.state === "verified"} />)}</ul> : null}
+            <TrustCue trust={trust.eligibility} />
           </div>
         </section>
       </div>
@@ -176,7 +178,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
             <p className="mt-4 text-sm leading-6 text-ink/55">Review the provider’s current instructions before preparing an application.</p>
           </div>
           <div>
-            {requirements.length ? <div className="mb-8 border-b border-ink/10 pb-8"><h3 className="text-sm font-bold">Requirements listed by the provider</h3><ul className="mt-4 space-y-3">{requirements.map((requirement) => <li key={requirement} className="flex gap-3 text-sm leading-6 text-ink/65"><span aria-hidden="true" className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-forest" />{requirement}</li>)}</ul></div> : null}
+            {requirements.length ? <div className="mb-8 border-b border-ink/10 pb-8"><h3 className="text-sm font-bold">Official application requirements</h3><TrustCue trust={trust.requirements} compact /><ul className="mt-4 space-y-3">{requirements.map((requirement) => <li key={requirement} className="flex gap-3 text-sm leading-6 text-ink/65"><span aria-hidden="true" className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-forest" />{requirement}</li>)}</ul></div> : <div className="mb-8 border-b border-ink/10 pb-8"><h3 className="text-sm font-bold">Requirements haven’t been verified yet</h3><p className="mt-2 max-w-2xl text-sm leading-6 text-ink/55">Review the official application before preparing materials. UnlockED will not turn an unconfirmed list into an official checklist.</p></div>}
             <ol className="space-y-5">{steps.map((step, index) => <li key={`${index}-${step}`} className="grid grid-cols-[2rem_1fr] gap-4"><span className="font-mono text-xs font-bold text-forest">{String(index + 1).padStart(2, "0")}</span><p className="text-sm leading-6 text-ink/70">{step}</p></li>)}</ol>
             {lifecycle.actionAllowed ? <a href={item.official_source} target="_blank" rel="noreferrer" className="mt-8 inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-ink px-6 text-sm font-bold text-white hover:bg-forest">{officialActionLabel} <ArrowIcon /><span className="sr-only">(opens in a new tab)</span></a> : null}
           </div>
@@ -217,14 +219,13 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
               <p className="rule-label text-forest">Source and status</p>
               <h2 id="source-verification" className="mt-2 font-editorial text-2xl font-bold">Checked against the provider</h2>
               <dl className="mt-5 grid gap-5 sm:grid-cols-3">
-                <TrustFact label="Source" value={`${item.organization} official page`} />
-                <TrustFact label="Last checked" value={formatDate(item.last_verified)} />
+                <TrustFact label="Source" value={trust.source.label} />
+                <TrustFact label="Last checked" value={trust.source.checkedAt ? formatDate(trust.source.checkedAt.slice(0, 10)) : "Not confirmed"} />
                 <TrustFact label="Opportunity status" value={lifecycle.label} />
               </dl>
-              <div className="mt-5 flex flex-wrap items-center gap-2"><StatusBadge status={displayedStatus} /><ConfidenceBadge status={displayedStatus} /></div>
             </div>
             <div>
-              <a href={item.official_source} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center gap-2 text-sm font-bold text-forest hover:text-ink">Open official source <ArrowIcon /><span className="sr-only">(opens in a new tab)</span></a>
+              {trust.source.sourceUrl ? <a href={trust.source.sourceUrl} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center gap-2 text-sm font-bold text-forest hover:text-ink">{sourceIsOfficial ? "View official source" : "View provider source"} <ArrowIcon /><span className="sr-only">(opens in a new tab)</span></a> : <p className="text-sm font-bold text-ink/55">Official source needs review</p>}
               <ReportOutdatedButton opportunityId={item.id} />
             </div>
           </div>
@@ -234,12 +235,16 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   </>;
 }
 
-function Fact({ fact }: { fact: OpportunityDetailFact }) {
-  return <div><dt className="rule-label text-ink/40">{fact.label}</dt><dd className="mt-2 text-base font-bold leading-6 text-ink/75">{fact.value}</dd></div>;
+function Fact({ fact, trust }: { fact: OpportunityDetailFact; trust?: OpportunityFieldTrust }) {
+  return <div><dt className="rule-label text-ink/40">{fact.label}</dt><dd className="mt-2 text-base font-bold leading-6 text-ink/75">{fact.value}</dd>{trust ? <p className="mt-1 text-xs leading-5 text-ink/45">{trust.label}{trust.state === "verified" && trust.checkedAt ? ` · ${formatDate(trust.checkedAt.slice(0, 10))}` : ""}</p> : null}</div>;
 }
 
-function EligibilityCriterion({ criterion }: { criterion: OpportunityDetailFact }) {
-  return <li className="grid grid-cols-[1.25rem_minmax(0,1fr)] gap-2 text-sm leading-6 text-ink/65"><span aria-hidden="true" className="mt-1 inline-grid h-4 w-4 place-items-center rounded-full border border-forest/25 bg-forest/5 text-[10px] font-bold text-forest">✓</span><span><strong className="font-bold text-ink/55">{criterion.label}:</strong> {criterion.value}</span></li>;
+function EligibilityCriterion({ criterion, verified }: { criterion: OpportunityDetailFact; verified: boolean }) {
+  return <li className="grid grid-cols-[1.25rem_minmax(0,1fr)] gap-2 text-sm leading-6 text-ink/65"><span aria-hidden="true" className={`mt-1 inline-grid h-4 w-4 place-items-center rounded-full border text-[10px] font-bold ${verified ? "border-forest/25 bg-forest/5 text-forest" : "border-ink/15 bg-ink/[.03] text-ink/45"}`}>{verified ? "✓" : "?"}</span><span><span className="sr-only">{verified ? "Verified requirement: " : "Unconfirmed requirement: "}</span><strong className="font-bold text-ink/55">{criterion.label}:</strong> {criterion.value}</span></li>;
+}
+
+function TrustCue({ trust, compact = false }: { trust: OpportunityFieldTrust; compact?: boolean }) {
+  return <p className={`${compact ? "mt-2" : "mt-5"} max-w-3xl text-xs leading-5 text-ink/50`}><strong className="font-bold text-ink/60">{trust.label}.</strong> {trust.detail}{trust.sourceUrl && trust.state !== "verified" ? <> <a href={trust.sourceUrl} target="_blank" rel="noreferrer" className="font-bold text-forest hover:text-ink">Check provider source <span aria-hidden="true">↗</span><span className="sr-only"> (opens in a new tab)</span></a></> : null}</p>;
 }
 
 function TrustFact({ label, value }: { label: string; value: string }) {
@@ -291,7 +296,6 @@ function OpportunityAdvisorBrainSection({ explanation }: { explanation: Opportun
         <AdvisorFact label="Resume impact" value={explanation.resumeImpact} />
         <AdvisorFact label="Interview value" value={explanation.interviewValue} />
         <AdvisorFact label="Estimated ROI" value={explanation.estimatedRoi} />
-        <AdvisorFact label="Confidence" value={`${explanation.confidence}%`} />
         <AdvisorFact label="Estimated time" value={explanation.estimatedCompletionTime} />
         <AdvisorFact label="Evidence used" value={explanation.evidenceUsed.join(" ")} />
         <AdvisorFact label="Expected impact" value={explanation.expectedImpact} />

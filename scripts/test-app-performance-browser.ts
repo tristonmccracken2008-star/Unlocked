@@ -365,7 +365,7 @@ async function verifyOpportunityDetails(page: Page, origin: string, screenshotLa
     assert.equal(await detail.getAttribute("data-opportunity-kind"), scenario.kind);
     assert.equal(await page.getByRole("heading", { level: 1 }).count(), 1, `${scenario.kind} detail must have one clear title.`);
     assert.equal(await page.getByText("Who qualifies", { exact: true }).count(), 1, `${scenario.kind} detail must expose eligibility immediately.`);
-    assert.equal(await page.getByText("Official source", { exact: true }).count(), 1, `${scenario.kind} detail must keep the provider action primary.`);
+    assert.equal(await page.getByText(/^(Official|Provider) source$/).count(), 1, `${scenario.kind} detail must keep one accurately attributed provider action primary.`);
     for (const fact of scenario.facts) assert.ok(await page.locator("dt", { hasText: fact }).count(), `${scenario.kind} detail is missing ${fact}.`);
     const learnMore = page.locator("details[data-learn-more]");
     assert.equal(await learnMore.getAttribute("open"), null, `${scenario.kind} lower-priority detail must start collapsed.`);

@@ -1,4 +1,5 @@
 import { deadlineLabel, type Opportunity } from "@/data/opportunities";
+import { projectOpportunityTrust } from "@/data/opportunity-trust";
 
 export type OpportunityDetailKind = "benefit" | "scholarship" | "internship" | "research" | "competition" | "career";
 
@@ -81,10 +82,9 @@ function applicationEffort(item: Opportunity) {
 }
 
 function applicationDeadline(item: Opportunity) {
-  const label = deadlineLabel(item);
-  if (item.metadata.deadlineType === "unknown") return "Not specified by the provider";
-  if (item.metadata.deadlineType === "not_announced") return "Not announced by the provider";
-  return label;
+  const trust = projectOpportunityTrust(item);
+  if (trust.deadline.state !== "verified") return trust.deadline.displayValue;
+  return deadlineLabel(item);
 }
 
 function meaningfulValue(item: Opportunity) {

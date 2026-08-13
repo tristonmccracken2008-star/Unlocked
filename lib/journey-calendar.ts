@@ -79,6 +79,7 @@ export function calendarTiming(date: string, now: Date, timezone: string, status
 
 export function officialDeadlineIsCalendarReady(opportunity: Opportunity, now = new Date()) {
   if (opportunity.verification_status !== "verified" || opportunity.metadata.deadlineType !== "fixed") return false;
+  if (opportunity.metadata.verification?.deadlineVerified !== true) return false;
   if (opportunity.metadata.lifecycle?.confidence && !["confirmed", "strong"].includes(opportunity.metadata.lifecycle.confidence)) return false;
   if (!opportunity.application_deadline || !/^\d{4}-\d{2}-\d{2}$/.test(opportunity.application_deadline)) return false;
   const verifiedAt = Date.parse(`${opportunity.last_verified}T12:00:00.000Z`);

@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Opportunity } from "@/data/opportunities";
 import { listingDeadlineLabel as deadlineLabel, type OpportunityListing } from "@/data/opportunity-listing";
 import { resolveOpportunityLifecycle } from "@/data/opportunity-lifecycle";
+import { projectOpportunityTrust } from "@/data/opportunity-trust";
 import { ArrowIcon } from "./icons";
 import { AddToJourneyButton } from "./opportunity-activity";
 import { DiscoverOpportunityLink } from "./discover-opportunity-link";
@@ -9,6 +10,7 @@ import { OrganizationLogo } from "./organization-logo";
 import { LifecycleBadge } from "./status-badge";
 
 function eligibilityLabel(opportunity: Opportunity) {
+  if (projectOpportunityTrust(opportunity).eligibility.state !== "verified") return "Not fully confirmed";
   if (opportunity.school_scope === "National") {
     const years = opportunity.academic_years.filter((year) => year !== "Any Year");
     return years.length ? years.slice(0, 2).join(", ") : "Open broadly";
@@ -24,7 +26,8 @@ export function OpportunityCard({ opportunity, reasons, source }: { opportunity:
 
 export function OpportunityCardContent({ opportunity, reasons, source }: { opportunity: OpportunityListing; reasons?: string[]; source?: "discover" | "for_you" }) {
   const resolved = opportunity.lifecyclePresentation ?? resolveOpportunityLifecycle(opportunity);
-  const publishedDeadline = deadlineLabel(opportunity);
+  const trust = projectOpportunityTrust(opportunity);
+  const publishedDeadline = trust.deadline.state === "verified" ? deadlineLabel(opportunity) : trust.deadline.displayValue;
   const deadline = resolved.state === "rolling"
     ? "Rolling"
     : ["closed", "temporarily_closed", "canceled"].includes(resolved.state)

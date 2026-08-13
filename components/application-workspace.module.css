@@ -32,6 +32,7 @@
 .tasks li > div > span { color: var(--journey-ink); font-size: .76rem; line-height: 1.4; overflow-wrap: anywhere; }
 .tasks li[data-completed="true"] > div > span { color: var(--journey-muted); text-decoration: line-through; text-decoration-thickness: 1px; }
 .tasks li[data-pending="true"] { background: color-mix(in srgb, var(--journey-green) 3%, transparent); }
+.tasks li[data-source-start="true"] { margin-top: .45rem; border-top-color: color-mix(in srgb, var(--journey-green) 22%, var(--journey-line)); }
 .tasks time, .tasks small { color: var(--journey-muted); font-size: .6rem; }
 .tasks small time { font: inherit; }
 .remove { min-height: 44px; border: 0; background: transparent; color: var(--journey-muted); padding: 0 .35rem; font-size: .62rem; cursor: pointer; }

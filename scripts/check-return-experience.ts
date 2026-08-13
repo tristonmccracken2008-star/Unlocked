@@ -21,7 +21,7 @@ const deadlineOpportunity: Opportunity = {
   application_deadline: "2026-08-14",
   verification_status: "verified",
   last_verified: "2026-08-01",
-  metadata: { ...base.metadata, deadlineType: "fixed" },
+  metadata: { ...base.metadata, deadlineType: "fixed", verification: { status: "verified", officialSourceUrl: base.official_source_url, applicationUrlVerified: true, deadlineVerified: true, eligibilityVerified: true, sourceReachable: true } },
 };
 
 const tracked: TrackedOpportunity = {

@@ -2,6 +2,7 @@ import type { Opportunity } from "@/data/opportunities";
 import type { OpportunityTrackerStatus, TrackedOpportunity } from "@/data/student-activity";
 import { journeyWorkflowKind } from "@/data/journey-professional";
 import { recentOpportunityChanges, requirementAddedByRecentChange, opportunityChangeLabel, opportunityChangeSummary } from "@/data/opportunity-changelog";
+import { projectOpportunityTrust, verifiedApplicationRequirements } from "@/data/opportunity-trust";
 import type { AccountData, ApplicationTaskRecord, ApplicationWorkspaceRecord, JourneyCalendarEventRecord } from "./account-types";
 
 export type ApplicationWorkspaceTask = ApplicationTaskRecord & { recentlyUpdated?: boolean };
@@ -19,6 +20,7 @@ export type ApplicationWorkspaceProjection = {
   submittedAt?: string;
   workspaceVersion: number;
   officialSource: string;
+  sourceVerified: boolean;
   deadline?: string;
   deadlineDaysRemaining?: number;
   unfinishedCount: number;
@@ -26,11 +28,6 @@ export type ApplicationWorkspaceProjection = {
 };
 
 const terminalPreparationStatuses = new Set<OpportunityTrackerStatus>(["Submitted", "Interview", "Accepted", "Completed"]);
-const genericRequirementPatterns = [
-  /^start at .+ official website/i,
-  /^search for the current office/i,
-  /^confirm eligibility, deadlines, and application/i,
-];
 
 function hashText(value: string) {
   let hash = 2166136261;
@@ -56,10 +53,7 @@ export function applicationWorkspaceEligible(opportunity: Pick<Opportunity, "typ
 }
 
 export function trustedApplicationRequirements(opportunity: Opportunity) {
-  if (!applicationWorkspaceEligible(opportunity) || opportunity.verification_status !== "verified") return [];
-  return [...new Set(opportunity.metadata.applicationRequirements ?? [])]
-    .filter((requirement) => !genericRequirementPatterns.some((pattern) => pattern.test(requirement)))
-    .slice(0, 20);
+  return applicationWorkspaceEligible(opportunity) ? verifiedApplicationRequirements(opportunity) : [];
 }
 
 export function materializeApplicationWorkspace(existing: ApplicationWorkspaceRecord | undefined, opportunity: Opportunity, now = new Date().toISOString()) {
@@ -110,7 +104,8 @@ export function projectApplicationWorkspace(input: {
     return left.createdAt.localeCompare(right.createdAt) || left.title.localeCompare(right.title);
   });
   const completedCount = tasks.filter((task) => task.completed).length;
-  const deadline = input.opportunity.application_deadline ?? undefined;
+  const trust = projectOpportunityTrust(input.opportunity, input.now);
+  const deadline = trust.deadline.state === "verified" ? input.opportunity.application_deadline ?? undefined : undefined;
   const deadlineDaysRemaining = deadline
     ? Math.ceil((Date.parse(`${deadline}T23:59:59.999Z`) - (input.now ?? new Date()).getTime()) / 86_400_000)
     : undefined;
@@ -126,11 +121,12 @@ export function projectApplicationWorkspace(input: {
     completedCount,
     totalCount: tasks.length,
     progressPercent: tasks.length ? Math.round((completedCount / tasks.length) * 100) : 0,
-    readyForSubmission: !submitted && tasks.length > 0 && completedCount === tasks.length,
+    readyForSubmission: !submitted && trust.verifiedRequirements.length > 0 && tasks.length > 0 && completedCount === tasks.length,
     submitted,
     submittedAt: submittedEvent?.occurredAt,
     workspaceVersion: workspace.version,
     officialSource: input.opportunity.official_source_url || input.opportunity.official_source,
+    sourceVerified: trust.source.state === "official_source",
     deadline,
     deadlineDaysRemaining,
     unfinishedCount: tasks.length - completedCount,

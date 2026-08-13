@@ -47,7 +47,7 @@ const opportunity = {
   icon: null,
   featured: false,
   hidden_gem: false,
-  metadata: { deadlineType: "fixed" },
+  metadata: { deadlineType: "fixed", verification: { status: "verified", deadlineVerified: true, officialSourceUrl: "https://example.edu/apply", applicationUrlVerified: true, sourceReachable: true } },
 } satisfies Opportunity;
 
 const personal: JourneyCalendarEventRecord = {

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { listingDeadlineLabel as deadlineLabel } from "@/data/opportunity-listing";
+import { projectOpportunityTrust } from "@/data/opportunity-trust";
 import type { RecommendationDisplaySignal, RecommendationViewModel } from "@/data/recommendation-service";
 import type { School } from "@/data/seed";
 import type { StudentActivity } from "@/data/student-activity";
@@ -442,10 +442,14 @@ function recommendationSignals(view: RecommendationViewModel, limit = 3) {
     (opportunity?.estimated_value ?? 0) >= 5_000 ? { kind: "value", label: "High documented value" } : null,
     view.chips.includes("Paid") ? { kind: "format", label: "Paid" } : null,
     view.chips.includes("Remote") ? { kind: "format", label: "Remote" } : null,
-    opportunity?.verification_status === "verified" ? { kind: "trust", label: "Official source verified" } : null,
+    opportunity && projectOpportunityTrust(opportunity).source.state === "official_source" ? { kind: "trust", label: "Official source" } : null,
   ];
   const signals = candidates.filter((signal): signal is RecommendationDisplaySignal => Boolean(signal));
   return [...new Map(signals.map((signal) => [signal.label, signal])).values()].slice(0, limit);
+}
+
+function trustedDeadlineLabel(view: RecommendationViewModel) {
+  return view.opportunity ? projectOpportunityTrust(view.opportunity).deadline.displayValue : "Deadline not announced";
 }
 
 function strongestReason(view: RecommendationViewModel) {
@@ -506,7 +510,7 @@ function TopRecommendation({ view, onFeedback }: { view: RecommendationViewModel
           <small>Match quality</small>
         </div>
         <dl className={styles.featuredMeta}>
-          <div><dt>Deadline</dt><dd>{opportunity ? deadlineLabel(opportunity) : "Not announced"}</dd></div>
+          <div><dt>Deadline</dt><dd>{trustedDeadlineLabel(view)}</dd></div>
           <div><dt>Estimated value</dt><dd>{cleanValueLabel(view.recommendation.estimatedValueLabel)}</dd></div>
         </dl>
         {timing ? <p className={styles.timing} data-urgency={timing.urgency}><strong>{timing.label}</strong><span>{timing.detail}</span></p> : null}
@@ -541,7 +545,7 @@ function ForYouFreePreviewOnly() {
     <section className={`${styles.container} ${styles.stateContainer}`}>
       <div className={styles.stateIntro}><p>For You</p><h1>A shortlist built around you.</h1><span>UnlockED Pro checks eligibility first, then ranks verified opportunities by fit, quality, timing, and value.</span></div>
       <ol className={styles.previewChecks} aria-label="How Pro recommendations are selected">
-        <li><span>01</span><div><strong>Eligibility confirmed</strong><p>School, year, major, and other known requirements are checked before ranking.</p></div></li>
+        <li><span>01</span><div><strong>Known eligibility checked</strong><p>School, year, major, and other documented requirements are checked before ranking. Always confirm current terms with the provider.</p></div></li>
         <li><span>02</span><div><strong>Fit and quality ranked</strong><p>Your goals and interests are balanced with source quality and documented value.</p></div></li>
         <li><span>03</span><div><strong>Reasons made visible</strong><p>Every recommendation shows the factual signals that put it on your shortlist.</p></div></li>
       </ol>
@@ -595,7 +599,7 @@ function RecommendationCard({ view, index, onFeedback }: { view: RecommendationV
       <RecommendationIntelligence view={view} compact />
       <RecommendationFeedback view={view} onFeedback={onFeedback} compact />
     </div>
-    <dl className={styles.rowMeta}><div className={styles.rowScore}><dt>Match quality</dt><dd>{score.label}</dd></div>{timing ? <div><dt>Why now</dt><dd>{timing.label}</dd></div> : null}<div><dt>Deadline</dt><dd>{opportunity ? deadlineLabel(opportunity) : "Not announced"}</dd></div></dl>
+    <dl className={styles.rowMeta}><div className={styles.rowScore}><dt>Match quality</dt><dd>{score.label}</dd></div>{timing ? <div><dt>Why now</dt><dd>{timing.label}</dd></div> : null}<div><dt>Deadline</dt><dd>{trustedDeadlineLabel(view)}</dd></div></dl>
     <div className={styles.rowActions}><Link href={view.href} onClick={() => trackRecommendationOpen(view)}>Review <ArrowIcon /></Link>{view.recommendation.relatedOpportunityId ? <AddToJourneyButton opportunityId={view.recommendation.relatedOpportunityId} recommendationId={view.recommendation.id} recommendationCategory={analyticsCategory(view)} recommendationExposureCount={view.recommendation.portfolio?.exposureCount ?? 0} className={styles.rowAddAction} /> : null}</div>
   </article>;
 }
@@ -613,7 +617,7 @@ function RecommendationIntelligence({ view, compact = false }: { view: Recommend
     <div className={styles.intelligencePanel}>
       <section aria-labelledby={`why-fit-${view.recommendation.id}`}>
         <h4 id={`why-fit-${view.recommendation.id}`}>Why it fits</h4>
-        <p className={styles.scoreMethod}><strong>{score.label}.</strong> This label reflects verified eligibility, relevance, source quality, and documented impact.</p>
+        <p className={styles.scoreMethod}><strong>{score.label}.</strong> This label reflects documented eligibility evidence, relevance, source quality, and impact. It is not a guarantee of eligibility.</p>
         <ul>{reasons.map((reason) => <li key={`${reason.label}-${reason.detail}`}><span data-signal-kind={reason.kind}>{reason.label}</span><p>{reason.detail}</p></li>)}</ul>
       </section>
       {timing ? <section aria-labelledby={`why-now-${view.recommendation.id}`}>
