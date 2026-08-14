@@ -31,6 +31,32 @@ export type OpportunityEducationLevel = "high_school" | "community_college" | "u
 export type CanonicalInstitutionType = "high_school" | "community_college" | "four_year_college" | "university" | "liberal_arts_college" | "graduate_school";
 export type CanonicalEnrollmentStatus = "prospective" | "currently_enrolled" | "transfer_applicant" | "graduated";
 export type RecommendationEligibilityStatus = "eligible_for_ranking" | "discover_only" | "needs_eligibility_review" | "ineligible";
+export type OpportunityEvidenceState = "verified_restriction" | "verified_open" | "reviewed_no_restriction" | "unreviewed";
+export type OpportunityEvidenceAuthority = "official_program" | "official_organization" | "official_institution" | "authorized_application_platform";
+export type OpportunityEligibilityEvidenceField =
+  | "academic_level"
+  | "institution_type"
+  | "enrollment_status"
+  | "school_restriction"
+  | "external_student_eligibility"
+  | "class_year"
+  | "major"
+  | "citizenship"
+  | "residency"
+  | "gpa"
+  | "age"
+  | "financial_need"
+  | "invitation"
+  | "application_status"
+  | "deadline";
+export type OpportunityFieldEvidence = {
+  state: OpportunityEvidenceState;
+  sourceUrl: string;
+  authority: OpportunityEvidenceAuthority;
+  verifiedAt: string;
+  cycle?: string;
+  note?: string;
+};
 
 export type OpportunityEligibilityRules = {
   institutionTypes?: ("college" | "university" | "community_college" | "liberal_arts_college")[];
@@ -63,6 +89,7 @@ export type OpportunityEligibilityRules = {
   highSchoolSeniorOnly?: boolean;
   recommendationEligibilityStatus?: RecommendationEligibilityStatus;
   evidence?: string[];
+  fieldEvidence?: Partial<Record<OpportunityEligibilityEvidenceField, OpportunityFieldEvidence>>;
 };
 
 export type OpportunityMetadata = {

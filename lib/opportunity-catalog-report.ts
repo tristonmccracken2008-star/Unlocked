@@ -5,6 +5,7 @@ import { buildOpportunityCatalogIndex, type OpportunityBehaviorSignal } from "@/
 import { getOpportunityEngagementSignals } from "./analytics-store";
 import { resolveOpportunityLifecycle } from "@/data/opportunity-lifecycle";
 import { opportunityReportSummary } from "./opportunity-report-store";
+import { buildRecommendationSafeCatalogAudit } from "@/data/recommendation-safe-catalog";
 
 const countBy = (values: string[]) => [...values.reduce((counts, value) => counts.set(value, (counts.get(value) ?? 0) + 1), new Map<string, number>()).entries()]
   .sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0]));
@@ -16,6 +17,7 @@ export async function getOpportunityCatalogReport() {
   const profiles = [...index.profiles.values()];
   const lifecycle = opportunities.map((opportunity) => ({ opportunity, snapshot: resolveOpportunityLifecycle(opportunity) }));
   const reports = await opportunityReportSummary();
+  const safetyAudit = buildRecommendationSafeCatalogAudit(opportunities);
   const gaps = countBy(profiles.flatMap((profile) => [
     ...profile.eligibility.criticalUnknowns.map((field) => `Eligibility: ${field.replaceAll("_", " ")}`),
     ...profile.enrichment.missingFields.map((field) => `Metadata: ${field.replaceAll("_", " ")}`),
@@ -58,6 +60,19 @@ export async function getOpportunityCatalogReport() {
     gaps: gaps.slice(0, 20),
     duplicateGroups: index.duplicateGroups,
     reviewQueue,
+    recommendationSafety: {
+      blockerCounts: safetyAudit.blockerCounts,
+      lifecycleCounts: safetyAudit.lifecycleCounts,
+      queue: safetyAudit.queue.slice(0, 50).map((record) => ({
+        id: record.id,
+        priority: record.priority,
+        effort: record.estimatedEffort,
+        blockers: record.blockers,
+        missingEvidenceFields: record.missingEvidenceFields,
+        sourceAuthority: record.sourceAuthority,
+        lifecycle: record.lifecycle.state,
+      })),
+    },
     lifecycleReviewQueue: lifecycle
       .filter((item) => item.snapshot.state === "unknown" || item.snapshot.issues.length)
       .sort((left, right) => right.snapshot.issues.length - left.snapshot.issues.length || left.opportunity.id.localeCompare(right.opportunity.id))

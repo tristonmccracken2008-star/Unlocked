@@ -4,7 +4,7 @@ import { evaluateOpportunityEligibility } from "../data/opportunity-eligibility"
 import { normalizeOpportunityEligibility } from "../data/opportunity-eligibility-model";
 import { buildOpportunityStudentContext, buildRecommendationCandidateFunnel, rankOpportunityRecommendations, type RecommendationTier } from "../data/recommendation-engine";
 import { validateOpportunityData } from "../data/recommendation-professional-pipeline";
-import { opportunities, type Opportunity } from "../data/opportunities";
+import { opportunities } from "../data/opportunities";
 import { schools, type School } from "../data/seed";
 import type { StudentProfile } from "../data/student-profile";
 import { recommendationOpportunityClass, resourceRecommendationLimit } from "../data/recommendation-portfolio-policy";
@@ -146,6 +146,10 @@ const rankingCatalog = opportunities.filter((item) => validateOpportunityData(it
 let totalRecommendations = 0;
 let emptyUndergraduates = 0;
 const tierCounts: Record<RecommendationTier, number> = { excellent: 0, strong: 0, explore: 0 };
+const recommendationCounts: number[] = [];
+const categoryDiversities: number[] = [];
+const organizationDiversities: number[] = [];
+const personaResults: Record<string, { recommendations: number; categories: number; organizations: number; topPicks: number }> = {};
 const started = performance.now();
 const recommendationCache = new Map<string, ReturnType<typeof rankOpportunityRecommendations>>();
 
@@ -164,9 +168,19 @@ for (const goldenProfile of profiles) {
   const recommendations = cachedRecommendations ?? rankOpportunityRecommendations({ advisorProfile, opportunities: rankingCatalog, limit: 8 });
   if (!cachedRecommendations) recommendationCache.set(cacheKey, recommendations);
   totalRecommendations += recommendations.length;
+  recommendationCounts.push(recommendations.length);
   if (!recommendations.length) emptyUndergraduates += 1;
   assert.ok(recommendations.length >= goldenProfile.minimumUsefulRecommendationCount, `${goldenProfile.id} returned ${recommendations.length}; expected at least ${goldenProfile.minimumUsefulRecommendationCount}.`);
   const ids = new Set(recommendations.map((item) => item.relatedOpportunityId));
+  const resolved = recommendations.flatMap((item) => {
+    const opportunity = rankingCatalog.find((candidate) => candidate.id === item.relatedOpportunityId);
+    return opportunity ? [opportunity] : [];
+  });
+  const categoryDiversity = new Set(resolved.map((item) => item.category)).size;
+  const organizationDiversity = new Set(resolved.map((item) => item.organization)).size;
+  categoryDiversities.push(categoryDiversity);
+  organizationDiversities.push(organizationDiversity);
+  if (named.some((item) => item.id === goldenProfile.id)) personaResults[goldenProfile.id] = { recommendations: recommendations.length, categories: categoryDiversity, organizations: organizationDiversity, topPicks: recommendations.filter((item) => item.tier === "excellent").length };
   const resourceCount = recommendations.filter((item) => {
     const opportunity = rankingCatalog.find((candidate) => candidate.id === item.relatedOpportunityId);
     return opportunity ? recommendationOpportunityClass(opportunity) === "resource" : false;
@@ -203,11 +217,29 @@ for (const opportunity of opportunities) {
   for (const gap of canonical.criticalUnknowns) gapCounts.set(gap, (gapCounts.get(gap) ?? 0) + 1);
 }
 
+const quantile = (values: number[], percentile: number) => {
+  const sorted = [...values].sort((left, right) => left - right);
+  return sorted[Math.max(0, Math.ceil(sorted.length * percentile) - 1)] ?? 0;
+};
+const average = (values: number[]) => Number((values.reduce((sum, value) => sum + value, 0) / Math.max(1, values.length)).toFixed(2));
+
 console.log(JSON.stringify({
   goldenProfiles: profiles.length,
   rankedUndergraduates: profiles.filter((item) => item.profile).length,
   totalRecommendations,
   averageRecommendations: Number((totalRecommendations / profiles.filter((item) => item.profile).length).toFixed(2)),
+  recommendationDistribution: {
+    minimum: Math.min(...recommendationCounts),
+    p10: quantile(recommendationCounts, 0.1),
+    p25: quantile(recommendationCounts, 0.25),
+    median: quantile(recommendationCounts, 0.5),
+    p75: quantile(recommendationCounts, 0.75),
+    p90: quantile(recommendationCounts, 0.9),
+    profilesAtOrBelow3: recommendationCounts.filter((count) => count <= 3).length,
+    profilesAtOrBelow5: recommendationCounts.filter((count) => count <= 5).length,
+  },
+  diversity: { averageCategories: average(categoryDiversities), averageOrganizations: average(organizationDiversities) },
+  personaResults,
   emptyUndergraduates,
   tierCounts,
   elapsedMs: Math.round(performance.now() - started),

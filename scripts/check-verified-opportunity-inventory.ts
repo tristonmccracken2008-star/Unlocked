@@ -144,7 +144,7 @@ const unresolved = opportunities.filter((item) => ["needs_review", "temporarily_
 assert.equal(opportunities.length, 5998, "Inventory expansion should add exactly seven canonical records.");
 assert.equal(canonical.length, 5987, "Canonical public inventory must exclude archived and secondary duplicate records.");
 assert.equal(verified.length, 205, "The audited inventory should contain 205 verified records.");
-assert.equal(highValueRecommendationSafe.length, 9, "Nine non-resource opportunities should be safely actionable on the audit date.");
+assert.equal(highValueRecommendationSafe.length, 10, "Ten non-resource opportunities should be safely actionable on the audit date.");
 
 console.log(JSON.stringify({
   auditDate: auditDate.toISOString().slice(0, 10),
@@ -162,6 +162,7 @@ console.log(JSON.stringify({
     newRecords: newIds.length,
     enrichedRecords: enrichedIds.length,
     newlyVerifiedRecords: 8,
+    existingRecordsSafelyUpgraded: 1,
     structuredEligibilityCandidatesBefore: 1,
     structuredEligibilityCandidatesAfter: [...newIds, ...enrichedIds, "research--doe-cci"].length,
     highValueRecommendationSafeBefore: 1,

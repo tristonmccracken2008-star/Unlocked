@@ -432301,12 +432301,11 @@
       "Environmental Science"
     ],
     "academic_years": [
-      "First year",
       "Second year",
       "Third year",
       "Fourth year"
     ],
-    "eligibility": "Undergraduate students or recent graduates; DOE posts citizenship, enrollment, GPA, term, and lab-specific requirements on the official page.",
+    "eligibility": "Currently enrolled undergraduates who have completed at least one semester, or qualifying recent graduates, with a 3.0 cumulative GPA; applicants must be age 18 or older by the internship start and be a U.S. citizen or lawful permanent resident.",
     "estimated_value": null,
     "application_deadline": "2026-09-30",
     "recurring": true,
@@ -432342,9 +432341,9 @@
     "official_source": "https://science.osti.gov/wdts/suli",
     "official_source_url": "https://science.osti.gov/wdts/suli",
     "verification_status": "verified",
-    "last_verified": "2026-07-13",
+    "last_verified": "2026-08-14",
     "deadline": "2026-09-30",
-    "reviewer_notes": "Official DOE SULI page lists the Spring 2027 deadline and undergraduate national laboratory research program details.",
+    "reviewer_notes": "DOE's official SULI program, eligibility, and key-dates pages confirm that Spring 2027 applications are open through September 30, 2026 and establish enrollment, GPA, age, and citizenship requirements.",
     "estimated_value_note": "Unknown — no verified dollar value is documented by the official source.",
     "date_added": "2026-07-12",
     "difficulty": "Highly Competitive",
@@ -432404,22 +432403,104 @@
         "Environmental Science"
       ],
       "recommendedClassYears": [
-        "First year",
         "Second year",
         "Third year",
         "Fourth year"
       ],
-      "citizenship": "Check official source",
-      "internationalEligibility": "Check official source",
+      "citizenship": "U.S. citizen or lawful permanent resident",
+      "internationalEligibility": "Not eligible unless the applicant is a U.S. lawful permanent resident",
+      "eligibilityRules": {
+        "educationLevels": [
+          "undergraduate",
+          "recent_graduate"
+        ],
+        "canonicalInstitutionTypes": [
+          "community_college",
+          "four_year_college",
+          "university",
+          "liberal_arts_college"
+        ],
+        "canonicalEnrollmentStatuses": [
+          "currently_enrolled",
+          "graduated"
+        ],
+        "acceptsExternalStudents": true,
+        "classYears": [
+          "Second year",
+          "Third year",
+          "Fourth year"
+        ],
+        "majors": [
+          "Computer Science",
+          "Data Science",
+          "Mathematics",
+          "Statistics",
+          "Engineering",
+          "Physics",
+          "Chemistry",
+          "Biology",
+          "Environmental Science",
+          "Public Policy"
+        ],
+        "minimumGpa": 3,
+        "citizenshipStatuses": [
+          "us_citizen",
+          "permanent_resident"
+        ],
+        "ageRange": {
+          "minimum": 18
+        },
+        "availability": "open",
+        "recommendationEligibilityStatus": "eligible_for_ranking",
+        "evidence": [
+          "DOE's official SULI program page confirms Spring 2027 applications are open through September 30, 2026. The official eligibility page confirms enrollment, completed-semester, 3.0 GPA, age 18, and U.S.-citizen or lawful-permanent-resident requirements."
+        ],
+        "fieldEvidence": {
+          "academic_level": { "state": "verified_restriction", "sourceUrl": "https://science.osti.gov/wdts/suli/Eligibility", "authority": "official_program", "verifiedAt": "2026-08-14", "cycle": "Spring 2027" },
+          "institution_type": { "state": "verified_open", "sourceUrl": "https://science.osti.gov/wdts/suli/Eligibility", "authority": "official_program", "verifiedAt": "2026-08-14", "cycle": "Spring 2027" },
+          "enrollment_status": { "state": "verified_restriction", "sourceUrl": "https://science.osti.gov/wdts/suli/Eligibility", "authority": "official_program", "verifiedAt": "2026-08-14", "cycle": "Spring 2027" },
+          "school_restriction": { "state": "verified_open", "sourceUrl": "https://science.osti.gov/wdts/suli/Eligibility", "authority": "official_program", "verifiedAt": "2026-08-14", "cycle": "Spring 2027" },
+          "external_student_eligibility": { "state": "verified_open", "sourceUrl": "https://science.osti.gov/wdts/suli/Eligibility", "authority": "official_program", "verifiedAt": "2026-08-14", "cycle": "Spring 2027" },
+          "class_year": { "state": "verified_restriction", "sourceUrl": "https://science.osti.gov/wdts/suli/Eligibility", "authority": "official_program", "verifiedAt": "2026-08-14", "cycle": "Spring 2027", "note": "Ranking excludes first-year profiles because applicants must have completed one matriculated semester by the deadline." },
+          "major": { "state": "reviewed_no_restriction", "sourceUrl": "https://science.osti.gov/wdts/suli/Frequently-Asked-Questions", "authority": "official_program", "verifiedAt": "2026-08-14", "cycle": "Spring 2027", "note": "The program does not formally require a specific major. Pro ranking is conservatively scoped to the official program's STEM and science-policy focus." },
+          "citizenship": { "state": "verified_restriction", "sourceUrl": "https://science.osti.gov/wdts/suli/Eligibility", "authority": "official_program", "verifiedAt": "2026-08-14", "cycle": "Spring 2027" },
+          "residency": { "state": "reviewed_no_restriction", "sourceUrl": "https://science.osti.gov/wdts/suli/Eligibility", "authority": "official_program", "verifiedAt": "2026-08-14", "cycle": "Spring 2027" },
+          "gpa": { "state": "verified_restriction", "sourceUrl": "https://science.osti.gov/wdts/suli/Eligibility", "authority": "official_program", "verifiedAt": "2026-08-14", "cycle": "Spring 2027" },
+          "age": { "state": "verified_restriction", "sourceUrl": "https://science.osti.gov/wdts/suli/Eligibility", "authority": "official_program", "verifiedAt": "2026-08-14", "cycle": "Spring 2027" },
+          "financial_need": { "state": "reviewed_no_restriction", "sourceUrl": "https://science.osti.gov/wdts/suli/Eligibility", "authority": "official_program", "verifiedAt": "2026-08-14", "cycle": "Spring 2027" },
+          "invitation": { "state": "reviewed_no_restriction", "sourceUrl": "https://science.osti.gov/wdts/suli/How-to-Apply", "authority": "official_program", "verifiedAt": "2026-08-14", "cycle": "Spring 2027" },
+          "application_status": { "state": "verified_open", "sourceUrl": "https://science.osti.gov/wdts/suli", "authority": "official_program", "verifiedAt": "2026-08-14", "cycle": "Spring 2027" },
+          "deadline": { "state": "verified_restriction", "sourceUrl": "https://science.osti.gov/wdts/suli/Key-Dates", "authority": "official_program", "verifiedAt": "2026-08-14", "cycle": "Spring 2027" }
+        }
+      },
       "verification": {
         "status": "verified",
-        "lastVerifiedAt": "2026-07-13",
+        "lastVerifiedAt": "2026-08-14",
         "verifiedCycle": "Spring 2027",
         "officialSourceUrl": "https://science.osti.gov/wdts/suli",
         "applicationUrlVerified": true,
         "deadlineVerified": true,
         "eligibilityVerified": true,
-        "notes": "Official DOE SULI page lists the Spring 2027 deadline and undergraduate national laboratory research program details."
+        "sourceReachable": true,
+        "sourceAuditStatus": 200,
+        "notes": "DOE's official SULI program, eligibility, and key-dates pages confirm that Spring 2027 applications are open through September 30, 2026 and establish enrollment, GPA, age, and citizenship requirements."
+      },
+      "lifecycle": {
+        "schemaVersion": 1,
+        "migrationId": "recommendation-safe-catalog-2026-08-14",
+        "identity": { "identityId": "national-curated-2026--u-s-department-of-energy-office-of-science--doe-science-undergraduate-laboratory-internships" },
+        "cycle": { "cycleId": "spring-2027", "label": "Spring 2027" },
+        "state": "open",
+        "confidence": "confirmed",
+        "reason": "official_status_open",
+        "effectiveAt": "2026-08-14T00:00:00.000Z",
+        "finalDeadline": { "kind": "final_deadline", "sourceValue": "2026-09-30", "normalizedValue": "2026-09-30", "precision": "date", "estimated": false, "verifiedAt": "2026-08-14", "sourceUrl": "https://science.osti.gov/wdts/suli/Key-Dates" },
+        "recurrence": { "type": "seasonal", "confidence": "confirmed", "officialStatement": "DOE publishes separate summer, fall, and spring SULI application cycles." },
+        "evidence": [{ "id": "suli:spring-2027:official", "source": "official_application_page", "observedAt": "2026-08-14T00:00:00.000Z", "value": "Spring 2027 applications are open and due September 30, 2026 at 5:00 PM ET.", "sourceUrl": "https://science.osti.gov/wdts/suli", "confidence": "confirmed" }],
+        "events": [],
+        "sourceChecks": [{ "url": "https://science.osti.gov/wdts/suli", "checkedAt": "2026-08-14T00:00:00.000Z", "classification": "official_application", "status": 200 }],
+        "fieldVerifiedAt": { "state": "2026-08-14", "deadline": "2026-08-14", "applicationUrl": "2026-08-14", "eligibility": "2026-08-14", "award": "2026-08-14", "location": "2026-08-14", "programDates": "2026-08-14", "description": "2026-08-14" },
+        "review": { "note": "Official DOE pages reviewed for current lifecycle and eligibility facts.", "reviewedAt": "2026-08-14T00:00:00.000Z", "reviewer": "UnlockED catalog audit" }
       }
     }
   },
