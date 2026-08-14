@@ -1,5 +1,7 @@
 # Recommendation-Safe Catalog Report
 
+> Baseline report: this audit predates acquisition batch `high-quality-expansion-2026-08-wave-1`. See `HIGH_QUALITY_OPPORTUNITY_EXPANSION_REPORT.md` for current inventory and coverage metrics.
+
 Audit date: 2026-08-14
 
 ## Executive Result

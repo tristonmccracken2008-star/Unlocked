@@ -27,12 +27,22 @@ const enrichedIds = [
   "scholarship--dod-smart-scholarship",
   "scholarship--gilman-scholarship",
 ] as const;
+const acquisitionWaveIds = [
+  "scholarship--fund-for-education-abroad",
+  "career--hacu-national-internship-program-spring-2027",
+  "research--ista-year-round-scientific-internships",
+  "research--oist-research-internship-spring-2027",
+  "research--kaust-visiting-student-research-program",
+  "scholarship--knight-hennessy-scholars-2027",
+  "scholarship--rhodes-scholarship-united-states-2027",
+  "career--nasa-space-apps",
+] as const;
 const archivedDuplicates = new Map([
   ["national-curated-2026--u-s-department-of-defense--smart-scholarship-for-service-program", "scholarship--dod-smart-scholarship"],
   ["national-curated-2026--u-s-department-of-state--gilman-international-scholarship", "scholarship--gilman-scholarship"],
 ]);
 
-for (const id of [...newIds, ...enrichedIds]) {
+for (const id of [...newIds, ...enrichedIds, ...acquisitionWaveIds]) {
   const item = opportunities.find((opportunity) => opportunity.id === id);
   assert.ok(item, `${id} must exist.`);
   assert.equal(item.verification_status, "verified", `${id} must be source-verified.`);
@@ -61,6 +71,7 @@ const currentlyActionableIds = [
   "research--jpl-year-round-internship",
   "research--naval-research-enterprise-internship-program",
   "scholarship--dod-smart-scholarship",
+  ...acquisitionWaveIds,
 ] as const;
 for (const id of currentlyActionableIds) {
   const item = opportunities.find((opportunity) => opportunity.id === id);
@@ -141,10 +152,10 @@ const categoryCounts = verified.reduce<Record<string, number>>((counts, item) =>
 }, {});
 const unresolved = opportunities.filter((item) => ["needs_review", "temporarily_closed", "incomplete", "broken_source"].includes(item.verification_status)).length;
 
-assert.equal(opportunities.length, 5998, "Inventory expansion should add exactly seven canonical records.");
-assert.equal(canonical.length, 5987, "Canonical public inventory must exclude archived and secondary duplicate records.");
-assert.equal(verified.length, 205, "The audited inventory should contain 205 verified records.");
-assert.equal(highValueRecommendationSafe.length, 10, "Ten non-resource opportunities should be safely actionable on the audit date.");
+assert.equal(opportunities.length, 6004, "Reviewed expansion waves should add thirteen canonical records while enriching existing identities in place.");
+assert.equal(canonical.length, 5993, "Canonical public inventory must exclude archived and secondary duplicate records.");
+assert.equal(verified.length, 211, "The audited inventory should contain 211 verified records.");
+assert.equal(highValueRecommendationSafe.length, 18, "Eighteen non-resource opportunities should be safely actionable on the audit date.");
 
 console.log(JSON.stringify({
   auditDate: auditDate.toISOString().slice(0, 10),
@@ -166,6 +177,17 @@ console.log(JSON.stringify({
     structuredEligibilityCandidatesBefore: 1,
     structuredEligibilityCandidatesAfter: [...newIds, ...enrichedIds, "research--doe-cci"].length,
     highValueRecommendationSafeBefore: 1,
+    highValueRecommendationSafeAfter: highValueRecommendationSafe.length,
+  },
+  acquisitionWave: {
+    researched: 21,
+    accepted: acquisitionWaveIds.length,
+    canonicalRecordsAdded: 6,
+    canonicalRecordsEnriched: 2,
+    rejected: 13,
+    recommendationSafeBefore: 68,
+    recommendationSafeAfter: recommendationSafe.length,
+    highValueRecommendationSafeBefore: 10,
     highValueRecommendationSafeAfter: highValueRecommendationSafe.length,
   },
   profileCoverage,

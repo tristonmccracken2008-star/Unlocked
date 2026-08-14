@@ -58,6 +58,23 @@ export type OpportunityFieldEvidence = {
   note?: string;
 };
 
+export type OpportunitySourceReference = {
+  url: string;
+  authority: OpportunityEvidenceAuthority;
+  verifiedAt: string;
+  cycle?: string;
+  supports: OpportunityEligibilityEvidenceField[];
+  note: string;
+};
+
+export type OpportunityAcquisitionMetadata = {
+  batchId: string;
+  acquiredAt: string;
+  reviewCadenceDays: number;
+  nextReviewAt: string;
+  freshnessModel: "fixed_cycle" | "rolling_program" | "annual_event";
+};
+
 export type OpportunityEligibilityRules = {
   institutionTypes?: ("college" | "university" | "community_college" | "liberal_arts_college")[];
   enrollmentStatuses?: ("incoming" | "enrolled" | "recent_graduate")[];
@@ -135,6 +152,8 @@ export type OpportunityMetadata = {
   freeTier?: string;
   bestUseCases?: string[];
   eligibilityRules?: OpportunityEligibilityRules;
+  sourceReferences?: OpportunitySourceReference[];
+  acquisition?: OpportunityAcquisitionMetadata;
   verification?: OpportunityVerification;
   lifecycle?: OpportunityLifecycleMetadata;
   changelog?: OpportunityChangeEvent[];

@@ -6,6 +6,8 @@ import { getOpportunityEngagementSignals } from "./analytics-store";
 import { resolveOpportunityLifecycle } from "@/data/opportunity-lifecycle";
 import { opportunityReportSummary } from "./opportunity-report-store";
 import { buildRecommendationSafeCatalogAudit } from "@/data/recommendation-safe-catalog";
+import { opportunityAcquisitionCandidates } from "@/data/opportunity-acquisition-batch";
+import { acquisitionPriority, sortAcquisitionQueue } from "@/data/opportunity-acquisition";
 
 const countBy = (values: string[]) => [...values.reduce((counts, value) => counts.set(value, (counts.get(value) ?? 0) + 1), new Map<string, number>()).entries()]
   .sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0]));
@@ -18,6 +20,7 @@ export async function getOpportunityCatalogReport() {
   const lifecycle = opportunities.map((opportunity) => ({ opportunity, snapshot: resolveOpportunityLifecycle(opportunity) }));
   const reports = await opportunityReportSummary();
   const safetyAudit = buildRecommendationSafeCatalogAudit(opportunities);
+  const acquisitionQueue = sortAcquisitionQueue(opportunityAcquisitionCandidates);
   const gaps = countBy(profiles.flatMap((profile) => [
     ...profile.eligibility.criticalUnknowns.map((field) => `Eligibility: ${field.replaceAll("_", " ")}`),
     ...profile.enrichment.missingFields.map((field) => `Metadata: ${field.replaceAll("_", " ")}`),
@@ -71,6 +74,28 @@ export async function getOpportunityCatalogReport() {
         missingEvidenceFields: record.missingEvidenceFields,
         sourceAuthority: record.sourceAuthority,
         lifecycle: record.lifecycle.state,
+      })),
+    },
+    acquisition: {
+      totals: {
+        researched: acquisitionQueue.length,
+        recommendationSafe: acquisitionQueue.filter((candidate) => candidate.status === "recommendation_safe").length,
+        rejected: acquisitionQueue.filter((candidate) => candidate.status === "rejected").length,
+        sourceWatch: acquisitionQueue.filter((candidate) => candidate.sourceWatch).length,
+      },
+      queue: acquisitionQueue.map((candidate) => ({
+        id: candidate.id,
+        title: candidate.title,
+        organization: candidate.organization,
+        type: candidate.type,
+        targetStudentGroups: candidate.targetStudentGroups,
+        coverageGaps: candidate.coverageGaps,
+        verificationEffort: candidate.verificationEffort,
+        priority: acquisitionPriority(candidate),
+        status: candidate.status,
+        disposition: candidate.disposition,
+        dispositionReason: candidate.dispositionReason,
+        sourceWatch: candidate.sourceWatch,
       })),
     },
     lifecycleReviewQueue: lifecycle

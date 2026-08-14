@@ -7,7 +7,7 @@ import { defaultBillingRecord } from "../lib/billing";
 import type { AccountData, AuthUser } from "../lib/account-types";
 import { buildUniversalSearch } from "../lib/universal-search";
 
-const now = new Date("2026-08-10T12:00:00.000Z");
+const now = new Date("2026-08-14T12:00:00.000Z");
 const user: AuthUser = { id: "universal-search-owner", email: "search@example.test", name: "Taylor Student" };
 const nasa = opportunities.find((item) => /NASA/i.test(`${item.title} ${item.organization}`) && item.type === "Career") ?? opportunities.find((item) => /NASA/i.test(`${item.title} ${item.organization}`));
 assert.ok(nasa, "Universal search checks require an existing NASA catalog opportunity.");

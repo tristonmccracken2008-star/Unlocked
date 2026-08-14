@@ -11331,7 +11331,7 @@
     "title": "NASA International Space Apps Challenge",
     "type": "Career",
     "category": "Competitions",
-    "description": "Global challenge using NASA data to address space and Earth science problems. This matters because it can build experience, employer exposure, portfolio evidence, or professional direction. Students who meet the eligibility rules should review the official NASA source, confirm current requirements, and apply or claim through the provider's published process.",
+    "description": "A global challenge where participants form teams and build solutions using NASA and partner-agency data. The 2026 event begins November 14 at registered local and virtual locations.",
     "organization": "NASA",
     "school_scope": "National",
     "schools": [],
@@ -11342,41 +11342,337 @@
       "First year",
       "Second year",
       "Third year",
-      "Fourth year",
-      "Graduate student"
+      "Fourth year"
     ],
-    "eligibility": "Open participation subject to local event registration and current challenge rules.",
+    "eligibility": "Participants worldwide across ages, skill levels, and professional backgrounds may register; participants under 18 need parent or guardian registration and accompaniment. U.S. federal civil servants cannot register as participants.",
     "estimated_value": null,
     "application_deadline": null,
     "recurring": true,
-    "location": "Global local events and online",
+    "location": "Global local and virtual event locations",
     "remote": null,
     "paid": false,
     "tags": [
-      "Competitions",
+      "Competition",
+      "International",
+      "First-Year Friendly",
+      "Teamwork",
       "Any Major",
-      "Unpaid",
-      "Hybrid"
+      "NASA"
     ],
-    "official_source": "https://www.spaceappschallenge.org/",
+    "official_source": "https://www.spaceappschallenge.org/legal/",
+    "official_source_url": "https://www.spaceappschallenge.org/legal/",
     "verification_status": "verified",
-    "last_verified": "2026-07-06",
+    "last_verified": "2026-08-14",
+    "deadline": null,
+    "reviewer_notes": "The event date and participant registration requirement are current. No exact registration deadline is claimed; deadline metadata remains varies rather than inventing a date.",
+    "estimated_value_note": "Unknown - recognition depends on challenge judging and no guaranteed cash award is published.",
+    "date_added": "2026-08-14",
     "difficulty": "Open",
     "prestige": "High",
-    "icon": "briefcase",
+    "icon": "career",
     "featured": false,
     "hidden_gem": false,
     "metadata": {
-      "legacySlug": "nasa-space-apps",
-      "deadlineType": "not_announced",
+      "deadlineType": "varies",
       "compensation": "Unpaid",
-      "workMode": "Hybrid"
-    },
-    "date_added": "2026-07-06",
-    "official_source_url": "https://www.spaceappschallenge.org/",
-    "deadline": null,
-    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
-    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
+      "workMode": "Varies",
+      "applicationRequirements": [
+        "Space Apps account",
+        "Event registration before the local event begins",
+        "Parent or guardian registration for participants under 18"
+      ],
+      "estimatedApplicationTime": "15-30 minutes",
+      "skillsGained": [
+        "Teamwork",
+        "Problem Solving",
+        "Data Communication",
+        "Prototyping"
+      ],
+      "careerPaths": [
+        "Technology",
+        "Research",
+        "Design",
+        "Public Service"
+      ],
+      "eligibilityRules": {
+        "educationLevels": [
+          "undergraduate"
+        ],
+        "canonicalInstitutionTypes": [
+          "community_college",
+          "four_year_college",
+          "university",
+          "liberal_arts_college"
+        ],
+        "canonicalEnrollmentStatuses": [
+          "currently_enrolled"
+        ],
+        "acceptsExternalStudents": true,
+        "classYears": [
+          "First year",
+          "Second year",
+          "Third year",
+          "Fourth year"
+        ],
+        "majors": [
+          "Any Major"
+        ],
+        "citizenshipStatuses": [
+          "international_allowed"
+        ],
+        "availability": "open",
+        "recommendationEligibilityStatus": "eligible_for_ranking",
+        "evidence": [
+          "Official 2026 participant terms and NASA program overview reviewed on 2026-08-14."
+        ],
+        "fieldEvidence": {
+          "academic_level": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.spaceappschallenge.org/legal/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "2026-challenge",
+            "note": "The official 2026 participant terms confirm registration, worldwide event structure, November 14 start, guardian rules for minors, and the federal-civil-servant exclusion."
+          },
+          "institution_type": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.spaceappschallenge.org/legal/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "2026-challenge",
+            "note": "The official 2026 participant terms confirm registration, worldwide event structure, November 14 start, guardian rules for minors, and the federal-civil-servant exclusion."
+          },
+          "enrollment_status": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.spaceappschallenge.org/legal/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "2026-challenge",
+            "note": "The official 2026 participant terms confirm registration, worldwide event structure, November 14 start, guardian rules for minors, and the federal-civil-servant exclusion."
+          },
+          "school_restriction": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.spaceappschallenge.org/legal/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "2026-challenge",
+            "note": "The official 2026 participant terms confirm registration, worldwide event structure, November 14 start, guardian rules for minors, and the federal-civil-servant exclusion."
+          },
+          "external_student_eligibility": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.spaceappschallenge.org/legal/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "2026-challenge",
+            "note": "The official 2026 participant terms confirm registration, worldwide event structure, November 14 start, guardian rules for minors, and the federal-civil-servant exclusion."
+          },
+          "class_year": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.spaceappschallenge.org/legal/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "2026-challenge",
+            "note": "The official 2026 participant terms confirm registration, worldwide event structure, November 14 start, guardian rules for minors, and the federal-civil-servant exclusion."
+          },
+          "major": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.spaceappschallenge.org/legal/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "2026-challenge",
+            "note": "The official 2026 participant terms confirm registration, worldwide event structure, November 14 start, guardian rules for minors, and the federal-civil-servant exclusion."
+          },
+          "citizenship": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.spaceappschallenge.org/legal/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "2026-challenge",
+            "note": "The official 2026 participant terms confirm registration, worldwide event structure, November 14 start, guardian rules for minors, and the federal-civil-servant exclusion."
+          },
+          "residency": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.spaceappschallenge.org/legal/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "2026-challenge",
+            "note": "The official 2026 participant terms confirm registration, worldwide event structure, November 14 start, guardian rules for minors, and the federal-civil-servant exclusion."
+          },
+          "gpa": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.spaceappschallenge.org/legal/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "2026-challenge",
+            "note": "The official 2026 participant terms confirm registration, worldwide event structure, November 14 start, guardian rules for minors, and the federal-civil-servant exclusion."
+          },
+          "age": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.spaceappschallenge.org/legal/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "2026-challenge",
+            "note": "The official 2026 participant terms confirm registration, worldwide event structure, November 14 start, guardian rules for minors, and the federal-civil-servant exclusion."
+          },
+          "financial_need": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.spaceappschallenge.org/legal/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "2026-challenge",
+            "note": "The official 2026 participant terms confirm registration, worldwide event structure, November 14 start, guardian rules for minors, and the federal-civil-servant exclusion."
+          },
+          "invitation": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.spaceappschallenge.org/legal/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "2026-challenge",
+            "note": "The official 2026 participant terms confirm registration, worldwide event structure, November 14 start, guardian rules for minors, and the federal-civil-servant exclusion."
+          },
+          "application_status": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.spaceappschallenge.org/legal/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "2026-challenge",
+            "note": "The official 2026 participant terms confirm registration, worldwide event structure, November 14 start, guardian rules for minors, and the federal-civil-servant exclusion."
+          },
+          "deadline": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.spaceappschallenge.org/legal/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "2026-challenge",
+            "note": "The official 2026 participant terms confirm registration, worldwide event structure, November 14 start, guardian rules for minors, and the federal-civil-servant exclusion."
+          }
+        }
+      },
+      "sourceReferences": [
+        {
+          "url": "https://www.spaceappschallenge.org/legal/",
+          "authority": "official_program",
+          "verifiedAt": "2026-08-14",
+          "cycle": "2026-27",
+          "supports": [
+            "academic_level",
+            "institution_type",
+            "enrollment_status",
+            "school_restriction",
+            "external_student_eligibility",
+            "class_year",
+            "major",
+            "citizenship",
+            "age",
+            "application_status"
+          ],
+          "note": "The official 2026 participant terms confirm registration, worldwide event structure, November 14 start, guardian rules for minors, and the federal-civil-servant exclusion."
+        },
+        {
+          "url": "https://www.nasa.gov/learning-resources/nasa-stem-opportunities-activities/",
+          "authority": "official_program",
+          "verifiedAt": "2026-08-14",
+          "cycle": "2026-27",
+          "supports": [
+            "major",
+            "citizenship",
+            "external_student_eligibility"
+          ],
+          "note": "NASA's official STEM opportunities page describes Space Apps as open globally across ages, skill levels, and backgrounds."
+        }
+      ],
+      "acquisition": {
+        "batchId": "high-quality-expansion-2026-08-wave-1",
+        "acquiredAt": "2026-08-14",
+        "reviewCadenceDays": 30,
+        "nextReviewAt": "2026-09-13",
+        "freshnessModel": "annual_event"
+      },
+      "verification": {
+        "status": "verified",
+        "lastVerifiedAt": "2026-08-14",
+        "verifiedCycle": "2026-challenge",
+        "officialSourceUrl": "https://www.spaceappschallenge.org/legal/",
+        "applicationUrlVerified": true,
+        "deadlineVerified": false,
+        "eligibilityVerified": true,
+        "sourceReachable": true,
+        "sourceAuditStatus": 200,
+        "notes": "The event date and participant registration requirement are current. No exact registration deadline is claimed; deadline metadata remains varies rather than inventing a date."
+      },
+      "lifecycle": {
+        "schemaVersion": 1,
+        "migrationId": "high-quality-expansion-2026-08-wave-1",
+        "identity": {
+          "identityId": "career--nasa-space-apps",
+          "aliases": [
+            "NASA Space Apps",
+            "NASA International Space Apps Challenge"
+          ]
+        },
+        "cycle": {
+          "cycleId": "2026-challenge",
+          "label": "2026-challenge"
+        },
+        "state": "open",
+        "confidence": "confirmed",
+        "reason": "official_status_open",
+        "effectiveAt": "2026-08-14T00:00:00.000Z",
+        "recurrence": {
+          "type": "annual",
+          "confidence": "confirmed",
+          "officialStatement": "The event date and participant registration requirement are current. No exact registration deadline is claimed; deadline metadata remains varies rather than inventing a date."
+        },
+        "evidence": [
+          {
+            "id": "career--nasa-space-apps:2026-challenge:official:1",
+            "source": "official_status",
+            "observedAt": "2026-08-14T00:00:00.000Z",
+            "value": "The official 2026 participant terms confirm registration, worldwide event structure, November 14 start, guardian rules for minors, and the federal-civil-servant exclusion.",
+            "sourceUrl": "https://www.spaceappschallenge.org/legal/",
+            "confidence": "confirmed"
+          },
+          {
+            "id": "career--nasa-space-apps:2026-challenge:official:2",
+            "source": "official_status",
+            "observedAt": "2026-08-14T00:00:00.000Z",
+            "value": "NASA's official STEM opportunities page describes Space Apps as open globally across ages, skill levels, and backgrounds.",
+            "sourceUrl": "https://www.nasa.gov/learning-resources/nasa-stem-opportunities-activities/",
+            "confidence": "confirmed"
+          }
+        ],
+        "events": [],
+        "sourceChecks": [
+          {
+            "url": "https://www.spaceappschallenge.org/legal/",
+            "checkedAt": "2026-08-14T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          },
+          {
+            "url": "https://www.nasa.gov/learning-resources/nasa-stem-opportunities-activities/",
+            "checkedAt": "2026-08-14T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          }
+        ],
+        "fieldVerifiedAt": {
+          "state": "2026-08-14",
+          "deadline": "2026-08-14",
+          "applicationUrl": "2026-08-14",
+          "eligibility": "2026-08-14",
+          "award": "2026-08-14",
+          "location": "2026-08-14",
+          "programDates": "2026-08-14",
+          "description": "2026-08-14"
+        },
+        "review": {
+          "note": "The event date and participant registration requirement are current. No exact registration deadline is claimed; deadline metadata remains varies rather than inventing a date.",
+          "reviewedAt": "2026-08-14T00:00:00.000Z",
+          "reviewer": "UnlockED catalog acquisition"
+        }
+      }
+    }
   },
   {
     "id": "career--mlh-fellowship",
@@ -16784,8 +17080,8 @@
     "id": "scholarship--fund-for-education-abroad",
     "title": "Fund for Education Abroad Scholarships",
     "type": "Scholarship",
-    "category": "Study Abroad Scholarships",
-    "description": "Scholarships for U.S. undergraduates underrepresented in study abroad who participate in eligible programs. This matters because it can reduce education costs and point students toward awards with documented eligibility. Students who meet the eligibility rules should review the official Fund for Education Abroad source, confirm current requirements, and apply or claim through the provider's published process.",
+    "category": "Study Abroad",
+    "description": "Need-based funding for U.S. undergraduates earning home-institution credit through a winter or spring study-abroad program lasting at least 14 days.",
     "organization": "Fund for Education Abroad",
     "school_scope": "National",
     "schools": [],
@@ -16798,45 +17094,344 @@
       "Third year",
       "Fourth year"
     ],
-    "eligibility": "Eligible U.S. undergraduates enrolled in an approved study-abroad program and meeting current FEA rules.",
-    "estimated_value": null,
-    "application_deadline": null,
-    "recurring": false,
-    "location": "National / online application",
-    "remote": true,
+    "eligibility": "Undergraduates age 18 or older enrolled at a U.S. institution who are U.S. citizens or permanent residents, have demonstrated financial need, will earn home-institution credit abroad for at least 14 days, and have not previously studied abroad after high school.",
+    "estimated_value": 10000,
+    "application_deadline": "2026-09-16",
+    "recurring": true,
+    "location": "Study abroad destination",
+    "remote": false,
     "paid": true,
     "tags": [
       "Scholarship",
-      "Study Abroad Scholarships",
-      "Any Major"
+      "Study Abroad",
+      "Financial Need",
+      "Any Major",
+      "Undergraduate"
     ],
     "official_source": "https://fundforeducationabroad.org/apply/",
+    "official_source_url": "https://fundforeducationabroad.org/apply/",
     "verification_status": "verified",
-    "last_verified": "2026-07-06",
+    "last_verified": "2026-08-14",
+    "deadline": "2026-09-16",
+    "reviewer_notes": "Official FEA sources confirm the open Winter/Spring 2027 cycle, exact deadline, award range, and baseline eligibility. DACA is also accepted by FEA but is conservatively omitted from structured ranking because the current profile model has no DACA status.",
+    "estimated_value_note": "$1,000-$10,000, with the amount based on program length.",
+    "date_added": "2026-08-14",
     "difficulty": "Competitive",
     "prestige": "High",
     "icon": "scholarship",
     "featured": false,
     "hidden_gem": false,
     "metadata": {
-      "legacySlug": "fund-for-education-abroad",
-      "awardAmountLabel": "Amount varies",
-      "renewable": false,
-      "applicationRequirements": [
-        "Application",
-        "Study-abroad program information",
-        "Financial information",
-        "Essays"
-      ],
-      "deadlineType": "varies",
+      "deadlineType": "fixed",
       "compensation": "Paid",
-      "workMode": "Remote"
-    },
-    "date_added": "2026-07-06",
-    "official_source_url": "https://fundforeducationabroad.org/apply/",
-    "deadline": null,
-    "reviewer_notes": "Review against the official source before changing eligibility, deadline, or value.",
-    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
+      "workMode": "In Person",
+      "awardAmountLabel": "$1,000-$10,000, with the amount based on program length.",
+      "renewable": null,
+      "applicationRequirements": [
+        "Online application",
+        "Unofficial transcript",
+        "Study-abroad program and credit details",
+        "Financial-need information"
+      ],
+      "estimatedApplicationTime": "3-5 hours",
+      "skillsGained": [
+        "Cross-cultural Communication"
+      ],
+      "careerPaths": [
+        "Any Career"
+      ],
+      "eligibilityRules": {
+        "educationLevels": [
+          "undergraduate"
+        ],
+        "canonicalInstitutionTypes": [
+          "community_college",
+          "four_year_college",
+          "university",
+          "liberal_arts_college"
+        ],
+        "canonicalEnrollmentStatuses": [
+          "currently_enrolled"
+        ],
+        "classYears": [
+          "First year",
+          "Second year",
+          "Third year",
+          "Fourth year"
+        ],
+        "majors": [
+          "Any Major"
+        ],
+        "citizenshipStatuses": [
+          "us_citizen",
+          "permanent_resident"
+        ],
+        "ageRange": {
+          "minimum": 18
+        },
+        "financialNeedRequired": true,
+        "availability": "open",
+        "recommendationEligibilityStatus": "eligible_for_ranking",
+        "evidence": [
+          "Official current-cycle application and flyer reviewed on 2026-08-14."
+        ],
+        "fieldEvidence": {
+          "academic_level": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://fundforeducationabroad.org/apply/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "winter-spring-2027",
+            "note": "The official application page confirms undergraduate enrollment, U.S. institution, citizenship, age, credit, prior-study-abroad, and financial-need rules."
+          },
+          "institution_type": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://fundforeducationabroad.org/apply/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "winter-spring-2027",
+            "note": "The official application page confirms undergraduate enrollment, U.S. institution, citizenship, age, credit, prior-study-abroad, and financial-need rules."
+          },
+          "enrollment_status": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://fundforeducationabroad.org/apply/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "winter-spring-2027",
+            "note": "The official application page confirms undergraduate enrollment, U.S. institution, citizenship, age, credit, prior-study-abroad, and financial-need rules."
+          },
+          "school_restriction": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://fundforeducationabroad.org/apply/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "winter-spring-2027",
+            "note": "The official application page confirms undergraduate enrollment, U.S. institution, citizenship, age, credit, prior-study-abroad, and financial-need rules."
+          },
+          "external_student_eligibility": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://fundforeducationabroad.org/apply/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "winter-spring-2027",
+            "note": "The official application page confirms undergraduate enrollment, U.S. institution, citizenship, age, credit, prior-study-abroad, and financial-need rules."
+          },
+          "class_year": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://fundforeducationabroad.org/apply/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "winter-spring-2027",
+            "note": "The official application page confirms undergraduate enrollment, U.S. institution, citizenship, age, credit, prior-study-abroad, and financial-need rules."
+          },
+          "major": {
+            "state": "verified_open",
+            "sourceUrl": "https://fundforeducationabroad.org/apply/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "winter-spring-2027",
+            "note": "The official application page confirms undergraduate enrollment, U.S. institution, citizenship, age, credit, prior-study-abroad, and financial-need rules."
+          },
+          "citizenship": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://fundforeducationabroad.org/apply/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "winter-spring-2027",
+            "note": "The official application page confirms undergraduate enrollment, U.S. institution, citizenship, age, credit, prior-study-abroad, and financial-need rules."
+          },
+          "residency": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://fundforeducationabroad.org/apply/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "winter-spring-2027",
+            "note": "The official application page confirms undergraduate enrollment, U.S. institution, citizenship, age, credit, prior-study-abroad, and financial-need rules."
+          },
+          "gpa": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://fundforeducationabroad.org/apply/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "winter-spring-2027",
+            "note": "The official application page confirms undergraduate enrollment, U.S. institution, citizenship, age, credit, prior-study-abroad, and financial-need rules."
+          },
+          "age": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://fundforeducationabroad.org/apply/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "winter-spring-2027",
+            "note": "The official application page confirms undergraduate enrollment, U.S. institution, citizenship, age, credit, prior-study-abroad, and financial-need rules."
+          },
+          "financial_need": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://fundforeducationabroad.org/apply/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "winter-spring-2027",
+            "note": "The official application page confirms undergraduate enrollment, U.S. institution, citizenship, age, credit, prior-study-abroad, and financial-need rules."
+          },
+          "invitation": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://fundforeducationabroad.org/apply/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "winter-spring-2027",
+            "note": "The official application page confirms undergraduate enrollment, U.S. institution, citizenship, age, credit, prior-study-abroad, and financial-need rules."
+          },
+          "application_status": {
+            "state": "verified_open",
+            "sourceUrl": "https://fundforeducationabroad.org/apply/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "winter-spring-2027",
+            "note": "The official application page confirms undergraduate enrollment, U.S. institution, citizenship, age, credit, prior-study-abroad, and financial-need rules."
+          },
+          "deadline": {
+            "state": "verified_open",
+            "sourceUrl": "https://fundforeducationabroad.org/wp-content/uploads/2026/07/WinterSpring-2027-Application-Flyer.pdf",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "winter-spring-2027",
+            "note": "The official Winter/Spring 2027 flyer confirms the July 29 opening, September 16 deadline, eligibility, and $1,000-$10,000 award range."
+          }
+        }
+      },
+      "sourceReferences": [
+        {
+          "url": "https://fundforeducationabroad.org/apply/",
+          "authority": "official_program",
+          "verifiedAt": "2026-08-14",
+          "cycle": "2026-27",
+          "supports": [
+            "academic_level",
+            "institution_type",
+            "enrollment_status",
+            "school_restriction",
+            "external_student_eligibility",
+            "class_year",
+            "major",
+            "citizenship",
+            "age",
+            "financial_need",
+            "application_status"
+          ],
+          "note": "The official application page confirms undergraduate enrollment, U.S. institution, citizenship, age, credit, prior-study-abroad, and financial-need rules."
+        },
+        {
+          "url": "https://fundforeducationabroad.org/wp-content/uploads/2026/07/WinterSpring-2027-Application-Flyer.pdf",
+          "authority": "official_program",
+          "verifiedAt": "2026-08-14",
+          "cycle": "2026-27",
+          "supports": [
+            "deadline",
+            "application_status"
+          ],
+          "note": "The official Winter/Spring 2027 flyer confirms the July 29 opening, September 16 deadline, eligibility, and $1,000-$10,000 award range."
+        }
+      ],
+      "acquisition": {
+        "batchId": "high-quality-expansion-2026-08-wave-1",
+        "acquiredAt": "2026-08-14",
+        "reviewCadenceDays": 45,
+        "nextReviewAt": "2026-09-17",
+        "freshnessModel": "fixed_cycle"
+      },
+      "verification": {
+        "status": "verified",
+        "lastVerifiedAt": "2026-08-14",
+        "verifiedCycle": "winter-spring-2027",
+        "officialSourceUrl": "https://fundforeducationabroad.org/apply/",
+        "applicationUrlVerified": true,
+        "deadlineVerified": true,
+        "eligibilityVerified": true,
+        "sourceReachable": true,
+        "sourceAuditStatus": 200,
+        "notes": "Official FEA sources confirm the open Winter/Spring 2027 cycle, exact deadline, award range, and baseline eligibility. DACA is also accepted by FEA but is conservatively omitted from structured ranking because the current profile model has no DACA status."
+      },
+      "lifecycle": {
+        "schemaVersion": 1,
+        "migrationId": "high-quality-expansion-2026-08-wave-1",
+        "identity": {
+          "identityId": "scholarship--fund-for-education-abroad",
+          "aliases": [
+            "FEA Scholarship",
+            "Fund for Education Abroad Scholarship"
+          ]
+        },
+        "cycle": {
+          "cycleId": "winter-spring-2027",
+          "label": "winter-spring-2027"
+        },
+        "state": "open",
+        "confidence": "confirmed",
+        "reason": "official_status_open",
+        "effectiveAt": "2026-08-14T00:00:00.000Z",
+        "finalDeadline": {
+          "kind": "final_deadline",
+          "sourceValue": "2026-09-16",
+          "normalizedValue": "2026-09-16",
+          "precision": "date",
+          "estimated": false,
+          "verifiedAt": "2026-08-14",
+          "sourceUrl": "https://fundforeducationabroad.org/apply/"
+        },
+        "recurrence": {
+          "type": "annual",
+          "confidence": "confirmed",
+          "officialStatement": "Official FEA sources confirm the open Winter/Spring 2027 cycle, exact deadline, award range, and baseline eligibility. DACA is also accepted by FEA but is conservatively omitted from structured ranking because the current profile model has no DACA status."
+        },
+        "evidence": [
+          {
+            "id": "scholarship--fund-for-education-abroad:winter-spring-2027:official:1",
+            "source": "official_application_page",
+            "observedAt": "2026-08-14T00:00:00.000Z",
+            "value": "The official application page confirms undergraduate enrollment, U.S. institution, citizenship, age, credit, prior-study-abroad, and financial-need rules.",
+            "sourceUrl": "https://fundforeducationabroad.org/apply/",
+            "confidence": "confirmed"
+          },
+          {
+            "id": "scholarship--fund-for-education-abroad:winter-spring-2027:official:2",
+            "source": "official_application_page",
+            "observedAt": "2026-08-14T00:00:00.000Z",
+            "value": "The official Winter/Spring 2027 flyer confirms the July 29 opening, September 16 deadline, eligibility, and $1,000-$10,000 award range.",
+            "sourceUrl": "https://fundforeducationabroad.org/wp-content/uploads/2026/07/WinterSpring-2027-Application-Flyer.pdf",
+            "confidence": "confirmed"
+          }
+        ],
+        "events": [],
+        "sourceChecks": [
+          {
+            "url": "https://fundforeducationabroad.org/apply/",
+            "checkedAt": "2026-08-14T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          },
+          {
+            "url": "https://fundforeducationabroad.org/wp-content/uploads/2026/07/WinterSpring-2027-Application-Flyer.pdf",
+            "checkedAt": "2026-08-14T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          }
+        ],
+        "fieldVerifiedAt": {
+          "state": "2026-08-14",
+          "deadline": "2026-08-14",
+          "applicationUrl": "2026-08-14",
+          "eligibility": "2026-08-14",
+          "award": "2026-08-14",
+          "location": "2026-08-14",
+          "programDates": "2026-08-14",
+          "description": "2026-08-14"
+        },
+        "review": {
+          "note": "Official FEA sources confirm the open Winter/Spring 2027 cycle, exact deadline, award range, and baseline eligibility. DACA is also accepted by FEA but is conservatively omitted from structured ranking because the current profile model has no DACA status.",
+          "reviewedAt": "2026-08-14T00:00:00.000Z",
+          "reviewer": "UnlockED catalog acquisition"
+        }
+      }
+    }
   },
   {
     "id": "scholarship--freeman-asia",
@@ -432456,21 +433051,113 @@
           "DOE's official SULI program page confirms Spring 2027 applications are open through September 30, 2026. The official eligibility page confirms enrollment, completed-semester, 3.0 GPA, age 18, and U.S.-citizen or lawful-permanent-resident requirements."
         ],
         "fieldEvidence": {
-          "academic_level": { "state": "verified_restriction", "sourceUrl": "https://science.osti.gov/wdts/suli/Eligibility", "authority": "official_program", "verifiedAt": "2026-08-14", "cycle": "Spring 2027" },
-          "institution_type": { "state": "verified_open", "sourceUrl": "https://science.osti.gov/wdts/suli/Eligibility", "authority": "official_program", "verifiedAt": "2026-08-14", "cycle": "Spring 2027" },
-          "enrollment_status": { "state": "verified_restriction", "sourceUrl": "https://science.osti.gov/wdts/suli/Eligibility", "authority": "official_program", "verifiedAt": "2026-08-14", "cycle": "Spring 2027" },
-          "school_restriction": { "state": "verified_open", "sourceUrl": "https://science.osti.gov/wdts/suli/Eligibility", "authority": "official_program", "verifiedAt": "2026-08-14", "cycle": "Spring 2027" },
-          "external_student_eligibility": { "state": "verified_open", "sourceUrl": "https://science.osti.gov/wdts/suli/Eligibility", "authority": "official_program", "verifiedAt": "2026-08-14", "cycle": "Spring 2027" },
-          "class_year": { "state": "verified_restriction", "sourceUrl": "https://science.osti.gov/wdts/suli/Eligibility", "authority": "official_program", "verifiedAt": "2026-08-14", "cycle": "Spring 2027", "note": "Ranking excludes first-year profiles because applicants must have completed one matriculated semester by the deadline." },
-          "major": { "state": "reviewed_no_restriction", "sourceUrl": "https://science.osti.gov/wdts/suli/Frequently-Asked-Questions", "authority": "official_program", "verifiedAt": "2026-08-14", "cycle": "Spring 2027", "note": "The program does not formally require a specific major. Pro ranking is conservatively scoped to the official program's STEM and science-policy focus." },
-          "citizenship": { "state": "verified_restriction", "sourceUrl": "https://science.osti.gov/wdts/suli/Eligibility", "authority": "official_program", "verifiedAt": "2026-08-14", "cycle": "Spring 2027" },
-          "residency": { "state": "reviewed_no_restriction", "sourceUrl": "https://science.osti.gov/wdts/suli/Eligibility", "authority": "official_program", "verifiedAt": "2026-08-14", "cycle": "Spring 2027" },
-          "gpa": { "state": "verified_restriction", "sourceUrl": "https://science.osti.gov/wdts/suli/Eligibility", "authority": "official_program", "verifiedAt": "2026-08-14", "cycle": "Spring 2027" },
-          "age": { "state": "verified_restriction", "sourceUrl": "https://science.osti.gov/wdts/suli/Eligibility", "authority": "official_program", "verifiedAt": "2026-08-14", "cycle": "Spring 2027" },
-          "financial_need": { "state": "reviewed_no_restriction", "sourceUrl": "https://science.osti.gov/wdts/suli/Eligibility", "authority": "official_program", "verifiedAt": "2026-08-14", "cycle": "Spring 2027" },
-          "invitation": { "state": "reviewed_no_restriction", "sourceUrl": "https://science.osti.gov/wdts/suli/How-to-Apply", "authority": "official_program", "verifiedAt": "2026-08-14", "cycle": "Spring 2027" },
-          "application_status": { "state": "verified_open", "sourceUrl": "https://science.osti.gov/wdts/suli", "authority": "official_program", "verifiedAt": "2026-08-14", "cycle": "Spring 2027" },
-          "deadline": { "state": "verified_restriction", "sourceUrl": "https://science.osti.gov/wdts/suli/Key-Dates", "authority": "official_program", "verifiedAt": "2026-08-14", "cycle": "Spring 2027" }
+          "academic_level": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://science.osti.gov/wdts/suli/Eligibility",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "Spring 2027"
+          },
+          "institution_type": {
+            "state": "verified_open",
+            "sourceUrl": "https://science.osti.gov/wdts/suli/Eligibility",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "Spring 2027"
+          },
+          "enrollment_status": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://science.osti.gov/wdts/suli/Eligibility",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "Spring 2027"
+          },
+          "school_restriction": {
+            "state": "verified_open",
+            "sourceUrl": "https://science.osti.gov/wdts/suli/Eligibility",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "Spring 2027"
+          },
+          "external_student_eligibility": {
+            "state": "verified_open",
+            "sourceUrl": "https://science.osti.gov/wdts/suli/Eligibility",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "Spring 2027"
+          },
+          "class_year": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://science.osti.gov/wdts/suli/Eligibility",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "Spring 2027",
+            "note": "Ranking excludes first-year profiles because applicants must have completed one matriculated semester by the deadline."
+          },
+          "major": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://science.osti.gov/wdts/suli/Frequently-Asked-Questions",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "Spring 2027",
+            "note": "The program does not formally require a specific major. Pro ranking is conservatively scoped to the official program's STEM and science-policy focus."
+          },
+          "citizenship": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://science.osti.gov/wdts/suli/Eligibility",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "Spring 2027"
+          },
+          "residency": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://science.osti.gov/wdts/suli/Eligibility",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "Spring 2027"
+          },
+          "gpa": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://science.osti.gov/wdts/suli/Eligibility",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "Spring 2027"
+          },
+          "age": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://science.osti.gov/wdts/suli/Eligibility",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "Spring 2027"
+          },
+          "financial_need": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://science.osti.gov/wdts/suli/Eligibility",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "Spring 2027"
+          },
+          "invitation": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://science.osti.gov/wdts/suli/How-to-Apply",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "Spring 2027"
+          },
+          "application_status": {
+            "state": "verified_open",
+            "sourceUrl": "https://science.osti.gov/wdts/suli",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "Spring 2027"
+          },
+          "deadline": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://science.osti.gov/wdts/suli/Key-Dates",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "Spring 2027"
+          }
         }
       },
       "verification": {
@@ -432488,19 +433175,65 @@
       "lifecycle": {
         "schemaVersion": 1,
         "migrationId": "recommendation-safe-catalog-2026-08-14",
-        "identity": { "identityId": "national-curated-2026--u-s-department-of-energy-office-of-science--doe-science-undergraduate-laboratory-internships" },
-        "cycle": { "cycleId": "spring-2027", "label": "Spring 2027" },
+        "identity": {
+          "identityId": "national-curated-2026--u-s-department-of-energy-office-of-science--doe-science-undergraduate-laboratory-internships"
+        },
+        "cycle": {
+          "cycleId": "spring-2027",
+          "label": "Spring 2027"
+        },
         "state": "open",
         "confidence": "confirmed",
         "reason": "official_status_open",
         "effectiveAt": "2026-08-14T00:00:00.000Z",
-        "finalDeadline": { "kind": "final_deadline", "sourceValue": "2026-09-30", "normalizedValue": "2026-09-30", "precision": "date", "estimated": false, "verifiedAt": "2026-08-14", "sourceUrl": "https://science.osti.gov/wdts/suli/Key-Dates" },
-        "recurrence": { "type": "seasonal", "confidence": "confirmed", "officialStatement": "DOE publishes separate summer, fall, and spring SULI application cycles." },
-        "evidence": [{ "id": "suli:spring-2027:official", "source": "official_application_page", "observedAt": "2026-08-14T00:00:00.000Z", "value": "Spring 2027 applications are open and due September 30, 2026 at 5:00 PM ET.", "sourceUrl": "https://science.osti.gov/wdts/suli", "confidence": "confirmed" }],
+        "finalDeadline": {
+          "kind": "final_deadline",
+          "sourceValue": "2026-09-30",
+          "normalizedValue": "2026-09-30",
+          "precision": "date",
+          "estimated": false,
+          "verifiedAt": "2026-08-14",
+          "sourceUrl": "https://science.osti.gov/wdts/suli/Key-Dates"
+        },
+        "recurrence": {
+          "type": "seasonal",
+          "confidence": "confirmed",
+          "officialStatement": "DOE publishes separate summer, fall, and spring SULI application cycles."
+        },
+        "evidence": [
+          {
+            "id": "suli:spring-2027:official",
+            "source": "official_application_page",
+            "observedAt": "2026-08-14T00:00:00.000Z",
+            "value": "Spring 2027 applications are open and due September 30, 2026 at 5:00 PM ET.",
+            "sourceUrl": "https://science.osti.gov/wdts/suli",
+            "confidence": "confirmed"
+          }
+        ],
         "events": [],
-        "sourceChecks": [{ "url": "https://science.osti.gov/wdts/suli", "checkedAt": "2026-08-14T00:00:00.000Z", "classification": "official_application", "status": 200 }],
-        "fieldVerifiedAt": { "state": "2026-08-14", "deadline": "2026-08-14", "applicationUrl": "2026-08-14", "eligibility": "2026-08-14", "award": "2026-08-14", "location": "2026-08-14", "programDates": "2026-08-14", "description": "2026-08-14" },
-        "review": { "note": "Official DOE pages reviewed for current lifecycle and eligibility facts.", "reviewedAt": "2026-08-14T00:00:00.000Z", "reviewer": "UnlockED catalog audit" }
+        "sourceChecks": [
+          {
+            "url": "https://science.osti.gov/wdts/suli",
+            "checkedAt": "2026-08-14T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          }
+        ],
+        "fieldVerifiedAt": {
+          "state": "2026-08-14",
+          "deadline": "2026-08-14",
+          "applicationUrl": "2026-08-14",
+          "eligibility": "2026-08-14",
+          "award": "2026-08-14",
+          "location": "2026-08-14",
+          "programDates": "2026-08-14",
+          "description": "2026-08-14"
+        },
+        "review": {
+          "note": "Official DOE pages reviewed for current lifecycle and eligibility facts.",
+          "reviewedAt": "2026-08-14T00:00:00.000Z",
+          "reviewer": "UnlockED catalog audit"
+        }
       }
     }
   },
@@ -438682,6 +439415,2222 @@
           "note": "The official FAQ says the 2027 application will be available in late summer 2026 and publishes October 15 as the final deadline.",
           "reviewedAt": "2026-08-08T00:00:00.000Z",
           "reviewer": "UnlockED catalog audit"
+        }
+      }
+    }
+  },
+  {
+    "id": "scholarship--knight-hennessy-scholars-2027",
+    "title": "Knight-Hennessy Scholars",
+    "type": "Scholarship",
+    "category": "Fellowships",
+    "description": "Up to three years of graduate funding at Stanford plus a multidisciplinary leadership program. Applicants submit separate applications to Knight-Hennessy and an eligible full-time Stanford graduate program.",
+    "organization": "Stanford University",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "Any Major"
+    ],
+    "academic_years": [
+      "Fourth year",
+      "Graduate student"
+    ],
+    "eligibility": "Applicants from any country and field who earned or will earn their first bachelor's degree in January 2020 or later, including current students graduating by September 2027, and who apply to an eligible full-time Stanford graduate program for 2027 entry.",
+    "estimated_value": null,
+    "application_deadline": "2026-10-06",
+    "recurring": true,
+    "location": "Stanford, California",
+    "remote": false,
+    "paid": true,
+    "tags": [
+      "Scholarship",
+      "Fellowship",
+      "Graduate School",
+      "Leadership",
+      "International",
+      "Any Major"
+    ],
+    "official_source": "https://knight-hennessy.stanford.edu/admission",
+    "official_source_url": "https://knight-hennessy.stanford.edu/admission",
+    "verification_status": "verified",
+    "last_verified": "2026-08-14",
+    "deadline": "2026-10-06",
+    "reviewer_notes": "Current official Stanford pages confirm a common deadline and international access. The record is limited to fourth-year and graduate profiles; students must still meet the selected Stanford program's admission requirements.",
+    "estimated_value_note": "Unknown - funding covers up to three years of eligible Stanford graduate study, but value depends on the degree program and individual support.",
+    "date_added": "2026-08-14",
+    "difficulty": "Highly Competitive",
+    "prestige": "Very High",
+    "icon": "scholarship",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "deadlineType": "fixed",
+      "compensation": "Paid",
+      "workMode": "In Person",
+      "awardAmountLabel": "Unknown - funding covers up to three years of eligible Stanford graduate study, but value depends on the degree program and individual support.",
+      "renewable": null,
+      "applicationRequirements": [
+        "Knight-Hennessy application",
+        "Separate eligible Stanford graduate application",
+        "Resume",
+        "Transcripts",
+        "Essays and short answers",
+        "Recommendations"
+      ],
+      "estimatedApplicationTime": "1-2 weeks",
+      "skillsGained": [
+        "Leadership",
+        "Interdisciplinary Collaboration",
+        "Graduate Study"
+      ],
+      "careerPaths": [
+        "Graduate School",
+        "Public Service",
+        "Research",
+        "Leadership"
+      ],
+      "eligibilityRules": {
+        "educationLevels": [
+          "undergraduate",
+          "graduate",
+          "recent_graduate"
+        ],
+        "canonicalInstitutionTypes": [
+          "four_year_college",
+          "university",
+          "liberal_arts_college",
+          "graduate_school"
+        ],
+        "canonicalEnrollmentStatuses": [
+          "currently_enrolled",
+          "graduated"
+        ],
+        "acceptsExternalStudents": true,
+        "classYears": [
+          "Fourth year",
+          "Graduate student"
+        ],
+        "majors": [
+          "Any Major"
+        ],
+        "citizenshipStatuses": [
+          "international_allowed"
+        ],
+        "availability": "open",
+        "recommendationEligibilityStatus": "eligible_for_ranking",
+        "evidence": [
+          "Applicants must separately apply to and enroll in an eligible full-time Stanford graduate program."
+        ],
+        "fieldEvidence": {
+          "academic_level": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://knight-hennessy.stanford.edu/admission/before-you-apply/eligibility",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "2027-cohort",
+            "note": "The official eligibility page confirms degree timing, eligible Stanford graduate enrollment paths, and worldwide eligibility without field restrictions."
+          },
+          "institution_type": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://knight-hennessy.stanford.edu/admission/before-you-apply/eligibility",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "2027-cohort",
+            "note": "The official eligibility page confirms degree timing, eligible Stanford graduate enrollment paths, and worldwide eligibility without field restrictions."
+          },
+          "enrollment_status": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://knight-hennessy.stanford.edu/admission/before-you-apply/eligibility",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "2027-cohort",
+            "note": "The official eligibility page confirms degree timing, eligible Stanford graduate enrollment paths, and worldwide eligibility without field restrictions."
+          },
+          "school_restriction": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://knight-hennessy.stanford.edu/admission/before-you-apply/eligibility",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "2027-cohort",
+            "note": "The official eligibility page confirms degree timing, eligible Stanford graduate enrollment paths, and worldwide eligibility without field restrictions."
+          },
+          "external_student_eligibility": {
+            "state": "verified_open",
+            "sourceUrl": "https://knight-hennessy.stanford.edu/admission/before-you-apply/eligibility",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "2027-cohort",
+            "note": "The official eligibility page confirms degree timing, eligible Stanford graduate enrollment paths, and worldwide eligibility without field restrictions."
+          },
+          "class_year": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://knight-hennessy.stanford.edu/admission/before-you-apply/eligibility",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "2027-cohort",
+            "note": "The official eligibility page confirms degree timing, eligible Stanford graduate enrollment paths, and worldwide eligibility without field restrictions."
+          },
+          "major": {
+            "state": "verified_open",
+            "sourceUrl": "https://knight-hennessy.stanford.edu/admission/before-you-apply/eligibility",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "2027-cohort",
+            "note": "The official eligibility page confirms degree timing, eligible Stanford graduate enrollment paths, and worldwide eligibility without field restrictions."
+          },
+          "citizenship": {
+            "state": "verified_open",
+            "sourceUrl": "https://knight-hennessy.stanford.edu/admission/before-you-apply/eligibility",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "2027-cohort",
+            "note": "The official eligibility page confirms degree timing, eligible Stanford graduate enrollment paths, and worldwide eligibility without field restrictions."
+          },
+          "residency": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://knight-hennessy.stanford.edu/admission/before-you-apply/eligibility",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "2027-cohort",
+            "note": "The official eligibility page confirms degree timing, eligible Stanford graduate enrollment paths, and worldwide eligibility without field restrictions."
+          },
+          "gpa": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://knight-hennessy.stanford.edu/admission/before-you-apply/eligibility",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "2027-cohort",
+            "note": "The official eligibility page confirms degree timing, eligible Stanford graduate enrollment paths, and worldwide eligibility without field restrictions."
+          },
+          "age": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://knight-hennessy.stanford.edu/admission/before-you-apply/eligibility",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "2027-cohort",
+            "note": "The official eligibility page confirms degree timing, eligible Stanford graduate enrollment paths, and worldwide eligibility without field restrictions."
+          },
+          "financial_need": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://knight-hennessy.stanford.edu/admission/before-you-apply/eligibility",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "2027-cohort",
+            "note": "The official eligibility page confirms degree timing, eligible Stanford graduate enrollment paths, and worldwide eligibility without field restrictions."
+          },
+          "invitation": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://knight-hennessy.stanford.edu/admission/before-you-apply/eligibility",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "2027-cohort",
+            "note": "The official eligibility page confirms degree timing, eligible Stanford graduate enrollment paths, and worldwide eligibility without field restrictions."
+          },
+          "application_status": {
+            "state": "verified_open",
+            "sourceUrl": "https://knight-hennessy.stanford.edu/admission",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "2027-cohort",
+            "note": "The official admissions page confirms the 2027 application is open and closes October 6, 2026 at 1 p.m. Pacific."
+          },
+          "deadline": {
+            "state": "verified_open",
+            "sourceUrl": "https://knight-hennessy.stanford.edu/admission",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "2027-cohort",
+            "note": "The official admissions page confirms the 2027 application is open and closes October 6, 2026 at 1 p.m. Pacific."
+          }
+        }
+      },
+      "sourceReferences": [
+        {
+          "url": "https://knight-hennessy.stanford.edu/admission/before-you-apply/eligibility",
+          "authority": "official_program",
+          "verifiedAt": "2026-08-14",
+          "cycle": "2026-27",
+          "supports": [
+            "academic_level",
+            "institution_type",
+            "enrollment_status",
+            "school_restriction",
+            "external_student_eligibility",
+            "class_year",
+            "major",
+            "citizenship"
+          ],
+          "note": "The official eligibility page confirms degree timing, eligible Stanford graduate enrollment paths, and worldwide eligibility without field restrictions."
+        },
+        {
+          "url": "https://knight-hennessy.stanford.edu/admission",
+          "authority": "official_program",
+          "verifiedAt": "2026-08-14",
+          "cycle": "2026-27",
+          "supports": [
+            "application_status",
+            "deadline"
+          ],
+          "note": "The official admissions page confirms the 2027 application is open and closes October 6, 2026 at 1 p.m. Pacific."
+        }
+      ],
+      "acquisition": {
+        "batchId": "high-quality-expansion-2026-08-wave-1",
+        "acquiredAt": "2026-08-14",
+        "reviewCadenceDays": 45,
+        "nextReviewAt": "2026-10-07",
+        "freshnessModel": "fixed_cycle"
+      },
+      "verification": {
+        "status": "verified",
+        "lastVerifiedAt": "2026-08-14",
+        "verifiedCycle": "2027-cohort",
+        "officialSourceUrl": "https://knight-hennessy.stanford.edu/admission",
+        "applicationUrlVerified": true,
+        "deadlineVerified": true,
+        "eligibilityVerified": true,
+        "sourceReachable": true,
+        "sourceAuditStatus": 200,
+        "notes": "Current official Stanford pages confirm a common deadline and international access. The record is limited to fourth-year and graduate profiles; students must still meet the selected Stanford program's admission requirements."
+      },
+      "lifecycle": {
+        "schemaVersion": 1,
+        "migrationId": "high-quality-expansion-2026-08-wave-1",
+        "identity": {
+          "identityId": "scholarship--knight-hennessy-scholars-2027",
+          "aliases": [
+            "KHS",
+            "Knight-Hennessy Scholarship"
+          ]
+        },
+        "cycle": {
+          "cycleId": "2027-cohort",
+          "label": "2027-cohort"
+        },
+        "state": "open",
+        "confidence": "confirmed",
+        "reason": "official_status_open",
+        "effectiveAt": "2026-08-14T00:00:00.000Z",
+        "finalDeadline": {
+          "kind": "final_deadline",
+          "sourceValue": "2026-10-06",
+          "normalizedValue": "2026-10-06",
+          "precision": "date",
+          "estimated": false,
+          "verifiedAt": "2026-08-14",
+          "sourceUrl": "https://knight-hennessy.stanford.edu/admission"
+        },
+        "recurrence": {
+          "type": "annual",
+          "confidence": "confirmed",
+          "officialStatement": "Current official Stanford pages confirm a common deadline and international access. The record is limited to fourth-year and graduate profiles; students must still meet the selected Stanford program's admission requirements."
+        },
+        "evidence": [
+          {
+            "id": "scholarship--knight-hennessy-scholars-2027:2027-cohort:official:1",
+            "source": "official_application_page",
+            "observedAt": "2026-08-14T00:00:00.000Z",
+            "value": "The official eligibility page confirms degree timing, eligible Stanford graduate enrollment paths, and worldwide eligibility without field restrictions.",
+            "sourceUrl": "https://knight-hennessy.stanford.edu/admission/before-you-apply/eligibility",
+            "confidence": "confirmed"
+          },
+          {
+            "id": "scholarship--knight-hennessy-scholars-2027:2027-cohort:official:2",
+            "source": "official_application_page",
+            "observedAt": "2026-08-14T00:00:00.000Z",
+            "value": "The official admissions page confirms the 2027 application is open and closes October 6, 2026 at 1 p.m. Pacific.",
+            "sourceUrl": "https://knight-hennessy.stanford.edu/admission",
+            "confidence": "confirmed"
+          }
+        ],
+        "events": [],
+        "sourceChecks": [
+          {
+            "url": "https://knight-hennessy.stanford.edu/admission/before-you-apply/eligibility",
+            "checkedAt": "2026-08-14T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          },
+          {
+            "url": "https://knight-hennessy.stanford.edu/admission",
+            "checkedAt": "2026-08-14T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          }
+        ],
+        "fieldVerifiedAt": {
+          "state": "2026-08-14",
+          "deadline": "2026-08-14",
+          "applicationUrl": "2026-08-14",
+          "eligibility": "2026-08-14",
+          "award": "2026-08-14",
+          "location": "2026-08-14",
+          "programDates": "2026-08-14",
+          "description": "2026-08-14"
+        },
+        "review": {
+          "note": "Current official Stanford pages confirm a common deadline and international access. The record is limited to fourth-year and graduate profiles; students must still meet the selected Stanford program's admission requirements.",
+          "reviewedAt": "2026-08-14T00:00:00.000Z",
+          "reviewer": "UnlockED catalog acquisition"
+        }
+      }
+    }
+  },
+  {
+    "id": "scholarship--rhodes-scholarship-united-states-2027",
+    "title": "Rhodes Scholarship for the United States",
+    "type": "Scholarship",
+    "category": "Fellowships",
+    "description": "Fully funded postgraduate study at the University of Oxford for U.S.-constituency applicants who meet the published citizenship, age, degree, and course-entry rules.",
+    "organization": "Rhodes Trust",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "Any Major"
+    ],
+    "academic_years": [
+      "Fourth year",
+      "Graduate student"
+    ],
+    "eligibility": "U.S. citizens or lawful permanent residents who meet the 2027 age rules and will complete an undergraduate degree by July 2027 with an academic record that meets their chosen full-time Oxford course requirements.",
+    "estimated_value": null,
+    "application_deadline": "2026-10-07",
+    "recurring": true,
+    "location": "Oxford, United Kingdom",
+    "remote": false,
+    "paid": true,
+    "tags": [
+      "Scholarship",
+      "Fellowship",
+      "Graduate School",
+      "International Study",
+      "Any Major"
+    ],
+    "official_source": "https://www.rhodeshouse.ox.ac.uk/scholarships/applications/united-states/",
+    "official_source_url": "https://www.rhodeshouse.ox.ac.uk/scholarships/applications/united-states/",
+    "verification_status": "verified",
+    "last_verified": "2026-08-14",
+    "deadline": "2026-10-07",
+    "reviewer_notes": "The record uses the standard U.S. constituency route and intentionally omits DACA/inter-jurisdictional and older-recent-graduate exceptions that cannot be represented safely in the current profile model.",
+    "estimated_value_note": "Unknown - the scholarship funds covered Oxford study and related support, with total value depending on course and tenure.",
+    "date_added": "2026-08-14",
+    "difficulty": "Highly Competitive",
+    "prestige": "Very High",
+    "icon": "scholarship",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "deadlineType": "fixed",
+      "compensation": "Paid",
+      "workMode": "In Person",
+      "awardAmountLabel": "Unknown - the scholarship funds covered Oxford study and related support, with total value depending on course and tenure.",
+      "renewable": null,
+      "applicationRequirements": [
+        "Online application",
+        "Oxford course selection",
+        "Academic transcript",
+        "Personal and academic statements",
+        "References"
+      ],
+      "estimatedApplicationTime": "1-2 weeks",
+      "skillsGained": [
+        "Graduate Study",
+        "Leadership",
+        "Cross-cultural Communication"
+      ],
+      "careerPaths": [
+        "Graduate School",
+        "Research",
+        "Public Service",
+        "Leadership"
+      ],
+      "eligibilityRules": {
+        "educationLevels": [
+          "undergraduate",
+          "graduate",
+          "recent_graduate"
+        ],
+        "canonicalInstitutionTypes": [
+          "four_year_college",
+          "university",
+          "liberal_arts_college",
+          "graduate_school"
+        ],
+        "canonicalEnrollmentStatuses": [
+          "currently_enrolled",
+          "graduated"
+        ],
+        "acceptsExternalStudents": true,
+        "classYears": [
+          "Fourth year",
+          "Graduate student"
+        ],
+        "majors": [
+          "Any Major"
+        ],
+        "citizenshipStatuses": [
+          "us_citizen",
+          "permanent_resident"
+        ],
+        "ageRange": {
+          "minimum": 18,
+          "maximum": 23
+        },
+        "availability": "open",
+        "recommendationEligibilityStatus": "eligible_for_ranking",
+        "evidence": [
+          "The structured age range uses the standard 18-23 route; the official later-graduate exception remains visible on the source but is not broadened in ranking."
+        ],
+        "fieldEvidence": {
+          "academic_level": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.rhodeshouse.ox.ac.uk/scholarships/applications/united-states/eligibilitycriteria/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "2027-entry",
+            "note": "The official U.S. constituency eligibility checker confirms citizenship/permanent residence, age, degree completion, and Oxford course-entry requirements."
+          },
+          "institution_type": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.rhodeshouse.ox.ac.uk/scholarships/applications/united-states/eligibilitycriteria/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "2027-entry",
+            "note": "The official U.S. constituency eligibility checker confirms citizenship/permanent residence, age, degree completion, and Oxford course-entry requirements."
+          },
+          "enrollment_status": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.rhodeshouse.ox.ac.uk/scholarships/applications/united-states/eligibilitycriteria/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "2027-entry",
+            "note": "The official U.S. constituency eligibility checker confirms citizenship/permanent residence, age, degree completion, and Oxford course-entry requirements."
+          },
+          "school_restriction": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.rhodeshouse.ox.ac.uk/scholarships/applications/united-states/eligibilitycriteria/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "2027-entry",
+            "note": "The official U.S. constituency eligibility checker confirms citizenship/permanent residence, age, degree completion, and Oxford course-entry requirements."
+          },
+          "external_student_eligibility": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.rhodeshouse.ox.ac.uk/scholarships/applications/united-states/eligibilitycriteria/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "2027-entry",
+            "note": "The official U.S. constituency eligibility checker confirms citizenship/permanent residence, age, degree completion, and Oxford course-entry requirements."
+          },
+          "class_year": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.rhodeshouse.ox.ac.uk/scholarships/applications/united-states/eligibilitycriteria/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "2027-entry",
+            "note": "The official U.S. constituency eligibility checker confirms citizenship/permanent residence, age, degree completion, and Oxford course-entry requirements."
+          },
+          "major": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.rhodeshouse.ox.ac.uk/scholarships/applications/united-states/eligibilitycriteria/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "2027-entry",
+            "note": "The official U.S. constituency eligibility checker confirms citizenship/permanent residence, age, degree completion, and Oxford course-entry requirements."
+          },
+          "citizenship": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.rhodeshouse.ox.ac.uk/scholarships/applications/united-states/eligibilitycriteria/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "2027-entry",
+            "note": "The official U.S. constituency eligibility checker confirms citizenship/permanent residence, age, degree completion, and Oxford course-entry requirements."
+          },
+          "residency": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.rhodeshouse.ox.ac.uk/scholarships/applications/united-states/eligibilitycriteria/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "2027-entry",
+            "note": "The official U.S. constituency eligibility checker confirms citizenship/permanent residence, age, degree completion, and Oxford course-entry requirements."
+          },
+          "gpa": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.rhodeshouse.ox.ac.uk/scholarships/applications/united-states/eligibilitycriteria/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "2027-entry",
+            "note": "The official U.S. constituency eligibility checker confirms citizenship/permanent residence, age, degree completion, and Oxford course-entry requirements."
+          },
+          "age": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.rhodeshouse.ox.ac.uk/scholarships/applications/united-states/eligibilitycriteria/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "2027-entry",
+            "note": "The official U.S. constituency eligibility checker confirms citizenship/permanent residence, age, degree completion, and Oxford course-entry requirements."
+          },
+          "financial_need": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.rhodeshouse.ox.ac.uk/scholarships/applications/united-states/eligibilitycriteria/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "2027-entry",
+            "note": "The official U.S. constituency eligibility checker confirms citizenship/permanent residence, age, degree completion, and Oxford course-entry requirements."
+          },
+          "invitation": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.rhodeshouse.ox.ac.uk/scholarships/applications/united-states/eligibilitycriteria/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "2027-entry",
+            "note": "The official U.S. constituency eligibility checker confirms citizenship/permanent residence, age, degree completion, and Oxford course-entry requirements."
+          },
+          "application_status": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.rhodeshouse.ox.ac.uk/scholarships/applications/united-states/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "2027-entry",
+            "note": "The official U.S. constituency page confirms applications opened July 1 and close October 7, 2026."
+          },
+          "deadline": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.rhodeshouse.ox.ac.uk/scholarships/applications/united-states/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "2027-entry",
+            "note": "The official U.S. constituency page confirms applications opened July 1 and close October 7, 2026."
+          }
+        }
+      },
+      "sourceReferences": [
+        {
+          "url": "https://www.rhodeshouse.ox.ac.uk/scholarships/applications/united-states/eligibilitycriteria/",
+          "authority": "official_program",
+          "verifiedAt": "2026-08-14",
+          "cycle": "2026-27",
+          "supports": [
+            "academic_level",
+            "institution_type",
+            "enrollment_status",
+            "school_restriction",
+            "external_student_eligibility",
+            "class_year",
+            "major",
+            "citizenship",
+            "age"
+          ],
+          "note": "The official U.S. constituency eligibility checker confirms citizenship/permanent residence, age, degree completion, and Oxford course-entry requirements."
+        },
+        {
+          "url": "https://www.rhodeshouse.ox.ac.uk/scholarships/applications/united-states/",
+          "authority": "official_program",
+          "verifiedAt": "2026-08-14",
+          "cycle": "2026-27",
+          "supports": [
+            "application_status",
+            "deadline"
+          ],
+          "note": "The official U.S. constituency page confirms applications opened July 1 and close October 7, 2026."
+        }
+      ],
+      "acquisition": {
+        "batchId": "high-quality-expansion-2026-08-wave-1",
+        "acquiredAt": "2026-08-14",
+        "reviewCadenceDays": 45,
+        "nextReviewAt": "2026-10-08",
+        "freshnessModel": "fixed_cycle"
+      },
+      "verification": {
+        "status": "verified",
+        "lastVerifiedAt": "2026-08-14",
+        "verifiedCycle": "2027-entry",
+        "officialSourceUrl": "https://www.rhodeshouse.ox.ac.uk/scholarships/applications/united-states/",
+        "applicationUrlVerified": true,
+        "deadlineVerified": true,
+        "eligibilityVerified": true,
+        "sourceReachable": true,
+        "sourceAuditStatus": 200,
+        "notes": "The record uses the standard U.S. constituency route and intentionally omits DACA/inter-jurisdictional and older-recent-graduate exceptions that cannot be represented safely in the current profile model."
+      },
+      "lifecycle": {
+        "schemaVersion": 1,
+        "migrationId": "high-quality-expansion-2026-08-wave-1",
+        "identity": {
+          "identityId": "scholarship--rhodes-scholarship-united-states-2027",
+          "aliases": [
+            "Rhodes Scholarship USA",
+            "Rhodes Scholarship U.S."
+          ]
+        },
+        "cycle": {
+          "cycleId": "2027-entry",
+          "label": "2027-entry"
+        },
+        "state": "open",
+        "confidence": "confirmed",
+        "reason": "official_status_open",
+        "effectiveAt": "2026-08-14T00:00:00.000Z",
+        "finalDeadline": {
+          "kind": "final_deadline",
+          "sourceValue": "2026-10-07",
+          "normalizedValue": "2026-10-07",
+          "precision": "date",
+          "estimated": false,
+          "verifiedAt": "2026-08-14",
+          "sourceUrl": "https://www.rhodeshouse.ox.ac.uk/scholarships/applications/united-states/"
+        },
+        "recurrence": {
+          "type": "annual",
+          "confidence": "confirmed",
+          "officialStatement": "The record uses the standard U.S. constituency route and intentionally omits DACA/inter-jurisdictional and older-recent-graduate exceptions that cannot be represented safely in the current profile model."
+        },
+        "evidence": [
+          {
+            "id": "scholarship--rhodes-scholarship-united-states-2027:2027-entry:official:1",
+            "source": "official_application_page",
+            "observedAt": "2026-08-14T00:00:00.000Z",
+            "value": "The official U.S. constituency eligibility checker confirms citizenship/permanent residence, age, degree completion, and Oxford course-entry requirements.",
+            "sourceUrl": "https://www.rhodeshouse.ox.ac.uk/scholarships/applications/united-states/eligibilitycriteria/",
+            "confidence": "confirmed"
+          },
+          {
+            "id": "scholarship--rhodes-scholarship-united-states-2027:2027-entry:official:2",
+            "source": "official_application_page",
+            "observedAt": "2026-08-14T00:00:00.000Z",
+            "value": "The official U.S. constituency page confirms applications opened July 1 and close October 7, 2026.",
+            "sourceUrl": "https://www.rhodeshouse.ox.ac.uk/scholarships/applications/united-states/",
+            "confidence": "confirmed"
+          }
+        ],
+        "events": [],
+        "sourceChecks": [
+          {
+            "url": "https://www.rhodeshouse.ox.ac.uk/scholarships/applications/united-states/eligibilitycriteria/",
+            "checkedAt": "2026-08-14T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          },
+          {
+            "url": "https://www.rhodeshouse.ox.ac.uk/scholarships/applications/united-states/",
+            "checkedAt": "2026-08-14T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          }
+        ],
+        "fieldVerifiedAt": {
+          "state": "2026-08-14",
+          "deadline": "2026-08-14",
+          "applicationUrl": "2026-08-14",
+          "eligibility": "2026-08-14",
+          "award": "2026-08-14",
+          "location": "2026-08-14",
+          "programDates": "2026-08-14",
+          "description": "2026-08-14"
+        },
+        "review": {
+          "note": "The record uses the standard U.S. constituency route and intentionally omits DACA/inter-jurisdictional and older-recent-graduate exceptions that cannot be represented safely in the current profile model.",
+          "reviewedAt": "2026-08-14T00:00:00.000Z",
+          "reviewer": "UnlockED catalog acquisition"
+        }
+      }
+    }
+  },
+  {
+    "id": "research--ista-year-round-scientific-internships",
+    "title": "ISTA Year-Round Scientific Internships",
+    "type": "Research",
+    "category": "Internships",
+    "description": "Paid research placements lasting two months to one year with an ISTA research group in Austria. Applicants contact a relevant group leader directly with their background, CV, and proposed dates.",
+    "organization": "Institute of Science and Technology Austria",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "Natural Sciences",
+      "Biology",
+      "Chemistry",
+      "Physics",
+      "Neuroscience",
+      "Environmental Science",
+      "Computer Science",
+      "Data Science",
+      "Mathematics",
+      "Statistics",
+      "Engineering",
+      "Aerospace Engineering",
+      "Biomedical Engineering",
+      "Chemical Engineering",
+      "Computer Engineering",
+      "Electrical Engineering",
+      "Environmental Engineering",
+      "Materials Science",
+      "Mechanical Engineering"
+    ],
+    "academic_years": [
+      "First year",
+      "Second year",
+      "Third year",
+      "Fourth year",
+      "Graduate student"
+    ],
+    "eligibility": "Bachelor's or master's students and recent graduates in natural sciences, computer science, mathematics, or related disciplines who can spend at least two months at ISTA and work in English.",
+    "estimated_value": 1583,
+    "application_deadline": null,
+    "recurring": true,
+    "location": "Klosterneuburg, Austria",
+    "remote": false,
+    "paid": true,
+    "tags": [
+      "Research",
+      "International",
+      "Paid",
+      "STEM",
+      "Rolling"
+    ],
+    "official_source": "https://phd.pages.ista.ac.at/scientific-internships/",
+    "official_source_url": "https://phd.pages.ista.ac.at/scientific-internships/",
+    "verification_status": "verified",
+    "last_verified": "2026-08-14",
+    "deadline": null,
+    "reviewer_notes": "The year-round scientific internship is distinct from ISTA's paused 2026 summer ISTernship. The official page confirms rolling contact-based applications and a two-month minimum.",
+    "estimated_value_note": "Minimum salary of EUR 1,583 gross per month.",
+    "date_added": "2026-08-14",
+    "difficulty": "Highly Competitive",
+    "prestige": "Very High",
+    "icon": "research",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "deadlineType": "rolling",
+      "compensation": "Paid",
+      "workMode": "In Person",
+      "professor": null,
+      "department": "Institute of Science and Technology Austria",
+      "researchArea": "Science and technology",
+      "stipendAmount": 1583,
+      "semesters": [
+        "Year-round"
+      ],
+      "internshipDuration": "2-12 months",
+      "applicationRequirements": [
+        "Email a relevant group leader",
+        "Curriculum vitae",
+        "Short background and motivation",
+        "Proposed dates at least two months ahead"
+      ],
+      "estimatedApplicationTime": "1-2 hours",
+      "skillsGained": [
+        "Research",
+        "Scientific Communication",
+        "Laboratory or Computational Methods"
+      ],
+      "careerPaths": [
+        "Research",
+        "Graduate School",
+        "Science and Engineering"
+      ],
+      "eligibilityRules": {
+        "educationLevels": [
+          "undergraduate",
+          "graduate",
+          "recent_graduate"
+        ],
+        "canonicalInstitutionTypes": [
+          "community_college",
+          "four_year_college",
+          "university",
+          "liberal_arts_college",
+          "graduate_school"
+        ],
+        "canonicalEnrollmentStatuses": [
+          "currently_enrolled",
+          "graduated"
+        ],
+        "acceptsExternalStudents": true,
+        "classYears": [
+          "First year",
+          "Second year",
+          "Third year",
+          "Fourth year",
+          "Graduate student"
+        ],
+        "majors": [
+          "Natural Sciences",
+          "Biology",
+          "Chemistry",
+          "Physics",
+          "Neuroscience",
+          "Environmental Science",
+          "Computer Science",
+          "Data Science",
+          "Mathematics",
+          "Statistics",
+          "Engineering",
+          "Aerospace Engineering",
+          "Biomedical Engineering",
+          "Chemical Engineering",
+          "Computer Engineering",
+          "Electrical Engineering",
+          "Environmental Engineering",
+          "Materials Science",
+          "Mechanical Engineering"
+        ],
+        "citizenshipStatuses": [
+          "international_allowed"
+        ],
+        "availability": "rolling",
+        "recommendationEligibilityStatus": "eligible_for_ranking",
+        "evidence": [
+          "The official page accepts students and recent graduates without a citizenship restriction and explains visa assistance after selection."
+        ],
+        "fieldEvidence": {
+          "academic_level": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://phd.pages.ista.ac.at/scientific-internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "year-round-2026",
+            "note": "ISTA's official internship page confirms continuous applications, eligible degrees and fields, English, duration, direct application process, and minimum salary."
+          },
+          "institution_type": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://phd.pages.ista.ac.at/scientific-internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "year-round-2026",
+            "note": "ISTA's official internship page confirms continuous applications, eligible degrees and fields, English, duration, direct application process, and minimum salary."
+          },
+          "enrollment_status": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://phd.pages.ista.ac.at/scientific-internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "year-round-2026",
+            "note": "ISTA's official internship page confirms continuous applications, eligible degrees and fields, English, duration, direct application process, and minimum salary."
+          },
+          "school_restriction": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://phd.pages.ista.ac.at/scientific-internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "year-round-2026",
+            "note": "ISTA's official internship page confirms continuous applications, eligible degrees and fields, English, duration, direct application process, and minimum salary."
+          },
+          "external_student_eligibility": {
+            "state": "verified_open",
+            "sourceUrl": "https://phd.pages.ista.ac.at/scientific-internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "year-round-2026",
+            "note": "ISTA's official internship page confirms continuous applications, eligible degrees and fields, English, duration, direct application process, and minimum salary."
+          },
+          "class_year": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://phd.pages.ista.ac.at/scientific-internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "year-round-2026",
+            "note": "ISTA's official internship page confirms continuous applications, eligible degrees and fields, English, duration, direct application process, and minimum salary."
+          },
+          "major": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://phd.pages.ista.ac.at/scientific-internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "year-round-2026",
+            "note": "ISTA's official internship page confirms continuous applications, eligible degrees and fields, English, duration, direct application process, and minimum salary."
+          },
+          "citizenship": {
+            "state": "verified_open",
+            "sourceUrl": "https://phd.pages.ista.ac.at/scientific-internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "year-round-2026",
+            "note": "ISTA's official internship page confirms continuous applications, eligible degrees and fields, English, duration, direct application process, and minimum salary."
+          },
+          "residency": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://phd.pages.ista.ac.at/scientific-internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "year-round-2026",
+            "note": "ISTA's official internship page confirms continuous applications, eligible degrees and fields, English, duration, direct application process, and minimum salary."
+          },
+          "gpa": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://phd.pages.ista.ac.at/scientific-internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "year-round-2026",
+            "note": "ISTA's official internship page confirms continuous applications, eligible degrees and fields, English, duration, direct application process, and minimum salary."
+          },
+          "age": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://phd.pages.ista.ac.at/scientific-internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "year-round-2026",
+            "note": "ISTA's official internship page confirms continuous applications, eligible degrees and fields, English, duration, direct application process, and minimum salary."
+          },
+          "financial_need": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://phd.pages.ista.ac.at/scientific-internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "year-round-2026",
+            "note": "ISTA's official internship page confirms continuous applications, eligible degrees and fields, English, duration, direct application process, and minimum salary."
+          },
+          "invitation": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://phd.pages.ista.ac.at/scientific-internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "year-round-2026",
+            "note": "ISTA's official internship page confirms continuous applications, eligible degrees and fields, English, duration, direct application process, and minimum salary."
+          },
+          "application_status": {
+            "state": "verified_open",
+            "sourceUrl": "https://phd.pages.ista.ac.at/scientific-internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "year-round-2026",
+            "note": "ISTA's official internship page confirms continuous applications, eligible degrees and fields, English, duration, direct application process, and minimum salary."
+          },
+          "deadline": {
+            "state": "verified_open",
+            "sourceUrl": "https://phd.pages.ista.ac.at/scientific-internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "year-round-2026",
+            "note": "ISTA's official internship page confirms continuous applications, eligible degrees and fields, English, duration, direct application process, and minimum salary."
+          }
+        }
+      },
+      "sourceReferences": [
+        {
+          "url": "https://phd.pages.ista.ac.at/scientific-internships/",
+          "authority": "official_program",
+          "verifiedAt": "2026-08-14",
+          "cycle": "2026-27",
+          "supports": [
+            "academic_level",
+            "institution_type",
+            "enrollment_status",
+            "school_restriction",
+            "external_student_eligibility",
+            "class_year",
+            "major",
+            "citizenship",
+            "residency",
+            "gpa",
+            "age",
+            "financial_need",
+            "invitation",
+            "application_status",
+            "deadline"
+          ],
+          "note": "ISTA's official internship page confirms continuous applications, eligible degrees and fields, English, duration, direct application process, and minimum salary."
+        }
+      ],
+      "acquisition": {
+        "batchId": "high-quality-expansion-2026-08-wave-1",
+        "acquiredAt": "2026-08-14",
+        "reviewCadenceDays": 90,
+        "nextReviewAt": "2026-11-12",
+        "freshnessModel": "rolling_program"
+      },
+      "verification": {
+        "status": "verified",
+        "lastVerifiedAt": "2026-08-14",
+        "verifiedCycle": "year-round-2026",
+        "officialSourceUrl": "https://phd.pages.ista.ac.at/scientific-internships/",
+        "applicationUrlVerified": true,
+        "deadlineVerified": false,
+        "eligibilityVerified": true,
+        "sourceReachable": true,
+        "sourceAuditStatus": 200,
+        "notes": "The year-round scientific internship is distinct from ISTA's paused 2026 summer ISTernship. The official page confirms rolling contact-based applications and a two-month minimum."
+      },
+      "lifecycle": {
+        "schemaVersion": 1,
+        "migrationId": "high-quality-expansion-2026-08-wave-1",
+        "identity": {
+          "identityId": "research--ista-year-round-scientific-internships",
+          "aliases": [
+            "ISTA Scientific Internship",
+            "ISTA Year-Round Internship"
+          ]
+        },
+        "cycle": {
+          "cycleId": "year-round-2026",
+          "label": "year-round-2026"
+        },
+        "state": "rolling",
+        "confidence": "confirmed",
+        "reason": "rolling_confirmed",
+        "effectiveAt": "2026-08-14T00:00:00.000Z",
+        "recurrence": {
+          "type": "rolling_cohort",
+          "confidence": "confirmed",
+          "officialStatement": "The year-round scientific internship is distinct from ISTA's paused 2026 summer ISTernship. The official page confirms rolling contact-based applications and a two-month minimum."
+        },
+        "evidence": [
+          {
+            "id": "research--ista-year-round-scientific-internships:year-round-2026:official:1",
+            "source": "official_status",
+            "observedAt": "2026-08-14T00:00:00.000Z",
+            "value": "ISTA's official internship page confirms continuous applications, eligible degrees and fields, English, duration, direct application process, and minimum salary.",
+            "sourceUrl": "https://phd.pages.ista.ac.at/scientific-internships/",
+            "confidence": "confirmed"
+          }
+        ],
+        "events": [],
+        "sourceChecks": [
+          {
+            "url": "https://phd.pages.ista.ac.at/scientific-internships/",
+            "checkedAt": "2026-08-14T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          }
+        ],
+        "fieldVerifiedAt": {
+          "state": "2026-08-14",
+          "deadline": "2026-08-14",
+          "applicationUrl": "2026-08-14",
+          "eligibility": "2026-08-14",
+          "award": "2026-08-14",
+          "location": "2026-08-14",
+          "programDates": "2026-08-14",
+          "description": "2026-08-14"
+        },
+        "review": {
+          "note": "The year-round scientific internship is distinct from ISTA's paused 2026 summer ISTernship. The official page confirms rolling contact-based applications and a two-month minimum.",
+          "reviewedAt": "2026-08-14T00:00:00.000Z",
+          "reviewer": "UnlockED catalog acquisition"
+        }
+      }
+    }
+  },
+  {
+    "id": "research--kaust-visiting-student-research-program",
+    "title": "KAUST Visiting Student Research Program",
+    "type": "Research",
+    "category": "Internships",
+    "description": "Fully funded, faculty-led STEM research internships at KAUST lasting two to six months. Students choose among more than 100 projects and may arrange dates throughout the year.",
+    "organization": "King Abdullah University of Science and Technology",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "Natural Sciences",
+      "Biology",
+      "Chemistry",
+      "Physics",
+      "Neuroscience",
+      "Environmental Science",
+      "Computer Science",
+      "Data Science",
+      "Mathematics",
+      "Statistics",
+      "Engineering",
+      "Aerospace Engineering",
+      "Biomedical Engineering",
+      "Chemical Engineering",
+      "Computer Engineering",
+      "Electrical Engineering",
+      "Environmental Engineering",
+      "Materials Science",
+      "Mechanical Engineering"
+    ],
+    "academic_years": [
+      "Third year",
+      "Fourth year",
+      "Graduate student"
+    ],
+    "eligibility": "Third- or fourth-year bachelor's students and master's students in STEM with at least a 3.5 GPA. Current PhD candidates, KAUST students, and KAUST alumni are not eligible.",
+    "estimated_value": 1000,
+    "application_deadline": null,
+    "recurring": true,
+    "location": "Thuwal, Saudi Arabia",
+    "remote": false,
+    "paid": true,
+    "tags": [
+      "Research",
+      "International",
+      "Fully Funded",
+      "STEM",
+      "Rolling"
+    ],
+    "official_source": "https://admissions.kaust.edu.sa/study/internships",
+    "official_source_url": "https://admissions.kaust.edu.sa/study/internships",
+    "verification_status": "verified",
+    "last_verified": "2026-08-14",
+    "deadline": null,
+    "reviewer_notes": "The official page confirms a year-round fully funded program for external students. Recommendation eligibility excludes PhD students because the current catalog class-year vocabulary cannot distinguish master's from doctoral profiles.",
+    "estimated_value_note": "$1,000 monthly stipend plus private housing, return airfare, activities, and research-facility access.",
+    "date_added": "2026-08-14",
+    "difficulty": "Highly Competitive",
+    "prestige": "Very High",
+    "icon": "research",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "deadlineType": "rolling",
+      "compensation": "Paid",
+      "workMode": "In Person",
+      "professor": null,
+      "department": "King Abdullah University of Science and Technology",
+      "researchArea": "Science and technology",
+      "stipendAmount": 1000,
+      "semesters": [
+        "Year-round"
+      ],
+      "internshipDuration": "2-6 months",
+      "applicationRequirements": [
+        "Official transcripts in English",
+        "Faculty recommendation",
+        "Passport",
+        "Statement of purpose",
+        "Curriculum vitae"
+      ],
+      "estimatedApplicationTime": "3-5 hours",
+      "skillsGained": [
+        "Research",
+        "Laboratory or Computational Methods",
+        "Cross-cultural Communication"
+      ],
+      "careerPaths": [
+        "Research",
+        "Graduate School",
+        "Science and Engineering"
+      ],
+      "eligibilityRules": {
+        "educationLevels": [
+          "undergraduate",
+          "graduate"
+        ],
+        "canonicalInstitutionTypes": [
+          "four_year_college",
+          "university",
+          "liberal_arts_college",
+          "graduate_school"
+        ],
+        "canonicalEnrollmentStatuses": [
+          "currently_enrolled"
+        ],
+        "acceptsExternalStudents": true,
+        "classYears": [
+          "Third year",
+          "Fourth year",
+          "Graduate student"
+        ],
+        "majors": [
+          "Natural Sciences",
+          "Biology",
+          "Chemistry",
+          "Physics",
+          "Neuroscience",
+          "Environmental Science",
+          "Computer Science",
+          "Data Science",
+          "Mathematics",
+          "Statistics",
+          "Engineering",
+          "Aerospace Engineering",
+          "Biomedical Engineering",
+          "Chemical Engineering",
+          "Computer Engineering",
+          "Electrical Engineering",
+          "Environmental Engineering",
+          "Materials Science",
+          "Mechanical Engineering"
+        ],
+        "minimumGpa": 3.5,
+        "citizenshipStatuses": [
+          "international_allowed"
+        ],
+        "availability": "rolling",
+        "recommendationEligibilityStatus": "eligible_for_ranking",
+        "evidence": [
+          "Official year-round program page reviewed on 2026-08-14."
+        ],
+        "fieldEvidence": {
+          "academic_level": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://admissions.kaust.edu.sa/study/internships",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "year-round-2026",
+            "note": "KAUST's official internship page confirms year-round dates, degree stage, STEM focus, 3.5 GPA, international community, required documents, duration, and full funding."
+          },
+          "institution_type": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://admissions.kaust.edu.sa/study/internships",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "year-round-2026",
+            "note": "KAUST's official internship page confirms year-round dates, degree stage, STEM focus, 3.5 GPA, international community, required documents, duration, and full funding."
+          },
+          "enrollment_status": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://admissions.kaust.edu.sa/study/internships",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "year-round-2026",
+            "note": "KAUST's official internship page confirms year-round dates, degree stage, STEM focus, 3.5 GPA, international community, required documents, duration, and full funding."
+          },
+          "school_restriction": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://admissions.kaust.edu.sa/study/internships",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "year-round-2026",
+            "note": "KAUST's official internship page confirms year-round dates, degree stage, STEM focus, 3.5 GPA, international community, required documents, duration, and full funding."
+          },
+          "external_student_eligibility": {
+            "state": "verified_open",
+            "sourceUrl": "https://admissions.kaust.edu.sa/study/internships",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "year-round-2026",
+            "note": "KAUST's official internship page confirms year-round dates, degree stage, STEM focus, 3.5 GPA, international community, required documents, duration, and full funding."
+          },
+          "class_year": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://admissions.kaust.edu.sa/study/internships",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "year-round-2026",
+            "note": "KAUST's official internship page confirms year-round dates, degree stage, STEM focus, 3.5 GPA, international community, required documents, duration, and full funding."
+          },
+          "major": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://admissions.kaust.edu.sa/study/internships",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "year-round-2026",
+            "note": "KAUST's official internship page confirms year-round dates, degree stage, STEM focus, 3.5 GPA, international community, required documents, duration, and full funding."
+          },
+          "citizenship": {
+            "state": "verified_open",
+            "sourceUrl": "https://admissions.kaust.edu.sa/study/internships",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "year-round-2026",
+            "note": "KAUST's official internship page confirms year-round dates, degree stage, STEM focus, 3.5 GPA, international community, required documents, duration, and full funding."
+          },
+          "residency": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://admissions.kaust.edu.sa/study/internships",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "year-round-2026",
+            "note": "KAUST's official internship page confirms year-round dates, degree stage, STEM focus, 3.5 GPA, international community, required documents, duration, and full funding."
+          },
+          "gpa": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://admissions.kaust.edu.sa/study/internships",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "year-round-2026",
+            "note": "KAUST's official internship page confirms year-round dates, degree stage, STEM focus, 3.5 GPA, international community, required documents, duration, and full funding."
+          },
+          "age": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://admissions.kaust.edu.sa/study/internships",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "year-round-2026",
+            "note": "KAUST's official internship page confirms year-round dates, degree stage, STEM focus, 3.5 GPA, international community, required documents, duration, and full funding."
+          },
+          "financial_need": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://admissions.kaust.edu.sa/study/internships",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "year-round-2026",
+            "note": "KAUST's official internship page confirms year-round dates, degree stage, STEM focus, 3.5 GPA, international community, required documents, duration, and full funding."
+          },
+          "invitation": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://admissions.kaust.edu.sa/study/internships",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "year-round-2026",
+            "note": "KAUST's official internship page confirms year-round dates, degree stage, STEM focus, 3.5 GPA, international community, required documents, duration, and full funding."
+          },
+          "application_status": {
+            "state": "verified_open",
+            "sourceUrl": "https://admissions.kaust.edu.sa/study/internships",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "year-round-2026",
+            "note": "KAUST's official internship page confirms year-round dates, degree stage, STEM focus, 3.5 GPA, international community, required documents, duration, and full funding."
+          },
+          "deadline": {
+            "state": "verified_open",
+            "sourceUrl": "https://admissions.kaust.edu.sa/study/internships",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "year-round-2026",
+            "note": "KAUST's official internship page confirms year-round dates, degree stage, STEM focus, 3.5 GPA, international community, required documents, duration, and full funding."
+          }
+        }
+      },
+      "sourceReferences": [
+        {
+          "url": "https://admissions.kaust.edu.sa/study/internships",
+          "authority": "official_program",
+          "verifiedAt": "2026-08-14",
+          "cycle": "2026-27",
+          "supports": [
+            "academic_level",
+            "institution_type",
+            "enrollment_status",
+            "school_restriction",
+            "external_student_eligibility",
+            "class_year",
+            "major",
+            "citizenship",
+            "residency",
+            "gpa",
+            "age",
+            "financial_need",
+            "invitation",
+            "application_status",
+            "deadline"
+          ],
+          "note": "KAUST's official internship page confirms year-round dates, degree stage, STEM focus, 3.5 GPA, international community, required documents, duration, and full funding."
+        }
+      ],
+      "acquisition": {
+        "batchId": "high-quality-expansion-2026-08-wave-1",
+        "acquiredAt": "2026-08-14",
+        "reviewCadenceDays": 90,
+        "nextReviewAt": "2026-11-12",
+        "freshnessModel": "rolling_program"
+      },
+      "verification": {
+        "status": "verified",
+        "lastVerifiedAt": "2026-08-14",
+        "verifiedCycle": "year-round-2026",
+        "officialSourceUrl": "https://admissions.kaust.edu.sa/study/internships",
+        "applicationUrlVerified": true,
+        "deadlineVerified": false,
+        "eligibilityVerified": true,
+        "sourceReachable": true,
+        "sourceAuditStatus": 200,
+        "notes": "The official page confirms a year-round fully funded program for external students. Recommendation eligibility excludes PhD students because the current catalog class-year vocabulary cannot distinguish master's from doctoral profiles."
+      },
+      "lifecycle": {
+        "schemaVersion": 1,
+        "migrationId": "high-quality-expansion-2026-08-wave-1",
+        "identity": {
+          "identityId": "research--kaust-visiting-student-research-program",
+          "aliases": [
+            "KAUST VSRP",
+            "Visiting Student Research Program"
+          ]
+        },
+        "cycle": {
+          "cycleId": "year-round-2026",
+          "label": "year-round-2026"
+        },
+        "state": "rolling",
+        "confidence": "confirmed",
+        "reason": "rolling_confirmed",
+        "effectiveAt": "2026-08-14T00:00:00.000Z",
+        "recurrence": {
+          "type": "rolling_cohort",
+          "confidence": "confirmed",
+          "officialStatement": "The official page confirms a year-round fully funded program for external students. Recommendation eligibility excludes PhD students because the current catalog class-year vocabulary cannot distinguish master's from doctoral profiles."
+        },
+        "evidence": [
+          {
+            "id": "research--kaust-visiting-student-research-program:year-round-2026:official:1",
+            "source": "official_status",
+            "observedAt": "2026-08-14T00:00:00.000Z",
+            "value": "KAUST's official internship page confirms year-round dates, degree stage, STEM focus, 3.5 GPA, international community, required documents, duration, and full funding.",
+            "sourceUrl": "https://admissions.kaust.edu.sa/study/internships",
+            "confidence": "confirmed"
+          }
+        ],
+        "events": [],
+        "sourceChecks": [
+          {
+            "url": "https://admissions.kaust.edu.sa/study/internships",
+            "checkedAt": "2026-08-14T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          }
+        ],
+        "fieldVerifiedAt": {
+          "state": "2026-08-14",
+          "deadline": "2026-08-14",
+          "applicationUrl": "2026-08-14",
+          "eligibility": "2026-08-14",
+          "award": "2026-08-14",
+          "location": "2026-08-14",
+          "programDates": "2026-08-14",
+          "description": "2026-08-14"
+        },
+        "review": {
+          "note": "The official page confirms a year-round fully funded program for external students. Recommendation eligibility excludes PhD students because the current catalog class-year vocabulary cannot distinguish master's from doctoral profiles.",
+          "reviewedAt": "2026-08-14T00:00:00.000Z",
+          "reviewer": "UnlockED catalog acquisition"
+        }
+      }
+    }
+  },
+  {
+    "id": "research--oist-research-internship-spring-2027",
+    "title": "OIST Research Internship",
+    "type": "Research",
+    "category": "Internships",
+    "description": "A four-to-six-month research placement with an OIST faculty unit in Japan for advanced bachelor's students, master's students, and recent graduates considering further research study.",
+    "organization": "Okinawa Institute of Science and Technology",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "Natural Sciences",
+      "Biology",
+      "Chemistry",
+      "Physics",
+      "Neuroscience",
+      "Environmental Science",
+      "Computer Science",
+      "Data Science",
+      "Mathematics",
+      "Statistics",
+      "Engineering",
+      "Aerospace Engineering",
+      "Biomedical Engineering",
+      "Chemical Engineering",
+      "Computer Engineering",
+      "Electrical Engineering",
+      "Environmental Engineering",
+      "Materials Science",
+      "Mechanical Engineering"
+    ],
+    "academic_years": [
+      "Third year",
+      "Fourth year",
+      "Graduate student"
+    ],
+    "eligibility": "Students in the final two years of a bachelor's degree, master's students, and bachelor's or master's graduates from institutions in Japan or overseas whose academic background fits a listed OIST research unit. Enrolled students need home-institution approval.",
+    "estimated_value": null,
+    "application_deadline": "2026-10-15",
+    "recurring": true,
+    "location": "Okinawa, Japan",
+    "remote": false,
+    "paid": null,
+    "tags": [
+      "Research",
+      "International",
+      "STEM",
+      "Graduate School",
+      "Japan"
+    ],
+    "official_source": "https://www.oist.jp/admissions/research-internship/apply-research-internship",
+    "official_source_url": "https://www.oist.jp/admissions/research-internship/apply-research-internship",
+    "verification_status": "verified",
+    "last_verified": "2026-08-14",
+    "deadline": "2026-10-15",
+    "reviewer_notes": "Official OIST admissions pages confirm the Spring 2027 cycle and external/international eligibility. Recommendation majors are limited to fields represented by current OIST research units.",
+    "estimated_value_note": "Unknown - the official application source does not present a single guaranteed cash value in the reviewed eligibility and schedule sections.",
+    "date_added": "2026-08-14",
+    "difficulty": "Highly Competitive",
+    "prestige": "Very High",
+    "icon": "research",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "deadlineType": "fixed",
+      "compensation": "Varies",
+      "workMode": "In Person",
+      "professor": null,
+      "department": "Okinawa Institute of Science and Technology",
+      "researchArea": "Science and technology",
+      "stipendAmount": null,
+      "semesters": [
+        "spring-2027"
+      ],
+      "internshipDuration": "4-6 months",
+      "applicationRequirements": [
+        "Online application",
+        "Academic transcript",
+        "Statement",
+        "Recommendation materials",
+        "Faculty/project selection"
+      ],
+      "estimatedApplicationTime": "3-5 hours",
+      "skillsGained": [
+        "Research",
+        "Scientific Communication",
+        "Independent Investigation"
+      ],
+      "careerPaths": [
+        "Research",
+        "Graduate School",
+        "Science and Engineering"
+      ],
+      "eligibilityRules": {
+        "educationLevels": [
+          "undergraduate",
+          "graduate",
+          "recent_graduate"
+        ],
+        "canonicalInstitutionTypes": [
+          "community_college",
+          "four_year_college",
+          "university",
+          "liberal_arts_college",
+          "graduate_school"
+        ],
+        "canonicalEnrollmentStatuses": [
+          "currently_enrolled",
+          "graduated"
+        ],
+        "acceptsExternalStudents": true,
+        "classYears": [
+          "Third year",
+          "Fourth year",
+          "Graduate student"
+        ],
+        "majors": [
+          "Natural Sciences",
+          "Biology",
+          "Chemistry",
+          "Physics",
+          "Neuroscience",
+          "Environmental Science",
+          "Computer Science",
+          "Data Science",
+          "Mathematics",
+          "Statistics",
+          "Engineering",
+          "Aerospace Engineering",
+          "Biomedical Engineering",
+          "Chemical Engineering",
+          "Computer Engineering",
+          "Electrical Engineering",
+          "Environmental Engineering",
+          "Materials Science",
+          "Mechanical Engineering"
+        ],
+        "citizenshipStatuses": [
+          "international_allowed"
+        ],
+        "availability": "open",
+        "recommendationEligibilityStatus": "eligible_for_ranking",
+        "evidence": [
+          "Official current-cycle selection schedule and project availability reviewed."
+        ],
+        "fieldEvidence": {
+          "academic_level": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.oist.jp/admissions/research-internship/apply-research-internship",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "spring-2027",
+            "note": "OIST's official application page confirms Spring 2027 dates, the October 15 deadline, eligible degree stages, overseas institutions, and academic-fit requirements."
+          },
+          "institution_type": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.oist.jp/admissions/research-internship/apply-research-internship",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "spring-2027",
+            "note": "OIST's official application page confirms Spring 2027 dates, the October 15 deadline, eligible degree stages, overseas institutions, and academic-fit requirements."
+          },
+          "enrollment_status": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.oist.jp/admissions/research-internship/apply-research-internship",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "spring-2027",
+            "note": "OIST's official application page confirms Spring 2027 dates, the October 15 deadline, eligible degree stages, overseas institutions, and academic-fit requirements."
+          },
+          "school_restriction": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.oist.jp/admissions/research-internship/apply-research-internship",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "spring-2027",
+            "note": "OIST's official application page confirms Spring 2027 dates, the October 15 deadline, eligible degree stages, overseas institutions, and academic-fit requirements."
+          },
+          "external_student_eligibility": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.oist.jp/admissions/research-internship/apply-research-internship",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "spring-2027",
+            "note": "OIST's official application page confirms Spring 2027 dates, the October 15 deadline, eligible degree stages, overseas institutions, and academic-fit requirements."
+          },
+          "class_year": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.oist.jp/admissions/research-internship/apply-research-internship",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "spring-2027",
+            "note": "OIST's official application page confirms Spring 2027 dates, the October 15 deadline, eligible degree stages, overseas institutions, and academic-fit requirements."
+          },
+          "major": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.oist.jp/admissions/research-internship/apply-research-internship",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "spring-2027",
+            "note": "OIST's official application page confirms Spring 2027 dates, the October 15 deadline, eligible degree stages, overseas institutions, and academic-fit requirements."
+          },
+          "citizenship": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.oist.jp/admissions/research-internship/apply-research-internship",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "spring-2027",
+            "note": "OIST's official application page confirms Spring 2027 dates, the October 15 deadline, eligible degree stages, overseas institutions, and academic-fit requirements."
+          },
+          "residency": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.oist.jp/admissions/research-internship/apply-research-internship",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "spring-2027",
+            "note": "OIST's official application page confirms Spring 2027 dates, the October 15 deadline, eligible degree stages, overseas institutions, and academic-fit requirements."
+          },
+          "gpa": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.oist.jp/admissions/research-internship/apply-research-internship",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "spring-2027",
+            "note": "OIST's official application page confirms Spring 2027 dates, the October 15 deadline, eligible degree stages, overseas institutions, and academic-fit requirements."
+          },
+          "age": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.oist.jp/admissions/research-internship/apply-research-internship",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "spring-2027",
+            "note": "OIST's official application page confirms Spring 2027 dates, the October 15 deadline, eligible degree stages, overseas institutions, and academic-fit requirements."
+          },
+          "financial_need": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.oist.jp/admissions/research-internship/apply-research-internship",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "spring-2027",
+            "note": "OIST's official application page confirms Spring 2027 dates, the October 15 deadline, eligible degree stages, overseas institutions, and academic-fit requirements."
+          },
+          "invitation": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.oist.jp/admissions/research-internship/apply-research-internship",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "spring-2027",
+            "note": "OIST's official application page confirms Spring 2027 dates, the October 15 deadline, eligible degree stages, overseas institutions, and academic-fit requirements."
+          },
+          "application_status": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.oist.jp/admissions/research-internship/apply-research-internship",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "spring-2027",
+            "note": "OIST's official application page confirms Spring 2027 dates, the October 15 deadline, eligible degree stages, overseas institutions, and academic-fit requirements."
+          },
+          "deadline": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.oist.jp/admissions/research-internship/apply-research-internship",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "spring-2027",
+            "note": "OIST's official application page confirms Spring 2027 dates, the October 15 deadline, eligible degree stages, overseas institutions, and academic-fit requirements."
+          }
+        }
+      },
+      "sourceReferences": [
+        {
+          "url": "https://www.oist.jp/admissions/research-internship/apply-research-internship",
+          "authority": "official_program",
+          "verifiedAt": "2026-08-14",
+          "cycle": "2026-27",
+          "supports": [
+            "academic_level",
+            "institution_type",
+            "enrollment_status",
+            "school_restriction",
+            "external_student_eligibility",
+            "class_year",
+            "major",
+            "citizenship",
+            "application_status",
+            "deadline"
+          ],
+          "note": "OIST's official application page confirms Spring 2027 dates, the October 15 deadline, eligible degree stages, overseas institutions, and academic-fit requirements."
+        },
+        {
+          "url": "https://www.oist.jp/admissions/research-internship/ri-faculty-project-availability",
+          "authority": "official_program",
+          "verifiedAt": "2026-08-14",
+          "cycle": "2026-27",
+          "supports": [
+            "major",
+            "application_status"
+          ],
+          "note": "The official project page lists faculty and projects available for the April-September 2027 intake."
+        }
+      ],
+      "acquisition": {
+        "batchId": "high-quality-expansion-2026-08-wave-1",
+        "acquiredAt": "2026-08-14",
+        "reviewCadenceDays": 45,
+        "nextReviewAt": "2026-10-16",
+        "freshnessModel": "fixed_cycle"
+      },
+      "verification": {
+        "status": "verified",
+        "lastVerifiedAt": "2026-08-14",
+        "verifiedCycle": "spring-2027",
+        "officialSourceUrl": "https://www.oist.jp/admissions/research-internship/apply-research-internship",
+        "applicationUrlVerified": true,
+        "deadlineVerified": true,
+        "eligibilityVerified": true,
+        "sourceReachable": true,
+        "sourceAuditStatus": 200,
+        "notes": "Official OIST admissions pages confirm the Spring 2027 cycle and external/international eligibility. Recommendation majors are limited to fields represented by current OIST research units."
+      },
+      "lifecycle": {
+        "schemaVersion": 1,
+        "migrationId": "high-quality-expansion-2026-08-wave-1",
+        "identity": {
+          "identityId": "research--oist-research-internship-spring-2027",
+          "aliases": [
+            "OIST Research Internship",
+            "OIST RI"
+          ]
+        },
+        "cycle": {
+          "cycleId": "spring-2027",
+          "label": "spring-2027"
+        },
+        "state": "open",
+        "confidence": "confirmed",
+        "reason": "official_status_open",
+        "effectiveAt": "2026-08-14T00:00:00.000Z",
+        "finalDeadline": {
+          "kind": "final_deadline",
+          "sourceValue": "2026-10-15",
+          "normalizedValue": "2026-10-15",
+          "precision": "date",
+          "estimated": false,
+          "verifiedAt": "2026-08-14",
+          "sourceUrl": "https://www.oist.jp/admissions/research-internship/apply-research-internship"
+        },
+        "recurrence": {
+          "type": "annual",
+          "confidence": "confirmed",
+          "officialStatement": "Official OIST admissions pages confirm the Spring 2027 cycle and external/international eligibility. Recommendation majors are limited to fields represented by current OIST research units."
+        },
+        "evidence": [
+          {
+            "id": "research--oist-research-internship-spring-2027:spring-2027:official:1",
+            "source": "official_application_page",
+            "observedAt": "2026-08-14T00:00:00.000Z",
+            "value": "OIST's official application page confirms Spring 2027 dates, the October 15 deadline, eligible degree stages, overseas institutions, and academic-fit requirements.",
+            "sourceUrl": "https://www.oist.jp/admissions/research-internship/apply-research-internship",
+            "confidence": "confirmed"
+          },
+          {
+            "id": "research--oist-research-internship-spring-2027:spring-2027:official:2",
+            "source": "official_application_page",
+            "observedAt": "2026-08-14T00:00:00.000Z",
+            "value": "The official project page lists faculty and projects available for the April-September 2027 intake.",
+            "sourceUrl": "https://www.oist.jp/admissions/research-internship/ri-faculty-project-availability",
+            "confidence": "confirmed"
+          }
+        ],
+        "events": [],
+        "sourceChecks": [
+          {
+            "url": "https://www.oist.jp/admissions/research-internship/apply-research-internship",
+            "checkedAt": "2026-08-14T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          },
+          {
+            "url": "https://www.oist.jp/admissions/research-internship/ri-faculty-project-availability",
+            "checkedAt": "2026-08-14T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          }
+        ],
+        "fieldVerifiedAt": {
+          "state": "2026-08-14",
+          "deadline": "2026-08-14",
+          "applicationUrl": "2026-08-14",
+          "eligibility": "2026-08-14",
+          "award": "2026-08-14",
+          "location": "2026-08-14",
+          "programDates": "2026-08-14",
+          "description": "2026-08-14"
+        },
+        "review": {
+          "note": "Official OIST admissions pages confirm the Spring 2027 cycle and external/international eligibility. Recommendation majors are limited to fields represented by current OIST research units.",
+          "reviewedAt": "2026-08-14T00:00:00.000Z",
+          "reviewer": "UnlockED catalog acquisition"
+        }
+      }
+    }
+  },
+  {
+    "id": "career--hacu-national-internship-program-spring-2027",
+    "title": "HACU National Internship Program",
+    "type": "Career",
+    "category": "Internships",
+    "description": "Paid spring internships with U.S. federal agencies for students who have completed at least one undergraduate year. HNIP considers applicants across majors for remote, hybrid, and in-person roles.",
+    "organization": "Hispanic Association of Colleges and Universities",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "Any Major"
+    ],
+    "academic_years": [
+      "Second year",
+      "Third year",
+      "Fourth year",
+      "Graduate student"
+    ],
+    "eligibility": "Students enrolled in an accredited degree-seeking program in the United States or Puerto Rico, or eligible recent graduates, who have completed at least one undergraduate year and are authorized to work in the United States. Most federal placements require U.S. citizenship.",
+    "estimated_value": null,
+    "application_deadline": null,
+    "recurring": true,
+    "location": "United States; remote, hybrid, and in-person placements",
+    "remote": null,
+    "paid": true,
+    "tags": [
+      "Internship",
+      "Federal Government",
+      "Public Service",
+      "Paid",
+      "Any Major"
+    ],
+    "official_source": "https://hacu.net/hnip/overview/",
+    "official_source_url": "https://hacu.net/hnip/overview/",
+    "verification_status": "verified",
+    "last_verified": "2026-08-14",
+    "deadline": null,
+    "reviewer_notes": "Current official HACU pages confirm Spring 2027 is accepting applications and provide central eligibility. Ranking is narrower than the program's baseline work-authorization rule to avoid recommending federal placements to students whose citizenship fit is uncertain.",
+    "estimated_value_note": "Unknown - placement hours vary; the official 2026 undergraduate rate is $18.50 per hour and graduate rate is $20.25 per hour.",
+    "date_added": "2026-08-14",
+    "difficulty": "Competitive",
+    "prestige": "High",
+    "icon": "career",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "deadlineType": "rolling",
+      "compensation": "Paid",
+      "workMode": "Varies",
+      "internshipDuration": "15 weeks",
+      "applicationRequirements": [
+        "Resume",
+        "Essay",
+        "Enrollment verification or recent-graduate proof",
+        "Unofficial transcripts",
+        "One professional reference"
+      ],
+      "estimatedApplicationTime": "3-5 hours",
+      "skillsGained": [
+        "Public Service",
+        "Professional Communication",
+        "Government Operations"
+      ],
+      "careerPaths": [
+        "Public Service",
+        "Policy",
+        "Government"
+      ],
+      "eligibilityRules": {
+        "educationLevels": [
+          "undergraduate",
+          "graduate",
+          "recent_graduate"
+        ],
+        "canonicalInstitutionTypes": [
+          "community_college",
+          "four_year_college",
+          "university",
+          "liberal_arts_college",
+          "graduate_school"
+        ],
+        "canonicalEnrollmentStatuses": [
+          "currently_enrolled",
+          "graduated"
+        ],
+        "classYears": [
+          "Second year",
+          "Third year",
+          "Fourth year",
+          "Graduate student"
+        ],
+        "majors": [
+          "Any Major"
+        ],
+        "citizenshipStatuses": [
+          "us_citizen"
+        ],
+        "minimumGpa": 2,
+        "availability": "rolling",
+        "recommendationEligibilityStatus": "eligible_for_ranking",
+        "evidence": [
+          "Structured ranking is conservatively limited to U.S. citizens because the official page states most federal placements require citizenship."
+        ],
+        "fieldEvidence": {
+          "academic_level": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://hacu.net/hnip/overview/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "spring-2027",
+            "note": "The official HNIP overview confirms Spring 2027 dates, paid status, U.S./Puerto Rico enrollment, one completed undergraduate year, all majors, work authorization, and placement formats."
+          },
+          "institution_type": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://hacu.net/hnip/overview/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "spring-2027",
+            "note": "The official HNIP overview confirms Spring 2027 dates, paid status, U.S./Puerto Rico enrollment, one completed undergraduate year, all majors, work authorization, and placement formats."
+          },
+          "enrollment_status": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://hacu.net/hnip/overview/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "spring-2027",
+            "note": "The official HNIP overview confirms Spring 2027 dates, paid status, U.S./Puerto Rico enrollment, one completed undergraduate year, all majors, work authorization, and placement formats."
+          },
+          "school_restriction": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://hacu.net/hnip/overview/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "spring-2027",
+            "note": "The official HNIP overview confirms Spring 2027 dates, paid status, U.S./Puerto Rico enrollment, one completed undergraduate year, all majors, work authorization, and placement formats."
+          },
+          "external_student_eligibility": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://hacu.net/hnip/overview/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "spring-2027",
+            "note": "The official HNIP overview confirms Spring 2027 dates, paid status, U.S./Puerto Rico enrollment, one completed undergraduate year, all majors, work authorization, and placement formats."
+          },
+          "class_year": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://hacu.net/hnip/overview/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "spring-2027",
+            "note": "The official HNIP overview confirms Spring 2027 dates, paid status, U.S./Puerto Rico enrollment, one completed undergraduate year, all majors, work authorization, and placement formats."
+          },
+          "major": {
+            "state": "verified_open",
+            "sourceUrl": "https://hacu.net/hnip/overview/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "spring-2027",
+            "note": "The official HNIP overview confirms Spring 2027 dates, paid status, U.S./Puerto Rico enrollment, one completed undergraduate year, all majors, work authorization, and placement formats."
+          },
+          "citizenship": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://hacu.net/hnip/overview/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "spring-2027",
+            "note": "The official HNIP overview confirms Spring 2027 dates, paid status, U.S./Puerto Rico enrollment, one completed undergraduate year, all majors, work authorization, and placement formats."
+          },
+          "residency": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://hacu.net/hnip/overview/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "spring-2027",
+            "note": "The official HNIP overview confirms Spring 2027 dates, paid status, U.S./Puerto Rico enrollment, one completed undergraduate year, all majors, work authorization, and placement formats."
+          },
+          "gpa": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://hacu.net/hnip/overview/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "spring-2027",
+            "note": "The official HNIP overview confirms Spring 2027 dates, paid status, U.S./Puerto Rico enrollment, one completed undergraduate year, all majors, work authorization, and placement formats."
+          },
+          "age": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://hacu.net/hnip/overview/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "spring-2027",
+            "note": "The official HNIP overview confirms Spring 2027 dates, paid status, U.S./Puerto Rico enrollment, one completed undergraduate year, all majors, work authorization, and placement formats."
+          },
+          "financial_need": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://hacu.net/hnip/overview/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "spring-2027",
+            "note": "The official HNIP overview confirms Spring 2027 dates, paid status, U.S./Puerto Rico enrollment, one completed undergraduate year, all majors, work authorization, and placement formats."
+          },
+          "invitation": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://hacu.net/hnip/overview/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "spring-2027",
+            "note": "The official HNIP overview confirms Spring 2027 dates, paid status, U.S./Puerto Rico enrollment, one completed undergraduate year, all majors, work authorization, and placement formats."
+          },
+          "application_status": {
+            "state": "verified_open",
+            "sourceUrl": "https://hacu.net/hnip/overview/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "spring-2027",
+            "note": "The official HNIP overview confirms Spring 2027 dates, paid status, U.S./Puerto Rico enrollment, one completed undergraduate year, all majors, work authorization, and placement formats."
+          },
+          "deadline": {
+            "state": "verified_open",
+            "sourceUrl": "https://hacu.net/hnip/overview/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-14",
+            "cycle": "spring-2027",
+            "note": "The official HNIP overview confirms Spring 2027 dates, paid status, U.S./Puerto Rico enrollment, one completed undergraduate year, all majors, work authorization, and placement formats."
+          }
+        }
+      },
+      "sourceReferences": [
+        {
+          "url": "https://hacu.net/hnip/overview/",
+          "authority": "official_program",
+          "verifiedAt": "2026-08-14",
+          "cycle": "2026-27",
+          "supports": [
+            "academic_level",
+            "institution_type",
+            "enrollment_status",
+            "school_restriction",
+            "external_student_eligibility",
+            "class_year",
+            "major",
+            "citizenship",
+            "gpa",
+            "application_status",
+            "deadline"
+          ],
+          "note": "The official HNIP overview confirms Spring 2027 dates, paid status, U.S./Puerto Rico enrollment, one completed undergraduate year, all majors, work authorization, and placement formats."
+        },
+        {
+          "url": "https://my.hacu.net/assnfe/StudentInfo.asp?RD=1",
+          "authority": "official_program",
+          "verifiedAt": "2026-08-14",
+          "cycle": "2026-27",
+          "supports": [
+            "application_status",
+            "deadline"
+          ],
+          "note": "The official portal confirms that Spring 2027 applications opened July 6, 2026, have a November 20 priority deadline, and remain under consideration until the session starts."
+        }
+      ],
+      "acquisition": {
+        "batchId": "high-quality-expansion-2026-08-wave-1",
+        "acquiredAt": "2026-08-14",
+        "reviewCadenceDays": 90,
+        "nextReviewAt": "2026-11-21",
+        "freshnessModel": "rolling_program"
+      },
+      "verification": {
+        "status": "verified",
+        "lastVerifiedAt": "2026-08-14",
+        "verifiedCycle": "spring-2027",
+        "officialSourceUrl": "https://hacu.net/hnip/overview/",
+        "applicationUrlVerified": true,
+        "deadlineVerified": false,
+        "eligibilityVerified": true,
+        "sourceReachable": true,
+        "sourceAuditStatus": 200,
+        "notes": "Current official HACU pages confirm Spring 2027 is accepting applications and provide central eligibility. Ranking is narrower than the program's baseline work-authorization rule to avoid recommending federal placements to students whose citizenship fit is uncertain."
+      },
+      "lifecycle": {
+        "schemaVersion": 1,
+        "migrationId": "high-quality-expansion-2026-08-wave-1",
+        "identity": {
+          "identityId": "career--hacu-national-internship-program-spring-2027",
+          "aliases": [
+            "HNIP",
+            "HACU National Internship Program"
+          ]
+        },
+        "cycle": {
+          "cycleId": "spring-2027",
+          "label": "spring-2027"
+        },
+        "state": "rolling",
+        "confidence": "confirmed",
+        "reason": "rolling_confirmed",
+        "effectiveAt": "2026-08-14T00:00:00.000Z",
+        "recurrence": {
+          "type": "rolling_cohort",
+          "confidence": "confirmed",
+          "officialStatement": "Current official HACU pages confirm Spring 2027 is accepting applications and provide central eligibility. Ranking is narrower than the program's baseline work-authorization rule to avoid recommending federal placements to students whose citizenship fit is uncertain."
+        },
+        "evidence": [
+          {
+            "id": "career--hacu-national-internship-program-spring-2027:spring-2027:official:1",
+            "source": "official_status",
+            "observedAt": "2026-08-14T00:00:00.000Z",
+            "value": "The official HNIP overview confirms Spring 2027 dates, paid status, U.S./Puerto Rico enrollment, one completed undergraduate year, all majors, work authorization, and placement formats.",
+            "sourceUrl": "https://hacu.net/hnip/overview/",
+            "confidence": "confirmed"
+          },
+          {
+            "id": "career--hacu-national-internship-program-spring-2027:spring-2027:official:2",
+            "source": "official_status",
+            "observedAt": "2026-08-14T00:00:00.000Z",
+            "value": "The official portal confirms that Spring 2027 applications opened July 6, 2026, have a November 20 priority deadline, and remain under consideration until the session starts.",
+            "sourceUrl": "https://my.hacu.net/assnfe/StudentInfo.asp?RD=1",
+            "confidence": "confirmed"
+          }
+        ],
+        "events": [],
+        "sourceChecks": [
+          {
+            "url": "https://hacu.net/hnip/overview/",
+            "checkedAt": "2026-08-14T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          },
+          {
+            "url": "https://my.hacu.net/assnfe/StudentInfo.asp?RD=1",
+            "checkedAt": "2026-08-14T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          }
+        ],
+        "fieldVerifiedAt": {
+          "state": "2026-08-14",
+          "deadline": "2026-08-14",
+          "applicationUrl": "2026-08-14",
+          "eligibility": "2026-08-14",
+          "award": "2026-08-14",
+          "location": "2026-08-14",
+          "programDates": "2026-08-14",
+          "description": "2026-08-14"
+        },
+        "review": {
+          "note": "Current official HACU pages confirm Spring 2027 is accepting applications and provide central eligibility. Ranking is narrower than the program's baseline work-authorization rule to avoid recommending federal placements to students whose citizenship fit is uncertain.",
+          "reviewedAt": "2026-08-14T00:00:00.000Z",
+          "reviewer": "UnlockED catalog acquisition"
         }
       }
     }

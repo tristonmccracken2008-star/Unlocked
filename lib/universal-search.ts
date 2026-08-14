@@ -110,7 +110,8 @@ export function buildUniversalSearch(input: {
 
   const tasks = records.flatMap((record) => record.applicationWorkspace?.tasks.flatMap((task): UniversalSearchResult[] => {
     if (task.completed) return [];
-    const score = applicationIntent(query) ? 620 : matchScore(query, [task.title, record.title, record.organization]);
+    const directScore = matchScore(query, [task.title, record.title, record.organization]);
+    const score = directScore || (applicationIntent(query) ? 220 : 0);
     if (!score) return [];
     return [{
       id: `task:${record.id}:${task.id}`,

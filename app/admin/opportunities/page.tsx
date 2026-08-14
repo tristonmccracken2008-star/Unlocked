@@ -42,6 +42,16 @@ export default async function OpportunityIntelligencePage() {
         <Coverage title="Coverage by major" rows={report.coverage.byMajor.slice(0, 18)} />
       </div>
       <section className="mt-12 border-t border-ink/15 pt-7">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <h2 className="font-editorial text-3xl font-bold">Acquisition queue</h2>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-ink/50">Official-source candidates prioritized by coverage impact, quality, maintenance cost, and verification effort. Rejected candidates stay visible so the same uncertainty is not researched repeatedly.</p>
+          </div>
+          <p className="text-xs font-bold uppercase tracking-wider text-ink/45">{report.acquisition.totals.recommendationSafe} safe · {report.acquisition.totals.rejected} rejected · {report.acquisition.totals.sourceWatch} watched</p>
+        </div>
+        <div className="mt-5 divide-y divide-ink/10 border-y border-ink/15">{report.acquisition.queue.map((item) => <article key={item.id} className="grid gap-3 py-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start"><div><p className="font-bold">{item.title}</p><p className="mt-1 text-xs text-ink/45">{item.organization} · {item.type} · priority {item.priority} · {item.verificationEffort} effort</p><p className="mt-2 text-sm leading-6 text-ink/55">{item.dispositionReason}</p><p className="mt-2 text-xs text-ink/45">Coverage: {item.coverageGaps.join(", ")} · Students: {item.targetStudentGroups.join(", ")}</p>{item.sourceWatch?<p className="mt-2 text-xs font-bold text-amber-800">Recheck {item.sourceWatch.expectedReviewAt}: {item.sourceWatch.reason}</p>:null}</div><span className="w-fit rounded-sm border border-ink/15 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-forest">{item.status.replaceAll("_", " ")}</span></article>)}</div>
+      </section>
+      <section className="mt-12 border-t border-ink/15 pt-7">
         <h2 className="font-editorial text-3xl font-bold">Recommendation-safety queue</h2>
         <p className="mt-2 text-sm leading-6 text-ink/50">Prioritized by student coverage value, source readiness, lifecycle, and review effort. A queue position never implies that an unreviewed fact is safe.</p>
         <div className="mt-5 divide-y divide-ink/10 border-y border-ink/15">{report.recommendationSafety.queue.slice(0,20).map((item) => <article key={item.id} className="grid gap-3 py-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"><div><Link href={`/opportunities/${item.id}`} className="font-bold hover:text-forest">{item.id}</Link><p className="mt-1 text-xs text-ink/45">Priority {item.priority} · {item.effort} effort · {item.sourceAuthority.replaceAll("_", " ")} source · {item.lifecycle.replaceAll("_", " ")}</p><p className="mt-2 text-sm text-ink/55">{item.blockers.map((blocker) => blocker.replaceAll("_", " ")).join(" · ")}</p>{item.missingEvidenceFields.length?<p className="mt-2 text-xs text-ink/45">Evidence to review: {item.missingEvidenceFields.map((field) => field.replaceAll("_", " ")).join(", ")}</p>:null}</div><Link href="/admin/content" className="text-xs font-bold uppercase tracking-wider text-forest">Review record</Link></article>)}</div>
