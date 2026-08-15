@@ -22,7 +22,7 @@ const allEvidenceFields: OpportunityEligibilityEvidenceField[] = [
   "gpa", "age", "financial_need", "invitation", "application_status", "deadline",
 ];
 
-type RecordSpec = {
+export type OpportunityAcquisitionRecordSpec = {
   id: string;
   aliases?: string[];
   title: string;
@@ -60,7 +60,12 @@ type RecordSpec = {
   nextReviewAt: string;
 };
 
-function evidenceFor(spec: RecordSpec) {
+export type OpportunityAcquisitionRecordContext = {
+  batchId: string;
+  verifiedAt: string;
+};
+
+function evidenceFor(spec: OpportunityAcquisitionRecordSpec, context: OpportunityAcquisitionRecordContext) {
   return Object.fromEntries(allEvidenceFields.map((field) => {
     const reference = spec.sourceReferences.find((item) => item.supports.includes(field)) ?? spec.sourceReferences[0];
     const anyMajor = spec.rules.majors?.includes("Any Major") === true;
@@ -81,7 +86,7 @@ function evidenceFor(spec: RecordSpec) {
       state: verifiedOpen ? "verified_open" : noRestriction ? "reviewed_no_restriction" : "verified_restriction",
       sourceUrl: reference.url,
       authority: reference.authority,
-      verifiedAt,
+      verifiedAt: context.verifiedAt,
       cycle: spec.cycle,
       note: reference.note,
     }];
@@ -92,7 +97,8 @@ function date(kind: "final_deadline" | "priority_deadline" | "program_start" | "
   return { kind, sourceValue: value, normalizedValue: value, precision: "date" as const, estimated: false, verifiedAt, sourceUrl };
 }
 
-function buildRecord(spec: RecordSpec): Opportunity {
+export function buildAcquisitionRecord(spec: OpportunityAcquisitionRecordSpec, context: OpportunityAcquisitionRecordContext): Opportunity {
+  const { batchId, verifiedAt } = context;
   const lifecycleEvidence = spec.sourceReferences.map((reference, index) => ({
     id: `${spec.id}:${spec.cycle}:official:${index + 1}`,
     source: spec.deadline ? "official_application_page" as const : "official_status" as const,
@@ -153,7 +159,7 @@ function buildRecord(spec: RecordSpec): Opportunity {
       estimatedApplicationTime: spec.estimatedApplicationTime ?? "3-5 hours",
       skillsGained: spec.skillsGained,
       careerPaths: spec.careerPaths,
-      eligibilityRules: { ...spec.rules, fieldEvidence: evidenceFor(spec) },
+      eligibilityRules: { ...spec.rules, fieldEvidence: evidenceFor(spec, context) },
       sourceReferences: spec.sourceReferences,
       acquisition: {
         batchId,
@@ -195,9 +201,13 @@ function buildRecord(spec: RecordSpec): Opportunity {
   };
 }
 
-function source(url: string, supports: OpportunityEligibilityEvidenceField[], note: string): OpportunitySourceReference {
-  return { url, authority: "official_program", verifiedAt, cycle: "2026-27", supports, note };
+export function acquisitionSource(url: string, supports: OpportunityEligibilityEvidenceField[], note: string, context: OpportunityAcquisitionRecordContext, cycle = "2026-27"): OpportunitySourceReference {
+  return { url, authority: "official_program", verifiedAt: context.verifiedAt, cycle, supports, note };
 }
+
+const recordContext = { batchId, verifiedAt };
+const buildRecord = (spec: OpportunityAcquisitionRecordSpec) => buildAcquisitionRecord(spec, recordContext);
+const source = (url: string, supports: OpportunityEligibilityEvidenceField[], note: string) => acquisitionSource(url, supports, note, recordContext);
 
 const acceptedRecords = [
   buildRecord({

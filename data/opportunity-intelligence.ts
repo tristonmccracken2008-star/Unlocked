@@ -449,7 +449,14 @@ export function gpaRequirement(item: Opportunity) {
   const enriched = canonicalOpportunity(item).eligibility.minimumGPA;
   if (enriched !== null) return enriched;
   const text = `${item.eligibility} ${(item.metadata.applicationRequirements ?? []).join(" ")} ${(item.metadata.eligibilityNotes ?? []).join(" ")}`;
-  const matches = [...text.matchAll(/(?:minimum|required|requires?|at least)?\s*(?:gpa)?\s*([2-4](?:\.\d{1,2})?)\s*(?:gpa)?/gi)].map((match) => Number(match[1])).filter((value) => Number.isFinite(value) && value >= 2 && value <= 4);
+  const patterns = [
+    /\b(?:minimum|required|at least)\s+(?:cumulative\s+)?gpa\s*(?:of|:)?\s*([2-4](?:\.\d{1,2})?)\b/gi,
+    /\bgpa\s*(?:of|:|>=|at least|minimum)?\s*([2-4](?:\.\d{1,2})?)\b/gi,
+    /\b([2-4](?:\.\d{1,2})?)\s*(?:minimum|required|cumulative)?\s*gpa\b/gi,
+  ];
+  const matches = patterns
+    .flatMap((pattern) => [...text.matchAll(pattern)].map((match) => Number(match[1])))
+    .filter((value) => Number.isFinite(value) && value >= 2 && value <= 4);
   return matches.length ? Math.max(...matches) : null;
 }
 

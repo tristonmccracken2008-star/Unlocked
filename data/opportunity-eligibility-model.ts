@@ -3,6 +3,7 @@ import type {
   CanonicalInstitutionType,
   Opportunity,
   OpportunityEducationLevel,
+  OpportunityTransferEligibility,
   RecommendationEligibilityStatus,
 } from "./opportunities";
 
@@ -23,6 +24,7 @@ export type CanonicalOpportunityEligibility = {
   ageRange: { minimum?: number; maximum?: number } | null;
   financialNeedRequired: boolean;
   transferOnly: boolean;
+  transferEligibility: OpportunityTransferEligibility;
   highSchoolSeniorOnly: boolean;
   invitationOnly: boolean;
   recommendationEligibilityStatus: RecommendationEligibilityStatus;
@@ -145,6 +147,8 @@ export function normalizeOpportunityEligibility(opportunity: Opportunity): Canon
   const citizenshipMentioned = /\b(citizenship|citizen|permanent resident|green card|work authorization|international eligibility)\b/.test(text);
   const highSchoolSeniorOnly = configured.highSchoolSeniorOnly === true || /\bhigh school seniors?\b/.test(text);
   const transferOnly = configured.transferOnly === true || /\b(transfer students? only|community college students? (?:planning|seeking|preparing) to transfer|undergraduate transfer scholarship)\b/.test(text);
+  const transferEligibility: OpportunityTransferEligibility = configured.transferEligibility
+    ?? (transferOnly ? "transfer_specific" : "unknown");
   const criticalUnknowns = unique([
     educationLevels.length ? "" : "education_level",
     institutionTypes.length || educationLevels.includes("recent_graduate") ? "" : "institution_type",
@@ -176,6 +180,7 @@ export function normalizeOpportunityEligibility(opportunity: Opportunity): Canon
     ageRange: configured.ageRange ?? (configured.minimumAge || configured.maximumAge ? { minimum: configured.minimumAge, maximum: configured.maximumAge } : null),
     financialNeedRequired: configured.financialNeedRequired ?? configured.needBased === true,
     transferOnly,
+    transferEligibility,
     highSchoolSeniorOnly,
     invitationOnly: configured.invitationOnly === true,
     recommendationEligibilityStatus,

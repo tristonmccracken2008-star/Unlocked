@@ -30,6 +30,7 @@ export type OpportunityPrestige = "Established" | "High" | "Very High" | null;
 export type OpportunityEducationLevel = "high_school" | "community_college" | "undergraduate" | "graduate" | "recent_graduate";
 export type CanonicalInstitutionType = "high_school" | "community_college" | "four_year_college" | "university" | "liberal_arts_college" | "graduate_school";
 export type CanonicalEnrollmentStatus = "prospective" | "currently_enrolled" | "transfer_applicant" | "graduated";
+export type OpportunityTransferEligibility = "transfer_specific" | "explicitly_eligible" | "general_undergraduate" | "unknown";
 export type RecommendationEligibilityStatus = "eligible_for_ranking" | "discover_only" | "needs_eligibility_review" | "ineligible";
 export type OpportunityEvidenceState = "verified_restriction" | "verified_open" | "reviewed_no_restriction" | "unreviewed";
 export type OpportunityEvidenceAuthority = "official_program" | "official_organization" | "official_institution" | "authorized_application_platform";
@@ -82,6 +83,7 @@ export type OpportunityEligibilityRules = {
   citizenship?: "unrestricted" | "us_citizen" | "us_person" | "us_work_authorized" | "international_allowed" | "unknown";
   externalStudents?: "eligible" | "ineligible" | "unknown";
   transferOnly?: boolean;
+  transferEligibility?: OpportunityTransferEligibility;
   minimumAge?: number;
   maximumAge?: number;
   residency?: string[];

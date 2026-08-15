@@ -8621,7 +8621,7 @@
     "title": "Community College Internships (CCI)",
     "type": "Research",
     "category": "Government & National Labs",
-    "description": "Research and technical projects for community-college students at DOE laboratories. This matters because it can build faculty connections, technical skills, research experience, and graduate-school preparation. Natural Sciences, Engineering, Computer Science students who meet the eligibility rules should review the official U.S. Department of Energy source, confirm current requirements, and apply or claim through the provider's published process. Natural Sciences, Biology, Chemistry students who meet the eligibility rules should review the official U.S.",
+    "description": "A paid, on-site technical internship for community-college students at one of 17 U.S. Department of Energy laboratories. Participants complete a mentored project and professional-development activities over ten weeks.",
     "organization": "U.S. Department of Energy",
     "school_scope": "National",
     "schools": [],
@@ -8631,133 +8631,80 @@
       "Chemistry",
       "Physics",
       "Environmental Science",
-      "Neuroscience",
-      "Geology",
-      "Earth Science",
-      "Marine Science",
-      "Pre-med",
-      "Nursing",
-      "Public Health",
-      "Kinesiology",
-      "Astronomy",
-      "Astrophysics",
+      "Computer Science",
+      "Data Science",
+      "Mathematics",
+      "Statistics",
       "Engineering",
       "Aerospace Engineering",
       "Biomedical Engineering",
       "Chemical Engineering",
-      "Civil Engineering",
       "Computer Engineering",
       "Electrical Engineering",
       "Environmental Engineering",
-      "Industrial Engineering",
       "Materials Science",
-      "Mechanical Engineering",
-      "Nuclear Engineering",
-      "Software Engineering",
-      "Computer Science",
-      "Cybersecurity",
-      "Information Systems",
-      "Information Technology",
-      "Game Design",
-      "Human-Computer Interaction",
-      "Mathematics",
-      "Applied Mathematics",
-      "Statistics",
-      "Actuarial Science",
-      "Design",
-      "Architecture",
-      "Fine Arts",
-      "Graphic Design",
-      "Industrial Design",
-      "Interior Design",
-      "Fashion Design",
-      "User Experience Design",
-      "Music"
+      "Mechanical Engineering"
     ],
     "academic_years": [
       "First year",
       "Second year"
     ],
-    "eligibility": "Community-college students meeting citizenship, enrollment, coursework, and GPA requirements.",
-    "estimated_value": null,
+    "eligibility": "Current full- or part-time community-college or accredited two-year-college students who have completed one matriculated semester, at least 6 STEM credits and 12 total credits, hold at least a 2.7 GPA, are age 18 by the internship start, and are U.S. citizens or lawful permanent residents.",
+    "estimated_value": 6500,
     "application_deadline": "2026-09-30",
     "recurring": true,
-    "location": "DOE national laboratories",
+    "location": "Participating U.S. Department of Energy national laboratories",
     "remote": false,
     "paid": true,
     "tags": [
-      "Undergraduate Research",
-      "Natural Sciences",
-      "Engineering",
-      "Computer Science",
-      "Mathematics",
+      "Research",
+      "Community College",
       "Paid",
-      "In Person",
-      "Biology",
-      "Chemistry",
-      "Physics",
-      "Environmental Science",
-      "Neuroscience",
-      "Geology",
-      "Earth Science",
-      "Marine Science",
-      "Pre-med",
-      "Nursing",
-      "Public Health",
-      "Kinesiology",
-      "Aerospace Engineering",
-      "Biomedical Engineering",
-      "Chemical Engineering",
-      "Civil Engineering",
-      "Computer Engineering",
-      "Electrical Engineering",
-      "Environmental Engineering",
-      "Industrial Engineering",
-      "Materials Science",
-      "Mechanical Engineering",
-      "Nuclear Engineering",
-      "Software Engineering",
-      "Cybersecurity",
-      "Information Systems",
-      "Information Technology",
-      "Game Design",
-      "Human-Computer Interaction",
-      "Applied Mathematics",
-      "Statistics",
-      "Actuarial Science",
-      "Astronomy",
-      "Astrophysics",
-      "Design",
-      "Architecture",
-      "Fine Arts",
-      "Graphic Design",
-      "Industrial Design",
-      "Interior Design",
-      "Fashion Design",
-      "User Experience Design",
-      "Music"
+      "STEM",
+      "National Laboratory",
+      "First-Year Friendly"
     ],
     "official_source": "https://science.osti.gov/wdts/cci",
+    "official_source_url": "https://science.osti.gov/wdts/cci",
     "verification_status": "verified",
-    "last_verified": "2026-07-13",
+    "last_verified": "2026-08-15",
+    "deadline": "2026-09-30",
+    "reviewer_notes": "CCI is community-college-specific, not transfer-specific. It remains excluded from the transfer-safe count because the official source does not require or explicitly discuss transfer intent.",
+    "estimated_value_note": "$6,500 stipend for a standard ten-week term, plus eligible travel reimbursement and housing support that varies by laboratory.",
+    "date_added": "2026-08-15",
     "difficulty": "Competitive",
     "prestige": "High",
     "icon": "research",
     "featured": false,
     "hidden_gem": false,
     "metadata": {
-      "legacySlug": "doe-cci",
       "deadlineType": "fixed",
       "compensation": "Paid",
       "workMode": "In Person",
       "professor": null,
-      "department": "Department of Energy",
-      "researchArea": "Community-college research at national laboratories",
-      "stipendAmount": null,
+      "department": "U.S. Department of Energy",
+      "researchArea": "Science and technology",
+      "stipendAmount": 6500,
       "semesters": [
-        "Summer",
-        "Fall",
-        "Spring"
+        "spring-2027"
+      ],
+      "internshipDuration": "10 weeks",
+      "applicationRequirements": [
+        "Online application",
+        "Undergraduate transcripts",
+        "Two recommendations",
+        "Technical-interest essays"
+      ],
+      "estimatedApplicationTime": "3-5 hours",
+      "skillsGained": [
+        "Laboratory Research",
+        "Technical Communication",
+        "Scientific Collaboration"
+      ],
+      "careerPaths": [
+        "Research",
+        "Engineering",
+        "National Laboratories"
       ],
       "eligibilityRules": {
         "educationLevels": [
@@ -8772,35 +8719,326 @@
         "degreeLevels": [
           "associate"
         ],
-        "citizenship": "us_person",
+        "classYears": [
+          "First year",
+          "Second year"
+        ],
+        "majors": [
+          "Natural Sciences",
+          "Biology",
+          "Chemistry",
+          "Physics",
+          "Environmental Science",
+          "Computer Science",
+          "Data Science",
+          "Mathematics",
+          "Statistics",
+          "Engineering",
+          "Aerospace Engineering",
+          "Biomedical Engineering",
+          "Chemical Engineering",
+          "Computer Engineering",
+          "Electrical Engineering",
+          "Environmental Engineering",
+          "Materials Science",
+          "Mechanical Engineering"
+        ],
+        "citizenshipStatuses": [
+          "us_citizen",
+          "permanent_resident"
+        ],
         "minimumGpa": 2.7,
         "ageRange": {
           "minimum": 18
         },
+        "transferEligibility": "unknown",
         "availability": "open",
-        "applicationCycle": "Spring 2027 applications close September 30, 2026 at 5:00 p.m. ET.",
         "recommendationEligibilityStatus": "eligible_for_ranking",
         "evidence": [
-          "DOE eligibility requires current enrollment at a community college or accredited two-year college.",
-          "DOE requires a minimum 2.7 cumulative GPA and age 18 by the internship start.",
-          "DOE limits citizenship to U.S. citizens and lawful permanent residents."
-        ]
+          "Current Spring 2027 status and complete eligibility were verified on official DOE pages on 2026-08-15."
+        ],
+        "fieldEvidence": {
+          "academic_level": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://science.osti.gov/wdts/cci",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "spring-2027",
+            "note": "The official program page confirms Spring 2027 applications are open, the September 30 deadline, paid status, ten-week term, and community-college focus."
+          },
+          "institution_type": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://science.osti.gov/wdts/cci",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "spring-2027",
+            "note": "The official program page confirms Spring 2027 applications are open, the September 30 deadline, paid status, ten-week term, and community-college focus."
+          },
+          "enrollment_status": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://science.osti.gov/wdts/cci/Eligibility",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "spring-2027",
+            "note": "The official eligibility page confirms enrollment, completed-credit, GPA, age, and citizenship requirements."
+          },
+          "school_restriction": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://science.osti.gov/wdts/cci/Eligibility",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "spring-2027",
+            "note": "The official eligibility page confirms enrollment, completed-credit, GPA, age, and citizenship requirements."
+          },
+          "external_student_eligibility": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://science.osti.gov/wdts/cci/Eligibility",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "spring-2027",
+            "note": "The official eligibility page confirms enrollment, completed-credit, GPA, age, and citizenship requirements."
+          },
+          "class_year": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://science.osti.gov/wdts/cci/Eligibility",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "spring-2027",
+            "note": "The official eligibility page confirms enrollment, completed-credit, GPA, age, and citizenship requirements."
+          },
+          "major": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://science.osti.gov/wdts/cci/Eligibility",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "spring-2027",
+            "note": "The official eligibility page confirms enrollment, completed-credit, GPA, age, and citizenship requirements."
+          },
+          "citizenship": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://science.osti.gov/wdts/cci/Eligibility",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "spring-2027",
+            "note": "The official eligibility page confirms enrollment, completed-credit, GPA, age, and citizenship requirements."
+          },
+          "residency": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://science.osti.gov/wdts/cci",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "spring-2027",
+            "note": "The official program page confirms Spring 2027 applications are open, the September 30 deadline, paid status, ten-week term, and community-college focus."
+          },
+          "gpa": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://science.osti.gov/wdts/cci/Eligibility",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "spring-2027",
+            "note": "The official eligibility page confirms enrollment, completed-credit, GPA, age, and citizenship requirements."
+          },
+          "age": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://science.osti.gov/wdts/cci/Eligibility",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "spring-2027",
+            "note": "The official eligibility page confirms enrollment, completed-credit, GPA, age, and citizenship requirements."
+          },
+          "financial_need": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://science.osti.gov/wdts/cci",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "spring-2027",
+            "note": "The official program page confirms Spring 2027 applications are open, the September 30 deadline, paid status, ten-week term, and community-college focus."
+          },
+          "invitation": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://science.osti.gov/wdts/cci",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "spring-2027",
+            "note": "The official program page confirms Spring 2027 applications are open, the September 30 deadline, paid status, ten-week term, and community-college focus."
+          },
+          "application_status": {
+            "state": "verified_open",
+            "sourceUrl": "https://science.osti.gov/wdts/cci",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "spring-2027",
+            "note": "The official program page confirms Spring 2027 applications are open, the September 30 deadline, paid status, ten-week term, and community-college focus."
+          },
+          "deadline": {
+            "state": "verified_open",
+            "sourceUrl": "https://science.osti.gov/wdts/cci",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "spring-2027",
+            "note": "The official program page confirms Spring 2027 applications are open, the September 30 deadline, paid status, ten-week term, and community-college focus."
+          }
+        }
+      },
+      "sourceReferences": [
+        {
+          "url": "https://science.osti.gov/wdts/cci",
+          "authority": "official_program",
+          "verifiedAt": "2026-08-15",
+          "cycle": "spring-2027",
+          "supports": [
+            "application_status",
+            "deadline",
+            "academic_level",
+            "institution_type"
+          ],
+          "note": "The official program page confirms Spring 2027 applications are open, the September 30 deadline, paid status, ten-week term, and community-college focus."
+        },
+        {
+          "url": "https://science.osti.gov/wdts/cci/Eligibility",
+          "authority": "official_program",
+          "verifiedAt": "2026-08-15",
+          "cycle": "spring-2027",
+          "supports": [
+            "academic_level",
+            "institution_type",
+            "enrollment_status",
+            "school_restriction",
+            "external_student_eligibility",
+            "class_year",
+            "major",
+            "citizenship",
+            "gpa",
+            "age"
+          ],
+          "note": "The official eligibility page confirms enrollment, completed-credit, GPA, age, and citizenship requirements."
+        },
+        {
+          "url": "https://science.osti.gov/wdts/cci/Benefits",
+          "authority": "official_program",
+          "verifiedAt": "2026-08-15",
+          "cycle": "spring-2027",
+          "supports": [
+            "application_status"
+          ],
+          "note": "The official benefits page confirms on-site participation, a $650 weekly stipend, travel reimbursement, and laboratory-dependent housing support."
+        }
+      ],
+      "acquisition": {
+        "batchId": "coverage-deserts-2026-08-wave-2",
+        "acquiredAt": "2026-08-15",
+        "reviewCadenceDays": 45,
+        "nextReviewAt": "2026-10-01",
+        "freshnessModel": "fixed_cycle"
       },
       "verification": {
         "status": "verified",
-        "lastVerifiedAt": "2026-07-13",
-        "officialSourceUrl": "https://science.osti.gov/wdts/cci/How-to-Apply",
+        "lastVerifiedAt": "2026-08-15",
+        "verifiedCycle": "spring-2027",
+        "officialSourceUrl": "https://science.osti.gov/wdts/cci",
         "applicationUrlVerified": true,
         "deadlineVerified": true,
         "eligibilityVerified": true,
-        "sourceReachable": true
+        "sourceReachable": true,
+        "sourceAuditStatus": 200,
+        "notes": "CCI is community-college-specific, not transfer-specific. It remains excluded from the transfer-safe count because the official source does not require or explicitly discuss transfer intent."
+      },
+      "lifecycle": {
+        "schemaVersion": 1,
+        "migrationId": "coverage-deserts-2026-08-wave-2",
+        "identity": {
+          "identityId": "research--doe-cci",
+          "aliases": [
+            "DOE CCI",
+            "Community College Internships"
+          ]
+        },
+        "cycle": {
+          "cycleId": "spring-2027",
+          "label": "spring-2027"
+        },
+        "state": "open",
+        "confidence": "confirmed",
+        "reason": "official_status_open",
+        "effectiveAt": "2026-08-15T00:00:00.000Z",
+        "finalDeadline": {
+          "kind": "final_deadline",
+          "sourceValue": "2026-09-30",
+          "normalizedValue": "2026-09-30",
+          "precision": "date",
+          "estimated": false,
+          "verifiedAt": "2026-08-14",
+          "sourceUrl": "https://science.osti.gov/wdts/cci"
+        },
+        "recurrence": {
+          "type": "annual",
+          "confidence": "confirmed",
+          "officialStatement": "CCI is community-college-specific, not transfer-specific. It remains excluded from the transfer-safe count because the official source does not require or explicitly discuss transfer intent."
+        },
+        "evidence": [
+          {
+            "id": "research--doe-cci:spring-2027:official:1",
+            "source": "official_application_page",
+            "observedAt": "2026-08-15T00:00:00.000Z",
+            "value": "The official program page confirms Spring 2027 applications are open, the September 30 deadline, paid status, ten-week term, and community-college focus.",
+            "sourceUrl": "https://science.osti.gov/wdts/cci",
+            "confidence": "confirmed"
+          },
+          {
+            "id": "research--doe-cci:spring-2027:official:2",
+            "source": "official_application_page",
+            "observedAt": "2026-08-15T00:00:00.000Z",
+            "value": "The official eligibility page confirms enrollment, completed-credit, GPA, age, and citizenship requirements.",
+            "sourceUrl": "https://science.osti.gov/wdts/cci/Eligibility",
+            "confidence": "confirmed"
+          },
+          {
+            "id": "research--doe-cci:spring-2027:official:3",
+            "source": "official_application_page",
+            "observedAt": "2026-08-15T00:00:00.000Z",
+            "value": "The official benefits page confirms on-site participation, a $650 weekly stipend, travel reimbursement, and laboratory-dependent housing support.",
+            "sourceUrl": "https://science.osti.gov/wdts/cci/Benefits",
+            "confidence": "confirmed"
+          }
+        ],
+        "events": [],
+        "sourceChecks": [
+          {
+            "url": "https://science.osti.gov/wdts/cci",
+            "checkedAt": "2026-08-15T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          },
+          {
+            "url": "https://science.osti.gov/wdts/cci/Eligibility",
+            "checkedAt": "2026-08-15T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          },
+          {
+            "url": "https://science.osti.gov/wdts/cci/Benefits",
+            "checkedAt": "2026-08-15T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          }
+        ],
+        "fieldVerifiedAt": {
+          "state": "2026-08-15",
+          "deadline": "2026-08-15",
+          "applicationUrl": "2026-08-15",
+          "eligibility": "2026-08-15",
+          "award": "2026-08-15",
+          "location": "2026-08-15",
+          "programDates": "2026-08-15",
+          "description": "2026-08-15"
+        },
+        "review": {
+          "note": "CCI is community-college-specific, not transfer-specific. It remains excluded from the transfer-safe count because the official source does not require or explicitly discuss transfer intent.",
+          "reviewedAt": "2026-08-15T00:00:00.000Z",
+          "reviewer": "UnlockED catalog acquisition"
+        }
       }
-    },
-    "date_added": "2026-07-06",
-    "official_source_url": "https://science.osti.gov/wdts/cci",
-    "deadline": "2026-09-30",
-    "reviewer_notes": "Eligibility and Spring 2027 deadline verified against the DOE Office of Science eligibility and application pages on 2026-07-13.",
-    "estimated_value_note": "Unknown — no verified dollar value is documented by the official source."
+    }
   },
   {
     "id": "research--nih-summer-internship-program",
@@ -441630,6 +441868,1447 @@
         "review": {
           "note": "Current official HACU pages confirm Spring 2027 is accepting applications and provide central eligibility. Ranking is narrower than the program's baseline work-authorization rule to avoid recommending federal placements to students whose citizenship fit is uncertain.",
           "reviewedAt": "2026-08-14T00:00:00.000Z",
+          "reviewer": "UnlockED catalog acquisition"
+        }
+      }
+    }
+  },
+  {
+    "id": "scholarship--schwarzman-scholars-2027-28",
+    "title": "Schwarzman Scholars",
+    "type": "Scholarship",
+    "category": "Graduate Fellowships",
+    "description": "A fully funded one-year master's degree in global affairs at Schwarzman College, Tsinghua University, for emerging leaders from any academic field and country.",
+    "organization": "Schwarzman Scholars",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "Any Major"
+    ],
+    "academic_years": [
+      "Fourth year",
+      "Graduate student"
+    ],
+    "eligibility": "Applicants of any nationality and undergraduate field who will hold a bachelor's degree by August 1, 2027, are age 18 through 28 on that date, and meet the program's English-proficiency requirement may apply through the U.S. and Global application.",
+    "estimated_value": null,
+    "application_deadline": "2026-09-09",
+    "recurring": true,
+    "location": "Beijing, China",
+    "remote": false,
+    "paid": true,
+    "tags": [
+      "Scholarship",
+      "Graduate School",
+      "International",
+      "Leadership",
+      "Global Affairs",
+      "Any Major"
+    ],
+    "official_source": "https://www.schwarzmanscholars.org/admissions/application-instructions/",
+    "official_source_url": "https://www.schwarzmanscholars.org/admissions/application-instructions/",
+    "verification_status": "verified",
+    "last_verified": "2026-08-15",
+    "deadline": "2026-09-09",
+    "reviewer_notes": "Chinese-citizenship applicants use a separate application cycle that has closed; this record represents the currently open U.S. and Global application only.",
+    "estimated_value_note": "Unknown total - the full scholarship covers tuition, fees, room and board, travel, books, health insurance, and a personal stipend, with no single cash-equivalent total published.",
+    "date_added": "2026-08-15",
+    "difficulty": "Highly Competitive",
+    "prestige": "Very High",
+    "icon": "scholarship",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "deadlineType": "fixed",
+      "compensation": "Paid",
+      "workMode": "In Person",
+      "awardAmountLabel": "Unknown total - the full scholarship covers tuition, fees, room and board, travel, books, health insurance, and a personal stipend, with no single cash-equivalent total published.",
+      "renewable": null,
+      "internshipDuration": "One academic year",
+      "applicationRequirements": [
+        "Online application",
+        "Resume",
+        "Essays",
+        "Transcript",
+        "Three recommendations",
+        "Video introduction",
+        "English-proficiency evidence when required"
+      ],
+      "estimatedApplicationTime": "1-2 weeks",
+      "skillsGained": [
+        "Global Leadership",
+        "Policy Analysis",
+        "Cross-Cultural Communication"
+      ],
+      "careerPaths": [
+        "Public Policy",
+        "International Relations",
+        "Business",
+        "Research"
+      ],
+      "eligibilityRules": {
+        "educationLevels": [
+          "undergraduate",
+          "graduate",
+          "recent_graduate"
+        ],
+        "canonicalInstitutionTypes": [
+          "four_year_college",
+          "university",
+          "liberal_arts_college",
+          "graduate_school"
+        ],
+        "canonicalEnrollmentStatuses": [
+          "currently_enrolled",
+          "graduated"
+        ],
+        "acceptsExternalStudents": true,
+        "classYears": [
+          "Fourth year",
+          "Graduate student"
+        ],
+        "majors": [
+          "Any Major"
+        ],
+        "citizenshipStatuses": [
+          "international_allowed"
+        ],
+        "ageRange": {
+          "minimum": 18,
+          "maximum": 28
+        },
+        "transferEligibility": "general_undergraduate",
+        "availability": "open",
+        "recommendationEligibilityStatus": "eligible_for_ranking",
+        "evidence": [
+          "Official current-cycle application and eligibility pages reviewed on 2026-08-15."
+        ],
+        "fieldEvidence": {
+          "academic_level": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.schwarzmanscholars.org/admissions/application-instructions/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "2027-28",
+            "note": "The official instructions confirm the U.S. and Global application is open through September 9, 2026 for the 2027-28 class."
+          },
+          "institution_type": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.schwarzmanscholars.org/admissions/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "2027-28",
+            "note": "The official admissions page confirms bachelor-degree timing, any field, global applicant access, and the age range."
+          },
+          "enrollment_status": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.schwarzmanscholars.org/admissions/application-instructions/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "2027-28",
+            "note": "The official instructions confirm the U.S. and Global application is open through September 9, 2026 for the 2027-28 class."
+          },
+          "school_restriction": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.schwarzmanscholars.org/admissions/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "2027-28",
+            "note": "The official admissions page confirms bachelor-degree timing, any field, global applicant access, and the age range."
+          },
+          "external_student_eligibility": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.schwarzmanscholars.org/admissions/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "2027-28",
+            "note": "The official admissions page confirms bachelor-degree timing, any field, global applicant access, and the age range."
+          },
+          "class_year": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.schwarzmanscholars.org/admissions/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "2027-28",
+            "note": "The official admissions page confirms bachelor-degree timing, any field, global applicant access, and the age range."
+          },
+          "major": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.schwarzmanscholars.org/admissions/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "2027-28",
+            "note": "The official admissions page confirms bachelor-degree timing, any field, global applicant access, and the age range."
+          },
+          "citizenship": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.schwarzmanscholars.org/admissions/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "2027-28",
+            "note": "The official admissions page confirms bachelor-degree timing, any field, global applicant access, and the age range."
+          },
+          "residency": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.schwarzmanscholars.org/admissions/application-instructions/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "2027-28",
+            "note": "The official instructions confirm the U.S. and Global application is open through September 9, 2026 for the 2027-28 class."
+          },
+          "gpa": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.schwarzmanscholars.org/admissions/application-instructions/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "2027-28",
+            "note": "The official instructions confirm the U.S. and Global application is open through September 9, 2026 for the 2027-28 class."
+          },
+          "age": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.schwarzmanscholars.org/admissions/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "2027-28",
+            "note": "The official admissions page confirms bachelor-degree timing, any field, global applicant access, and the age range."
+          },
+          "financial_need": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.schwarzmanscholars.org/admissions/application-instructions/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "2027-28",
+            "note": "The official instructions confirm the U.S. and Global application is open through September 9, 2026 for the 2027-28 class."
+          },
+          "invitation": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.schwarzmanscholars.org/admissions/application-instructions/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "2027-28",
+            "note": "The official instructions confirm the U.S. and Global application is open through September 9, 2026 for the 2027-28 class."
+          },
+          "application_status": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.schwarzmanscholars.org/admissions/application-instructions/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "2027-28",
+            "note": "The official instructions confirm the U.S. and Global application is open through September 9, 2026 for the 2027-28 class."
+          },
+          "deadline": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.schwarzmanscholars.org/admissions/application-instructions/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "2027-28",
+            "note": "The official instructions confirm the U.S. and Global application is open through September 9, 2026 for the 2027-28 class."
+          }
+        }
+      },
+      "sourceReferences": [
+        {
+          "url": "https://www.schwarzmanscholars.org/admissions/application-instructions/",
+          "authority": "official_program",
+          "verifiedAt": "2026-08-15",
+          "cycle": "2027-28",
+          "supports": [
+            "application_status",
+            "deadline",
+            "academic_level",
+            "enrollment_status"
+          ],
+          "note": "The official instructions confirm the U.S. and Global application is open through September 9, 2026 for the 2027-28 class."
+        },
+        {
+          "url": "https://www.schwarzmanscholars.org/admissions/",
+          "authority": "official_program",
+          "verifiedAt": "2026-08-15",
+          "cycle": "2027-28",
+          "supports": [
+            "institution_type",
+            "school_restriction",
+            "external_student_eligibility",
+            "class_year",
+            "major",
+            "citizenship",
+            "age"
+          ],
+          "note": "The official admissions page confirms bachelor-degree timing, any field, global applicant access, and the age range."
+        }
+      ],
+      "acquisition": {
+        "batchId": "coverage-deserts-2026-08-wave-2",
+        "acquiredAt": "2026-08-15",
+        "reviewCadenceDays": 45,
+        "nextReviewAt": "2026-09-10",
+        "freshnessModel": "fixed_cycle"
+      },
+      "verification": {
+        "status": "verified",
+        "lastVerifiedAt": "2026-08-15",
+        "verifiedCycle": "2027-28",
+        "officialSourceUrl": "https://www.schwarzmanscholars.org/admissions/application-instructions/",
+        "applicationUrlVerified": true,
+        "deadlineVerified": true,
+        "eligibilityVerified": true,
+        "sourceReachable": true,
+        "sourceAuditStatus": 200,
+        "notes": "Chinese-citizenship applicants use a separate application cycle that has closed; this record represents the currently open U.S. and Global application only."
+      },
+      "lifecycle": {
+        "schemaVersion": 1,
+        "migrationId": "coverage-deserts-2026-08-wave-2",
+        "identity": {
+          "identityId": "scholarship--schwarzman-scholars-2027-28",
+          "aliases": [
+            "Schwarzman Scholars",
+            "Schwarzman College Scholarship"
+          ]
+        },
+        "cycle": {
+          "cycleId": "2027-28",
+          "label": "2027-28"
+        },
+        "state": "open",
+        "confidence": "confirmed",
+        "reason": "official_status_open",
+        "effectiveAt": "2026-08-15T00:00:00.000Z",
+        "finalDeadline": {
+          "kind": "final_deadline",
+          "sourceValue": "2026-09-09",
+          "normalizedValue": "2026-09-09",
+          "precision": "date",
+          "estimated": false,
+          "verifiedAt": "2026-08-14",
+          "sourceUrl": "https://www.schwarzmanscholars.org/admissions/application-instructions/"
+        },
+        "recurrence": {
+          "type": "annual",
+          "confidence": "confirmed",
+          "officialStatement": "Chinese-citizenship applicants use a separate application cycle that has closed; this record represents the currently open U.S. and Global application only."
+        },
+        "evidence": [
+          {
+            "id": "scholarship--schwarzman-scholars-2027-28:2027-28:official:1",
+            "source": "official_application_page",
+            "observedAt": "2026-08-15T00:00:00.000Z",
+            "value": "The official instructions confirm the U.S. and Global application is open through September 9, 2026 for the 2027-28 class.",
+            "sourceUrl": "https://www.schwarzmanscholars.org/admissions/application-instructions/",
+            "confidence": "confirmed"
+          },
+          {
+            "id": "scholarship--schwarzman-scholars-2027-28:2027-28:official:2",
+            "source": "official_application_page",
+            "observedAt": "2026-08-15T00:00:00.000Z",
+            "value": "The official admissions page confirms bachelor-degree timing, any field, global applicant access, and the age range.",
+            "sourceUrl": "https://www.schwarzmanscholars.org/admissions/",
+            "confidence": "confirmed"
+          }
+        ],
+        "events": [],
+        "sourceChecks": [
+          {
+            "url": "https://www.schwarzmanscholars.org/admissions/application-instructions/",
+            "checkedAt": "2026-08-15T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          },
+          {
+            "url": "https://www.schwarzmanscholars.org/admissions/",
+            "checkedAt": "2026-08-15T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          }
+        ],
+        "fieldVerifiedAt": {
+          "state": "2026-08-15",
+          "deadline": "2026-08-15",
+          "applicationUrl": "2026-08-15",
+          "eligibility": "2026-08-15",
+          "award": "2026-08-15",
+          "location": "2026-08-15",
+          "programDates": "2026-08-15",
+          "description": "2026-08-15"
+        },
+        "review": {
+          "note": "Chinese-citizenship applicants use a separate application cycle that has closed; this record represents the currently open U.S. and Global application only.",
+          "reviewedAt": "2026-08-15T00:00:00.000Z",
+          "reviewer": "UnlockED catalog acquisition"
+        }
+      }
+    }
+  },
+  {
+    "id": "career--chci-congressional-internship-summer-2027",
+    "title": "CHCI Congressional Internship Program",
+    "type": "Career",
+    "category": "Public Service",
+    "description": "A paid ten-week congressional-office placement in Washington, D.C. with furnished housing, transportation, health insurance, transit support, leadership development, and a public-service cohort.",
+    "organization": "Congressional Hispanic Caucus Institute",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "Any Major",
+      "Political Science",
+      "Public Policy",
+      "International Relations",
+      "Economics",
+      "History",
+      "Sociology",
+      "Communication",
+      "Journalism"
+    ],
+    "academic_years": [
+      "First year",
+      "Second year",
+      "Third year",
+      "Fourth year"
+    ],
+    "eligibility": "Full-time undergraduates of any major enrolled during the academic term before Summer 2027 who are U.S. citizens, permanent residents, asylees, or otherwise authorized to work in the United States. Graduating community-college students may participate if they transfer to a four-year institution in fall and provide enrollment confirmation.",
+    "estimated_value": 4776,
+    "application_deadline": "2026-12-01",
+    "recurring": true,
+    "location": "Washington, DC",
+    "remote": false,
+    "paid": true,
+    "tags": [
+      "Internship",
+      "Public Policy",
+      "Congress",
+      "Paid",
+      "Housing",
+      "Transfer Eligible",
+      "Any Major"
+    ],
+    "official_source": "https://chci.org/programs/congressional-internship-program/",
+    "official_source_url": "https://chci.org/programs/congressional-internship-program/",
+    "verification_status": "verified",
+    "last_verified": "2026-08-15",
+    "deadline": "2026-12-01",
+    "reviewer_notes": "Transfer eligibility is explicit but not exclusive. A 3.0 GPA is described as a preference, not a minimum, so no hard GPA rule is stored.",
+    "estimated_value_note": "$4,776 summer pay plus furnished housing, domestic round-trip transportation, medical insurance, and a $100 monthly Metro stipend.",
+    "date_added": "2026-08-15",
+    "difficulty": "Highly Competitive",
+    "prestige": "Very High",
+    "icon": "career",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "deadlineType": "fixed",
+      "compensation": "Paid",
+      "workMode": "In Person",
+      "internshipDuration": "10 weeks",
+      "applicationRequirements": [
+        "One-page resume",
+        "Unofficial transcript",
+        "One professional recommendation",
+        "Three essays"
+      ],
+      "estimatedApplicationTime": "1-2 weeks",
+      "skillsGained": [
+        "Legislative Research",
+        "Public Service",
+        "Professional Communication",
+        "Leadership"
+      ],
+      "careerPaths": [
+        "Public Policy",
+        "Government",
+        "Law",
+        "Public Service"
+      ],
+      "eligibilityRules": {
+        "educationLevels": [
+          "undergraduate"
+        ],
+        "canonicalInstitutionTypes": [
+          "community_college",
+          "four_year_college",
+          "university",
+          "liberal_arts_college"
+        ],
+        "canonicalEnrollmentStatuses": [
+          "currently_enrolled",
+          "transfer_applicant"
+        ],
+        "degreeLevels": [
+          "associate",
+          "undergraduate"
+        ],
+        "acceptsExternalStudents": true,
+        "classYears": [
+          "First year",
+          "Second year",
+          "Third year",
+          "Fourth year"
+        ],
+        "majors": [
+          "Any Major",
+          "Political Science",
+          "Public Policy",
+          "International Relations",
+          "Economics",
+          "History",
+          "Sociology",
+          "Communication",
+          "Journalism"
+        ],
+        "citizenshipStatuses": [
+          "us_citizen",
+          "permanent_resident",
+          "us_work_authorized"
+        ],
+        "transferEligibility": "explicitly_eligible",
+        "availability": "open",
+        "recommendationEligibilityStatus": "eligible_for_ranking",
+        "evidence": [
+          "The official page explicitly permits graduating community-college students transferring to a four-year institution for the fall term."
+        ],
+        "fieldEvidence": {
+          "academic_level": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://chci.org/programs/congressional-internship-program/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "summer-2027",
+            "note": "The official current-cycle page confirms the August 15 launch, December 1 deadline, undergraduate enrollment, work authorization, community-college transfer path, benefits, and application materials."
+          },
+          "institution_type": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://chci.org/programs/congressional-internship-program/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "summer-2027",
+            "note": "The official current-cycle page confirms the August 15 launch, December 1 deadline, undergraduate enrollment, work authorization, community-college transfer path, benefits, and application materials."
+          },
+          "enrollment_status": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://chci.org/programs/congressional-internship-program/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "summer-2027",
+            "note": "The official current-cycle page confirms the August 15 launch, December 1 deadline, undergraduate enrollment, work authorization, community-college transfer path, benefits, and application materials."
+          },
+          "school_restriction": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://chci.org/programs/congressional-internship-program/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "summer-2027",
+            "note": "The official current-cycle page confirms the August 15 launch, December 1 deadline, undergraduate enrollment, work authorization, community-college transfer path, benefits, and application materials."
+          },
+          "external_student_eligibility": {
+            "state": "verified_open",
+            "sourceUrl": "https://chci.org/programs/congressional-internship-program/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "summer-2027",
+            "note": "The official current-cycle page confirms the August 15 launch, December 1 deadline, undergraduate enrollment, work authorization, community-college transfer path, benefits, and application materials."
+          },
+          "class_year": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://chci.org/programs/congressional-internship-program/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "summer-2027",
+            "note": "The official current-cycle page confirms the August 15 launch, December 1 deadline, undergraduate enrollment, work authorization, community-college transfer path, benefits, and application materials."
+          },
+          "major": {
+            "state": "verified_open",
+            "sourceUrl": "https://chci.org/programs/congressional-internship-program/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "summer-2027",
+            "note": "The official current-cycle page confirms the August 15 launch, December 1 deadline, undergraduate enrollment, work authorization, community-college transfer path, benefits, and application materials."
+          },
+          "citizenship": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://chci.org/programs/congressional-internship-program/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "summer-2027",
+            "note": "The official current-cycle page confirms the August 15 launch, December 1 deadline, undergraduate enrollment, work authorization, community-college transfer path, benefits, and application materials."
+          },
+          "residency": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://chci.org/programs/congressional-internship-program/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "summer-2027",
+            "note": "The official current-cycle page confirms the August 15 launch, December 1 deadline, undergraduate enrollment, work authorization, community-college transfer path, benefits, and application materials."
+          },
+          "gpa": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://chci.org/programs/congressional-internship-program/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "summer-2027",
+            "note": "The official current-cycle page confirms the August 15 launch, December 1 deadline, undergraduate enrollment, work authorization, community-college transfer path, benefits, and application materials."
+          },
+          "age": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://chci.org/programs/congressional-internship-program/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "summer-2027",
+            "note": "The official current-cycle page confirms the August 15 launch, December 1 deadline, undergraduate enrollment, work authorization, community-college transfer path, benefits, and application materials."
+          },
+          "financial_need": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://chci.org/programs/congressional-internship-program/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "summer-2027",
+            "note": "The official current-cycle page confirms the August 15 launch, December 1 deadline, undergraduate enrollment, work authorization, community-college transfer path, benefits, and application materials."
+          },
+          "invitation": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://chci.org/programs/congressional-internship-program/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "summer-2027",
+            "note": "The official current-cycle page confirms the August 15 launch, December 1 deadline, undergraduate enrollment, work authorization, community-college transfer path, benefits, and application materials."
+          },
+          "application_status": {
+            "state": "verified_open",
+            "sourceUrl": "https://chci.org/programs/congressional-internship-program/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "summer-2027",
+            "note": "The official current-cycle page confirms the August 15 launch, December 1 deadline, undergraduate enrollment, work authorization, community-college transfer path, benefits, and application materials."
+          },
+          "deadline": {
+            "state": "verified_open",
+            "sourceUrl": "https://chci.org/programs/congressional-internship-program/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "summer-2027",
+            "note": "The official current-cycle page confirms the August 15 launch, December 1 deadline, undergraduate enrollment, work authorization, community-college transfer path, benefits, and application materials."
+          }
+        }
+      },
+      "sourceReferences": [
+        {
+          "url": "https://chci.org/programs/congressional-internship-program/",
+          "authority": "official_program",
+          "verifiedAt": "2026-08-15",
+          "cycle": "summer-2027",
+          "supports": [
+            "academic_level",
+            "institution_type",
+            "enrollment_status",
+            "school_restriction",
+            "external_student_eligibility",
+            "class_year",
+            "major",
+            "citizenship",
+            "gpa",
+            "application_status",
+            "deadline"
+          ],
+          "note": "The official current-cycle page confirms the August 15 launch, December 1 deadline, undergraduate enrollment, work authorization, community-college transfer path, benefits, and application materials."
+        }
+      ],
+      "acquisition": {
+        "batchId": "coverage-deserts-2026-08-wave-2",
+        "acquiredAt": "2026-08-15",
+        "reviewCadenceDays": 45,
+        "nextReviewAt": "2026-12-02",
+        "freshnessModel": "fixed_cycle"
+      },
+      "verification": {
+        "status": "verified",
+        "lastVerifiedAt": "2026-08-15",
+        "verifiedCycle": "summer-2027",
+        "officialSourceUrl": "https://chci.org/programs/congressional-internship-program/",
+        "applicationUrlVerified": true,
+        "deadlineVerified": true,
+        "eligibilityVerified": true,
+        "sourceReachable": true,
+        "sourceAuditStatus": 200,
+        "notes": "Transfer eligibility is explicit but not exclusive. A 3.0 GPA is described as a preference, not a minimum, so no hard GPA rule is stored."
+      },
+      "lifecycle": {
+        "schemaVersion": 1,
+        "migrationId": "coverage-deserts-2026-08-wave-2",
+        "identity": {
+          "identityId": "career--chci-congressional-internship-summer-2027",
+          "aliases": [
+            "CHCI CIP",
+            "CHCI Congressional Internship Program"
+          ]
+        },
+        "cycle": {
+          "cycleId": "summer-2027",
+          "label": "summer-2027"
+        },
+        "state": "open",
+        "confidence": "confirmed",
+        "reason": "official_status_open",
+        "effectiveAt": "2026-08-15T00:00:00.000Z",
+        "finalDeadline": {
+          "kind": "final_deadline",
+          "sourceValue": "2026-12-01",
+          "normalizedValue": "2026-12-01",
+          "precision": "date",
+          "estimated": false,
+          "verifiedAt": "2026-08-14",
+          "sourceUrl": "https://chci.org/programs/congressional-internship-program/"
+        },
+        "recurrence": {
+          "type": "annual",
+          "confidence": "confirmed",
+          "officialStatement": "Transfer eligibility is explicit but not exclusive. A 3.0 GPA is described as a preference, not a minimum, so no hard GPA rule is stored."
+        },
+        "evidence": [
+          {
+            "id": "career--chci-congressional-internship-summer-2027:summer-2027:official:1",
+            "source": "official_application_page",
+            "observedAt": "2026-08-15T00:00:00.000Z",
+            "value": "The official current-cycle page confirms the August 15 launch, December 1 deadline, undergraduate enrollment, work authorization, community-college transfer path, benefits, and application materials.",
+            "sourceUrl": "https://chci.org/programs/congressional-internship-program/",
+            "confidence": "confirmed"
+          }
+        ],
+        "events": [],
+        "sourceChecks": [
+          {
+            "url": "https://chci.org/programs/congressional-internship-program/",
+            "checkedAt": "2026-08-15T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          }
+        ],
+        "fieldVerifiedAt": {
+          "state": "2026-08-15",
+          "deadline": "2026-08-15",
+          "applicationUrl": "2026-08-15",
+          "eligibility": "2026-08-15",
+          "award": "2026-08-15",
+          "location": "2026-08-15",
+          "programDates": "2026-08-15",
+          "description": "2026-08-15"
+        },
+        "review": {
+          "note": "Transfer eligibility is explicit but not exclusive. A 3.0 GPA is described as a preference, not a minimum, so no hard GPA rule is stored.",
+          "reviewedAt": "2026-08-15T00:00:00.000Z",
+          "reviewer": "UnlockED catalog acquisition"
+        }
+      }
+    }
+  },
+  {
+    "id": "career--smithsonian-archives-american-art-internships",
+    "title": "Archives of American Art Internships",
+    "type": "Career",
+    "category": "Museums & Archives",
+    "description": "Year-round Smithsonian internships in archival science, information management, museum studies, art administration, art history, and cultural studies, with virtual and Washington, D.C. placements.",
+    "organization": "Smithsonian Archives of American Art",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "English",
+      "History",
+      "Philosophy",
+      "Art History",
+      "Museum Studies",
+      "Library Science",
+      "Communication",
+      "Journalism",
+      "Fine Arts",
+      "Design"
+    ],
+    "academic_years": [
+      "First year",
+      "Second year",
+      "Third year",
+      "Fourth year"
+    ],
+    "eligibility": "Students currently enrolled in undergraduate programs, including students at two- and four-year institutions, may apply through the Smithsonian SOLAA system. The official listing states there is no citizenship requirement.",
+    "estimated_value": null,
+    "application_deadline": null,
+    "recurring": true,
+    "location": "Washington, DC or virtual, depending on placement",
+    "remote": null,
+    "paid": null,
+    "tags": [
+      "Internship",
+      "Humanities",
+      "Archives",
+      "Museums",
+      "Writing",
+      "International",
+      "Rolling"
+    ],
+    "official_source": "https://internships.si.edu/opportunity/internships-archives-american-art",
+    "official_source_url": "https://internships.si.edu/opportunity/internships-archives-american-art",
+    "verification_status": "verified",
+    "last_verified": "2026-08-15",
+    "deadline": null,
+    "reviewer_notes": "The central record covers the stable year-round internship program. It does not claim that every project is paid or remote; value and work mode remain variable.",
+    "estimated_value_note": "Unknown - stipends are available and summer appointments have historically carried a $7,000 stipend, while term and schedule affect the final amount.",
+    "date_added": "2026-08-15",
+    "difficulty": "Competitive",
+    "prestige": "Very High",
+    "icon": "career",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "deadlineType": "rolling",
+      "compensation": "Varies",
+      "workMode": "Varies",
+      "applicationRequirements": [
+        "Statement of interest",
+        "Resume",
+        "One reference",
+        "SOLAA application"
+      ],
+      "estimatedApplicationTime": "3-5 hours",
+      "skillsGained": [
+        "Archival Research",
+        "Museum Practice",
+        "Information Management",
+        "Writing"
+      ],
+      "careerPaths": [
+        "Archives",
+        "Museums",
+        "Public Humanities",
+        "Publishing"
+      ],
+      "eligibilityRules": {
+        "educationLevels": [
+          "undergraduate"
+        ],
+        "canonicalInstitutionTypes": [
+          "community_college",
+          "four_year_college",
+          "university",
+          "liberal_arts_college"
+        ],
+        "canonicalEnrollmentStatuses": [
+          "currently_enrolled"
+        ],
+        "degreeLevels": [
+          "associate",
+          "undergraduate"
+        ],
+        "acceptsExternalStudents": true,
+        "classYears": [
+          "First year",
+          "Second year",
+          "Third year",
+          "Fourth year"
+        ],
+        "majors": [
+          "English",
+          "History",
+          "Philosophy",
+          "Art History",
+          "Museum Studies",
+          "Library Science",
+          "Communication",
+          "Journalism",
+          "Fine Arts",
+          "Design"
+        ],
+        "citizenshipStatuses": [
+          "international_allowed"
+        ],
+        "transferEligibility": "general_undergraduate",
+        "availability": "rolling",
+        "recommendationEligibilityStatus": "eligible_for_ranking",
+        "evidence": [
+          "The official Smithsonian opportunity directory explicitly labels the program year-round and states no citizenship requirement."
+        ],
+        "fieldEvidence": {
+          "academic_level": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://internships.si.edu/opportunity/internships-archives-american-art",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "year-round-2026-27",
+            "note": "The official Smithsonian listing confirms year-round undergraduate access, SOLAA application, virtual/DC locations, available stipends, and no citizenship requirement."
+          },
+          "institution_type": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://internships.si.edu/opportunity/internships-archives-american-art",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "year-round-2026-27",
+            "note": "The official Smithsonian listing confirms year-round undergraduate access, SOLAA application, virtual/DC locations, available stipends, and no citizenship requirement."
+          },
+          "enrollment_status": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://internships.si.edu/opportunity/internships-archives-american-art",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "year-round-2026-27",
+            "note": "The official Smithsonian listing confirms year-round undergraduate access, SOLAA application, virtual/DC locations, available stipends, and no citizenship requirement."
+          },
+          "school_restriction": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://internships.si.edu/opportunity/internships-archives-american-art",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "year-round-2026-27",
+            "note": "The official Smithsonian listing confirms year-round undergraduate access, SOLAA application, virtual/DC locations, available stipends, and no citizenship requirement."
+          },
+          "external_student_eligibility": {
+            "state": "verified_open",
+            "sourceUrl": "https://internships.si.edu/opportunity/internships-archives-american-art",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "year-round-2026-27",
+            "note": "The official Smithsonian listing confirms year-round undergraduate access, SOLAA application, virtual/DC locations, available stipends, and no citizenship requirement."
+          },
+          "class_year": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://internships.si.edu/opportunity/internships-archives-american-art",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "year-round-2026-27",
+            "note": "The official Smithsonian listing confirms year-round undergraduate access, SOLAA application, virtual/DC locations, available stipends, and no citizenship requirement."
+          },
+          "major": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://internships.si.edu/opportunity/internships-archives-american-art",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "year-round-2026-27",
+            "note": "The official Smithsonian listing confirms year-round undergraduate access, SOLAA application, virtual/DC locations, available stipends, and no citizenship requirement."
+          },
+          "citizenship": {
+            "state": "verified_open",
+            "sourceUrl": "https://internships.si.edu/opportunity/internships-archives-american-art",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "year-round-2026-27",
+            "note": "The official Smithsonian listing confirms year-round undergraduate access, SOLAA application, virtual/DC locations, available stipends, and no citizenship requirement."
+          },
+          "residency": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://internships.si.edu/opportunity/internships-archives-american-art",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "year-round-2026-27",
+            "note": "The official Smithsonian listing confirms year-round undergraduate access, SOLAA application, virtual/DC locations, available stipends, and no citizenship requirement."
+          },
+          "gpa": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://internships.si.edu/opportunity/internships-archives-american-art",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "year-round-2026-27",
+            "note": "The official Smithsonian listing confirms year-round undergraduate access, SOLAA application, virtual/DC locations, available stipends, and no citizenship requirement."
+          },
+          "age": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://internships.si.edu/opportunity/internships-archives-american-art",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "year-round-2026-27",
+            "note": "The official Smithsonian listing confirms year-round undergraduate access, SOLAA application, virtual/DC locations, available stipends, and no citizenship requirement."
+          },
+          "financial_need": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://internships.si.edu/opportunity/internships-archives-american-art",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "year-round-2026-27",
+            "note": "The official Smithsonian listing confirms year-round undergraduate access, SOLAA application, virtual/DC locations, available stipends, and no citizenship requirement."
+          },
+          "invitation": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://internships.si.edu/opportunity/internships-archives-american-art",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "year-round-2026-27",
+            "note": "The official Smithsonian listing confirms year-round undergraduate access, SOLAA application, virtual/DC locations, available stipends, and no citizenship requirement."
+          },
+          "application_status": {
+            "state": "verified_open",
+            "sourceUrl": "https://internships.si.edu/opportunity/internships-archives-american-art",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "year-round-2026-27",
+            "note": "The official Smithsonian listing confirms year-round undergraduate access, SOLAA application, virtual/DC locations, available stipends, and no citizenship requirement."
+          },
+          "deadline": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.aaa.si.edu/about/internship-fellowship-and-volunteer-opportunities",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "year-round-2026-27",
+            "note": "The official Archives page confirms spring, summer, and fall terms, application materials, term deadlines, and summer stipend context."
+          }
+        }
+      },
+      "sourceReferences": [
+        {
+          "url": "https://internships.si.edu/opportunity/internships-archives-american-art",
+          "authority": "official_program",
+          "verifiedAt": "2026-08-15",
+          "cycle": "year-round-2026-27",
+          "supports": [
+            "academic_level",
+            "institution_type",
+            "enrollment_status",
+            "school_restriction",
+            "external_student_eligibility",
+            "class_year",
+            "major",
+            "citizenship",
+            "application_status"
+          ],
+          "note": "The official Smithsonian listing confirms year-round undergraduate access, SOLAA application, virtual/DC locations, available stipends, and no citizenship requirement."
+        },
+        {
+          "url": "https://www.aaa.si.edu/about/internship-fellowship-and-volunteer-opportunities",
+          "authority": "official_program",
+          "verifiedAt": "2026-08-15",
+          "cycle": "year-round-2026-27",
+          "supports": [
+            "deadline",
+            "application_status"
+          ],
+          "note": "The official Archives page confirms spring, summer, and fall terms, application materials, term deadlines, and summer stipend context."
+        }
+      ],
+      "acquisition": {
+        "batchId": "coverage-deserts-2026-08-wave-2",
+        "acquiredAt": "2026-08-15",
+        "reviewCadenceDays": 45,
+        "nextReviewAt": "2026-09-29",
+        "freshnessModel": "rolling_program"
+      },
+      "verification": {
+        "status": "verified",
+        "lastVerifiedAt": "2026-08-15",
+        "verifiedCycle": "year-round-2026-27",
+        "officialSourceUrl": "https://internships.si.edu/opportunity/internships-archives-american-art",
+        "applicationUrlVerified": true,
+        "deadlineVerified": false,
+        "eligibilityVerified": true,
+        "sourceReachable": true,
+        "sourceAuditStatus": 200,
+        "notes": "The central record covers the stable year-round internship program. It does not claim that every project is paid or remote; value and work mode remain variable."
+      },
+      "lifecycle": {
+        "schemaVersion": 1,
+        "migrationId": "coverage-deserts-2026-08-wave-2",
+        "identity": {
+          "identityId": "career--smithsonian-archives-american-art-internships",
+          "aliases": [
+            "Archives of American Art Internships",
+            "Smithsonian AAA Internships"
+          ]
+        },
+        "cycle": {
+          "cycleId": "year-round-2026-27",
+          "label": "year-round-2026-27"
+        },
+        "state": "rolling",
+        "confidence": "confirmed",
+        "reason": "rolling_confirmed",
+        "effectiveAt": "2026-08-15T00:00:00.000Z",
+        "recurrence": {
+          "type": "rolling_cohort",
+          "confidence": "confirmed",
+          "officialStatement": "The central record covers the stable year-round internship program. It does not claim that every project is paid or remote; value and work mode remain variable."
+        },
+        "evidence": [
+          {
+            "id": "career--smithsonian-archives-american-art-internships:year-round-2026-27:official:1",
+            "source": "official_status",
+            "observedAt": "2026-08-15T00:00:00.000Z",
+            "value": "The official Smithsonian listing confirms year-round undergraduate access, SOLAA application, virtual/DC locations, available stipends, and no citizenship requirement.",
+            "sourceUrl": "https://internships.si.edu/opportunity/internships-archives-american-art",
+            "confidence": "confirmed"
+          },
+          {
+            "id": "career--smithsonian-archives-american-art-internships:year-round-2026-27:official:2",
+            "source": "official_status",
+            "observedAt": "2026-08-15T00:00:00.000Z",
+            "value": "The official Archives page confirms spring, summer, and fall terms, application materials, term deadlines, and summer stipend context.",
+            "sourceUrl": "https://www.aaa.si.edu/about/internship-fellowship-and-volunteer-opportunities",
+            "confidence": "confirmed"
+          }
+        ],
+        "events": [],
+        "sourceChecks": [
+          {
+            "url": "https://internships.si.edu/opportunity/internships-archives-american-art",
+            "checkedAt": "2026-08-15T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          },
+          {
+            "url": "https://www.aaa.si.edu/about/internship-fellowship-and-volunteer-opportunities",
+            "checkedAt": "2026-08-15T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          }
+        ],
+        "fieldVerifiedAt": {
+          "state": "2026-08-15",
+          "deadline": "2026-08-15",
+          "applicationUrl": "2026-08-15",
+          "eligibility": "2026-08-15",
+          "award": "2026-08-15",
+          "location": "2026-08-15",
+          "programDates": "2026-08-15",
+          "description": "2026-08-15"
+        },
+        "review": {
+          "note": "The central record covers the stable year-round internship program. It does not claim that every project is paid or remote; value and work mode remain variable.",
+          "reviewedAt": "2026-08-15T00:00:00.000Z",
+          "reviewer": "UnlockED catalog acquisition"
+        }
+      }
+    }
+  },
+  {
+    "id": "career--heritage-young-leaders-spring-2027",
+    "title": "The Heritage Foundation Young Leaders Program",
+    "type": "Career",
+    "category": "Public Policy",
+    "description": "A paid spring policy internship in Washington, D.C. with placements across research, communications, development, legal, and operational teams plus weekly policy briefings and professional-development programming.",
+    "organization": "The Heritage Foundation",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "Political Science",
+      "Public Policy",
+      "International Relations",
+      "Economics",
+      "History",
+      "Sociology",
+      "Communication",
+      "Journalism"
+    ],
+    "academic_years": [
+      "First year",
+      "Second year",
+      "Third year",
+      "Fourth year",
+      "Graduate student"
+    ],
+    "eligibility": "Undergraduates, graduate and law students, recent graduates, and early-career applicants interested in Heritage's policy mission may apply. International students may be considered only when they already hold U.S. work authorization.",
+    "estimated_value": null,
+    "application_deadline": null,
+    "recurring": true,
+    "location": "Washington, DC",
+    "remote": false,
+    "paid": true,
+    "tags": [
+      "Internship",
+      "Public Policy",
+      "Economics",
+      "Communications",
+      "Paid",
+      "Work Authorization"
+    ],
+    "official_source": "https://www.heritage.org/young-leaders-program",
+    "official_source_url": "https://www.heritage.org/young-leaders-program",
+    "verification_status": "verified",
+    "last_verified": "2026-08-15",
+    "deadline": null,
+    "reviewer_notes": "The record models the central internship program, not a specific department. Ranking is limited to listed policy-adjacent majors and profiles with supported U.S. work status.",
+    "estimated_value_note": "Unknown total - the official program rate is $18.50 per hour and spring schedules may be part-time or full-time.",
+    "date_added": "2026-08-15",
+    "difficulty": "Competitive",
+    "prestige": "High",
+    "icon": "career",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "deadlineType": "rolling",
+      "compensation": "Paid",
+      "workMode": "In Person",
+      "internshipDuration": "Early January through early April 2027",
+      "applicationRequirements": [
+        "Online application",
+        "Resume",
+        "Role-specific materials"
+      ],
+      "estimatedApplicationTime": "1-2 hours",
+      "skillsGained": [
+        "Policy Research",
+        "Writing",
+        "Professional Networking",
+        "Public Communication"
+      ],
+      "careerPaths": [
+        "Public Policy",
+        "Economics",
+        "Government",
+        "Communications"
+      ],
+      "eligibilityRules": {
+        "educationLevels": [
+          "undergraduate",
+          "graduate",
+          "recent_graduate"
+        ],
+        "canonicalInstitutionTypes": [
+          "community_college",
+          "four_year_college",
+          "university",
+          "liberal_arts_college",
+          "graduate_school"
+        ],
+        "canonicalEnrollmentStatuses": [
+          "currently_enrolled",
+          "graduated"
+        ],
+        "acceptsExternalStudents": true,
+        "classYears": [
+          "First year",
+          "Second year",
+          "Third year",
+          "Fourth year",
+          "Graduate student"
+        ],
+        "majors": [
+          "Political Science",
+          "Public Policy",
+          "International Relations",
+          "Economics",
+          "History",
+          "Sociology",
+          "Communication",
+          "Journalism"
+        ],
+        "citizenshipStatuses": [
+          "us_citizen",
+          "permanent_resident",
+          "us_work_authorized"
+        ],
+        "transferEligibility": "general_undergraduate",
+        "availability": "rolling",
+        "recommendationEligibilityStatus": "eligible_for_ranking",
+        "evidence": [
+          "Official Spring 2027 rolling status and baseline eligibility reviewed on 2026-08-15."
+        ],
+        "fieldEvidence": {
+          "academic_level": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.heritage.org/young-leaders-program",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "spring-2027",
+            "note": "The official page confirms rolling Spring 2027 hiring, eligible academic stages, international-student work authorization, on-site format, pay, schedule, and policy areas."
+          },
+          "institution_type": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.heritage.org/young-leaders-program",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "spring-2027",
+            "note": "The official page confirms rolling Spring 2027 hiring, eligible academic stages, international-student work authorization, on-site format, pay, schedule, and policy areas."
+          },
+          "enrollment_status": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.heritage.org/young-leaders-program",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "spring-2027",
+            "note": "The official page confirms rolling Spring 2027 hiring, eligible academic stages, international-student work authorization, on-site format, pay, schedule, and policy areas."
+          },
+          "school_restriction": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.heritage.org/young-leaders-program",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "spring-2027",
+            "note": "The official page confirms rolling Spring 2027 hiring, eligible academic stages, international-student work authorization, on-site format, pay, schedule, and policy areas."
+          },
+          "external_student_eligibility": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.heritage.org/young-leaders-program",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "spring-2027",
+            "note": "The official page confirms rolling Spring 2027 hiring, eligible academic stages, international-student work authorization, on-site format, pay, schedule, and policy areas."
+          },
+          "class_year": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.heritage.org/young-leaders-program",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "spring-2027",
+            "note": "The official page confirms rolling Spring 2027 hiring, eligible academic stages, international-student work authorization, on-site format, pay, schedule, and policy areas."
+          },
+          "major": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.heritage.org/young-leaders-program",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "spring-2027",
+            "note": "The official page confirms rolling Spring 2027 hiring, eligible academic stages, international-student work authorization, on-site format, pay, schedule, and policy areas."
+          },
+          "citizenship": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.heritage.org/young-leaders-program",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "spring-2027",
+            "note": "The official page confirms rolling Spring 2027 hiring, eligible academic stages, international-student work authorization, on-site format, pay, schedule, and policy areas."
+          },
+          "residency": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.heritage.org/young-leaders-program",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "spring-2027",
+            "note": "The official page confirms rolling Spring 2027 hiring, eligible academic stages, international-student work authorization, on-site format, pay, schedule, and policy areas."
+          },
+          "gpa": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.heritage.org/young-leaders-program",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "spring-2027",
+            "note": "The official page confirms rolling Spring 2027 hiring, eligible academic stages, international-student work authorization, on-site format, pay, schedule, and policy areas."
+          },
+          "age": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.heritage.org/young-leaders-program",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "spring-2027",
+            "note": "The official page confirms rolling Spring 2027 hiring, eligible academic stages, international-student work authorization, on-site format, pay, schedule, and policy areas."
+          },
+          "financial_need": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.heritage.org/young-leaders-program",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "spring-2027",
+            "note": "The official page confirms rolling Spring 2027 hiring, eligible academic stages, international-student work authorization, on-site format, pay, schedule, and policy areas."
+          },
+          "invitation": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.heritage.org/young-leaders-program",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "spring-2027",
+            "note": "The official page confirms rolling Spring 2027 hiring, eligible academic stages, international-student work authorization, on-site format, pay, schedule, and policy areas."
+          },
+          "application_status": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.heritage.org/young-leaders-program",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "spring-2027",
+            "note": "The official page confirms rolling Spring 2027 hiring, eligible academic stages, international-student work authorization, on-site format, pay, schedule, and policy areas."
+          },
+          "deadline": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.heritage.org/young-leaders-program",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-15",
+            "cycle": "spring-2027",
+            "note": "The official page confirms rolling Spring 2027 hiring, eligible academic stages, international-student work authorization, on-site format, pay, schedule, and policy areas."
+          }
+        }
+      },
+      "sourceReferences": [
+        {
+          "url": "https://www.heritage.org/young-leaders-program",
+          "authority": "official_program",
+          "verifiedAt": "2026-08-15",
+          "cycle": "spring-2027",
+          "supports": [
+            "academic_level",
+            "institution_type",
+            "enrollment_status",
+            "school_restriction",
+            "external_student_eligibility",
+            "class_year",
+            "major",
+            "citizenship",
+            "application_status",
+            "deadline"
+          ],
+          "note": "The official page confirms rolling Spring 2027 hiring, eligible academic stages, international-student work authorization, on-site format, pay, schedule, and policy areas."
+        }
+      ],
+      "acquisition": {
+        "batchId": "coverage-deserts-2026-08-wave-2",
+        "acquiredAt": "2026-08-15",
+        "reviewCadenceDays": 30,
+        "nextReviewAt": "2026-09-14",
+        "freshnessModel": "annual_event"
+      },
+      "verification": {
+        "status": "verified",
+        "lastVerifiedAt": "2026-08-15",
+        "verifiedCycle": "spring-2027",
+        "officialSourceUrl": "https://www.heritage.org/young-leaders-program",
+        "applicationUrlVerified": true,
+        "deadlineVerified": false,
+        "eligibilityVerified": true,
+        "sourceReachable": true,
+        "sourceAuditStatus": 200,
+        "notes": "The record models the central internship program, not a specific department. Ranking is limited to listed policy-adjacent majors and profiles with supported U.S. work status."
+      },
+      "lifecycle": {
+        "schemaVersion": 1,
+        "migrationId": "coverage-deserts-2026-08-wave-2",
+        "identity": {
+          "identityId": "career--heritage-young-leaders-spring-2027",
+          "aliases": [
+            "Heritage Young Leaders Program",
+            "Heritage Internship"
+          ]
+        },
+        "cycle": {
+          "cycleId": "spring-2027",
+          "label": "spring-2027"
+        },
+        "state": "rolling",
+        "confidence": "confirmed",
+        "reason": "rolling_confirmed",
+        "effectiveAt": "2026-08-15T00:00:00.000Z",
+        "recurrence": {
+          "type": "annual",
+          "confidence": "confirmed",
+          "officialStatement": "The record models the central internship program, not a specific department. Ranking is limited to listed policy-adjacent majors and profiles with supported U.S. work status."
+        },
+        "evidence": [
+          {
+            "id": "career--heritage-young-leaders-spring-2027:spring-2027:official:1",
+            "source": "official_status",
+            "observedAt": "2026-08-15T00:00:00.000Z",
+            "value": "The official page confirms rolling Spring 2027 hiring, eligible academic stages, international-student work authorization, on-site format, pay, schedule, and policy areas.",
+            "sourceUrl": "https://www.heritage.org/young-leaders-program",
+            "confidence": "confirmed"
+          }
+        ],
+        "events": [],
+        "sourceChecks": [
+          {
+            "url": "https://www.heritage.org/young-leaders-program",
+            "checkedAt": "2026-08-15T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          }
+        ],
+        "fieldVerifiedAt": {
+          "state": "2026-08-15",
+          "deadline": "2026-08-15",
+          "applicationUrl": "2026-08-15",
+          "eligibility": "2026-08-15",
+          "award": "2026-08-15",
+          "location": "2026-08-15",
+          "programDates": "2026-08-15",
+          "description": "2026-08-15"
+        },
+        "review": {
+          "note": "The record models the central internship program, not a specific department. Ranking is limited to listed policy-adjacent majors and profiles with supported U.S. work status.",
+          "reviewedAt": "2026-08-15T00:00:00.000Z",
           "reviewer": "UnlockED catalog acquisition"
         }
       }

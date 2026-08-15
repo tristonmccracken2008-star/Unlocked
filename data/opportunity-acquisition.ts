@@ -21,6 +21,10 @@ export type OpportunityCandidateDisposition =
   | "duplicate"
   | "stale"
   | "graduate_only"
+  | "low_quality"
+  | "no_authoritative_source"
+  | "international_restriction"
+  | "transfer_uncertainty"
   | "accepted";
 
 export type OpportunitySourceWatch = {

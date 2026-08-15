@@ -1,4 +1,5 @@
 import { buildRecommendationSafeCatalogAudit } from "../data/recommendation-safe-catalog";
+import { normalizeOpportunityEligibility } from "../data/opportunity-eligibility-model";
 import { validateOpportunityData } from "../data/recommendation-professional-pipeline";
 import { opportunities } from "../data/opportunities";
 
@@ -18,9 +19,11 @@ const broadArea = (major: string) => {
   return "Other";
 };
 const coverageMatrix = new Map<string, number>();
+const uniqueBroadAreaCounts = new Map<string, number>();
 for (const opportunity of safe) {
   const areas = new Set(opportunity.majors.map(broadArea));
   for (const area of areas) {
+    uniqueBroadAreaCounts.set(area, (uniqueBroadAreaCounts.get(area) ?? 0) + 1);
     const key = `${area} × ${opportunity.type}`;
     coverageMatrix.set(key, (coverageMatrix.get(key) ?? 0) + 1);
   }
@@ -43,6 +46,11 @@ console.log(JSON.stringify({
     byCategory: countBy(safe.map((opportunity) => opportunity.category)),
     byYear: countBy(safe.flatMap((opportunity) => opportunity.academic_years)),
     byBroadArea: countBy(safe.flatMap((opportunity) => opportunity.majors.map(broadArea))),
+    byUniqueBroadArea: Object.fromEntries([...uniqueBroadAreaCounts.entries()].sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0]))),
+    highValueSafe: safe.filter((opportunity) => ["Career", "Research", "Scholarship"].includes(opportunity.type)).length,
+    internationalSafe: safe.filter((opportunity) => normalizeOpportunityEligibility(opportunity).citizenship.includes("international_allowed")).length,
+    transferEligibility: countBy(safe.map((opportunity) => normalizeOpportunityEligibility(opportunity).transferEligibility)),
+    transferSafe: safe.filter((opportunity) => ["transfer_specific", "explicitly_eligible"].includes(normalizeOpportunityEligibility(opportunity).transferEligibility)).length,
     matrix: Object.fromEntries([...coverageMatrix.entries()].sort((left, right) => left[0].localeCompare(right[0]))),
     deserts: Object.fromEntries(coverageDeserts),
   },

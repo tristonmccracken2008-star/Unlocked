@@ -146,3 +146,152 @@ The primary launch-quality gaps are still inventory gaps:
 5. International-safe inventory improved to five, but nationality-specific and visa-sensitive programs should remain position-specific.
 
 The next batch should prioritize current transfer scholarships, humanities/public-service internships, economics insight programs, and first-year scholarships only when official current-cycle eligibility can be proven.
+
+---
+
+## Batch 2: Remaining Coverage Deserts
+
+Audit date: 2026-08-15
+Batch: `coverage-deserts-2026-08-wave-2`
+
+### Executive result
+
+Batch 2 researched 45 official-source candidates. Five passed the unchanged recommendation gate: four new canonical records were added and the existing DOE Community College Internships record was enriched in place. Forty candidates were rejected or deferred. A post-import dry run reports 13 reviewed records unchanged across both batches, with zero additions and zero updates.
+
+The batch improved the most constrained personas without meeting every aspirational inventory target. Recommendation-safe inventory rose by four, high-value safe inventory rose by four, transfer-safe coverage became non-zero, and explicit international-safe inventory rose by two. The 250-profile p10 did not move, while a corrected legacy GPA parser removed false requirements inferred from year numbers and left no undergraduate profile below four recommendations.
+
+| Measure | Before Batch 2 | After Batch 2 | Change |
+| --- | ---: | ---: | ---: |
+| Total records | 6,004 | 6,008 | +4 |
+| Recommendation-safe | 76 | 80 | +4 |
+| High-value safe | 18 | 22 | +4 |
+| Transfer-safe | 0 | 1 | +1 |
+| Explicit international-safe | 5 | 7 | +2 |
+| Safe categories | 23 | 27 | +4 |
+| First-year safe | 10 | 13 | +3 |
+| Scholarship safe | 4 | 5 | +1 |
+| Humanities-specific safe | 1 | 4 | +3 |
+| Social-science/policy-specific safe | 1 | 3 | +2 |
+| Economics/finance/business-specific safe | 1 | 3 | +2 |
+
+High-value safe means recommendation-safe `Career`, `Research`, or `Scholarship` records. Academic-area counts use one count per safe opportunity per broad area, regardless of how many major aliases appear on the record. International-safe requires an explicit `international_allowed` rule; silence and generic work authorization do not count. Transfer-safe requires `transfer_specific` or `explicitly_eligible`; generic undergraduate and community-college access do not count.
+
+### Accepted records
+
+| Opportunity | Change | Coverage value | Current state |
+| --- | --- | --- | --- |
+| Community College Internships (CCI) | Enriched canonical record | Paid first-year/two-year-college research | Spring 2027 open; September 30 deadline |
+| CHCI Congressional Internship Program | Added | Explicit transfer route; public service; any major | Summer 2027 open; December 1 deadline |
+| Heritage Young Leaders Program | Added | Social science, economics, policy, paid career experience | Spring 2027 rolling |
+| Archives of American Art Internships | Added | Humanities, museums/archives, community-college access, explicit international access | Year-round rolling |
+| Schwarzman Scholars | Added | Fully funded global fellowship for graduating seniors across majors | 2027-28 open; September 9 deadline |
+
+CCI is intentionally classified `unknown` for transfer eligibility. Its official source proves community-college access, not transfer intent. CHCI is `explicitly_eligible`, not transfer-only, because the official page specifically permits graduating community-college students who will transfer to a four-year institution.
+
+### Safe coverage after Batch 2
+
+| Type | Count |
+| --- | ---: |
+| Benefit | 35 |
+| AI | 23 |
+| Career | 9 |
+| Research | 8 |
+| Scholarship | 5 |
+
+| Year | Count |
+| --- | ---: |
+| Any Year | 58 |
+| First year | 13 |
+| Second year | 17 |
+| Third year | 18 |
+| Fourth year | 20 |
+| Graduate student | 10 |
+
+| Broad academic area | Unique safe opportunities |
+| --- | ---: |
+| Broad / undecided | 68 |
+| Computer science / data | 10 |
+| Engineering / STEM | 10 |
+| Mathematics | 10 |
+| Pre-med / health | 10 |
+| Other sciences/fields | 9 |
+| Humanities | 4 |
+| Arts / design | 3 |
+| Economics / finance / business | 3 |
+| Social sciences / policy | 3 |
+
+The remaining academic-area weakness is category depth, not complete absence: humanities now has four safe Career records but no field-specific safe Scholarship or Research record; economics and social sciences each have three Career records but no field-specific safe Scholarship or Research record.
+
+### Golden-profile impact
+
+| Metric | Before Batch 2 | After Batch 2 |
+| --- | ---: | ---: |
+| Total approved recommendations | 1,421 | 1,424 |
+| Average | 5.71 | 5.72 |
+| Minimum | 3 | 4 |
+| p10 | 4 | 4 |
+| p25 | 4 | 4 |
+| Median | 6 | 6 |
+| p75 | 6 | 6 |
+| p90 | 7 | 7 |
+| Profiles at or below 3 | 3 | 0 |
+| Profiles at or below 5 | 65 | 65 |
+| Excellent tier | 993 | 998 |
+| Strong tier | 0 | 1 |
+| Controlled exploration | 428 | 425 |
+| Average category diversity | 4.74 | 4.76 |
+| Average organization diversity | 5.71 | 5.72 |
+
+The final golden run completed in 641 ms locally. Results can vary in elapsed time, but output counts and ordering remain deterministic.
+
+### Representative personas
+
+| Persona | Recommendations | Top Picks | Categories | Organizations | Remaining gap |
+| --- | ---: | ---: | ---: | ---: | --- |
+| Community-college transfer | 4 | 3 | 4 | 4 | Only one record is explicitly transfer-safe; most useful options are community-college or broad-undergraduate records. |
+| Four-year first-year economics | 4 | 4 | 4 | 4 | No economics-specific scholarship or research record. |
+| International CS undergraduate | 6 | 5 | 5 | 6 | Strong count, but international-safe inventory remains concentrated in research and global programs. |
+| Economics junior / banking | 4 | 3 | 4 | 4 | Improved from three; finance competition and economics-research depth remain thin. |
+| English / publishing | 4 | 2 | 4 | 4 | Smithsonian adds a substantive humanities path; field-specific funding remains scarce. |
+| First-year math / quant | 6 | 4 | 6 | 6 | Count is strong; age-dependent records remain correctly blocked when age is unknown. |
+| Scholarship-focused / financial need | 4-6 depending on proved need and citizenship | Profile-dependent | Profile-dependent | Profile-dependent | Only five total scholarships pass the gate. Need, GPA, age, and citizenship continue to fail closed. |
+
+### Rejected and deferred research
+
+Forty Batch 2 candidates remain outside recommendations. The most important reasons are:
+
+- **Not yet open:** Gilman, Cooke Transfer, PPIA JSI, Girls Who Invest, Smithsonian APAC, Library of Congress programs, National Gallery, The Met, RTDNA, Yenching, Putnam, D-Prize, Outreachy, NCAS, and several writing/film competitions.
+- **Eligibility cannot be proved from the current profile:** MLT Career Prep's inequitable-access criterion, Truman and Marshall institutional nomination, Tau Sigma and PTK membership/nomination, VentureWell institutional membership, and The Washington Center's school-specific rules.
+- **Umbrella records would be unsafe:** Fulbright country awards, OECD position/nationality rules, CFA local university teams, and PTK's award-specific requirements.
+- **Official sources conflict or lag:** Wege Prize and Cato Spring 2027.
+- **Closed/stale:** CME's August challenge and the 2026 Magna Charta essay competition.
+- **Current but not safely international:** Humanities at Hertog is open, but its current eligibility page does not explicitly state nationality rules. It was deferred rather than allowing international eligibility by silence.
+- **Unavailable indefinitely:** Smithsonian SOAR states that it will not accept interns for the foreseeable future.
+- **Duplicate:** SULI and SMART already have safe canonical records; no duplicate was inserted.
+
+Every deferred candidate remains in the source-watch ledger with an official URL, disposition, reason, and review date.
+
+### False-positive audit
+
+All five accepted records were reviewed against their stored official sources and passed the unchanged production validator. Specific checks confirmed:
+
+- CCI remains restricted to community-college/two-year students and does not count as transfer-safe.
+- CHCI passes both a qualifying non-transfer undergraduate and a qualifying community-college transfer profile; it is not transfer-exclusive.
+- Heritage requires a supported U.S. citizenship, permanent-resident, or work-authorization status.
+- Archives of American Art is the only new humanities record marked international-safe, based on the Smithsonian's explicit `No Citizenship Requirement` listing.
+- Schwarzman is limited to fourth-year/graduate-stage profiles and requires a known age within 18-28.
+- Existing Journey IDs, notification semantics, and changelog history are unchanged; initial ingestion creates no synthetic change event.
+
+### False-negative audit
+
+The strongest excluded records were reviewed again. Hertog, MLT, Truman, Fulbright, OECD, Cooke, Gilman, Cato, and Yenching remain legitimately blocked for nationality ambiguity, unsupported eligibility attributes, nomination, variable award rules, unopened cycles, or conflicting status. No production gate was bypassed to admit them.
+
+### Remaining deserts
+
+1. Transfer-safe inventory is one, not “several.” Cooke opens August 19 and is the highest-priority scheduled review.
+2. Explicit international-safe inventory is seven, below the aspirational ten.
+3. Scholarships improved to five but remain too sparse for a scholarship-first product experience.
+4. Humanities, economics, and social sciences now have substantive Career options but still lack type diversity.
+5. No golden undergraduate profile is below four recommendations, but records with real GPA or age requirements still fail closed when those attributes are unknown.
+
+These are operational acquisition gaps, not reasons to weaken the recommendation gate.

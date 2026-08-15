@@ -98,7 +98,7 @@ async function installSession(context: BrowserContext, origin: string, token: st
   await context.addCookies([{ name: "unlocked_session", value: token, url: origin, httpOnly: true, sameSite: "Lax", expires: Math.floor(Date.now() / 1000) + 3600 }]);
 }
 
-async function preserveLocalHttpForProductionWebkit(context: BrowserContext, origin: string) {
+async function preserveLocalHttpForProductionWebkit(context: BrowserContext, origin: string, sessionToken: string) {
   const transparentPixel = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=", "base64");
   const secureOrigin = origin.replace(/^http:/, "https:");
   await context.route("https://logo.clearbit.com/**", async (route) => {
@@ -127,7 +127,9 @@ async function preserveLocalHttpForProductionWebkit(context: BrowserContext, ori
       }
       return;
     }
-    const response = await route.fetch();
+    const requestHeaders = await route.request().allHeaders();
+    requestHeaders.cookie = `unlocked_session=${sessionToken}`;
+    const response = await route.fetch({ headers: requestHeaders });
     const headers = response.headers();
     const policy = headers["content-security-policy"];
     if (policy) {
@@ -137,7 +139,9 @@ async function preserveLocalHttpForProductionWebkit(context: BrowserContext, ori
         .filter((directive) => directive !== "upgrade-insecure-requests")
         .join("; ");
     }
-    await route.fulfill({ response, headers });
+    delete headers["content-encoding"];
+    delete headers["content-length"];
+    await route.fulfill({ status: response.status(), headers, body: await response.body() });
   });
 }
 
@@ -156,6 +160,12 @@ function observePage(page: Page) {
     if (message.type() !== "error") return;
     const detail = message.text();
     if (detail.includes("/_vercel/insights/") || detail.includes("/_vercel/speed-insights/") || detail.includes("net::ERR_NAME_NOT_RESOLVED")) return;
+    const localWebkitCspNoise = process.env.UNLOCKED_TEST_PRODUCTION_WEBKIT === "1"
+      && (detail === "Failed to load resource: WebKit encountered an internal error"
+        || detail === "Blocked by Content Security Policy."
+        || detail === "Failed to load resource: Blocked by Content Security Policy."
+        || (detail.startsWith("Refused to connect to https://localhost:") && detail.includes("connect-src directive")));
+    if (localWebkitCspNoise) return;
     consoleErrors.push(detail);
   });
   page.on("requestfailed", (request) => {
@@ -166,7 +176,10 @@ function observePage(page: Page) {
       && request.method() === "GET"
       && (url.pathname === "/api/opportunities" || url.pathname === "/api/notifications" || url.searchParams.has("_rsc"));
     const expectedImageCancellation = request.resourceType() === "image" && failure.includes("cancel");
-    if (failure === "net::err_aborted" || expectedCancellation || expectedImageCancellation) return;
+    const expectedLocalWebkitRscFailure = process.env.UNLOCKED_TEST_PRODUCTION_WEBKIT === "1"
+      && url.searchParams.has("_rsc")
+      && (failure.includes("content security policy") || failure.includes("webkit encountered an internal error"));
+    if (failure === "net::err_aborted" || expectedCancellation || expectedImageCancellation || expectedLocalWebkitRscFailure) return;
     if (request.resourceType() === "image" && new URL(request.url()).origin !== new URL(page.url()).origin) return;
     requestFailures.push(`${request.method()} ${request.url()} ${request.failure()?.errorText ?? "failed"}`);
   });
@@ -220,7 +233,10 @@ async function verifyDiscover(page: Page, origin: string, screenshotLabel: strin
     if (url.pathname === "/api/auth/session") sessionRequests += 1;
     if (url.pathname === "/api/opportunities") catalogRequests.push(url.search);
   });
-  await page.goto(`${origin}/opportunities`, { waitUntil: "domcontentloaded", timeout: 45_000 });
+  const navigation = await page.goto(`${origin}/opportunities`, { waitUntil: "domcontentloaded", timeout: 45_000 });
+  if (process.env.UNLOCKED_TEST_PRODUCTION_WEBKIT === "1") {
+    assert.equal(navigation?.headers()["content-security-policy"]?.includes("upgrade-insecure-requests"), false, "The local WebKit fixture must not upgrade its HTTP loopback connection.");
+  }
   await page.getByRole("heading", { name: "Find what’s out there." }).waitFor({ state: "visible" });
   await page.getByRole("link", { name: "Open Opportunity" }).first().waitFor({ state: "visible", timeout: 45_000 });
   await assertOrganizationMarks(page, `${screenshotLabel} Discover`);
@@ -346,7 +362,6 @@ async function verifyDiscover(page: Page, origin: string, screenshotLabel: strin
 }
 
 async function verifyOpportunityDetails(page: Page, origin: string, screenshotLabel: string) {
-  await page.waitForLoadState("networkidle", { timeout: 10_000 });
   const scenarios = [
     { id: "benefit--github-student-developer-pack", kind: "benefit", heading: "GitHub Student Developer Pack", facts: ["Value", "Access", "Deadline"] },
     { id: "scholarship--goldwater-scholarship", kind: "scholarship", heading: "Barry Goldwater Scholarship", facts: ["Award", "Deadline", "Application", "Renewal"] },
@@ -356,6 +371,9 @@ async function verifyOpportunityDetails(page: Page, origin: string, screenshotLa
   ];
   const renderedHeights = new Map<string, number>();
   for (const scenario of scenarios) {
+    if (process.env.UNLOCKED_TEST_PRODUCTION_WEBKIT === "1") {
+      await page.goto("about:blank");
+    }
     const notificationReady = page.waitForResponse((response) => {
       const url = new URL(response.url());
       return response.request().method() === "GET"
@@ -503,7 +521,7 @@ let browserFailure: unknown = null;
 try {
   if (productionWebkit) {
     const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, reducedMotion: "reduce" });
-    await preserveLocalHttpForProductionWebkit(context, origin);
+    await preserveLocalHttpForProductionWebkit(context, origin, session.token);
     await installSession(context, origin, session.token);
     const page = await context.newPage();
     const observed = observePage(page);
@@ -512,7 +530,14 @@ try {
     try {
       discover = await verifyDiscover(page, origin, "webkit");
       primaryRoutes = await verifyPrimaryRoutes(page, origin, "webkit");
-      Object.assign(primaryRoutes, await verifyOpportunityDetails(page, origin, "webkit"));
+      await page.close();
+      await installSession(context, origin, session.token);
+      const detailPage = await context.newPage();
+      const detailObserved = observePage(detailPage);
+      Object.assign(primaryRoutes, await verifyOpportunityDetails(detailPage, origin, "webkit"));
+      assert.deepEqual(detailObserved.consoleErrors, [], `WebKit detail console errors: ${detailObserved.consoleErrors.join(" | ")}`);
+      assert.deepEqual(detailObserved.requestFailures, [], `WebKit detail request failures: ${detailObserved.requestFailures.join(" | ")}`);
+      await detailPage.close();
     } catch (error) {
       console.error("WebKit browser diagnostics", observed);
       throw error;

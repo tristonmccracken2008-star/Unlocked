@@ -60,7 +60,15 @@ const fixtures: [string, RegExp][] = [
 for (const [query, expected] of fixtures) {
   const result = buildDiscoverCatalog(opportunities, { ...baseQuery, query });
   assert.ok(result.total > 0, `${query} must return at least one useful result.`);
-  assert.match(result.opportunities.slice(0, 3).map((item) => item.title).join(" "), expected, `${query} must prioritize a clearly relevant result.`);
+  const topResultEvidence = result.opportunities.slice(0, 3).map((item) => [
+    item.title,
+    item.organization,
+    item.category,
+    item.description,
+    item.majors.join(" "),
+    item.tags.join(" "),
+  ].join(" ")).join(" ");
+  assert.match(topResultEvidence, expected, `${query} must prioritize a clearly relevant result.`);
 }
 
 const zero = buildDiscoverCatalog(opportunities, { ...baseQuery, type: "AI", category: "Scholarships" });

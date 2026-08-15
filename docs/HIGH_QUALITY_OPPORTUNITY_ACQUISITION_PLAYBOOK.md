@@ -1,6 +1,6 @@
 # High-Quality Opportunity Acquisition Playbook
 
-Last updated: 2026-08-14
+Last updated: 2026-08-15
 
 ## Purpose
 
@@ -66,6 +66,17 @@ A recommendation-safe record must explain, in concise student-facing language:
 - verification state, last verified date, current cycle, and official sources.
 
 Descriptions must not contain invented urgency, inferred benefits, or copied promotional claims.
+
+### Transfer semantics
+
+Transfer access is recorded independently from institution type:
+
+- `transfer_specific`: the program is designed for transfer students;
+- `explicitly_eligible`: the official source expressly permits transfer students but the program is not transfer-only;
+- `general_undergraduate`: the program has broad undergraduate access but no transfer-specific claim;
+- `unknown`: the source does not resolve transfer access.
+
+Community-college eligibility alone is not transfer evidence. Only the first two states count as transfer-safe, and `transferOnly` remains reserved for an actual transfer-only restriction.
 
 ## Quality Controls
 

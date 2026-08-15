@@ -36,6 +36,11 @@ const acquisitionWaveIds = [
   "scholarship--knight-hennessy-scholars-2027",
   "scholarship--rhodes-scholarship-united-states-2027",
   "career--nasa-space-apps",
+  "research--doe-cci",
+  "career--chci-congressional-internship-summer-2027",
+  "career--heritage-young-leaders-spring-2027",
+  "career--smithsonian-archives-american-art-internships",
+  "scholarship--schwarzman-scholars-2027-28",
 ] as const;
 const archivedDuplicates = new Map([
   ["national-curated-2026--u-s-department-of-defense--smart-scholarship-for-service-program", "scholarship--dod-smart-scholarship"],
@@ -152,10 +157,10 @@ const categoryCounts = verified.reduce<Record<string, number>>((counts, item) =>
 }, {});
 const unresolved = opportunities.filter((item) => ["needs_review", "temporarily_closed", "incomplete", "broken_source"].includes(item.verification_status)).length;
 
-assert.equal(opportunities.length, 6004, "Reviewed expansion waves should add thirteen canonical records while enriching existing identities in place.");
-assert.equal(canonical.length, 5993, "Canonical public inventory must exclude archived and secondary duplicate records.");
-assert.equal(verified.length, 211, "The audited inventory should contain 211 verified records.");
-assert.equal(highValueRecommendationSafe.length, 18, "Eighteen non-resource opportunities should be safely actionable on the audit date.");
+assert.equal(opportunities.length, 6008, "Reviewed expansion waves should add seventeen canonical records while enriching existing identities in place.");
+assert.equal(canonical.length, 5997, "Canonical public inventory must exclude archived and secondary duplicate records.");
+assert.equal(verified.length, 215, "The audited inventory should contain 215 verified records.");
+assert.equal(highValueRecommendationSafe.length, 22, "Twenty-two non-resource opportunities should be safely actionable on the audit date.");
 
 console.log(JSON.stringify({
   auditDate: auditDate.toISOString().slice(0, 10),
@@ -180,11 +185,11 @@ console.log(JSON.stringify({
     highValueRecommendationSafeAfter: highValueRecommendationSafe.length,
   },
   acquisitionWave: {
-    researched: 21,
+    researched: 66,
     accepted: acquisitionWaveIds.length,
-    canonicalRecordsAdded: 6,
-    canonicalRecordsEnriched: 2,
-    rejected: 13,
+    canonicalRecordsAdded: 10,
+    canonicalRecordsEnriched: 3,
+    rejected: 53,
     recommendationSafeBefore: 68,
     recommendationSafeAfter: recommendationSafe.length,
     highValueRecommendationSafeBefore: 10,

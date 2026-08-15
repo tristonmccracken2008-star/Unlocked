@@ -44,17 +44,25 @@ const advisorProfile = createAdvisorProfile({ profile, school, activity, progres
 const context = buildOpportunityStudentContext(advisorProfile);
 
 const cci = opportunities.find((item) => item.id === "research--doe-cci");
+const chci = opportunities.find((item) => item.id === "career--chci-congressional-internship-summer-2027");
 const amazon = opportunities.find((item) => item.id === "scholarship--amazon-future-engineer");
 const microsoft = opportunities.find((item) => item.id === "scholarship--microsoft-disability-scholarship");
 const brooke = opportunities.find((item) => item.id === "career--brooke-owens-fellowship");
 const caltech = opportunities.find((item) => item.id === "research--caltech-surf");
-assert.ok(cci && amazon && microsoft && brooke && caltech, "Mandatory production regression records must exist.");
+assert.ok(cci && chci && amazon && microsoft && brooke && caltech, "Mandatory production regression records must exist.");
 
 const cciEvaluation = evaluateOpportunityEligibility(cci, context);
 assert.equal(cciEvaluation.eligible, false, "A UChicago four-year undergraduate must never pass CCI eligibility.");
 assert.equal(cciEvaluation.checks.find((check) => check.key === "institution_type")?.proven, false, "CCI must fail the canonical community-college institution check.");
 assert.equal(cciEvaluation.checks.find((check) => check.key === "age")?.proven, false, "CCI's canonical minimum age must fail closed when age is unknown.");
 assert.equal(normalizeOpportunityEligibility(cci).institutionTypes.includes("community_college"), true, "CCI must retain its canonical community-college restriction.");
+assert.equal(normalizeOpportunityEligibility(cci).transferEligibility, "unknown", "Community-college access must not be mislabeled as transfer-safe.");
+const chciEligibility = normalizeOpportunityEligibility(chci);
+assert.equal(chciEligibility.transferEligibility, "explicitly_eligible", "CHCI must retain its official transfer-student route.");
+assert.equal(chciEligibility.transferOnly, false, "Explicit transfer eligibility must not make CHCI transfer-exclusive.");
+assert.equal(evaluateOpportunityEligibility(chci, context).eligible, true, "A qualifying non-transfer undergraduate must remain eligible for CHCI.");
+const transferContext = { ...context, institutionType: "community_college" as const, degreeLevel: "associate" as const, transferStatus: "transfer_applicant" as const };
+assert.equal(evaluateOpportunityEligibility(chci, transferContext).eligible, true, "A qualifying community-college transfer applicant must pass CHCI's explicit transfer route.");
 for (const scholarship of [amazon, microsoft]) {
   const evaluation = evaluateOpportunityEligibility(scholarship, context);
   assert.equal(evaluation.eligible, false, `${scholarship.id} must reject an enrolled undergraduate.`);
