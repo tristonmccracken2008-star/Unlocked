@@ -24,6 +24,8 @@ export type DiscoverCatalogQuery = {
 type DiscoverIndex = {
   documentsById: Map<string, SearchDocument>;
   vocabulary: string[];
+  vocabularySet: Set<string>;
+  preparedQueries: Map<string, PreparedSearchQuery>;
   facets: DiscoverCatalogPayload["facets"];
 };
 
@@ -182,9 +184,12 @@ function discoverIndex(source: readonly Opportunity[]) {
   const cached = indexBySource.get(source);
   if (cached) return cached;
   const documentsById = new Map(source.map((item) => [item.id, searchDocument(item)]));
+  const vocabulary = [...new Set([...documentsById.values()].flatMap((document) => [...document.allTokens]))];
   const index: DiscoverIndex = {
     documentsById,
-    vocabulary: [...new Set([...documentsById.values()].flatMap((document) => [...document.allTokens]))],
+    vocabulary,
+    vocabularySet: new Set(vocabulary),
+    preparedQueries: new Map(),
     facets: {
       categories: [...new Set(source.map((item) => item.category))].sort(),
       majors: [...new Set(source.flatMap((item) => item.majors).filter((item) => item !== "Any Major"))].sort(),
@@ -255,18 +260,23 @@ function tokenScore(token: string, document: SearchDocument, allowPrefix = true)
   if (document.categoryTokens.has(token)) return 95;
   if (document.subjectTokens.has(token)) return 70;
   if (document.detailTokens.has(token)) return 28;
-  const prefix = allowPrefix && [...document.allTokens].some((candidate) => candidate.startsWith(token) || token.startsWith(candidate));
-  if (prefix && token.length >= 3) return 34;
+  if (allowPrefix && token.length >= 3) {
+    for (const candidate of document.allTokens) {
+      if (candidate.startsWith(token) || token.startsWith(candidate)) return 34;
+    }
+  }
   return 0;
 }
 
 function prepareSearchQuery(query: string, index: DiscoverIndex): PreparedSearchQuery {
   const normalizedInput = normalizeText(query);
+  const cached = index.preparedQueries.get(normalizedInput);
+  if (cached) return cached;
   const normalized = exactQueryAliases.get(normalizedInput) ?? normalizedInput;
   const exactAlias = normalized !== normalizedInput;
   const terms = tokenize(normalized).map((token) => {
     const synonyms = exactAlias ? [] : [...(synonymTokens.get(token) ?? [])].filter((candidate) => candidate !== token);
-    const known = index.vocabulary.includes(token) || index.vocabulary.some((candidate) => candidate.startsWith(token));
+    const known = index.vocabularySet.has(token) || index.vocabulary.some((candidate) => candidate.startsWith(token));
     const typos: string[] = [];
     if (!known && token.length >= 4) {
       const maximum = token.length >= 6 ? 2 : 1;
@@ -278,7 +288,10 @@ function prepareSearchQuery(query: string, index: DiscoverIndex): PreparedSearch
     }
     return { token, synonyms, typos };
   });
-  return { normalized, terms, exactAlias };
+  const prepared = { normalized, terms, exactAlias };
+  if (index.preparedQueries.size >= 128) index.preparedQueries.delete(index.preparedQueries.keys().next().value!);
+  index.preparedQueries.set(normalizedInput, prepared);
+  return prepared;
 }
 
 function searchScore(query: PreparedSearchQuery, document: SearchDocument) {
@@ -308,13 +321,21 @@ function searchScore(query: PreparedSearchQuery, document: SearchDocument) {
   return score;
 }
 
-function sortOpportunities(items: Opportunity[], sort: DiscoverSortMode, index: DiscoverIndex, lifecycle: Map<string, OpportunityLifecycleSnapshot>, query: PreparedSearchQuery, today: string) {
+function scoreFor(item: Opportunity, query: PreparedSearchQuery, index: DiscoverIndex, scores: Map<string, number>) {
+  const cached = scores.get(item.id);
+  if (cached !== undefined) return cached;
+  const score = searchScore(query, index.documentsById.get(item.id)!);
+  scores.set(item.id, score);
+  return score;
+}
+
+function sortOpportunities(items: Opportunity[], sort: DiscoverSortMode, index: DiscoverIndex, lifecycle: Map<string, OpportunityLifecycleSnapshot>, query: PreparedSearchQuery, searchScores: Map<string, number>, today: string) {
   const next = [...items];
   if (sort === "Relevant") {
     const recentVerificationCutoff = new Date(`${today}T00:00:00Z`);
     recentVerificationCutoff.setUTCDate(recentVerificationCutoff.getUTCDate() - 180);
     const cutoff = recentVerificationCutoff.toISOString().slice(0, 10);
-    const scores = new Map(next.map((item) => [item.id, searchScore(query, index.documentsById.get(item.id)!) + qualityScore(item, lifecycle.get(item.id)!, today, cutoff)]));
+    const scores = new Map(next.map((item) => [item.id, scoreFor(item, query, index, searchScores) + qualityScore(item, lifecycle.get(item.id)!, today, cutoff)]));
     return next.sort((a, b) => scores.get(b.id)! - scores.get(a.id)! || b.date_added.localeCompare(a.date_added) || a.title.localeCompare(b.title));
   }
   if (sort === "Newest") return next.sort((a, b) => b.date_added.localeCompare(a.date_added) || a.title.localeCompare(b.title));
@@ -326,22 +347,19 @@ function sortOpportunities(items: Opportunity[], sort: DiscoverSortMode, index: 
   return next.sort((a, b) => a.title.localeCompare(b.title));
 }
 
-function contextualTypeCounts(source: readonly Opportunity[], query: DiscoverCatalogQuery, preparedQuery: PreparedSearchQuery, index: DiscoverIndex, lifecycle: Map<string, OpportunityLifecycleSnapshot>) {
+function contextualFacetCounts(source: readonly Opportunity[], query: DiscoverCatalogQuery, preparedQuery: PreparedSearchQuery, index: DiscoverIndex, lifecycle: Map<string, OpportunityLifecycleSnapshot>, searchScores: Map<string, number>) {
   const baseQuery = { ...query, type: "All" as const, category: "All" };
-  const base = queryMatches(structuredMatches(source, baseQuery, lifecycle), preparedQuery, index);
-  return Object.fromEntries(quickFilters.map((filter) => [
-    filter.label,
-    filter.label === "All" ? base.length : base.filter((item) => (!filter.type || item.type === filter.type) && (!filter.category || item.category === filter.category)).length,
-  ]));
-}
-
-function contextualExplorationCounts(source: readonly Opportunity[], query: DiscoverCatalogQuery, preparedQuery: PreparedSearchQuery, index: DiscoverIndex, lifecycle: Map<string, OpportunityLifecycleSnapshot>) {
-  const baseQuery = { ...query, type: "All" as const, category: "All" };
-  const base = queryMatches(structuredMatches(source, baseQuery, lifecycle), preparedQuery, index);
-  return Object.fromEntries(discoverExplorationPaths.map((path) => [
-    path.label,
-    base.filter((item) => (!path.type || item.type === path.type) && (!path.category || item.category === path.category)).length,
-  ]));
+  const base = queryMatches(structuredMatches(source, baseQuery, lifecycle), preparedQuery, index, searchScores);
+  return {
+    typeCounts: Object.fromEntries(quickFilters.map((filter) => [
+      filter.label,
+      filter.label === "All" ? base.length : base.filter((item) => (!filter.type || item.type === filter.type) && (!filter.category || item.category === filter.category)).length,
+    ])),
+    explorationCounts: Object.fromEntries(discoverExplorationPaths.map((path) => [
+      path.label,
+      base.filter((item) => (!path.type || item.type === path.type) && (!path.category || item.category === path.category)).length,
+    ])),
+  };
 }
 
 function structuredMatches(source: readonly Opportunity[], query: DiscoverCatalogQuery, lifecycle: Map<string, OpportunityLifecycleSnapshot>) {
@@ -368,9 +386,9 @@ function structuredMatches(source: readonly Opportunity[], query: DiscoverCatalo
   });
 }
 
-function queryMatches(items: readonly Opportunity[], query: PreparedSearchQuery, index: DiscoverIndex) {
+function queryMatches(items: readonly Opportunity[], query: PreparedSearchQuery, index: DiscoverIndex, searchScores: Map<string, number>) {
   if (!query.normalized) return [...items];
-  return items.filter((item) => searchScore(query, index.documentsById.get(item.id)!) > 0);
+  return items.filter((item) => scoreFor(item, query, index, searchScores) > 0);
 }
 
 const recoveryLabels: Record<DiscoverRecovery["filter"], string> = {
@@ -385,7 +403,7 @@ const recoveryLabels: Record<DiscoverRecovery["filter"], string> = {
   deadline: "Any deadline",
 };
 
-function zeroResultRecovery(source: readonly Opportunity[], query: DiscoverCatalogQuery, preparedQuery: PreparedSearchQuery, index: DiscoverIndex, lifecycle: Map<string, OpportunityLifecycleSnapshot>) {
+function zeroResultRecovery(source: readonly Opportunity[], query: DiscoverCatalogQuery, preparedQuery: PreparedSearchQuery, index: DiscoverIndex, lifecycle: Map<string, OpportunityLifecycleSnapshot>, searchScores: Map<string, number>) {
   const candidates: DiscoverRecovery[] = [];
   const possible: DiscoverRecovery["filter"][] = ["type", "category", "major", "school", "paid", "remote", "difficulty", "freshmanFriendly", "deadline"];
   for (const filter of possible) {
@@ -395,7 +413,7 @@ function zeroResultRecovery(source: readonly Opportunity[], query: DiscoverCatal
       ...query,
       [filter]: filter === "freshmanFriendly" ? false : "All",
     };
-    const count = queryMatches(structuredMatches(source, relaxed, lifecycle), preparedQuery, index).length;
+    const count = queryMatches(structuredMatches(source, relaxed, lifecycle), preparedQuery, index, searchScores).length;
     if (count > 0) candidates.push({ filter, label: recoveryLabels[filter], resultCount: count });
   }
   return candidates.sort((left, right) => right.resultCount - left.resultCount || left.filter.localeCompare(right.filter))[0] ?? null;
@@ -405,11 +423,13 @@ export function buildDiscoverCatalog(source: readonly Opportunity[], query: Disc
   const visibleSource = canonicalSource(source);
   const index = discoverIndex(visibleSource);
   const preparedQuery = prepareSearchQuery(query.query, index);
+  const searchScores = new Map<string, number>();
   const now = new Date();
   const lifecycle = lifecycleIndex(visibleSource, now);
-  const filtered = queryMatches(structuredMatches(visibleSource, query, lifecycle), preparedQuery, index);
+  const filtered = queryMatches(structuredMatches(visibleSource, query, lifecycle), preparedQuery, index, searchScores);
   const today = now.toISOString().slice(0, 10);
-  const sorted = sortOpportunities(filtered, query.sort, index, lifecycle, preparedQuery, today);
+  const sorted = sortOpportunities(filtered, query.sort, index, lifecycle, preparedQuery, searchScores, today);
+  const contextual = contextualFacetCounts(visibleSource, query, preparedQuery, index, lifecycle, searchScores);
   const listings: OpportunityListing[] = sorted.slice(0, query.limit).map((item) => {
     const snapshot = lifecycle.get(item.id)!;
     return {
@@ -431,11 +451,10 @@ export function buildDiscoverCatalog(source: readonly Opportunity[], query: Disc
     opportunities: listings,
     total: sorted.length,
     limit: query.limit,
-    recovery: sorted.length ? null : zeroResultRecovery(visibleSource, query, preparedQuery, index, lifecycle),
+    recovery: sorted.length ? null : zeroResultRecovery(visibleSource, query, preparedQuery, index, lifecycle, searchScores),
     facets: {
       ...index.facets,
-      typeCounts: contextualTypeCounts(visibleSource, query, preparedQuery, index, lifecycle),
-      explorationCounts: contextualExplorationCounts(visibleSource, query, preparedQuery, index, lifecycle),
+      ...contextual,
     },
   };
 }

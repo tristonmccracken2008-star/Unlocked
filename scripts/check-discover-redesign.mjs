@@ -52,7 +52,7 @@ assert.ok(filter.includes("recovery.resultCount"), "Discover must offer evidence
 assert.doesNotMatch(filter, /searchValue:\s*filters\.query|filterValue:\s*JSON\.stringify\(filters\)/, "Discover analytics must not record raw search or filter state.");
 assert.ok(api.includes("buildDiscoverCatalog"), "The opportunity API must provide the server-side Discover projection.");
 assert.ok(catalog.includes("sorted.slice(0, query.limit)"), "The Discover projection must enforce its visible result limit.");
-for (const token of ["prepareSearchQuery", "searchScore", "synonymGroups", "exactQueryAliases", "editDistanceWithin", "zeroResultRecovery", "contextualExplorationCounts", "isCanonicalCatalogOpportunity"]) {
+for (const token of ["prepareSearchQuery", "searchScore", "synonymGroups", "exactQueryAliases", "editDistanceWithin", "zeroResultRecovery", "contextualFacetCounts", "isCanonicalCatalogOpportunity"]) {
   assert.ok(catalog.includes(token), `Discover search must preserve ${token}.`);
 }
 assert.ok(filter.includes("discoverExplorationPaths") && filter.includes("discoverSearchStarters"), "Blank Discover must offer grounded exploration paths and search starters.");

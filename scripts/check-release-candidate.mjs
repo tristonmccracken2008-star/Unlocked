@@ -47,7 +47,8 @@ assert.match(discover, /useDeferredValue/, "Discover search must defer expensive
 assert.match(discover, /params\.set\("view", "discover"\)/, "Discover must identify its bounded server-side result windows.");
 assert.match(discover, /params\.set\("limit", String\(visibleCount\)\)/, "Discover must bound server results to the visible window.");
 assert.doesNotMatch(discover, /filterOpportunities/, "Discover must not filter the full catalog on the browser main thread.");
-assert.match(discoverCatalog, /searchScore\(query, index\.documentsById\.get\(item\.id\)!\) \+ qualityScore\(item, lifecycle\.get\(item\.id\)!, today, cutoff\)/, "Discover should combine indexed search relevance, lifecycle truth, and catalog quality on the server.");
+assert.match(discoverCatalog, /scoreFor\(item, query, index, searchScores\) \+ qualityScore\(item, lifecycle\.get\(item\.id\)!, today, cutoff\)/, "Discover should combine cached indexed search relevance, lifecycle truth, and catalog quality on the server.");
+assert.match(discoverCatalog, /const searchScores = new Map<string, number>\(\)/, "Discover must scope cached search scores to one request.");
 assert.match(discoverCatalog, /const scores = new Map/, "Discover should compute ranking scores once before sorting.");
 
 assert.doesNotMatch(journeyDashboard, /import \{[^}]*opportunities,/, "Journey dashboard must not statically import the full catalog.");
