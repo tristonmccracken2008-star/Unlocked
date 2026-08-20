@@ -2,13 +2,16 @@ import assert from "node:assert/strict";
 import { createAdvisorProfile } from "../data/advisor-engine";
 import { isCanonicalCatalogOpportunity } from "../data/opportunity-catalog-canonical";
 import { normalizeOpportunityEligibility } from "../data/opportunity-eligibility-model";
+import { evaluateOpportunityEligibility } from "../data/opportunity-eligibility";
 import { resolveOpportunityLifecycle } from "../data/opportunity-lifecycle";
 import { recommendationOpportunityClass } from "../data/recommendation-portfolio-policy";
-import { rankOpportunityRecommendations } from "../data/recommendation-engine";
+import { buildOpportunityStudentContext, rankOpportunityRecommendations } from "../data/recommendation-engine";
 import { validateOpportunityData } from "../data/recommendation-professional-pipeline";
 import { allOpportunityAcquisitionCandidates, allOpportunityAcquisitionRecords } from "../data/opportunity-acquisition-batches";
 import { opportunityAcquisitionBatch4 } from "../data/opportunity-acquisition-batch-4";
 import { opportunityAcquisitionBatch5 } from "../data/opportunity-acquisition-batch-5";
+import { opportunityAcquisitionBatch6 } from "../data/opportunity-acquisition-batch-6";
+import { opportunityAcquisitionBatch7 } from "../data/opportunity-acquisition-batch-7";
 import { opportunities } from "../data/opportunities";
 import { schools } from "../data/seed";
 import type { StudentProfile } from "../data/student-profile";
@@ -120,6 +123,23 @@ const profiles: Record<string, Partial<StudentProfile>> = {
   undecided: { major: "Undecided", careerGoal: "Undecided", interests: "Explore careers, Competitions, Career Development", topics: ["Explore careers", "Competitions", "Career Development"] },
 };
 
+const evaluationFor = (id: string, overrides: Partial<StudentProfile> = {}) => {
+  const opportunity = opportunities.find((item) => item.id === id);
+  assert.ok(opportunity, `${id} must exist for eligibility regression coverage.`);
+  const profile = { ...baseProfile, ...overrides };
+  const advisorProfile = createAdvisorProfile({ profile, school });
+  return evaluateOpportunityEligibility(opportunity, buildOpportunityStudentContext(advisorProfile));
+};
+
+assert.equal(evaluationFor("career--nsf-elean-nanomanufacturing-2026", { age: 17 }).eligible, false, "ELEAN must enforce its minimum age.");
+assert.equal(evaluationFor("career--nsf-bridge-to-cyber-2026", { major: "Computer Science" }).eligible, false, "Bridge To Cyber must not rank for computing majors.");
+assert.equal(evaluationFor("career--nsf-bridge-to-cyber-2026", { major: "Economics" }).eligible, true, "Bridge To Cyber must remain available to a proven non-computing major.");
+assert.equal(evaluationFor("career--tfas-spring-washington-fellowship-2027", { citizenshipStatus: "international", workAuthorization: "unknown" }).eligible, false, "The Spring Fellowship's conservative domestic rule must fail closed.");
+assert.equal(evaluationFor("career--tfas-summer-academic-internship-2027", { major: "Political Science", citizenshipStatus: "international", workAuthorization: "unknown" }).eligible, true, "The official international summer route must remain eligible for a matched academic track.");
+assert.equal(evaluationFor("fellowship--fulbright-us-student-2027-28", { year: "First year", graduationYear: "2030" }).eligible, false, "Fulbright must not rank before the final undergraduate year.");
+assert.equal(evaluationFor("fellowship--fulbright-us-student-2027-28", { year: "Fourth year", graduationYear: "2027", citizenshipStatus: "international", workAuthorization: "unknown" }).eligible, false, "Fulbright must enforce U.S. citizenship.");
+assert.equal(evaluationFor("career--americorps-fema-corps-2027", { age: 25 }).eligible, false, "FEMA Corps must enforce its maximum member age.");
+
 const rankingCatalog = opportunities.filter((item) => validateOpportunityData(item).allowed);
 const profileCoverage: Record<string, { count: number; ids: string[] }> = {};
 for (const [name, override] of Object.entries(profiles)) {
@@ -151,7 +171,7 @@ const preTargetedCatalog = 6015;
 const preTargetedCanonical = 6004;
 const preTargetedVerified = 222;
 const preTargetedHighValueSafe = 31;
-const targetedAdditions = opportunityAcquisitionBatch4.records.length + opportunityAcquisitionBatch5.records.length;
+const targetedAdditions = opportunityAcquisitionBatch4.records.length + opportunityAcquisitionBatch5.records.length + opportunityAcquisitionBatch6.records.length + opportunityAcquisitionBatch7.records.length;
 assert.equal(opportunities.length, preTargetedCatalog + targetedAdditions, "Catalog size must equal the approved pre-targeted baseline plus every distinct targeted addition.");
 assert.equal(canonical.length, preTargetedCanonical + targetedAdditions, "Canonical public inventory must include targeted additions while excluding archived and secondary duplicate records.");
 assert.equal(verified.length, preTargetedVerified + targetedAdditions, "Every targeted addition must contribute exactly one verified canonical identity.");

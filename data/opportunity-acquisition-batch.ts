@@ -96,8 +96,8 @@ function evidenceFor(spec: OpportunityAcquisitionRecordSpec, context: Opportunit
   }));
 }
 
-function date(kind: "final_deadline" | "priority_deadline" | "program_start" | "program_end", value: string, sourceUrl: string) {
-  return { kind, sourceValue: value, normalizedValue: value, precision: "date" as const, estimated: false, verifiedAt, sourceUrl };
+function date(kind: "final_deadline" | "priority_deadline" | "program_start" | "program_end", value: string, sourceUrl: string, verifiedOn: string) {
+  return { kind, sourceValue: value, normalizedValue: value, precision: "date" as const, estimated: false, verifiedAt: verifiedOn, sourceUrl };
 }
 
 export function buildAcquisitionRecord(spec: OpportunityAcquisitionRecordSpec, context: OpportunityAcquisitionRecordContext): Opportunity {
@@ -195,7 +195,7 @@ export function buildAcquisitionRecord(spec: OpportunityAcquisitionRecordSpec, c
         confidence: "confirmed",
         reason: spec.lifecycleState === "rolling" ? "rolling_confirmed" : "official_status_open",
         effectiveAt: `${verifiedAt}T00:00:00.000Z`,
-        ...(spec.deadline ? { finalDeadline: date("final_deadline", spec.deadline, spec.source) } : {}),
+        ...(spec.deadline ? { finalDeadline: date("final_deadline", spec.deadline, spec.source, verifiedAt) } : {}),
         recurrence: { type: spec.recurrence ?? (spec.deadline ? "annual" : "rolling_cohort"), confidence: "confirmed", officialStatement: spec.reviewerNotes },
         evidence: lifecycleEvidence,
         events: [],

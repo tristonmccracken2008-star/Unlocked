@@ -8967,7 +8967,7 @@
           "normalizedValue": "2026-09-30",
           "precision": "date",
           "estimated": false,
-          "verifiedAt": "2026-08-14",
+          "verifiedAt": "2026-08-15",
           "sourceUrl": "https://science.osti.gov/wdts/cci"
         },
         "recurrence": {
@@ -17328,7 +17328,7 @@
           "normalizedValue": "2026-10-01",
           "precision": "date",
           "estimated": false,
-          "verifiedAt": "2026-08-14",
+          "verifiedAt": "2026-08-20",
           "sourceUrl": "https://www.gilmanscholarship.org/applicants/deadlines-and-timeline/"
         },
         "recurrence": {
@@ -434573,7 +434573,7 @@
           "normalizedValue": "2026-12-09",
           "precision": "date",
           "estimated": false,
-          "verifiedAt": "2026-08-14",
+          "verifiedAt": "2026-08-20",
           "sourceUrl": "https://www.jkcf.org/our-scholarships/undergraduate-transfer-scholarship/how-to-apply/"
         },
         "recurrence": {
@@ -442528,7 +442528,7 @@
           "normalizedValue": "2026-09-09",
           "precision": "date",
           "estimated": false,
-          "verifiedAt": "2026-08-14",
+          "verifiedAt": "2026-08-15",
           "sourceUrl": "https://www.schwarzmanscholars.org/admissions/application-instructions/"
         },
         "recurrence": {
@@ -442901,7 +442901,7 @@
           "normalizedValue": "2026-12-01",
           "precision": "date",
           "estimated": false,
-          "verifiedAt": "2026-08-14",
+          "verifiedAt": "2026-08-15",
           "sourceUrl": "https://chci.org/programs/congressional-internship-program/"
         },
         "recurrence": {
@@ -445112,7 +445112,7 @@
           "normalizedValue": "2026-10-01",
           "precision": "date",
           "estimated": false,
-          "verifiedAt": "2026-08-14",
+          "verifiedAt": "2026-08-20",
           "sourceUrl": "https://internships.si.edu/opportunity/youth-and-family-programs-summer-internship-smithsonian-associates"
         },
         "recurrence": {
@@ -446544,7 +446544,7 @@
           "normalizedValue": "2026-09-20",
           "precision": "date",
           "estimated": false,
-          "verifiedAt": "2026-08-14",
+          "verifiedAt": "2026-08-20",
           "sourceUrl": "https://www.whitehouse.gov/ceq/internships/"
         },
         "recurrence": {
@@ -446937,7 +446937,7 @@
           "normalizedValue": "2026-09-20",
           "precision": "date",
           "estimated": false,
-          "verifiedAt": "2026-08-14",
+          "verifiedAt": "2026-08-20",
           "sourceUrl": "https://www.whitehouse.gov/ostp/internships/"
         },
         "recurrence": {
@@ -447311,7 +447311,7 @@
           "normalizedValue": "2026-09-15",
           "precision": "date",
           "estimated": false,
-          "verifiedAt": "2026-08-14",
+          "verifiedAt": "2026-08-20",
           "sourceUrl": "https://ainativeaccounting.org/aina-scholarship-program/"
         },
         "recurrence": {
@@ -448072,7 +448072,7 @@
           "normalizedValue": "2026-10-09",
           "precision": "date",
           "estimated": false,
-          "verifiedAt": "2026-08-14",
+          "verifiedAt": "2026-08-20",
           "sourceUrl": "https://nationalcyberleague.org/players"
         },
         "recurrence": {
@@ -448433,7 +448433,7 @@
           "normalizedValue": "2026-09-01",
           "precision": "date",
           "estimated": false,
-          "verifiedAt": "2026-08-14",
+          "verifiedAt": "2026-08-20",
           "sourceUrl": "https://www.usajobs.gov/job/879740200"
         },
         "recurrence": {
@@ -448816,7 +448816,7 @@
           "normalizedValue": "2026-12-31",
           "precision": "date",
           "estimated": false,
-          "verifiedAt": "2026-08-14",
+          "verifiedAt": "2026-08-20",
           "sourceUrl": "https://www.zintellect.com/Opportunity/Details/NETL-PIP-2026-Lopano"
         },
         "recurrence": {
@@ -449179,7 +449179,7 @@
           "normalizedValue": "2026-10-19",
           "precision": "date",
           "estimated": false,
-          "verifiedAt": "2026-08-14",
+          "verifiedAt": "2026-08-20",
           "sourceUrl": "https://www.loc.gov/item/internships/teaching-with-primary-sources-tps-internship-program/"
         },
         "recurrence": {
@@ -449897,7 +449897,7 @@
           "normalizedValue": "2026-11-15",
           "precision": "date",
           "estimated": false,
-          "verifiedAt": "2026-08-14",
+          "verifiedAt": "2026-08-20",
           "sourceUrl": "https://americanindian.si.edu/about/internships/application-and-faq"
         },
         "recurrence": {
@@ -450619,7 +450619,7 @@
           "normalizedValue": "2026-09-16",
           "precision": "date",
           "estimated": false,
-          "verifiedAt": "2026-08-14",
+          "verifiedAt": "2026-08-20",
           "sourceUrl": "https://www.metmuseum.org/opportunities/internships/fall-and-spring-semester-internships-for-undergraduate-and-graduate-students"
         },
         "recurrence": {
@@ -451427,7 +451427,7 @@
           "normalizedValue": "2026-10-01",
           "precision": "date",
           "estimated": false,
-          "verifiedAt": "2026-08-14",
+          "verifiedAt": "2026-08-20",
           "sourceUrl": "https://www.sigmaxi.org/programs/grants-in-aid-of-research/apply"
         },
         "recurrence": {
@@ -451480,6 +451480,2335 @@
         },
         "review": {
           "note": "Special funds can exceed the conservative $1,000 estimate, but UnlockED does not assume membership or specialized-topic eligibility.",
+          "reviewedAt": "2026-08-20T00:00:00.000Z",
+          "reviewer": "UnlockED catalog acquisition"
+        }
+      }
+    }
+  },
+  {
+    "id": "career--nsf-elean-nanomanufacturing-2026",
+    "title": "ELEAN Nanomanufacturing Traineeship",
+    "type": "Career",
+    "category": "Technical Training",
+    "description": "A paid, hands-on nanomanufacturing traineeship with cleanroom training, professional development, and work at Brookhaven National Laboratory.",
+    "organization": "Stony Brook University and Brookhaven National Laboratory",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "Engineering",
+      "Materials Science",
+      "Mechanical Engineering",
+      "Electrical Engineering",
+      "Chemical Engineering",
+      "Chemistry",
+      "Physics",
+      "Industrial Engineering"
+    ],
+    "academic_years": [
+      "First year",
+      "Second year",
+      "Third year",
+      "Fourth year"
+    ],
+    "eligibility": "People age 18 or older who legally reside in the United States. The three-month Explorer track does not require a STEM major; selection prioritizes basic mathematics preparation.",
+    "estimated_value": null,
+    "application_deadline": null,
+    "recurring": true,
+    "location": "Long Island, NY",
+    "remote": false,
+    "paid": true,
+    "tags": [
+      "Paid",
+      "Nanomanufacturing",
+      "Semiconductors",
+      "Cleanroom",
+      "Career Training",
+      "Any Major"
+    ],
+    "official_source": "https://etap.nsf.gov/api/edge/awards/public/8287/opportunities/11369",
+    "official_source_url": "https://etap.nsf.gov/api/edge/awards/public/8287/opportunities/11369",
+    "verification_status": "verified",
+    "last_verified": "2026-08-20",
+    "deadline": null,
+    "reviewer_notes": "The catalog represents the undergraduate Explorer pathway only; the year-long Developer pathway has additional aptitude requirements.",
+    "estimated_value_note": "Unknown - the official NSF ETAP posting confirms paid traineeships but does not publish the wage or stipend.",
+    "date_added": "2026-08-20",
+    "difficulty": "Competitive",
+    "prestige": "Very High",
+    "icon": "career",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "deadlineType": "rolling",
+      "compensation": "Paid",
+      "workMode": "In Person",
+      "internshipDuration": "3 months",
+      "applicationRequirements": [
+        "NSF ETAP application",
+        "Short-answer motivation statement",
+        "Technical or lab-experience statement"
+      ],
+      "estimatedApplicationTime": "1-2 hours",
+      "skillsGained": [
+        "Cleanroom Practice",
+        "Nanomanufacturing",
+        "Laboratory Safety",
+        "Technical Communication"
+      ],
+      "careerPaths": [
+        "Semiconductor Manufacturing",
+        "Materials Science",
+        "Engineering Technology",
+        "National Laboratories"
+      ],
+      "expectedROI": "Paid technical training and national-laboratory exposure without requiring a STEM major for the Explorer track.",
+      "recommendedMajors": [
+        "Engineering",
+        "Materials Science",
+        "Mechanical Engineering",
+        "Electrical Engineering",
+        "Chemical Engineering",
+        "Chemistry",
+        "Physics",
+        "Industrial Engineering"
+      ],
+      "recommendedClassYears": [
+        "First year",
+        "Second year",
+        "Third year",
+        "Fourth year"
+      ],
+      "eligibilityRules": {
+        "educationLevels": [
+          "undergraduate",
+          "community_college"
+        ],
+        "canonicalInstitutionTypes": [
+          "community_college",
+          "four_year_college",
+          "university",
+          "liberal_arts_college"
+        ],
+        "canonicalEnrollmentStatuses": [
+          "currently_enrolled"
+        ],
+        "acceptsExternalStudents": true,
+        "classYears": [
+          "First year",
+          "Second year",
+          "Third year",
+          "Fourth year"
+        ],
+        "majors": [
+          "Engineering",
+          "Materials Science",
+          "Mechanical Engineering",
+          "Electrical Engineering",
+          "Chemical Engineering",
+          "Chemistry",
+          "Physics",
+          "Industrial Engineering"
+        ],
+        "citizenshipStatuses": [
+          "us_citizen",
+          "permanent_resident",
+          "us_work_authorized"
+        ],
+        "ageRange": {
+          "minimum": 18
+        },
+        "transferEligibility": "general_undergraduate",
+        "availability": "rolling",
+        "recommendationEligibilityStatus": "eligible_for_ranking",
+        "evidence": [
+          "Ranking is limited to manufacturing-adjacent majors, current students with a positively proven U.S. status, and age even though the public Explorer track accepts other majors and adult learners."
+        ],
+        "fieldEvidence": {
+          "academic_level": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://etap.nsf.gov/api/edge/awards/public/8287/opportunities/11369",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "rolling-2026-28",
+            "note": "The official NSF ETAP record confirms rolling applications, paid Explorer and Developer tracks, age, U.S. residence, degree, and technical-preparation rules; September 1, 2028 is the listed program end."
+          },
+          "institution_type": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://etap.nsf.gov/api/edge/awards/public/8287/opportunities/11369",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "rolling-2026-28",
+            "note": "The official NSF ETAP record confirms rolling applications, paid Explorer and Developer tracks, age, U.S. residence, degree, and technical-preparation rules; September 1, 2028 is the listed program end."
+          },
+          "enrollment_status": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://etap.nsf.gov/api/edge/awards/public/8287/opportunities/11369",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "rolling-2026-28",
+            "note": "The official NSF ETAP record confirms rolling applications, paid Explorer and Developer tracks, age, U.S. residence, degree, and technical-preparation rules; September 1, 2028 is the listed program end."
+          },
+          "school_restriction": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://etap.nsf.gov/api/edge/awards/public/8287/opportunities/11369",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "rolling-2026-28",
+            "note": "The official NSF ETAP record confirms rolling applications, paid Explorer and Developer tracks, age, U.S. residence, degree, and technical-preparation rules; September 1, 2028 is the listed program end."
+          },
+          "external_student_eligibility": {
+            "state": "verified_open",
+            "sourceUrl": "https://etap.nsf.gov/api/edge/awards/public/8287/opportunities/11369",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "rolling-2026-28",
+            "note": "The official NSF ETAP record confirms rolling applications, paid Explorer and Developer tracks, age, U.S. residence, degree, and technical-preparation rules; September 1, 2028 is the listed program end."
+          },
+          "class_year": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://etap.nsf.gov/api/edge/awards/public/8287/opportunities/11369",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "rolling-2026-28",
+            "note": "The official NSF ETAP record confirms rolling applications, paid Explorer and Developer tracks, age, U.S. residence, degree, and technical-preparation rules; September 1, 2028 is the listed program end."
+          },
+          "major": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://etap.nsf.gov/api/edge/awards/public/8287/opportunities/11369",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "rolling-2026-28",
+            "note": "The official NSF ETAP record confirms rolling applications, paid Explorer and Developer tracks, age, U.S. residence, degree, and technical-preparation rules; September 1, 2028 is the listed program end."
+          },
+          "citizenship": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://etap.nsf.gov/api/edge/awards/public/8287/opportunities/11369",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "rolling-2026-28",
+            "note": "The official NSF ETAP record confirms rolling applications, paid Explorer and Developer tracks, age, U.S. residence, degree, and technical-preparation rules; September 1, 2028 is the listed program end."
+          },
+          "residency": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://etap.nsf.gov/api/edge/awards/public/8287/opportunities/11369",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "rolling-2026-28",
+            "note": "The official NSF ETAP record confirms rolling applications, paid Explorer and Developer tracks, age, U.S. residence, degree, and technical-preparation rules; September 1, 2028 is the listed program end."
+          },
+          "gpa": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://etap.nsf.gov/api/edge/awards/public/8287/opportunities/11369",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "rolling-2026-28",
+            "note": "The official NSF ETAP record confirms rolling applications, paid Explorer and Developer tracks, age, U.S. residence, degree, and technical-preparation rules; September 1, 2028 is the listed program end."
+          },
+          "age": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://etap.nsf.gov/api/edge/awards/public/8287/opportunities/11369",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "rolling-2026-28",
+            "note": "The official NSF ETAP record confirms rolling applications, paid Explorer and Developer tracks, age, U.S. residence, degree, and technical-preparation rules; September 1, 2028 is the listed program end."
+          },
+          "financial_need": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://etap.nsf.gov/api/edge/awards/public/8287/opportunities/11369",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "rolling-2026-28",
+            "note": "The official NSF ETAP record confirms rolling applications, paid Explorer and Developer tracks, age, U.S. residence, degree, and technical-preparation rules; September 1, 2028 is the listed program end."
+          },
+          "invitation": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://etap.nsf.gov/api/edge/awards/public/8287/opportunities/11369",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "rolling-2026-28",
+            "note": "The official NSF ETAP record confirms rolling applications, paid Explorer and Developer tracks, age, U.S. residence, degree, and technical-preparation rules; September 1, 2028 is the listed program end."
+          },
+          "application_status": {
+            "state": "verified_open",
+            "sourceUrl": "https://etap.nsf.gov/api/edge/awards/public/8287/opportunities/11369",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "rolling-2026-28",
+            "note": "The official NSF ETAP record confirms rolling applications, paid Explorer and Developer tracks, age, U.S. residence, degree, and technical-preparation rules; September 1, 2028 is the listed program end."
+          },
+          "deadline": {
+            "state": "verified_open",
+            "sourceUrl": "https://etap.nsf.gov/api/edge/awards/public/8287/opportunities/11369",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "rolling-2026-28",
+            "note": "The official NSF ETAP record confirms rolling applications, paid Explorer and Developer tracks, age, U.S. residence, degree, and technical-preparation rules; September 1, 2028 is the listed program end."
+          }
+        }
+      },
+      "sourceReferences": [
+        {
+          "url": "https://etap.nsf.gov/api/edge/awards/public/8287/opportunities/11369",
+          "authority": "official_program",
+          "verifiedAt": "2026-08-20",
+          "cycle": "rolling-2026-28",
+          "supports": [
+            "academic_level",
+            "institution_type",
+            "enrollment_status",
+            "school_restriction",
+            "external_student_eligibility",
+            "class_year",
+            "major",
+            "citizenship",
+            "residency",
+            "gpa",
+            "age",
+            "financial_need",
+            "invitation",
+            "application_status",
+            "deadline"
+          ],
+          "note": "The official NSF ETAP record confirms rolling applications, paid Explorer and Developer tracks, age, U.S. residence, degree, and technical-preparation rules; September 1, 2028 is the listed program end."
+        }
+      ],
+      "acquisition": {
+        "batchId": "catalog-breakthrough-2026-08-research-wave",
+        "acquiredAt": "2026-08-20",
+        "reviewCadenceDays": 90,
+        "nextReviewAt": "2026-11-20",
+        "freshnessModel": "rolling_program"
+      },
+      "verification": {
+        "status": "verified",
+        "lastVerifiedAt": "2026-08-20",
+        "verifiedCycle": "rolling-2026-28",
+        "officialSourceUrl": "https://etap.nsf.gov/api/edge/awards/public/8287/opportunities/11369",
+        "applicationUrlVerified": true,
+        "deadlineVerified": false,
+        "eligibilityVerified": true,
+        "sourceReachable": true,
+        "sourceAuditStatus": 200,
+        "notes": "The catalog represents the undergraduate Explorer pathway only; the year-long Developer pathway has additional aptitude requirements."
+      },
+      "lifecycle": {
+        "schemaVersion": 1,
+        "migrationId": "catalog-breakthrough-2026-08-research-wave",
+        "identity": {
+          "identityId": "career--nsf-elean-nanomanufacturing-2026",
+          "aliases": [
+            "ELEAN",
+            "Experiential Learning Explorations in Advanced Nanomanufacturing"
+          ]
+        },
+        "cycle": {
+          "cycleId": "rolling-2026-28",
+          "label": "rolling-2026-28"
+        },
+        "state": "rolling",
+        "confidence": "confirmed",
+        "reason": "rolling_confirmed",
+        "effectiveAt": "2026-08-20T00:00:00.000Z",
+        "recurrence": {
+          "type": "rolling_cohort",
+          "confidence": "confirmed",
+          "officialStatement": "The catalog represents the undergraduate Explorer pathway only; the year-long Developer pathway has additional aptitude requirements."
+        },
+        "evidence": [
+          {
+            "id": "career--nsf-elean-nanomanufacturing-2026:rolling-2026-28:official:1",
+            "source": "official_status",
+            "observedAt": "2026-08-20T00:00:00.000Z",
+            "value": "The official NSF ETAP record confirms rolling applications, paid Explorer and Developer tracks, age, U.S. residence, degree, and technical-preparation rules; September 1, 2028 is the listed program end.",
+            "sourceUrl": "https://etap.nsf.gov/api/edge/awards/public/8287/opportunities/11369",
+            "confidence": "confirmed"
+          }
+        ],
+        "events": [],
+        "sourceChecks": [
+          {
+            "url": "https://etap.nsf.gov/api/edge/awards/public/8287/opportunities/11369",
+            "checkedAt": "2026-08-20T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          }
+        ],
+        "fieldVerifiedAt": {
+          "state": "2026-08-20",
+          "deadline": "2026-08-20",
+          "applicationUrl": "2026-08-20",
+          "eligibility": "2026-08-20",
+          "award": "2026-08-20",
+          "location": "2026-08-20",
+          "programDates": "2026-08-20",
+          "description": "2026-08-20"
+        },
+        "review": {
+          "note": "The catalog represents the undergraduate Explorer pathway only; the year-long Developer pathway has additional aptitude requirements.",
+          "reviewedAt": "2026-08-20T00:00:00.000Z",
+          "reviewer": "UnlockED catalog acquisition"
+        }
+      }
+    }
+  },
+  {
+    "id": "career--nsf-bridge-to-cyber-2026",
+    "title": "NSF Bridge To Cyber Program",
+    "type": "Career",
+    "category": "Cybersecurity Training",
+    "description": "A flexible cybersecurity bridge program covering programming, networking, and systems administration for students entering the field from non-computing majors.",
+    "organization": "Oakland University",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "Political Science",
+      "Economics",
+      "Education",
+      "Business",
+      "Criminal Justice",
+      "Mathematics",
+      "Statistics",
+      "Data Science",
+      "Psychology",
+      "Sociology"
+    ],
+    "academic_years": [
+      "First year",
+      "Second year",
+      "Third year",
+      "Fourth year"
+    ],
+    "eligibility": "U.S. citizens, U.S. nationals, or permanent residents who are completing an undergraduate degree in a non-computing discipline and want foundational cybersecurity preparation.",
+    "estimated_value": null,
+    "application_deadline": "2026-08-28",
+    "recurring": true,
+    "location": "Rochester, MI or online",
+    "remote": null,
+    "paid": false,
+    "tags": [
+      "Cybersecurity",
+      "Training",
+      "Online Option",
+      "Career Change",
+      "Non-STEM Majors"
+    ],
+    "official_source": "https://www.oakland.edu/secs/labs-and-centers/cybersecurity/",
+    "official_source_url": "https://www.oakland.edu/secs/labs-and-centers/cybersecurity/",
+    "verification_status": "verified",
+    "last_verified": "2026-08-20",
+    "deadline": "2026-08-28",
+    "reviewer_notes": "This is structured career training, not a paid internship or degree program. Price remains unknown until the current course selection is reviewed by an applicant.",
+    "estimated_value_note": "Unknown - the official listing describes low-cost non-credit courses but does not publish a single program price.",
+    "date_added": "2026-08-20",
+    "difficulty": "Open",
+    "prestige": "High",
+    "icon": "career",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "deadlineType": "fixed",
+      "compensation": "Unpaid",
+      "workMode": "Varies",
+      "applicationRequirements": [
+        "NSF ETAP application"
+      ],
+      "estimatedApplicationTime": "15-30 minutes",
+      "skillsGained": [
+        "Programming",
+        "Networking",
+        "Systems Administration",
+        "Cybersecurity Foundations"
+      ],
+      "careerPaths": [
+        "Cybersecurity",
+        "Information Technology",
+        "Technology Policy",
+        "Security Operations"
+      ],
+      "expectedROI": "An accessible bridge into cybersecurity for students whose current major does not provide computing prerequisites.",
+      "recommendedMajors": [
+        "Political Science",
+        "Economics",
+        "Education",
+        "Business",
+        "Criminal Justice",
+        "Mathematics",
+        "Statistics",
+        "Data Science",
+        "Psychology",
+        "Sociology"
+      ],
+      "recommendedClassYears": [
+        "First year",
+        "Second year",
+        "Third year",
+        "Fourth year"
+      ],
+      "eligibilityRules": {
+        "educationLevels": [
+          "undergraduate",
+          "community_college"
+        ],
+        "canonicalInstitutionTypes": [
+          "community_college",
+          "four_year_college",
+          "university",
+          "liberal_arts_college"
+        ],
+        "canonicalEnrollmentStatuses": [
+          "currently_enrolled"
+        ],
+        "acceptsExternalStudents": true,
+        "classYears": [
+          "First year",
+          "Second year",
+          "Third year",
+          "Fourth year"
+        ],
+        "majors": [
+          "Political Science",
+          "Economics",
+          "Education",
+          "Business",
+          "Criminal Justice",
+          "Mathematics",
+          "Statistics",
+          "Data Science",
+          "Psychology",
+          "Sociology"
+        ],
+        "citizenshipStatuses": [
+          "us_citizen",
+          "permanent_resident"
+        ],
+        "transferEligibility": "general_undergraduate",
+        "availability": "open",
+        "recommendationEligibilityStatus": "eligible_for_ranking",
+        "evidence": [
+          "Computing majors are intentionally omitted because the program is designed for students entering cybersecurity from non-computing disciplines."
+        ],
+        "fieldEvidence": {
+          "academic_level": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://etap.nsf.gov/api/edge/awards/public/183/opportunities/3632",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2026",
+            "note": "The official NSF ETAP record confirms the August 28 application close, undergraduate access, and citizenship restriction."
+          },
+          "institution_type": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://etap.nsf.gov/api/edge/awards/public/183/opportunities/3632",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2026",
+            "note": "The official NSF ETAP record confirms the August 28 application close, undergraduate access, and citizenship restriction."
+          },
+          "enrollment_status": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://etap.nsf.gov/api/edge/awards/public/183/opportunities/3632",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2026",
+            "note": "The official NSF ETAP record confirms the August 28 application close, undergraduate access, and citizenship restriction."
+          },
+          "school_restriction": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://etap.nsf.gov/api/edge/awards/public/183/opportunities/3632",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2026",
+            "note": "The official NSF ETAP record confirms the August 28 application close, undergraduate access, and citizenship restriction."
+          },
+          "external_student_eligibility": {
+            "state": "verified_open",
+            "sourceUrl": "https://etap.nsf.gov/api/edge/awards/public/183/opportunities/3632",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2026",
+            "note": "The official NSF ETAP record confirms the August 28 application close, undergraduate access, and citizenship restriction."
+          },
+          "class_year": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://etap.nsf.gov/api/edge/awards/public/183/opportunities/3632",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2026",
+            "note": "The official NSF ETAP record confirms the August 28 application close, undergraduate access, and citizenship restriction."
+          },
+          "major": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://etap.nsf.gov/api/edge/awards/public/183/opportunities/3632",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2026",
+            "note": "The official NSF ETAP record confirms the August 28 application close, undergraduate access, and citizenship restriction."
+          },
+          "citizenship": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://etap.nsf.gov/api/edge/awards/public/183/opportunities/3632",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2026",
+            "note": "The official NSF ETAP record confirms the August 28 application close, undergraduate access, and citizenship restriction."
+          },
+          "residency": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://etap.nsf.gov/api/edge/awards/public/183/opportunities/3632",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2026",
+            "note": "The official NSF ETAP record confirms the August 28 application close, undergraduate access, and citizenship restriction."
+          },
+          "gpa": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://etap.nsf.gov/api/edge/awards/public/183/opportunities/3632",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2026",
+            "note": "The official NSF ETAP record confirms the August 28 application close, undergraduate access, and citizenship restriction."
+          },
+          "age": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://etap.nsf.gov/api/edge/awards/public/183/opportunities/3632",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2026",
+            "note": "The official NSF ETAP record confirms the August 28 application close, undergraduate access, and citizenship restriction."
+          },
+          "financial_need": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://etap.nsf.gov/api/edge/awards/public/183/opportunities/3632",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2026",
+            "note": "The official NSF ETAP record confirms the August 28 application close, undergraduate access, and citizenship restriction."
+          },
+          "invitation": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://etap.nsf.gov/api/edge/awards/public/183/opportunities/3632",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2026",
+            "note": "The official NSF ETAP record confirms the August 28 application close, undergraduate access, and citizenship restriction."
+          },
+          "application_status": {
+            "state": "verified_open",
+            "sourceUrl": "https://etap.nsf.gov/api/edge/awards/public/183/opportunities/3632",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2026",
+            "note": "The official NSF ETAP record confirms the August 28 application close, undergraduate access, and citizenship restriction."
+          },
+          "deadline": {
+            "state": "verified_open",
+            "sourceUrl": "https://etap.nsf.gov/api/edge/awards/public/183/opportunities/3632",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2026",
+            "note": "The official NSF ETAP record confirms the August 28 application close, undergraduate access, and citizenship restriction."
+          }
+        }
+      },
+      "sourceReferences": [
+        {
+          "url": "https://etap.nsf.gov/api/edge/awards/public/183/opportunities/3632",
+          "authority": "official_program",
+          "verifiedAt": "2026-08-20",
+          "cycle": "2026",
+          "supports": [
+            "academic_level",
+            "institution_type",
+            "enrollment_status",
+            "school_restriction",
+            "external_student_eligibility",
+            "class_year",
+            "major",
+            "citizenship",
+            "residency",
+            "gpa",
+            "age",
+            "financial_need",
+            "invitation",
+            "application_status",
+            "deadline"
+          ],
+          "note": "The official NSF ETAP record confirms the August 28 application close, undergraduate access, and citizenship restriction."
+        },
+        {
+          "url": "https://www.oakland.edu/secs/labs-and-centers/cybersecurity/",
+          "authority": "official_program",
+          "verifiedAt": "2026-08-20",
+          "cycle": "2026",
+          "supports": [
+            "academic_level",
+            "institution_type",
+            "enrollment_status",
+            "school_restriction",
+            "external_student_eligibility",
+            "class_year",
+            "major",
+            "citizenship",
+            "residency",
+            "gpa",
+            "age",
+            "financial_need",
+            "invitation",
+            "application_status",
+            "deadline"
+          ],
+          "note": "The official university page identifies Bridge To Cyber as an NSF-supported cybersecurity education program at Oakland University."
+        }
+      ],
+      "acquisition": {
+        "batchId": "catalog-breakthrough-2026-08-research-wave",
+        "acquiredAt": "2026-08-20",
+        "reviewCadenceDays": 45,
+        "nextReviewAt": "2026-08-29",
+        "freshnessModel": "fixed_cycle"
+      },
+      "verification": {
+        "status": "verified",
+        "lastVerifiedAt": "2026-08-20",
+        "verifiedCycle": "2026",
+        "officialSourceUrl": "https://www.oakland.edu/secs/labs-and-centers/cybersecurity/",
+        "applicationUrlVerified": true,
+        "deadlineVerified": true,
+        "eligibilityVerified": true,
+        "sourceReachable": true,
+        "sourceAuditStatus": 200,
+        "notes": "This is structured career training, not a paid internship or degree program. Price remains unknown until the current course selection is reviewed by an applicant."
+      },
+      "lifecycle": {
+        "schemaVersion": 1,
+        "migrationId": "catalog-breakthrough-2026-08-research-wave",
+        "identity": {
+          "identityId": "career--nsf-bridge-to-cyber-2026",
+          "aliases": [
+            "B2C@OU",
+            "NSF Bridge To Cyber Program"
+          ]
+        },
+        "cycle": {
+          "cycleId": "2026",
+          "label": "2026"
+        },
+        "state": "open",
+        "confidence": "confirmed",
+        "reason": "official_status_open",
+        "effectiveAt": "2026-08-20T00:00:00.000Z",
+        "finalDeadline": {
+          "kind": "final_deadline",
+          "sourceValue": "2026-08-28",
+          "normalizedValue": "2026-08-28",
+          "precision": "date",
+          "estimated": false,
+          "verifiedAt": "2026-08-20",
+          "sourceUrl": "https://www.oakland.edu/secs/labs-and-centers/cybersecurity/"
+        },
+        "recurrence": {
+          "type": "rolling_cohort",
+          "confidence": "confirmed",
+          "officialStatement": "This is structured career training, not a paid internship or degree program. Price remains unknown until the current course selection is reviewed by an applicant."
+        },
+        "evidence": [
+          {
+            "id": "career--nsf-bridge-to-cyber-2026:2026:official:1",
+            "source": "official_application_page",
+            "observedAt": "2026-08-20T00:00:00.000Z",
+            "value": "The official NSF ETAP record confirms the August 28 application close, undergraduate access, and citizenship restriction.",
+            "sourceUrl": "https://etap.nsf.gov/api/edge/awards/public/183/opportunities/3632",
+            "confidence": "confirmed"
+          },
+          {
+            "id": "career--nsf-bridge-to-cyber-2026:2026:official:2",
+            "source": "official_application_page",
+            "observedAt": "2026-08-20T00:00:00.000Z",
+            "value": "The official university page identifies Bridge To Cyber as an NSF-supported cybersecurity education program at Oakland University.",
+            "sourceUrl": "https://www.oakland.edu/secs/labs-and-centers/cybersecurity/",
+            "confidence": "confirmed"
+          }
+        ],
+        "events": [],
+        "sourceChecks": [
+          {
+            "url": "https://etap.nsf.gov/api/edge/awards/public/183/opportunities/3632",
+            "checkedAt": "2026-08-20T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          },
+          {
+            "url": "https://www.oakland.edu/secs/labs-and-centers/cybersecurity/",
+            "checkedAt": "2026-08-20T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          }
+        ],
+        "fieldVerifiedAt": {
+          "state": "2026-08-20",
+          "deadline": "2026-08-20",
+          "applicationUrl": "2026-08-20",
+          "eligibility": "2026-08-20",
+          "award": "2026-08-20",
+          "location": "2026-08-20",
+          "programDates": "2026-08-20",
+          "description": "2026-08-20"
+        },
+        "review": {
+          "note": "This is structured career training, not a paid internship or degree program. Price remains unknown until the current course selection is reviewed by an applicant.",
+          "reviewedAt": "2026-08-20T00:00:00.000Z",
+          "reviewer": "UnlockED catalog acquisition"
+        }
+      }
+    }
+  },
+  {
+    "id": "career--tfas-summer-academic-internship-2027",
+    "title": "TFAS Summer Academic Internship Program",
+    "type": "Career",
+    "category": "Internships",
+    "description": "An eight-week Washington program combining a guaranteed internship with accredited coursework in policy, international affairs, journalism, or business.",
+    "organization": "The Fund for American Studies",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "Political Science",
+      "Public Policy",
+      "International Relations",
+      "Economics",
+      "History",
+      "English",
+      "Journalism",
+      "Communications",
+      "Business"
+    ],
+    "academic_years": [
+      "First year",
+      "Second year",
+      "Third year",
+      "Fourth year"
+    ],
+    "eligibility": "Undergraduates from any year who are age 18 or older and have completed at least one college semester. International students are accepted through a separate published application timeline.",
+    "estimated_value": null,
+    "application_deadline": "2026-10-08",
+    "recurring": true,
+    "location": "Washington, DC",
+    "remote": false,
+    "paid": null,
+    "tags": [
+      "Internship",
+      "Washington DC",
+      "International Students",
+      "Public Policy",
+      "Journalism",
+      "International Affairs",
+      "Business"
+    ],
+    "official_source": "https://www.dcinternships.org/",
+    "official_source_url": "https://www.dcinternships.org/",
+    "verification_status": "verified",
+    "last_verified": "2026-08-20",
+    "deadline": "2026-10-08",
+    "reviewer_notes": "The program accepts domestic and international students. The conservative international deadline is stored globally; domestic applicants can verify later rounds on the official page.",
+    "estimated_value_note": "Unknown - TFAS publishes program costs and need-based awards but no single guaranteed net value.",
+    "date_added": "2026-08-20",
+    "difficulty": "Competitive",
+    "prestige": "High",
+    "icon": "career",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "deadlineType": "fixed",
+      "compensation": "Varies",
+      "workMode": "In Person",
+      "internshipDuration": "8 weeks",
+      "applicationRequirements": [
+        "Online application",
+        "Personal statement",
+        "Resume",
+        "Transcript"
+      ],
+      "estimatedApplicationTime": "3-5 hours",
+      "skillsGained": [
+        "Professional Communication",
+        "Networking",
+        "Applied Policy or Business Experience"
+      ],
+      "careerPaths": [
+        "Public Policy",
+        "International Affairs",
+        "Journalism",
+        "Business"
+      ],
+      "expectedROI": "A structured Washington internship with academic credit and professional development.",
+      "recommendedMajors": [
+        "Political Science",
+        "Public Policy",
+        "International Relations",
+        "Economics",
+        "History",
+        "English",
+        "Journalism",
+        "Communications",
+        "Business"
+      ],
+      "recommendedClassYears": [
+        "First year",
+        "Second year",
+        "Third year",
+        "Fourth year"
+      ],
+      "eligibilityRules": {
+        "educationLevels": [
+          "undergraduate",
+          "community_college"
+        ],
+        "canonicalInstitutionTypes": [
+          "community_college",
+          "four_year_college",
+          "university",
+          "liberal_arts_college"
+        ],
+        "canonicalEnrollmentStatuses": [
+          "currently_enrolled"
+        ],
+        "acceptsExternalStudents": true,
+        "classYears": [
+          "First year",
+          "Second year",
+          "Third year",
+          "Fourth year"
+        ],
+        "majors": [
+          "Political Science",
+          "Public Policy",
+          "International Relations",
+          "Economics",
+          "History",
+          "English",
+          "Journalism",
+          "Communications",
+          "Business"
+        ],
+        "citizenshipStatuses": [
+          "international_allowed"
+        ],
+        "ageRange": {
+          "minimum": 18
+        },
+        "transferEligibility": "general_undergraduate",
+        "availability": "open",
+        "recommendationEligibilityStatus": "eligible_for_ranking",
+        "evidence": [
+          "The public program accepts all majors; Pro ranking is conservatively limited to the four published academic tracks.",
+          "The October 8 international deadline is used for all recommendations so international students never receive the later domestic timeline incorrectly."
+        ],
+        "fieldEvidence": {
+          "academic_level": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.dcinternships.org/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "summer-2027-international",
+            "note": "The official program page confirms the June 2-July 31, 2027 session, four academic tracks, guaranteed internship, 250 or more internship hours, housing, and credits."
+          },
+          "institution_type": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.dcinternships.org/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "summer-2027-international",
+            "note": "The official program page confirms the June 2-July 31, 2027 session, four academic tracks, guaranteed internship, 250 or more internship hours, housing, and credits."
+          },
+          "enrollment_status": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.dcinternships.org/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "summer-2027-international",
+            "note": "The official program page confirms the June 2-July 31, 2027 session, four academic tracks, guaranteed internship, 250 or more internship hours, housing, and credits."
+          },
+          "school_restriction": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.dcinternships.org/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "summer-2027-international",
+            "note": "The official program page confirms the June 2-July 31, 2027 session, four academic tracks, guaranteed internship, 250 or more internship hours, housing, and credits."
+          },
+          "external_student_eligibility": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.dcinternships.org/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "summer-2027-international",
+            "note": "The official program page confirms the June 2-July 31, 2027 session, four academic tracks, guaranteed internship, 250 or more internship hours, housing, and credits."
+          },
+          "class_year": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.dcinternships.org/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "summer-2027-international",
+            "note": "The official program page confirms the June 2-July 31, 2027 session, four academic tracks, guaranteed internship, 250 or more internship hours, housing, and credits."
+          },
+          "major": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.dcinternships.org/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "summer-2027-international",
+            "note": "The official program page confirms the June 2-July 31, 2027 session, four academic tracks, guaranteed internship, 250 or more internship hours, housing, and credits."
+          },
+          "citizenship": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.dcinternships.org/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "summer-2027-international",
+            "note": "The official program page confirms the June 2-July 31, 2027 session, four academic tracks, guaranteed internship, 250 or more internship hours, housing, and credits."
+          },
+          "residency": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.dcinternships.org/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "summer-2027-international",
+            "note": "The official program page confirms the June 2-July 31, 2027 session, four academic tracks, guaranteed internship, 250 or more internship hours, housing, and credits."
+          },
+          "gpa": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.dcinternships.org/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "summer-2027-international",
+            "note": "The official program page confirms the June 2-July 31, 2027 session, four academic tracks, guaranteed internship, 250 or more internship hours, housing, and credits."
+          },
+          "age": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.dcinternships.org/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "summer-2027-international",
+            "note": "The official program page confirms the June 2-July 31, 2027 session, four academic tracks, guaranteed internship, 250 or more internship hours, housing, and credits."
+          },
+          "financial_need": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.dcinternships.org/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "summer-2027-international",
+            "note": "The official program page confirms the June 2-July 31, 2027 session, four academic tracks, guaranteed internship, 250 or more internship hours, housing, and credits."
+          },
+          "invitation": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.dcinternships.org/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "summer-2027-international",
+            "note": "The official program page confirms the June 2-July 31, 2027 session, four academic tracks, guaranteed internship, 250 or more internship hours, housing, and credits."
+          },
+          "application_status": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.dcinternships.org/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "summer-2027-international",
+            "note": "The official program page confirms the June 2-July 31, 2027 session, four academic tracks, guaranteed internship, 250 or more internship hours, housing, and credits."
+          },
+          "deadline": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.dcinternships.org/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "summer-2027-international",
+            "note": "The official program page confirms the June 2-July 31, 2027 session, four academic tracks, guaranteed internship, 250 or more internship hours, housing, and credits."
+          }
+        }
+      },
+      "sourceReferences": [
+        {
+          "url": "https://www.dcinternships.org/",
+          "authority": "official_program",
+          "verifiedAt": "2026-08-20",
+          "cycle": "summer-2027",
+          "supports": [
+            "academic_level",
+            "institution_type",
+            "enrollment_status",
+            "school_restriction",
+            "external_student_eligibility",
+            "class_year",
+            "major",
+            "citizenship",
+            "residency",
+            "gpa",
+            "age",
+            "financial_need",
+            "invitation",
+            "application_status",
+            "deadline"
+          ],
+          "note": "The official program page confirms the June 2-July 31, 2027 session, four academic tracks, guaranteed internship, 250 or more internship hours, housing, and credits."
+        },
+        {
+          "url": "https://www.dcinternships.org/about/faq/",
+          "authority": "official_program",
+          "verifiedAt": "2026-08-20",
+          "cycle": "summer-2027",
+          "supports": [
+            "academic_level",
+            "institution_type",
+            "enrollment_status",
+            "school_restriction",
+            "external_student_eligibility",
+            "class_year",
+            "major",
+            "citizenship",
+            "residency",
+            "gpa",
+            "age",
+            "financial_need",
+            "invitation",
+            "application_status",
+            "deadline"
+          ],
+          "note": "The official FAQ confirms all undergraduate years, age 18, one completed college semester, no formal GPA requirement, and an October 8 international deadline."
+        }
+      ],
+      "acquisition": {
+        "batchId": "catalog-breakthrough-2026-08-breadth-wave",
+        "acquiredAt": "2026-08-20",
+        "reviewCadenceDays": 45,
+        "nextReviewAt": "2026-10-09",
+        "freshnessModel": "fixed_cycle"
+      },
+      "verification": {
+        "status": "verified",
+        "lastVerifiedAt": "2026-08-20",
+        "verifiedCycle": "summer-2027-international",
+        "officialSourceUrl": "https://www.dcinternships.org/",
+        "applicationUrlVerified": true,
+        "deadlineVerified": true,
+        "eligibilityVerified": true,
+        "sourceReachable": true,
+        "sourceAuditStatus": 200,
+        "notes": "The program accepts domestic and international students. The conservative international deadline is stored globally; domestic applicants can verify later rounds on the official page."
+      },
+      "lifecycle": {
+        "schemaVersion": 1,
+        "migrationId": "catalog-breakthrough-2026-08-breadth-wave",
+        "identity": {
+          "identityId": "career--tfas-summer-academic-internship-2027",
+          "aliases": [
+            "DC Internships Summer",
+            "TFAS Summer Academic Internship Program"
+          ]
+        },
+        "cycle": {
+          "cycleId": "summer-2027-international",
+          "label": "summer-2027-international"
+        },
+        "state": "open",
+        "confidence": "confirmed",
+        "reason": "official_status_open",
+        "effectiveAt": "2026-08-20T00:00:00.000Z",
+        "finalDeadline": {
+          "kind": "final_deadline",
+          "sourceValue": "2026-10-08",
+          "normalizedValue": "2026-10-08",
+          "precision": "date",
+          "estimated": false,
+          "verifiedAt": "2026-08-20",
+          "sourceUrl": "https://www.dcinternships.org/"
+        },
+        "recurrence": {
+          "type": "annual",
+          "confidence": "confirmed",
+          "officialStatement": "The program accepts domestic and international students. The conservative international deadline is stored globally; domestic applicants can verify later rounds on the official page."
+        },
+        "evidence": [
+          {
+            "id": "career--tfas-summer-academic-internship-2027:summer-2027-international:official:1",
+            "source": "official_application_page",
+            "observedAt": "2026-08-20T00:00:00.000Z",
+            "value": "The official program page confirms the June 2-July 31, 2027 session, four academic tracks, guaranteed internship, 250 or more internship hours, housing, and credits.",
+            "sourceUrl": "https://www.dcinternships.org/",
+            "confidence": "confirmed"
+          },
+          {
+            "id": "career--tfas-summer-academic-internship-2027:summer-2027-international:official:2",
+            "source": "official_application_page",
+            "observedAt": "2026-08-20T00:00:00.000Z",
+            "value": "The official FAQ confirms all undergraduate years, age 18, one completed college semester, no formal GPA requirement, and an October 8 international deadline.",
+            "sourceUrl": "https://www.dcinternships.org/about/faq/",
+            "confidence": "confirmed"
+          }
+        ],
+        "events": [],
+        "sourceChecks": [
+          {
+            "url": "https://www.dcinternships.org/",
+            "checkedAt": "2026-08-20T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          },
+          {
+            "url": "https://www.dcinternships.org/about/faq/",
+            "checkedAt": "2026-08-20T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          }
+        ],
+        "fieldVerifiedAt": {
+          "state": "2026-08-20",
+          "deadline": "2026-08-20",
+          "applicationUrl": "2026-08-20",
+          "eligibility": "2026-08-20",
+          "award": "2026-08-20",
+          "location": "2026-08-20",
+          "programDates": "2026-08-20",
+          "description": "2026-08-20"
+        },
+        "review": {
+          "note": "The program accepts domestic and international students. The conservative international deadline is stored globally; domestic applicants can verify later rounds on the official page.",
+          "reviewedAt": "2026-08-20T00:00:00.000Z",
+          "reviewer": "UnlockED catalog acquisition"
+        }
+      }
+    }
+  },
+  {
+    "id": "fellowship--fulbright-us-student-2027-28",
+    "title": "Fulbright U.S. Student Program",
+    "type": "Career",
+    "category": "Fellowships",
+    "description": "International study, research, or English-teaching awards for graduating seniors and recent graduates in more than 140 countries.",
+    "organization": "U.S. Department of State",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "Any Major"
+    ],
+    "academic_years": [
+      "Fourth year"
+    ],
+    "eligibility": "U.S. citizens or nationals who will hold a bachelor's degree or equivalent before the grant begins and meet the requirements of their selected country and award.",
+    "estimated_value": null,
+    "application_deadline": "2026-10-06",
+    "recurring": true,
+    "location": "More than 140 countries",
+    "remote": false,
+    "paid": true,
+    "tags": [
+      "Fellowship",
+      "International",
+      "Research",
+      "Teaching",
+      "Graduate Study",
+      "Any Major"
+    ],
+    "official_source": "https://us.fulbrightonline.org/about/competition-selection",
+    "official_source_url": "https://us.fulbrightonline.org/about/competition-selection",
+    "verification_status": "verified",
+    "last_verified": "2026-08-20",
+    "deadline": "2026-10-06",
+    "reviewer_notes": "Country-specific language, affiliation, and award rules remain on the official award pages and must be checked before applying. The catalog does not claim eligibility for a particular country.",
+    "estimated_value_note": "Unknown - grant benefits and living support vary by host country and award.",
+    "date_added": "2026-08-20",
+    "difficulty": "Highly Competitive",
+    "prestige": "Very High",
+    "icon": "career",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "deadlineType": "fixed",
+      "compensation": "Paid",
+      "workMode": "In Person",
+      "applicationRequirements": [
+        "Country and award selection",
+        "Project or grant statement",
+        "Personal statement",
+        "Transcripts",
+        "Recommendations",
+        "Language evaluation where required"
+      ],
+      "estimatedApplicationTime": "1-2 weeks",
+      "skillsGained": [
+        "Cross-cultural Communication",
+        "Research or Teaching",
+        "Independent Project Planning"
+      ],
+      "careerPaths": [
+        "Research",
+        "Education",
+        "Public Service",
+        "International Affairs"
+      ],
+      "expectedROI": "A funded international research, study, or teaching experience with significant academic and professional value.",
+      "recommendedMajors": [
+        "Any Major"
+      ],
+      "recommendedClassYears": [
+        "Fourth year"
+      ],
+      "eligibilityRules": {
+        "educationLevels": [
+          "undergraduate",
+          "recent_graduate"
+        ],
+        "canonicalInstitutionTypes": [
+          "four_year_college",
+          "university",
+          "liberal_arts_college"
+        ],
+        "canonicalEnrollmentStatuses": [
+          "currently_enrolled",
+          "graduated"
+        ],
+        "acceptsExternalStudents": true,
+        "classYears": [
+          "Fourth year"
+        ],
+        "majors": [
+          "Any Major"
+        ],
+        "citizenshipStatuses": [
+          "us_citizen"
+        ],
+        "transferEligibility": "general_undergraduate",
+        "availability": "open",
+        "recommendationEligibilityStatus": "eligible_for_ranking",
+        "evidence": [
+          "Current undergraduates are limited to fourth-year profiles because the official rules require a bachelor's degree before the grant begins."
+        ],
+        "fieldEvidence": {
+          "academic_level": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://us.fulbrightonline.org/about/competition-selection",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2027-28",
+            "note": "The official competition page confirms that the 2027-28 cycle is open and closes October 6, 2026 at 5:00 p.m. Eastern Time."
+          },
+          "institution_type": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://us.fulbrightonline.org/about/competition-selection",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2027-28",
+            "note": "The official competition page confirms that the 2027-28 cycle is open and closes October 6, 2026 at 5:00 p.m. Eastern Time."
+          },
+          "enrollment_status": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://us.fulbrightonline.org/about/competition-selection",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2027-28",
+            "note": "The official competition page confirms that the 2027-28 cycle is open and closes October 6, 2026 at 5:00 p.m. Eastern Time."
+          },
+          "school_restriction": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://us.fulbrightonline.org/about/competition-selection",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2027-28",
+            "note": "The official competition page confirms that the 2027-28 cycle is open and closes October 6, 2026 at 5:00 p.m. Eastern Time."
+          },
+          "external_student_eligibility": {
+            "state": "verified_open",
+            "sourceUrl": "https://us.fulbrightonline.org/about/competition-selection",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2027-28",
+            "note": "The official competition page confirms that the 2027-28 cycle is open and closes October 6, 2026 at 5:00 p.m. Eastern Time."
+          },
+          "class_year": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://us.fulbrightonline.org/about/competition-selection",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2027-28",
+            "note": "The official competition page confirms that the 2027-28 cycle is open and closes October 6, 2026 at 5:00 p.m. Eastern Time."
+          },
+          "major": {
+            "state": "verified_open",
+            "sourceUrl": "https://us.fulbrightonline.org/about/competition-selection",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2027-28",
+            "note": "The official competition page confirms that the 2027-28 cycle is open and closes October 6, 2026 at 5:00 p.m. Eastern Time."
+          },
+          "citizenship": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://us.fulbrightonline.org/about/competition-selection",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2027-28",
+            "note": "The official competition page confirms that the 2027-28 cycle is open and closes October 6, 2026 at 5:00 p.m. Eastern Time."
+          },
+          "residency": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://us.fulbrightonline.org/about/competition-selection",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2027-28",
+            "note": "The official competition page confirms that the 2027-28 cycle is open and closes October 6, 2026 at 5:00 p.m. Eastern Time."
+          },
+          "gpa": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://us.fulbrightonline.org/about/competition-selection",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2027-28",
+            "note": "The official competition page confirms that the 2027-28 cycle is open and closes October 6, 2026 at 5:00 p.m. Eastern Time."
+          },
+          "age": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://us.fulbrightonline.org/about/competition-selection",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2027-28",
+            "note": "The official competition page confirms that the 2027-28 cycle is open and closes October 6, 2026 at 5:00 p.m. Eastern Time."
+          },
+          "financial_need": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://us.fulbrightonline.org/about/competition-selection",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2027-28",
+            "note": "The official competition page confirms that the 2027-28 cycle is open and closes October 6, 2026 at 5:00 p.m. Eastern Time."
+          },
+          "invitation": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://us.fulbrightonline.org/about/competition-selection",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2027-28",
+            "note": "The official competition page confirms that the 2027-28 cycle is open and closes October 6, 2026 at 5:00 p.m. Eastern Time."
+          },
+          "application_status": {
+            "state": "verified_open",
+            "sourceUrl": "https://us.fulbrightonline.org/about/competition-selection",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2027-28",
+            "note": "The official competition page confirms that the 2027-28 cycle is open and closes October 6, 2026 at 5:00 p.m. Eastern Time."
+          },
+          "deadline": {
+            "state": "verified_open",
+            "sourceUrl": "https://us.fulbrightonline.org/about/competition-selection",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2027-28",
+            "note": "The official competition page confirms that the 2027-28 cycle is open and closes October 6, 2026 at 5:00 p.m. Eastern Time."
+          }
+        }
+      },
+      "sourceReferences": [
+        {
+          "url": "https://us.fulbrightonline.org/about/competition-selection",
+          "authority": "official_program",
+          "verifiedAt": "2026-08-20",
+          "cycle": "2027-28",
+          "supports": [
+            "academic_level",
+            "institution_type",
+            "enrollment_status",
+            "school_restriction",
+            "external_student_eligibility",
+            "class_year",
+            "major",
+            "citizenship",
+            "residency",
+            "gpa",
+            "age",
+            "financial_need",
+            "invitation",
+            "application_status",
+            "deadline"
+          ],
+          "note": "The official competition page confirms that the 2027-28 cycle is open and closes October 6, 2026 at 5:00 p.m. Eastern Time."
+        },
+        {
+          "url": "https://new-us.fulbrightonline.org/about/eligibility",
+          "authority": "official_program",
+          "verifiedAt": "2026-08-20",
+          "cycle": "2027-28",
+          "supports": [
+            "academic_level",
+            "institution_type",
+            "enrollment_status",
+            "school_restriction",
+            "external_student_eligibility",
+            "class_year",
+            "major",
+            "citizenship",
+            "residency",
+            "gpa",
+            "age",
+            "financial_need",
+            "invitation",
+            "application_status",
+            "deadline"
+          ],
+          "note": "The official eligibility page confirms U.S. citizenship or nationality and the bachelor's-degree requirement by the grant start."
+        }
+      ],
+      "acquisition": {
+        "batchId": "catalog-breakthrough-2026-08-breadth-wave",
+        "acquiredAt": "2026-08-20",
+        "reviewCadenceDays": 45,
+        "nextReviewAt": "2026-10-07",
+        "freshnessModel": "fixed_cycle"
+      },
+      "verification": {
+        "status": "verified",
+        "lastVerifiedAt": "2026-08-20",
+        "verifiedCycle": "2027-28",
+        "officialSourceUrl": "https://us.fulbrightonline.org/about/competition-selection",
+        "applicationUrlVerified": true,
+        "deadlineVerified": true,
+        "eligibilityVerified": true,
+        "sourceReachable": true,
+        "sourceAuditStatus": 200,
+        "notes": "Country-specific language, affiliation, and award rules remain on the official award pages and must be checked before applying. The catalog does not claim eligibility for a particular country."
+      },
+      "lifecycle": {
+        "schemaVersion": 1,
+        "migrationId": "catalog-breakthrough-2026-08-breadth-wave",
+        "identity": {
+          "identityId": "fellowship--fulbright-us-student-2027-28",
+          "aliases": [
+            "Fulbright U.S. Student Program",
+            "Fulbright Study Research Award",
+            "Fulbright English Teaching Assistant Award"
+          ]
+        },
+        "cycle": {
+          "cycleId": "2027-28",
+          "label": "2027-28"
+        },
+        "state": "open",
+        "confidence": "confirmed",
+        "reason": "official_status_open",
+        "effectiveAt": "2026-08-20T00:00:00.000Z",
+        "finalDeadline": {
+          "kind": "final_deadline",
+          "sourceValue": "2026-10-06",
+          "normalizedValue": "2026-10-06",
+          "precision": "date",
+          "estimated": false,
+          "verifiedAt": "2026-08-20",
+          "sourceUrl": "https://us.fulbrightonline.org/about/competition-selection"
+        },
+        "recurrence": {
+          "type": "annual",
+          "confidence": "confirmed",
+          "officialStatement": "Country-specific language, affiliation, and award rules remain on the official award pages and must be checked before applying. The catalog does not claim eligibility for a particular country."
+        },
+        "evidence": [
+          {
+            "id": "fellowship--fulbright-us-student-2027-28:2027-28:official:1",
+            "source": "official_application_page",
+            "observedAt": "2026-08-20T00:00:00.000Z",
+            "value": "The official competition page confirms that the 2027-28 cycle is open and closes October 6, 2026 at 5:00 p.m. Eastern Time.",
+            "sourceUrl": "https://us.fulbrightonline.org/about/competition-selection",
+            "confidence": "confirmed"
+          },
+          {
+            "id": "fellowship--fulbright-us-student-2027-28:2027-28:official:2",
+            "source": "official_application_page",
+            "observedAt": "2026-08-20T00:00:00.000Z",
+            "value": "The official eligibility page confirms U.S. citizenship or nationality and the bachelor's-degree requirement by the grant start.",
+            "sourceUrl": "https://new-us.fulbrightonline.org/about/eligibility",
+            "confidence": "confirmed"
+          }
+        ],
+        "events": [],
+        "sourceChecks": [
+          {
+            "url": "https://us.fulbrightonline.org/about/competition-selection",
+            "checkedAt": "2026-08-20T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          },
+          {
+            "url": "https://new-us.fulbrightonline.org/about/eligibility",
+            "checkedAt": "2026-08-20T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          }
+        ],
+        "fieldVerifiedAt": {
+          "state": "2026-08-20",
+          "deadline": "2026-08-20",
+          "applicationUrl": "2026-08-20",
+          "eligibility": "2026-08-20",
+          "award": "2026-08-20",
+          "location": "2026-08-20",
+          "programDates": "2026-08-20",
+          "description": "2026-08-20"
+        },
+        "review": {
+          "note": "Country-specific language, affiliation, and award rules remain on the official award pages and must be checked before applying. The catalog does not claim eligibility for a particular country.",
+          "reviewedAt": "2026-08-20T00:00:00.000Z",
+          "reviewer": "UnlockED catalog acquisition"
+        }
+      }
+    }
+  },
+  {
+    "id": "career--tfas-spring-washington-fellowship-2027",
+    "title": "TFAS Spring Washington Fellowship",
+    "type": "Career",
+    "category": "Fellowships",
+    "description": "A fully funded semester in Washington with a guaranteed internship, accredited coursework, professional mentoring, and a completion stipend.",
+    "organization": "The Fund for American Studies",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "Political Science",
+      "Public Policy",
+      "International Relations",
+      "Economics",
+      "History",
+      "English",
+      "Journalism",
+      "Communications",
+      "Business"
+    ],
+    "academic_years": [
+      "First year",
+      "Second year",
+      "Third year",
+      "Fourth year"
+    ],
+    "eligibility": "Undergraduates age 18 or older who have completed at least one college semester. Structured recommendations are limited to U.S. citizens and permanent residents; TFAS separately publishes requirements for eligible F-1 students.",
+    "estimated_value": 1000,
+    "application_deadline": "2026-10-21",
+    "recurring": true,
+    "location": "Washington, DC",
+    "remote": false,
+    "paid": true,
+    "tags": [
+      "Fellowship",
+      "Internship",
+      "Washington DC",
+      "Public Policy",
+      "Journalism",
+      "Business",
+      "Fully Funded"
+    ],
+    "official_source": "https://semester.connect.dcinternships.org/",
+    "official_source_url": "https://semester.connect.dcinternships.org/",
+    "verification_status": "verified",
+    "last_verified": "2026-08-20",
+    "deadline": "2026-10-21",
+    "reviewer_notes": "Current official session, funding, deadline, and baseline eligibility were reviewed. The early and priority deadlines remain visible on the source, while the catalog stores the final deadline.",
+    "estimated_value_note": "Full program tuition and furnished housing plus a $1,000 completion stipend; TFAS does not publish one combined retail value.",
+    "date_added": "2026-08-20",
+    "difficulty": "Competitive",
+    "prestige": "High",
+    "icon": "career",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "deadlineType": "fixed",
+      "compensation": "Paid",
+      "workMode": "In Person",
+      "internshipDuration": "14 weeks",
+      "applicationRequirements": [
+        "Online application",
+        "Personal statement",
+        "Resume",
+        "Transcript"
+      ],
+      "estimatedApplicationTime": "3-5 hours",
+      "skillsGained": [
+        "Professional Communication",
+        "Policy Analysis",
+        "Networking"
+      ],
+      "careerPaths": [
+        "Public Policy",
+        "Government",
+        "Journalism",
+        "Business"
+      ],
+      "expectedROI": "A funded academic semester, guaranteed internship experience, and a Washington professional network.",
+      "recommendedMajors": [
+        "Political Science",
+        "Public Policy",
+        "International Relations",
+        "Economics",
+        "History",
+        "English",
+        "Journalism",
+        "Communications",
+        "Business"
+      ],
+      "recommendedClassYears": [
+        "First year",
+        "Second year",
+        "Third year",
+        "Fourth year"
+      ],
+      "eligibilityRules": {
+        "educationLevels": [
+          "undergraduate",
+          "community_college"
+        ],
+        "canonicalInstitutionTypes": [
+          "community_college",
+          "four_year_college",
+          "university",
+          "liberal_arts_college"
+        ],
+        "canonicalEnrollmentStatuses": [
+          "currently_enrolled"
+        ],
+        "acceptsExternalStudents": true,
+        "classYears": [
+          "First year",
+          "Second year",
+          "Third year",
+          "Fourth year"
+        ],
+        "majors": [
+          "Political Science",
+          "Public Policy",
+          "International Relations",
+          "Economics",
+          "History",
+          "English",
+          "Journalism",
+          "Communications",
+          "Business"
+        ],
+        "citizenshipStatuses": [
+          "us_citizen",
+          "permanent_resident"
+        ],
+        "ageRange": {
+          "minimum": 18
+        },
+        "transferEligibility": "general_undergraduate",
+        "availability": "open",
+        "recommendationEligibilityStatus": "eligible_for_ranking",
+        "evidence": [
+          "The public program accepts all majors; Pro ranking is conservatively limited to the four published academic tracks.",
+          "Recommendations use the final deadline and a narrower domestic eligibility rule than the program's separately documented F-1 pathway."
+        ],
+        "fieldEvidence": {
+          "academic_level": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://semester.connect.dcinternships.org/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official Spring Fellowship page confirms the January 20-April 29, 2027 session, October 21 final deadline, full tuition and housing, $1,000 stipend, internship, credits, age, and one-semester requirement."
+          },
+          "institution_type": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://semester.connect.dcinternships.org/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official Spring Fellowship page confirms the January 20-April 29, 2027 session, October 21 final deadline, full tuition and housing, $1,000 stipend, internship, credits, age, and one-semester requirement."
+          },
+          "enrollment_status": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://semester.connect.dcinternships.org/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official Spring Fellowship page confirms the January 20-April 29, 2027 session, October 21 final deadline, full tuition and housing, $1,000 stipend, internship, credits, age, and one-semester requirement."
+          },
+          "school_restriction": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://semester.connect.dcinternships.org/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official Spring Fellowship page confirms the January 20-April 29, 2027 session, October 21 final deadline, full tuition and housing, $1,000 stipend, internship, credits, age, and one-semester requirement."
+          },
+          "external_student_eligibility": {
+            "state": "verified_open",
+            "sourceUrl": "https://semester.connect.dcinternships.org/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official Spring Fellowship page confirms the January 20-April 29, 2027 session, October 21 final deadline, full tuition and housing, $1,000 stipend, internship, credits, age, and one-semester requirement."
+          },
+          "class_year": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://semester.connect.dcinternships.org/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official Spring Fellowship page confirms the January 20-April 29, 2027 session, October 21 final deadline, full tuition and housing, $1,000 stipend, internship, credits, age, and one-semester requirement."
+          },
+          "major": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://semester.connect.dcinternships.org/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official Spring Fellowship page confirms the January 20-April 29, 2027 session, October 21 final deadline, full tuition and housing, $1,000 stipend, internship, credits, age, and one-semester requirement."
+          },
+          "citizenship": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://semester.connect.dcinternships.org/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official Spring Fellowship page confirms the January 20-April 29, 2027 session, October 21 final deadline, full tuition and housing, $1,000 stipend, internship, credits, age, and one-semester requirement."
+          },
+          "residency": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://semester.connect.dcinternships.org/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official Spring Fellowship page confirms the January 20-April 29, 2027 session, October 21 final deadline, full tuition and housing, $1,000 stipend, internship, credits, age, and one-semester requirement."
+          },
+          "gpa": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://semester.connect.dcinternships.org/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official Spring Fellowship page confirms the January 20-April 29, 2027 session, October 21 final deadline, full tuition and housing, $1,000 stipend, internship, credits, age, and one-semester requirement."
+          },
+          "age": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://semester.connect.dcinternships.org/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official Spring Fellowship page confirms the January 20-April 29, 2027 session, October 21 final deadline, full tuition and housing, $1,000 stipend, internship, credits, age, and one-semester requirement."
+          },
+          "financial_need": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://semester.connect.dcinternships.org/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official Spring Fellowship page confirms the January 20-April 29, 2027 session, October 21 final deadline, full tuition and housing, $1,000 stipend, internship, credits, age, and one-semester requirement."
+          },
+          "invitation": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://semester.connect.dcinternships.org/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official Spring Fellowship page confirms the January 20-April 29, 2027 session, October 21 final deadline, full tuition and housing, $1,000 stipend, internship, credits, age, and one-semester requirement."
+          },
+          "application_status": {
+            "state": "verified_open",
+            "sourceUrl": "https://semester.connect.dcinternships.org/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official Spring Fellowship page confirms the January 20-April 29, 2027 session, October 21 final deadline, full tuition and housing, $1,000 stipend, internship, credits, age, and one-semester requirement."
+          },
+          "deadline": {
+            "state": "verified_open",
+            "sourceUrl": "https://semester.connect.dcinternships.org/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official Spring Fellowship page confirms the January 20-April 29, 2027 session, October 21 final deadline, full tuition and housing, $1,000 stipend, internship, credits, age, and one-semester requirement."
+          }
+        }
+      },
+      "sourceReferences": [
+        {
+          "url": "https://semester.connect.dcinternships.org/",
+          "authority": "official_program",
+          "verifiedAt": "2026-08-20",
+          "cycle": "spring-2027",
+          "supports": [
+            "academic_level",
+            "institution_type",
+            "enrollment_status",
+            "school_restriction",
+            "external_student_eligibility",
+            "class_year",
+            "major",
+            "citizenship",
+            "residency",
+            "gpa",
+            "age",
+            "financial_need",
+            "invitation",
+            "application_status",
+            "deadline"
+          ],
+          "note": "The official Spring Fellowship page confirms the January 20-April 29, 2027 session, October 21 final deadline, full tuition and housing, $1,000 stipend, internship, credits, age, and one-semester requirement."
+        }
+      ],
+      "acquisition": {
+        "batchId": "catalog-breakthrough-2026-08-breadth-wave",
+        "acquiredAt": "2026-08-20",
+        "reviewCadenceDays": 45,
+        "nextReviewAt": "2026-10-22",
+        "freshnessModel": "fixed_cycle"
+      },
+      "verification": {
+        "status": "verified",
+        "lastVerifiedAt": "2026-08-20",
+        "verifiedCycle": "spring-2027",
+        "officialSourceUrl": "https://semester.connect.dcinternships.org/",
+        "applicationUrlVerified": true,
+        "deadlineVerified": true,
+        "eligibilityVerified": true,
+        "sourceReachable": true,
+        "sourceAuditStatus": 200,
+        "notes": "Current official session, funding, deadline, and baseline eligibility were reviewed. The early and priority deadlines remain visible on the source, while the catalog stores the final deadline."
+      },
+      "lifecycle": {
+        "schemaVersion": 1,
+        "migrationId": "catalog-breakthrough-2026-08-breadth-wave",
+        "identity": {
+          "identityId": "career--tfas-spring-washington-fellowship-2027",
+          "aliases": [
+            "TFAS Spring Fellowship",
+            "Capital Semester Spring"
+          ]
+        },
+        "cycle": {
+          "cycleId": "spring-2027",
+          "label": "spring-2027"
+        },
+        "state": "open",
+        "confidence": "confirmed",
+        "reason": "official_status_open",
+        "effectiveAt": "2026-08-20T00:00:00.000Z",
+        "finalDeadline": {
+          "kind": "final_deadline",
+          "sourceValue": "2026-10-21",
+          "normalizedValue": "2026-10-21",
+          "precision": "date",
+          "estimated": false,
+          "verifiedAt": "2026-08-20",
+          "sourceUrl": "https://semester.connect.dcinternships.org/"
+        },
+        "recurrence": {
+          "type": "annual",
+          "confidence": "confirmed",
+          "officialStatement": "Current official session, funding, deadline, and baseline eligibility were reviewed. The early and priority deadlines remain visible on the source, while the catalog stores the final deadline."
+        },
+        "evidence": [
+          {
+            "id": "career--tfas-spring-washington-fellowship-2027:spring-2027:official:1",
+            "source": "official_application_page",
+            "observedAt": "2026-08-20T00:00:00.000Z",
+            "value": "The official Spring Fellowship page confirms the January 20-April 29, 2027 session, October 21 final deadline, full tuition and housing, $1,000 stipend, internship, credits, age, and one-semester requirement.",
+            "sourceUrl": "https://semester.connect.dcinternships.org/",
+            "confidence": "confirmed"
+          }
+        ],
+        "events": [],
+        "sourceChecks": [
+          {
+            "url": "https://semester.connect.dcinternships.org/",
+            "checkedAt": "2026-08-20T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          }
+        ],
+        "fieldVerifiedAt": {
+          "state": "2026-08-20",
+          "deadline": "2026-08-20",
+          "applicationUrl": "2026-08-20",
+          "eligibility": "2026-08-20",
+          "award": "2026-08-20",
+          "location": "2026-08-20",
+          "programDates": "2026-08-20",
+          "description": "2026-08-20"
+        },
+        "review": {
+          "note": "Current official session, funding, deadline, and baseline eligibility were reviewed. The early and priority deadlines remain visible on the source, while the catalog stores the final deadline.",
+          "reviewedAt": "2026-08-20T00:00:00.000Z",
+          "reviewer": "UnlockED catalog acquisition"
+        }
+      }
+    }
+  },
+  {
+    "id": "career--americorps-fema-corps-2027",
+    "title": "AmeriCorps FEMA Corps",
+    "type": "Career",
+    "category": "Leadership Programs",
+    "description": "A ten-month, full-time national service program supporting disaster preparedness, response, and recovery while traveling with a team across the United States.",
+    "organization": "AmeriCorps and FEMA",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "Public Policy",
+      "Political Science",
+      "Emergency Management",
+      "Criminal Justice",
+      "Environmental Science",
+      "Social Work",
+      "Sociology",
+      "Public Health"
+    ],
+    "academic_years": [
+      "First year",
+      "Second year",
+      "Third year",
+      "Fourth year"
+    ],
+    "eligibility": "U.S. citizens age 18-24 who can serve full time for ten months, travel throughout the United States, and meet the program's background and service requirements.",
+    "estimated_value": 7300,
+    "application_deadline": "2026-10-19",
+    "recurring": true,
+    "location": "United States; travel required",
+    "remote": false,
+    "paid": true,
+    "tags": [
+      "National Service",
+      "Disaster Response",
+      "Leadership",
+      "Any Major",
+      "Education Award",
+      "First-Year Friendly"
+    ],
+    "official_source": "https://www.americorps.gov/serve/americorps/americorps-nccc/fema-corps",
+    "official_source_url": "https://www.americorps.gov/serve/americorps/americorps-nccc/fema-corps",
+    "verification_status": "verified",
+    "last_verified": "2026-08-20",
+    "deadline": "2026-10-19",
+    "reviewer_notes": "FEMA Corps is broad-access and current, but participation can interrupt enrollment. The details page must remain clear about the ten-month full-time travel commitment.",
+    "estimated_value_note": "Education award of more than $7,300 after successful service, plus housing, meals, travel, health benefits, and a living allowance.",
+    "date_added": "2026-08-20",
+    "difficulty": "Competitive",
+    "prestige": "High",
+    "icon": "career",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "deadlineType": "fixed",
+      "compensation": "Paid",
+      "workMode": "In Person",
+      "internshipDuration": "10 months",
+      "applicationRequirements": [
+        "AmeriCorps application",
+        "Eligibility documentation",
+        "Background screening"
+      ],
+      "estimatedApplicationTime": "3-5 hours",
+      "skillsGained": [
+        "Emergency Management",
+        "Team Leadership",
+        "Public Service",
+        "Project Operations"
+      ],
+      "careerPaths": [
+        "Emergency Management",
+        "Public Service",
+        "Nonprofit Leadership",
+        "Government"
+      ],
+      "expectedROI": "Living support, practical disaster-response experience, and an education award exceeding $7,300.",
+      "recommendedMajors": [
+        "Public Policy",
+        "Political Science",
+        "Emergency Management",
+        "Criminal Justice",
+        "Environmental Science",
+        "Social Work",
+        "Sociology",
+        "Public Health"
+      ],
+      "recommendedClassYears": [
+        "First year",
+        "Second year",
+        "Third year",
+        "Fourth year"
+      ],
+      "eligibilityRules": {
+        "educationLevels": [
+          "undergraduate",
+          "community_college",
+          "recent_graduate"
+        ],
+        "canonicalInstitutionTypes": [
+          "community_college",
+          "four_year_college",
+          "university",
+          "liberal_arts_college"
+        ],
+        "canonicalEnrollmentStatuses": [
+          "currently_enrolled",
+          "graduated"
+        ],
+        "acceptsExternalStudents": true,
+        "classYears": [
+          "First year",
+          "Second year",
+          "Third year",
+          "Fourth year"
+        ],
+        "majors": [
+          "Public Policy",
+          "Political Science",
+          "Emergency Management",
+          "Criminal Justice",
+          "Environmental Science",
+          "Social Work",
+          "Sociology",
+          "Public Health"
+        ],
+        "citizenshipStatuses": [
+          "us_citizen"
+        ],
+        "ageRange": {
+          "minimum": 18,
+          "maximum": 24
+        },
+        "transferEligibility": "general_undergraduate",
+        "availability": "open",
+        "recommendationEligibilityStatus": "eligible_for_ranking",
+        "evidence": [
+          "The public program accepts all majors; Pro ranking is conservatively limited to public-service and emergency-response fields.",
+          "This is a full-time service commitment rather than a conventional semester internship; recommendations retain that tradeoff explicitly."
+        ],
+        "fieldEvidence": {
+          "academic_level": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.americorps.gov/serve/americorps/americorps-nccc/fema-corps",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "winter-2027",
+            "note": "The official FEMA Corps page confirms the open July 1-October 19 application, February 2027 start, age 18-24, U.S. citizenship, ten-month full-time service, travel, benefits, and education award."
+          },
+          "institution_type": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.americorps.gov/serve/americorps/americorps-nccc/fema-corps",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "winter-2027",
+            "note": "The official FEMA Corps page confirms the open July 1-October 19 application, February 2027 start, age 18-24, U.S. citizenship, ten-month full-time service, travel, benefits, and education award."
+          },
+          "enrollment_status": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.americorps.gov/serve/americorps/americorps-nccc/fema-corps",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "winter-2027",
+            "note": "The official FEMA Corps page confirms the open July 1-October 19 application, February 2027 start, age 18-24, U.S. citizenship, ten-month full-time service, travel, benefits, and education award."
+          },
+          "school_restriction": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.americorps.gov/serve/americorps/americorps-nccc/fema-corps",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "winter-2027",
+            "note": "The official FEMA Corps page confirms the open July 1-October 19 application, February 2027 start, age 18-24, U.S. citizenship, ten-month full-time service, travel, benefits, and education award."
+          },
+          "external_student_eligibility": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.americorps.gov/serve/americorps/americorps-nccc/fema-corps",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "winter-2027",
+            "note": "The official FEMA Corps page confirms the open July 1-October 19 application, February 2027 start, age 18-24, U.S. citizenship, ten-month full-time service, travel, benefits, and education award."
+          },
+          "class_year": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.americorps.gov/serve/americorps/americorps-nccc/fema-corps",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "winter-2027",
+            "note": "The official FEMA Corps page confirms the open July 1-October 19 application, February 2027 start, age 18-24, U.S. citizenship, ten-month full-time service, travel, benefits, and education award."
+          },
+          "major": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.americorps.gov/serve/americorps/americorps-nccc/fema-corps",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "winter-2027",
+            "note": "The official FEMA Corps page confirms the open July 1-October 19 application, February 2027 start, age 18-24, U.S. citizenship, ten-month full-time service, travel, benefits, and education award."
+          },
+          "citizenship": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.americorps.gov/serve/americorps/americorps-nccc/fema-corps",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "winter-2027",
+            "note": "The official FEMA Corps page confirms the open July 1-October 19 application, February 2027 start, age 18-24, U.S. citizenship, ten-month full-time service, travel, benefits, and education award."
+          },
+          "residency": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.americorps.gov/serve/americorps/americorps-nccc/fema-corps",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "winter-2027",
+            "note": "The official FEMA Corps page confirms the open July 1-October 19 application, February 2027 start, age 18-24, U.S. citizenship, ten-month full-time service, travel, benefits, and education award."
+          },
+          "gpa": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.americorps.gov/serve/americorps/americorps-nccc/fema-corps",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "winter-2027",
+            "note": "The official FEMA Corps page confirms the open July 1-October 19 application, February 2027 start, age 18-24, U.S. citizenship, ten-month full-time service, travel, benefits, and education award."
+          },
+          "age": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.americorps.gov/serve/americorps/americorps-nccc/fema-corps",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "winter-2027",
+            "note": "The official FEMA Corps page confirms the open July 1-October 19 application, February 2027 start, age 18-24, U.S. citizenship, ten-month full-time service, travel, benefits, and education award."
+          },
+          "financial_need": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.americorps.gov/serve/americorps/americorps-nccc/fema-corps",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "winter-2027",
+            "note": "The official FEMA Corps page confirms the open July 1-October 19 application, February 2027 start, age 18-24, U.S. citizenship, ten-month full-time service, travel, benefits, and education award."
+          },
+          "invitation": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.americorps.gov/serve/americorps/americorps-nccc/fema-corps",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "winter-2027",
+            "note": "The official FEMA Corps page confirms the open July 1-October 19 application, February 2027 start, age 18-24, U.S. citizenship, ten-month full-time service, travel, benefits, and education award."
+          },
+          "application_status": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.americorps.gov/serve/americorps/americorps-nccc/fema-corps",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "winter-2027",
+            "note": "The official FEMA Corps page confirms the open July 1-October 19 application, February 2027 start, age 18-24, U.S. citizenship, ten-month full-time service, travel, benefits, and education award."
+          },
+          "deadline": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.americorps.gov/serve/americorps/americorps-nccc/fema-corps",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "winter-2027",
+            "note": "The official FEMA Corps page confirms the open July 1-October 19 application, February 2027 start, age 18-24, U.S. citizenship, ten-month full-time service, travel, benefits, and education award."
+          }
+        }
+      },
+      "sourceReferences": [
+        {
+          "url": "https://www.americorps.gov/serve/americorps/americorps-nccc/fema-corps",
+          "authority": "official_program",
+          "verifiedAt": "2026-08-20",
+          "cycle": "winter-2027",
+          "supports": [
+            "academic_level",
+            "institution_type",
+            "enrollment_status",
+            "school_restriction",
+            "external_student_eligibility",
+            "class_year",
+            "major",
+            "citizenship",
+            "residency",
+            "gpa",
+            "age",
+            "financial_need",
+            "invitation",
+            "application_status",
+            "deadline"
+          ],
+          "note": "The official FEMA Corps page confirms the open July 1-October 19 application, February 2027 start, age 18-24, U.S. citizenship, ten-month full-time service, travel, benefits, and education award."
+        }
+      ],
+      "acquisition": {
+        "batchId": "catalog-breakthrough-2026-08-breadth-wave",
+        "acquiredAt": "2026-08-20",
+        "reviewCadenceDays": 45,
+        "nextReviewAt": "2026-10-20",
+        "freshnessModel": "fixed_cycle"
+      },
+      "verification": {
+        "status": "verified",
+        "lastVerifiedAt": "2026-08-20",
+        "verifiedCycle": "winter-2027",
+        "officialSourceUrl": "https://www.americorps.gov/serve/americorps/americorps-nccc/fema-corps",
+        "applicationUrlVerified": true,
+        "deadlineVerified": true,
+        "eligibilityVerified": true,
+        "sourceReachable": true,
+        "sourceAuditStatus": 200,
+        "notes": "FEMA Corps is broad-access and current, but participation can interrupt enrollment. The details page must remain clear about the ten-month full-time travel commitment."
+      },
+      "lifecycle": {
+        "schemaVersion": 1,
+        "migrationId": "catalog-breakthrough-2026-08-breadth-wave",
+        "identity": {
+          "identityId": "career--americorps-fema-corps-2027",
+          "aliases": [
+            "FEMA Corps",
+            "AmeriCorps NCCC FEMA Corps Member"
+          ]
+        },
+        "cycle": {
+          "cycleId": "winter-2027",
+          "label": "winter-2027"
+        },
+        "state": "open",
+        "confidence": "confirmed",
+        "reason": "official_status_open",
+        "effectiveAt": "2026-08-20T00:00:00.000Z",
+        "finalDeadline": {
+          "kind": "final_deadline",
+          "sourceValue": "2026-10-19",
+          "normalizedValue": "2026-10-19",
+          "precision": "date",
+          "estimated": false,
+          "verifiedAt": "2026-08-20",
+          "sourceUrl": "https://www.americorps.gov/serve/americorps/americorps-nccc/fema-corps"
+        },
+        "recurrence": {
+          "type": "annual",
+          "confidence": "confirmed",
+          "officialStatement": "FEMA Corps is broad-access and current, but participation can interrupt enrollment. The details page must remain clear about the ten-month full-time travel commitment."
+        },
+        "evidence": [
+          {
+            "id": "career--americorps-fema-corps-2027:winter-2027:official:1",
+            "source": "official_application_page",
+            "observedAt": "2026-08-20T00:00:00.000Z",
+            "value": "The official FEMA Corps page confirms the open July 1-October 19 application, February 2027 start, age 18-24, U.S. citizenship, ten-month full-time service, travel, benefits, and education award.",
+            "sourceUrl": "https://www.americorps.gov/serve/americorps/americorps-nccc/fema-corps",
+            "confidence": "confirmed"
+          }
+        ],
+        "events": [],
+        "sourceChecks": [
+          {
+            "url": "https://www.americorps.gov/serve/americorps/americorps-nccc/fema-corps",
+            "checkedAt": "2026-08-20T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          }
+        ],
+        "fieldVerifiedAt": {
+          "state": "2026-08-20",
+          "deadline": "2026-08-20",
+          "applicationUrl": "2026-08-20",
+          "eligibility": "2026-08-20",
+          "award": "2026-08-20",
+          "location": "2026-08-20",
+          "programDates": "2026-08-20",
+          "description": "2026-08-20"
+        },
+        "review": {
+          "note": "FEMA Corps is broad-access and current, but participation can interrupt enrollment. The details page must remain clear about the ten-month full-time travel commitment.",
           "reviewedAt": "2026-08-20T00:00:00.000Z",
           "reviewer": "UnlockED catalog acquisition"
         }
