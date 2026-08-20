@@ -447355,5 +447355,4135 @@
         }
       }
     }
+  },
+  {
+    "id": "research--netl-professional-internship-program",
+    "title": "NETL Professional Internship Program",
+    "type": "Research",
+    "category": "National Laboratory Research",
+    "description": "A rolling national-laboratory research program matching undergraduate students with energy, materials, computing, engineering, and environmental projects at NETL.",
+    "organization": "National Energy Technology Laboratory",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "Chemistry",
+      "Materials Science",
+      "Chemical Engineering",
+      "Mechanical Engineering",
+      "Environmental Engineering",
+      "Computer Science",
+      "Data Science",
+      "Physics"
+    ],
+    "academic_years": [
+      "First year",
+      "Second year",
+      "Third year",
+      "Fourth year"
+    ],
+    "eligibility": "Undergraduates in good standing at regionally accredited institutions, including community colleges and technical schools, with at least a 2.5 GPA, age 18 or older, and health insurance before appointment.",
+    "estimated_value": 775,
+    "application_deadline": null,
+    "recurring": true,
+    "location": "Pittsburgh, PA; Morgantown, WV; or Albany, OR",
+    "remote": false,
+    "paid": true,
+    "tags": [
+      "Research",
+      "National Lab",
+      "Energy",
+      "Engineering",
+      "Community College",
+      "Paid"
+    ],
+    "official_source": "https://www.zintellect.com/Opportunity/Details/NETL-PIP",
+    "official_source_url": "https://www.zintellect.com/Opportunity/Details/NETL-PIP",
+    "verification_status": "verified",
+    "last_verified": "2026-08-20",
+    "deadline": null,
+    "reviewer_notes": "This is the official general applicant pool; students should also review project-specific postings before applying.",
+    "estimated_value_note": "$775.50 per week for undergraduate participants; appointment length varies by project.",
+    "date_added": "2026-08-20",
+    "difficulty": "Competitive",
+    "prestige": "Very High",
+    "icon": "research",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "deadlineType": "rolling",
+      "compensation": "Paid",
+      "workMode": "In Person",
+      "professor": null,
+      "department": "National Energy Technology Laboratory",
+      "researchArea": "National Laboratory Research",
+      "stipendAmount": 775.5,
+      "semesters": [
+        "Year-round"
+      ],
+      "applicationRequirements": [
+        "Application profile",
+        "Research-goals statement",
+        "Transcript",
+        "Resume",
+        "Two recommendations",
+        "Health insurance before appointment"
+      ],
+      "estimatedApplicationTime": "3-5 hours",
+      "skillsGained": [
+        "Laboratory Research",
+        "Data Analysis",
+        "Technical Writing",
+        "Energy Systems"
+      ],
+      "careerPaths": [
+        "Energy Research",
+        "National Laboratories",
+        "Engineering",
+        "Graduate School"
+      ],
+      "expectedROI": "Paid, accessible national-laboratory research with explicit community-college encouragement and no prior research requirement.",
+      "recommendedMajors": [
+        "Chemistry",
+        "Materials Science",
+        "Chemical Engineering",
+        "Mechanical Engineering",
+        "Environmental Engineering",
+        "Computer Science",
+        "Data Science",
+        "Physics"
+      ],
+      "recommendedClassYears": [
+        "First year",
+        "Second year",
+        "Third year",
+        "Fourth year"
+      ],
+      "eligibilityRules": {
+        "educationLevels": [
+          "undergraduate",
+          "community_college"
+        ],
+        "canonicalInstitutionTypes": [
+          "community_college",
+          "four_year_college",
+          "university",
+          "liberal_arts_college"
+        ],
+        "canonicalEnrollmentStatuses": [
+          "currently_enrolled"
+        ],
+        "acceptsExternalStudents": true,
+        "classYears": [
+          "First year",
+          "Second year",
+          "Third year",
+          "Fourth year"
+        ],
+        "majors": [
+          "Chemistry",
+          "Materials Science",
+          "Chemical Engineering",
+          "Mechanical Engineering",
+          "Environmental Engineering",
+          "Computer Science",
+          "Data Science",
+          "Physics"
+        ],
+        "citizenshipStatuses": [
+          "us_citizen"
+        ],
+        "minimumGpa": 2.5,
+        "ageRange": {
+          "minimum": 18
+        },
+        "transferEligibility": "general_undergraduate",
+        "availability": "rolling",
+        "recommendationEligibilityStatus": "eligible_for_ranking",
+        "evidence": [
+          "Ranking conservatively requires U.S. citizenship even though individual appointment authorization may be broader."
+        ],
+        "fieldEvidence": {
+          "academic_level": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.zintellect.com/Opportunity/Details/NETL-PIP",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026",
+            "note": "The official ORISE application confirms year-round rolling review, undergraduate and community-college eligibility, 2.5 GPA, age 18, health insurance, application materials, locations, and undergraduate stipend."
+          },
+          "institution_type": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.zintellect.com/Opportunity/Details/NETL-PIP",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026",
+            "note": "The official ORISE application confirms year-round rolling review, undergraduate and community-college eligibility, 2.5 GPA, age 18, health insurance, application materials, locations, and undergraduate stipend."
+          },
+          "enrollment_status": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.zintellect.com/Opportunity/Details/NETL-PIP",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026",
+            "note": "The official ORISE application confirms year-round rolling review, undergraduate and community-college eligibility, 2.5 GPA, age 18, health insurance, application materials, locations, and undergraduate stipend."
+          },
+          "school_restriction": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.zintellect.com/Opportunity/Details/NETL-PIP",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026",
+            "note": "The official ORISE application confirms year-round rolling review, undergraduate and community-college eligibility, 2.5 GPA, age 18, health insurance, application materials, locations, and undergraduate stipend."
+          },
+          "external_student_eligibility": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.zintellect.com/Opportunity/Details/NETL-PIP",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026",
+            "note": "The official ORISE application confirms year-round rolling review, undergraduate and community-college eligibility, 2.5 GPA, age 18, health insurance, application materials, locations, and undergraduate stipend."
+          },
+          "class_year": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.zintellect.com/Opportunity/Details/NETL-PIP",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026",
+            "note": "The official ORISE application confirms year-round rolling review, undergraduate and community-college eligibility, 2.5 GPA, age 18, health insurance, application materials, locations, and undergraduate stipend."
+          },
+          "major": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.zintellect.com/Opportunity/Details/NETL-PIP",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026",
+            "note": "The official ORISE application confirms year-round rolling review, undergraduate and community-college eligibility, 2.5 GPA, age 18, health insurance, application materials, locations, and undergraduate stipend."
+          },
+          "citizenship": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.zintellect.com/Opportunity/Details/NETL-PIP",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026",
+            "note": "The official ORISE application confirms year-round rolling review, undergraduate and community-college eligibility, 2.5 GPA, age 18, health insurance, application materials, locations, and undergraduate stipend."
+          },
+          "residency": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.zintellect.com/Opportunity/Details/NETL-PIP",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026",
+            "note": "The official ORISE application confirms year-round rolling review, undergraduate and community-college eligibility, 2.5 GPA, age 18, health insurance, application materials, locations, and undergraduate stipend."
+          },
+          "gpa": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.zintellect.com/Opportunity/Details/NETL-PIP",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026",
+            "note": "The official ORISE application confirms year-round rolling review, undergraduate and community-college eligibility, 2.5 GPA, age 18, health insurance, application materials, locations, and undergraduate stipend."
+          },
+          "age": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.zintellect.com/Opportunity/Details/NETL-PIP",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026",
+            "note": "The official ORISE application confirms year-round rolling review, undergraduate and community-college eligibility, 2.5 GPA, age 18, health insurance, application materials, locations, and undergraduate stipend."
+          },
+          "financial_need": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.zintellect.com/Opportunity/Details/NETL-PIP",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026",
+            "note": "The official ORISE application confirms year-round rolling review, undergraduate and community-college eligibility, 2.5 GPA, age 18, health insurance, application materials, locations, and undergraduate stipend."
+          },
+          "invitation": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.zintellect.com/Opportunity/Details/NETL-PIP",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026",
+            "note": "The official ORISE application confirms year-round rolling review, undergraduate and community-college eligibility, 2.5 GPA, age 18, health insurance, application materials, locations, and undergraduate stipend."
+          },
+          "application_status": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.zintellect.com/Opportunity/Details/NETL-PIP",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026",
+            "note": "The official ORISE application confirms year-round rolling review, undergraduate and community-college eligibility, 2.5 GPA, age 18, health insurance, application materials, locations, and undergraduate stipend."
+          },
+          "deadline": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.zintellect.com/Opportunity/Details/NETL-PIP",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026",
+            "note": "The official ORISE application confirms year-round rolling review, undergraduate and community-college eligibility, 2.5 GPA, age 18, health insurance, application materials, locations, and undergraduate stipend."
+          }
+        }
+      },
+      "sourceReferences": [
+        {
+          "url": "https://www.zintellect.com/Opportunity/Details/NETL-PIP",
+          "authority": "official_program",
+          "verifiedAt": "2026-08-20",
+          "cycle": "year-round-2026",
+          "supports": [
+            "academic_level",
+            "institution_type",
+            "enrollment_status",
+            "school_restriction",
+            "external_student_eligibility",
+            "class_year",
+            "major",
+            "citizenship",
+            "residency",
+            "gpa",
+            "age",
+            "financial_need",
+            "invitation",
+            "application_status",
+            "deadline"
+          ],
+          "note": "The official ORISE application confirms year-round rolling review, undergraduate and community-college eligibility, 2.5 GPA, age 18, health insurance, application materials, locations, and undergraduate stipend."
+        }
+      ],
+      "acquisition": {
+        "batchId": "institutional-mining-2026-08-wave-5",
+        "acquiredAt": "2026-08-20",
+        "reviewCadenceDays": 60,
+        "nextReviewAt": "2026-10-19",
+        "freshnessModel": "rolling_program"
+      },
+      "verification": {
+        "status": "verified",
+        "lastVerifiedAt": "2026-08-20",
+        "verifiedCycle": "year-round-2026",
+        "officialSourceUrl": "https://www.zintellect.com/Opportunity/Details/NETL-PIP",
+        "applicationUrlVerified": true,
+        "deadlineVerified": false,
+        "eligibilityVerified": true,
+        "sourceReachable": true,
+        "sourceAuditStatus": 200,
+        "notes": "This is the official general applicant pool; students should also review project-specific postings before applying."
+      },
+      "lifecycle": {
+        "schemaVersion": 1,
+        "migrationId": "institutional-mining-2026-08-wave-5",
+        "identity": {
+          "identityId": "research--netl-professional-internship-program",
+          "aliases": [
+            "NETL PIP",
+            "National Energy Technology Laboratory PIP"
+          ]
+        },
+        "cycle": {
+          "cycleId": "year-round-2026",
+          "label": "year-round-2026"
+        },
+        "state": "rolling",
+        "confidence": "confirmed",
+        "reason": "rolling_confirmed",
+        "effectiveAt": "2026-08-20T00:00:00.000Z",
+        "recurrence": {
+          "type": "rolling_cohort",
+          "confidence": "confirmed",
+          "officialStatement": "This is the official general applicant pool; students should also review project-specific postings before applying."
+        },
+        "evidence": [
+          {
+            "id": "research--netl-professional-internship-program:year-round-2026:official:1",
+            "source": "official_status",
+            "observedAt": "2026-08-20T00:00:00.000Z",
+            "value": "The official ORISE application confirms year-round rolling review, undergraduate and community-college eligibility, 2.5 GPA, age 18, health insurance, application materials, locations, and undergraduate stipend.",
+            "sourceUrl": "https://www.zintellect.com/Opportunity/Details/NETL-PIP",
+            "confidence": "confirmed"
+          }
+        ],
+        "events": [],
+        "sourceChecks": [
+          {
+            "url": "https://www.zintellect.com/Opportunity/Details/NETL-PIP",
+            "checkedAt": "2026-08-20T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          }
+        ],
+        "fieldVerifiedAt": {
+          "state": "2026-08-20",
+          "deadline": "2026-08-20",
+          "applicationUrl": "2026-08-20",
+          "eligibility": "2026-08-20",
+          "award": "2026-08-20",
+          "location": "2026-08-20",
+          "programDates": "2026-08-20",
+          "description": "2026-08-20"
+        },
+        "review": {
+          "note": "This is the official general applicant pool; students should also review project-specific postings before applying.",
+          "reviewedAt": "2026-08-20T00:00:00.000Z",
+          "reviewer": "UnlockED catalog acquisition"
+        }
+      }
+    }
+  },
+  {
+    "id": "career--national-cyber-league-fall-2026",
+    "title": "National Cyber League Fall 2026",
+    "type": "Career",
+    "category": "Competitions",
+    "description": "A remote cybersecurity season with a practice environment, individual game, team game, and employer-facing Scouting Report documenting demonstrated skills.",
+    "organization": "National Cyber League",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "Cybersecurity",
+      "Computer Science",
+      "Information Systems",
+      "Information Technology",
+      "Computer Engineering",
+      "Data Science"
+    ],
+    "academic_years": [
+      "First year",
+      "Second year",
+      "Third year",
+      "Fourth year"
+    ],
+    "eligibility": "Part-time or full-time students enrolled at a U.S. or Canadian collegiate institution. Participants need a computer and internet connection and may compete remotely as individuals or on teams of up to seven.",
+    "estimated_value": null,
+    "application_deadline": "2026-10-09",
+    "recurring": true,
+    "location": "Remote",
+    "remote": true,
+    "paid": false,
+    "tags": [
+      "Competition",
+      "Cybersecurity",
+      "Remote",
+      "Beginner Friendly",
+      "Portfolio Evidence"
+    ],
+    "official_source": "https://nationalcyberleague.org/players",
+    "official_source_url": "https://nationalcyberleague.org/players",
+    "verification_status": "verified",
+    "last_verified": "2026-08-20",
+    "deadline": "2026-10-09",
+    "reviewer_notes": "The $45 registration cost is disclosed; estimated value remains unknown because the primary benefit is assessed skills evidence.",
+    "estimated_value_note": "Unknown - participation costs $45 during regular registration and produces skills practice and a Scouting Report rather than a guaranteed cash award.",
+    "date_added": "2026-08-20",
+    "difficulty": "Open",
+    "prestige": "High",
+    "icon": "career",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "deadlineType": "fixed",
+      "compensation": "Unpaid",
+      "workMode": "Remote",
+      "internshipDuration": "August-December 2026",
+      "applicationRequirements": [
+        "Student registration",
+        "$45 regular-season fee",
+        "Computer and modern browser"
+      ],
+      "estimatedApplicationTime": "15-30 minutes",
+      "skillsGained": [
+        "Network Analysis",
+        "Cryptography",
+        "Digital Forensics",
+        "Web Security"
+      ],
+      "careerPaths": [
+        "Cybersecurity",
+        "Security Engineering",
+        "Digital Forensics",
+        "Information Technology"
+      ],
+      "expectedROI": "Low-cost, accessible cybersecurity practice plus a concrete Scouting Report for internship and job applications.",
+      "recommendedMajors": [
+        "Cybersecurity",
+        "Computer Science",
+        "Information Systems",
+        "Information Technology",
+        "Computer Engineering",
+        "Data Science"
+      ],
+      "recommendedClassYears": [
+        "First year",
+        "Second year",
+        "Third year",
+        "Fourth year"
+      ],
+      "eligibilityRules": {
+        "educationLevels": [
+          "undergraduate",
+          "community_college"
+        ],
+        "canonicalInstitutionTypes": [
+          "community_college",
+          "four_year_college",
+          "university",
+          "liberal_arts_college"
+        ],
+        "canonicalEnrollmentStatuses": [
+          "currently_enrolled"
+        ],
+        "acceptsExternalStudents": true,
+        "classYears": [
+          "First year",
+          "Second year",
+          "Third year",
+          "Fourth year"
+        ],
+        "majors": [
+          "Cybersecurity",
+          "Computer Science",
+          "Information Systems",
+          "Information Technology",
+          "Computer Engineering",
+          "Data Science"
+        ],
+        "citizenshipStatuses": [
+          "international_allowed"
+        ],
+        "transferEligibility": "general_undergraduate",
+        "availability": "open",
+        "recommendationEligibilityStatus": "eligible_for_ranking",
+        "evidence": [
+          "Eligibility is based on enrollment at a U.S. or Canadian institution, not citizenship."
+        ],
+        "fieldEvidence": {
+          "academic_level": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://nationalcyberleague.org/players",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "fall-2026",
+            "note": "The official student page confirms the open August 17-October 9 registration window, $45 fee, season dates, competition formats, and Scouting Report."
+          },
+          "institution_type": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://nationalcyberleague.org/players",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "fall-2026",
+            "note": "The official student page confirms the open August 17-October 9 registration window, $45 fee, season dates, competition formats, and Scouting Report."
+          },
+          "enrollment_status": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://nationalcyberleague.org/players",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "fall-2026",
+            "note": "The official student page confirms the open August 17-October 9 registration window, $45 fee, season dates, competition formats, and Scouting Report."
+          },
+          "school_restriction": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://nationalcyberleague.org/players",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "fall-2026",
+            "note": "The official student page confirms the open August 17-October 9 registration window, $45 fee, season dates, competition formats, and Scouting Report."
+          },
+          "external_student_eligibility": {
+            "state": "verified_open",
+            "sourceUrl": "https://nationalcyberleague.org/players",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "fall-2026",
+            "note": "The official student page confirms the open August 17-October 9 registration window, $45 fee, season dates, competition formats, and Scouting Report."
+          },
+          "class_year": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://nationalcyberleague.org/players",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "fall-2026",
+            "note": "The official student page confirms the open August 17-October 9 registration window, $45 fee, season dates, competition formats, and Scouting Report."
+          },
+          "major": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://nationalcyberleague.org/players",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "fall-2026",
+            "note": "The official student page confirms the open August 17-October 9 registration window, $45 fee, season dates, competition formats, and Scouting Report."
+          },
+          "citizenship": {
+            "state": "verified_open",
+            "sourceUrl": "https://nationalcyberleague.org/players",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "fall-2026",
+            "note": "The official student page confirms the open August 17-October 9 registration window, $45 fee, season dates, competition formats, and Scouting Report."
+          },
+          "residency": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://nationalcyberleague.org/players",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "fall-2026",
+            "note": "The official student page confirms the open August 17-October 9 registration window, $45 fee, season dates, competition formats, and Scouting Report."
+          },
+          "gpa": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://nationalcyberleague.org/players",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "fall-2026",
+            "note": "The official student page confirms the open August 17-October 9 registration window, $45 fee, season dates, competition formats, and Scouting Report."
+          },
+          "age": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://nationalcyberleague.org/players",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "fall-2026",
+            "note": "The official student page confirms the open August 17-October 9 registration window, $45 fee, season dates, competition formats, and Scouting Report."
+          },
+          "financial_need": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://nationalcyberleague.org/players",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "fall-2026",
+            "note": "The official student page confirms the open August 17-October 9 registration window, $45 fee, season dates, competition formats, and Scouting Report."
+          },
+          "invitation": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://nationalcyberleague.org/players",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "fall-2026",
+            "note": "The official student page confirms the open August 17-October 9 registration window, $45 fee, season dates, competition formats, and Scouting Report."
+          },
+          "application_status": {
+            "state": "verified_open",
+            "sourceUrl": "https://nationalcyberleague.org/players",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "fall-2026",
+            "note": "The official student page confirms the open August 17-October 9 registration window, $45 fee, season dates, competition formats, and Scouting Report."
+          },
+          "deadline": {
+            "state": "verified_open",
+            "sourceUrl": "https://nationalcyberleague.org/players",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "fall-2026",
+            "note": "The official student page confirms the open August 17-October 9 registration window, $45 fee, season dates, competition formats, and Scouting Report."
+          }
+        }
+      },
+      "sourceReferences": [
+        {
+          "url": "https://nationalcyberleague.org/players",
+          "authority": "official_program",
+          "verifiedAt": "2026-08-20",
+          "cycle": "fall-2026",
+          "supports": [
+            "academic_level",
+            "institution_type",
+            "enrollment_status",
+            "school_restriction",
+            "external_student_eligibility",
+            "class_year",
+            "major",
+            "citizenship",
+            "residency",
+            "gpa",
+            "age",
+            "financial_need",
+            "invitation",
+            "application_status",
+            "deadline"
+          ],
+          "note": "The official student page confirms the open August 17-October 9 registration window, $45 fee, season dates, competition formats, and Scouting Report."
+        },
+        {
+          "url": "https://nationalcyberleague.org/competition/faq",
+          "authority": "official_program",
+          "verifiedAt": "2026-08-20",
+          "cycle": "fall-2026",
+          "supports": [
+            "academic_level",
+            "institution_type",
+            "enrollment_status",
+            "school_restriction",
+            "external_student_eligibility",
+            "class_year",
+            "major",
+            "citizenship",
+            "residency",
+            "gpa",
+            "age",
+            "financial_need",
+            "invitation",
+            "application_status",
+            "deadline"
+          ],
+          "note": "The official FAQ confirms U.S. and Canadian collegiate eligibility, part- or full-time enrollment, remote participation, equipment, team rules, and beginner accessibility."
+        }
+      ],
+      "acquisition": {
+        "batchId": "institutional-mining-2026-08-wave-5",
+        "acquiredAt": "2026-08-20",
+        "reviewCadenceDays": 45,
+        "nextReviewAt": "2026-10-10",
+        "freshnessModel": "fixed_cycle"
+      },
+      "verification": {
+        "status": "verified",
+        "lastVerifiedAt": "2026-08-20",
+        "verifiedCycle": "fall-2026",
+        "officialSourceUrl": "https://nationalcyberleague.org/players",
+        "applicationUrlVerified": true,
+        "deadlineVerified": true,
+        "eligibilityVerified": true,
+        "sourceReachable": true,
+        "sourceAuditStatus": 200,
+        "notes": "The $45 registration cost is disclosed; estimated value remains unknown because the primary benefit is assessed skills evidence."
+      },
+      "lifecycle": {
+        "schemaVersion": 1,
+        "migrationId": "institutional-mining-2026-08-wave-5",
+        "identity": {
+          "identityId": "career--national-cyber-league-fall-2026",
+          "aliases": [
+            "NCL Fall 2026",
+            "National Cyber League Fall Season"
+          ]
+        },
+        "cycle": {
+          "cycleId": "fall-2026",
+          "label": "fall-2026"
+        },
+        "state": "open",
+        "confidence": "confirmed",
+        "reason": "official_status_open",
+        "effectiveAt": "2026-08-20T00:00:00.000Z",
+        "finalDeadline": {
+          "kind": "final_deadline",
+          "sourceValue": "2026-10-09",
+          "normalizedValue": "2026-10-09",
+          "precision": "date",
+          "estimated": false,
+          "verifiedAt": "2026-08-14",
+          "sourceUrl": "https://nationalcyberleague.org/players"
+        },
+        "recurrence": {
+          "type": "annual",
+          "confidence": "confirmed",
+          "officialStatement": "The $45 registration cost is disclosed; estimated value remains unknown because the primary benefit is assessed skills evidence."
+        },
+        "evidence": [
+          {
+            "id": "career--national-cyber-league-fall-2026:fall-2026:official:1",
+            "source": "official_application_page",
+            "observedAt": "2026-08-20T00:00:00.000Z",
+            "value": "The official student page confirms the open August 17-October 9 registration window, $45 fee, season dates, competition formats, and Scouting Report.",
+            "sourceUrl": "https://nationalcyberleague.org/players",
+            "confidence": "confirmed"
+          },
+          {
+            "id": "career--national-cyber-league-fall-2026:fall-2026:official:2",
+            "source": "official_application_page",
+            "observedAt": "2026-08-20T00:00:00.000Z",
+            "value": "The official FAQ confirms U.S. and Canadian collegiate eligibility, part- or full-time enrollment, remote participation, equipment, team rules, and beginner accessibility.",
+            "sourceUrl": "https://nationalcyberleague.org/competition/faq",
+            "confidence": "confirmed"
+          }
+        ],
+        "events": [],
+        "sourceChecks": [
+          {
+            "url": "https://nationalcyberleague.org/players",
+            "checkedAt": "2026-08-20T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          },
+          {
+            "url": "https://nationalcyberleague.org/competition/faq",
+            "checkedAt": "2026-08-20T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          }
+        ],
+        "fieldVerifiedAt": {
+          "state": "2026-08-20",
+          "deadline": "2026-08-20",
+          "applicationUrl": "2026-08-20",
+          "eligibility": "2026-08-20",
+          "award": "2026-08-20",
+          "location": "2026-08-20",
+          "programDates": "2026-08-20",
+          "description": "2026-08-20"
+        },
+        "review": {
+          "note": "The $45 registration cost is disclosed; estimated value remains unknown because the primary benefit is assessed skills evidence.",
+          "reviewedAt": "2026-08-20T00:00:00.000Z",
+          "reviewer": "UnlockED catalog acquisition"
+        }
+      }
+    }
+  },
+  {
+    "id": "career--state-department-student-internship-2027",
+    "title": "U.S. Department of State Student Internship",
+    "type": "Career",
+    "category": "Government Internships",
+    "description": "A paid, full-time ten-week Spring or Summer 2027 placement supporting U.S. diplomacy in Washington, other domestic offices, or overseas posts.",
+    "organization": "U.S. Department of State",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "Any Major"
+    ],
+    "academic_years": [
+      "Third year",
+      "Fourth year"
+    ],
+    "eligibility": "U.S. citizens age 18 or older who are enrolled at least part time at an accredited U.S. college, university, or community college, have completed at least 60 credits by the start date, hold a 3.2 GPA or higher, and can obtain a Secret clearance.",
+    "estimated_value": 7984,
+    "application_deadline": "2026-09-01",
+    "recurring": true,
+    "location": "United States or overseas post",
+    "remote": false,
+    "paid": true,
+    "tags": [
+      "Internship",
+      "Government",
+      "International Affairs",
+      "Paid",
+      "Public Service"
+    ],
+    "official_source": "https://www.usajobs.gov/job/879740200",
+    "official_source_url": "https://www.usajobs.gov/job/879740200",
+    "verification_status": "verified",
+    "last_verified": "2026-08-20",
+    "deadline": "2026-09-01",
+    "reviewer_notes": "Upper-division ranking is intentionally narrower than the announcement's credit-based rule because UnlockED does not store earned credits.",
+    "estimated_value_note": "Approximately $7,984 at $19.96 per hour for ten 40-hour weeks, before applicable adjustments; official travel and furnished housing may also be provided.",
+    "date_added": "2026-08-20",
+    "difficulty": "Highly Competitive",
+    "prestige": "Very High",
+    "icon": "career",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "deadlineType": "fixed",
+      "compensation": "Paid",
+      "workMode": "In Person",
+      "internshipDuration": "10 weeks",
+      "applicationRequirements": [
+        "USAJOBS profile",
+        "Resume",
+        "Transcript",
+        "Proof of enrollment",
+        "Secret clearance if selected"
+      ],
+      "estimatedApplicationTime": "3-5 hours",
+      "skillsGained": [
+        "Policy Research",
+        "Diplomacy",
+        "Writing",
+        "Public Service"
+      ],
+      "careerPaths": [
+        "Foreign Service",
+        "Public Policy",
+        "Government",
+        "International Affairs"
+      ],
+      "expectedROI": "Paid federal experience with potential overseas exposure and a security-clearance process.",
+      "recommendedMajors": [
+        "Any Major"
+      ],
+      "recommendedClassYears": [
+        "Third year",
+        "Fourth year"
+      ],
+      "eligibilityRules": {
+        "educationLevels": [
+          "undergraduate",
+          "community_college"
+        ],
+        "canonicalInstitutionTypes": [
+          "community_college",
+          "four_year_college",
+          "university",
+          "liberal_arts_college"
+        ],
+        "canonicalEnrollmentStatuses": [
+          "currently_enrolled"
+        ],
+        "acceptsExternalStudents": true,
+        "classYears": [
+          "Third year",
+          "Fourth year"
+        ],
+        "majors": [
+          "Any Major"
+        ],
+        "citizenshipStatuses": [
+          "us_citizen"
+        ],
+        "minimumGpa": 3.2,
+        "ageRange": {
+          "minimum": 18
+        },
+        "transferEligibility": "general_undergraduate",
+        "availability": "open",
+        "recommendationEligibilityStatus": "eligible_for_ranking",
+        "evidence": [
+          "Ranking requires every published threshold, including 60 completed credits represented conservatively by upper-division status."
+        ],
+        "fieldEvidence": {
+          "academic_level": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.usajobs.gov/job/879740200",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-summer-2027",
+            "note": "The official USAJOBS announcement confirms the September 1 close, Spring and Summer 2027 terms, pay, 60-credit minimum, 3.2 GPA, citizenship, age, enrollment, clearance, travel, and housing terms."
+          },
+          "institution_type": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.usajobs.gov/job/879740200",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-summer-2027",
+            "note": "The official USAJOBS announcement confirms the September 1 close, Spring and Summer 2027 terms, pay, 60-credit minimum, 3.2 GPA, citizenship, age, enrollment, clearance, travel, and housing terms."
+          },
+          "enrollment_status": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.usajobs.gov/job/879740200",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-summer-2027",
+            "note": "The official USAJOBS announcement confirms the September 1 close, Spring and Summer 2027 terms, pay, 60-credit minimum, 3.2 GPA, citizenship, age, enrollment, clearance, travel, and housing terms."
+          },
+          "school_restriction": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.usajobs.gov/job/879740200",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-summer-2027",
+            "note": "The official USAJOBS announcement confirms the September 1 close, Spring and Summer 2027 terms, pay, 60-credit minimum, 3.2 GPA, citizenship, age, enrollment, clearance, travel, and housing terms."
+          },
+          "external_student_eligibility": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.usajobs.gov/job/879740200",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-summer-2027",
+            "note": "The official USAJOBS announcement confirms the September 1 close, Spring and Summer 2027 terms, pay, 60-credit minimum, 3.2 GPA, citizenship, age, enrollment, clearance, travel, and housing terms."
+          },
+          "class_year": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.usajobs.gov/job/879740200",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-summer-2027",
+            "note": "The official USAJOBS announcement confirms the September 1 close, Spring and Summer 2027 terms, pay, 60-credit minimum, 3.2 GPA, citizenship, age, enrollment, clearance, travel, and housing terms."
+          },
+          "major": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.usajobs.gov/job/879740200",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-summer-2027",
+            "note": "The official USAJOBS announcement confirms the September 1 close, Spring and Summer 2027 terms, pay, 60-credit minimum, 3.2 GPA, citizenship, age, enrollment, clearance, travel, and housing terms."
+          },
+          "citizenship": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.usajobs.gov/job/879740200",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-summer-2027",
+            "note": "The official USAJOBS announcement confirms the September 1 close, Spring and Summer 2027 terms, pay, 60-credit minimum, 3.2 GPA, citizenship, age, enrollment, clearance, travel, and housing terms."
+          },
+          "residency": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.usajobs.gov/job/879740200",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-summer-2027",
+            "note": "The official USAJOBS announcement confirms the September 1 close, Spring and Summer 2027 terms, pay, 60-credit minimum, 3.2 GPA, citizenship, age, enrollment, clearance, travel, and housing terms."
+          },
+          "gpa": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.usajobs.gov/job/879740200",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-summer-2027",
+            "note": "The official USAJOBS announcement confirms the September 1 close, Spring and Summer 2027 terms, pay, 60-credit minimum, 3.2 GPA, citizenship, age, enrollment, clearance, travel, and housing terms."
+          },
+          "age": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.usajobs.gov/job/879740200",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-summer-2027",
+            "note": "The official USAJOBS announcement confirms the September 1 close, Spring and Summer 2027 terms, pay, 60-credit minimum, 3.2 GPA, citizenship, age, enrollment, clearance, travel, and housing terms."
+          },
+          "financial_need": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.usajobs.gov/job/879740200",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-summer-2027",
+            "note": "The official USAJOBS announcement confirms the September 1 close, Spring and Summer 2027 terms, pay, 60-credit minimum, 3.2 GPA, citizenship, age, enrollment, clearance, travel, and housing terms."
+          },
+          "invitation": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.usajobs.gov/job/879740200",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-summer-2027",
+            "note": "The official USAJOBS announcement confirms the September 1 close, Spring and Summer 2027 terms, pay, 60-credit minimum, 3.2 GPA, citizenship, age, enrollment, clearance, travel, and housing terms."
+          },
+          "application_status": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.usajobs.gov/job/879740200",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-summer-2027",
+            "note": "The official USAJOBS announcement confirms the September 1 close, Spring and Summer 2027 terms, pay, 60-credit minimum, 3.2 GPA, citizenship, age, enrollment, clearance, travel, and housing terms."
+          },
+          "deadline": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.usajobs.gov/job/879740200",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-summer-2027",
+            "note": "The official USAJOBS announcement confirms the September 1 close, Spring and Summer 2027 terms, pay, 60-credit minimum, 3.2 GPA, citizenship, age, enrollment, clearance, travel, and housing terms."
+          }
+        }
+      },
+      "sourceReferences": [
+        {
+          "url": "https://www.usajobs.gov/job/879740200",
+          "authority": "official_program",
+          "verifiedAt": "2026-08-20",
+          "cycle": "spring-summer-2027",
+          "supports": [
+            "academic_level",
+            "institution_type",
+            "enrollment_status",
+            "school_restriction",
+            "external_student_eligibility",
+            "class_year",
+            "major",
+            "citizenship",
+            "residency",
+            "gpa",
+            "age",
+            "financial_need",
+            "invitation",
+            "application_status",
+            "deadline"
+          ],
+          "note": "The official USAJOBS announcement confirms the September 1 close, Spring and Summer 2027 terms, pay, 60-credit minimum, 3.2 GPA, citizenship, age, enrollment, clearance, travel, and housing terms."
+        }
+      ],
+      "acquisition": {
+        "batchId": "institutional-mining-2026-08-wave-5",
+        "acquiredAt": "2026-08-20",
+        "reviewCadenceDays": 45,
+        "nextReviewAt": "2026-09-02",
+        "freshnessModel": "fixed_cycle"
+      },
+      "verification": {
+        "status": "verified",
+        "lastVerifiedAt": "2026-08-20",
+        "verifiedCycle": "spring-summer-2027",
+        "officialSourceUrl": "https://www.usajobs.gov/job/879740200",
+        "applicationUrlVerified": true,
+        "deadlineVerified": true,
+        "eligibilityVerified": true,
+        "sourceReachable": true,
+        "sourceAuditStatus": 200,
+        "notes": "Upper-division ranking is intentionally narrower than the announcement's credit-based rule because UnlockED does not store earned credits."
+      },
+      "lifecycle": {
+        "schemaVersion": 1,
+        "migrationId": "institutional-mining-2026-08-wave-5",
+        "identity": {
+          "identityId": "career--state-department-student-internship-2027",
+          "aliases": [
+            "U.S. Department of State Student Internship Program"
+          ]
+        },
+        "cycle": {
+          "cycleId": "spring-summer-2027",
+          "label": "spring-summer-2027"
+        },
+        "state": "open",
+        "confidence": "confirmed",
+        "reason": "official_status_open",
+        "effectiveAt": "2026-08-20T00:00:00.000Z",
+        "finalDeadline": {
+          "kind": "final_deadline",
+          "sourceValue": "2026-09-01",
+          "normalizedValue": "2026-09-01",
+          "precision": "date",
+          "estimated": false,
+          "verifiedAt": "2026-08-14",
+          "sourceUrl": "https://www.usajobs.gov/job/879740200"
+        },
+        "recurrence": {
+          "type": "annual",
+          "confidence": "confirmed",
+          "officialStatement": "Upper-division ranking is intentionally narrower than the announcement's credit-based rule because UnlockED does not store earned credits."
+        },
+        "evidence": [
+          {
+            "id": "career--state-department-student-internship-2027:spring-summer-2027:official:1",
+            "source": "official_application_page",
+            "observedAt": "2026-08-20T00:00:00.000Z",
+            "value": "The official USAJOBS announcement confirms the September 1 close, Spring and Summer 2027 terms, pay, 60-credit minimum, 3.2 GPA, citizenship, age, enrollment, clearance, travel, and housing terms.",
+            "sourceUrl": "https://www.usajobs.gov/job/879740200",
+            "confidence": "confirmed"
+          }
+        ],
+        "events": [],
+        "sourceChecks": [
+          {
+            "url": "https://www.usajobs.gov/job/879740200",
+            "checkedAt": "2026-08-20T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          }
+        ],
+        "fieldVerifiedAt": {
+          "state": "2026-08-20",
+          "deadline": "2026-08-20",
+          "applicationUrl": "2026-08-20",
+          "eligibility": "2026-08-20",
+          "award": "2026-08-20",
+          "location": "2026-08-20",
+          "programDates": "2026-08-20",
+          "description": "2026-08-20"
+        },
+        "review": {
+          "note": "Upper-division ranking is intentionally narrower than the announcement's credit-based rule because UnlockED does not store earned credits.",
+          "reviewedAt": "2026-08-20T00:00:00.000Z",
+          "reviewer": "UnlockED catalog acquisition"
+        }
+      }
+    }
+  },
+  {
+    "id": "research--netl-zeolitic-filter-materials-2026",
+    "title": "NETL Zeolitic Filter Materials Research",
+    "type": "Research",
+    "category": "National Laboratory Research",
+    "description": "A paid project applying additive manufacturing and materials research to high-performance zeolitic filters at the National Energy Technology Laboratory.",
+    "organization": "National Energy Technology Laboratory",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "Chemistry",
+      "Materials Science",
+      "Chemical Engineering",
+      "Mechanical Engineering",
+      "Environmental Engineering",
+      "Computer Science",
+      "Data Science",
+      "Physics"
+    ],
+    "academic_years": [
+      "First year",
+      "Second year",
+      "Third year",
+      "Fourth year"
+    ],
+    "eligibility": "Undergraduates in good standing at regionally accredited institutions, including community-college and technical-school students, with at least a 2.5 GPA, age 18 or older, and health insurance before appointment.",
+    "estimated_value": 775,
+    "application_deadline": "2026-12-31",
+    "recurring": true,
+    "location": "Pittsburgh, PA",
+    "remote": false,
+    "paid": true,
+    "tags": [
+      "Research",
+      "Materials Science",
+      "Additive Manufacturing",
+      "Energy",
+      "Community College",
+      "Paid"
+    ],
+    "official_source": "https://www.zintellect.com/Opportunity/Details/NETL-PIP-2026-Lopano",
+    "official_source_url": "https://www.zintellect.com/Opportunity/Details/NETL-PIP-2026-Lopano",
+    "verification_status": "verified",
+    "last_verified": "2026-08-20",
+    "deadline": "2026-12-31",
+    "reviewer_notes": "Citizenship ranking is intentionally conservative; the official posting remains authoritative for appointment-specific immigration documentation.",
+    "estimated_value_note": "$775.50 per week for undergraduate participants; duration varies by appointment.",
+    "date_added": "2026-08-20",
+    "difficulty": "Competitive",
+    "prestige": "Very High",
+    "icon": "research",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "deadlineType": "fixed",
+      "compensation": "Paid",
+      "workMode": "In Person",
+      "professor": null,
+      "department": "National Energy Technology Laboratory",
+      "researchArea": "National Laboratory Research",
+      "stipendAmount": 775.5,
+      "semesters": [
+        "2026"
+      ],
+      "applicationRequirements": [
+        "Zintellect application",
+        "Resume",
+        "Transcript",
+        "Goals and skills statement",
+        "Two recommendations",
+        "Health insurance before appointment"
+      ],
+      "estimatedApplicationTime": "3-5 hours",
+      "skillsGained": [
+        "Additive Manufacturing",
+        "Materials Characterization",
+        "Laboratory Research",
+        "Data Analysis"
+      ],
+      "careerPaths": [
+        "Materials Science",
+        "Chemical Engineering",
+        "Energy Research",
+        "National Laboratories"
+      ],
+      "expectedROI": "Paid project-specific national-laboratory research with unusually broad undergraduate and community-college access.",
+      "recommendedMajors": [
+        "Chemistry",
+        "Materials Science",
+        "Chemical Engineering",
+        "Mechanical Engineering",
+        "Environmental Engineering",
+        "Computer Science",
+        "Data Science",
+        "Physics"
+      ],
+      "recommendedClassYears": [
+        "First year",
+        "Second year",
+        "Third year",
+        "Fourth year"
+      ],
+      "eligibilityRules": {
+        "educationLevels": [
+          "undergraduate",
+          "community_college"
+        ],
+        "canonicalInstitutionTypes": [
+          "community_college",
+          "four_year_college",
+          "university",
+          "liberal_arts_college"
+        ],
+        "canonicalEnrollmentStatuses": [
+          "currently_enrolled"
+        ],
+        "acceptsExternalStudents": true,
+        "classYears": [
+          "First year",
+          "Second year",
+          "Third year",
+          "Fourth year"
+        ],
+        "majors": [
+          "Chemistry",
+          "Materials Science",
+          "Chemical Engineering",
+          "Mechanical Engineering",
+          "Environmental Engineering",
+          "Computer Science",
+          "Data Science",
+          "Physics"
+        ],
+        "citizenshipStatuses": [
+          "us_citizen"
+        ],
+        "minimumGpa": 2.5,
+        "ageRange": {
+          "minimum": 18
+        },
+        "transferEligibility": "general_undergraduate",
+        "availability": "open",
+        "recommendationEligibilityStatus": "eligible_for_ranking",
+        "evidence": [
+          "This project is distinct from the general NETL PIP pool and has its own application and verified deadline."
+        ],
+        "fieldEvidence": {
+          "academic_level": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.zintellect.com/Opportunity/Details/NETL-PIP-2026-Lopano",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2026",
+            "note": "The official ORISE posting confirms the December 31 deadline, project scope, undergraduate and community-college access, 2.5 GPA, age 18, disciplines, location, and $775.50 weekly undergraduate stipend."
+          },
+          "institution_type": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.zintellect.com/Opportunity/Details/NETL-PIP-2026-Lopano",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2026",
+            "note": "The official ORISE posting confirms the December 31 deadline, project scope, undergraduate and community-college access, 2.5 GPA, age 18, disciplines, location, and $775.50 weekly undergraduate stipend."
+          },
+          "enrollment_status": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.zintellect.com/Opportunity/Details/NETL-PIP-2026-Lopano",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2026",
+            "note": "The official ORISE posting confirms the December 31 deadline, project scope, undergraduate and community-college access, 2.5 GPA, age 18, disciplines, location, and $775.50 weekly undergraduate stipend."
+          },
+          "school_restriction": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.zintellect.com/Opportunity/Details/NETL-PIP-2026-Lopano",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2026",
+            "note": "The official ORISE posting confirms the December 31 deadline, project scope, undergraduate and community-college access, 2.5 GPA, age 18, disciplines, location, and $775.50 weekly undergraduate stipend."
+          },
+          "external_student_eligibility": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.zintellect.com/Opportunity/Details/NETL-PIP-2026-Lopano",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2026",
+            "note": "The official ORISE posting confirms the December 31 deadline, project scope, undergraduate and community-college access, 2.5 GPA, age 18, disciplines, location, and $775.50 weekly undergraduate stipend."
+          },
+          "class_year": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.zintellect.com/Opportunity/Details/NETL-PIP-2026-Lopano",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2026",
+            "note": "The official ORISE posting confirms the December 31 deadline, project scope, undergraduate and community-college access, 2.5 GPA, age 18, disciplines, location, and $775.50 weekly undergraduate stipend."
+          },
+          "major": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.zintellect.com/Opportunity/Details/NETL-PIP-2026-Lopano",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2026",
+            "note": "The official ORISE posting confirms the December 31 deadline, project scope, undergraduate and community-college access, 2.5 GPA, age 18, disciplines, location, and $775.50 weekly undergraduate stipend."
+          },
+          "citizenship": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.zintellect.com/Opportunity/Details/NETL-PIP-2026-Lopano",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2026",
+            "note": "The official ORISE posting confirms the December 31 deadline, project scope, undergraduate and community-college access, 2.5 GPA, age 18, disciplines, location, and $775.50 weekly undergraduate stipend."
+          },
+          "residency": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.zintellect.com/Opportunity/Details/NETL-PIP-2026-Lopano",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2026",
+            "note": "The official ORISE posting confirms the December 31 deadline, project scope, undergraduate and community-college access, 2.5 GPA, age 18, disciplines, location, and $775.50 weekly undergraduate stipend."
+          },
+          "gpa": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.zintellect.com/Opportunity/Details/NETL-PIP-2026-Lopano",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2026",
+            "note": "The official ORISE posting confirms the December 31 deadline, project scope, undergraduate and community-college access, 2.5 GPA, age 18, disciplines, location, and $775.50 weekly undergraduate stipend."
+          },
+          "age": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.zintellect.com/Opportunity/Details/NETL-PIP-2026-Lopano",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2026",
+            "note": "The official ORISE posting confirms the December 31 deadline, project scope, undergraduate and community-college access, 2.5 GPA, age 18, disciplines, location, and $775.50 weekly undergraduate stipend."
+          },
+          "financial_need": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.zintellect.com/Opportunity/Details/NETL-PIP-2026-Lopano",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2026",
+            "note": "The official ORISE posting confirms the December 31 deadline, project scope, undergraduate and community-college access, 2.5 GPA, age 18, disciplines, location, and $775.50 weekly undergraduate stipend."
+          },
+          "invitation": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.zintellect.com/Opportunity/Details/NETL-PIP-2026-Lopano",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2026",
+            "note": "The official ORISE posting confirms the December 31 deadline, project scope, undergraduate and community-college access, 2.5 GPA, age 18, disciplines, location, and $775.50 weekly undergraduate stipend."
+          },
+          "application_status": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.zintellect.com/Opportunity/Details/NETL-PIP-2026-Lopano",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2026",
+            "note": "The official ORISE posting confirms the December 31 deadline, project scope, undergraduate and community-college access, 2.5 GPA, age 18, disciplines, location, and $775.50 weekly undergraduate stipend."
+          },
+          "deadline": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.zintellect.com/Opportunity/Details/NETL-PIP-2026-Lopano",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2026",
+            "note": "The official ORISE posting confirms the December 31 deadline, project scope, undergraduate and community-college access, 2.5 GPA, age 18, disciplines, location, and $775.50 weekly undergraduate stipend."
+          }
+        }
+      },
+      "sourceReferences": [
+        {
+          "url": "https://www.zintellect.com/Opportunity/Details/NETL-PIP-2026-Lopano",
+          "authority": "official_program",
+          "verifiedAt": "2026-08-20",
+          "cycle": "2026",
+          "supports": [
+            "academic_level",
+            "institution_type",
+            "enrollment_status",
+            "school_restriction",
+            "external_student_eligibility",
+            "class_year",
+            "major",
+            "citizenship",
+            "residency",
+            "gpa",
+            "age",
+            "financial_need",
+            "invitation",
+            "application_status",
+            "deadline"
+          ],
+          "note": "The official ORISE posting confirms the December 31 deadline, project scope, undergraduate and community-college access, 2.5 GPA, age 18, disciplines, location, and $775.50 weekly undergraduate stipend."
+        }
+      ],
+      "acquisition": {
+        "batchId": "institutional-mining-2026-08-wave-5",
+        "acquiredAt": "2026-08-20",
+        "reviewCadenceDays": 45,
+        "nextReviewAt": "2027-01-01",
+        "freshnessModel": "fixed_cycle"
+      },
+      "verification": {
+        "status": "verified",
+        "lastVerifiedAt": "2026-08-20",
+        "verifiedCycle": "2026",
+        "officialSourceUrl": "https://www.zintellect.com/Opportunity/Details/NETL-PIP-2026-Lopano",
+        "applicationUrlVerified": true,
+        "deadlineVerified": true,
+        "eligibilityVerified": true,
+        "sourceReachable": true,
+        "sourceAuditStatus": 200,
+        "notes": "Citizenship ranking is intentionally conservative; the official posting remains authoritative for appointment-specific immigration documentation."
+      },
+      "lifecycle": {
+        "schemaVersion": 1,
+        "migrationId": "institutional-mining-2026-08-wave-5",
+        "identity": {
+          "identityId": "research--netl-zeolitic-filter-materials-2026",
+          "aliases": [
+            "NETL Additive Manufacturing of Zeolitic Filter Materials",
+            "NETL-PIP-2026-Lopano"
+          ]
+        },
+        "cycle": {
+          "cycleId": "2026",
+          "label": "2026"
+        },
+        "state": "open",
+        "confidence": "confirmed",
+        "reason": "official_status_open",
+        "effectiveAt": "2026-08-20T00:00:00.000Z",
+        "finalDeadline": {
+          "kind": "final_deadline",
+          "sourceValue": "2026-12-31",
+          "normalizedValue": "2026-12-31",
+          "precision": "date",
+          "estimated": false,
+          "verifiedAt": "2026-08-14",
+          "sourceUrl": "https://www.zintellect.com/Opportunity/Details/NETL-PIP-2026-Lopano"
+        },
+        "recurrence": {
+          "type": "annual",
+          "confidence": "confirmed",
+          "officialStatement": "Citizenship ranking is intentionally conservative; the official posting remains authoritative for appointment-specific immigration documentation."
+        },
+        "evidence": [
+          {
+            "id": "research--netl-zeolitic-filter-materials-2026:2026:official:1",
+            "source": "official_application_page",
+            "observedAt": "2026-08-20T00:00:00.000Z",
+            "value": "The official ORISE posting confirms the December 31 deadline, project scope, undergraduate and community-college access, 2.5 GPA, age 18, disciplines, location, and $775.50 weekly undergraduate stipend.",
+            "sourceUrl": "https://www.zintellect.com/Opportunity/Details/NETL-PIP-2026-Lopano",
+            "confidence": "confirmed"
+          }
+        ],
+        "events": [],
+        "sourceChecks": [
+          {
+            "url": "https://www.zintellect.com/Opportunity/Details/NETL-PIP-2026-Lopano",
+            "checkedAt": "2026-08-20T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          }
+        ],
+        "fieldVerifiedAt": {
+          "state": "2026-08-20",
+          "deadline": "2026-08-20",
+          "applicationUrl": "2026-08-20",
+          "eligibility": "2026-08-20",
+          "award": "2026-08-20",
+          "location": "2026-08-20",
+          "programDates": "2026-08-20",
+          "description": "2026-08-20"
+        },
+        "review": {
+          "note": "Citizenship ranking is intentionally conservative; the official posting remains authoritative for appointment-specific immigration documentation.",
+          "reviewedAt": "2026-08-20T00:00:00.000Z",
+          "reviewer": "UnlockED catalog acquisition"
+        }
+      }
+    }
+  },
+  {
+    "id": "career--library-congress-tps-spring-2027",
+    "title": "Library of Congress Teaching with Primary Sources Internship",
+    "type": "Career",
+    "category": "Education & Libraries",
+    "description": "A Spring 2027 internship developing primary-source learning materials for young people, families, and teachers, with one remote and one onsite placement.",
+    "organization": "Library of Congress",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "Education",
+      "History",
+      "Library Science",
+      "Museum Studies",
+      "English",
+      "Political Science",
+      "Digital Humanities"
+    ],
+    "academic_years": [
+      "First year",
+      "Second year",
+      "Third year",
+      "Fourth year"
+    ],
+    "eligibility": "U.S. citizens or permanent residents age 18 or older who are undergraduate or graduate students in good standing, or recent graduates within six months, and have an interest in primary-source learning materials.",
+    "estimated_value": null,
+    "application_deadline": "2026-10-19",
+    "recurring": true,
+    "location": "Remote or Washington, DC",
+    "remote": null,
+    "paid": null,
+    "tags": [
+      "Internship",
+      "Education",
+      "History",
+      "Libraries",
+      "Remote Option"
+    ],
+    "official_source": "https://www.loc.gov/item/internships/teaching-with-primary-sources-tps-internship-program/",
+    "official_source_url": "https://www.loc.gov/item/internships/teaching-with-primary-sources-tps-internship-program/",
+    "verification_status": "verified",
+    "last_verified": "2026-08-20",
+    "deadline": "2026-10-19",
+    "reviewer_notes": "Compensation remains unknown because the official notice does not state a stipend or wage.",
+    "estimated_value_note": "Unknown - the official program notice does not publish compensation.",
+    "date_added": "2026-08-20",
+    "difficulty": "Competitive",
+    "prestige": "Very High",
+    "icon": "career",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "deadlineType": "fixed",
+      "compensation": "Varies",
+      "workMode": "Varies",
+      "internshipDuration": "Spring semester",
+      "applicationRequirements": [
+        "Resume",
+        "250-word statement of purpose",
+        "100-word project idea",
+        "Transcript",
+        "Two references",
+        "Availability preference"
+      ],
+      "estimatedApplicationTime": "3-5 hours",
+      "skillsGained": [
+        "Curriculum Design",
+        "Archival Research",
+        "Digital Humanities",
+        "Writing"
+      ],
+      "careerPaths": [
+        "Education",
+        "Libraries",
+        "Museums",
+        "Public History"
+      ],
+      "expectedROI": "Direct experience turning national collections into usable educational materials, with a remote pathway available.",
+      "recommendedClassYears": [
+        "First year",
+        "Second year",
+        "Third year",
+        "Fourth year"
+      ],
+      "eligibilityRules": {
+        "educationLevels": [
+          "undergraduate",
+          "community_college"
+        ],
+        "canonicalInstitutionTypes": [
+          "community_college",
+          "four_year_college",
+          "university",
+          "liberal_arts_college"
+        ],
+        "canonicalEnrollmentStatuses": [
+          "currently_enrolled"
+        ],
+        "acceptsExternalStudents": true,
+        "classYears": [
+          "First year",
+          "Second year",
+          "Third year",
+          "Fourth year"
+        ],
+        "majors": [
+          "Education",
+          "History",
+          "Library Science",
+          "Museum Studies",
+          "English",
+          "Political Science",
+          "Digital Humanities"
+        ],
+        "citizenshipStatuses": [
+          "us_citizen",
+          "permanent_resident"
+        ],
+        "ageRange": {
+          "minimum": 18
+        },
+        "transferEligibility": "general_undergraduate",
+        "availability": "open",
+        "recommendationEligibilityStatus": "eligible_for_ranking",
+        "evidence": [
+          "The official notice positively proves every structured ranking restriction."
+        ],
+        "fieldEvidence": {
+          "academic_level": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.loc.gov/item/internships/teaching-with-primary-sources-tps-internship-program/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official Library notice confirms the August 10-October 19 application window, Spring 2027 dates, citizenship or residency, age, enrollment, good-standing, remote/onsite options, and required materials."
+          },
+          "institution_type": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.loc.gov/item/internships/teaching-with-primary-sources-tps-internship-program/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official Library notice confirms the August 10-October 19 application window, Spring 2027 dates, citizenship or residency, age, enrollment, good-standing, remote/onsite options, and required materials."
+          },
+          "enrollment_status": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.loc.gov/item/internships/teaching-with-primary-sources-tps-internship-program/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official Library notice confirms the August 10-October 19 application window, Spring 2027 dates, citizenship or residency, age, enrollment, good-standing, remote/onsite options, and required materials."
+          },
+          "school_restriction": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.loc.gov/item/internships/teaching-with-primary-sources-tps-internship-program/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official Library notice confirms the August 10-October 19 application window, Spring 2027 dates, citizenship or residency, age, enrollment, good-standing, remote/onsite options, and required materials."
+          },
+          "external_student_eligibility": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.loc.gov/item/internships/teaching-with-primary-sources-tps-internship-program/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official Library notice confirms the August 10-October 19 application window, Spring 2027 dates, citizenship or residency, age, enrollment, good-standing, remote/onsite options, and required materials."
+          },
+          "class_year": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.loc.gov/item/internships/teaching-with-primary-sources-tps-internship-program/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official Library notice confirms the August 10-October 19 application window, Spring 2027 dates, citizenship or residency, age, enrollment, good-standing, remote/onsite options, and required materials."
+          },
+          "major": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.loc.gov/item/internships/teaching-with-primary-sources-tps-internship-program/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official Library notice confirms the August 10-October 19 application window, Spring 2027 dates, citizenship or residency, age, enrollment, good-standing, remote/onsite options, and required materials."
+          },
+          "citizenship": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.loc.gov/item/internships/teaching-with-primary-sources-tps-internship-program/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official Library notice confirms the August 10-October 19 application window, Spring 2027 dates, citizenship or residency, age, enrollment, good-standing, remote/onsite options, and required materials."
+          },
+          "residency": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.loc.gov/item/internships/teaching-with-primary-sources-tps-internship-program/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official Library notice confirms the August 10-October 19 application window, Spring 2027 dates, citizenship or residency, age, enrollment, good-standing, remote/onsite options, and required materials."
+          },
+          "gpa": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.loc.gov/item/internships/teaching-with-primary-sources-tps-internship-program/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official Library notice confirms the August 10-October 19 application window, Spring 2027 dates, citizenship or residency, age, enrollment, good-standing, remote/onsite options, and required materials."
+          },
+          "age": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.loc.gov/item/internships/teaching-with-primary-sources-tps-internship-program/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official Library notice confirms the August 10-October 19 application window, Spring 2027 dates, citizenship or residency, age, enrollment, good-standing, remote/onsite options, and required materials."
+          },
+          "financial_need": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.loc.gov/item/internships/teaching-with-primary-sources-tps-internship-program/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official Library notice confirms the August 10-October 19 application window, Spring 2027 dates, citizenship or residency, age, enrollment, good-standing, remote/onsite options, and required materials."
+          },
+          "invitation": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.loc.gov/item/internships/teaching-with-primary-sources-tps-internship-program/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official Library notice confirms the August 10-October 19 application window, Spring 2027 dates, citizenship or residency, age, enrollment, good-standing, remote/onsite options, and required materials."
+          },
+          "application_status": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.loc.gov/item/internships/teaching-with-primary-sources-tps-internship-program/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official Library notice confirms the August 10-October 19 application window, Spring 2027 dates, citizenship or residency, age, enrollment, good-standing, remote/onsite options, and required materials."
+          },
+          "deadline": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.loc.gov/item/internships/teaching-with-primary-sources-tps-internship-program/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official Library notice confirms the August 10-October 19 application window, Spring 2027 dates, citizenship or residency, age, enrollment, good-standing, remote/onsite options, and required materials."
+          }
+        }
+      },
+      "sourceReferences": [
+        {
+          "url": "https://www.loc.gov/item/internships/teaching-with-primary-sources-tps-internship-program/",
+          "authority": "official_program",
+          "verifiedAt": "2026-08-20",
+          "cycle": "spring-2027",
+          "supports": [
+            "academic_level",
+            "institution_type",
+            "enrollment_status",
+            "school_restriction",
+            "external_student_eligibility",
+            "class_year",
+            "major",
+            "citizenship",
+            "residency",
+            "gpa",
+            "age",
+            "financial_need",
+            "invitation",
+            "application_status",
+            "deadline"
+          ],
+          "note": "The official Library notice confirms the August 10-October 19 application window, Spring 2027 dates, citizenship or residency, age, enrollment, good-standing, remote/onsite options, and required materials."
+        }
+      ],
+      "acquisition": {
+        "batchId": "institutional-mining-2026-08-wave-5",
+        "acquiredAt": "2026-08-20",
+        "reviewCadenceDays": 45,
+        "nextReviewAt": "2026-10-20",
+        "freshnessModel": "fixed_cycle"
+      },
+      "verification": {
+        "status": "verified",
+        "lastVerifiedAt": "2026-08-20",
+        "verifiedCycle": "spring-2027",
+        "officialSourceUrl": "https://www.loc.gov/item/internships/teaching-with-primary-sources-tps-internship-program/",
+        "applicationUrlVerified": true,
+        "deadlineVerified": true,
+        "eligibilityVerified": true,
+        "sourceReachable": true,
+        "sourceAuditStatus": 200,
+        "notes": "Compensation remains unknown because the official notice does not state a stipend or wage."
+      },
+      "lifecycle": {
+        "schemaVersion": 1,
+        "migrationId": "institutional-mining-2026-08-wave-5",
+        "identity": {
+          "identityId": "career--library-congress-tps-spring-2027",
+          "aliases": [
+            "Library of Congress TPS Internship"
+          ]
+        },
+        "cycle": {
+          "cycleId": "spring-2027",
+          "label": "spring-2027"
+        },
+        "state": "open",
+        "confidence": "confirmed",
+        "reason": "official_status_open",
+        "effectiveAt": "2026-08-20T00:00:00.000Z",
+        "finalDeadline": {
+          "kind": "final_deadline",
+          "sourceValue": "2026-10-19",
+          "normalizedValue": "2026-10-19",
+          "precision": "date",
+          "estimated": false,
+          "verifiedAt": "2026-08-14",
+          "sourceUrl": "https://www.loc.gov/item/internships/teaching-with-primary-sources-tps-internship-program/"
+        },
+        "recurrence": {
+          "type": "annual",
+          "confidence": "confirmed",
+          "officialStatement": "Compensation remains unknown because the official notice does not state a stipend or wage."
+        },
+        "evidence": [
+          {
+            "id": "career--library-congress-tps-spring-2027:spring-2027:official:1",
+            "source": "official_application_page",
+            "observedAt": "2026-08-20T00:00:00.000Z",
+            "value": "The official Library notice confirms the August 10-October 19 application window, Spring 2027 dates, citizenship or residency, age, enrollment, good-standing, remote/onsite options, and required materials.",
+            "sourceUrl": "https://www.loc.gov/item/internships/teaching-with-primary-sources-tps-internship-program/",
+            "confidence": "confirmed"
+          }
+        ],
+        "events": [],
+        "sourceChecks": [
+          {
+            "url": "https://www.loc.gov/item/internships/teaching-with-primary-sources-tps-internship-program/",
+            "checkedAt": "2026-08-20T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          }
+        ],
+        "fieldVerifiedAt": {
+          "state": "2026-08-20",
+          "deadline": "2026-08-20",
+          "applicationUrl": "2026-08-20",
+          "eligibility": "2026-08-20",
+          "award": "2026-08-20",
+          "location": "2026-08-20",
+          "programDates": "2026-08-20",
+          "description": "2026-08-20"
+        },
+        "review": {
+          "note": "Compensation remains unknown because the official notice does not state a stipend or wage.",
+          "reviewedAt": "2026-08-20T00:00:00.000Z",
+          "reviewer": "UnlockED catalog acquisition"
+        }
+      }
+    }
+  },
+  {
+    "id": "career--world-bank-treasury-summer-internship-2027",
+    "title": "World Bank Treasury Summer Internship",
+    "type": "Career",
+    "category": "Finance Internships",
+    "description": "A paid ten-week Washington internship rotating through three World Bank Treasury teams in capital markets, asset management, financial technology, and related functions.",
+    "organization": "World Bank Treasury",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "Finance",
+      "Economics",
+      "Business",
+      "Accounting",
+      "Mathematics",
+      "Statistics",
+      "Data Science"
+    ],
+    "academic_years": [
+      "Third year"
+    ],
+    "eligibility": "Students in the second-to-last year of a four-year-equivalent undergraduate degree who will graduate between December 2027 and September 2028, are in good academic standing, can work full time in Washington for the full program, and will not hold concurrent employment or another internship.",
+    "estimated_value": 9080,
+    "application_deadline": null,
+    "recurring": true,
+    "location": "Washington, DC",
+    "remote": false,
+    "paid": true,
+    "tags": [
+      "Internship",
+      "Finance",
+      "Economics",
+      "Capital Markets",
+      "International",
+      "Paid"
+    ],
+    "official_source": "https://treasury.worldbank.org/en/about/unit/treasury/about/student-and-graduate-careers",
+    "official_source_url": "https://treasury.worldbank.org/en/about/unit/treasury/about/student-and-graduate-careers",
+    "verification_status": "verified",
+    "last_verified": "2026-08-20",
+    "deadline": null,
+    "reviewer_notes": "The official page exposes a live 2027 application but no explicit closing date, so lifecycle is rolling and reviewed monthly.",
+    "estimated_value_note": "At least $9,080 at the official $22.70 hourly non-U.S. rate for 400 hours; the listed U.S. rate is higher.",
+    "date_added": "2026-08-20",
+    "difficulty": "Highly Competitive",
+    "prestige": "Very High",
+    "icon": "career",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "deadlineType": "rolling",
+      "compensation": "Paid",
+      "workMode": "In Person",
+      "internshipDuration": "10 weeks",
+      "applicationRequirements": [
+        "One-page cover letter",
+        "One-page resume",
+        "Optional half-page personal statement",
+        "Availability for 400 hours"
+      ],
+      "estimatedApplicationTime": "3-5 hours",
+      "skillsGained": [
+        "Capital Markets",
+        "Financial Analysis",
+        "Data Analysis",
+        "Presentations"
+      ],
+      "careerPaths": [
+        "Investment Banking",
+        "Asset Management",
+        "Financial Technology",
+        "Development Finance"
+      ],
+      "expectedROI": "Paid rotational finance experience with visa sponsorship and a possible pathway to the Treasury Junior Analyst program.",
+      "recommendedMajors": [
+        "Finance",
+        "Economics",
+        "Business",
+        "Accounting",
+        "Mathematics",
+        "Statistics",
+        "Data Science"
+      ],
+      "recommendedClassYears": [
+        "Third year"
+      ],
+      "eligibilityRules": {
+        "educationLevels": [
+          "undergraduate"
+        ],
+        "canonicalInstitutionTypes": [
+          "four_year_college",
+          "university",
+          "liberal_arts_college"
+        ],
+        "canonicalEnrollmentStatuses": [
+          "currently_enrolled"
+        ],
+        "acceptsExternalStudents": true,
+        "classYears": [
+          "Third year"
+        ],
+        "majors": [
+          "Finance",
+          "Economics",
+          "Business",
+          "Accounting",
+          "Mathematics",
+          "Statistics",
+          "Data Science"
+        ],
+        "citizenshipStatuses": [
+          "international_allowed"
+        ],
+        "transferEligibility": "unknown",
+        "availability": "rolling",
+        "recommendationEligibilityStatus": "eligible_for_ranking",
+        "evidence": [
+          "The official live application proves international access and the exact rising-senior graduation window."
+        ],
+        "fieldEvidence": {
+          "academic_level": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://treasury.worldbank.org/en/about/unit/treasury/about/student-and-graduate-careers",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "summer-2027",
+            "note": "The official page states that 2027 applications are open and confirms degree timing, graduation window, work restrictions, dates, location, 400 paid hours, visa sponsorship, and application materials."
+          },
+          "institution_type": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://treasury.worldbank.org/en/about/unit/treasury/about/student-and-graduate-careers",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "summer-2027",
+            "note": "The official page states that 2027 applications are open and confirms degree timing, graduation window, work restrictions, dates, location, 400 paid hours, visa sponsorship, and application materials."
+          },
+          "enrollment_status": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://treasury.worldbank.org/en/about/unit/treasury/about/student-and-graduate-careers",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "summer-2027",
+            "note": "The official page states that 2027 applications are open and confirms degree timing, graduation window, work restrictions, dates, location, 400 paid hours, visa sponsorship, and application materials."
+          },
+          "school_restriction": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://treasury.worldbank.org/en/about/unit/treasury/about/student-and-graduate-careers",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "summer-2027",
+            "note": "The official page states that 2027 applications are open and confirms degree timing, graduation window, work restrictions, dates, location, 400 paid hours, visa sponsorship, and application materials."
+          },
+          "external_student_eligibility": {
+            "state": "verified_open",
+            "sourceUrl": "https://treasury.worldbank.org/en/about/unit/treasury/about/student-and-graduate-careers",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "summer-2027",
+            "note": "The official page states that 2027 applications are open and confirms degree timing, graduation window, work restrictions, dates, location, 400 paid hours, visa sponsorship, and application materials."
+          },
+          "class_year": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://treasury.worldbank.org/en/about/unit/treasury/about/student-and-graduate-careers",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "summer-2027",
+            "note": "The official page states that 2027 applications are open and confirms degree timing, graduation window, work restrictions, dates, location, 400 paid hours, visa sponsorship, and application materials."
+          },
+          "major": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://treasury.worldbank.org/en/about/unit/treasury/about/student-and-graduate-careers",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "summer-2027",
+            "note": "The official page states that 2027 applications are open and confirms degree timing, graduation window, work restrictions, dates, location, 400 paid hours, visa sponsorship, and application materials."
+          },
+          "citizenship": {
+            "state": "verified_open",
+            "sourceUrl": "https://treasury.worldbank.org/en/about/unit/treasury/about/student-and-graduate-careers",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "summer-2027",
+            "note": "The official page states that 2027 applications are open and confirms degree timing, graduation window, work restrictions, dates, location, 400 paid hours, visa sponsorship, and application materials."
+          },
+          "residency": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://treasury.worldbank.org/en/about/unit/treasury/about/student-and-graduate-careers",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "summer-2027",
+            "note": "The official page states that 2027 applications are open and confirms degree timing, graduation window, work restrictions, dates, location, 400 paid hours, visa sponsorship, and application materials."
+          },
+          "gpa": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://treasury.worldbank.org/en/about/unit/treasury/about/student-and-graduate-careers",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "summer-2027",
+            "note": "The official page states that 2027 applications are open and confirms degree timing, graduation window, work restrictions, dates, location, 400 paid hours, visa sponsorship, and application materials."
+          },
+          "age": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://treasury.worldbank.org/en/about/unit/treasury/about/student-and-graduate-careers",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "summer-2027",
+            "note": "The official page states that 2027 applications are open and confirms degree timing, graduation window, work restrictions, dates, location, 400 paid hours, visa sponsorship, and application materials."
+          },
+          "financial_need": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://treasury.worldbank.org/en/about/unit/treasury/about/student-and-graduate-careers",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "summer-2027",
+            "note": "The official page states that 2027 applications are open and confirms degree timing, graduation window, work restrictions, dates, location, 400 paid hours, visa sponsorship, and application materials."
+          },
+          "invitation": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://treasury.worldbank.org/en/about/unit/treasury/about/student-and-graduate-careers",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "summer-2027",
+            "note": "The official page states that 2027 applications are open and confirms degree timing, graduation window, work restrictions, dates, location, 400 paid hours, visa sponsorship, and application materials."
+          },
+          "application_status": {
+            "state": "verified_open",
+            "sourceUrl": "https://treasury.worldbank.org/en/about/unit/treasury/about/student-and-graduate-careers",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "summer-2027",
+            "note": "The official page states that 2027 applications are open and confirms degree timing, graduation window, work restrictions, dates, location, 400 paid hours, visa sponsorship, and application materials."
+          },
+          "deadline": {
+            "state": "verified_open",
+            "sourceUrl": "https://treasury.worldbank.org/en/about/unit/treasury/about/student-and-graduate-careers",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "summer-2027",
+            "note": "The official page states that 2027 applications are open and confirms degree timing, graduation window, work restrictions, dates, location, 400 paid hours, visa sponsorship, and application materials."
+          }
+        }
+      },
+      "sourceReferences": [
+        {
+          "url": "https://treasury.worldbank.org/en/about/unit/treasury/about/student-and-graduate-careers",
+          "authority": "official_program",
+          "verifiedAt": "2026-08-20",
+          "cycle": "summer-2027",
+          "supports": [
+            "academic_level",
+            "institution_type",
+            "enrollment_status",
+            "school_restriction",
+            "external_student_eligibility",
+            "class_year",
+            "major",
+            "citizenship",
+            "residency",
+            "gpa",
+            "age",
+            "financial_need",
+            "invitation",
+            "application_status",
+            "deadline"
+          ],
+          "note": "The official page states that 2027 applications are open and confirms degree timing, graduation window, work restrictions, dates, location, 400 paid hours, visa sponsorship, and application materials."
+        }
+      ],
+      "acquisition": {
+        "batchId": "institutional-mining-2026-08-wave-5",
+        "acquiredAt": "2026-08-20",
+        "reviewCadenceDays": 30,
+        "nextReviewAt": "2026-09-20",
+        "freshnessModel": "annual_event"
+      },
+      "verification": {
+        "status": "verified",
+        "lastVerifiedAt": "2026-08-20",
+        "verifiedCycle": "summer-2027",
+        "officialSourceUrl": "https://treasury.worldbank.org/en/about/unit/treasury/about/student-and-graduate-careers",
+        "applicationUrlVerified": true,
+        "deadlineVerified": false,
+        "eligibilityVerified": true,
+        "sourceReachable": true,
+        "sourceAuditStatus": 200,
+        "notes": "The official page exposes a live 2027 application but no explicit closing date, so lifecycle is rolling and reviewed monthly."
+      },
+      "lifecycle": {
+        "schemaVersion": 1,
+        "migrationId": "institutional-mining-2026-08-wave-5",
+        "identity": {
+          "identityId": "career--world-bank-treasury-summer-internship-2027",
+          "aliases": [
+            "World Bank Treasury Summer Internship"
+          ]
+        },
+        "cycle": {
+          "cycleId": "summer-2027",
+          "label": "summer-2027"
+        },
+        "state": "rolling",
+        "confidence": "confirmed",
+        "reason": "rolling_confirmed",
+        "effectiveAt": "2026-08-20T00:00:00.000Z",
+        "recurrence": {
+          "type": "annual",
+          "confidence": "confirmed",
+          "officialStatement": "The official page exposes a live 2027 application but no explicit closing date, so lifecycle is rolling and reviewed monthly."
+        },
+        "evidence": [
+          {
+            "id": "career--world-bank-treasury-summer-internship-2027:summer-2027:official:1",
+            "source": "official_status",
+            "observedAt": "2026-08-20T00:00:00.000Z",
+            "value": "The official page states that 2027 applications are open and confirms degree timing, graduation window, work restrictions, dates, location, 400 paid hours, visa sponsorship, and application materials.",
+            "sourceUrl": "https://treasury.worldbank.org/en/about/unit/treasury/about/student-and-graduate-careers",
+            "confidence": "confirmed"
+          }
+        ],
+        "events": [],
+        "sourceChecks": [
+          {
+            "url": "https://treasury.worldbank.org/en/about/unit/treasury/about/student-and-graduate-careers",
+            "checkedAt": "2026-08-20T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          }
+        ],
+        "fieldVerifiedAt": {
+          "state": "2026-08-20",
+          "deadline": "2026-08-20",
+          "applicationUrl": "2026-08-20",
+          "eligibility": "2026-08-20",
+          "award": "2026-08-20",
+          "location": "2026-08-20",
+          "programDates": "2026-08-20",
+          "description": "2026-08-20"
+        },
+        "review": {
+          "note": "The official page exposes a live 2027 application but no explicit closing date, so lifecycle is rolling and reviewed monthly.",
+          "reviewedAt": "2026-08-20T00:00:00.000Z",
+          "reviewer": "UnlockED catalog acquisition"
+        }
+      }
+    }
+  },
+  {
+    "id": "career--nmai-spring-internship-2027",
+    "title": "National Museum of the American Indian Internship",
+    "type": "Career",
+    "category": "Museums & Archives",
+    "description": "A ten-week Spring 2027 Smithsonian internship supporting museum, collections, public programs, research, communications, and Indigenous cultural work.",
+    "organization": "Smithsonian National Museum of the American Indian",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "Art History",
+      "History",
+      "Anthropology",
+      "Museum Studies",
+      "Education",
+      "English",
+      "Design",
+      "Communications"
+    ],
+    "academic_years": [
+      "First year",
+      "Second year",
+      "Third year",
+      "Fourth year"
+    ],
+    "eligibility": "Current undergraduate students from accredited institutions who can complete the Smithsonian application and required background investigation. UnlockED conservatively limits ranking to U.S. citizens because current profile data cannot prove other appointment authorization.",
+    "estimated_value": null,
+    "application_deadline": "2026-11-15",
+    "recurring": true,
+    "location": "Washington, DC or Suitland, MD",
+    "remote": false,
+    "paid": null,
+    "tags": [
+      "Internship",
+      "Museum",
+      "Indigenous Studies",
+      "History",
+      "Culture"
+    ],
+    "official_source": "https://americanindian.si.edu/about/internships/application-and-faq",
+    "official_source_url": "https://americanindian.si.edu/about/internships/application-and-faq",
+    "verification_status": "verified",
+    "last_verified": "2026-08-20",
+    "deadline": "2026-11-15",
+    "reviewer_notes": "The record does not promise a stipend and ranks only students whose citizenship can be positively proven.",
+    "estimated_value_note": "Unknown - available stipend support varies and is not guaranteed on the official application page.",
+    "date_added": "2026-08-20",
+    "difficulty": "Competitive",
+    "prestige": "Very High",
+    "icon": "career",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "deadlineType": "fixed",
+      "compensation": "Varies",
+      "workMode": "In Person",
+      "internshipDuration": "10 weeks",
+      "applicationRequirements": [
+        "SOLAA application",
+        "Essay",
+        "Resume",
+        "Transcript",
+        "Two references",
+        "Background investigation if selected"
+      ],
+      "estimatedApplicationTime": "3-5 hours",
+      "skillsGained": [
+        "Museum Practice",
+        "Cultural Research",
+        "Collections",
+        "Public Programs"
+      ],
+      "careerPaths": [
+        "Museums",
+        "Cultural Heritage",
+        "Public History",
+        "Arts Administration"
+      ],
+      "expectedROI": "Substantive Smithsonian museum experience with direct exposure to Indigenous collections and public programming.",
+      "recommendedMajors": [
+        "Art History",
+        "History",
+        "Anthropology",
+        "Museum Studies",
+        "Education",
+        "English",
+        "Design",
+        "Communications"
+      ],
+      "recommendedClassYears": [
+        "First year",
+        "Second year",
+        "Third year",
+        "Fourth year"
+      ],
+      "eligibilityRules": {
+        "educationLevels": [
+          "undergraduate",
+          "community_college"
+        ],
+        "canonicalInstitutionTypes": [
+          "community_college",
+          "four_year_college",
+          "university",
+          "liberal_arts_college"
+        ],
+        "canonicalEnrollmentStatuses": [
+          "currently_enrolled"
+        ],
+        "acceptsExternalStudents": true,
+        "classYears": [
+          "First year",
+          "Second year",
+          "Third year",
+          "Fourth year"
+        ],
+        "majors": [
+          "Art History",
+          "History",
+          "Anthropology",
+          "Museum Studies",
+          "Education",
+          "English",
+          "Design",
+          "Communications"
+        ],
+        "citizenshipStatuses": [
+          "us_citizen"
+        ],
+        "transferEligibility": "general_undergraduate",
+        "availability": "open",
+        "recommendationEligibilityStatus": "eligible_for_ranking",
+        "evidence": [
+          "Citizenship ranking is intentionally narrower than the public application page to keep appointment authorization deterministic."
+        ],
+        "fieldEvidence": {
+          "academic_level": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://americanindian.si.edu/about/internships/application-and-faq",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official NMAI page confirms undergraduate access, ten-week terms, Spring deadline of November 15, SOLAA application materials, placement areas, and background investigation."
+          },
+          "institution_type": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://americanindian.si.edu/about/internships/application-and-faq",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official NMAI page confirms undergraduate access, ten-week terms, Spring deadline of November 15, SOLAA application materials, placement areas, and background investigation."
+          },
+          "enrollment_status": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://americanindian.si.edu/about/internships/application-and-faq",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official NMAI page confirms undergraduate access, ten-week terms, Spring deadline of November 15, SOLAA application materials, placement areas, and background investigation."
+          },
+          "school_restriction": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://americanindian.si.edu/about/internships/application-and-faq",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official NMAI page confirms undergraduate access, ten-week terms, Spring deadline of November 15, SOLAA application materials, placement areas, and background investigation."
+          },
+          "external_student_eligibility": {
+            "state": "verified_open",
+            "sourceUrl": "https://americanindian.si.edu/about/internships/application-and-faq",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official NMAI page confirms undergraduate access, ten-week terms, Spring deadline of November 15, SOLAA application materials, placement areas, and background investigation."
+          },
+          "class_year": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://americanindian.si.edu/about/internships/application-and-faq",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official NMAI page confirms undergraduate access, ten-week terms, Spring deadline of November 15, SOLAA application materials, placement areas, and background investigation."
+          },
+          "major": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://americanindian.si.edu/about/internships/application-and-faq",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official NMAI page confirms undergraduate access, ten-week terms, Spring deadline of November 15, SOLAA application materials, placement areas, and background investigation."
+          },
+          "citizenship": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://americanindian.si.edu/about/internships/application-and-faq",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official NMAI page confirms undergraduate access, ten-week terms, Spring deadline of November 15, SOLAA application materials, placement areas, and background investigation."
+          },
+          "residency": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://americanindian.si.edu/about/internships/application-and-faq",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official NMAI page confirms undergraduate access, ten-week terms, Spring deadline of November 15, SOLAA application materials, placement areas, and background investigation."
+          },
+          "gpa": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://americanindian.si.edu/about/internships/application-and-faq",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official NMAI page confirms undergraduate access, ten-week terms, Spring deadline of November 15, SOLAA application materials, placement areas, and background investigation."
+          },
+          "age": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://americanindian.si.edu/about/internships/application-and-faq",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official NMAI page confirms undergraduate access, ten-week terms, Spring deadline of November 15, SOLAA application materials, placement areas, and background investigation."
+          },
+          "financial_need": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://americanindian.si.edu/about/internships/application-and-faq",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official NMAI page confirms undergraduate access, ten-week terms, Spring deadline of November 15, SOLAA application materials, placement areas, and background investigation."
+          },
+          "invitation": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://americanindian.si.edu/about/internships/application-and-faq",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official NMAI page confirms undergraduate access, ten-week terms, Spring deadline of November 15, SOLAA application materials, placement areas, and background investigation."
+          },
+          "application_status": {
+            "state": "verified_open",
+            "sourceUrl": "https://americanindian.si.edu/about/internships/application-and-faq",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official NMAI page confirms undergraduate access, ten-week terms, Spring deadline of November 15, SOLAA application materials, placement areas, and background investigation."
+          },
+          "deadline": {
+            "state": "verified_open",
+            "sourceUrl": "https://americanindian.si.edu/about/internships/application-and-faq",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official NMAI page confirms undergraduate access, ten-week terms, Spring deadline of November 15, SOLAA application materials, placement areas, and background investigation."
+          }
+        }
+      },
+      "sourceReferences": [
+        {
+          "url": "https://americanindian.si.edu/about/internships/application-and-faq",
+          "authority": "official_program",
+          "verifiedAt": "2026-08-20",
+          "cycle": "spring-2027",
+          "supports": [
+            "academic_level",
+            "institution_type",
+            "enrollment_status",
+            "school_restriction",
+            "external_student_eligibility",
+            "class_year",
+            "major",
+            "citizenship",
+            "residency",
+            "gpa",
+            "age",
+            "financial_need",
+            "invitation",
+            "application_status",
+            "deadline"
+          ],
+          "note": "The official NMAI page confirms undergraduate access, ten-week terms, Spring deadline of November 15, SOLAA application materials, placement areas, and background investigation."
+        }
+      ],
+      "acquisition": {
+        "batchId": "institutional-mining-2026-08-wave-5",
+        "acquiredAt": "2026-08-20",
+        "reviewCadenceDays": 45,
+        "nextReviewAt": "2026-11-16",
+        "freshnessModel": "fixed_cycle"
+      },
+      "verification": {
+        "status": "verified",
+        "lastVerifiedAt": "2026-08-20",
+        "verifiedCycle": "spring-2027",
+        "officialSourceUrl": "https://americanindian.si.edu/about/internships/application-and-faq",
+        "applicationUrlVerified": true,
+        "deadlineVerified": true,
+        "eligibilityVerified": true,
+        "sourceReachable": true,
+        "sourceAuditStatus": 200,
+        "notes": "The record does not promise a stipend and ranks only students whose citizenship can be positively proven."
+      },
+      "lifecycle": {
+        "schemaVersion": 1,
+        "migrationId": "institutional-mining-2026-08-wave-5",
+        "identity": {
+          "identityId": "career--nmai-spring-internship-2027",
+          "aliases": [
+            "National Museum of the American Indian Internship"
+          ]
+        },
+        "cycle": {
+          "cycleId": "spring-2027",
+          "label": "spring-2027"
+        },
+        "state": "open",
+        "confidence": "confirmed",
+        "reason": "official_status_open",
+        "effectiveAt": "2026-08-20T00:00:00.000Z",
+        "finalDeadline": {
+          "kind": "final_deadline",
+          "sourceValue": "2026-11-15",
+          "normalizedValue": "2026-11-15",
+          "precision": "date",
+          "estimated": false,
+          "verifiedAt": "2026-08-14",
+          "sourceUrl": "https://americanindian.si.edu/about/internships/application-and-faq"
+        },
+        "recurrence": {
+          "type": "annual",
+          "confidence": "confirmed",
+          "officialStatement": "The record does not promise a stipend and ranks only students whose citizenship can be positively proven."
+        },
+        "evidence": [
+          {
+            "id": "career--nmai-spring-internship-2027:spring-2027:official:1",
+            "source": "official_application_page",
+            "observedAt": "2026-08-20T00:00:00.000Z",
+            "value": "The official NMAI page confirms undergraduate access, ten-week terms, Spring deadline of November 15, SOLAA application materials, placement areas, and background investigation.",
+            "sourceUrl": "https://americanindian.si.edu/about/internships/application-and-faq",
+            "confidence": "confirmed"
+          }
+        ],
+        "events": [],
+        "sourceChecks": [
+          {
+            "url": "https://americanindian.si.edu/about/internships/application-and-faq",
+            "checkedAt": "2026-08-20T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          }
+        ],
+        "fieldVerifiedAt": {
+          "state": "2026-08-20",
+          "deadline": "2026-08-20",
+          "applicationUrl": "2026-08-20",
+          "eligibility": "2026-08-20",
+          "award": "2026-08-20",
+          "location": "2026-08-20",
+          "programDates": "2026-08-20",
+          "description": "2026-08-20"
+        },
+        "review": {
+          "note": "The record does not promise a stipend and ranks only students whose citizenship can be positively proven.",
+          "reviewedAt": "2026-08-20T00:00:00.000Z",
+          "reviewer": "UnlockED catalog acquisition"
+        }
+      }
+    }
+  },
+  {
+    "id": "career--bipartisan-policy-center-fall-2026",
+    "title": "Bipartisan Policy Center Fall Internship",
+    "type": "Career",
+    "category": "Public Policy",
+    "description": "A paid, part-time fall internship supporting policy research, writing, events, and project work across economics, energy, health, governance, housing, and communications.",
+    "organization": "Bipartisan Policy Center",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "Political Science",
+      "Public Policy",
+      "International Relations",
+      "Economics",
+      "History",
+      "Communications",
+      "Journalism"
+    ],
+    "academic_years": [
+      "Third year",
+      "Fourth year"
+    ],
+    "eligibility": "Rising juniors and seniors enrolled in undergraduate programs. Non-U.S. citizens may apply only with an existing U.S. work permit or visa; BPC does not sponsor visas.",
+    "estimated_value": 3000,
+    "application_deadline": null,
+    "recurring": true,
+    "location": "Washington, DC",
+    "remote": false,
+    "paid": true,
+    "tags": [
+      "Internship",
+      "Public Policy",
+      "Economics",
+      "Government",
+      "Paid"
+    ],
+    "official_source": "https://bipartisanpolicy.org/about-us/careers/internships/",
+    "official_source_url": "https://bipartisanpolicy.org/about-us/careers/internships/",
+    "verification_status": "verified",
+    "last_verified": "2026-08-20",
+    "deadline": null,
+    "reviewer_notes": "Postings are reviewed until filled, so the source is checked every 14 days and the record must close when openings disappear.",
+    "estimated_value_note": "$3,000 stipend for the ten-week fall semester program.",
+    "date_added": "2026-08-20",
+    "difficulty": "Highly Competitive",
+    "prestige": "High",
+    "icon": "career",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "deadlineType": "rolling",
+      "compensation": "Paid",
+      "workMode": "In Person",
+      "internshipDuration": "10 weeks",
+      "applicationRequirements": [
+        "Resume",
+        "Cover letter",
+        "Writing sample",
+        "Transcript",
+        "Short bipartisanship response"
+      ],
+      "estimatedApplicationTime": "3-5 hours",
+      "skillsGained": [
+        "Policy Research",
+        "Writing",
+        "Data Analysis",
+        "Event Support"
+      ],
+      "careerPaths": [
+        "Public Policy",
+        "Government Relations",
+        "Economic Policy",
+        "Nonprofit Communications"
+      ],
+      "expectedROI": "Paid policy experience with substantive writing and research exposure across multiple policy domains.",
+      "recommendedMajors": [
+        "Political Science",
+        "Public Policy",
+        "International Relations",
+        "Economics",
+        "History",
+        "Communications",
+        "Journalism"
+      ],
+      "recommendedClassYears": [
+        "Third year",
+        "Fourth year"
+      ],
+      "eligibilityRules": {
+        "educationLevels": [
+          "undergraduate"
+        ],
+        "canonicalInstitutionTypes": [
+          "four_year_college",
+          "university",
+          "liberal_arts_college"
+        ],
+        "canonicalEnrollmentStatuses": [
+          "currently_enrolled"
+        ],
+        "acceptsExternalStudents": true,
+        "classYears": [
+          "Third year",
+          "Fourth year"
+        ],
+        "majors": [
+          "Political Science",
+          "Public Policy",
+          "International Relations",
+          "Economics",
+          "History",
+          "Communications",
+          "Journalism"
+        ],
+        "citizenshipStatuses": [
+          "us_citizen",
+          "permanent_resident",
+          "us_work_authorized"
+        ],
+        "transferEligibility": "general_undergraduate",
+        "availability": "rolling",
+        "recommendationEligibilityStatus": "eligible_for_ranking",
+        "evidence": [
+          "The record applies the strict rising-junior-or-above rule shared by the semester program."
+        ],
+        "fieldEvidence": {
+          "academic_level": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://bipartisanpolicy.org/about-us/careers/internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "fall-2026",
+            "note": "The official page says Fall 2026 postings are live and reviewed until filled, and confirms dates, $3,000 stipend, upper-division eligibility, work authorization, in-person expectations, departments, and application materials."
+          },
+          "institution_type": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://bipartisanpolicy.org/about-us/careers/internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "fall-2026",
+            "note": "The official page says Fall 2026 postings are live and reviewed until filled, and confirms dates, $3,000 stipend, upper-division eligibility, work authorization, in-person expectations, departments, and application materials."
+          },
+          "enrollment_status": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://bipartisanpolicy.org/about-us/careers/internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "fall-2026",
+            "note": "The official page says Fall 2026 postings are live and reviewed until filled, and confirms dates, $3,000 stipend, upper-division eligibility, work authorization, in-person expectations, departments, and application materials."
+          },
+          "school_restriction": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://bipartisanpolicy.org/about-us/careers/internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "fall-2026",
+            "note": "The official page says Fall 2026 postings are live and reviewed until filled, and confirms dates, $3,000 stipend, upper-division eligibility, work authorization, in-person expectations, departments, and application materials."
+          },
+          "external_student_eligibility": {
+            "state": "verified_open",
+            "sourceUrl": "https://bipartisanpolicy.org/about-us/careers/internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "fall-2026",
+            "note": "The official page says Fall 2026 postings are live and reviewed until filled, and confirms dates, $3,000 stipend, upper-division eligibility, work authorization, in-person expectations, departments, and application materials."
+          },
+          "class_year": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://bipartisanpolicy.org/about-us/careers/internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "fall-2026",
+            "note": "The official page says Fall 2026 postings are live and reviewed until filled, and confirms dates, $3,000 stipend, upper-division eligibility, work authorization, in-person expectations, departments, and application materials."
+          },
+          "major": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://bipartisanpolicy.org/about-us/careers/internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "fall-2026",
+            "note": "The official page says Fall 2026 postings are live and reviewed until filled, and confirms dates, $3,000 stipend, upper-division eligibility, work authorization, in-person expectations, departments, and application materials."
+          },
+          "citizenship": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://bipartisanpolicy.org/about-us/careers/internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "fall-2026",
+            "note": "The official page says Fall 2026 postings are live and reviewed until filled, and confirms dates, $3,000 stipend, upper-division eligibility, work authorization, in-person expectations, departments, and application materials."
+          },
+          "residency": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://bipartisanpolicy.org/about-us/careers/internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "fall-2026",
+            "note": "The official page says Fall 2026 postings are live and reviewed until filled, and confirms dates, $3,000 stipend, upper-division eligibility, work authorization, in-person expectations, departments, and application materials."
+          },
+          "gpa": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://bipartisanpolicy.org/about-us/careers/internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "fall-2026",
+            "note": "The official page says Fall 2026 postings are live and reviewed until filled, and confirms dates, $3,000 stipend, upper-division eligibility, work authorization, in-person expectations, departments, and application materials."
+          },
+          "age": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://bipartisanpolicy.org/about-us/careers/internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "fall-2026",
+            "note": "The official page says Fall 2026 postings are live and reviewed until filled, and confirms dates, $3,000 stipend, upper-division eligibility, work authorization, in-person expectations, departments, and application materials."
+          },
+          "financial_need": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://bipartisanpolicy.org/about-us/careers/internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "fall-2026",
+            "note": "The official page says Fall 2026 postings are live and reviewed until filled, and confirms dates, $3,000 stipend, upper-division eligibility, work authorization, in-person expectations, departments, and application materials."
+          },
+          "invitation": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://bipartisanpolicy.org/about-us/careers/internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "fall-2026",
+            "note": "The official page says Fall 2026 postings are live and reviewed until filled, and confirms dates, $3,000 stipend, upper-division eligibility, work authorization, in-person expectations, departments, and application materials."
+          },
+          "application_status": {
+            "state": "verified_open",
+            "sourceUrl": "https://bipartisanpolicy.org/about-us/careers/internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "fall-2026",
+            "note": "The official page says Fall 2026 postings are live and reviewed until filled, and confirms dates, $3,000 stipend, upper-division eligibility, work authorization, in-person expectations, departments, and application materials."
+          },
+          "deadline": {
+            "state": "verified_open",
+            "sourceUrl": "https://bipartisanpolicy.org/about-us/careers/internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "fall-2026",
+            "note": "The official page says Fall 2026 postings are live and reviewed until filled, and confirms dates, $3,000 stipend, upper-division eligibility, work authorization, in-person expectations, departments, and application materials."
+          }
+        }
+      },
+      "sourceReferences": [
+        {
+          "url": "https://bipartisanpolicy.org/about-us/careers/internships/",
+          "authority": "official_program",
+          "verifiedAt": "2026-08-20",
+          "cycle": "fall-2026",
+          "supports": [
+            "academic_level",
+            "institution_type",
+            "enrollment_status",
+            "school_restriction",
+            "external_student_eligibility",
+            "class_year",
+            "major",
+            "citizenship",
+            "residency",
+            "gpa",
+            "age",
+            "financial_need",
+            "invitation",
+            "application_status",
+            "deadline"
+          ],
+          "note": "The official page says Fall 2026 postings are live and reviewed until filled, and confirms dates, $3,000 stipend, upper-division eligibility, work authorization, in-person expectations, departments, and application materials."
+        }
+      ],
+      "acquisition": {
+        "batchId": "institutional-mining-2026-08-wave-5",
+        "acquiredAt": "2026-08-20",
+        "reviewCadenceDays": 14,
+        "nextReviewAt": "2026-09-03",
+        "freshnessModel": "rolling_program"
+      },
+      "verification": {
+        "status": "verified",
+        "lastVerifiedAt": "2026-08-20",
+        "verifiedCycle": "fall-2026",
+        "officialSourceUrl": "https://bipartisanpolicy.org/about-us/careers/internships/",
+        "applicationUrlVerified": true,
+        "deadlineVerified": false,
+        "eligibilityVerified": true,
+        "sourceReachable": true,
+        "sourceAuditStatus": 200,
+        "notes": "Postings are reviewed until filled, so the source is checked every 14 days and the record must close when openings disappear."
+      },
+      "lifecycle": {
+        "schemaVersion": 1,
+        "migrationId": "institutional-mining-2026-08-wave-5",
+        "identity": {
+          "identityId": "career--bipartisan-policy-center-fall-2026",
+          "aliases": [
+            "BPC Fall Internship"
+          ]
+        },
+        "cycle": {
+          "cycleId": "fall-2026",
+          "label": "fall-2026"
+        },
+        "state": "rolling",
+        "confidence": "confirmed",
+        "reason": "rolling_confirmed",
+        "effectiveAt": "2026-08-20T00:00:00.000Z",
+        "recurrence": {
+          "type": "rolling_cohort",
+          "confidence": "confirmed",
+          "officialStatement": "Postings are reviewed until filled, so the source is checked every 14 days and the record must close when openings disappear."
+        },
+        "evidence": [
+          {
+            "id": "career--bipartisan-policy-center-fall-2026:fall-2026:official:1",
+            "source": "official_status",
+            "observedAt": "2026-08-20T00:00:00.000Z",
+            "value": "The official page says Fall 2026 postings are live and reviewed until filled, and confirms dates, $3,000 stipend, upper-division eligibility, work authorization, in-person expectations, departments, and application materials.",
+            "sourceUrl": "https://bipartisanpolicy.org/about-us/careers/internships/",
+            "confidence": "confirmed"
+          }
+        ],
+        "events": [],
+        "sourceChecks": [
+          {
+            "url": "https://bipartisanpolicy.org/about-us/careers/internships/",
+            "checkedAt": "2026-08-20T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          }
+        ],
+        "fieldVerifiedAt": {
+          "state": "2026-08-20",
+          "deadline": "2026-08-20",
+          "applicationUrl": "2026-08-20",
+          "eligibility": "2026-08-20",
+          "award": "2026-08-20",
+          "location": "2026-08-20",
+          "programDates": "2026-08-20",
+          "description": "2026-08-20"
+        },
+        "review": {
+          "note": "Postings are reviewed until filled, so the source is checked every 14 days and the record must close when openings disappear.",
+          "reviewedAt": "2026-08-20T00:00:00.000Z",
+          "reviewer": "UnlockED catalog acquisition"
+        }
+      }
+    }
+  },
+  {
+    "id": "career--met-rubio-butterfield-spring-2027",
+    "title": "The Met Rubio Butterfield Internship",
+    "type": "Career",
+    "category": "Museums & Arts",
+    "description": "A paid, part-time spring internship pairing students with projects across The Met while providing weekly museum-practice and professional-development programming.",
+    "organization": "The Metropolitan Museum of Art",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "Art History",
+      "History",
+      "Anthropology",
+      "Museum Studies",
+      "Education",
+      "English",
+      "Design",
+      "Communications"
+    ],
+    "academic_years": [
+      "Second year",
+      "Third year",
+      "Fourth year"
+    ],
+    "eligibility": "Students enrolled in at least their second year of a degree-granting program. International applicants may apply only if they already hold valid U.S. work authorization; The Met does not sponsor visas for this part-time program.",
+    "estimated_value": 3640,
+    "application_deadline": "2026-09-16",
+    "recurring": true,
+    "location": "New York, NY",
+    "remote": false,
+    "paid": true,
+    "tags": [
+      "Internship",
+      "Museum",
+      "Arts",
+      "Humanities",
+      "Paid"
+    ],
+    "official_source": "https://www.metmuseum.org/opportunities/internships/fall-and-spring-semester-internships-for-undergraduate-and-graduate-students",
+    "official_source_url": "https://www.metmuseum.org/opportunities/internships/fall-and-spring-semester-internships-for-undergraduate-and-graduate-students",
+    "verification_status": "verified",
+    "last_verified": "2026-08-20",
+    "deadline": "2026-09-16",
+    "reviewer_notes": "This record is limited to the spring semester program and does not imply visa sponsorship.",
+    "estimated_value_note": "Up to $3,640 at $26 per hour for 14 hours per week across ten weeks.",
+    "date_added": "2026-08-20",
+    "difficulty": "Highly Competitive",
+    "prestige": "Very High",
+    "icon": "career",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "deadlineType": "fixed",
+      "compensation": "Paid",
+      "workMode": "In Person",
+      "internshipDuration": "10 weeks",
+      "applicationRequirements": [
+        "Online application",
+        "Resume",
+        "Unofficial transcript",
+        "Essay responses",
+        "Portfolio for Design applicants"
+      ],
+      "estimatedApplicationTime": "3-5 hours",
+      "skillsGained": [
+        "Museum Practice",
+        "Research",
+        "Public Programs",
+        "Professional Communication"
+      ],
+      "careerPaths": [
+        "Museums",
+        "Arts Administration",
+        "Education",
+        "Cultural Heritage"
+      ],
+      "expectedROI": "Paid museum experience at a major cultural institution with structured weekly professional programming.",
+      "recommendedMajors": [
+        "Art History",
+        "History",
+        "Anthropology",
+        "Museum Studies",
+        "Education",
+        "English",
+        "Design",
+        "Communications"
+      ],
+      "recommendedClassYears": [
+        "Second year",
+        "Third year",
+        "Fourth year"
+      ],
+      "eligibilityRules": {
+        "educationLevels": [
+          "undergraduate",
+          "community_college"
+        ],
+        "canonicalInstitutionTypes": [
+          "community_college",
+          "four_year_college",
+          "university",
+          "liberal_arts_college"
+        ],
+        "canonicalEnrollmentStatuses": [
+          "currently_enrolled"
+        ],
+        "acceptsExternalStudents": true,
+        "classYears": [
+          "Second year",
+          "Third year",
+          "Fourth year"
+        ],
+        "majors": [
+          "Art History",
+          "History",
+          "Anthropology",
+          "Museum Studies",
+          "Education",
+          "English",
+          "Design",
+          "Communications"
+        ],
+        "citizenshipStatuses": [
+          "us_citizen",
+          "permanent_resident",
+          "us_work_authorized"
+        ],
+        "transferEligibility": "general_undergraduate",
+        "availability": "open",
+        "recommendationEligibilityStatus": "eligible_for_ranking",
+        "evidence": [
+          "First-year students and applicants without existing U.S. work authorization are excluded by structured rules."
+        ],
+        "fieldEvidence": {
+          "academic_level": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.metmuseum.org/opportunities/internships/fall-and-spring-semester-internships-for-undergraduate-and-graduate-students",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official Spring 2027 page confirms second-year-or-later eligibility, work authorization, $26 hourly pay, 14-hour weekly maximum, application materials, and September 16 deadline."
+          },
+          "institution_type": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.metmuseum.org/opportunities/internships/fall-and-spring-semester-internships-for-undergraduate-and-graduate-students",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official Spring 2027 page confirms second-year-or-later eligibility, work authorization, $26 hourly pay, 14-hour weekly maximum, application materials, and September 16 deadline."
+          },
+          "enrollment_status": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.metmuseum.org/opportunities/internships/fall-and-spring-semester-internships-for-undergraduate-and-graduate-students",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official Spring 2027 page confirms second-year-or-later eligibility, work authorization, $26 hourly pay, 14-hour weekly maximum, application materials, and September 16 deadline."
+          },
+          "school_restriction": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.metmuseum.org/opportunities/internships/fall-and-spring-semester-internships-for-undergraduate-and-graduate-students",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official Spring 2027 page confirms second-year-or-later eligibility, work authorization, $26 hourly pay, 14-hour weekly maximum, application materials, and September 16 deadline."
+          },
+          "external_student_eligibility": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.metmuseum.org/opportunities/internships/fall-and-spring-semester-internships-for-undergraduate-and-graduate-students",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official Spring 2027 page confirms second-year-or-later eligibility, work authorization, $26 hourly pay, 14-hour weekly maximum, application materials, and September 16 deadline."
+          },
+          "class_year": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.metmuseum.org/opportunities/internships/fall-and-spring-semester-internships-for-undergraduate-and-graduate-students",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official Spring 2027 page confirms second-year-or-later eligibility, work authorization, $26 hourly pay, 14-hour weekly maximum, application materials, and September 16 deadline."
+          },
+          "major": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.metmuseum.org/opportunities/internships/fall-and-spring-semester-internships-for-undergraduate-and-graduate-students",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official Spring 2027 page confirms second-year-or-later eligibility, work authorization, $26 hourly pay, 14-hour weekly maximum, application materials, and September 16 deadline."
+          },
+          "citizenship": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.metmuseum.org/opportunities/internships/fall-and-spring-semester-internships-for-undergraduate-and-graduate-students",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official Spring 2027 page confirms second-year-or-later eligibility, work authorization, $26 hourly pay, 14-hour weekly maximum, application materials, and September 16 deadline."
+          },
+          "residency": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.metmuseum.org/opportunities/internships/fall-and-spring-semester-internships-for-undergraduate-and-graduate-students",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official Spring 2027 page confirms second-year-or-later eligibility, work authorization, $26 hourly pay, 14-hour weekly maximum, application materials, and September 16 deadline."
+          },
+          "gpa": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.metmuseum.org/opportunities/internships/fall-and-spring-semester-internships-for-undergraduate-and-graduate-students",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official Spring 2027 page confirms second-year-or-later eligibility, work authorization, $26 hourly pay, 14-hour weekly maximum, application materials, and September 16 deadline."
+          },
+          "age": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.metmuseum.org/opportunities/internships/fall-and-spring-semester-internships-for-undergraduate-and-graduate-students",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official Spring 2027 page confirms second-year-or-later eligibility, work authorization, $26 hourly pay, 14-hour weekly maximum, application materials, and September 16 deadline."
+          },
+          "financial_need": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.metmuseum.org/opportunities/internships/fall-and-spring-semester-internships-for-undergraduate-and-graduate-students",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official Spring 2027 page confirms second-year-or-later eligibility, work authorization, $26 hourly pay, 14-hour weekly maximum, application materials, and September 16 deadline."
+          },
+          "invitation": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.metmuseum.org/opportunities/internships/fall-and-spring-semester-internships-for-undergraduate-and-graduate-students",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official Spring 2027 page confirms second-year-or-later eligibility, work authorization, $26 hourly pay, 14-hour weekly maximum, application materials, and September 16 deadline."
+          },
+          "application_status": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.metmuseum.org/opportunities/internships/fall-and-spring-semester-internships-for-undergraduate-and-graduate-students",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official Spring 2027 page confirms second-year-or-later eligibility, work authorization, $26 hourly pay, 14-hour weekly maximum, application materials, and September 16 deadline."
+          },
+          "deadline": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.metmuseum.org/opportunities/internships/fall-and-spring-semester-internships-for-undergraduate-and-graduate-students",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official Spring 2027 page confirms second-year-or-later eligibility, work authorization, $26 hourly pay, 14-hour weekly maximum, application materials, and September 16 deadline."
+          }
+        }
+      },
+      "sourceReferences": [
+        {
+          "url": "https://www.metmuseum.org/opportunities/internships/fall-and-spring-semester-internships-for-undergraduate-and-graduate-students",
+          "authority": "official_program",
+          "verifiedAt": "2026-08-20",
+          "cycle": "spring-2027",
+          "supports": [
+            "academic_level",
+            "institution_type",
+            "enrollment_status",
+            "school_restriction",
+            "external_student_eligibility",
+            "class_year",
+            "major",
+            "citizenship",
+            "residency",
+            "gpa",
+            "age",
+            "financial_need",
+            "invitation",
+            "application_status",
+            "deadline"
+          ],
+          "note": "The official Spring 2027 page confirms second-year-or-later eligibility, work authorization, $26 hourly pay, 14-hour weekly maximum, application materials, and September 16 deadline."
+        }
+      ],
+      "acquisition": {
+        "batchId": "institutional-mining-2026-08-wave-5",
+        "acquiredAt": "2026-08-20",
+        "reviewCadenceDays": 45,
+        "nextReviewAt": "2026-09-17",
+        "freshnessModel": "fixed_cycle"
+      },
+      "verification": {
+        "status": "verified",
+        "lastVerifiedAt": "2026-08-20",
+        "verifiedCycle": "spring-2027",
+        "officialSourceUrl": "https://www.metmuseum.org/opportunities/internships/fall-and-spring-semester-internships-for-undergraduate-and-graduate-students",
+        "applicationUrlVerified": true,
+        "deadlineVerified": true,
+        "eligibilityVerified": true,
+        "sourceReachable": true,
+        "sourceAuditStatus": 200,
+        "notes": "This record is limited to the spring semester program and does not imply visa sponsorship."
+      },
+      "lifecycle": {
+        "schemaVersion": 1,
+        "migrationId": "institutional-mining-2026-08-wave-5",
+        "identity": {
+          "identityId": "career--met-rubio-butterfield-spring-2027",
+          "aliases": [
+            "Met Spring Internship",
+            "Rubio Butterfield Internship"
+          ]
+        },
+        "cycle": {
+          "cycleId": "spring-2027",
+          "label": "spring-2027"
+        },
+        "state": "open",
+        "confidence": "confirmed",
+        "reason": "official_status_open",
+        "effectiveAt": "2026-08-20T00:00:00.000Z",
+        "finalDeadline": {
+          "kind": "final_deadline",
+          "sourceValue": "2026-09-16",
+          "normalizedValue": "2026-09-16",
+          "precision": "date",
+          "estimated": false,
+          "verifiedAt": "2026-08-14",
+          "sourceUrl": "https://www.metmuseum.org/opportunities/internships/fall-and-spring-semester-internships-for-undergraduate-and-graduate-students"
+        },
+        "recurrence": {
+          "type": "annual",
+          "confidence": "confirmed",
+          "officialStatement": "This record is limited to the spring semester program and does not imply visa sponsorship."
+        },
+        "evidence": [
+          {
+            "id": "career--met-rubio-butterfield-spring-2027:spring-2027:official:1",
+            "source": "official_application_page",
+            "observedAt": "2026-08-20T00:00:00.000Z",
+            "value": "The official Spring 2027 page confirms second-year-or-later eligibility, work authorization, $26 hourly pay, 14-hour weekly maximum, application materials, and September 16 deadline.",
+            "sourceUrl": "https://www.metmuseum.org/opportunities/internships/fall-and-spring-semester-internships-for-undergraduate-and-graduate-students",
+            "confidence": "confirmed"
+          }
+        ],
+        "events": [],
+        "sourceChecks": [
+          {
+            "url": "https://www.metmuseum.org/opportunities/internships/fall-and-spring-semester-internships-for-undergraduate-and-graduate-students",
+            "checkedAt": "2026-08-20T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          }
+        ],
+        "fieldVerifiedAt": {
+          "state": "2026-08-20",
+          "deadline": "2026-08-20",
+          "applicationUrl": "2026-08-20",
+          "eligibility": "2026-08-20",
+          "award": "2026-08-20",
+          "location": "2026-08-20",
+          "programDates": "2026-08-20",
+          "description": "2026-08-20"
+        },
+        "review": {
+          "note": "This record is limited to the spring semester program and does not imply visa sponsorship.",
+          "reviewedAt": "2026-08-20T00:00:00.000Z",
+          "reviewer": "UnlockED catalog acquisition"
+        }
+      }
+    }
+  },
+  {
+    "id": "career--cia-undergraduate-internship-coop",
+    "title": "CIA Undergraduate Internship and Co-op",
+    "type": "Career",
+    "category": "Government Internships",
+    "description": "Paid, year-round undergraduate placements that provide at least one twelve-week work tour in intelligence, technology, analysis, engineering, finance, and operational support fields.",
+    "organization": "Central Intelligence Agency",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "Computer Science",
+      "Cybersecurity",
+      "Engineering",
+      "Finance",
+      "Accounting",
+      "Economics",
+      "Mathematics",
+      "Statistics",
+      "Data Science",
+      "International Relations",
+      "History",
+      "Psychology",
+      "Communications"
+    ],
+    "academic_years": [
+      "First year",
+      "Second year",
+      "Third year",
+      "Fourth year"
+    ],
+    "eligibility": "U.S. citizens age 18 or older enrolled full time in a relevant undergraduate major who can complete at least one twelve-week tour before graduation, move to the Washington area, and complete medical, security, background, and polygraph requirements.",
+    "estimated_value": null,
+    "application_deadline": null,
+    "recurring": true,
+    "location": "Washington metropolitan area",
+    "remote": false,
+    "paid": true,
+    "tags": [
+      "Internship",
+      "Government",
+      "Intelligence",
+      "Cybersecurity",
+      "Analysis",
+      "Paid"
+    ],
+    "official_source": "https://www.cia.gov/careers/student-programs/",
+    "official_source_url": "https://www.cia.gov/careers/student-programs/",
+    "verification_status": "verified",
+    "last_verified": "2026-08-20",
+    "deadline": null,
+    "reviewer_notes": "Applicants should express interest 6-12 months before the desired start; role-specific openings and requirements remain authoritative.",
+    "estimated_value_note": "Unknown - the official student-program page confirms paid employment and benefits but pay varies by role.",
+    "date_added": "2026-08-20",
+    "difficulty": "Highly Competitive",
+    "prestige": "Very High",
+    "icon": "career",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "deadlineType": "rolling",
+      "compensation": "Paid",
+      "workMode": "In Person",
+      "internshipDuration": "At least one 12-week tour",
+      "applicationRequirements": [
+        "Expression of interest",
+        "Resume",
+        "Transcript",
+        "Medical evaluation",
+        "Security investigation",
+        "Polygraph"
+      ],
+      "estimatedApplicationTime": "3-5 hours",
+      "skillsGained": [
+        "Analysis",
+        "Research",
+        "Professional Communication",
+        "Applied Technical Skills"
+      ],
+      "careerPaths": [
+        "Intelligence",
+        "Cybersecurity",
+        "Government",
+        "Data Analysis"
+      ],
+      "expectedROI": "Paid national-service experience and role-specific professional training before graduation.",
+      "recommendedClassYears": [
+        "First year",
+        "Second year",
+        "Third year",
+        "Fourth year"
+      ],
+      "eligibilityRules": {
+        "educationLevels": [
+          "undergraduate"
+        ],
+        "canonicalInstitutionTypes": [
+          "four_year_college",
+          "university",
+          "liberal_arts_college"
+        ],
+        "canonicalEnrollmentStatuses": [
+          "currently_enrolled"
+        ],
+        "acceptsExternalStudents": true,
+        "classYears": [
+          "First year",
+          "Second year",
+          "Third year",
+          "Fourth year"
+        ],
+        "majors": [
+          "Computer Science",
+          "Cybersecurity",
+          "Engineering",
+          "Finance",
+          "Accounting",
+          "Economics",
+          "Mathematics",
+          "Statistics",
+          "Data Science",
+          "International Relations",
+          "History",
+          "Psychology",
+          "Communications"
+        ],
+        "citizenshipStatuses": [
+          "us_citizen"
+        ],
+        "ageRange": {
+          "minimum": 18
+        },
+        "transferEligibility": "general_undergraduate",
+        "availability": "rolling",
+        "recommendationEligibilityStatus": "eligible_for_ranking",
+        "evidence": [
+          "The generic record excludes specialized student programs with separate closed cycles."
+        ],
+        "fieldEvidence": {
+          "academic_level": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.cia.gov/careers/student-programs/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026-27",
+            "note": "The official student-program page confirms paid year-round undergraduate opportunities, full-time enrollment, relevant majors, twelve-week tour, 6-12 month lead time, and hiring requirements."
+          },
+          "institution_type": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.cia.gov/careers/student-programs/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026-27",
+            "note": "The official student-program page confirms paid year-round undergraduate opportunities, full-time enrollment, relevant majors, twelve-week tour, 6-12 month lead time, and hiring requirements."
+          },
+          "enrollment_status": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.cia.gov/careers/student-programs/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026-27",
+            "note": "The official student-program page confirms paid year-round undergraduate opportunities, full-time enrollment, relevant majors, twelve-week tour, 6-12 month lead time, and hiring requirements."
+          },
+          "school_restriction": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.cia.gov/careers/student-programs/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026-27",
+            "note": "The official student-program page confirms paid year-round undergraduate opportunities, full-time enrollment, relevant majors, twelve-week tour, 6-12 month lead time, and hiring requirements."
+          },
+          "external_student_eligibility": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.cia.gov/careers/student-programs/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026-27",
+            "note": "The official student-program page confirms paid year-round undergraduate opportunities, full-time enrollment, relevant majors, twelve-week tour, 6-12 month lead time, and hiring requirements."
+          },
+          "class_year": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.cia.gov/careers/student-programs/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026-27",
+            "note": "The official student-program page confirms paid year-round undergraduate opportunities, full-time enrollment, relevant majors, twelve-week tour, 6-12 month lead time, and hiring requirements."
+          },
+          "major": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.cia.gov/careers/student-programs/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026-27",
+            "note": "The official student-program page confirms paid year-round undergraduate opportunities, full-time enrollment, relevant majors, twelve-week tour, 6-12 month lead time, and hiring requirements."
+          },
+          "citizenship": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.cia.gov/careers/student-programs/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026-27",
+            "note": "The official student-program page confirms paid year-round undergraduate opportunities, full-time enrollment, relevant majors, twelve-week tour, 6-12 month lead time, and hiring requirements."
+          },
+          "residency": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.cia.gov/careers/student-programs/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026-27",
+            "note": "The official student-program page confirms paid year-round undergraduate opportunities, full-time enrollment, relevant majors, twelve-week tour, 6-12 month lead time, and hiring requirements."
+          },
+          "gpa": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.cia.gov/careers/student-programs/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026-27",
+            "note": "The official student-program page confirms paid year-round undergraduate opportunities, full-time enrollment, relevant majors, twelve-week tour, 6-12 month lead time, and hiring requirements."
+          },
+          "age": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.cia.gov/careers/student-programs/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026-27",
+            "note": "The official student-program page confirms paid year-round undergraduate opportunities, full-time enrollment, relevant majors, twelve-week tour, 6-12 month lead time, and hiring requirements."
+          },
+          "financial_need": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.cia.gov/careers/student-programs/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026-27",
+            "note": "The official student-program page confirms paid year-round undergraduate opportunities, full-time enrollment, relevant majors, twelve-week tour, 6-12 month lead time, and hiring requirements."
+          },
+          "invitation": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.cia.gov/careers/student-programs/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026-27",
+            "note": "The official student-program page confirms paid year-round undergraduate opportunities, full-time enrollment, relevant majors, twelve-week tour, 6-12 month lead time, and hiring requirements."
+          },
+          "application_status": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.cia.gov/careers/student-programs/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026-27",
+            "note": "The official student-program page confirms paid year-round undergraduate opportunities, full-time enrollment, relevant majors, twelve-week tour, 6-12 month lead time, and hiring requirements."
+          },
+          "deadline": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.cia.gov/careers/student-programs/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026-27",
+            "note": "The official student-program page confirms paid year-round undergraduate opportunities, full-time enrollment, relevant majors, twelve-week tour, 6-12 month lead time, and hiring requirements."
+          }
+        }
+      },
+      "sourceReferences": [
+        {
+          "url": "https://www.cia.gov/careers/student-programs/",
+          "authority": "official_program",
+          "verifiedAt": "2026-08-20",
+          "cycle": "year-round-2026-27",
+          "supports": [
+            "academic_level",
+            "institution_type",
+            "enrollment_status",
+            "school_restriction",
+            "external_student_eligibility",
+            "class_year",
+            "major",
+            "citizenship",
+            "residency",
+            "gpa",
+            "age",
+            "financial_need",
+            "invitation",
+            "application_status",
+            "deadline"
+          ],
+          "note": "The official student-program page confirms paid year-round undergraduate opportunities, full-time enrollment, relevant majors, twelve-week tour, 6-12 month lead time, and hiring requirements."
+        },
+        {
+          "url": "https://www.cia.gov/careers/how-we-hire/requirements/",
+          "authority": "official_program",
+          "verifiedAt": "2026-08-20",
+          "cycle": "year-round-2026-27",
+          "supports": [
+            "academic_level",
+            "institution_type",
+            "enrollment_status",
+            "school_restriction",
+            "external_student_eligibility",
+            "class_year",
+            "major",
+            "citizenship",
+            "residency",
+            "gpa",
+            "age",
+            "financial_need",
+            "invitation",
+            "application_status",
+            "deadline"
+          ],
+          "note": "The official requirements page confirms U.S. citizenship, age 18, Washington-area relocation, medical and security evaluations, background investigation, and polygraph."
+        }
+      ],
+      "acquisition": {
+        "batchId": "institutional-mining-2026-08-wave-5",
+        "acquiredAt": "2026-08-20",
+        "reviewCadenceDays": 45,
+        "nextReviewAt": "2026-10-04",
+        "freshnessModel": "rolling_program"
+      },
+      "verification": {
+        "status": "verified",
+        "lastVerifiedAt": "2026-08-20",
+        "verifiedCycle": "year-round-2026-27",
+        "officialSourceUrl": "https://www.cia.gov/careers/student-programs/",
+        "applicationUrlVerified": true,
+        "deadlineVerified": false,
+        "eligibilityVerified": true,
+        "sourceReachable": true,
+        "sourceAuditStatus": 200,
+        "notes": "Applicants should express interest 6-12 months before the desired start; role-specific openings and requirements remain authoritative."
+      },
+      "lifecycle": {
+        "schemaVersion": 1,
+        "migrationId": "institutional-mining-2026-08-wave-5",
+        "identity": {
+          "identityId": "career--cia-undergraduate-internship-coop",
+          "aliases": [
+            "CIA Undergraduate Internship",
+            "CIA Co-op"
+          ]
+        },
+        "cycle": {
+          "cycleId": "year-round-2026-27",
+          "label": "year-round-2026-27"
+        },
+        "state": "rolling",
+        "confidence": "confirmed",
+        "reason": "rolling_confirmed",
+        "effectiveAt": "2026-08-20T00:00:00.000Z",
+        "recurrence": {
+          "type": "rolling_cohort",
+          "confidence": "confirmed",
+          "officialStatement": "Applicants should express interest 6-12 months before the desired start; role-specific openings and requirements remain authoritative."
+        },
+        "evidence": [
+          {
+            "id": "career--cia-undergraduate-internship-coop:year-round-2026-27:official:1",
+            "source": "official_status",
+            "observedAt": "2026-08-20T00:00:00.000Z",
+            "value": "The official student-program page confirms paid year-round undergraduate opportunities, full-time enrollment, relevant majors, twelve-week tour, 6-12 month lead time, and hiring requirements.",
+            "sourceUrl": "https://www.cia.gov/careers/student-programs/",
+            "confidence": "confirmed"
+          },
+          {
+            "id": "career--cia-undergraduate-internship-coop:year-round-2026-27:official:2",
+            "source": "official_status",
+            "observedAt": "2026-08-20T00:00:00.000Z",
+            "value": "The official requirements page confirms U.S. citizenship, age 18, Washington-area relocation, medical and security evaluations, background investigation, and polygraph.",
+            "sourceUrl": "https://www.cia.gov/careers/how-we-hire/requirements/",
+            "confidence": "confirmed"
+          }
+        ],
+        "events": [],
+        "sourceChecks": [
+          {
+            "url": "https://www.cia.gov/careers/student-programs/",
+            "checkedAt": "2026-08-20T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          },
+          {
+            "url": "https://www.cia.gov/careers/how-we-hire/requirements/",
+            "checkedAt": "2026-08-20T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          }
+        ],
+        "fieldVerifiedAt": {
+          "state": "2026-08-20",
+          "deadline": "2026-08-20",
+          "applicationUrl": "2026-08-20",
+          "eligibility": "2026-08-20",
+          "award": "2026-08-20",
+          "location": "2026-08-20",
+          "programDates": "2026-08-20",
+          "description": "2026-08-20"
+        },
+        "review": {
+          "note": "Applicants should express interest 6-12 months before the desired start; role-specific openings and requirements remain authoritative.",
+          "reviewedAt": "2026-08-20T00:00:00.000Z",
+          "reviewer": "UnlockED catalog acquisition"
+        }
+      }
+    }
+  },
+  {
+    "id": "research--sigma-xi-grants-in-aid-fall-2026",
+    "title": "Sigma Xi Grants in Aid of Research",
+    "type": "Research",
+    "category": "Research Grants",
+    "description": "A research grant supporting undergraduate and graduate student projects across science and engineering disciplines worldwide.",
+    "organization": "Sigma Xi",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "Biology",
+      "Chemistry",
+      "Physics",
+      "Mathematics",
+      "Statistics",
+      "Computer Science",
+      "Data Science",
+      "Engineering",
+      "Environmental Science",
+      "Psychology"
+    ],
+    "academic_years": [
+      "First year",
+      "Second year",
+      "Third year",
+      "Fourth year"
+    ],
+    "eligibility": "Undergraduate or graduate students conducting scientific research. Sigma Xi membership is not required, although members or students whose advisers are members can qualify for larger award limits.",
+    "estimated_value": 1000,
+    "application_deadline": "2026-10-01",
+    "recurring": true,
+    "location": "International",
+    "remote": true,
+    "paid": true,
+    "tags": [
+      "Research",
+      "Grant",
+      "STEM",
+      "International",
+      "Undergraduate"
+    ],
+    "official_source": "https://www.sigmaxi.org/programs/grants-in-aid-of-research/apply",
+    "official_source_url": "https://www.sigmaxi.org/programs/grants-in-aid-of-research/apply",
+    "verification_status": "verified",
+    "last_verified": "2026-08-20",
+    "deadline": "2026-10-01",
+    "reviewer_notes": "Special funds can exceed the conservative $1,000 estimate, but UnlockED does not assume membership or specialized-topic eligibility.",
+    "estimated_value_note": "Up to $1,000 for nonmembers; some member and designated-field awards may be higher.",
+    "date_added": "2026-08-20",
+    "difficulty": "Competitive",
+    "prestige": "High",
+    "icon": "research",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "deadlineType": "fixed",
+      "compensation": "Paid",
+      "workMode": "Remote",
+      "professor": null,
+      "department": "Sigma Xi",
+      "researchArea": "Science and technology",
+      "stipendAmount": null,
+      "semesters": [
+        "fall-2026"
+      ],
+      "applicationRequirements": [
+        "Online proposal",
+        "Budget",
+        "Academic reference",
+        "Research plan"
+      ],
+      "estimatedApplicationTime": "1-2 weeks",
+      "skillsGained": [
+        "Research Design",
+        "Grant Writing",
+        "Budgeting",
+        "Scientific Communication"
+      ],
+      "careerPaths": [
+        "Research",
+        "Graduate School",
+        "Science and Engineering"
+      ],
+      "expectedROI": "Direct research funding plus grant-writing evidence accessible without mandatory society membership.",
+      "recommendedMajors": [
+        "Biology",
+        "Chemistry",
+        "Physics",
+        "Mathematics",
+        "Statistics",
+        "Computer Science",
+        "Data Science",
+        "Engineering",
+        "Environmental Science",
+        "Psychology"
+      ],
+      "recommendedClassYears": [
+        "First year",
+        "Second year",
+        "Third year",
+        "Fourth year"
+      ],
+      "eligibilityRules": {
+        "educationLevels": [
+          "undergraduate",
+          "community_college"
+        ],
+        "canonicalInstitutionTypes": [
+          "community_college",
+          "four_year_college",
+          "university",
+          "liberal_arts_college"
+        ],
+        "canonicalEnrollmentStatuses": [
+          "currently_enrolled"
+        ],
+        "acceptsExternalStudents": true,
+        "classYears": [
+          "First year",
+          "Second year",
+          "Third year",
+          "Fourth year"
+        ],
+        "majors": [
+          "Biology",
+          "Chemistry",
+          "Physics",
+          "Mathematics",
+          "Statistics",
+          "Computer Science",
+          "Data Science",
+          "Engineering",
+          "Environmental Science",
+          "Psychology"
+        ],
+        "citizenshipStatuses": [
+          "international_allowed"
+        ],
+        "transferEligibility": "general_undergraduate",
+        "availability": "open",
+        "recommendationEligibilityStatus": "eligible_for_ranking",
+        "evidence": [
+          "The recommendation value uses the nonmember maximum so membership is not assumed."
+        ],
+        "fieldEvidence": {
+          "academic_level": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.sigmaxi.org/programs/grants-in-aid-of-research/apply",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "fall-2026",
+            "note": "The official application page confirms the July 1 opening, October 1 deadline, active portal, application resources, and award schedule."
+          },
+          "institution_type": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.sigmaxi.org/programs/grants-in-aid-of-research/apply",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "fall-2026",
+            "note": "The official application page confirms the July 1 opening, October 1 deadline, active portal, application resources, and award schedule."
+          },
+          "enrollment_status": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.sigmaxi.org/programs/grants-in-aid-of-research/apply",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "fall-2026",
+            "note": "The official application page confirms the July 1 opening, October 1 deadline, active portal, application resources, and award schedule."
+          },
+          "school_restriction": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.sigmaxi.org/programs/grants-in-aid-of-research/apply",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "fall-2026",
+            "note": "The official application page confirms the July 1 opening, October 1 deadline, active portal, application resources, and award schedule."
+          },
+          "external_student_eligibility": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.sigmaxi.org/programs/grants-in-aid-of-research/apply",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "fall-2026",
+            "note": "The official application page confirms the July 1 opening, October 1 deadline, active portal, application resources, and award schedule."
+          },
+          "class_year": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.sigmaxi.org/programs/grants-in-aid-of-research/apply",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "fall-2026",
+            "note": "The official application page confirms the July 1 opening, October 1 deadline, active portal, application resources, and award schedule."
+          },
+          "major": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.sigmaxi.org/programs/grants-in-aid-of-research/apply",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "fall-2026",
+            "note": "The official application page confirms the July 1 opening, October 1 deadline, active portal, application resources, and award schedule."
+          },
+          "citizenship": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.sigmaxi.org/programs/grants-in-aid-of-research/apply",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "fall-2026",
+            "note": "The official application page confirms the July 1 opening, October 1 deadline, active portal, application resources, and award schedule."
+          },
+          "residency": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.sigmaxi.org/programs/grants-in-aid-of-research/apply",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "fall-2026",
+            "note": "The official application page confirms the July 1 opening, October 1 deadline, active portal, application resources, and award schedule."
+          },
+          "gpa": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.sigmaxi.org/programs/grants-in-aid-of-research/apply",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "fall-2026",
+            "note": "The official application page confirms the July 1 opening, October 1 deadline, active portal, application resources, and award schedule."
+          },
+          "age": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.sigmaxi.org/programs/grants-in-aid-of-research/apply",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "fall-2026",
+            "note": "The official application page confirms the July 1 opening, October 1 deadline, active portal, application resources, and award schedule."
+          },
+          "financial_need": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.sigmaxi.org/programs/grants-in-aid-of-research/apply",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "fall-2026",
+            "note": "The official application page confirms the July 1 opening, October 1 deadline, active portal, application resources, and award schedule."
+          },
+          "invitation": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.sigmaxi.org/programs/grants-in-aid-of-research/apply",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "fall-2026",
+            "note": "The official application page confirms the July 1 opening, October 1 deadline, active portal, application resources, and award schedule."
+          },
+          "application_status": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.sigmaxi.org/programs/grants-in-aid-of-research/apply",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "fall-2026",
+            "note": "The official application page confirms the July 1 opening, October 1 deadline, active portal, application resources, and award schedule."
+          },
+          "deadline": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.sigmaxi.org/programs/grants-in-aid-of-research/apply",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "fall-2026",
+            "note": "The official application page confirms the July 1 opening, October 1 deadline, active portal, application resources, and award schedule."
+          }
+        }
+      },
+      "sourceReferences": [
+        {
+          "url": "https://www.sigmaxi.org/programs/grants-in-aid-of-research/apply",
+          "authority": "official_program",
+          "verifiedAt": "2026-08-20",
+          "cycle": "fall-2026",
+          "supports": [
+            "academic_level",
+            "institution_type",
+            "enrollment_status",
+            "school_restriction",
+            "external_student_eligibility",
+            "class_year",
+            "major",
+            "citizenship",
+            "residency",
+            "gpa",
+            "age",
+            "financial_need",
+            "invitation",
+            "application_status",
+            "deadline"
+          ],
+          "note": "The official application page confirms the July 1 opening, October 1 deadline, active portal, application resources, and award schedule."
+        },
+        {
+          "url": "https://www.sigmaxi.org/programs/grants-in-aid-of-research",
+          "authority": "official_program",
+          "verifiedAt": "2026-08-20",
+          "cycle": "fall-2026",
+          "supports": [
+            "academic_level",
+            "institution_type",
+            "enrollment_status",
+            "school_restriction",
+            "external_student_eligibility",
+            "class_year",
+            "major",
+            "citizenship",
+            "residency",
+            "gpa",
+            "age",
+            "financial_need",
+            "invitation",
+            "application_status",
+            "deadline"
+          ],
+          "note": "The official program overview confirms undergraduate eligibility, worldwide access, eligible research fields, and nonmember and member award limits."
+        }
+      ],
+      "acquisition": {
+        "batchId": "institutional-mining-2026-08-wave-5",
+        "acquiredAt": "2026-08-20",
+        "reviewCadenceDays": 45,
+        "nextReviewAt": "2026-10-02",
+        "freshnessModel": "fixed_cycle"
+      },
+      "verification": {
+        "status": "verified",
+        "lastVerifiedAt": "2026-08-20",
+        "verifiedCycle": "fall-2026",
+        "officialSourceUrl": "https://www.sigmaxi.org/programs/grants-in-aid-of-research/apply",
+        "applicationUrlVerified": true,
+        "deadlineVerified": true,
+        "eligibilityVerified": true,
+        "sourceReachable": true,
+        "sourceAuditStatus": 200,
+        "notes": "Special funds can exceed the conservative $1,000 estimate, but UnlockED does not assume membership or specialized-topic eligibility."
+      },
+      "lifecycle": {
+        "schemaVersion": 1,
+        "migrationId": "institutional-mining-2026-08-wave-5",
+        "identity": {
+          "identityId": "research--sigma-xi-grants-in-aid-fall-2026",
+          "aliases": [
+            "Sigma Xi GIAR",
+            "Grants in Aid of Research"
+          ]
+        },
+        "cycle": {
+          "cycleId": "fall-2026",
+          "label": "fall-2026"
+        },
+        "state": "open",
+        "confidence": "confirmed",
+        "reason": "official_status_open",
+        "effectiveAt": "2026-08-20T00:00:00.000Z",
+        "finalDeadline": {
+          "kind": "final_deadline",
+          "sourceValue": "2026-10-01",
+          "normalizedValue": "2026-10-01",
+          "precision": "date",
+          "estimated": false,
+          "verifiedAt": "2026-08-14",
+          "sourceUrl": "https://www.sigmaxi.org/programs/grants-in-aid-of-research/apply"
+        },
+        "recurrence": {
+          "type": "annual",
+          "confidence": "confirmed",
+          "officialStatement": "Special funds can exceed the conservative $1,000 estimate, but UnlockED does not assume membership or specialized-topic eligibility."
+        },
+        "evidence": [
+          {
+            "id": "research--sigma-xi-grants-in-aid-fall-2026:fall-2026:official:1",
+            "source": "official_application_page",
+            "observedAt": "2026-08-20T00:00:00.000Z",
+            "value": "The official application page confirms the July 1 opening, October 1 deadline, active portal, application resources, and award schedule.",
+            "sourceUrl": "https://www.sigmaxi.org/programs/grants-in-aid-of-research/apply",
+            "confidence": "confirmed"
+          },
+          {
+            "id": "research--sigma-xi-grants-in-aid-fall-2026:fall-2026:official:2",
+            "source": "official_application_page",
+            "observedAt": "2026-08-20T00:00:00.000Z",
+            "value": "The official program overview confirms undergraduate eligibility, worldwide access, eligible research fields, and nonmember and member award limits.",
+            "sourceUrl": "https://www.sigmaxi.org/programs/grants-in-aid-of-research",
+            "confidence": "confirmed"
+          }
+        ],
+        "events": [],
+        "sourceChecks": [
+          {
+            "url": "https://www.sigmaxi.org/programs/grants-in-aid-of-research/apply",
+            "checkedAt": "2026-08-20T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          },
+          {
+            "url": "https://www.sigmaxi.org/programs/grants-in-aid-of-research",
+            "checkedAt": "2026-08-20T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          }
+        ],
+        "fieldVerifiedAt": {
+          "state": "2026-08-20",
+          "deadline": "2026-08-20",
+          "applicationUrl": "2026-08-20",
+          "eligibility": "2026-08-20",
+          "award": "2026-08-20",
+          "location": "2026-08-20",
+          "programDates": "2026-08-20",
+          "description": "2026-08-20"
+        },
+        "review": {
+          "note": "Special funds can exceed the conservative $1,000 estimate, but UnlockED does not assume membership or specialized-topic eligibility.",
+          "reviewedAt": "2026-08-20T00:00:00.000Z",
+          "reviewer": "UnlockED catalog acquisition"
+        }
+      }
+    }
   }
 ]

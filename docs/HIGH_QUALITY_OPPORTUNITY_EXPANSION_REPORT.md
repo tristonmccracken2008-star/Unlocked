@@ -378,3 +378,54 @@ The acquisition pipeline remains fail-closed. Rejected candidates stay in the so
 5. Variable-position international programs require role-level ingestion before all nationalities can be proven eligible.
 
 The next acquisition review should revisit announced fall openings rather than weakening eligibility: Federal Reserve summer roles, RTDNA scholarships, Putnam registration, PPIA JSI, Girls Who Invest, Library of Congress programs, and the AICPA December cycle.
+
+---
+
+## Institutional Mining Wave 5
+
+Audit date: 2026-08-20
+Batch: `institutional-mining-2026-08-wave-5`
+
+This execution wave reviewed 54 additional official-source candidates. Eleven passed the unchanged recommendation-safety gate and were imported as new canonical records; 43 were deferred, rejected, or deduplicated with source-watch dates. The acceptance count is below the aspirational target because current-cycle evidence, not volume, remained authoritative.
+
+| Measure | Before Wave 5 | After Wave 5 | Change |
+| --- | ---: | ---: | ---: |
+| Total catalog | 6,018 | 6,029 | +11 |
+| Verified | 225 | 236 | +11 |
+| Recommendation-safe | 92 | 103 | +11 |
+| High-value recommendation-safe | 34 | 45 | +11 |
+| Golden-profile average | 5.72 | 5.98 | +0.26 |
+| Golden-profile minimum | 4 | 4 | 0 |
+| Excellent recommendations | 1,063 | 1,187 | +124 |
+| Controlled exploration | 361 | 300 | -61 |
+
+### Accepted inventory
+
+- U.S. Department of State Student Internship
+- World Bank Treasury Summer Internship
+- The Met Rubio Butterfield Internship
+- Library of Congress Teaching with Primary Sources Internship
+- National Cyber League Fall 2026
+- Sigma Xi Grants in Aid of Research
+- Bipartisan Policy Center Fall Internship
+- CIA Undergraduate Internship and Co-op
+- National Museum of the American Indian Internship
+- NETL Professional Internship Program
+- NETL Zeolitic Filter Materials Research
+
+The wave adds paid government, finance, museum, policy, cyber, and national-laboratory paths; research funding; remote participation; and explicit community-college access. All records carry official provenance, verified lifecycle evidence, structured major/year/citizenship rules, value or an explicit unknown, and scheduled review dates.
+
+### Coverage impact
+
+The 250-profile golden suite now returns 1,488 recommendations, averaging 5.98, with no undergraduate profile below four. Representative community-college transfer coverage rose from four to six recommendations, economics/banking rose from four to five, and international computer science remains seven. Category diversity increased to 5.22 and organization diversity to 5.98.
+
+### Deferred inventory
+
+Forty-three candidates remain outside recommendations. The largest groups are unopened Spring/Summer 2027 cycles, closed federal programs, institution-nominated scholarships, role-specific international programs whose language or work authorization cannot be proved, and duplicates of existing canonical NASA, DOE, Smithsonian, Gilman, Cooke, and Heritage records. These candidates remain in the acquisition ledger with official source URLs, explicit dispositions, and review dates.
+
+### Remaining deserts
+
+1. Humanities and social science funding remain thinner than career inventory.
+2. Permanent-resident and international profiles still have fewer provably eligible U.S.-based internships because many providers require work authorization not fully represented by generic program pages.
+3. Several major 2027 cycles open between September and November; they should be revisited by source watch rather than pre-opened.
+4. Scholarship depth remains materially lower than internship and career-program depth.
