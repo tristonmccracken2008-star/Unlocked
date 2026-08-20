@@ -295,3 +295,86 @@ The strongest excluded records were reviewed again. Hertog, MLT, Truman, Fulbrig
 5. No golden undergraduate profile is below four recommendations, but records with real GPA or age requirements still fail closed when those attributes are unknown.
 
 These are operational acquisition gaps, not reasons to weaken the recommendation gate.
+
+---
+
+## Batch 2 Continuation: Current-Cycle Coverage
+
+Audit date: 2026-08-20
+Batch: `coverage-deserts-2026-08-wave-3`
+
+### Executive result
+
+The complete acquisition ledger now contains 85 official-source candidates across three waves. Twenty-two pass the unchanged recommendation gate. This continuation added seven canonical records and upgraded two existing records after their current application cycles opened; no duplicate opportunity was created.
+
+| Measure | Before continuation | After continuation | Change |
+| --- | ---: | ---: | ---: |
+| Total records | 6,008 | 6,015 | +7 |
+| Recommendation-safe | 81 | 89 | +8 |
+| High-value safe | 23 | 31 | +8 |
+| Explicit international-safe | 7 | 12 | +5 |
+| Transfer-safe | 2 | 2 | 0 |
+| Career safe | 9 | 15 | +6 |
+| Research safe | 8 | 9 | +1 |
+| Scholarship safe | 6 | 7 | +1 |
+| Humanities-specific safe | 4 | 11 | +7 |
+| Social-science/policy-specific safe | 3 | 6 | +3 |
+| Economics/finance/business-specific safe | 3 | 7 | +4 |
+
+The recommendation-safe increase is eight rather than nine because the Cooke and Gilman upgrades replace prior lifecycle-limited projections. Cooke was already conservatively classified as recommendation-safe on the audit date; Gilman's newly open cycle adds one net safe record.
+
+### Added and upgraded records
+
+| Opportunity | Change | Coverage value | Current state |
+| --- | --- | --- | --- |
+| Benjamin A. Gilman International Scholarship | Upgraded | Scholarship, Pell recipients, two- and four-year students, study abroad | Fall 2026 application open; October 1 deadline |
+| Cooke Undergraduate Transfer Scholarship | Upgraded | Transfer-specific scholarship, financial need | Application open; December 9 deadline |
+| OECD Internship Programme | Added | Economics, policy, finance, research, international member-country route | Rolling |
+| Smithsonian Center for Folklife and Cultural Heritage Internships | Added | Humanities, anthropology, history, arts, international access | Year-round |
+| Smithsonian Environmental Research Center Internships | Added | Paid environmental research, undergraduates/recent graduates, international access | Year-round |
+| Smithsonian Associates Internships | Added | Education, communications, public programming, international access | Rolling; October 1 winter/spring priority |
+| United Nations Internships | Added | International public service and policy experience | Position-specific rolling vacancies |
+| American Enterprise Institute Internships | Added | Economics, policy, communications, research | Term-based current listings |
+| Smithsonian National Zoo Internships | Added | Conservation, biology, education, international access | Position-specific rolling listings |
+
+### Golden-profile impact
+
+| Metric | Before continuation | After continuation |
+| --- | ---: | ---: |
+| Total approved recommendations | 1,424 | 1,425 |
+| Average | 5.72 | 5.72 |
+| Minimum | 4 | 4 |
+| p10 | 4 | 4 |
+| Median | 6 | 6 |
+| Profiles at or below 3 | 0 | 0 |
+| Excellent tier | 998 | 1,063 |
+| Strong tier | 1 | 1 |
+| Controlled exploration | 425 | 361 |
+| Average category diversity | 4.76 | 4.75 |
+| Average organization diversity | 5.72 | 5.72 |
+
+The main gain is precision, not feed inflation: 65 recommendations move from controlled exploration to excellent while the portfolio size remains stable. The international CS persona rises from six to seven recommendations. Community-college transfer, economics, and English personas retain four recommendations under the strict eligibility gate.
+
+### Quality and provenance audit
+
+All nine accepted or upgraded records were manually reviewed, exceeding the requested 20% sample. Each record stores an official source, retrieval date, eligibility evidence, lifecycle evidence, deadline model, and provenance. Current-cycle dates are used only where the official provider publishes them. Rolling and position-specific programs do not invent exact deadlines.
+
+The continuation rejected or deferred records when:
+
+- the next application cycle is not yet open, including AICPA, Brookings, Federal Reserve, Point, SAAM, and NHRE;
+- official pages conflict or retain prior-cycle dates, including Cato;
+- eligibility depends on institution membership, nomination, local teams, or a role-specific rule the profile cannot prove;
+- a general umbrella record would hide position-specific requirements, including individual United Nations vacancies and OECD exceptions for non-member-country nationals;
+- a canonical safe record already exists.
+
+The acquisition pipeline remains fail-closed. Rejected candidates stay in the source-watch ledger with a reason and official URL; they are not exposed in recommendations.
+
+### Remaining coverage deserts
+
+1. Transfer-safe depth remains two. Cooke is now current, but membership- and nomination-dependent transfer awards remain unsafe for generic recommendation.
+2. Scholarships total seven and remain the thinnest major product category.
+3. Humanities, economics, and social sciences gained meaningful Career depth but still lack safe Scholarship and Research variety.
+4. First-year-specific inventory remains limited; broad undergraduate eligibility still supplies much of the portfolio.
+5. Variable-position international programs require role-level ingestion before all nationalities can be proven eligible.
+
+The next acquisition review should revisit announced fall openings rather than weakening eligibility: Federal Reserve summer roles, RTDNA scholarships, Putnam registration, PPIA JSI, Girls Who Invest, Library of Congress programs, and the AICPA December cycle.

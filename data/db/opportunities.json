@@ -17030,7 +17030,7 @@
     "title": "Benjamin A. Gilman International Scholarship",
     "type": "Scholarship",
     "category": "Study Abroad Scholarships",
-    "description": "A federal scholarship of up to $5,000 that helps Pell Grant recipients study or intern abroad. Eligible U.S. undergraduates can prepare essays and adviser certifications now, then apply through the official Gilman portal when the fall cycle opens.",
+    "description": "A U.S. Department of State scholarship of up to $5,000 for Pell Grant recipients completing a credit-bearing study-abroad or international internship program.",
     "organization": "U.S. Department of State",
     "school_scope": "National",
     "schools": [],
@@ -17043,41 +17043,58 @@
       "Third year",
       "Fourth year"
     ],
-    "eligibility": "U.S. citizen undergraduates receiving a Federal Pell Grant who are applying to or accepted into an eligible credit-bearing study-abroad or international internship program.",
+    "eligibility": "U.S. citizen undergraduates in good standing at an accredited two- or four-year U.S. institution who receive a Federal Pell Grant and are applying to or accepted into an eligible credit-bearing study-abroad or international internship program.",
     "estimated_value": 5000,
     "application_deadline": "2026-10-01",
-    "recurring": false,
-    "location": "National / online application",
-    "remote": true,
+    "recurring": true,
+    "location": "Eligible international study or internship destination",
+    "remote": false,
     "paid": true,
     "tags": [
       "Scholarship",
-      "Study Abroad Scholarships",
-      "Any Major"
+      "Study Abroad",
+      "Pell Grant",
+      "Any Major",
+      "Community College",
+      "First-Year Friendly"
     ],
     "official_source": "https://www.gilmanscholarship.org/applicants/deadlines-and-timeline/",
+    "official_source_url": "https://www.gilmanscholarship.org/applicants/deadlines-and-timeline/",
     "verification_status": "verified",
-    "last_verified": "2026-08-08",
+    "last_verified": "2026-08-20",
+    "deadline": "2026-10-01",
+    "reviewer_notes": "This replaces the prior upcoming state after the official portal opened. Recommendation eligibility remains contingent on a profile proving Pell Grant receipt.",
+    "estimated_value_note": "Up to $5,000; eligible students may also seek the Critical Need Language Award or STEM Supplemental Award.",
+    "date_added": "2026-08-20",
     "difficulty": "Highly Competitive",
     "prestige": "Very High",
     "icon": "scholarship",
     "featured": false,
     "hidden_gem": false,
     "metadata": {
-      "legacySlug": "gilman-scholarship",
-      "awardAmountLabel": "$5,000",
-      "renewable": false,
-      "applicationRequirements": [
-        "Online application",
-        "Pell eligibility",
-        "Study-abroad program information",
-        "Essays",
-        "Advisor certification"
-      ],
       "deadlineType": "fixed",
       "compensation": "Paid",
-      "workMode": "Remote",
-      "claimUrl": "https://www.gilmanscholarship.org/applicants/deadlines-and-timeline/",
+      "workMode": "In Person",
+      "awardAmountLabel": "Up to $5,000; eligible students may also seek the Critical Need Language Award or STEM Supplemental Award.",
+      "renewable": null,
+      "applicationRequirements": [
+        "Online application",
+        "Four short essays",
+        "Transcripts",
+        "Study-abroad program details",
+        "Study-abroad and financial-aid advisor certifications"
+      ],
+      "estimatedApplicationTime": "1-2 weeks",
+      "skillsGained": [
+        "Cross-cultural Communication",
+        "Language Learning",
+        "Independent Planning"
+      ],
+      "careerPaths": [
+        "International Relations",
+        "Public Service",
+        "Any Career"
+      ],
       "eligibilityRules": {
         "educationLevels": [
           "undergraduate"
@@ -17091,6 +17108,7 @@
         "canonicalEnrollmentStatuses": [
           "currently_enrolled"
         ],
+        "acceptsExternalStudents": true,
         "classYears": [
           "First year",
           "Second year",
@@ -17107,59 +17125,232 @@
         "demographicRequirements": [
           "pell_grant_recipient"
         ],
+        "transferEligibility": "general_undergraduate",
         "availability": "open",
         "recommendationEligibilityStatus": "eligible_for_ranking",
         "evidence": [
-          "The official Gilman pages confirm up to $5,000, U.S.-citizen undergraduate and Federal Pell Grant eligibility, and an October 1, 2026 deadline for the cycle opening in mid-August."
-        ]
+          "Official current-cycle deadline and eligibility pages reviewed on 2026-08-20."
+        ],
+        "fieldEvidence": {
+          "academic_level": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.gilmanscholarship.org/applicants/eligibility/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "fall-2026",
+            "note": "The official eligibility page confirms U.S. citizenship, undergraduate enrollment at two- and four-year institutions, Pell Grant receipt, and credit-bearing program requirements."
+          },
+          "institution_type": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.gilmanscholarship.org/applicants/eligibility/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "fall-2026",
+            "note": "The official eligibility page confirms U.S. citizenship, undergraduate enrollment at two- and four-year institutions, Pell Grant receipt, and credit-bearing program requirements."
+          },
+          "enrollment_status": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.gilmanscholarship.org/applicants/eligibility/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "fall-2026",
+            "note": "The official eligibility page confirms U.S. citizenship, undergraduate enrollment at two- and four-year institutions, Pell Grant receipt, and credit-bearing program requirements."
+          },
+          "school_restriction": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.gilmanscholarship.org/applicants/eligibility/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "fall-2026",
+            "note": "The official eligibility page confirms U.S. citizenship, undergraduate enrollment at two- and four-year institutions, Pell Grant receipt, and credit-bearing program requirements."
+          },
+          "external_student_eligibility": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.gilmanscholarship.org/applicants/eligibility/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "fall-2026",
+            "note": "The official eligibility page confirms U.S. citizenship, undergraduate enrollment at two- and four-year institutions, Pell Grant receipt, and credit-bearing program requirements."
+          },
+          "class_year": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.gilmanscholarship.org/applicants/eligibility/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "fall-2026",
+            "note": "The official eligibility page confirms U.S. citizenship, undergraduate enrollment at two- and four-year institutions, Pell Grant receipt, and credit-bearing program requirements."
+          },
+          "major": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.gilmanscholarship.org/applicants/eligibility/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "fall-2026",
+            "note": "The official eligibility page confirms U.S. citizenship, undergraduate enrollment at two- and four-year institutions, Pell Grant receipt, and credit-bearing program requirements."
+          },
+          "citizenship": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.gilmanscholarship.org/applicants/eligibility/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "fall-2026",
+            "note": "The official eligibility page confirms U.S. citizenship, undergraduate enrollment at two- and four-year institutions, Pell Grant receipt, and credit-bearing program requirements."
+          },
+          "residency": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.gilmanscholarship.org/applicants/deadlines-and-timeline/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "fall-2026",
+            "note": "The official timeline confirms the Fall 2026 application is open through October 1, 2026 for programs beginning December 1, 2026 through October 31, 2027."
+          },
+          "gpa": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.gilmanscholarship.org/applicants/deadlines-and-timeline/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "fall-2026",
+            "note": "The official timeline confirms the Fall 2026 application is open through October 1, 2026 for programs beginning December 1, 2026 through October 31, 2027."
+          },
+          "age": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.gilmanscholarship.org/applicants/deadlines-and-timeline/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "fall-2026",
+            "note": "The official timeline confirms the Fall 2026 application is open through October 1, 2026 for programs beginning December 1, 2026 through October 31, 2027."
+          },
+          "financial_need": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.gilmanscholarship.org/applicants/eligibility/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "fall-2026",
+            "note": "The official eligibility page confirms U.S. citizenship, undergraduate enrollment at two- and four-year institutions, Pell Grant receipt, and credit-bearing program requirements."
+          },
+          "invitation": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.gilmanscholarship.org/applicants/deadlines-and-timeline/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "fall-2026",
+            "note": "The official timeline confirms the Fall 2026 application is open through October 1, 2026 for programs beginning December 1, 2026 through October 31, 2027."
+          },
+          "application_status": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.gilmanscholarship.org/applicants/deadlines-and-timeline/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "fall-2026",
+            "note": "The official timeline confirms the Fall 2026 application is open through October 1, 2026 for programs beginning December 1, 2026 through October 31, 2027."
+          },
+          "deadline": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.gilmanscholarship.org/applicants/deadlines-and-timeline/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "fall-2026",
+            "note": "The official timeline confirms the Fall 2026 application is open through October 1, 2026 for programs beginning December 1, 2026 through October 31, 2027."
+          }
+        }
+      },
+      "sourceReferences": [
+        {
+          "url": "https://www.gilmanscholarship.org/applicants/deadlines-and-timeline/",
+          "authority": "official_program",
+          "verifiedAt": "2026-08-20",
+          "cycle": "fall-2026",
+          "supports": [
+            "application_status",
+            "deadline"
+          ],
+          "note": "The official timeline confirms the Fall 2026 application is open through October 1, 2026 for programs beginning December 1, 2026 through October 31, 2027."
+        },
+        {
+          "url": "https://www.gilmanscholarship.org/applicants/eligibility/",
+          "authority": "official_program",
+          "verifiedAt": "2026-08-20",
+          "cycle": "fall-2026",
+          "supports": [
+            "academic_level",
+            "institution_type",
+            "enrollment_status",
+            "school_restriction",
+            "external_student_eligibility",
+            "class_year",
+            "major",
+            "citizenship",
+            "financial_need"
+          ],
+          "note": "The official eligibility page confirms U.S. citizenship, undergraduate enrollment at two- and four-year institutions, Pell Grant receipt, and credit-bearing program requirements."
+        }
+      ],
+      "acquisition": {
+        "batchId": "coverage-deserts-2026-08-wave-3",
+        "acquiredAt": "2026-08-20",
+        "reviewCadenceDays": 45,
+        "nextReviewAt": "2026-10-02",
+        "freshnessModel": "fixed_cycle"
       },
       "verification": {
         "status": "verified",
-        "lastVerifiedAt": "2026-08-08",
-        "verifiedCycle": "October 2026",
+        "lastVerifiedAt": "2026-08-20",
+        "verifiedCycle": "fall-2026",
         "officialSourceUrl": "https://www.gilmanscholarship.org/applicants/deadlines-and-timeline/",
         "applicationUrlVerified": true,
         "deadlineVerified": true,
         "eligibilityVerified": true,
         "sourceReachable": true,
         "sourceAuditStatus": 200,
-        "notes": "The official Gilman pages confirm up to $5,000, U.S.-citizen undergraduate and Federal Pell Grant eligibility, and an October 1, 2026 deadline for the cycle opening in mid-August."
+        "notes": "This replaces the prior upcoming state after the official portal opened. Recommendation eligibility remains contingent on a profile proving Pell Grant receipt."
       },
       "lifecycle": {
         "schemaVersion": 1,
-        "migrationId": "verified-inventory-2026-08-08",
+        "migrationId": "coverage-deserts-2026-08-wave-3",
         "identity": {
-          "identityId": "scholarship--gilman-scholarship"
+          "identityId": "scholarship--gilman-scholarship",
+          "aliases": [
+            "Gilman Scholarship",
+            "Benjamin A. Gilman International Scholarship"
+          ]
         },
         "cycle": {
-          "cycleId": "october-2026",
-          "label": "october-2026"
+          "cycleId": "fall-2026",
+          "label": "fall-2026"
         },
-        "state": "upcoming",
+        "state": "open",
         "confidence": "confirmed",
-        "reason": "opening_date_future",
-        "effectiveAt": "2026-08-08T00:00:00.000Z",
+        "reason": "official_status_open",
+        "effectiveAt": "2026-08-20T00:00:00.000Z",
         "finalDeadline": {
           "kind": "final_deadline",
           "sourceValue": "2026-10-01",
           "normalizedValue": "2026-10-01",
           "precision": "date",
           "estimated": false,
-          "verifiedAt": "2026-08-08",
+          "verifiedAt": "2026-08-14",
           "sourceUrl": "https://www.gilmanscholarship.org/applicants/deadlines-and-timeline/"
         },
         "recurrence": {
           "type": "annual",
           "confidence": "confirmed",
-          "officialStatement": "The official timeline states that the application opens in mid-August 2026 and closes October 1, 2026; no exact opening day is published."
+          "officialStatement": "This replaces the prior upcoming state after the official portal opened. Recommendation eligibility remains contingent on a profile proving Pell Grant receipt."
         },
         "evidence": [
           {
-            "id": "scholarship--gilman-scholarship:october-2026:official",
-            "source": "official_opening_date",
-            "observedAt": "2026-08-08T00:00:00.000Z",
-            "value": "The official timeline states that the application opens in mid-August 2026 and closes October 1, 2026; no exact opening day is published.",
+            "id": "scholarship--gilman-scholarship:fall-2026:official:1",
+            "source": "official_application_page",
+            "observedAt": "2026-08-20T00:00:00.000Z",
+            "value": "The official timeline confirms the Fall 2026 application is open through October 1, 2026 for programs beginning December 1, 2026 through October 31, 2027.",
             "sourceUrl": "https://www.gilmanscholarship.org/applicants/deadlines-and-timeline/",
+            "confidence": "confirmed"
+          },
+          {
+            "id": "scholarship--gilman-scholarship:fall-2026:official:2",
+            "source": "official_application_page",
+            "observedAt": "2026-08-20T00:00:00.000Z",
+            "value": "The official eligibility page confirms U.S. citizenship, undergraduate enrollment at two- and four-year institutions, Pell Grant receipt, and credit-bearing program requirements.",
+            "sourceUrl": "https://www.gilmanscholarship.org/applicants/eligibility/",
             "confidence": "confirmed"
           }
         ],
@@ -17167,34 +17358,34 @@
         "sourceChecks": [
           {
             "url": "https://www.gilmanscholarship.org/applicants/deadlines-and-timeline/",
-            "checkedAt": "2026-08-08T00:00:00.000Z",
+            "checkedAt": "2026-08-20T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          },
+          {
+            "url": "https://www.gilmanscholarship.org/applicants/eligibility/",
+            "checkedAt": "2026-08-20T00:00:00.000Z",
             "classification": "official_application",
             "status": 200
           }
         ],
         "fieldVerifiedAt": {
-          "state": "2026-08-08",
-          "deadline": "2026-08-08",
-          "applicationUrl": "2026-08-08",
-          "openingDate": "2026-08-08",
-          "eligibility": "2026-08-08",
-          "award": "2026-08-08",
-          "location": "2026-08-08",
-          "programDates": "2026-08-08",
-          "description": "2026-08-08"
+          "state": "2026-08-20",
+          "deadline": "2026-08-20",
+          "applicationUrl": "2026-08-20",
+          "eligibility": "2026-08-20",
+          "award": "2026-08-20",
+          "location": "2026-08-20",
+          "programDates": "2026-08-20",
+          "description": "2026-08-20"
         },
         "review": {
-          "note": "The official timeline states that the application opens in mid-August 2026 and closes October 1, 2026; no exact opening day is published.",
-          "reviewedAt": "2026-08-08T00:00:00.000Z",
-          "reviewer": "UnlockED catalog audit"
+          "note": "This replaces the prior upcoming state after the official portal opened. Recommendation eligibility remains contingent on a profile proving Pell Grant receipt.",
+          "reviewedAt": "2026-08-20T00:00:00.000Z",
+          "reviewer": "UnlockED catalog acquisition"
         }
       }
-    },
-    "date_added": "2026-07-06",
-    "official_source_url": "https://www.gilmanscholarship.org/applicants/deadlines-and-timeline/",
-    "deadline": "2026-10-01",
-    "reviewer_notes": "The official Gilman pages confirm up to $5,000, U.S.-citizen undergraduate and Federal Pell Grant eligibility, and an October 1, 2026 deadline for the cycle opening in mid-August.",
-    "estimated_value_note": "Documented value or reasonable calculation; confirm the supporting source during review."
+    }
   },
   {
     "id": "scholarship--boren-awards",
@@ -434080,7 +434271,7 @@
     "title": "Jack Kent Cooke Undergraduate Transfer Scholarship",
     "type": "Scholarship",
     "category": "Transfer Scholarships",
-    "description": "A major transfer scholarship providing up to $55,000 per year plus advising for high-achieving community-college students. Eligible sophomores and recent graduates planning a fall 2027 transfer can prepare Common App materials now and apply through the official foundation process after August 19.",
+    "description": "A last-dollar scholarship of up to $55,000 per year plus advising for high-achieving community-college students transferring to a four-year institution in fall 2027.",
     "organization": "Jack Kent Cooke Foundation",
     "school_scope": "National",
     "schools": [],
@@ -434088,39 +434279,30 @@
       "Any Major"
     ],
     "academic_years": [
-      "Second year",
-      "Third year"
+      "Second year"
     ],
-    "eligibility": "Current U.S. community-college sophomores by January 1, 2027 or qualifying recent graduates, planning full-time fall 2027 transfer, with at least a 3.5 GPA and demonstrated unmet financial need; U.S. citizenship is not required.",
+    "eligibility": "Current students at accredited U.S. community colleges or two-year institutions with sophomore status by January 1, 2027, or qualifying recent graduates, who plan full-time fall 2027 transfer, hold at least a 3.5 GPA, demonstrate unmet financial need, and have not completed a full-time semester at a four-year institution.",
     "estimated_value": 55000,
     "application_deadline": "2026-12-09",
     "recurring": true,
-    "location": "United States",
+    "location": "Accredited U.S. four-year institution selected by the recipient",
     "remote": null,
-    "paid": null,
+    "paid": true,
     "tags": [
-      "Transfer Scholarships",
       "Scholarship",
-      "Jack Kent Cooke Foundation",
       "Transfer",
       "Community College",
-      "Need Based",
-      "Merit",
-      "Any Major",
-      "Student Support",
-      "Writing",
-      "Planning",
-      "Highly Competitive",
-      "Deadline Varies"
+      "Financial Need",
+      "Any Major"
     ],
     "official_source": "https://www.jkcf.org/our-scholarships/undergraduate-transfer-scholarship/how-to-apply/",
     "official_source_url": "https://www.jkcf.org/our-scholarships/undergraduate-transfer-scholarship/how-to-apply/",
     "verification_status": "verified",
-    "last_verified": "2026-08-08",
+    "last_verified": "2026-08-20",
     "deadline": "2026-12-09",
-    "reviewer_notes": "The official Cooke Foundation pages confirm the August 19–December 9, 2026 cycle, community-college sophomore or recent-graduate status, fall 2027 transfer plan, 3.5 GPA, financial-need limit, no citizenship restriction, and awards up to $55,000 per year.",
-    "estimated_value_note": "Up to $55,000 per year, as published by the Jack Kent Cooke Foundation.",
-    "date_added": "2026-07-12",
+    "reviewer_notes": "This replaces the prior upcoming state. Recent graduates remain described in copy but ranking is conservatively limited to currently enrolled transfer applicants represented by the profile model.",
+    "estimated_value_note": "Up to $55,000 per year for the final two or three years of a bachelor's degree, based on educational costs and other aid.",
+    "date_added": "2026-08-20",
     "difficulty": "Highly Competitive",
     "prestige": "Very High",
     "icon": "scholarship",
@@ -434128,130 +434310,292 @@
     "hidden_gem": false,
     "metadata": {
       "deadlineType": "fixed",
-      "claimUrl": "https://www.jkcf.org/our-scholarships/undergraduate-transfer-scholarship/how-to-apply/",
-      "verificationMethod": "Official provider URL curated for manual verification.",
-      "compensation": "Varies",
+      "compensation": "Paid",
       "workMode": "Varies",
-      "awardAmountLabel": "Up to $55,000 per year",
-      "renewable": true,
+      "awardAmountLabel": "Up to $55,000 per year for the final two or three years of a bachelor's degree, based on educational costs and other aid.",
+      "renewable": null,
       "applicationRequirements": [
-        "Review the official provider page.",
-        "Confirm current eligibility, deadline, citizenship, class-year, and document requirements.",
-        "Apply or claim through the official application process."
+        "Common App for Transfer application",
+        "College transcripts",
+        "Two academic recommendations",
+        "Financial information",
+        "Essays"
       ],
-      "eligibilityNotes": [
-        "Community college students meeting foundation academic, financial, enrollment, and transfer requirements."
-      ],
-      "reviewScore": 72,
       "estimatedApplicationTime": "1-2 weeks",
-      "estimatedAcceptanceRate": "Unknown",
-      "estimatedCompetitiveness": "Highly Competitive",
-      "applicationSeason": "Varies",
       "skillsGained": [
         "Writing",
         "Planning"
       ],
       "careerPaths": [
-        "Student Support"
+        "Any Career"
       ],
-      "expectedROI": "Varies by student goals, eligibility, and completion.",
+      "expectedROI": "Potentially transformative: up to $55,000 per year plus transfer advising for the final two or three years of a bachelor's degree.",
       "recommendedMajors": [
         "Any Major"
       ],
       "recommendedClassYears": [
-        "Second year",
-        "Third year"
+        "Second year"
       ],
-      "citizenship": "Check official source",
-      "internationalEligibility": "Check official source",
-      "verification": {
-        "status": "verified",
-        "lastVerifiedAt": "2026-08-08",
-        "verifiedCycle": "2027 transfer award",
-        "officialSourceUrl": "https://www.jkcf.org/our-scholarships/undergraduate-transfer-scholarship/how-to-apply/",
-        "applicationUrlVerified": true,
-        "deadlineVerified": true,
-        "eligibilityVerified": true,
-        "sourceReachable": true,
-        "sourceAuditStatus": 200,
-        "notes": "The official Cooke Foundation pages confirm the August 19–December 9, 2026 cycle, community-college sophomore or recent-graduate status, fall 2027 transfer plan, 3.5 GPA, financial-need limit, no citizenship restriction, and awards up to $55,000 per year."
-      },
       "eligibilityRules": {
         "educationLevels": [
-          "community_college",
-          "recent_graduate"
+          "community_college"
         ],
         "canonicalInstitutionTypes": [
           "community_college"
         ],
         "canonicalEnrollmentStatuses": [
           "currently_enrolled",
-          "transfer_applicant",
-          "graduated"
+          "transfer_applicant"
         ],
+        "degreeLevels": [
+          "associate"
+        ],
+        "acceptsExternalStudents": true,
         "classYears": [
-          "Second year",
-          "Third year"
+          "Second year"
         ],
         "majors": [
           "Any Major"
         ],
-        "minimumGpa": 3.5,
         "citizenshipStatuses": [
           "unrestricted"
         ],
+        "minimumGpa": 3.5,
         "financialNeedRequired": true,
+        "transferEligibility": "transfer_specific",
         "transferOnly": true,
         "availability": "open",
         "recommendationEligibilityStatus": "eligible_for_ranking",
         "evidence": [
-          "The official Cooke Foundation pages confirm the August 19–December 9, 2026 cycle, community-college sophomore or recent-graduate status, fall 2027 transfer plan, 3.5 GPA, financial-need limit, no citizenship restriction, and awards up to $55,000 per year."
-        ]
+          "The official application page confirms the 2027 transfer cycle is open and does not impose citizenship or nomination requirements."
+        ],
+        "fieldEvidence": {
+          "academic_level": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.jkcf.org/our-scholarships/undergraduate-transfer-scholarship/how-to-apply/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2027-transfer-award",
+            "note": "The official current-cycle page confirms the August 19 opening, December 9 deadline, community-college status, transfer plan, 3.5 GPA, financial-need limit, award, and no prior four-year attendance rule."
+          },
+          "institution_type": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.jkcf.org/our-scholarships/undergraduate-transfer-scholarship/how-to-apply/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2027-transfer-award",
+            "note": "The official current-cycle page confirms the August 19 opening, December 9 deadline, community-college status, transfer plan, 3.5 GPA, financial-need limit, award, and no prior four-year attendance rule."
+          },
+          "enrollment_status": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.jkcf.org/our-scholarships/undergraduate-transfer-scholarship/how-to-apply/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2027-transfer-award",
+            "note": "The official current-cycle page confirms the August 19 opening, December 9 deadline, community-college status, transfer plan, 3.5 GPA, financial-need limit, award, and no prior four-year attendance rule."
+          },
+          "school_restriction": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.jkcf.org/our-scholarships/undergraduate-transfer-scholarship/how-to-apply/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2027-transfer-award",
+            "note": "The official current-cycle page confirms the August 19 opening, December 9 deadline, community-college status, transfer plan, 3.5 GPA, financial-need limit, award, and no prior four-year attendance rule."
+          },
+          "external_student_eligibility": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.jkcf.org/our-scholarships/undergraduate-transfer-scholarship/how-to-apply/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2027-transfer-award",
+            "note": "The official current-cycle page confirms the August 19 opening, December 9 deadline, community-college status, transfer plan, 3.5 GPA, financial-need limit, award, and no prior four-year attendance rule."
+          },
+          "class_year": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.jkcf.org/our-scholarships/undergraduate-transfer-scholarship/how-to-apply/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2027-transfer-award",
+            "note": "The official current-cycle page confirms the August 19 opening, December 9 deadline, community-college status, transfer plan, 3.5 GPA, financial-need limit, award, and no prior four-year attendance rule."
+          },
+          "major": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.jkcf.org/our-scholarships/undergraduate-transfer-scholarship/how-to-apply/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2027-transfer-award",
+            "note": "The official current-cycle page confirms the August 19 opening, December 9 deadline, community-college status, transfer plan, 3.5 GPA, financial-need limit, award, and no prior four-year attendance rule."
+          },
+          "citizenship": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.jkcf.org/our-scholarships/undergraduate-transfer-scholarship/how-to-apply/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2027-transfer-award",
+            "note": "The official current-cycle page confirms the August 19 opening, December 9 deadline, community-college status, transfer plan, 3.5 GPA, financial-need limit, award, and no prior four-year attendance rule."
+          },
+          "residency": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.jkcf.org/our-scholarships/undergraduate-transfer-scholarship/how-to-apply/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2027-transfer-award",
+            "note": "The official current-cycle page confirms the August 19 opening, December 9 deadline, community-college status, transfer plan, 3.5 GPA, financial-need limit, award, and no prior four-year attendance rule."
+          },
+          "gpa": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.jkcf.org/our-scholarships/undergraduate-transfer-scholarship/how-to-apply/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2027-transfer-award",
+            "note": "The official current-cycle page confirms the August 19 opening, December 9 deadline, community-college status, transfer plan, 3.5 GPA, financial-need limit, award, and no prior four-year attendance rule."
+          },
+          "age": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.jkcf.org/our-scholarships/undergraduate-transfer-scholarship/how-to-apply/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2027-transfer-award",
+            "note": "The official current-cycle page confirms the August 19 opening, December 9 deadline, community-college status, transfer plan, 3.5 GPA, financial-need limit, award, and no prior four-year attendance rule."
+          },
+          "financial_need": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.jkcf.org/our-scholarships/undergraduate-transfer-scholarship/how-to-apply/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2027-transfer-award",
+            "note": "The official current-cycle page confirms the August 19 opening, December 9 deadline, community-college status, transfer plan, 3.5 GPA, financial-need limit, award, and no prior four-year attendance rule."
+          },
+          "invitation": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.jkcf.org/our-scholarships/undergraduate-transfer-scholarship/how-to-apply/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2027-transfer-award",
+            "note": "The official current-cycle page confirms the August 19 opening, December 9 deadline, community-college status, transfer plan, 3.5 GPA, financial-need limit, award, and no prior four-year attendance rule."
+          },
+          "application_status": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.jkcf.org/our-scholarships/undergraduate-transfer-scholarship/how-to-apply/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2027-transfer-award",
+            "note": "The official current-cycle page confirms the August 19 opening, December 9 deadline, community-college status, transfer plan, 3.5 GPA, financial-need limit, award, and no prior four-year attendance rule."
+          },
+          "deadline": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.jkcf.org/our-scholarships/undergraduate-transfer-scholarship/how-to-apply/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2027-transfer-award",
+            "note": "The official current-cycle page confirms the August 19 opening, December 9 deadline, community-college status, transfer plan, 3.5 GPA, financial-need limit, award, and no prior four-year attendance rule."
+          }
+        }
+      },
+      "sourceReferences": [
+        {
+          "url": "https://www.jkcf.org/our-scholarships/undergraduate-transfer-scholarship/how-to-apply/",
+          "authority": "official_program",
+          "verifiedAt": "2026-08-20",
+          "cycle": "2027-transfer-award",
+          "supports": [
+            "academic_level",
+            "institution_type",
+            "enrollment_status",
+            "school_restriction",
+            "external_student_eligibility",
+            "class_year",
+            "major",
+            "citizenship",
+            "residency",
+            "gpa",
+            "age",
+            "financial_need",
+            "invitation",
+            "application_status",
+            "deadline"
+          ],
+          "note": "The official current-cycle page confirms the August 19 opening, December 9 deadline, community-college status, transfer plan, 3.5 GPA, financial-need limit, award, and no prior four-year attendance rule."
+        },
+        {
+          "url": "https://www.jkcf.org/our-scholarships/undergraduate-transfer-scholarship/faqs/",
+          "authority": "official_program",
+          "verifiedAt": "2026-08-20",
+          "cycle": "2027-transfer-award",
+          "supports": [
+            "application_status",
+            "deadline",
+            "invitation"
+          ],
+          "note": "The official FAQ confirms the 2027 dates, direct application without institutional nomination, and two academic recommendations."
+        }
+      ],
+      "acquisition": {
+        "batchId": "coverage-deserts-2026-08-wave-3",
+        "acquiredAt": "2026-08-20",
+        "reviewCadenceDays": 45,
+        "nextReviewAt": "2026-12-10",
+        "freshnessModel": "fixed_cycle"
+      },
+      "verification": {
+        "status": "verified",
+        "lastVerifiedAt": "2026-08-20",
+        "verifiedCycle": "2027-transfer-award",
+        "officialSourceUrl": "https://www.jkcf.org/our-scholarships/undergraduate-transfer-scholarship/how-to-apply/",
+        "applicationUrlVerified": true,
+        "deadlineVerified": true,
+        "eligibilityVerified": true,
+        "sourceReachable": true,
+        "sourceAuditStatus": 200,
+        "notes": "This replaces the prior upcoming state. Recent graduates remain described in copy but ranking is conservatively limited to currently enrolled transfer applicants represented by the profile model."
       },
       "lifecycle": {
         "schemaVersion": 1,
-        "migrationId": "verified-inventory-2026-08-08",
+        "migrationId": "coverage-deserts-2026-08-wave-3",
         "identity": {
-          "identityId": "national-curated-2026--jack-kent-cooke-foundation--jack-kent-cooke-undergraduate-transfer-scholarship"
+          "identityId": "national-curated-2026--jack-kent-cooke-foundation--jack-kent-cooke-undergraduate-transfer-scholarship",
+          "aliases": [
+            "Cooke Undergraduate Transfer Scholarship",
+            "JKCF Transfer Scholarship"
+          ]
         },
         "cycle": {
           "cycleId": "2027-transfer-award",
           "label": "2027-transfer-award"
         },
-        "state": "upcoming",
+        "state": "open",
         "confidence": "confirmed",
-        "reason": "opening_date_future",
-        "effectiveAt": "2026-08-08T00:00:00.000Z",
-        "openingDate": {
-          "kind": "application_open",
-          "sourceValue": "2026-08-19",
-          "normalizedValue": "2026-08-19",
-          "precision": "date",
-          "estimated": false,
-          "verifiedAt": "2026-08-08",
-          "sourceUrl": "https://www.jkcf.org/our-scholarships/undergraduate-transfer-scholarship/how-to-apply/"
-        },
+        "reason": "official_status_open",
+        "effectiveAt": "2026-08-20T00:00:00.000Z",
         "finalDeadline": {
           "kind": "final_deadline",
           "sourceValue": "2026-12-09",
           "normalizedValue": "2026-12-09",
           "precision": "date",
           "estimated": false,
-          "verifiedAt": "2026-08-08",
+          "verifiedAt": "2026-08-14",
           "sourceUrl": "https://www.jkcf.org/our-scholarships/undergraduate-transfer-scholarship/how-to-apply/"
         },
         "recurrence": {
           "type": "annual",
           "confidence": "confirmed",
-          "officialStatement": "The official application page lists an August 19, 2026 opening and December 9, 2026 deadline."
+          "officialStatement": "This replaces the prior upcoming state. Recent graduates remain described in copy but ranking is conservatively limited to currently enrolled transfer applicants represented by the profile model."
         },
         "evidence": [
           {
-            "id": "national-curated-2026--jack-kent-cooke-foundation--jack-kent-cooke-undergraduate-transfer-scholarship:2027-transfer-award:official",
-            "source": "official_opening_date",
-            "observedAt": "2026-08-08T00:00:00.000Z",
-            "value": "The official application page lists an August 19, 2026 opening and December 9, 2026 deadline.",
+            "id": "national-curated-2026--jack-kent-cooke-foundation--jack-kent-cooke-undergraduate-transfer-scholarship:2027-transfer-award:official:1",
+            "source": "official_application_page",
+            "observedAt": "2026-08-20T00:00:00.000Z",
+            "value": "The official current-cycle page confirms the August 19 opening, December 9 deadline, community-college status, transfer plan, 3.5 GPA, financial-need limit, award, and no prior four-year attendance rule.",
             "sourceUrl": "https://www.jkcf.org/our-scholarships/undergraduate-transfer-scholarship/how-to-apply/",
+            "confidence": "confirmed"
+          },
+          {
+            "id": "national-curated-2026--jack-kent-cooke-foundation--jack-kent-cooke-undergraduate-transfer-scholarship:2027-transfer-award:official:2",
+            "source": "official_application_page",
+            "observedAt": "2026-08-20T00:00:00.000Z",
+            "value": "The official FAQ confirms the 2027 dates, direct application without institutional nomination, and two academic recommendations.",
+            "sourceUrl": "https://www.jkcf.org/our-scholarships/undergraduate-transfer-scholarship/faqs/",
             "confidence": "confirmed"
           }
         ],
@@ -434259,26 +434603,31 @@
         "sourceChecks": [
           {
             "url": "https://www.jkcf.org/our-scholarships/undergraduate-transfer-scholarship/how-to-apply/",
-            "checkedAt": "2026-08-08T00:00:00.000Z",
+            "checkedAt": "2026-08-20T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          },
+          {
+            "url": "https://www.jkcf.org/our-scholarships/undergraduate-transfer-scholarship/faqs/",
+            "checkedAt": "2026-08-20T00:00:00.000Z",
             "classification": "official_application",
             "status": 200
           }
         ],
         "fieldVerifiedAt": {
-          "state": "2026-08-08",
-          "deadline": "2026-08-08",
-          "applicationUrl": "2026-08-08",
-          "openingDate": "2026-08-08",
-          "eligibility": "2026-08-08",
-          "award": "2026-08-08",
-          "location": "2026-08-08",
-          "programDates": "2026-08-08",
-          "description": "2026-08-08"
+          "state": "2026-08-20",
+          "deadline": "2026-08-20",
+          "applicationUrl": "2026-08-20",
+          "eligibility": "2026-08-20",
+          "award": "2026-08-20",
+          "location": "2026-08-20",
+          "programDates": "2026-08-20",
+          "description": "2026-08-20"
         },
         "review": {
-          "note": "The official application page lists an August 19, 2026 opening and December 9, 2026 deadline.",
-          "reviewedAt": "2026-08-08T00:00:00.000Z",
-          "reviewer": "UnlockED catalog audit"
+          "note": "This replaces the prior upcoming state. Recent graduates remain described in copy but ranking is conservatively limited to currently enrolled transfer applicants represented by the profile model.",
+          "reviewedAt": "2026-08-20T00:00:00.000Z",
+          "reviewer": "UnlockED catalog acquisition"
         }
       }
     }
@@ -443309,6 +443658,2558 @@
         "review": {
           "note": "The record models the central internship program, not a specific department. Ranking is limited to listed policy-adjacent majors and profiles with supported U.S. work status.",
           "reviewedAt": "2026-08-15T00:00:00.000Z",
+          "reviewer": "UnlockED catalog acquisition"
+        }
+      }
+    }
+  },
+  {
+    "id": "career--smithsonian-folklife-cultural-heritage-internships",
+    "title": "Smithsonian Center for Folklife and Cultural Heritage Internships",
+    "type": "Career",
+    "category": "Museums & Archives",
+    "description": "Year-round internships in folklore, cultural anthropology, ethnomusicology, linguistics, museum studies, arts administration, design, media, marketing, and library science, with on-site, hybrid, and virtual placements.",
+    "organization": "Smithsonian Center for Folklife and Cultural Heritage",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "English",
+      "History",
+      "Philosophy",
+      "Art History",
+      "Museum Studies",
+      "Library Science",
+      "Communication",
+      "Journalism",
+      "Fine Arts",
+      "Design",
+      "Anthropology"
+    ],
+    "academic_years": [
+      "First year",
+      "Second year",
+      "Third year",
+      "Fourth year"
+    ],
+    "eligibility": "Undergraduate students whose academic or career goals align with a listed Folklife and Cultural Heritage placement. Smithsonian internships generally permit any citizenship, subject to the work authorization or immigration review required for the selected appointment.",
+    "estimated_value": null,
+    "application_deadline": null,
+    "recurring": true,
+    "location": "Washington, DC, hybrid, or virtual depending on placement",
+    "remote": null,
+    "paid": null,
+    "tags": [
+      "Internship",
+      "Humanities",
+      "Museums",
+      "Cultural Heritage",
+      "Writing",
+      "International",
+      "Rolling"
+    ],
+    "official_source": "https://internships.si.edu/opportunities",
+    "official_source_url": "https://internships.si.edu/opportunities",
+    "verification_status": "verified",
+    "last_verified": "2026-08-20",
+    "deadline": null,
+    "reviewer_notes": "The record represents the stable Center program, not a guarantee that every project is paid, remote, or immediately staffed.",
+    "estimated_value_note": "Unknown - stipend availability and amount vary by placement.",
+    "date_added": "2026-08-20",
+    "difficulty": "Competitive",
+    "prestige": "Very High",
+    "icon": "career",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "deadlineType": "rolling",
+      "compensation": "Varies",
+      "workMode": "Varies",
+      "applicationRequirements": [
+        "SOLAA application",
+        "Resume",
+        "Statement of interest",
+        "Placement-specific materials"
+      ],
+      "estimatedApplicationTime": "3-5 hours",
+      "skillsGained": [
+        "Cultural Research",
+        "Museum Practice",
+        "Writing",
+        "Public Programming"
+      ],
+      "careerPaths": [
+        "Museums",
+        "Public Humanities",
+        "Publishing",
+        "Cultural Heritage"
+      ],
+      "eligibilityRules": {
+        "educationLevels": [
+          "undergraduate"
+        ],
+        "canonicalInstitutionTypes": [
+          "community_college",
+          "four_year_college",
+          "university",
+          "liberal_arts_college"
+        ],
+        "canonicalEnrollmentStatuses": [
+          "currently_enrolled"
+        ],
+        "acceptsExternalStudents": true,
+        "classYears": [
+          "First year",
+          "Second year",
+          "Third year",
+          "Fourth year"
+        ],
+        "majors": [
+          "English",
+          "History",
+          "Philosophy",
+          "Art History",
+          "Museum Studies",
+          "Library Science",
+          "Communication",
+          "Journalism",
+          "Fine Arts",
+          "Design",
+          "Anthropology"
+        ],
+        "citizenshipStatuses": [
+          "international_allowed"
+        ],
+        "transferEligibility": "general_undergraduate",
+        "availability": "rolling",
+        "recommendationEligibilityStatus": "eligible_for_ranking",
+        "evidence": [
+          "Official Smithsonian directory and institution-wide internship rules reviewed on 2026-08-20."
+        ],
+        "fieldEvidence": {
+          "academic_level": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://internships.si.edu/opportunities",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026-27",
+            "note": "The official Smithsonian directory confirms year-round Center internships, fields, locations, and the recurring summer priority deadline."
+          },
+          "institution_type": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://internships.si.edu/opportunities",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026-27",
+            "note": "The official Smithsonian directory confirms year-round Center internships, fields, locations, and the recurring summer priority deadline."
+          },
+          "enrollment_status": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://internships.si.edu/opportunities",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026-27",
+            "note": "The official Smithsonian directory confirms year-round Center internships, fields, locations, and the recurring summer priority deadline."
+          },
+          "school_restriction": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://internships.si.edu/opportunities",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026-27",
+            "note": "The official Smithsonian directory confirms year-round Center internships, fields, locations, and the recurring summer priority deadline."
+          },
+          "external_student_eligibility": {
+            "state": "verified_open",
+            "sourceUrl": "https://internships.si.edu/opportunities",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026-27",
+            "note": "The official Smithsonian directory confirms year-round Center internships, fields, locations, and the recurring summer priority deadline."
+          },
+          "class_year": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://internships.si.edu/opportunities",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026-27",
+            "note": "The official Smithsonian directory confirms year-round Center internships, fields, locations, and the recurring summer priority deadline."
+          },
+          "major": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://internships.si.edu/opportunities",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026-27",
+            "note": "The official Smithsonian directory confirms year-round Center internships, fields, locations, and the recurring summer priority deadline."
+          },
+          "citizenship": {
+            "state": "verified_open",
+            "sourceUrl": "https://internships.si.edu/smithsonian-directive-709",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026-27",
+            "note": "The Smithsonian's official internship directive states that interns may generally hold any citizenship or residency, subject to program-specific rules and immigration authorization."
+          },
+          "residency": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://internships.si.edu/smithsonian-directive-709",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026-27",
+            "note": "The Smithsonian's official internship directive states that interns may generally hold any citizenship or residency, subject to program-specific rules and immigration authorization."
+          },
+          "gpa": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://internships.si.edu/opportunities",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026-27",
+            "note": "The official Smithsonian directory confirms year-round Center internships, fields, locations, and the recurring summer priority deadline."
+          },
+          "age": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://internships.si.edu/smithsonian-directive-709",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026-27",
+            "note": "The Smithsonian's official internship directive states that interns may generally hold any citizenship or residency, subject to program-specific rules and immigration authorization."
+          },
+          "financial_need": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://internships.si.edu/opportunities",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026-27",
+            "note": "The official Smithsonian directory confirms year-round Center internships, fields, locations, and the recurring summer priority deadline."
+          },
+          "invitation": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://internships.si.edu/opportunities",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026-27",
+            "note": "The official Smithsonian directory confirms year-round Center internships, fields, locations, and the recurring summer priority deadline."
+          },
+          "application_status": {
+            "state": "verified_open",
+            "sourceUrl": "https://internships.si.edu/opportunities",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026-27",
+            "note": "The official Smithsonian directory confirms year-round Center internships, fields, locations, and the recurring summer priority deadline."
+          },
+          "deadline": {
+            "state": "verified_open",
+            "sourceUrl": "https://internships.si.edu/opportunities",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026-27",
+            "note": "The official Smithsonian directory confirms year-round Center internships, fields, locations, and the recurring summer priority deadline."
+          }
+        }
+      },
+      "sourceReferences": [
+        {
+          "url": "https://internships.si.edu/opportunities",
+          "authority": "official_program",
+          "verifiedAt": "2026-08-20",
+          "cycle": "year-round-2026-27",
+          "supports": [
+            "academic_level",
+            "institution_type",
+            "enrollment_status",
+            "school_restriction",
+            "external_student_eligibility",
+            "class_year",
+            "major",
+            "application_status",
+            "deadline"
+          ],
+          "note": "The official Smithsonian directory confirms year-round Center internships, fields, locations, and the recurring summer priority deadline."
+        },
+        {
+          "url": "https://internships.si.edu/smithsonian-directive-709",
+          "authority": "official_program",
+          "verifiedAt": "2026-08-20",
+          "cycle": "year-round-2026-27",
+          "supports": [
+            "citizenship",
+            "residency",
+            "age"
+          ],
+          "note": "The Smithsonian's official internship directive states that interns may generally hold any citizenship or residency, subject to program-specific rules and immigration authorization."
+        }
+      ],
+      "acquisition": {
+        "batchId": "coverage-deserts-2026-08-wave-3",
+        "acquiredAt": "2026-08-20",
+        "reviewCadenceDays": 60,
+        "nextReviewAt": "2026-10-19",
+        "freshnessModel": "rolling_program"
+      },
+      "verification": {
+        "status": "verified",
+        "lastVerifiedAt": "2026-08-20",
+        "verifiedCycle": "year-round-2026-27",
+        "officialSourceUrl": "https://internships.si.edu/opportunities",
+        "applicationUrlVerified": true,
+        "deadlineVerified": false,
+        "eligibilityVerified": true,
+        "sourceReachable": true,
+        "sourceAuditStatus": 200,
+        "notes": "The record represents the stable Center program, not a guarantee that every project is paid, remote, or immediately staffed."
+      },
+      "lifecycle": {
+        "schemaVersion": 1,
+        "migrationId": "coverage-deserts-2026-08-wave-3",
+        "identity": {
+          "identityId": "career--smithsonian-folklife-cultural-heritage-internships",
+          "aliases": [
+            "CFCH Internships",
+            "Smithsonian Folklife Internships"
+          ]
+        },
+        "cycle": {
+          "cycleId": "year-round-2026-27",
+          "label": "year-round-2026-27"
+        },
+        "state": "rolling",
+        "confidence": "confirmed",
+        "reason": "rolling_confirmed",
+        "effectiveAt": "2026-08-20T00:00:00.000Z",
+        "recurrence": {
+          "type": "rolling_cohort",
+          "confidence": "confirmed",
+          "officialStatement": "The record represents the stable Center program, not a guarantee that every project is paid, remote, or immediately staffed."
+        },
+        "evidence": [
+          {
+            "id": "career--smithsonian-folklife-cultural-heritage-internships:year-round-2026-27:official:1",
+            "source": "official_status",
+            "observedAt": "2026-08-20T00:00:00.000Z",
+            "value": "The official Smithsonian directory confirms year-round Center internships, fields, locations, and the recurring summer priority deadline.",
+            "sourceUrl": "https://internships.si.edu/opportunities",
+            "confidence": "confirmed"
+          },
+          {
+            "id": "career--smithsonian-folklife-cultural-heritage-internships:year-round-2026-27:official:2",
+            "source": "official_status",
+            "observedAt": "2026-08-20T00:00:00.000Z",
+            "value": "The Smithsonian's official internship directive states that interns may generally hold any citizenship or residency, subject to program-specific rules and immigration authorization.",
+            "sourceUrl": "https://internships.si.edu/smithsonian-directive-709",
+            "confidence": "confirmed"
+          }
+        ],
+        "events": [],
+        "sourceChecks": [
+          {
+            "url": "https://internships.si.edu/opportunities",
+            "checkedAt": "2026-08-20T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          },
+          {
+            "url": "https://internships.si.edu/smithsonian-directive-709",
+            "checkedAt": "2026-08-20T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          }
+        ],
+        "fieldVerifiedAt": {
+          "state": "2026-08-20",
+          "deadline": "2026-08-20",
+          "applicationUrl": "2026-08-20",
+          "eligibility": "2026-08-20",
+          "award": "2026-08-20",
+          "location": "2026-08-20",
+          "programDates": "2026-08-20",
+          "description": "2026-08-20"
+        },
+        "review": {
+          "note": "The record represents the stable Center program, not a guarantee that every project is paid, remote, or immediately staffed.",
+          "reviewedAt": "2026-08-20T00:00:00.000Z",
+          "reviewer": "UnlockED catalog acquisition"
+        }
+      }
+    }
+  },
+  {
+    "id": "career--united-nations-internships",
+    "title": "United Nations Internships",
+    "type": "Career",
+    "category": "Public Service",
+    "description": "Two- to six-month internships supporting research, policy analysis, conferences, communications, data, and program work across United Nations offices worldwide, with vacancies published throughout the year.",
+    "organization": "United Nations",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "Political Science",
+      "Public Policy",
+      "International Relations",
+      "Economics",
+      "Finance",
+      "Accounting",
+      "Business",
+      "History",
+      "Sociology",
+      "Communication",
+      "Journalism",
+      "Data Science",
+      "Statistics"
+    ],
+    "academic_years": [
+      "Fourth year",
+      "Graduate student"
+    ],
+    "eligibility": "Students in the final year of a bachelor's program, graduate students, and recent graduates who begin within one year of graduation, have strong English or French, and are not the child or sibling of a United Nations Secretariat staff member. Applicants of any nationality may apply and are responsible for required visas, travel, insurance, and living costs.",
+    "estimated_value": null,
+    "application_deadline": null,
+    "recurring": true,
+    "location": "United Nations duty stations worldwide",
+    "remote": null,
+    "paid": false,
+    "tags": [
+      "Internship",
+      "Public Policy",
+      "International Relations",
+      "Global",
+      "Rolling"
+    ],
+    "official_source": "https://www.un.org/en/academic-impact/page/internships",
+    "official_source_url": "https://www.un.org/en/academic-impact/page/internships",
+    "verification_status": "verified",
+    "last_verified": "2026-08-20",
+    "deadline": null,
+    "reviewer_notes": "This stable umbrella record points students to live Secretariat vacancies. Individual roles may add field, language, location, or schedule requirements that must be checked before applying.",
+    "estimated_value_note": "Unknown - United Nations Secretariat internships are unpaid; payment policies differ at other UN agencies.",
+    "date_added": "2026-08-20",
+    "difficulty": "Highly Competitive",
+    "prestige": "Very High",
+    "icon": "career",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "deadlineType": "rolling",
+      "compensation": "Unpaid",
+      "workMode": "Varies",
+      "internshipDuration": "2-6 months",
+      "applicationRequirements": [
+        "Inspira profile",
+        "Position-specific application",
+        "Cover letter",
+        "Education and language details"
+      ],
+      "estimatedApplicationTime": "1-2 hours",
+      "skillsGained": [
+        "Policy Research",
+        "International Collaboration",
+        "Professional Writing",
+        "Program Support"
+      ],
+      "careerPaths": [
+        "International Relations",
+        "Public Policy",
+        "Public Service",
+        "Communications"
+      ],
+      "eligibilityRules": {
+        "educationLevels": [
+          "undergraduate",
+          "graduate",
+          "recent_graduate"
+        ],
+        "canonicalInstitutionTypes": [
+          "four_year_college",
+          "university",
+          "liberal_arts_college",
+          "graduate_school"
+        ],
+        "canonicalEnrollmentStatuses": [
+          "currently_enrolled",
+          "graduated"
+        ],
+        "acceptsExternalStudents": true,
+        "classYears": [
+          "Fourth year",
+          "Graduate student"
+        ],
+        "majors": [
+          "Political Science",
+          "Public Policy",
+          "International Relations",
+          "Economics",
+          "Finance",
+          "Accounting",
+          "Business",
+          "History",
+          "Sociology",
+          "Communication",
+          "Journalism",
+          "Data Science",
+          "Statistics"
+        ],
+        "citizenshipStatuses": [
+          "international_allowed"
+        ],
+        "invitationOnly": false,
+        "transferEligibility": "general_undergraduate",
+        "availability": "rolling",
+        "recommendationEligibilityStatus": "eligible_for_ranking",
+        "evidence": [
+          "Ranking is limited to final-year and graduate profiles to reconcile the UN's current FAQ with its published student guidance."
+        ],
+        "fieldEvidence": {
+          "academic_level": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.un.org/en/academic-impact/page/internships",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026",
+            "note": "The official UN internship FAQ confirms degree-stage eligibility, language, family restriction, duration, unpaid status, visa responsibility, and the official careers application route."
+          },
+          "institution_type": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.un.org/en/academic-impact/page/internships",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026",
+            "note": "The official UN internship FAQ confirms degree-stage eligibility, language, family restriction, duration, unpaid status, visa responsibility, and the official careers application route."
+          },
+          "enrollment_status": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.un.org/en/academic-impact/page/internships",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026",
+            "note": "The official UN internship FAQ confirms degree-stage eligibility, language, family restriction, duration, unpaid status, visa responsibility, and the official careers application route."
+          },
+          "school_restriction": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.un.org/en/academic-impact/page/internships",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026",
+            "note": "The official UN internship FAQ confirms degree-stage eligibility, language, family restriction, duration, unpaid status, visa responsibility, and the official careers application route."
+          },
+          "external_student_eligibility": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.un.org/en/academic-impact/page/internships",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026",
+            "note": "The official UN internship FAQ confirms degree-stage eligibility, language, family restriction, duration, unpaid status, visa responsibility, and the official careers application route."
+          },
+          "class_year": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.un.org/en/academic-impact/page/internships",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026",
+            "note": "The official UN internship FAQ confirms degree-stage eligibility, language, family restriction, duration, unpaid status, visa responsibility, and the official careers application route."
+          },
+          "major": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.un.org/en/academic-impact/page/internships",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026",
+            "note": "The official UN internship FAQ confirms degree-stage eligibility, language, family restriction, duration, unpaid status, visa responsibility, and the official careers application route."
+          },
+          "citizenship": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.un.org/en/academic-impact/page/internships",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026",
+            "note": "The official UN internship FAQ confirms degree-stage eligibility, language, family restriction, duration, unpaid status, visa responsibility, and the official careers application route."
+          },
+          "residency": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.un.org/en/academic-impact/page/internships",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026",
+            "note": "The official UN internship FAQ confirms degree-stage eligibility, language, family restriction, duration, unpaid status, visa responsibility, and the official careers application route."
+          },
+          "gpa": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.un.org/en/academic-impact/page/internships",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026",
+            "note": "The official UN internship FAQ confirms degree-stage eligibility, language, family restriction, duration, unpaid status, visa responsibility, and the official careers application route."
+          },
+          "age": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.un.org/en/academic-impact/page/internships",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026",
+            "note": "The official UN internship FAQ confirms degree-stage eligibility, language, family restriction, duration, unpaid status, visa responsibility, and the official careers application route."
+          },
+          "financial_need": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.un.org/en/academic-impact/page/internships",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026",
+            "note": "The official UN internship FAQ confirms degree-stage eligibility, language, family restriction, duration, unpaid status, visa responsibility, and the official careers application route."
+          },
+          "invitation": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.un.org/en/academic-impact/page/internships",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026",
+            "note": "The official UN internship FAQ confirms degree-stage eligibility, language, family restriction, duration, unpaid status, visa responsibility, and the official careers application route."
+          },
+          "application_status": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.un.org/en/academic-impact/page/internships",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026",
+            "note": "The official UN internship FAQ confirms degree-stage eligibility, language, family restriction, duration, unpaid status, visa responsibility, and the official careers application route."
+          },
+          "deadline": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.un.org/en/academic-impact/page/internships",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026",
+            "note": "The official UN internship FAQ confirms degree-stage eligibility, language, family restriction, duration, unpaid status, visa responsibility, and the official careers application route."
+          }
+        }
+      },
+      "sourceReferences": [
+        {
+          "url": "https://www.un.org/en/academic-impact/page/internships",
+          "authority": "official_program",
+          "verifiedAt": "2026-08-20",
+          "cycle": "year-round-2026",
+          "supports": [
+            "academic_level",
+            "institution_type",
+            "enrollment_status",
+            "school_restriction",
+            "external_student_eligibility",
+            "class_year",
+            "major",
+            "citizenship",
+            "residency",
+            "gpa",
+            "age",
+            "financial_need",
+            "invitation",
+            "application_status",
+            "deadline"
+          ],
+          "note": "The official UN internship FAQ confirms degree-stage eligibility, language, family restriction, duration, unpaid status, visa responsibility, and the official careers application route."
+        },
+        {
+          "url": "https://www.un.org/en/academic-impact/work4un-un-interns",
+          "authority": "official_program",
+          "verifiedAt": "2026-08-20",
+          "cycle": "year-round-2026",
+          "supports": [
+            "application_status",
+            "deadline",
+            "external_student_eligibility"
+          ],
+          "note": "The official Work4UN page confirms internship vacancies are published year-round across global duty stations."
+        }
+      ],
+      "acquisition": {
+        "batchId": "coverage-deserts-2026-08-wave-3",
+        "acquiredAt": "2026-08-20",
+        "reviewCadenceDays": 60,
+        "nextReviewAt": "2026-10-19",
+        "freshnessModel": "rolling_program"
+      },
+      "verification": {
+        "status": "verified",
+        "lastVerifiedAt": "2026-08-20",
+        "verifiedCycle": "year-round-2026",
+        "officialSourceUrl": "https://www.un.org/en/academic-impact/page/internships",
+        "applicationUrlVerified": true,
+        "deadlineVerified": false,
+        "eligibilityVerified": true,
+        "sourceReachable": true,
+        "sourceAuditStatus": 200,
+        "notes": "This stable umbrella record points students to live Secretariat vacancies. Individual roles may add field, language, location, or schedule requirements that must be checked before applying."
+      },
+      "lifecycle": {
+        "schemaVersion": 1,
+        "migrationId": "coverage-deserts-2026-08-wave-3",
+        "identity": {
+          "identityId": "career--united-nations-internships",
+          "aliases": [
+            "UN Internships",
+            "United Nations Secretariat Internships"
+          ]
+        },
+        "cycle": {
+          "cycleId": "year-round-2026",
+          "label": "year-round-2026"
+        },
+        "state": "rolling",
+        "confidence": "confirmed",
+        "reason": "rolling_confirmed",
+        "effectiveAt": "2026-08-20T00:00:00.000Z",
+        "recurrence": {
+          "type": "rolling_cohort",
+          "confidence": "confirmed",
+          "officialStatement": "This stable umbrella record points students to live Secretariat vacancies. Individual roles may add field, language, location, or schedule requirements that must be checked before applying."
+        },
+        "evidence": [
+          {
+            "id": "career--united-nations-internships:year-round-2026:official:1",
+            "source": "official_status",
+            "observedAt": "2026-08-20T00:00:00.000Z",
+            "value": "The official UN internship FAQ confirms degree-stage eligibility, language, family restriction, duration, unpaid status, visa responsibility, and the official careers application route.",
+            "sourceUrl": "https://www.un.org/en/academic-impact/page/internships",
+            "confidence": "confirmed"
+          },
+          {
+            "id": "career--united-nations-internships:year-round-2026:official:2",
+            "source": "official_status",
+            "observedAt": "2026-08-20T00:00:00.000Z",
+            "value": "The official Work4UN page confirms internship vacancies are published year-round across global duty stations.",
+            "sourceUrl": "https://www.un.org/en/academic-impact/work4un-un-interns",
+            "confidence": "confirmed"
+          }
+        ],
+        "events": [],
+        "sourceChecks": [
+          {
+            "url": "https://www.un.org/en/academic-impact/page/internships",
+            "checkedAt": "2026-08-20T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          },
+          {
+            "url": "https://www.un.org/en/academic-impact/work4un-un-interns",
+            "checkedAt": "2026-08-20T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          }
+        ],
+        "fieldVerifiedAt": {
+          "state": "2026-08-20",
+          "deadline": "2026-08-20",
+          "applicationUrl": "2026-08-20",
+          "eligibility": "2026-08-20",
+          "award": "2026-08-20",
+          "location": "2026-08-20",
+          "programDates": "2026-08-20",
+          "description": "2026-08-20"
+        },
+        "review": {
+          "note": "This stable umbrella record points students to live Secretariat vacancies. Individual roles may add field, language, location, or schedule requirements that must be checked before applying.",
+          "reviewedAt": "2026-08-20T00:00:00.000Z",
+          "reviewer": "UnlockED catalog acquisition"
+        }
+      }
+    }
+  },
+  {
+    "id": "research--smithsonian-serc-internships",
+    "title": "Smithsonian Environmental Research Center Internships",
+    "type": "Research",
+    "category": "Research",
+    "description": "Paid, mentor-guided research and public-engagement internships spanning ecology, environmental science, participatory science, environmental education, and science writing, with opportunities offered throughout the year.",
+    "organization": "Smithsonian Environmental Research Center",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "Biology",
+      "Environmental Science",
+      "Ecology",
+      "Marine Biology",
+      "Chemistry",
+      "Natural Sciences",
+      "Data Science",
+      "Science Communication",
+      "Education"
+    ],
+    "academic_years": [
+      "First year",
+      "Second year",
+      "Third year",
+      "Fourth year"
+    ],
+    "eligibility": "Currently enrolled undergraduate students and recent bachelor's graduates in fields relevant to available SERC projects. U.S. citizens, permanent residents, and international applicants may apply; international participants need valid authorization and may receive Smithsonian visa sponsorship when approved.",
+    "estimated_value": null,
+    "application_deadline": null,
+    "recurring": true,
+    "location": "Edgewater, Maryland, virtual, or hybrid depending on project",
+    "remote": null,
+    "paid": true,
+    "tags": [
+      "Research",
+      "Environmental Science",
+      "Ecology",
+      "Science Writing",
+      "Paid",
+      "International",
+      "Rolling"
+    ],
+    "official_source": "https://serc.si.edu/internships",
+    "official_source_url": "https://serc.si.edu/internships",
+    "verification_status": "verified",
+    "last_verified": "2026-08-20",
+    "deadline": null,
+    "reviewer_notes": "The central record does not imply every project is open simultaneously; applicants must review current SOLAA listings and project-specific requirements.",
+    "estimated_value_note": "Unknown - official listings confirm paid appointments, but term length and stipend vary by project.",
+    "date_added": "2026-08-20",
+    "difficulty": "Competitive",
+    "prestige": "Very High",
+    "icon": "research",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "deadlineType": "rolling",
+      "compensation": "Paid",
+      "workMode": "Varies",
+      "professor": null,
+      "department": "Smithsonian Environmental Research Center",
+      "researchArea": "Research",
+      "stipendAmount": null,
+      "semesters": [
+        "Year-round"
+      ],
+      "applicationRequirements": [
+        "Resume",
+        "Personal essay",
+        "Unofficial transcript",
+        "One recommendation"
+      ],
+      "estimatedApplicationTime": "3-5 hours",
+      "skillsGained": [
+        "Environmental Research",
+        "Data Analysis",
+        "Science Communication",
+        "Field Methods"
+      ],
+      "careerPaths": [
+        "Environmental Science",
+        "Research",
+        "Science Communication",
+        "Conservation"
+      ],
+      "eligibilityRules": {
+        "educationLevels": [
+          "undergraduate",
+          "recent_graduate"
+        ],
+        "canonicalInstitutionTypes": [
+          "community_college",
+          "four_year_college",
+          "university",
+          "liberal_arts_college"
+        ],
+        "canonicalEnrollmentStatuses": [
+          "currently_enrolled",
+          "graduated"
+        ],
+        "acceptsExternalStudents": true,
+        "classYears": [
+          "First year",
+          "Second year",
+          "Third year",
+          "Fourth year"
+        ],
+        "majors": [
+          "Biology",
+          "Environmental Science",
+          "Ecology",
+          "Marine Biology",
+          "Chemistry",
+          "Natural Sciences",
+          "Data Science",
+          "Science Communication",
+          "Education"
+        ],
+        "citizenshipStatuses": [
+          "international_allowed"
+        ],
+        "transferEligibility": "general_undergraduate",
+        "availability": "rolling",
+        "recommendationEligibilityStatus": "eligible_for_ranking",
+        "evidence": [
+          "Official program and FAQ pages explicitly support international applicants and year-round opportunities."
+        ],
+        "fieldEvidence": {
+          "academic_level": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://internships.si.edu/opportunity/internship-opportunities-smithsonian-environmental-research-center",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026-27",
+            "note": "The official Smithsonian listing confirms paid undergraduate and recent-graduate opportunities, relevant disciplines, locations, and application materials."
+          },
+          "institution_type": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://internships.si.edu/opportunity/internship-opportunities-smithsonian-environmental-research-center",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026-27",
+            "note": "The official Smithsonian listing confirms paid undergraduate and recent-graduate opportunities, relevant disciplines, locations, and application materials."
+          },
+          "enrollment_status": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://internships.si.edu/opportunity/internship-opportunities-smithsonian-environmental-research-center",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026-27",
+            "note": "The official Smithsonian listing confirms paid undergraduate and recent-graduate opportunities, relevant disciplines, locations, and application materials."
+          },
+          "school_restriction": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://internships.si.edu/opportunity/internship-opportunities-smithsonian-environmental-research-center",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026-27",
+            "note": "The official Smithsonian listing confirms paid undergraduate and recent-graduate opportunities, relevant disciplines, locations, and application materials."
+          },
+          "external_student_eligibility": {
+            "state": "verified_open",
+            "sourceUrl": "https://internships.si.edu/opportunity/internship-opportunities-smithsonian-environmental-research-center",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026-27",
+            "note": "The official Smithsonian listing confirms paid undergraduate and recent-graduate opportunities, relevant disciplines, locations, and application materials."
+          },
+          "class_year": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://internships.si.edu/opportunity/internship-opportunities-smithsonian-environmental-research-center",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026-27",
+            "note": "The official Smithsonian listing confirms paid undergraduate and recent-graduate opportunities, relevant disciplines, locations, and application materials."
+          },
+          "major": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://internships.si.edu/opportunity/internship-opportunities-smithsonian-environmental-research-center",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026-27",
+            "note": "The official Smithsonian listing confirms paid undergraduate and recent-graduate opportunities, relevant disciplines, locations, and application materials."
+          },
+          "citizenship": {
+            "state": "verified_open",
+            "sourceUrl": "https://serc.si.edu/internships/faq",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026-27",
+            "note": "The official SERC FAQ confirms year-round terms and explicit eligibility for U.S. and international applicants, including applicants outside the United States."
+          },
+          "residency": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://serc.si.edu/internships/faq",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026-27",
+            "note": "The official SERC FAQ confirms year-round terms and explicit eligibility for U.S. and international applicants, including applicants outside the United States."
+          },
+          "gpa": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://internships.si.edu/opportunity/internship-opportunities-smithsonian-environmental-research-center",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026-27",
+            "note": "The official Smithsonian listing confirms paid undergraduate and recent-graduate opportunities, relevant disciplines, locations, and application materials."
+          },
+          "age": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://internships.si.edu/opportunity/internship-opportunities-smithsonian-environmental-research-center",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026-27",
+            "note": "The official Smithsonian listing confirms paid undergraduate and recent-graduate opportunities, relevant disciplines, locations, and application materials."
+          },
+          "financial_need": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://internships.si.edu/opportunity/internship-opportunities-smithsonian-environmental-research-center",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026-27",
+            "note": "The official Smithsonian listing confirms paid undergraduate and recent-graduate opportunities, relevant disciplines, locations, and application materials."
+          },
+          "invitation": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://internships.si.edu/opportunity/internship-opportunities-smithsonian-environmental-research-center",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026-27",
+            "note": "The official Smithsonian listing confirms paid undergraduate and recent-graduate opportunities, relevant disciplines, locations, and application materials."
+          },
+          "application_status": {
+            "state": "verified_open",
+            "sourceUrl": "https://internships.si.edu/opportunity/internship-opportunities-smithsonian-environmental-research-center",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026-27",
+            "note": "The official Smithsonian listing confirms paid undergraduate and recent-graduate opportunities, relevant disciplines, locations, and application materials."
+          },
+          "deadline": {
+            "state": "verified_open",
+            "sourceUrl": "https://serc.si.edu/internships/faq",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026-27",
+            "note": "The official SERC FAQ confirms year-round terms and explicit eligibility for U.S. and international applicants, including applicants outside the United States."
+          }
+        }
+      },
+      "sourceReferences": [
+        {
+          "url": "https://internships.si.edu/opportunity/internship-opportunities-smithsonian-environmental-research-center",
+          "authority": "official_program",
+          "verifiedAt": "2026-08-20",
+          "cycle": "year-round-2026-27",
+          "supports": [
+            "academic_level",
+            "institution_type",
+            "enrollment_status",
+            "school_restriction",
+            "external_student_eligibility",
+            "class_year",
+            "major",
+            "application_status"
+          ],
+          "note": "The official Smithsonian listing confirms paid undergraduate and recent-graduate opportunities, relevant disciplines, locations, and application materials."
+        },
+        {
+          "url": "https://serc.si.edu/internships/faq",
+          "authority": "official_program",
+          "verifiedAt": "2026-08-20",
+          "cycle": "year-round-2026-27",
+          "supports": [
+            "citizenship",
+            "residency",
+            "deadline",
+            "application_status"
+          ],
+          "note": "The official SERC FAQ confirms year-round terms and explicit eligibility for U.S. and international applicants, including applicants outside the United States."
+        }
+      ],
+      "acquisition": {
+        "batchId": "coverage-deserts-2026-08-wave-3",
+        "acquiredAt": "2026-08-20",
+        "reviewCadenceDays": 45,
+        "nextReviewAt": "2026-10-04",
+        "freshnessModel": "rolling_program"
+      },
+      "verification": {
+        "status": "verified",
+        "lastVerifiedAt": "2026-08-20",
+        "verifiedCycle": "year-round-2026-27",
+        "officialSourceUrl": "https://serc.si.edu/internships",
+        "applicationUrlVerified": true,
+        "deadlineVerified": false,
+        "eligibilityVerified": true,
+        "sourceReachable": true,
+        "sourceAuditStatus": 200,
+        "notes": "The central record does not imply every project is open simultaneously; applicants must review current SOLAA listings and project-specific requirements."
+      },
+      "lifecycle": {
+        "schemaVersion": 1,
+        "migrationId": "coverage-deserts-2026-08-wave-3",
+        "identity": {
+          "identityId": "research--smithsonian-serc-internships",
+          "aliases": [
+            "SERC Internships",
+            "Smithsonian Environmental Research Center Internships"
+          ]
+        },
+        "cycle": {
+          "cycleId": "year-round-2026-27",
+          "label": "year-round-2026-27"
+        },
+        "state": "rolling",
+        "confidence": "confirmed",
+        "reason": "rolling_confirmed",
+        "effectiveAt": "2026-08-20T00:00:00.000Z",
+        "recurrence": {
+          "type": "rolling_cohort",
+          "confidence": "confirmed",
+          "officialStatement": "The central record does not imply every project is open simultaneously; applicants must review current SOLAA listings and project-specific requirements."
+        },
+        "evidence": [
+          {
+            "id": "research--smithsonian-serc-internships:year-round-2026-27:official:1",
+            "source": "official_status",
+            "observedAt": "2026-08-20T00:00:00.000Z",
+            "value": "The official Smithsonian listing confirms paid undergraduate and recent-graduate opportunities, relevant disciplines, locations, and application materials.",
+            "sourceUrl": "https://internships.si.edu/opportunity/internship-opportunities-smithsonian-environmental-research-center",
+            "confidence": "confirmed"
+          },
+          {
+            "id": "research--smithsonian-serc-internships:year-round-2026-27:official:2",
+            "source": "official_status",
+            "observedAt": "2026-08-20T00:00:00.000Z",
+            "value": "The official SERC FAQ confirms year-round terms and explicit eligibility for U.S. and international applicants, including applicants outside the United States.",
+            "sourceUrl": "https://serc.si.edu/internships/faq",
+            "confidence": "confirmed"
+          }
+        ],
+        "events": [],
+        "sourceChecks": [
+          {
+            "url": "https://internships.si.edu/opportunity/internship-opportunities-smithsonian-environmental-research-center",
+            "checkedAt": "2026-08-20T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          },
+          {
+            "url": "https://serc.si.edu/internships/faq",
+            "checkedAt": "2026-08-20T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          }
+        ],
+        "fieldVerifiedAt": {
+          "state": "2026-08-20",
+          "deadline": "2026-08-20",
+          "applicationUrl": "2026-08-20",
+          "eligibility": "2026-08-20",
+          "award": "2026-08-20",
+          "location": "2026-08-20",
+          "programDates": "2026-08-20",
+          "description": "2026-08-20"
+        },
+        "review": {
+          "note": "The central record does not imply every project is open simultaneously; applicants must review current SOLAA listings and project-specific requirements.",
+          "reviewedAt": "2026-08-20T00:00:00.000Z",
+          "reviewer": "UnlockED catalog acquisition"
+        }
+      }
+    }
+  },
+  {
+    "id": "career--smithsonian-associates-internships",
+    "title": "Smithsonian Associates Internships",
+    "type": "Career",
+    "category": "Museums & Archives",
+    "description": "Internships supporting museum education, public programs, events, membership, history, art, natural history, and audience engagement through virtual and Washington, D.C. placements.",
+    "organization": "Smithsonian Associates",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "English",
+      "History",
+      "Philosophy",
+      "Art History",
+      "Museum Studies",
+      "Library Science",
+      "Communication",
+      "Journalism",
+      "Fine Arts",
+      "Design",
+      "Anthropology",
+      "Education",
+      "Business",
+      "Accounting",
+      "Computer Science",
+      "Natural Sciences"
+    ],
+    "academic_years": [
+      "First year",
+      "Second year",
+      "Third year",
+      "Fourth year"
+    ],
+    "eligibility": "Undergraduate students and recent graduates whose academic background and career goals fit an available Smithsonian Associates placement. There is no citizenship requirement, though international participants need appropriate authorization for their appointment.",
+    "estimated_value": null,
+    "application_deadline": "2026-10-01",
+    "recurring": true,
+    "location": "Washington, DC, virtual, or hybrid depending on placement",
+    "remote": null,
+    "paid": null,
+    "tags": [
+      "Internship",
+      "Humanities",
+      "Museums",
+      "Education",
+      "Public Programs",
+      "International"
+    ],
+    "official_source": "https://internships.si.edu/opportunity/youth-and-family-programs-summer-internship-smithsonian-associates",
+    "official_source_url": "https://internships.si.edu/opportunity/youth-and-family-programs-summer-internship-smithsonian-associates",
+    "verification_status": "verified",
+    "last_verified": "2026-08-20",
+    "deadline": "2026-10-01",
+    "reviewer_notes": "Applications after priority dates may be considered as needed. Compensation remains variable because the central program includes both stipend-supported and unpaid placements.",
+    "estimated_value_note": "Unknown - some Smithsonian Associates placements offer stipends while others are unpaid.",
+    "date_added": "2026-08-20",
+    "difficulty": "Competitive",
+    "prestige": "High",
+    "icon": "career",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "deadlineType": "fixed",
+      "compensation": "Varies",
+      "workMode": "Varies",
+      "applicationRequirements": [
+        "SOLAA application",
+        "Resume",
+        "Essay",
+        "Transcript",
+        "Two recommendations"
+      ],
+      "estimatedApplicationTime": "3-5 hours",
+      "skillsGained": [
+        "Museum Education",
+        "Event Planning",
+        "Public Communication",
+        "Research"
+      ],
+      "careerPaths": [
+        "Museums",
+        "Education",
+        "Public Programming",
+        "Communications"
+      ],
+      "eligibilityRules": {
+        "educationLevels": [
+          "undergraduate",
+          "recent_graduate"
+        ],
+        "canonicalInstitutionTypes": [
+          "community_college",
+          "four_year_college",
+          "university",
+          "liberal_arts_college"
+        ],
+        "canonicalEnrollmentStatuses": [
+          "currently_enrolled",
+          "graduated"
+        ],
+        "acceptsExternalStudents": true,
+        "classYears": [
+          "First year",
+          "Second year",
+          "Third year",
+          "Fourth year"
+        ],
+        "majors": [
+          "English",
+          "History",
+          "Philosophy",
+          "Art History",
+          "Museum Studies",
+          "Library Science",
+          "Communication",
+          "Journalism",
+          "Fine Arts",
+          "Design",
+          "Anthropology",
+          "Education",
+          "Business",
+          "Accounting",
+          "Computer Science",
+          "Natural Sciences"
+        ],
+        "citizenshipStatuses": [
+          "international_allowed"
+        ],
+        "transferEligibility": "general_undergraduate",
+        "availability": "open",
+        "recommendationEligibilityStatus": "eligible_for_ranking",
+        "evidence": [
+          "The official Smithsonian listing provides a current winter/spring priority deadline and states no citizenship requirement."
+        ],
+        "fieldEvidence": {
+          "academic_level": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://internships.si.edu/opportunity/youth-and-family-programs-summer-internship-smithsonian-associates",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "winter-spring-2027",
+            "note": "The official program listing confirms undergraduate and recent-graduate suitability, no citizenship requirement, application materials, virtual/DC formats, and the October 1 winter/spring priority deadline."
+          },
+          "institution_type": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://internships.si.edu/opportunity/youth-and-family-programs-summer-internship-smithsonian-associates",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "winter-spring-2027",
+            "note": "The official program listing confirms undergraduate and recent-graduate suitability, no citizenship requirement, application materials, virtual/DC formats, and the October 1 winter/spring priority deadline."
+          },
+          "enrollment_status": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://internships.si.edu/opportunity/youth-and-family-programs-summer-internship-smithsonian-associates",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "winter-spring-2027",
+            "note": "The official program listing confirms undergraduate and recent-graduate suitability, no citizenship requirement, application materials, virtual/DC formats, and the October 1 winter/spring priority deadline."
+          },
+          "school_restriction": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://internships.si.edu/opportunity/youth-and-family-programs-summer-internship-smithsonian-associates",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "winter-spring-2027",
+            "note": "The official program listing confirms undergraduate and recent-graduate suitability, no citizenship requirement, application materials, virtual/DC formats, and the October 1 winter/spring priority deadline."
+          },
+          "external_student_eligibility": {
+            "state": "verified_open",
+            "sourceUrl": "https://internships.si.edu/opportunity/youth-and-family-programs-summer-internship-smithsonian-associates",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "winter-spring-2027",
+            "note": "The official program listing confirms undergraduate and recent-graduate suitability, no citizenship requirement, application materials, virtual/DC formats, and the October 1 winter/spring priority deadline."
+          },
+          "class_year": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://internships.si.edu/opportunity/youth-and-family-programs-summer-internship-smithsonian-associates",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "winter-spring-2027",
+            "note": "The official program listing confirms undergraduate and recent-graduate suitability, no citizenship requirement, application materials, virtual/DC formats, and the October 1 winter/spring priority deadline."
+          },
+          "major": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://internships.si.edu/opportunity/youth-and-family-programs-summer-internship-smithsonian-associates",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "winter-spring-2027",
+            "note": "The official program listing confirms undergraduate and recent-graduate suitability, no citizenship requirement, application materials, virtual/DC formats, and the October 1 winter/spring priority deadline."
+          },
+          "citizenship": {
+            "state": "verified_open",
+            "sourceUrl": "https://internships.si.edu/opportunity/youth-and-family-programs-summer-internship-smithsonian-associates",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "winter-spring-2027",
+            "note": "The official program listing confirms undergraduate and recent-graduate suitability, no citizenship requirement, application materials, virtual/DC formats, and the October 1 winter/spring priority deadline."
+          },
+          "residency": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://internships.si.edu/opportunity/youth-and-family-programs-summer-internship-smithsonian-associates",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "winter-spring-2027",
+            "note": "The official program listing confirms undergraduate and recent-graduate suitability, no citizenship requirement, application materials, virtual/DC formats, and the October 1 winter/spring priority deadline."
+          },
+          "gpa": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://internships.si.edu/opportunity/youth-and-family-programs-summer-internship-smithsonian-associates",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "winter-spring-2027",
+            "note": "The official program listing confirms undergraduate and recent-graduate suitability, no citizenship requirement, application materials, virtual/DC formats, and the October 1 winter/spring priority deadline."
+          },
+          "age": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://internships.si.edu/opportunity/youth-and-family-programs-summer-internship-smithsonian-associates",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "winter-spring-2027",
+            "note": "The official program listing confirms undergraduate and recent-graduate suitability, no citizenship requirement, application materials, virtual/DC formats, and the October 1 winter/spring priority deadline."
+          },
+          "financial_need": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://internships.si.edu/opportunity/youth-and-family-programs-summer-internship-smithsonian-associates",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "winter-spring-2027",
+            "note": "The official program listing confirms undergraduate and recent-graduate suitability, no citizenship requirement, application materials, virtual/DC formats, and the October 1 winter/spring priority deadline."
+          },
+          "invitation": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://internships.si.edu/opportunity/youth-and-family-programs-summer-internship-smithsonian-associates",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "winter-spring-2027",
+            "note": "The official program listing confirms undergraduate and recent-graduate suitability, no citizenship requirement, application materials, virtual/DC formats, and the October 1 winter/spring priority deadline."
+          },
+          "application_status": {
+            "state": "verified_open",
+            "sourceUrl": "https://internships.si.edu/opportunity/youth-and-family-programs-summer-internship-smithsonian-associates",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "winter-spring-2027",
+            "note": "The official program listing confirms undergraduate and recent-graduate suitability, no citizenship requirement, application materials, virtual/DC formats, and the October 1 winter/spring priority deadline."
+          },
+          "deadline": {
+            "state": "verified_open",
+            "sourceUrl": "https://internships.si.edu/opportunity/youth-and-family-programs-summer-internship-smithsonian-associates",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "winter-spring-2027",
+            "note": "The official program listing confirms undergraduate and recent-graduate suitability, no citizenship requirement, application materials, virtual/DC formats, and the October 1 winter/spring priority deadline."
+          }
+        }
+      },
+      "sourceReferences": [
+        {
+          "url": "https://internships.si.edu/opportunity/youth-and-family-programs-summer-internship-smithsonian-associates",
+          "authority": "official_program",
+          "verifiedAt": "2026-08-20",
+          "cycle": "winter-spring-2027",
+          "supports": [
+            "academic_level",
+            "institution_type",
+            "enrollment_status",
+            "school_restriction",
+            "external_student_eligibility",
+            "class_year",
+            "major",
+            "citizenship",
+            "residency",
+            "gpa",
+            "age",
+            "financial_need",
+            "invitation",
+            "application_status",
+            "deadline"
+          ],
+          "note": "The official program listing confirms undergraduate and recent-graduate suitability, no citizenship requirement, application materials, virtual/DC formats, and the October 1 winter/spring priority deadline."
+        }
+      ],
+      "acquisition": {
+        "batchId": "coverage-deserts-2026-08-wave-3",
+        "acquiredAt": "2026-08-20",
+        "reviewCadenceDays": 45,
+        "nextReviewAt": "2026-10-02",
+        "freshnessModel": "fixed_cycle"
+      },
+      "verification": {
+        "status": "verified",
+        "lastVerifiedAt": "2026-08-20",
+        "verifiedCycle": "winter-spring-2027",
+        "officialSourceUrl": "https://internships.si.edu/opportunity/youth-and-family-programs-summer-internship-smithsonian-associates",
+        "applicationUrlVerified": true,
+        "deadlineVerified": true,
+        "eligibilityVerified": true,
+        "sourceReachable": true,
+        "sourceAuditStatus": 200,
+        "notes": "Applications after priority dates may be considered as needed. Compensation remains variable because the central program includes both stipend-supported and unpaid placements."
+      },
+      "lifecycle": {
+        "schemaVersion": 1,
+        "migrationId": "coverage-deserts-2026-08-wave-3",
+        "identity": {
+          "identityId": "career--smithsonian-associates-internships",
+          "aliases": [
+            "Smithsonian Associates Internship Program"
+          ]
+        },
+        "cycle": {
+          "cycleId": "winter-spring-2027",
+          "label": "winter-spring-2027"
+        },
+        "state": "open",
+        "confidence": "confirmed",
+        "reason": "official_status_open",
+        "effectiveAt": "2026-08-20T00:00:00.000Z",
+        "finalDeadline": {
+          "kind": "final_deadline",
+          "sourceValue": "2026-10-01",
+          "normalizedValue": "2026-10-01",
+          "precision": "date",
+          "estimated": false,
+          "verifiedAt": "2026-08-14",
+          "sourceUrl": "https://internships.si.edu/opportunity/youth-and-family-programs-summer-internship-smithsonian-associates"
+        },
+        "recurrence": {
+          "type": "annual",
+          "confidence": "confirmed",
+          "officialStatement": "Applications after priority dates may be considered as needed. Compensation remains variable because the central program includes both stipend-supported and unpaid placements."
+        },
+        "evidence": [
+          {
+            "id": "career--smithsonian-associates-internships:winter-spring-2027:official:1",
+            "source": "official_application_page",
+            "observedAt": "2026-08-20T00:00:00.000Z",
+            "value": "The official program listing confirms undergraduate and recent-graduate suitability, no citizenship requirement, application materials, virtual/DC formats, and the October 1 winter/spring priority deadline.",
+            "sourceUrl": "https://internships.si.edu/opportunity/youth-and-family-programs-summer-internship-smithsonian-associates",
+            "confidence": "confirmed"
+          }
+        ],
+        "events": [],
+        "sourceChecks": [
+          {
+            "url": "https://internships.si.edu/opportunity/youth-and-family-programs-summer-internship-smithsonian-associates",
+            "checkedAt": "2026-08-20T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          }
+        ],
+        "fieldVerifiedAt": {
+          "state": "2026-08-20",
+          "deadline": "2026-08-20",
+          "applicationUrl": "2026-08-20",
+          "eligibility": "2026-08-20",
+          "award": "2026-08-20",
+          "location": "2026-08-20",
+          "programDates": "2026-08-20",
+          "description": "2026-08-20"
+        },
+        "review": {
+          "note": "Applications after priority dates may be considered as needed. Compensation remains variable because the central program includes both stipend-supported and unpaid placements.",
+          "reviewedAt": "2026-08-20T00:00:00.000Z",
+          "reviewer": "UnlockED catalog acquisition"
+        }
+      }
+    }
+  },
+  {
+    "id": "career--smithsonian-national-zoo-internships",
+    "title": "Smithsonian National Zoo Internships",
+    "type": "Career",
+    "category": "Museums & Archives",
+    "description": "Internships in animal care, conservation, veterinary medicine, behavior, genetics, nutrition, communications, education, technology, and related work at Smithsonian National Zoo sites.",
+    "organization": "Smithsonian National Zoo and Conservation Biology Institute",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "Biology",
+      "Environmental Science",
+      "Ecology",
+      "Marine Biology",
+      "Chemistry",
+      "Natural Sciences",
+      "Data Science",
+      "Science Communication",
+      "Education",
+      "Veterinary Science",
+      "Animal Science",
+      "Communication",
+      "Computer Science",
+      "Design"
+    ],
+    "academic_years": [
+      "First year",
+      "Second year",
+      "Third year",
+      "Fourth year"
+    ],
+    "eligibility": "Undergraduate students and recent graduates whose background fits a current National Zoo placement. The official Smithsonian listing has no citizenship requirement and encourages international students to apply, subject to appointment authorization.",
+    "estimated_value": null,
+    "application_deadline": null,
+    "recurring": true,
+    "location": "Washington, DC; Front Royal, Virginia; Hawaii; virtual or hybrid depending on placement",
+    "remote": null,
+    "paid": null,
+    "tags": [
+      "Internship",
+      "Animal Science",
+      "Conservation",
+      "Veterinary",
+      "International",
+      "Science Communication"
+    ],
+    "official_source": "https://internships.si.edu/opportunity/internships-national-zoo",
+    "official_source_url": "https://internships.si.edu/opportunity/internships-national-zoo",
+    "verification_status": "verified",
+    "last_verified": "2026-08-20",
+    "deadline": null,
+    "reviewer_notes": "This record represents the stable internship program, not every role. Applicants must confirm project-level schedule, work mode, and qualifications on the Zoo site.",
+    "estimated_value_note": "Unknown - stipend availability and amount vary by placement.",
+    "date_added": "2026-08-20",
+    "difficulty": "Competitive",
+    "prestige": "Very High",
+    "icon": "career",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "deadlineType": "rolling",
+      "compensation": "Varies",
+      "workMode": "Varies",
+      "applicationRequirements": [
+        "Placement-specific application",
+        "Resume",
+        "Project-specific materials"
+      ],
+      "estimatedApplicationTime": "1-2 hours",
+      "skillsGained": [
+        "Animal Care",
+        "Conservation",
+        "Research",
+        "Science Communication"
+      ],
+      "careerPaths": [
+        "Conservation",
+        "Veterinary Medicine",
+        "Research",
+        "Science Communication"
+      ],
+      "eligibilityRules": {
+        "educationLevels": [
+          "undergraduate",
+          "recent_graduate"
+        ],
+        "canonicalInstitutionTypes": [
+          "community_college",
+          "four_year_college",
+          "university",
+          "liberal_arts_college"
+        ],
+        "canonicalEnrollmentStatuses": [
+          "currently_enrolled",
+          "graduated"
+        ],
+        "acceptsExternalStudents": true,
+        "classYears": [
+          "First year",
+          "Second year",
+          "Third year",
+          "Fourth year"
+        ],
+        "majors": [
+          "Biology",
+          "Environmental Science",
+          "Ecology",
+          "Marine Biology",
+          "Chemistry",
+          "Natural Sciences",
+          "Data Science",
+          "Science Communication",
+          "Education",
+          "Veterinary Science",
+          "Animal Science",
+          "Communication",
+          "Computer Science",
+          "Design"
+        ],
+        "citizenshipStatuses": [
+          "international_allowed"
+        ],
+        "transferEligibility": "general_undergraduate",
+        "availability": "rolling",
+        "recommendationEligibilityStatus": "eligible_for_ranking",
+        "evidence": [
+          "The official directory explicitly states no citizenship requirement and encourages international applicants."
+        ],
+        "fieldEvidence": {
+          "academic_level": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://internships.si.edu/opportunity/internships-national-zoo",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "current-openings-2026",
+            "note": "The official Smithsonian listing confirms current application instructions, undergraduate suitability, no citizenship requirement, international access, fields, locations, and variable stipend availability."
+          },
+          "institution_type": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://internships.si.edu/opportunity/internships-national-zoo",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "current-openings-2026",
+            "note": "The official Smithsonian listing confirms current application instructions, undergraduate suitability, no citizenship requirement, international access, fields, locations, and variable stipend availability."
+          },
+          "enrollment_status": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://internships.si.edu/opportunity/internships-national-zoo",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "current-openings-2026",
+            "note": "The official Smithsonian listing confirms current application instructions, undergraduate suitability, no citizenship requirement, international access, fields, locations, and variable stipend availability."
+          },
+          "school_restriction": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://internships.si.edu/opportunity/internships-national-zoo",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "current-openings-2026",
+            "note": "The official Smithsonian listing confirms current application instructions, undergraduate suitability, no citizenship requirement, international access, fields, locations, and variable stipend availability."
+          },
+          "external_student_eligibility": {
+            "state": "verified_open",
+            "sourceUrl": "https://internships.si.edu/opportunity/internships-national-zoo",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "current-openings-2026",
+            "note": "The official Smithsonian listing confirms current application instructions, undergraduate suitability, no citizenship requirement, international access, fields, locations, and variable stipend availability."
+          },
+          "class_year": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://internships.si.edu/opportunity/internships-national-zoo",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "current-openings-2026",
+            "note": "The official Smithsonian listing confirms current application instructions, undergraduate suitability, no citizenship requirement, international access, fields, locations, and variable stipend availability."
+          },
+          "major": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://internships.si.edu/opportunity/internships-national-zoo",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "current-openings-2026",
+            "note": "The official Smithsonian listing confirms current application instructions, undergraduate suitability, no citizenship requirement, international access, fields, locations, and variable stipend availability."
+          },
+          "citizenship": {
+            "state": "verified_open",
+            "sourceUrl": "https://internships.si.edu/opportunity/internships-national-zoo",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "current-openings-2026",
+            "note": "The official Smithsonian listing confirms current application instructions, undergraduate suitability, no citizenship requirement, international access, fields, locations, and variable stipend availability."
+          },
+          "residency": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://internships.si.edu/opportunity/internships-national-zoo",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "current-openings-2026",
+            "note": "The official Smithsonian listing confirms current application instructions, undergraduate suitability, no citizenship requirement, international access, fields, locations, and variable stipend availability."
+          },
+          "gpa": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://internships.si.edu/opportunity/internships-national-zoo",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "current-openings-2026",
+            "note": "The official Smithsonian listing confirms current application instructions, undergraduate suitability, no citizenship requirement, international access, fields, locations, and variable stipend availability."
+          },
+          "age": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://internships.si.edu/opportunity/internships-national-zoo",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "current-openings-2026",
+            "note": "The official Smithsonian listing confirms current application instructions, undergraduate suitability, no citizenship requirement, international access, fields, locations, and variable stipend availability."
+          },
+          "financial_need": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://internships.si.edu/opportunity/internships-national-zoo",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "current-openings-2026",
+            "note": "The official Smithsonian listing confirms current application instructions, undergraduate suitability, no citizenship requirement, international access, fields, locations, and variable stipend availability."
+          },
+          "invitation": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://internships.si.edu/opportunity/internships-national-zoo",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "current-openings-2026",
+            "note": "The official Smithsonian listing confirms current application instructions, undergraduate suitability, no citizenship requirement, international access, fields, locations, and variable stipend availability."
+          },
+          "application_status": {
+            "state": "verified_open",
+            "sourceUrl": "https://internships.si.edu/opportunity/internships-national-zoo",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "current-openings-2026",
+            "note": "The official Smithsonian listing confirms current application instructions, undergraduate suitability, no citizenship requirement, international access, fields, locations, and variable stipend availability."
+          },
+          "deadline": {
+            "state": "verified_open",
+            "sourceUrl": "https://internships.si.edu/opportunity/internships-national-zoo",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "current-openings-2026",
+            "note": "The official Smithsonian listing confirms current application instructions, undergraduate suitability, no citizenship requirement, international access, fields, locations, and variable stipend availability."
+          }
+        }
+      },
+      "sourceReferences": [
+        {
+          "url": "https://internships.si.edu/opportunity/internships-national-zoo",
+          "authority": "official_program",
+          "verifiedAt": "2026-08-20",
+          "cycle": "current-openings-2026",
+          "supports": [
+            "academic_level",
+            "institution_type",
+            "enrollment_status",
+            "school_restriction",
+            "external_student_eligibility",
+            "class_year",
+            "major",
+            "citizenship",
+            "residency",
+            "gpa",
+            "age",
+            "financial_need",
+            "invitation",
+            "application_status",
+            "deadline"
+          ],
+          "note": "The official Smithsonian listing confirms current application instructions, undergraduate suitability, no citizenship requirement, international access, fields, locations, and variable stipend availability."
+        }
+      ],
+      "acquisition": {
+        "batchId": "coverage-deserts-2026-08-wave-3",
+        "acquiredAt": "2026-08-20",
+        "reviewCadenceDays": 45,
+        "nextReviewAt": "2026-10-04",
+        "freshnessModel": "rolling_program"
+      },
+      "verification": {
+        "status": "verified",
+        "lastVerifiedAt": "2026-08-20",
+        "verifiedCycle": "current-openings-2026",
+        "officialSourceUrl": "https://internships.si.edu/opportunity/internships-national-zoo",
+        "applicationUrlVerified": true,
+        "deadlineVerified": false,
+        "eligibilityVerified": true,
+        "sourceReachable": true,
+        "sourceAuditStatus": 200,
+        "notes": "This record represents the stable internship program, not every role. Applicants must confirm project-level schedule, work mode, and qualifications on the Zoo site."
+      },
+      "lifecycle": {
+        "schemaVersion": 1,
+        "migrationId": "coverage-deserts-2026-08-wave-3",
+        "identity": {
+          "identityId": "career--smithsonian-national-zoo-internships",
+          "aliases": [
+            "National Zoo Internships",
+            "Smithsonian Zoo Internships"
+          ]
+        },
+        "cycle": {
+          "cycleId": "current-openings-2026",
+          "label": "current-openings-2026"
+        },
+        "state": "rolling",
+        "confidence": "confirmed",
+        "reason": "rolling_confirmed",
+        "effectiveAt": "2026-08-20T00:00:00.000Z",
+        "recurrence": {
+          "type": "rolling_cohort",
+          "confidence": "confirmed",
+          "officialStatement": "This record represents the stable internship program, not every role. Applicants must confirm project-level schedule, work mode, and qualifications on the Zoo site."
+        },
+        "evidence": [
+          {
+            "id": "career--smithsonian-national-zoo-internships:current-openings-2026:official:1",
+            "source": "official_status",
+            "observedAt": "2026-08-20T00:00:00.000Z",
+            "value": "The official Smithsonian listing confirms current application instructions, undergraduate suitability, no citizenship requirement, international access, fields, locations, and variable stipend availability.",
+            "sourceUrl": "https://internships.si.edu/opportunity/internships-national-zoo",
+            "confidence": "confirmed"
+          }
+        ],
+        "events": [],
+        "sourceChecks": [
+          {
+            "url": "https://internships.si.edu/opportunity/internships-national-zoo",
+            "checkedAt": "2026-08-20T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          }
+        ],
+        "fieldVerifiedAt": {
+          "state": "2026-08-20",
+          "deadline": "2026-08-20",
+          "applicationUrl": "2026-08-20",
+          "eligibility": "2026-08-20",
+          "award": "2026-08-20",
+          "location": "2026-08-20",
+          "programDates": "2026-08-20",
+          "description": "2026-08-20"
+        },
+        "review": {
+          "note": "This record represents the stable internship program, not every role. Applicants must confirm project-level schedule, work mode, and qualifications on the Zoo site.",
+          "reviewedAt": "2026-08-20T00:00:00.000Z",
+          "reviewer": "UnlockED catalog acquisition"
+        }
+      }
+    }
+  },
+  {
+    "id": "career--aei-internships",
+    "title": "American Enterprise Institute Internships",
+    "type": "Career",
+    "category": "Public Policy",
+    "description": "Term-based internships across economic policy, health policy, foreign and defense policy, social and constitutional studies, communications, government relations, and nonprofit operations.",
+    "organization": "American Enterprise Institute",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "Political Science",
+      "Public Policy",
+      "International Relations",
+      "Economics",
+      "Finance",
+      "Accounting",
+      "Business",
+      "History",
+      "Sociology",
+      "Communication",
+      "Journalism",
+      "Data Science",
+      "Statistics"
+    ],
+    "academic_years": [
+      "Second year",
+      "Third year",
+      "Fourth year"
+    ],
+    "eligibility": "Experienced undergraduate students with at least a 3.0 GPA whose background fits an available AEI research or business-group placement. UnlockED recommendations are conservatively limited to U.S. citizens and sophomores through seniors.",
+    "estimated_value": null,
+    "application_deadline": null,
+    "recurring": true,
+    "location": "Washington, DC or placement-specific format",
+    "remote": null,
+    "paid": null,
+    "tags": [
+      "Internship",
+      "Economics",
+      "Public Policy",
+      "Communications",
+      "Research"
+    ],
+    "official_source": "https://www.aei.org/internships/",
+    "official_source_url": "https://www.aei.org/internships/",
+    "verification_status": "verified",
+    "last_verified": "2026-08-20",
+    "deadline": null,
+    "reviewer_notes": "Students must review the current role description for extra requirements. U.S.-citizen-only ranking is conservative and does not claim AEI excludes other work-authorized applicants.",
+    "estimated_value_note": "Unknown - the official program overview does not publish one guaranteed compensation amount across placements.",
+    "date_added": "2026-08-20",
+    "difficulty": "Competitive",
+    "prestige": "High",
+    "icon": "career",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "deadlineType": "rolling",
+      "compensation": "Varies",
+      "workMode": "Varies",
+      "applicationRequirements": [
+        "Online role application",
+        "Resume",
+        "Placement-specific writing or academic materials"
+      ],
+      "estimatedApplicationTime": "1-2 hours",
+      "skillsGained": [
+        "Policy Research",
+        "Writing",
+        "Professional Communication",
+        "Data Analysis"
+      ],
+      "careerPaths": [
+        "Economics",
+        "Public Policy",
+        "Government",
+        "Communications"
+      ],
+      "eligibilityRules": {
+        "educationLevels": [
+          "undergraduate"
+        ],
+        "canonicalInstitutionTypes": [
+          "four_year_college",
+          "university",
+          "liberal_arts_college"
+        ],
+        "canonicalEnrollmentStatuses": [
+          "currently_enrolled"
+        ],
+        "acceptsExternalStudents": true,
+        "classYears": [
+          "Second year",
+          "Third year",
+          "Fourth year"
+        ],
+        "majors": [
+          "Political Science",
+          "Public Policy",
+          "International Relations",
+          "Economics",
+          "Finance",
+          "Accounting",
+          "Business",
+          "History",
+          "Sociology",
+          "Communication",
+          "Journalism",
+          "Data Science",
+          "Statistics"
+        ],
+        "citizenshipStatuses": [
+          "us_citizen"
+        ],
+        "minimumGpa": 3,
+        "transferEligibility": "general_undergraduate",
+        "availability": "rolling",
+        "recommendationEligibilityStatus": "eligible_for_ranking",
+        "evidence": [
+          "Recommendation semantics are deliberately narrower than the official program overview where work authorization and experience are placement-dependent."
+        ],
+        "fieldEvidence": {
+          "academic_level": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.aei.org/internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "current-openings-2026",
+            "note": "The official internship page confirms current application access, term availability, undergraduate eligibility, a 3.0 GPA minimum, program areas, and application through listed openings."
+          },
+          "institution_type": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.aei.org/internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "current-openings-2026",
+            "note": "The official internship page confirms current application access, term availability, undergraduate eligibility, a 3.0 GPA minimum, program areas, and application through listed openings."
+          },
+          "enrollment_status": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.aei.org/internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "current-openings-2026",
+            "note": "The official internship page confirms current application access, term availability, undergraduate eligibility, a 3.0 GPA minimum, program areas, and application through listed openings."
+          },
+          "school_restriction": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.aei.org/internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "current-openings-2026",
+            "note": "The official internship page confirms current application access, term availability, undergraduate eligibility, a 3.0 GPA minimum, program areas, and application through listed openings."
+          },
+          "external_student_eligibility": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.aei.org/internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "current-openings-2026",
+            "note": "The official internship page confirms current application access, term availability, undergraduate eligibility, a 3.0 GPA minimum, program areas, and application through listed openings."
+          },
+          "class_year": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.aei.org/internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "current-openings-2026",
+            "note": "The official internship page confirms current application access, term availability, undergraduate eligibility, a 3.0 GPA minimum, program areas, and application through listed openings."
+          },
+          "major": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.aei.org/internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "current-openings-2026",
+            "note": "The official internship page confirms current application access, term availability, undergraduate eligibility, a 3.0 GPA minimum, program areas, and application through listed openings."
+          },
+          "citizenship": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.aei.org/internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "current-openings-2026",
+            "note": "The official internship page confirms current application access, term availability, undergraduate eligibility, a 3.0 GPA minimum, program areas, and application through listed openings."
+          },
+          "residency": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.aei.org/internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "current-openings-2026",
+            "note": "The official internship page confirms current application access, term availability, undergraduate eligibility, a 3.0 GPA minimum, program areas, and application through listed openings."
+          },
+          "gpa": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.aei.org/internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "current-openings-2026",
+            "note": "The official internship page confirms current application access, term availability, undergraduate eligibility, a 3.0 GPA minimum, program areas, and application through listed openings."
+          },
+          "age": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.aei.org/internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "current-openings-2026",
+            "note": "The official internship page confirms current application access, term availability, undergraduate eligibility, a 3.0 GPA minimum, program areas, and application through listed openings."
+          },
+          "financial_need": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.aei.org/internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "current-openings-2026",
+            "note": "The official internship page confirms current application access, term availability, undergraduate eligibility, a 3.0 GPA minimum, program areas, and application through listed openings."
+          },
+          "invitation": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.aei.org/internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "current-openings-2026",
+            "note": "The official internship page confirms current application access, term availability, undergraduate eligibility, a 3.0 GPA minimum, program areas, and application through listed openings."
+          },
+          "application_status": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.aei.org/internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "current-openings-2026",
+            "note": "The official internship page confirms current application access, term availability, undergraduate eligibility, a 3.0 GPA minimum, program areas, and application through listed openings."
+          },
+          "deadline": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.aei.org/internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "current-openings-2026",
+            "note": "The official internship page confirms current application access, term availability, undergraduate eligibility, a 3.0 GPA minimum, program areas, and application through listed openings."
+          }
+        }
+      },
+      "sourceReferences": [
+        {
+          "url": "https://www.aei.org/internships/",
+          "authority": "official_program",
+          "verifiedAt": "2026-08-20",
+          "cycle": "current-openings-2026",
+          "supports": [
+            "academic_level",
+            "institution_type",
+            "enrollment_status",
+            "school_restriction",
+            "external_student_eligibility",
+            "class_year",
+            "major",
+            "citizenship",
+            "residency",
+            "gpa",
+            "age",
+            "financial_need",
+            "invitation",
+            "application_status",
+            "deadline"
+          ],
+          "note": "The official internship page confirms current application access, term availability, undergraduate eligibility, a 3.0 GPA minimum, program areas, and application through listed openings."
+        }
+      ],
+      "acquisition": {
+        "batchId": "coverage-deserts-2026-08-wave-3",
+        "acquiredAt": "2026-08-20",
+        "reviewCadenceDays": 45,
+        "nextReviewAt": "2026-10-04",
+        "freshnessModel": "rolling_program"
+      },
+      "verification": {
+        "status": "verified",
+        "lastVerifiedAt": "2026-08-20",
+        "verifiedCycle": "current-openings-2026",
+        "officialSourceUrl": "https://www.aei.org/internships/",
+        "applicationUrlVerified": true,
+        "deadlineVerified": false,
+        "eligibilityVerified": true,
+        "sourceReachable": true,
+        "sourceAuditStatus": 200,
+        "notes": "Students must review the current role description for extra requirements. U.S.-citizen-only ranking is conservative and does not claim AEI excludes other work-authorized applicants."
+      },
+      "lifecycle": {
+        "schemaVersion": 1,
+        "migrationId": "coverage-deserts-2026-08-wave-3",
+        "identity": {
+          "identityId": "career--aei-internships",
+          "aliases": [
+            "AEI Internship Program",
+            "American Enterprise Institute Internships"
+          ]
+        },
+        "cycle": {
+          "cycleId": "current-openings-2026",
+          "label": "current-openings-2026"
+        },
+        "state": "rolling",
+        "confidence": "confirmed",
+        "reason": "rolling_confirmed",
+        "effectiveAt": "2026-08-20T00:00:00.000Z",
+        "recurrence": {
+          "type": "rolling_cohort",
+          "confidence": "confirmed",
+          "officialStatement": "Students must review the current role description for extra requirements. U.S.-citizen-only ranking is conservative and does not claim AEI excludes other work-authorized applicants."
+        },
+        "evidence": [
+          {
+            "id": "career--aei-internships:current-openings-2026:official:1",
+            "source": "official_status",
+            "observedAt": "2026-08-20T00:00:00.000Z",
+            "value": "The official internship page confirms current application access, term availability, undergraduate eligibility, a 3.0 GPA minimum, program areas, and application through listed openings.",
+            "sourceUrl": "https://www.aei.org/internships/",
+            "confidence": "confirmed"
+          }
+        ],
+        "events": [],
+        "sourceChecks": [
+          {
+            "url": "https://www.aei.org/internships/",
+            "checkedAt": "2026-08-20T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          }
+        ],
+        "fieldVerifiedAt": {
+          "state": "2026-08-20",
+          "deadline": "2026-08-20",
+          "applicationUrl": "2026-08-20",
+          "eligibility": "2026-08-20",
+          "award": "2026-08-20",
+          "location": "2026-08-20",
+          "programDates": "2026-08-20",
+          "description": "2026-08-20"
+        },
+        "review": {
+          "note": "Students must review the current role description for extra requirements. U.S.-citizen-only ranking is conservative and does not claim AEI excludes other work-authorized applicants.",
+          "reviewedAt": "2026-08-20T00:00:00.000Z",
+          "reviewer": "UnlockED catalog acquisition"
+        }
+      }
+    }
+  },
+  {
+    "id": "career--oecd-internship-programme",
+    "title": "OECD Internship Programme",
+    "type": "Career",
+    "category": "Public Policy",
+    "description": "A one- to six-month internship supporting policy research, data analysis, publications, and international cooperation across economics, finance, education, climate, governance, and related fields.",
+    "organization": "Organisation for Economic Co-operation and Development",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "Political Science",
+      "Public Policy",
+      "International Relations",
+      "Economics",
+      "Finance",
+      "Accounting",
+      "Business",
+      "History",
+      "Sociology",
+      "Communication",
+      "Journalism",
+      "Data Science",
+      "Statistics"
+    ],
+    "academic_years": [
+      "First year",
+      "Second year",
+      "Third year",
+      "Fourth year"
+    ],
+    "eligibility": "Full-time bachelor's students in a field related to OECD work who remain enrolled throughout the internship, can serve for at least one month, and have strong English or French, quantitative, drafting, communication, and technology skills. UnlockED recommendations are conservatively limited to U.S. citizens because the OECD primarily allocates internships to member-country nationals.",
+    "estimated_value": 1000,
+    "application_deadline": null,
+    "recurring": true,
+    "location": "Primarily Paris, France; remote or hybrid arrangements may be available by team",
+    "remote": null,
+    "paid": true,
+    "tags": [
+      "Internship",
+      "Economics",
+      "Finance",
+      "Public Policy",
+      "International",
+      "Rolling"
+    ],
+    "official_source": "https://www.oecd.org/en/about/careers/internships.html",
+    "official_source_url": "https://www.oecd.org/en/about/careers/internships.html",
+    "verification_status": "verified",
+    "last_verified": "2026-08-20",
+    "deadline": null,
+    "reviewer_notes": "Non-U.S. OECD-member nationals may also qualify, but UnlockED does not infer that status. Non-member nationals are project-dependent and are not recommendation-safe through this umbrella record.",
+    "estimated_value_note": "EUR 1,000 contribution to living expenses for each full month worked by interns located in Paris.",
+    "date_added": "2026-08-20",
+    "difficulty": "Highly Competitive",
+    "prestige": "Very High",
+    "icon": "career",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "deadlineType": "rolling",
+      "compensation": "Paid",
+      "workMode": "Varies",
+      "internshipDuration": "1-6 months",
+      "applicationRequirements": [
+        "Online application",
+        "Cover letter",
+        "Availability",
+        "Interview or written test if shortlisted"
+      ],
+      "estimatedApplicationTime": "1-2 hours",
+      "skillsGained": [
+        "Policy Research",
+        "Data Analysis",
+        "Writing",
+        "International Collaboration"
+      ],
+      "careerPaths": [
+        "Economics",
+        "Public Policy",
+        "Finance",
+        "International Relations"
+      ],
+      "eligibilityRules": {
+        "educationLevels": [
+          "undergraduate"
+        ],
+        "canonicalInstitutionTypes": [
+          "four_year_college",
+          "university",
+          "liberal_arts_college"
+        ],
+        "canonicalEnrollmentStatuses": [
+          "currently_enrolled"
+        ],
+        "acceptsExternalStudents": true,
+        "classYears": [
+          "First year",
+          "Second year",
+          "Third year",
+          "Fourth year"
+        ],
+        "majors": [
+          "Political Science",
+          "Public Policy",
+          "International Relations",
+          "Economics",
+          "Finance",
+          "Accounting",
+          "Business",
+          "History",
+          "Sociology",
+          "Communication",
+          "Journalism",
+          "Data Science",
+          "Statistics"
+        ],
+        "citizenshipStatuses": [
+          "us_citizen"
+        ],
+        "transferEligibility": "general_undergraduate",
+        "availability": "rolling",
+        "recommendationEligibilityStatus": "eligible_for_ranking",
+        "evidence": [
+          "Ranking is intentionally narrower than baseline OECD eligibility because the profile model cannot prove every OECD member-country nationality."
+        ],
+        "fieldEvidence": {
+          "academic_level": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.oecd.org/en/about/careers/internships.html",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026",
+            "note": "The official careers page confirms year-round applications, degree enrollment, related fields, member-country preference, work modes, duration, application process, and the Paris living-expense contribution."
+          },
+          "institution_type": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.oecd.org/en/about/careers/internships.html",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026",
+            "note": "The official careers page confirms year-round applications, degree enrollment, related fields, member-country preference, work modes, duration, application process, and the Paris living-expense contribution."
+          },
+          "enrollment_status": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.oecd.org/en/about/careers/internships.html",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026",
+            "note": "The official careers page confirms year-round applications, degree enrollment, related fields, member-country preference, work modes, duration, application process, and the Paris living-expense contribution."
+          },
+          "school_restriction": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.oecd.org/en/about/careers/internships.html",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026",
+            "note": "The official careers page confirms year-round applications, degree enrollment, related fields, member-country preference, work modes, duration, application process, and the Paris living-expense contribution."
+          },
+          "external_student_eligibility": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.oecd.org/en/about/careers/internships.html",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026",
+            "note": "The official careers page confirms year-round applications, degree enrollment, related fields, member-country preference, work modes, duration, application process, and the Paris living-expense contribution."
+          },
+          "class_year": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.oecd.org/en/about/careers/internships.html",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026",
+            "note": "The official careers page confirms year-round applications, degree enrollment, related fields, member-country preference, work modes, duration, application process, and the Paris living-expense contribution."
+          },
+          "major": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.oecd.org/en/about/careers/internships.html",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026",
+            "note": "The official careers page confirms year-round applications, degree enrollment, related fields, member-country preference, work modes, duration, application process, and the Paris living-expense contribution."
+          },
+          "citizenship": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.oecd.org/en/about/careers/internships.html",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026",
+            "note": "The official careers page confirms year-round applications, degree enrollment, related fields, member-country preference, work modes, duration, application process, and the Paris living-expense contribution."
+          },
+          "residency": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.oecd.org/en/about/careers/internships.html",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026",
+            "note": "The official careers page confirms year-round applications, degree enrollment, related fields, member-country preference, work modes, duration, application process, and the Paris living-expense contribution."
+          },
+          "gpa": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.oecd.org/en/about/careers/internships.html",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026",
+            "note": "The official careers page confirms year-round applications, degree enrollment, related fields, member-country preference, work modes, duration, application process, and the Paris living-expense contribution."
+          },
+          "age": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.oecd.org/en/about/careers/internships.html",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026",
+            "note": "The official careers page confirms year-round applications, degree enrollment, related fields, member-country preference, work modes, duration, application process, and the Paris living-expense contribution."
+          },
+          "financial_need": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.oecd.org/en/about/careers/internships.html",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026",
+            "note": "The official careers page confirms year-round applications, degree enrollment, related fields, member-country preference, work modes, duration, application process, and the Paris living-expense contribution."
+          },
+          "invitation": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.oecd.org/en/about/careers/internships.html",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026",
+            "note": "The official careers page confirms year-round applications, degree enrollment, related fields, member-country preference, work modes, duration, application process, and the Paris living-expense contribution."
+          },
+          "application_status": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.oecd.org/en/about/careers/internships.html",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026",
+            "note": "The official careers page confirms year-round applications, degree enrollment, related fields, member-country preference, work modes, duration, application process, and the Paris living-expense contribution."
+          },
+          "deadline": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.oecd.org/en/about/careers/internships.html",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "year-round-2026",
+            "note": "The official careers page confirms year-round applications, degree enrollment, related fields, member-country preference, work modes, duration, application process, and the Paris living-expense contribution."
+          }
+        }
+      },
+      "sourceReferences": [
+        {
+          "url": "https://www.oecd.org/en/about/careers/internships.html",
+          "authority": "official_program",
+          "verifiedAt": "2026-08-20",
+          "cycle": "year-round-2026",
+          "supports": [
+            "academic_level",
+            "institution_type",
+            "enrollment_status",
+            "school_restriction",
+            "external_student_eligibility",
+            "class_year",
+            "major",
+            "citizenship",
+            "residency",
+            "gpa",
+            "age",
+            "financial_need",
+            "invitation",
+            "application_status",
+            "deadline"
+          ],
+          "note": "The official careers page confirms year-round applications, degree enrollment, related fields, member-country preference, work modes, duration, application process, and the Paris living-expense contribution."
+        }
+      ],
+      "acquisition": {
+        "batchId": "coverage-deserts-2026-08-wave-3",
+        "acquiredAt": "2026-08-20",
+        "reviewCadenceDays": 60,
+        "nextReviewAt": "2026-10-19",
+        "freshnessModel": "rolling_program"
+      },
+      "verification": {
+        "status": "verified",
+        "lastVerifiedAt": "2026-08-20",
+        "verifiedCycle": "year-round-2026",
+        "officialSourceUrl": "https://www.oecd.org/en/about/careers/internships.html",
+        "applicationUrlVerified": true,
+        "deadlineVerified": false,
+        "eligibilityVerified": true,
+        "sourceReachable": true,
+        "sourceAuditStatus": 200,
+        "notes": "Non-U.S. OECD-member nationals may also qualify, but UnlockED does not infer that status. Non-member nationals are project-dependent and are not recommendation-safe through this umbrella record."
+      },
+      "lifecycle": {
+        "schemaVersion": 1,
+        "migrationId": "coverage-deserts-2026-08-wave-3",
+        "identity": {
+          "identityId": "career--oecd-internship-programme",
+          "aliases": [
+            "OECD Internship",
+            "OECD Internship Programme"
+          ]
+        },
+        "cycle": {
+          "cycleId": "year-round-2026",
+          "label": "year-round-2026"
+        },
+        "state": "rolling",
+        "confidence": "confirmed",
+        "reason": "rolling_confirmed",
+        "effectiveAt": "2026-08-20T00:00:00.000Z",
+        "recurrence": {
+          "type": "rolling_cohort",
+          "confidence": "confirmed",
+          "officialStatement": "Non-U.S. OECD-member nationals may also qualify, but UnlockED does not infer that status. Non-member nationals are project-dependent and are not recommendation-safe through this umbrella record."
+        },
+        "evidence": [
+          {
+            "id": "career--oecd-internship-programme:year-round-2026:official:1",
+            "source": "official_status",
+            "observedAt": "2026-08-20T00:00:00.000Z",
+            "value": "The official careers page confirms year-round applications, degree enrollment, related fields, member-country preference, work modes, duration, application process, and the Paris living-expense contribution.",
+            "sourceUrl": "https://www.oecd.org/en/about/careers/internships.html",
+            "confidence": "confirmed"
+          }
+        ],
+        "events": [],
+        "sourceChecks": [
+          {
+            "url": "https://www.oecd.org/en/about/careers/internships.html",
+            "checkedAt": "2026-08-20T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          }
+        ],
+        "fieldVerifiedAt": {
+          "state": "2026-08-20",
+          "deadline": "2026-08-20",
+          "applicationUrl": "2026-08-20",
+          "eligibility": "2026-08-20",
+          "award": "2026-08-20",
+          "location": "2026-08-20",
+          "programDates": "2026-08-20",
+          "description": "2026-08-20"
+        },
+        "review": {
+          "note": "Non-U.S. OECD-member nationals may also qualify, but UnlockED does not infer that status. Non-member nationals are project-dependent and are not recommendation-safe through this umbrella record.",
+          "reviewedAt": "2026-08-20T00:00:00.000Z",
           "reviewer": "UnlockED catalog acquisition"
         }
       }

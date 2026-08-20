@@ -10,7 +10,7 @@ import { opportunities } from "../data/opportunities";
 import { schools } from "../data/seed";
 import type { StudentProfile } from "../data/student-profile";
 
-const auditDate = new Date("2026-08-08T12:00:00.000Z");
+const auditDate = new Date("2026-08-20T12:00:00.000Z");
 const newIds = [
   "career--comap-mcm-icm-2027",
   "career--forte-career-ready-certificate",
@@ -42,12 +42,21 @@ const acquisitionWaveIds = [
   "career--smithsonian-archives-american-art-internships",
   "scholarship--schwarzman-scholars-2027-28",
 ] as const;
+const acquisitionWave3Ids = [
+  "career--oecd-internship-programme",
+  "career--smithsonian-folklife-cultural-heritage-internships",
+  "research--smithsonian-serc-internships",
+  "career--smithsonian-associates-internships",
+  "career--united-nations-internships",
+  "career--aei-internships",
+  "career--smithsonian-national-zoo-internships",
+] as const;
 const archivedDuplicates = new Map([
   ["national-curated-2026--u-s-department-of-defense--smart-scholarship-for-service-program", "scholarship--dod-smart-scholarship"],
   ["national-curated-2026--u-s-department-of-state--gilman-international-scholarship", "scholarship--gilman-scholarship"],
 ]);
 
-for (const id of [...newIds, ...enrichedIds, ...acquisitionWaveIds]) {
+for (const id of [...newIds, ...enrichedIds, ...acquisitionWaveIds, ...acquisitionWave3Ids]) {
   const item = opportunities.find((opportunity) => opportunity.id === id);
   assert.ok(item, `${id} must exist.`);
   assert.equal(item.verification_status, "verified", `${id} must be source-verified.`);
@@ -76,7 +85,10 @@ const currentlyActionableIds = [
   "research--jpl-year-round-internship",
   "research--naval-research-enterprise-internship-program",
   "scholarship--dod-smart-scholarship",
+  "scholarship--gilman-scholarship",
+  "national-curated-2026--jack-kent-cooke-foundation--jack-kent-cooke-undergraduate-transfer-scholarship",
   ...acquisitionWaveIds,
+  ...acquisitionWave3Ids,
 ] as const;
 for (const id of currentlyActionableIds) {
   const item = opportunities.find((opportunity) => opportunity.id === id);
@@ -84,7 +96,7 @@ for (const id of currentlyActionableIds) {
   assert.equal(resolveOpportunityLifecycle(item, auditDate).recommendationEligible, true, `${id} must be actionable on the audit date.`);
 }
 
-for (const id of ["career--girls-who-invest-scholars-2027", "research--daad-rise-germany-2027", "scholarship--gilman-scholarship", "national-curated-2026--jack-kent-cooke-foundation--jack-kent-cooke-undergraduate-transfer-scholarship"] as const) {
+for (const id of ["career--girls-who-invest-scholars-2027", "research--daad-rise-germany-2027"] as const) {
   const item = opportunities.find((opportunity) => opportunity.id === id);
   assert.ok(item, `${id} must exist.`);
   assert.equal(resolveOpportunityLifecycle(item, auditDate).state, "upcoming", `${id} must remain suppressed until its verified window opens.`);
@@ -157,10 +169,10 @@ const categoryCounts = verified.reduce<Record<string, number>>((counts, item) =>
 }, {});
 const unresolved = opportunities.filter((item) => ["needs_review", "temporarily_closed", "incomplete", "broken_source"].includes(item.verification_status)).length;
 
-assert.equal(opportunities.length, 6008, "Reviewed expansion waves should add seventeen canonical records while enriching existing identities in place.");
-assert.equal(canonical.length, 5997, "Canonical public inventory must exclude archived and secondary duplicate records.");
-assert.equal(verified.length, 215, "The audited inventory should contain 215 verified records.");
-assert.equal(highValueRecommendationSafe.length, 22, "Twenty-two non-resource opportunities should be safely actionable on the audit date.");
+assert.equal(opportunities.length, 6015, "Reviewed expansion waves should add twenty-four records while enriching existing identities in place.");
+assert.equal(canonical.length, 6004, "Canonical public inventory must exclude archived and secondary duplicate records.");
+assert.equal(verified.length, 222, "The audited inventory should contain 222 verified records.");
+assert.equal(highValueRecommendationSafe.length, 31, "Thirty-one non-resource opportunities should be safely actionable on the audit date.");
 
 console.log(JSON.stringify({
   auditDate: auditDate.toISOString().slice(0, 10),
@@ -185,11 +197,11 @@ console.log(JSON.stringify({
     highValueRecommendationSafeAfter: highValueRecommendationSafe.length,
   },
   acquisitionWave: {
-    researched: 66,
-    accepted: acquisitionWaveIds.length,
-    canonicalRecordsAdded: 10,
-    canonicalRecordsEnriched: 3,
-    rejected: 53,
+    researched: 85,
+    accepted: acquisitionWaveIds.length + acquisitionWave3Ids.length + 2,
+    canonicalRecordsAdded: 17,
+    canonicalRecordsEnriched: 5,
+    rejected: 63,
     recommendationSafeBefore: 68,
     recommendationSafeAfter: recommendationSafe.length,
     highValueRecommendationSafeBefore: 10,

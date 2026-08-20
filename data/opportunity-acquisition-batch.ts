@@ -52,6 +52,9 @@ export type OpportunityAcquisitionRecordSpec = {
   applicationRequirements?: string[];
   skillsGained?: string[];
   careerPaths?: string[];
+  expectedROI?: string;
+  recommendedMajors?: string[];
+  recommendedClassYears?: string[];
   estimatedApplicationTime?: Opportunity["metadata"]["estimatedApplicationTime"];
   stipendAmount?: number | null;
   duration?: string;
@@ -159,6 +162,9 @@ export function buildAcquisitionRecord(spec: OpportunityAcquisitionRecordSpec, c
       estimatedApplicationTime: spec.estimatedApplicationTime ?? "3-5 hours",
       skillsGained: spec.skillsGained,
       careerPaths: spec.careerPaths,
+      expectedROI: spec.expectedROI,
+      recommendedMajors: spec.recommendedMajors,
+      recommendedClassYears: spec.recommendedClassYears,
       eligibilityRules: { ...spec.rules, fieldEvidence: evidenceFor(spec, context) },
       sourceReferences: spec.sourceReferences,
       acquisition: {
