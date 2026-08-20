@@ -446214,5 +446214,1146 @@
         }
       }
     }
+  },
+  {
+    "id": "career--white-house-ceq-internship",
+    "title": "White House CEQ Internship",
+    "type": "Career",
+    "category": "Public Policy",
+    "description": "An in-person spring internship providing research and writing support on environmental policy, permitting, federal sustainability, public lands, and water policy.",
+    "organization": "White House Council on Environmental Quality",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "Political Science",
+      "Public Policy",
+      "International Relations",
+      "Environmental Science",
+      "Ecology",
+      "Urban Studies",
+      "Sociology",
+      "Communication",
+      "Journalism"
+    ],
+    "academic_years": [
+      "First year",
+      "Second year",
+      "Third year",
+      "Fourth year"
+    ],
+    "eligibility": "Current undergraduate students who are U.S. citizens and have a demonstrated interest in environmental policy or a relevant field. The internship requires at least 16 hours per week in Washington, D.C., and selection requires a background check and drug test.",
+    "estimated_value": null,
+    "application_deadline": "2026-09-20",
+    "recurring": true,
+    "location": "Washington, DC",
+    "remote": false,
+    "paid": false,
+    "tags": [
+      "Internship",
+      "Environmental Policy",
+      "Public Policy",
+      "Government",
+      "Writing"
+    ],
+    "official_source": "https://www.whitehouse.gov/ceq/internships/",
+    "official_source_url": "https://www.whitehouse.gov/ceq/internships/",
+    "verification_status": "verified",
+    "last_verified": "2026-08-20",
+    "deadline": "2026-09-20",
+    "reviewer_notes": "The unpaid, in-person, and minimum weekly commitment constraints are surfaced rather than treated as hidden tradeoffs.",
+    "estimated_value_note": "Unknown - the internship is unpaid, and the official page states that housing and relocation support are not provided.",
+    "date_added": "2026-08-20",
+    "difficulty": "Highly Competitive",
+    "prestige": "Very High",
+    "icon": "career",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "deadlineType": "fixed",
+      "compensation": "Unpaid",
+      "workMode": "In Person",
+      "internshipDuration": "Spring semester",
+      "applicationRequirements": [
+        "Official online application",
+        "Resume",
+        "Policy-interest evidence",
+        "Background check if selected",
+        "Drug test if selected"
+      ],
+      "estimatedApplicationTime": "3-5 hours",
+      "skillsGained": [
+        "Environmental Policy Research",
+        "Policy Writing",
+        "Stakeholder Communication",
+        "Project Management"
+      ],
+      "careerPaths": [
+        "Environmental Policy",
+        "Government",
+        "Public Policy",
+        "Sustainability"
+      ],
+      "expectedROI": "Substantive federal environmental-policy experience, with the material tradeoff that the placement is unpaid and in person.",
+      "recommendedMajors": [
+        "Political Science",
+        "Public Policy",
+        "International Relations",
+        "Environmental Science",
+        "Ecology",
+        "Urban Studies",
+        "Sociology",
+        "Communication",
+        "Journalism"
+      ],
+      "recommendedClassYears": [
+        "First year",
+        "Second year",
+        "Third year",
+        "Fourth year"
+      ],
+      "eligibilityRules": {
+        "educationLevels": [
+          "undergraduate",
+          "community_college"
+        ],
+        "canonicalInstitutionTypes": [
+          "community_college",
+          "four_year_college",
+          "university",
+          "liberal_arts_college"
+        ],
+        "canonicalEnrollmentStatuses": [
+          "currently_enrolled"
+        ],
+        "acceptsExternalStudents": true,
+        "classYears": [
+          "First year",
+          "Second year",
+          "Third year",
+          "Fourth year"
+        ],
+        "majors": [
+          "Political Science",
+          "Public Policy",
+          "International Relations",
+          "Environmental Science",
+          "Ecology",
+          "Urban Studies",
+          "Sociology",
+          "Communication",
+          "Journalism"
+        ],
+        "citizenshipStatuses": [
+          "us_citizen"
+        ],
+        "transferEligibility": "general_undergraduate",
+        "availability": "open",
+        "recommendationEligibilityStatus": "eligible_for_ranking",
+        "evidence": [
+          "The official page positively proves the current cycle and every eligibility field used for ranking."
+        ],
+        "fieldEvidence": {
+          "academic_level": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.whitehouse.gov/ceq/internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official CEQ page confirms current-undergraduate eligibility, U.S. citizenship, environmental-policy focus, unpaid in-person format, 16-hour minimum, and the September 20 Spring 2027 deadline."
+          },
+          "institution_type": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.whitehouse.gov/ceq/internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official CEQ page confirms current-undergraduate eligibility, U.S. citizenship, environmental-policy focus, unpaid in-person format, 16-hour minimum, and the September 20 Spring 2027 deadline."
+          },
+          "enrollment_status": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.whitehouse.gov/ceq/internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official CEQ page confirms current-undergraduate eligibility, U.S. citizenship, environmental-policy focus, unpaid in-person format, 16-hour minimum, and the September 20 Spring 2027 deadline."
+          },
+          "school_restriction": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.whitehouse.gov/ceq/internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official CEQ page confirms current-undergraduate eligibility, U.S. citizenship, environmental-policy focus, unpaid in-person format, 16-hour minimum, and the September 20 Spring 2027 deadline."
+          },
+          "external_student_eligibility": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.whitehouse.gov/ceq/internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official CEQ page confirms current-undergraduate eligibility, U.S. citizenship, environmental-policy focus, unpaid in-person format, 16-hour minimum, and the September 20 Spring 2027 deadline."
+          },
+          "class_year": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.whitehouse.gov/ceq/internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official CEQ page confirms current-undergraduate eligibility, U.S. citizenship, environmental-policy focus, unpaid in-person format, 16-hour minimum, and the September 20 Spring 2027 deadline."
+          },
+          "major": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.whitehouse.gov/ceq/internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official CEQ page confirms current-undergraduate eligibility, U.S. citizenship, environmental-policy focus, unpaid in-person format, 16-hour minimum, and the September 20 Spring 2027 deadline."
+          },
+          "citizenship": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.whitehouse.gov/ceq/internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official CEQ page confirms current-undergraduate eligibility, U.S. citizenship, environmental-policy focus, unpaid in-person format, 16-hour minimum, and the September 20 Spring 2027 deadline."
+          },
+          "residency": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.whitehouse.gov/ceq/internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official CEQ page confirms current-undergraduate eligibility, U.S. citizenship, environmental-policy focus, unpaid in-person format, 16-hour minimum, and the September 20 Spring 2027 deadline."
+          },
+          "gpa": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.whitehouse.gov/ceq/internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official CEQ page confirms current-undergraduate eligibility, U.S. citizenship, environmental-policy focus, unpaid in-person format, 16-hour minimum, and the September 20 Spring 2027 deadline."
+          },
+          "age": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.whitehouse.gov/ceq/internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official CEQ page confirms current-undergraduate eligibility, U.S. citizenship, environmental-policy focus, unpaid in-person format, 16-hour minimum, and the September 20 Spring 2027 deadline."
+          },
+          "financial_need": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.whitehouse.gov/ceq/internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official CEQ page confirms current-undergraduate eligibility, U.S. citizenship, environmental-policy focus, unpaid in-person format, 16-hour minimum, and the September 20 Spring 2027 deadline."
+          },
+          "invitation": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.whitehouse.gov/ceq/internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official CEQ page confirms current-undergraduate eligibility, U.S. citizenship, environmental-policy focus, unpaid in-person format, 16-hour minimum, and the September 20 Spring 2027 deadline."
+          },
+          "application_status": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.whitehouse.gov/ceq/internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official CEQ page confirms current-undergraduate eligibility, U.S. citizenship, environmental-policy focus, unpaid in-person format, 16-hour minimum, and the September 20 Spring 2027 deadline."
+          },
+          "deadline": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.whitehouse.gov/ceq/internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official CEQ page confirms current-undergraduate eligibility, U.S. citizenship, environmental-policy focus, unpaid in-person format, 16-hour minimum, and the September 20 Spring 2027 deadline."
+          }
+        }
+      },
+      "sourceReferences": [
+        {
+          "url": "https://www.whitehouse.gov/ceq/internships/",
+          "authority": "official_program",
+          "verifiedAt": "2026-08-20",
+          "cycle": "spring-2027",
+          "supports": [
+            "academic_level",
+            "institution_type",
+            "enrollment_status",
+            "school_restriction",
+            "external_student_eligibility",
+            "class_year",
+            "major",
+            "citizenship",
+            "residency",
+            "gpa",
+            "age",
+            "financial_need",
+            "invitation",
+            "application_status",
+            "deadline"
+          ],
+          "note": "The official CEQ page confirms current-undergraduate eligibility, U.S. citizenship, environmental-policy focus, unpaid in-person format, 16-hour minimum, and the September 20 Spring 2027 deadline."
+        }
+      ],
+      "acquisition": {
+        "batchId": "targeted-coverage-gaps-2026-08-wave-4",
+        "acquiredAt": "2026-08-20",
+        "reviewCadenceDays": 45,
+        "nextReviewAt": "2026-09-21",
+        "freshnessModel": "fixed_cycle"
+      },
+      "verification": {
+        "status": "verified",
+        "lastVerifiedAt": "2026-08-20",
+        "verifiedCycle": "spring-2027",
+        "officialSourceUrl": "https://www.whitehouse.gov/ceq/internships/",
+        "applicationUrlVerified": true,
+        "deadlineVerified": true,
+        "eligibilityVerified": true,
+        "sourceReachable": true,
+        "sourceAuditStatus": 200,
+        "notes": "The unpaid, in-person, and minimum weekly commitment constraints are surfaced rather than treated as hidden tradeoffs."
+      },
+      "lifecycle": {
+        "schemaVersion": 1,
+        "migrationId": "targeted-coverage-gaps-2026-08-wave-4",
+        "identity": {
+          "identityId": "career--white-house-ceq-internship",
+          "aliases": [
+            "CEQ Internship",
+            "White House Council on Environmental Quality Internship"
+          ]
+        },
+        "cycle": {
+          "cycleId": "spring-2027",
+          "label": "spring-2027"
+        },
+        "state": "open",
+        "confidence": "confirmed",
+        "reason": "official_status_open",
+        "effectiveAt": "2026-08-20T00:00:00.000Z",
+        "finalDeadline": {
+          "kind": "final_deadline",
+          "sourceValue": "2026-09-20",
+          "normalizedValue": "2026-09-20",
+          "precision": "date",
+          "estimated": false,
+          "verifiedAt": "2026-08-14",
+          "sourceUrl": "https://www.whitehouse.gov/ceq/internships/"
+        },
+        "recurrence": {
+          "type": "annual",
+          "confidence": "confirmed",
+          "officialStatement": "The unpaid, in-person, and minimum weekly commitment constraints are surfaced rather than treated as hidden tradeoffs."
+        },
+        "evidence": [
+          {
+            "id": "career--white-house-ceq-internship:spring-2027:official:1",
+            "source": "official_application_page",
+            "observedAt": "2026-08-20T00:00:00.000Z",
+            "value": "The official CEQ page confirms current-undergraduate eligibility, U.S. citizenship, environmental-policy focus, unpaid in-person format, 16-hour minimum, and the September 20 Spring 2027 deadline.",
+            "sourceUrl": "https://www.whitehouse.gov/ceq/internships/",
+            "confidence": "confirmed"
+          }
+        ],
+        "events": [],
+        "sourceChecks": [
+          {
+            "url": "https://www.whitehouse.gov/ceq/internships/",
+            "checkedAt": "2026-08-20T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          }
+        ],
+        "fieldVerifiedAt": {
+          "state": "2026-08-20",
+          "deadline": "2026-08-20",
+          "applicationUrl": "2026-08-20",
+          "eligibility": "2026-08-20",
+          "award": "2026-08-20",
+          "location": "2026-08-20",
+          "programDates": "2026-08-20",
+          "description": "2026-08-20"
+        },
+        "review": {
+          "note": "The unpaid, in-person, and minimum weekly commitment constraints are surfaced rather than treated as hidden tradeoffs.",
+          "reviewedAt": "2026-08-20T00:00:00.000Z",
+          "reviewer": "UnlockED catalog acquisition"
+        }
+      }
+    }
+  },
+  {
+    "id": "career--white-house-ostp-policy-internship",
+    "title": "White House OSTP Policy Internship",
+    "type": "Career",
+    "category": "Public Policy",
+    "description": "A spring internship supporting research, writing, outreach, communications, and national science and technology policy work in the White House Office of Science and Technology Policy.",
+    "organization": "White House Office of Science and Technology Policy",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "Political Science",
+      "Public Policy",
+      "International Relations",
+      "Economics",
+      "History",
+      "Sociology",
+      "Communication",
+      "Journalism",
+      "Environmental Science",
+      "Education"
+    ],
+    "academic_years": [
+      "First year",
+      "Second year",
+      "Third year",
+      "Fourth year"
+    ],
+    "eligibility": "U.S. citizens enrolled at least half-time in an accredited college or university during the internship term. Policy internships are open to students from all majors; applicants should demonstrate research, writing, organization, communication, and public-service interest.",
+    "estimated_value": null,
+    "application_deadline": "2026-09-20",
+    "recurring": true,
+    "location": "Washington, DC",
+    "remote": null,
+    "paid": null,
+    "tags": [
+      "Internship",
+      "Public Policy",
+      "Science Policy",
+      "Government",
+      "Writing",
+      "First-Year Friendly"
+    ],
+    "official_source": "https://www.whitehouse.gov/ostp/internships/",
+    "official_source_url": "https://www.whitehouse.gov/ostp/internships/",
+    "verification_status": "verified",
+    "last_verified": "2026-08-20",
+    "deadline": "2026-09-20",
+    "reviewer_notes": "The policy record excludes the law-only internship path. The official 30-hour availability language is a preference, not a mandatory eligibility rule.",
+    "estimated_value_note": "Unknown - the official program page does not publish compensation.",
+    "date_added": "2026-08-20",
+    "difficulty": "Highly Competitive",
+    "prestige": "Very High",
+    "icon": "career",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "deadlineType": "fixed",
+      "compensation": "Varies",
+      "workMode": "Varies",
+      "internshipDuration": "Spring semester",
+      "applicationRequirements": [
+        "Cover letter",
+        "Resume",
+        "Writing sample",
+        "Transcript",
+        "Three references",
+        "Email application as one PDF"
+      ],
+      "estimatedApplicationTime": "3-5 hours",
+      "skillsGained": [
+        "Policy Research",
+        "Writing",
+        "Public Communication",
+        "Stakeholder Outreach"
+      ],
+      "careerPaths": [
+        "Public Policy",
+        "Government",
+        "Science Policy",
+        "Communications"
+      ],
+      "expectedROI": "Direct federal policy experience and writing evidence in a nationally significant science and technology policy office.",
+      "recommendedMajors": [
+        "Political Science",
+        "Public Policy",
+        "International Relations",
+        "Economics",
+        "History",
+        "Sociology",
+        "Communication",
+        "Journalism",
+        "Environmental Science",
+        "Education"
+      ],
+      "recommendedClassYears": [
+        "First year",
+        "Second year",
+        "Third year",
+        "Fourth year"
+      ],
+      "eligibilityRules": {
+        "educationLevels": [
+          "undergraduate",
+          "community_college"
+        ],
+        "canonicalInstitutionTypes": [
+          "community_college",
+          "four_year_college",
+          "university",
+          "liberal_arts_college"
+        ],
+        "canonicalEnrollmentStatuses": [
+          "currently_enrolled"
+        ],
+        "acceptsExternalStudents": true,
+        "classYears": [
+          "First year",
+          "Second year",
+          "Third year",
+          "Fourth year"
+        ],
+        "majors": [
+          "Political Science",
+          "Public Policy",
+          "International Relations",
+          "Economics",
+          "History",
+          "Sociology",
+          "Communication",
+          "Journalism",
+          "Environmental Science",
+          "Education"
+        ],
+        "citizenshipStatuses": [
+          "us_citizen"
+        ],
+        "transferEligibility": "general_undergraduate",
+        "availability": "open",
+        "recommendationEligibilityStatus": "eligible_for_ranking",
+        "evidence": [
+          "Official eligibility explicitly includes students from all majors and accredited colleges or universities."
+        ],
+        "fieldEvidence": {
+          "academic_level": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.whitehouse.gov/ostp/internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official OSTP page confirms the Spring 2027 deadline, U.S.-citizen requirement, at-least-half-time enrollment, accredited-institution rule, all-major policy access, and application contacts."
+          },
+          "institution_type": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.whitehouse.gov/ostp/internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official OSTP page confirms the Spring 2027 deadline, U.S.-citizen requirement, at-least-half-time enrollment, accredited-institution rule, all-major policy access, and application contacts."
+          },
+          "enrollment_status": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.whitehouse.gov/ostp/internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official OSTP page confirms the Spring 2027 deadline, U.S.-citizen requirement, at-least-half-time enrollment, accredited-institution rule, all-major policy access, and application contacts."
+          },
+          "school_restriction": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.whitehouse.gov/ostp/internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official OSTP page confirms the Spring 2027 deadline, U.S.-citizen requirement, at-least-half-time enrollment, accredited-institution rule, all-major policy access, and application contacts."
+          },
+          "external_student_eligibility": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.whitehouse.gov/ostp/internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official OSTP page confirms the Spring 2027 deadline, U.S.-citizen requirement, at-least-half-time enrollment, accredited-institution rule, all-major policy access, and application contacts."
+          },
+          "class_year": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.whitehouse.gov/ostp/internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official OSTP page confirms the Spring 2027 deadline, U.S.-citizen requirement, at-least-half-time enrollment, accredited-institution rule, all-major policy access, and application contacts."
+          },
+          "major": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.whitehouse.gov/ostp/internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official OSTP page confirms the Spring 2027 deadline, U.S.-citizen requirement, at-least-half-time enrollment, accredited-institution rule, all-major policy access, and application contacts."
+          },
+          "citizenship": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://www.whitehouse.gov/ostp/internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official OSTP page confirms the Spring 2027 deadline, U.S.-citizen requirement, at-least-half-time enrollment, accredited-institution rule, all-major policy access, and application contacts."
+          },
+          "residency": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.whitehouse.gov/ostp/internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official OSTP page confirms the Spring 2027 deadline, U.S.-citizen requirement, at-least-half-time enrollment, accredited-institution rule, all-major policy access, and application contacts."
+          },
+          "gpa": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.whitehouse.gov/ostp/internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official OSTP page confirms the Spring 2027 deadline, U.S.-citizen requirement, at-least-half-time enrollment, accredited-institution rule, all-major policy access, and application contacts."
+          },
+          "age": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.whitehouse.gov/ostp/internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official OSTP page confirms the Spring 2027 deadline, U.S.-citizen requirement, at-least-half-time enrollment, accredited-institution rule, all-major policy access, and application contacts."
+          },
+          "financial_need": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.whitehouse.gov/ostp/internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official OSTP page confirms the Spring 2027 deadline, U.S.-citizen requirement, at-least-half-time enrollment, accredited-institution rule, all-major policy access, and application contacts."
+          },
+          "invitation": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://www.whitehouse.gov/ostp/internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official OSTP page confirms the Spring 2027 deadline, U.S.-citizen requirement, at-least-half-time enrollment, accredited-institution rule, all-major policy access, and application contacts."
+          },
+          "application_status": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.whitehouse.gov/ostp/internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official OSTP page confirms the Spring 2027 deadline, U.S.-citizen requirement, at-least-half-time enrollment, accredited-institution rule, all-major policy access, and application contacts."
+          },
+          "deadline": {
+            "state": "verified_open",
+            "sourceUrl": "https://www.whitehouse.gov/ostp/internships/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "spring-2027",
+            "note": "The official OSTP page confirms the Spring 2027 deadline, U.S.-citizen requirement, at-least-half-time enrollment, accredited-institution rule, all-major policy access, and application contacts."
+          }
+        }
+      },
+      "sourceReferences": [
+        {
+          "url": "https://www.whitehouse.gov/ostp/internships/",
+          "authority": "official_program",
+          "verifiedAt": "2026-08-20",
+          "cycle": "spring-2027",
+          "supports": [
+            "academic_level",
+            "institution_type",
+            "enrollment_status",
+            "school_restriction",
+            "external_student_eligibility",
+            "class_year",
+            "major",
+            "citizenship",
+            "residency",
+            "gpa",
+            "age",
+            "financial_need",
+            "invitation",
+            "application_status",
+            "deadline"
+          ],
+          "note": "The official OSTP page confirms the Spring 2027 deadline, U.S.-citizen requirement, at-least-half-time enrollment, accredited-institution rule, all-major policy access, and application contacts."
+        },
+        {
+          "url": "https://www.whitehouse.gov/wp-content/uploads/2025/04/OSTP-Intern-Guidance-1.pdf",
+          "authority": "official_program",
+          "verifiedAt": "2026-08-20",
+          "cycle": "spring-2027",
+          "supports": [
+            "academic_level",
+            "enrollment_status",
+            "citizenship",
+            "application_status",
+            "deadline"
+          ],
+          "note": "The official guidance confirms the same citizenship and enrollment rules and documents required application materials."
+        }
+      ],
+      "acquisition": {
+        "batchId": "targeted-coverage-gaps-2026-08-wave-4",
+        "acquiredAt": "2026-08-20",
+        "reviewCadenceDays": 45,
+        "nextReviewAt": "2026-09-21",
+        "freshnessModel": "fixed_cycle"
+      },
+      "verification": {
+        "status": "verified",
+        "lastVerifiedAt": "2026-08-20",
+        "verifiedCycle": "spring-2027",
+        "officialSourceUrl": "https://www.whitehouse.gov/ostp/internships/",
+        "applicationUrlVerified": true,
+        "deadlineVerified": true,
+        "eligibilityVerified": true,
+        "sourceReachable": true,
+        "sourceAuditStatus": 200,
+        "notes": "The policy record excludes the law-only internship path. The official 30-hour availability language is a preference, not a mandatory eligibility rule."
+      },
+      "lifecycle": {
+        "schemaVersion": 1,
+        "migrationId": "targeted-coverage-gaps-2026-08-wave-4",
+        "identity": {
+          "identityId": "career--white-house-ostp-policy-internship",
+          "aliases": [
+            "OSTP Internship",
+            "White House OSTP Policy Internship"
+          ]
+        },
+        "cycle": {
+          "cycleId": "spring-2027",
+          "label": "spring-2027"
+        },
+        "state": "open",
+        "confidence": "confirmed",
+        "reason": "official_status_open",
+        "effectiveAt": "2026-08-20T00:00:00.000Z",
+        "finalDeadline": {
+          "kind": "final_deadline",
+          "sourceValue": "2026-09-20",
+          "normalizedValue": "2026-09-20",
+          "precision": "date",
+          "estimated": false,
+          "verifiedAt": "2026-08-14",
+          "sourceUrl": "https://www.whitehouse.gov/ostp/internships/"
+        },
+        "recurrence": {
+          "type": "annual",
+          "confidence": "confirmed",
+          "officialStatement": "The policy record excludes the law-only internship path. The official 30-hour availability language is a preference, not a mandatory eligibility rule."
+        },
+        "evidence": [
+          {
+            "id": "career--white-house-ostp-policy-internship:spring-2027:official:1",
+            "source": "official_application_page",
+            "observedAt": "2026-08-20T00:00:00.000Z",
+            "value": "The official OSTP page confirms the Spring 2027 deadline, U.S.-citizen requirement, at-least-half-time enrollment, accredited-institution rule, all-major policy access, and application contacts.",
+            "sourceUrl": "https://www.whitehouse.gov/ostp/internships/",
+            "confidence": "confirmed"
+          },
+          {
+            "id": "career--white-house-ostp-policy-internship:spring-2027:official:2",
+            "source": "official_application_page",
+            "observedAt": "2026-08-20T00:00:00.000Z",
+            "value": "The official guidance confirms the same citizenship and enrollment rules and documents required application materials.",
+            "sourceUrl": "https://www.whitehouse.gov/wp-content/uploads/2025/04/OSTP-Intern-Guidance-1.pdf",
+            "confidence": "confirmed"
+          }
+        ],
+        "events": [],
+        "sourceChecks": [
+          {
+            "url": "https://www.whitehouse.gov/ostp/internships/",
+            "checkedAt": "2026-08-20T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          },
+          {
+            "url": "https://www.whitehouse.gov/wp-content/uploads/2025/04/OSTP-Intern-Guidance-1.pdf",
+            "checkedAt": "2026-08-20T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          }
+        ],
+        "fieldVerifiedAt": {
+          "state": "2026-08-20",
+          "deadline": "2026-08-20",
+          "applicationUrl": "2026-08-20",
+          "eligibility": "2026-08-20",
+          "award": "2026-08-20",
+          "location": "2026-08-20",
+          "programDates": "2026-08-20",
+          "description": "2026-08-20"
+        },
+        "review": {
+          "note": "The policy record excludes the law-only internship path. The official 30-hour availability language is a preference, not a mandatory eligibility rule.",
+          "reviewedAt": "2026-08-20T00:00:00.000Z",
+          "reviewer": "UnlockED catalog acquisition"
+        }
+      }
+    }
+  },
+  {
+    "id": "scholarship--aina-foundation-2026",
+    "title": "AINA Foundation Scholarship",
+    "type": "Scholarship",
+    "category": "Business Scholarships",
+    "description": "Two $5,000 scholarships for accounting, finance, taxation, and closely related undergraduates who submit a practical AI-enabled accounting or finance project.",
+    "organization": "AINA Foundation",
+    "school_scope": "National",
+    "schools": [],
+    "majors": [
+      "Accounting",
+      "Finance",
+      "Taxation",
+      "Economics"
+    ],
+    "academic_years": [
+      "First year",
+      "Second year",
+      "Third year",
+      "Fourth year"
+    ],
+    "eligibility": "U.S.-based undergraduate students enrolled at an accredited U.S. college or university for the 2026-27 academic year in accounting, finance, taxation, or a closely related field. Applicants must submit a working AI use-case project, a short written explanation, and a structured video response. UnlockED conservatively limits recommendations to students with proven U.S. citizenship.",
+    "estimated_value": 5000,
+    "application_deadline": "2026-09-15",
+    "recurring": true,
+    "location": "United States",
+    "remote": true,
+    "paid": true,
+    "tags": [
+      "Scholarship",
+      "Accounting",
+      "Finance",
+      "Economics",
+      "AI",
+      "Project-Based"
+    ],
+    "official_source": "https://ainativeaccounting.org/aina-scholarship-program/",
+    "official_source_url": "https://ainativeaccounting.org/aina-scholarship-program/",
+    "verification_status": "verified",
+    "last_verified": "2026-08-20",
+    "deadline": "2026-09-15",
+    "reviewer_notes": "The provider is newer than long-established scholarship foundations. Its current official page clearly states the award, application, deadline, and eligibility, so the record is recommendation-safe but not assigned Very High prestige.",
+    "estimated_value_note": "$5,000 for education-related expenses, plus six months of mentorship and professional introductions.",
+    "date_added": "2026-08-20",
+    "difficulty": "Competitive",
+    "prestige": "High",
+    "icon": "scholarship",
+    "featured": false,
+    "hidden_gem": false,
+    "metadata": {
+      "deadlineType": "fixed",
+      "compensation": "Paid",
+      "workMode": "Remote",
+      "awardAmountLabel": "$5,000 for education-related expenses, plus six months of mentorship and professional introductions.",
+      "renewable": null,
+      "applicationRequirements": [
+        "Applicant profile",
+        "Working AI use-case project",
+        "Project write-up of up to 500 words",
+        "Three- to four-minute video response"
+      ],
+      "estimatedApplicationTime": "1-2 weeks",
+      "skillsGained": [
+        "Applied AI",
+        "Accounting Technology",
+        "Financial Analysis",
+        "Communication"
+      ],
+      "careerPaths": [
+        "Accounting",
+        "Finance",
+        "Taxation",
+        "Financial Technology"
+      ],
+      "expectedROI": "$5,000 plus mentorship for a focused, project-based application that can also produce portfolio evidence.",
+      "recommendedMajors": [
+        "Accounting",
+        "Finance",
+        "Taxation",
+        "Economics"
+      ],
+      "recommendedClassYears": [
+        "First year",
+        "Second year",
+        "Third year",
+        "Fourth year"
+      ],
+      "eligibilityRules": {
+        "educationLevels": [
+          "undergraduate",
+          "community_college"
+        ],
+        "canonicalInstitutionTypes": [
+          "community_college",
+          "four_year_college",
+          "university",
+          "liberal_arts_college"
+        ],
+        "canonicalEnrollmentStatuses": [
+          "currently_enrolled"
+        ],
+        "acceptsExternalStudents": true,
+        "classYears": [
+          "First year",
+          "Second year",
+          "Third year",
+          "Fourth year"
+        ],
+        "majors": [
+          "Accounting",
+          "Finance",
+          "Taxation",
+          "Economics"
+        ],
+        "citizenshipStatuses": [
+          "us_citizen"
+        ],
+        "transferEligibility": "general_undergraduate",
+        "availability": "open",
+        "recommendationEligibilityStatus": "eligible_for_ranking",
+        "evidence": [
+          "Ranking is narrower than the official U.S.-enrollment language so ambiguous citizenship cases remain fail-closed."
+        ],
+        "fieldEvidence": {
+          "academic_level": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://ainativeaccounting.org/aina-scholarship-program/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2026-27",
+            "note": "The official 2026-27 page confirms the September 15 deadline, two $5,000 awards, U.S. accredited-college enrollment, eligible fields, project requirement, video response, and application process."
+          },
+          "institution_type": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://ainativeaccounting.org/aina-scholarship-program/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2026-27",
+            "note": "The official 2026-27 page confirms the September 15 deadline, two $5,000 awards, U.S. accredited-college enrollment, eligible fields, project requirement, video response, and application process."
+          },
+          "enrollment_status": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://ainativeaccounting.org/aina-scholarship-program/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2026-27",
+            "note": "The official 2026-27 page confirms the September 15 deadline, two $5,000 awards, U.S. accredited-college enrollment, eligible fields, project requirement, video response, and application process."
+          },
+          "school_restriction": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://ainativeaccounting.org/aina-scholarship-program/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2026-27",
+            "note": "The official 2026-27 page confirms the September 15 deadline, two $5,000 awards, U.S. accredited-college enrollment, eligible fields, project requirement, video response, and application process."
+          },
+          "external_student_eligibility": {
+            "state": "verified_open",
+            "sourceUrl": "https://ainativeaccounting.org/aina-scholarship-program/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2026-27",
+            "note": "The official 2026-27 page confirms the September 15 deadline, two $5,000 awards, U.S. accredited-college enrollment, eligible fields, project requirement, video response, and application process."
+          },
+          "class_year": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://ainativeaccounting.org/aina-scholarship-program/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2026-27",
+            "note": "The official 2026-27 page confirms the September 15 deadline, two $5,000 awards, U.S. accredited-college enrollment, eligible fields, project requirement, video response, and application process."
+          },
+          "major": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://ainativeaccounting.org/aina-scholarship-program/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2026-27",
+            "note": "The official 2026-27 page confirms the September 15 deadline, two $5,000 awards, U.S. accredited-college enrollment, eligible fields, project requirement, video response, and application process."
+          },
+          "citizenship": {
+            "state": "verified_restriction",
+            "sourceUrl": "https://ainativeaccounting.org/aina-scholarship-program/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2026-27",
+            "note": "The official 2026-27 page confirms the September 15 deadline, two $5,000 awards, U.S. accredited-college enrollment, eligible fields, project requirement, video response, and application process."
+          },
+          "residency": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://ainativeaccounting.org/aina-scholarship-program/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2026-27",
+            "note": "The official 2026-27 page confirms the September 15 deadline, two $5,000 awards, U.S. accredited-college enrollment, eligible fields, project requirement, video response, and application process."
+          },
+          "gpa": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://ainativeaccounting.org/aina-scholarship-program/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2026-27",
+            "note": "The official 2026-27 page confirms the September 15 deadline, two $5,000 awards, U.S. accredited-college enrollment, eligible fields, project requirement, video response, and application process."
+          },
+          "age": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://ainativeaccounting.org/aina-scholarship-program/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2026-27",
+            "note": "The official 2026-27 page confirms the September 15 deadline, two $5,000 awards, U.S. accredited-college enrollment, eligible fields, project requirement, video response, and application process."
+          },
+          "financial_need": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://ainativeaccounting.org/aina-scholarship-program/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2026-27",
+            "note": "The official 2026-27 page confirms the September 15 deadline, two $5,000 awards, U.S. accredited-college enrollment, eligible fields, project requirement, video response, and application process."
+          },
+          "invitation": {
+            "state": "reviewed_no_restriction",
+            "sourceUrl": "https://ainativeaccounting.org/aina-scholarship-program/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2026-27",
+            "note": "The official 2026-27 page confirms the September 15 deadline, two $5,000 awards, U.S. accredited-college enrollment, eligible fields, project requirement, video response, and application process."
+          },
+          "application_status": {
+            "state": "verified_open",
+            "sourceUrl": "https://ainativeaccounting.org/aina-scholarship-program/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2026-27",
+            "note": "The official 2026-27 page confirms the September 15 deadline, two $5,000 awards, U.S. accredited-college enrollment, eligible fields, project requirement, video response, and application process."
+          },
+          "deadline": {
+            "state": "verified_open",
+            "sourceUrl": "https://ainativeaccounting.org/aina-scholarship-program/",
+            "authority": "official_program",
+            "verifiedAt": "2026-08-20",
+            "cycle": "2026-27",
+            "note": "The official 2026-27 page confirms the September 15 deadline, two $5,000 awards, U.S. accredited-college enrollment, eligible fields, project requirement, video response, and application process."
+          }
+        }
+      },
+      "sourceReferences": [
+        {
+          "url": "https://ainativeaccounting.org/aina-scholarship-program/",
+          "authority": "official_program",
+          "verifiedAt": "2026-08-20",
+          "cycle": "2026-27",
+          "supports": [
+            "academic_level",
+            "institution_type",
+            "enrollment_status",
+            "school_restriction",
+            "external_student_eligibility",
+            "class_year",
+            "major",
+            "citizenship",
+            "residency",
+            "gpa",
+            "age",
+            "financial_need",
+            "invitation",
+            "application_status",
+            "deadline"
+          ],
+          "note": "The official 2026-27 page confirms the September 15 deadline, two $5,000 awards, U.S. accredited-college enrollment, eligible fields, project requirement, video response, and application process."
+        }
+      ],
+      "acquisition": {
+        "batchId": "targeted-coverage-gaps-2026-08-wave-4",
+        "acquiredAt": "2026-08-20",
+        "reviewCadenceDays": 45,
+        "nextReviewAt": "2026-09-16",
+        "freshnessModel": "fixed_cycle"
+      },
+      "verification": {
+        "status": "verified",
+        "lastVerifiedAt": "2026-08-20",
+        "verifiedCycle": "2026-27",
+        "officialSourceUrl": "https://ainativeaccounting.org/aina-scholarship-program/",
+        "applicationUrlVerified": true,
+        "deadlineVerified": true,
+        "eligibilityVerified": true,
+        "sourceReachable": true,
+        "sourceAuditStatus": 200,
+        "notes": "The provider is newer than long-established scholarship foundations. Its current official page clearly states the award, application, deadline, and eligibility, so the record is recommendation-safe but not assigned Very High prestige."
+      },
+      "lifecycle": {
+        "schemaVersion": 1,
+        "migrationId": "targeted-coverage-gaps-2026-08-wave-4",
+        "identity": {
+          "identityId": "scholarship--aina-foundation-2026",
+          "aliases": [
+            "AINA Scholarship",
+            "AI Native Accounting Scholarship"
+          ]
+        },
+        "cycle": {
+          "cycleId": "2026-27",
+          "label": "2026-27"
+        },
+        "state": "open",
+        "confidence": "confirmed",
+        "reason": "official_status_open",
+        "effectiveAt": "2026-08-20T00:00:00.000Z",
+        "finalDeadline": {
+          "kind": "final_deadline",
+          "sourceValue": "2026-09-15",
+          "normalizedValue": "2026-09-15",
+          "precision": "date",
+          "estimated": false,
+          "verifiedAt": "2026-08-14",
+          "sourceUrl": "https://ainativeaccounting.org/aina-scholarship-program/"
+        },
+        "recurrence": {
+          "type": "annual",
+          "confidence": "confirmed",
+          "officialStatement": "The provider is newer than long-established scholarship foundations. Its current official page clearly states the award, application, deadline, and eligibility, so the record is recommendation-safe but not assigned Very High prestige."
+        },
+        "evidence": [
+          {
+            "id": "scholarship--aina-foundation-2026:2026-27:official:1",
+            "source": "official_application_page",
+            "observedAt": "2026-08-20T00:00:00.000Z",
+            "value": "The official 2026-27 page confirms the September 15 deadline, two $5,000 awards, U.S. accredited-college enrollment, eligible fields, project requirement, video response, and application process.",
+            "sourceUrl": "https://ainativeaccounting.org/aina-scholarship-program/",
+            "confidence": "confirmed"
+          }
+        ],
+        "events": [],
+        "sourceChecks": [
+          {
+            "url": "https://ainativeaccounting.org/aina-scholarship-program/",
+            "checkedAt": "2026-08-20T00:00:00.000Z",
+            "classification": "official_application",
+            "status": 200
+          }
+        ],
+        "fieldVerifiedAt": {
+          "state": "2026-08-20",
+          "deadline": "2026-08-20",
+          "applicationUrl": "2026-08-20",
+          "eligibility": "2026-08-20",
+          "award": "2026-08-20",
+          "location": "2026-08-20",
+          "programDates": "2026-08-20",
+          "description": "2026-08-20"
+        },
+        "review": {
+          "note": "The provider is newer than long-established scholarship foundations. Its current official page clearly states the award, application, deadline, and eligibility, so the record is recommendation-safe but not assigned Very High prestige.",
+          "reviewedAt": "2026-08-20T00:00:00.000Z",
+          "reviewer": "UnlockED catalog acquisition"
+        }
+      }
+    }
   }
 ]

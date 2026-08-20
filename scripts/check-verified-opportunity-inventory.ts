@@ -6,6 +6,8 @@ import { resolveOpportunityLifecycle } from "../data/opportunity-lifecycle";
 import { recommendationOpportunityClass } from "../data/recommendation-portfolio-policy";
 import { rankOpportunityRecommendations } from "../data/recommendation-engine";
 import { validateOpportunityData } from "../data/recommendation-professional-pipeline";
+import { allOpportunityAcquisitionCandidates, allOpportunityAcquisitionRecords } from "../data/opportunity-acquisition-batches";
+import { opportunityAcquisitionBatch4 } from "../data/opportunity-acquisition-batch-4";
 import { opportunities } from "../data/opportunities";
 import { schools } from "../data/seed";
 import type { StudentProfile } from "../data/student-profile";
@@ -27,36 +29,12 @@ const enrichedIds = [
   "scholarship--dod-smart-scholarship",
   "scholarship--gilman-scholarship",
 ] as const;
-const acquisitionWaveIds = [
-  "scholarship--fund-for-education-abroad",
-  "career--hacu-national-internship-program-spring-2027",
-  "research--ista-year-round-scientific-internships",
-  "research--oist-research-internship-spring-2027",
-  "research--kaust-visiting-student-research-program",
-  "scholarship--knight-hennessy-scholars-2027",
-  "scholarship--rhodes-scholarship-united-states-2027",
-  "career--nasa-space-apps",
-  "research--doe-cci",
-  "career--chci-congressional-internship-summer-2027",
-  "career--heritage-young-leaders-spring-2027",
-  "career--smithsonian-archives-american-art-internships",
-  "scholarship--schwarzman-scholars-2027-28",
-] as const;
-const acquisitionWave3Ids = [
-  "career--oecd-internship-programme",
-  "career--smithsonian-folklife-cultural-heritage-internships",
-  "research--smithsonian-serc-internships",
-  "career--smithsonian-associates-internships",
-  "career--united-nations-internships",
-  "career--aei-internships",
-  "career--smithsonian-national-zoo-internships",
-] as const;
 const archivedDuplicates = new Map([
   ["national-curated-2026--u-s-department-of-defense--smart-scholarship-for-service-program", "scholarship--dod-smart-scholarship"],
   ["national-curated-2026--u-s-department-of-state--gilman-international-scholarship", "scholarship--gilman-scholarship"],
 ]);
 
-for (const id of [...newIds, ...enrichedIds, ...acquisitionWaveIds, ...acquisitionWave3Ids]) {
+for (const id of [...newIds, ...enrichedIds, ...allOpportunityAcquisitionRecords.map((item) => item.id)]) {
   const item = opportunities.find((opportunity) => opportunity.id === id);
   assert.ok(item, `${id} must exist.`);
   assert.equal(item.verification_status, "verified", `${id} must be source-verified.`);
@@ -87,8 +65,7 @@ const currentlyActionableIds = [
   "scholarship--dod-smart-scholarship",
   "scholarship--gilman-scholarship",
   "national-curated-2026--jack-kent-cooke-foundation--jack-kent-cooke-undergraduate-transfer-scholarship",
-  ...acquisitionWaveIds,
-  ...acquisitionWave3Ids,
+  ...allOpportunityAcquisitionRecords.map((item) => item.id),
 ] as const;
 for (const id of currentlyActionableIds) {
   const item = opportunities.find((opportunity) => opportunity.id === id);
@@ -169,10 +146,15 @@ const categoryCounts = verified.reduce<Record<string, number>>((counts, item) =>
 }, {});
 const unresolved = opportunities.filter((item) => ["needs_review", "temporarily_closed", "incomplete", "broken_source"].includes(item.verification_status)).length;
 
-assert.equal(opportunities.length, 6015, "Reviewed expansion waves should add twenty-four records while enriching existing identities in place.");
-assert.equal(canonical.length, 6004, "Canonical public inventory must exclude archived and secondary duplicate records.");
-assert.equal(verified.length, 222, "The audited inventory should contain 222 verified records.");
-assert.equal(highValueRecommendationSafe.length, 31, "Thirty-one non-resource opportunities should be safely actionable on the audit date.");
+const preTargetedCatalog = 6015;
+const preTargetedCanonical = 6004;
+const preTargetedVerified = 222;
+const preTargetedHighValueSafe = 31;
+const targetedAdditions = opportunityAcquisitionBatch4.records.length;
+assert.equal(opportunities.length, preTargetedCatalog + targetedAdditions, "Catalog size must equal the approved pre-targeted baseline plus every distinct targeted addition.");
+assert.equal(canonical.length, preTargetedCanonical + targetedAdditions, "Canonical public inventory must include targeted additions while excluding archived and secondary duplicate records.");
+assert.equal(verified.length, preTargetedVerified + targetedAdditions, "Every targeted addition must contribute exactly one verified canonical identity.");
+assert.equal(highValueRecommendationSafe.length, preTargetedHighValueSafe + targetedAdditions, "Every targeted addition must remain safely actionable and non-resource on the audit date.");
 
 console.log(JSON.stringify({
   auditDate: auditDate.toISOString().slice(0, 10),
@@ -197,11 +179,11 @@ console.log(JSON.stringify({
     highValueRecommendationSafeAfter: highValueRecommendationSafe.length,
   },
   acquisitionWave: {
-    researched: 85,
-    accepted: acquisitionWaveIds.length + acquisitionWave3Ids.length + 2,
-    canonicalRecordsAdded: 17,
+    researched: allOpportunityAcquisitionCandidates.length,
+    accepted: allOpportunityAcquisitionRecords.length,
+    canonicalRecordsAdded: 17 + targetedAdditions,
     canonicalRecordsEnriched: 5,
-    rejected: 63,
+    rejected: allOpportunityAcquisitionCandidates.filter((item) => item.status === "rejected").length,
     recommendationSafeBefore: 68,
     recommendationSafeAfter: recommendationSafe.length,
     highValueRecommendationSafeBefore: 10,
