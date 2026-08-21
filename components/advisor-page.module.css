@@ -99,6 +99,7 @@
 
 .radar,
 .portfolio,
+.watching,
 .method {
   border: 1px solid var(--unlocked-border);
   border-radius: 8px;
@@ -106,9 +107,33 @@
 }
 
 .radar,
-.portfolio {
+.portfolio,
+.watching {
   padding: 24px;
 }
+
+.watching ol {
+  display: grid;
+  gap: 2px;
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.watching li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  border-top: 1px solid var(--unlocked-border);
+}
+
+.watching a { display: grid; gap: 3px; min-width: 0; }
+.watching strong { overflow: hidden; color: var(--unlocked-text); font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+.watching span { color: var(--unlocked-muted); font-size: 10px; }
+.watching button { min-height: 36px; border: 0; background: transparent; padding: 0 4px; color: rgb(var(--color-forest)); font: inherit; font-size: 10px; font-weight: 800; cursor: pointer; }
+.watching button:disabled { cursor: wait; opacity: .6; }
 
 .radar ol {
   display: grid;
@@ -160,6 +185,30 @@
   align-self: center;
   color: rgb(var(--color-forest));
 }
+
+.radarEmpty {
+  margin: 16px 0 0;
+  color: var(--unlocked-muted);
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+.comingUp {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--unlocked-border);
+}
+
+.comingUp > p {
+  margin: 0;
+  color: var(--unlocked-muted);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.comingUp ol { margin-top: 8px; }
 
 .portfolio dl {
   display: grid;
@@ -249,6 +298,122 @@
 .intelligenceGroup {
   content-visibility: auto;
   contain-intrinsic-size: auto 420px;
+}
+
+.priorityView {
+  display: inline-flex;
+  gap: 4px;
+  margin: 0 0 22px;
+  padding: 4px;
+  border: 1px solid var(--unlocked-border);
+  border-radius: 7px;
+  background: var(--unlocked-surface-muted);
+}
+
+.priorityView button,
+.decisionControls button,
+.compareTray button,
+.comparison button {
+  min-height: 38px;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  padding: 0 13px;
+  color: var(--unlocked-muted);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.priorityView button[aria-pressed="true"] {
+  background: var(--unlocked-surface);
+  color: rgb(var(--color-forest));
+  box-shadow: 0 2px 8px rgb(var(--color-espresso) / .08);
+}
+
+.decisionControls {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.decisionControls button {
+  border: 1px solid var(--unlocked-border);
+  color: rgb(var(--color-forest));
+}
+
+.decisionControls button[aria-pressed="true"] {
+  border-color: rgb(var(--color-forest) / .45);
+  background: rgb(var(--color-forest) / .08);
+}
+
+.decisionControls button:disabled { cursor: wait; opacity: .65; }
+
+.decisionError {
+  margin: -10px 0 20px;
+  color: var(--unlocked-danger, #a13a32);
+  font-size: 12px;
+}
+
+.compareTray {
+  position: sticky;
+  z-index: 12;
+  bottom: 22px;
+  display: flex;
+  width: fit-content;
+  align-items: center;
+  gap: 18px;
+  margin: 28px auto;
+  border: 1px solid rgb(var(--color-forest) / .24);
+  border-radius: 7px;
+  background: rgb(var(--color-surface) / .96);
+  padding: 8px 10px 8px 16px;
+  box-shadow: 0 14px 36px rgb(var(--color-espresso) / .14);
+  color: var(--unlocked-text);
+  font-size: 12px;
+  backdrop-filter: blur(12px);
+}
+
+.compareTray button,
+.comparison button { color: rgb(var(--color-forest)); }
+
+.comparison {
+  margin-top: 44px;
+  padding-top: 36px;
+  border-top: 1px solid var(--unlocked-border);
+}
+
+.comparisonScroll { overflow-x: auto; }
+
+.comparison table {
+  width: 100%;
+  min-width: 720px;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.comparison th,
+.comparison td {
+  max-width: 290px;
+  border-bottom: 1px solid var(--unlocked-border);
+  padding: 16px 18px;
+  vertical-align: top;
+  color: var(--unlocked-muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.comparison thead th {
+  color: var(--unlocked-text);
+  font-family: Iowan Old Style, Baskerville, Georgia, "Times New Roman", serif;
+  font-size: 16px;
+}
+
+.comparison tbody th {
+  width: 150px;
+  color: var(--unlocked-text);
+  font-weight: 750;
 }
 
 .hero {
@@ -997,6 +1162,14 @@
   line-height: 1.5;
 }
 
+.factLine {
+  margin: 8px 0 0;
+  color: var(--unlocked-text);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
 .recommendation .signals {
   margin-top: 13px;
 }
@@ -1418,6 +1591,17 @@
   .page {
     padding: 42px 18px 64px;
   }
+
+  .priorityView {
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  .priorityView button { flex: 1 0 auto; min-height: 44px; }
+
+  .decisionControls button { min-height: 44px; }
+
+  .compareTray { bottom: 82px; width: calc(100% - 8px); justify-content: space-between; }
 
   .container {
     gap: 38px;

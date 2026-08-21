@@ -5,6 +5,7 @@ import type { RecommendationViewModel } from "@/data/recommendation-service";
 import type { StudentActivity } from "@/data/student-activity";
 import type { StudentProfile } from "@/data/student-profile";
 import type { ForYouBriefing, ForYouRadarEvent, ForYouRecommendationSnapshot } from "@/lib/advisor/types";
+import { buildForYouDecisionInsights, forYouDecisionVersion } from "@/lib/for-you-decision-intelligence";
 
 const terminalStatuses = new Set(["Rejected", "Completed"]);
 
@@ -51,6 +52,8 @@ function whatThisAdds(view: RecommendationViewModel, portfolio: ReturnType<typeo
 function radarEvents(
   recommendations: RecommendationViewModel[],
   topPickIds: Set<string>,
+  watchedIds: ReadonlySet<string>,
+  opportunityById: ReadonlyMap<string, Opportunity>,
   priorSnapshot: ForYouRecommendationSnapshot | null,
   now: Date,
 ) {
@@ -63,19 +66,23 @@ function radarEvents(
     seen.add(key);
     events.push(event);
   };
-  for (const view of recommendations) {
-    const opportunity = view.opportunity;
-    const id = opportunityId(view);
+  const recommendationById = new Map(recommendations.map((view) => [opportunityId(view), view]));
+  const candidates = [...new Set([...recommendationById.keys(), ...watchedIds])];
+  for (const id of candidates) {
+    const view = recommendationById.get(id);
+    const opportunity = view?.opportunity ?? opportunityById.get(id);
     if (!opportunity || !id) continue;
+    const source = watchedIds.has(id) ? "watched" as const : "recommendation" as const;
+    const href = view?.href ?? `/opportunities/${id}`;
     const changes = recentOpportunityChanges(opportunity, 2);
     const reopened = changes.find((event) => event.changeType === "applications_reopened");
     const meaningful = changes.find((event) => event.importance !== "informational");
-    if (reopened) add({ id: `radar:${reopened.id}`, type: "applications_reopened", label: "Applications reopened", detail: opportunity.title, opportunityId: id, href: view.href, occurredAt: reopened.detectedAt });
-    else if (meaningful) add({ id: `radar:${meaningful.id}`, type: "meaningful_change", label: opportunityChangeLabel(meaningful), detail: opportunity.title, opportunityId: id, href: view.href, occurredAt: meaningful.detectedAt });
-    if (view.whyApplyNow?.urgency === "high") add({ id: `radar:deadline:${id}`, type: "deadline_soon", label: view.whyApplyNow.label, detail: opportunity.title, opportunityId: id, href: view.href, occurredAt: opportunity.application_deadline ?? undefined });
-    if (priorSnapshot && !priorIds.has(id)) add({ id: `radar:new-match:${id}`, type: "new_match", label: "New match", detail: opportunity.title, opportunityId: id, href: view.href, occurredAt: now.toISOString() });
-    else if (view.freshnessLabel === "New this week" || view.freshnessLabel === "Recently added") add({ id: `radar:new-catalog:${id}`, type: "newly_added", label: "New this week", detail: opportunity.title, opportunityId: id, href: view.href, occurredAt: opportunity.date_added });
-    else if (view.freshnessLabel === "Recently verified") add({ id: `radar:verified:${id}`, type: "recently_verified", label: "Recently verified", detail: opportunity.title, opportunityId: id, href: view.href, occurredAt: opportunity.last_verified });
+    if (reopened) add({ id: `radar:${reopened.id}`, type: "applications_reopened", label: "Applications reopened", detail: opportunity.title, opportunityId: id, href, occurredAt: reopened.detectedAt, source });
+    else if (meaningful) add({ id: `radar:${meaningful.id}`, type: "meaningful_change", label: opportunityChangeLabel(meaningful), detail: opportunity.title, opportunityId: id, href, occurredAt: meaningful.detectedAt, source });
+    if (view?.whyApplyNow?.urgency === "high") add({ id: `radar:deadline:${id}`, type: "deadline_soon", label: view.whyApplyNow.label, detail: opportunity.title, opportunityId: id, href, occurredAt: opportunity.application_deadline ?? undefined, source });
+    if (view && priorSnapshot && !priorIds.has(id)) add({ id: `radar:new-match:${id}`, type: "new_match", label: "New for you", detail: opportunity.title, opportunityId: id, href, occurredAt: now.toISOString(), source });
+    else if (view && (view.freshnessLabel === "New this week" || view.freshnessLabel === "Recently added")) add({ id: `radar:new-catalog:${id}`, type: "newly_added", label: "New to UnlockED", detail: opportunity.title, opportunityId: id, href, occurredAt: opportunity.date_added, source });
+    else if (view?.freshnessLabel === "Recently verified") add({ id: `radar:verified:${id}`, type: "recently_verified", label: "Recently verified", detail: opportunity.title, opportunityId: id, href, occurredAt: opportunity.last_verified, source });
   }
   return events.sort((left, right) => (right.occurredAt ?? "").localeCompare(left.occurredAt ?? "") || left.label.localeCompare(right.label)).slice(0, 4);
 }
@@ -94,32 +101,31 @@ export function buildForYouBriefing(input: {
   activity: StudentActivity;
   opportunityById: Map<string, Opportunity>;
   priorSnapshot?: ForYouRecommendationSnapshot | null;
+  watchedOpportunityIds?: string[];
   now?: Date;
 }): ForYouBriefing {
   const now = input.now ?? new Date();
   const recommendations = input.recommendations.filter((view) => Boolean(opportunityId(view)));
-  const core = recommendations.filter((view) => view.recommendation.portfolio?.role !== "exploration" && view.recommendation.tier !== "explore");
-  const topPicks = (core.length ? core : recommendations).slice(0, 3);
+  const watchedIds = new Set(input.watchedOpportunityIds ?? []);
+  const uncommitted = recommendations.filter((view) => !watchedIds.has(opportunityId(view)));
+  const core = uncommitted.filter((view) => view.recommendation.portfolio?.role !== "exploration" && view.recommendation.tier !== "explore");
+  const topPicks = (core.length ? core : uncommitted).slice(0, 3);
   const topPickIds = topPicks.map(opportunityId);
   const used = new Set(topPickIds);
-  const dontMiss = recommendations.filter((view) => !used.has(opportunityId(view)) && ["high", "medium"].includes(view.whyApplyNow?.urgency ?? "")).slice(0, 2);
+  const dontMiss = uncommitted.filter((view) => !used.has(opportunityId(view)) && ["high", "medium"].includes(view.whyApplyNow?.urgency ?? "")).slice(0, 2);
   dontMiss.forEach((view) => used.add(opportunityId(view)));
-  const exploration = recommendations.filter((view) => !used.has(opportunityId(view)) && (view.recommendation.portfolio?.role === "exploration" || view.recommendation.tier === "explore")).slice(0, 2);
+  const exploration = uncommitted.filter((view) => !used.has(opportunityId(view)) && (view.recommendation.portfolio?.role === "exploration" || view.recommendation.tier === "explore")).slice(0, 2);
   exploration.forEach((view) => used.add(opportunityId(view)));
-  const moreMatches = recommendations.filter((view) => !used.has(opportunityId(view)));
+  const moreMatches = uncommitted.filter((view) => !used.has(opportunityId(view)));
   const portfolio = portfolioBrief(input.activity, input.opportunityById);
-  const insights = Object.fromEntries(recommendations.map((view) => {
+  const priorIds = new Set((input.priorSnapshot?.recommendations ?? []).map(opportunityId));
+  const decisions = buildForYouDecisionInsights({ recommendations, activity: input.activity, opportunityById: input.opportunityById, watchedIds, priorRecommendationIds: priorIds, now });
+  const insights = decisions.insights;
+  for (const view of recommendations) {
     const id = opportunityId(view);
-    const intelligence = view.opportunity ? getOpportunityIntelligence(view.opportunity) : null;
-    return [id, {
-      opportunityId: id,
-      whyItFits: view.summaryReason ?? view.reasons[0] ?? "It passed UnlockED's eligibility, quality, and relevance checks.",
-      whyNow: view.whyApplyNow ? `${view.whyApplyNow.label}. ${view.whyApplyNow.detail}` : undefined,
-      whatItAdds: whatThisAdds(view, portfolio),
-      estimatedApplicationTime: intelligence?.estimatedApplicationTime ?? "Unknown",
-    }];
-  }));
-  const radar = radarEvents(recommendations, new Set(topPickIds), input.priorSnapshot ?? null, now);
+    if (insights[id] && !insights[id].whatItAdds) insights[id].whatItAdds = whatThisAdds(view, portfolio);
+  }
+  const radar = radarEvents(recommendations, new Set(topPickIds), watchedIds, input.opportunityById, input.priorSnapshot ?? null, now);
   const urgentCount = recommendations.filter((view) => view.whyApplyNow?.urgency === "high").length;
   const newCount = radar.filter((event) => event.type === "new_match" || event.type === "newly_added").length;
   const reopenedCount = radar.filter((event) => event.type === "applications_reopened").length;
@@ -144,5 +150,17 @@ export function buildForYouBriefing(input: {
     radar,
     portfolio,
     profileSignals: profileSignals(input.profile),
+    decisionVersion: forYouDecisionVersion,
+    watchingIds: [...watchedIds],
+    watchingItems: [...watchedIds].flatMap((id) => {
+      const opportunity = input.opportunityById.get(id);
+      return opportunity ? [{ opportunityId: id, title: opportunity.title, organization: opportunity.organization, href: `/opportunities/${id}` }] : [];
+    }),
+    comingUpIds: decisions.priorityViews.deadline.slice(0, 4),
+    priorityViews: {
+      curated: decisions.priorityViews.curated.filter((id) => !watchedIds.has(id)),
+      deadline: decisions.priorityViews.deadline.filter((id) => !watchedIds.has(id)),
+      effort: decisions.priorityViews.effort.filter((id) => !watchedIds.has(id)),
+    },
   };
 }

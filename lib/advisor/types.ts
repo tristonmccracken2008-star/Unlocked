@@ -267,6 +267,35 @@ export type ForYouRadarEvent = {
   opportunityId: string;
   href: string;
   occurredAt?: string;
+  source?: "recommendation" | "watched";
+};
+
+export type ForYouDecisionFact = {
+  kind: "deadline" | "value" | "location" | "effort" | "journey";
+  label: string;
+  detail?: string;
+};
+
+export type ForYouComparisonProjection = {
+  opportunityId: string;
+  type: string;
+  organization: string;
+  deadline?: string;
+  eligibility?: string;
+  location?: string;
+  value?: string;
+  duration?: string;
+  effort?: string;
+  applicationRequirements?: string;
+  matchReason: string;
+  journeyContribution?: string;
+};
+
+export type ForYouWatchingItem = {
+  opportunityId: string;
+  title: string;
+  organization: string;
+  href: string;
 };
 
 export type ForYouRecommendationInsight = {
@@ -275,6 +304,17 @@ export type ForYouRecommendationInsight = {
   whyNow?: string;
   whatItAdds?: string;
   estimatedApplicationTime: string;
+  priorityLabel: "Best fit" | "Deadline soon" | "Adds something new" | "Strong fit";
+  factLine: string;
+  whyThisOne: string;
+  facts: ForYouDecisionFact[];
+  comparison: ForYouComparisonProjection;
+  state: {
+    watched: boolean;
+    inJourney: boolean;
+    previouslySeen: boolean;
+    newForYou: boolean;
+  };
 };
 
 export type ForYouBriefing = {
@@ -290,6 +330,15 @@ export type ForYouBriefing = {
   radar: ForYouRadarEvent[];
   portfolio: ForYouPortfolioBrief;
   profileSignals: string[];
+  decisionVersion: "for-you-decision-v1";
+  watchingIds: string[];
+  watchingItems: ForYouWatchingItem[];
+  comingUpIds: string[];
+  priorityViews: {
+    curated: string[];
+    deadline: string[];
+    effort: string[];
+  };
 };
 
 export type ForYouRecommendationSnapshot = {

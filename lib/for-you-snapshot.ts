@@ -21,7 +21,7 @@ import { activeRecommendationFeedback } from "@/lib/advisor/feedback";
 import { listPublishedOpportunities } from "@/lib/content-store";
 import { buildForYouBriefing } from "@/lib/for-you-briefing";
 
-export const forYouSnapshotEngineVersion = "for-you-snapshot-v9-opportunity-intelligence";
+export const forYouSnapshotEngineVersion = "for-you-snapshot-v10-decision-intelligence";
 export const forYouSnapshotTtlMs = 1000 * 60 * 60 * 6;
 const generationTimeoutMs = 2800;
 const globalIndexTimeoutMs = 1000;
@@ -182,6 +182,7 @@ export function forYouProfileVersion(profile: StudentProfile, data: AccountData)
     hidden: data.preferences?.useActivityForRecommendations === false ? [] : [...(data.preferences?.hiddenDismissedIds ?? [])].sort(),
     useActivityForRecommendations: data.preferences?.useActivityForRecommendations !== false,
     feedback,
+    watched: (data.watchedOpportunities ?? []).map((item) => [item.opportunityId, item.updatedAt, item.version]).sort(),
     billing: { tier: data.billing.tier, status: data.billing.status },
     sourceSignalsVersion,
   });
@@ -307,6 +308,7 @@ async function generateSnapshot(user: AuthUser, data: AccountData, profile: Stud
     activity,
     opportunityById: index.opportunityById,
     priorSnapshot: priorCompatibleSnapshot(data, user.id),
+    watchedOpportunityIds: (data.watchedOpportunities ?? []).map((item) => item.opportunityId),
     now,
   }) : undefined;
   const snapshot: ForYouRecommendationSnapshot = {

@@ -28,6 +28,7 @@ export async function POST(request: Request) {
       profile: safe.profile,
       preferences: safe.preferences,
       savedOpportunities: safe.savedOpportunities,
+      watchedOpportunities: safe.watchedOpportunities ?? [],
       journey: { tracker: safe.tracker, progress: safe.journeyProgress, applicationWorkspaces: data.applicationWorkspaces ?? {} },
       notifications: notificationData.notifications.map((item) => ({
         type: item.type,

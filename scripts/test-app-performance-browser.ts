@@ -179,7 +179,13 @@ function observePage(page: Page) {
     const expectedLocalWebkitRscFailure = process.env.UNLOCKED_TEST_PRODUCTION_WEBKIT === "1"
       && url.searchParams.has("_rsc")
       && (failure.includes("content security policy") || failure.includes("webkit encountered an internal error"));
-    if (failure === "net::err_aborted" || expectedCancellation || expectedImageCancellation || expectedLocalWebkitRscFailure) return;
+    const expectedLocalWebkitNotificationTeardown = process.env.UNLOCKED_TEST_PRODUCTION_WEBKIT === "1"
+      && request.method() === "GET"
+      && url.pathname === "/api/notifications"
+      && url.searchParams.get("view") === "count"
+      && page.url() === "about:blank"
+      && failure.includes("webkit encountered an internal error");
+    if (failure === "net::err_aborted" || expectedCancellation || expectedImageCancellation || expectedLocalWebkitRscFailure || expectedLocalWebkitNotificationTeardown) return;
     if (request.resourceType() === "image" && new URL(request.url()).origin !== new URL(page.url()).origin) return;
     requestFailures.push(`${request.method()} ${request.url()} ${request.failure()?.errorText ?? "failed"}`);
   });

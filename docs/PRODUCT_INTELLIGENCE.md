@@ -130,6 +130,10 @@ These 90-day events measure outcomes without changing ranking and intentionally 
 | --- | --- | --- |
 | `for_you_briefing_viewed_v1` | `source`, `category` | Did Pro students reach the structured opportunity briefing and which bounded briefing state was available? |
 | `for_you_radar_opened_v1` | `opportunityId`, `category`, `source` | Did a factual Radar update lead to opportunity review? |
+| `for_you_priority_view_used_v1` | `control` | Did a student use a factual deadline or workload ordering? |
+| `for_you_comparison_opened_v1` | `status` | Did a Pro student open the bounded comparison view? |
+| `for_you_opportunity_compared_v1` | `opportunityId` | Which opaque opportunity IDs entered a comparison? |
+| `for_you_watch_changed_v1` | `opportunityId`, `action`, `source` | Did a student add or remove an opportunity from Watch? |
 | `recommendation_feed_viewed_v1` | `diversityScore` | Did the visible shortlist maintain a healthy mix? |
 | `recommendation_impression_v1` | `opportunityId`, `recommendationId`, `category`, `feedRole`, `exposureCount` | Which coarse recommendation cohort was shown? |
 | `recommendation_opportunity_opened_v1` | `opportunityId`, `recommendationId`, `category`, `exposureCount` | Did a recommendation lead to review? |
@@ -140,7 +144,7 @@ These 90-day events measure outcomes without changing ranking and intentionally 
 | `recommendation_dismissed_v1` | `opportunityId`, `recommendationId`, `category`, `exposureCount` | Did the student explicitly reject it? |
 | `recommendation_feedback_v1` | `opportunityId`, `recommendationId`, `category`, `feedRole`, `exposureCount`, `action` | Which bounded feedback or undo action refined the feed? |
 
-Attribution is browser-session scoped and cleared on logout or account switch. For You briefing events never include profile answers, recommendation titles, explanations, scores, deadlines, or Radar copy; `category` is restricted to a bounded briefing or Radar classification.
+Attribution is browser-session scoped and cleared on logout or account switch. For You briefing, priority, comparison, and Watch events never include profile answers, recommendation titles, explanations, scores, deadlines, comparison values, or Radar copy; `category`, `control`, and `action` are restricted to bounded classifications.
 
 ## Discover Events
 

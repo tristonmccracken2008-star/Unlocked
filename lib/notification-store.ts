@@ -315,6 +315,10 @@ export async function registerTrackedRecipient(userId: string, opportunityId: st
   await command(["SADD", trackedKey(opportunityId), userId]);
 }
 
+export async function unregisterTrackedRecipient(userId: string, opportunityId: string) {
+  await command(["SREM", trackedKey(opportunityId), userId]);
+}
+
 export async function trackedRecipients(opportunityId: string, limit = 500) {
   return (await command<string[]>(["SMEMBERS", trackedKey(opportunityId)]) ?? []).slice(0, limit);
 }

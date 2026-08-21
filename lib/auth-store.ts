@@ -1,5 +1,5 @@
 import crypto from "node:crypto";
-import type { AccountData, ApplicationWorkspaceRecord, AuthUser, DatabaseUser, JourneyCalendarEventRecord } from "./account-types";
+import type { AccountData, ApplicationWorkspaceRecord, AuthUser, DatabaseUser, JourneyCalendarEventRecord, WatchedOpportunityRecord } from "./account-types";
 import { guidanceVersions, normalizeGuidanceState, type GuidanceId, type GuidanceStatus } from "./guidance";
 import type { AdvisorAccountData } from "./advisor/types";
 import { defaultBillingRecord, normalizeBillingRecord, type BillingRecord } from "./billing";
@@ -34,7 +34,7 @@ const kvTimeoutMs = 2800;
 const kvRetryDelayMs = 120;
 const releaseLockScript = "if redis.call('GET',KEYS[1]) == ARGV[1] then return redis.call('DEL',KEYS[1]) else return 0 end";
 
-const emptyData = (): AccountData => ({ profile: null, onboardingComplete: false, firstLaunchComplete: false, billing: defaultBillingRecord(), activity: null, savedOpportunities: [], tracker: {}, preferences: null, journeyProgress: {}, calendarEvents: {}, applicationWorkspaces: {}, guidance: {}, advisor: null, referrals: null, updatedAt: new Date().toISOString() });
+const emptyData = (): AccountData => ({ profile: null, onboardingComplete: false, firstLaunchComplete: false, billing: defaultBillingRecord(), activity: null, savedOpportunities: [], watchedOpportunities: [], tracker: {}, preferences: null, journeyProgress: {}, calendarEvents: {}, applicationWorkspaces: {}, guidance: {}, advisor: null, referrals: null, updatedAt: new Date().toISOString() });
 
 function requireProductionStore() {
   if (!hasKv && process.env.NODE_ENV === "production") throw new Error("A production data store is required. Set KV_REST_API_URL/KV_REST_API_TOKEN or UPSTASH_REDIS_REST_URL/UPSTASH_REDIS_REST_TOKEN.");
@@ -368,6 +368,7 @@ function normalizeAccountData(value: AccountData | null | undefined): AccountDat
       tracked,
     } : null,
     savedOpportunities: value.savedOpportunities?.length ? value.savedOpportunities : uniqueStrings(value.activity?.saved).map((opportunityId) => ({ opportunityId, savedAt: tracked[opportunityId]?.savedAt ?? value.updatedAt })),
+    watchedOpportunities: (value.watchedOpportunities ?? []).filter((item) => item?.opportunityId && item.watchedAt && item.updatedAt).slice(-500),
     tracker: tracked,
     preferences: value.preferences ?? null,
     journeyProgress: value.journeyProgress ?? {},
@@ -415,6 +416,8 @@ export async function mergeAccountData(userId: string, incoming: Partial<Account
     billing: normalizeBillingRecord(current.billing),
     activity,
     savedOpportunities: savedIds.map((opportunityId) => current.savedOpportunities.find((item) => item.opportunityId === opportunityId) ?? incoming.savedOpportunities?.find((item) => item.opportunityId === opportunityId) ?? { opportunityId, savedAt: tracker[opportunityId]?.savedAt ?? new Date().toISOString() }),
+    // Watch is Pro-only state and may only change through updateWatchedOpportunity.
+    watchedOpportunities: current.watchedOpportunities ?? [],
     tracker,
     preferences: incoming.preferences ?? current.preferences ?? null,
     journeyProgress: { ...(current.journeyProgress ?? {}), ...(incoming.journeyProgress ?? {}) },
@@ -431,6 +434,31 @@ export async function mergeAccountData(userId: string, incoming: Partial<Account
     return await readAccountData(userId);
   }
   return next;
+}
+
+export async function updateWatchedOpportunity(userId: string, opportunityId: string, watching: boolean) {
+  return await withSecurityLock("for-you-watch", userId, async () => {
+    const current = await readAccountData(userId);
+    const existing = (current.watchedOpportunities ?? []).find((item) => item.opportunityId === opportunityId);
+    if (Boolean(existing) === watching) return { account: current, changed: false, record: existing ?? null };
+    const now = new Date().toISOString();
+    const record: WatchedOpportunityRecord | null = watching ? {
+      opportunityId,
+      watchedAt: now,
+      updatedAt: now,
+      version: (existing?.version ?? 0) + 1,
+    } : null;
+    const watchedOpportunities = (current.watchedOpportunities ?? []).filter((item) => item.opportunityId !== opportunityId);
+    if (record) watchedOpportunities.push(record);
+    const next: AccountData = {
+      ...current,
+      watchedOpportunities: watchedOpportunities.slice(-500),
+      advisor: current.advisor ? { ...current.advisor, forYouSnapshots: [], updatedAt: now } : null,
+      updatedAt: now,
+    };
+    await writeAccountData(userId, next);
+    return { account: next, changed: true, record };
+  });
 }
 
 export async function updateGuidanceState(userId: string, input: { id: GuidanceId; status: GuidanceStatus }) {

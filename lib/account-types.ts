@@ -48,6 +48,13 @@ export type SavedOpportunityRecord = {
   savedAt: string;
 };
 
+export type WatchedOpportunityRecord = {
+  opportunityId: string;
+  watchedAt: string;
+  updatedAt: string;
+  version: number;
+};
+
 export type OpportunityTrackerRecord = Record<string, TrackedOpportunity>;
 
 export type UserPreferencesRecord = {
@@ -116,6 +123,7 @@ export type AccountData = {
   billing: BillingRecord;
   activity: StudentActivity | null;
   savedOpportunities: SavedOpportunityRecord[];
+  watchedOpportunities?: WatchedOpportunityRecord[];
   tracker: OpportunityTrackerRecord;
   preferences: UserPreferencesRecord | null;
   journeyProgress: JourneyProgressRecord;
