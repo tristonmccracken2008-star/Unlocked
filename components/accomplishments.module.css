@@ -1,0 +1,100 @@
+.page { --record-line: var(--unlocked-border); min-height: 70vh; background: var(--unlocked-page); color: var(--unlocked-text); padding: 4rem 1.5rem 7rem; }
+.shell { width: min(100%, 88rem); margin: 0 auto; }
+.page [data-guide-anchor][data-guide-highlight="true"] { outline: 2px solid rgba(7,91,61,.28); outline-offset: 5px; }
+.hero { display: flex; align-items: flex-end; justify-content: space-between; gap: 3rem; border-bottom: 1px solid var(--record-line); padding-bottom: 2.5rem; }
+.hero > div:first-child { min-width: 0; }
+.eyebrow { margin: 0; color: rgb(var(--color-forest)); font-size: .65rem; font-weight: 850; letter-spacing: .09em; text-transform: uppercase; }
+.hero h1 { margin: .65rem 0 0; font: 700 4.2rem/.95 "Iowan Old Style", Baskerville, Georgia, "Times New Roman", serif; letter-spacing: 0; }
+.hero > div:first-child > p:last-child { max-width: 42rem; margin: 1rem 0 0; color: var(--unlocked-muted); font-size: .88rem; line-height: 1.65; }
+.heroActions { display: flex; flex: 0 0 auto; align-items: center; gap: .7rem; }
+.heroActions > a, .addAction, .empty button, .empty a { display: inline-flex; min-height: 46px; align-items: center; justify-content: center; gap: .45rem; border: 1px solid rgb(var(--color-forest)); border-radius: .55rem; background: transparent; color: rgb(var(--color-forest)); padding: 0 1.15rem; font-size: .72rem; font-weight: 820; text-decoration: none; cursor: pointer; transition: transform 150ms ease, background 150ms ease, color 150ms ease; }
+.addAction, .empty button { background: rgb(var(--color-forest)); color: rgb(var(--color-surface)); }
+.heroActions > a:hover, .addAction:hover, .empty button:hover, .empty a:hover { transform: translateY(-1px); }
+.addAction svg { width: .9rem; height: .9rem; }
+.summary { display: flex; align-items: baseline; justify-content: space-between; gap: 2rem; margin-top: 3rem; border-bottom: 1px solid var(--record-line); padding: 0 0 1rem; }
+.summary > strong { font: 700 1.55rem/1.15 "Iowan Old Style", Baskerville, Georgia, "Times New Roman", serif; }
+.summary > div { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .45rem 1.1rem; color: var(--unlocked-muted); font-size: .68rem; }
+.timeline { margin-top: 3.25rem; }
+.year { display: grid; grid-template-columns: 9rem minmax(0,1fr); gap: 2rem; margin-top: 4.5rem; }
+.year:first-of-type { margin-top: 0; }
+.year > header { position: sticky; top: 6.5rem; align-self: start; }
+.year > header h2 { margin: 0; font: 700 2.2rem/1 "Iowan Old Style", Baskerville, Georgia, "Times New Roman", serif; }
+.year > header span { display: block; margin-top: .45rem; color: var(--unlocked-muted); font-size: .65rem; }
+.year > div { border-top: 1px solid var(--record-line); }
+.record { position: relative; display: grid; grid-template-columns: 2.5rem minmax(16rem,1.5fr) minmax(10rem,.65fr) auto; align-items: start; gap: 1.2rem; border-bottom: 1px solid var(--record-line); padding: 1.55rem .25rem; content-visibility: auto; contain-intrinsic-size: auto 126px; }
+.marker { display: grid; width: 2.25rem; height: 2.25rem; place-items: center; border-radius: 50%; background: color-mix(in srgb, rgb(var(--color-forest)) 10%, transparent); color: rgb(var(--color-forest)); }
+.marker svg { width: 1rem; height: 1rem; }
+.identity { min-width: 0; }
+.identity p { margin: 0 0 .45rem; color: rgb(var(--color-forest)); font-size: .58rem; font-weight: 850; letter-spacing: .08em; text-transform: uppercase; }
+.identity h3 { margin: 0; font: 700 1.35rem/1.12 "Iowan Old Style", Baskerville, Georgia, "Times New Roman", serif; overflow-wrap: anywhere; }
+.identity > span, .identity small { display: block; margin-top: .35rem; color: var(--unlocked-muted); font-size: .7rem; line-height: 1.45; overflow-wrap: anywhere; }
+.identity small { font-size: .63rem; }
+.outcome { display: grid; gap: .3rem; }
+.outcome strong { color: rgb(var(--color-forest)); font-size: .7rem; }
+.outcome span, .outcome small { color: var(--unlocked-muted); font-size: .65rem; line-height: 1.4; }
+.outcome small { font-size: .58rem; }
+.details { position: relative; }
+.details > summary { display: flex; min-width: 72px; min-height: 44px; align-items: center; justify-content: center; border: 1px solid var(--record-line); border-radius: .45rem; color: rgb(var(--color-forest)); font-size: .65rem; font-weight: 800; cursor: pointer; list-style: none; }
+.details > summary::-webkit-details-marker { display: none; }
+.details[open] { grid-column: 2 / -1; }
+.details[open] > summary { width: 72px; margin-left: auto; }
+.details > div { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 1.25rem 2rem; margin-top: 1rem; border-left: 2px solid color-mix(in srgb, rgb(var(--color-forest)) 24%, transparent); padding: .25rem 0 .25rem 1rem; }
+.details section { min-width: 0; }
+.details h4 { margin: 0 0 .35rem; color: rgb(var(--color-forest)); font-size: .6rem; letter-spacing: .08em; text-transform: uppercase; }
+.details p { margin: 0; color: var(--unlocked-muted); font-size: .72rem; line-height: 1.6; white-space: pre-wrap; overflow-wrap: anywhere; }
+.details nav { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: .5rem 1.2rem; }
+.details nav a, .details nav button { display: inline-flex; min-height: 44px; align-items: center; gap: .35rem; border: 0; background: transparent; color: rgb(var(--color-forest)); padding: 0; font-size: .67rem; font-weight: 800; text-decoration: none; cursor: pointer; }
+.details nav svg { width: .8rem; height: .8rem; }
+.empty { max-width: 42rem; margin: 5rem auto 0; text-align: center; }
+.empty > span { display: grid; width: 3.2rem; height: 3.2rem; margin: 0 auto 1.25rem; place-items: center; border-radius: 50%; background: color-mix(in srgb, rgb(var(--color-forest)) 10%, transparent); color: rgb(var(--color-forest)); }
+.empty > span svg { width: 1.25rem; height: 1.25rem; }
+.empty h1, .empty h2 { margin: .65rem 0 0; font: 700 2.2rem/1.05 "Iowan Old Style", Baskerville, Georgia, "Times New Roman", serif; }
+.empty > p:not(.eyebrow) { margin: 1rem auto 0; color: var(--unlocked-muted); font-size: .82rem; line-height: 1.7; }
+.empty > div { display: flex; justify-content: center; gap: .7rem; margin-top: 1.5rem; }
+.dialog { width: min(46rem, calc(100vw - 2rem)); max-height: calc(100dvh - 2rem); border: 1px solid var(--record-line); border-radius: .8rem; background: rgb(var(--color-surface)); color: var(--unlocked-text); padding: 0; box-shadow: 0 25px 80px rgba(15,12,10,.28); }
+.dialog::backdrop { background: rgba(35,28,22,.34); backdrop-filter: blur(2px); }
+.dialog > header { position: sticky; z-index: 2; top: 0; display: flex; align-items: start; justify-content: space-between; gap: 1rem; border-bottom: 1px solid var(--record-line); background: rgb(var(--color-surface)); padding: 1.2rem 1.35rem; }
+.dialog > header p { margin: 0; color: rgb(var(--color-forest)); font-size: .6rem; font-weight: 850; letter-spacing: .08em; text-transform: uppercase; }
+.dialog > header h2 { margin: .4rem 0 0; font: 700 1.45rem/1.12 "Iowan Old Style", Baskerville, Georgia, "Times New Roman", serif; }
+.dialog > header button { display: grid; width: 44px; height: 44px; flex: 0 0 auto; place-items: center; border: 0; border-radius: 50%; background: transparent; color: var(--unlocked-muted); cursor: pointer; }
+.dialog > header svg { width: 1rem; height: 1rem; }
+.dialog form { padding: 1.25rem 1.35rem 1.35rem; }
+.factNote { margin: 0 0 1rem; border-left: 2px solid color-mix(in srgb, rgb(var(--color-forest)) 28%, transparent); color: var(--unlocked-muted); padding-left: .75rem; font-size: .68rem; line-height: 1.5; }
+.formGrid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: .9rem; }
+.formGrid label { display: grid; min-width: 0; gap: .35rem; }
+.formGrid label > span { font-size: .64rem; font-weight: 800; }
+.formGrid label small { color: var(--unlocked-muted); font-weight: 600; }
+.formGrid input, .formGrid select, .formGrid textarea { width: 100%; min-height: 44px; box-sizing: border-box; border: 1px solid var(--record-line); border-radius: .45rem; background: var(--unlocked-surface); color: var(--unlocked-text); padding: .65rem .75rem; font: 500 .75rem/1.4 "Avenir Next", Avenir, "Segoe UI", Helvetica, Arial, sans-serif; }
+.formGrid textarea { min-height: 5.5rem; resize: vertical; }
+.formGrid input:disabled, .formGrid select:disabled { background: var(--unlocked-surface-muted); color: var(--unlocked-muted); }
+.wide { grid-column: 1 / -1; }
+.dialog form > footer { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-top: 1.25rem; border-top: 1px solid var(--record-line); padding-top: 1rem; }
+.dialog form > footer > div { display: flex; gap: .5rem; }
+.dialog form > footer button { min-height: 44px; border: 1px solid var(--record-line); border-radius: .45rem; background: transparent; color: rgb(var(--color-forest)); padding: 0 .9rem; font-size: .68rem; font-weight: 800; cursor: pointer; }
+.dialog form > footer button[type="submit"] { border-color: rgb(var(--color-forest)); background: rgb(var(--color-forest)); color: rgb(var(--color-surface)); }
+.dialog form > footer .removeAction { border: 0; color: var(--unlocked-error-text); padding-left: 0; }
+.formError { margin: 1rem 0 0; color: var(--unlocked-error-text); font-size: .7rem; line-height: 1.45; }
+.dialogLoading { min-height: 15rem; padding: 2rem 1.35rem; color: var(--unlocked-muted); font-size: .75rem; }
+.page button:focus-visible, .page a:focus-visible, .page summary:focus-visible, .page input:focus-visible, .page select:focus-visible, .page textarea:focus-visible { outline: 2px solid rgba(7,91,61,.55); outline-offset: 3px; }
+@media (max-width: 760px) {
+  .page { padding: 2.8rem 1rem 7rem; }
+  .hero { display: grid; gap: 1.5rem; }
+  .hero h1 { font-size: 2.6rem; }
+  .heroActions { width: 100%; }
+  .heroActions > * { flex: 1; }
+  .summary { display: grid; gap: .75rem; }
+  .summary > div { justify-content: flex-start; }
+  .year { grid-template-columns: 1fr; gap: 1rem; margin-top: 3.5rem; }
+  .year > header { position: static; display: flex; align-items: baseline; justify-content: space-between; }
+  .record { grid-template-columns: 2.5rem minmax(0,1fr); }
+  .outcome { grid-column: 2; }
+  .details { grid-column: 2; }
+  .details[open] { grid-column: 2; }
+  .details > div { grid-template-columns: 1fr; }
+  .details nav { grid-column: 1; }
+  .formGrid { grid-template-columns: 1fr; }
+  .wide { grid-column: 1; }
+  .dialog form > footer { align-items: stretch; flex-direction: column-reverse; }
+  .dialog form > footer > div, .dialog form > footer button { width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) { .heroActions > a, .addAction, .empty button, .empty a { transition: none; } }

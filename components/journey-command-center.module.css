@@ -46,6 +46,8 @@
 .headerActions { display: grid; justify-items: end; gap: .5rem; }
 .headerActions > div:first-child { display: flex; gap: .75rem; }
 .headerActions button { min-height: 46px; border-radius: .55rem; padding: 0 1.25rem; font-size: .75rem; font-weight: 800; cursor: pointer; transition: border-color 160ms ease, background 160ms ease, color 160ms ease, transform 160ms ease, box-shadow 160ms ease; }
+.recordsButton { display: inline-flex; min-height: 46px; align-items: center; border: 1px solid color-mix(in srgb, var(--journey-green) 45%, var(--journey-line)); border-radius: .55rem; color: var(--journey-green); padding: 0 1.05rem; font-size: .72rem; font-weight: 800; text-decoration: none; transition: border-color 160ms ease, transform 160ms ease; }
+.recordsButton:hover { border-color: var(--journey-green); transform: translateY(-1px); }
 .headerActions button:not(:disabled):hover { transform: translateY(-1px); }
 .headerActions button:disabled { cursor: wait; opacity: .6; }
 .headerActions > p { max-width: 24rem; margin: 0; color: var(--journey-error); font-size: .72rem; text-align: right; }
@@ -291,6 +293,7 @@
   .header > div:first-child > span { display: none; }
   .headerActions > div:first-child { gap: .4rem; }
   .headerActions button { min-height: 44px; padding-inline: .8rem; font-size: .66rem; }
+  .recordsButton { min-height: 44px; padding-inline: .8rem; font-size: .66rem; }
   .exportButton { display: none; }
   .overview { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .45rem; margin-top: 1.5rem; }
   .overview[data-count="1"] { grid-template-columns: minmax(0, 6.5rem); }

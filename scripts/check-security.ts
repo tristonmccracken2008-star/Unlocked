@@ -214,6 +214,7 @@ assert.equal(new Set(referralAfterRace.referrals?.rewardHistory.map((item) => it
 
 const mutationRoutes = [
   "app/api/account/data/route.ts",
+  "app/api/accomplishments/route.ts",
   "app/api/admin/content/route.ts",
   "app/api/admin/content/[id]/route.ts",
   "app/api/advisor/feedback/route.ts",
@@ -229,7 +230,7 @@ for (const route of mutationRoutes) {
   assert.match(source, /enforceRateLimit\(/, `${route} must enforce an abuse limit.`);
 }
 
-for (const route of ["app/api/account/data/route.ts", "app/api/admin/content/route.ts", "app/api/admin/content/[id]/route.ts", "app/api/advisor/feedback/route.ts", "app/api/advisor/recommend/route.ts", "app/api/analytics/event/route.ts"]) {
+for (const route of ["app/api/account/data/route.ts", "app/api/accomplishments/route.ts", "app/api/admin/content/route.ts", "app/api/admin/content/[id]/route.ts", "app/api/advisor/feedback/route.ts", "app/api/advisor/recommend/route.ts", "app/api/analytics/event/route.ts"]) {
   assert.ok(readFileSync(route, "utf8").includes("readBoundedJson"), `${route} must use bounded JSON parsing.`);
 }
 

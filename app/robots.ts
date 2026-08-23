@@ -9,6 +9,7 @@ export default function robots(): MetadataRoute.Robots {
         "/api/",
         "/advisor",
         "/planner",
+        "/accomplishments",
         "/ai",
         "/best-edu-email-perks",
         "/benefits",

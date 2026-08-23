@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { performance } from "node:perf_hooks";
 import { opportunities } from "../data/opportunities";
 import type { TrackedOpportunity } from "../data/student-activity";
+import type { AccomplishmentRecord } from "../data/accomplishments";
 import { defaultBillingRecord } from "../lib/billing";
 import type { AccountData, AuthUser } from "../lib/account-types";
 import { buildUniversalSearch } from "../lib/universal-search";
@@ -13,6 +14,19 @@ const nasa = opportunities.find((item) => /NASA/i.test(`${item.title} ${item.org
 assert.ok(nasa, "Universal search checks require an existing NASA catalog opportunity.");
 
 function account(record?: TrackedOpportunity): AccountData {
+  const accomplishment: AccomplishmentRecord | undefined = record ? {
+    id: "manual:research-assistant",
+    source: "manual",
+    snapshot: { title: "Research Assistant", organization: "Campus Lab", capturedAt: now.toISOString() },
+    kind: "research",
+    outcome: "completed",
+    outcomeDate: "2026-05-10",
+    notes: "private accomplishment note",
+    hidden: false,
+    createdAt: now.toISOString(),
+    updatedAt: now.toISOString(),
+    version: 0,
+  } : undefined;
   return {
     profile: { firstName: "Taylor", lastName: "Student", schoolSlug: "university-of-chicago", major: "Computer Science", graduationYear: "2030", year: "First year", interests: "Software, Research", careerGoal: "Software Engineering", onboardingCompletedAt: now.toISOString() },
     onboardingComplete: true,
@@ -30,6 +44,7 @@ function account(record?: TrackedOpportunity): AccountData {
     } } : {},
     preferences: { appearance: "light", updatedAt: now.toISOString() },
     journeyProgress: {},
+    accomplishments: accomplishment ? { [accomplishment.id]: accomplishment } : {},
     advisor: null,
     referrals: null,
     updatedAt: now.toISOString(),
@@ -57,6 +72,10 @@ assert.equal(other.results.some((item) => item.group === "Application tasks"), f
 
 const tasks = buildUniversalSearch({ user, account: account(tracked), opportunities, query: "resume", now });
 assert.ok(tasks.results.some((item) => item.group === "Application tasks" && item.title === "Update résumé"), "Application task search must use the owner's canonical workspace.");
+const accomplishmentResults = buildUniversalSearch({ user, account: account(tracked), opportunities, query: "Research Assistant", now });
+assert.ok(accomplishmentResults.results.some((item) => item.group === "Accomplishments" && item.title === "Research Assistant"), "Private accomplishment titles must be searchable by their owner.");
+assert.doesNotMatch(JSON.stringify(accomplishmentResults), /private accomplishment note/, "Private accomplishment notes must never enter broad search results.");
+assert.equal(buildUniversalSearch({ user: { ...user, id: "other-account" }, account: account(), opportunities, query: "Research Assistant", now }).results.some((item) => item.group === "Accomplishments"), false, "Accomplishments must remain account-isolated in search.");
 
 const timings: number[] = [];
 for (let run = 0; run < 8; run += 1) {

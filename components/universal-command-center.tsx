@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import type { UniversalSearchPayload, UniversalSearchResult } from "@/data/universal-search";
 import { authenticatedFetch } from "@/data/authenticated-request";
-import { ArrowIcon, BellIcon, BookmarkIcon, CalendarIcon, CloseIcon, PenLineIcon, SearchIcon, SparkIcon, TargetIcon } from "./icons";
+import { ArrowIcon, BellIcon, BookmarkIcon, CalendarIcon, CloseIcon, PenLineIcon, SearchIcon, SparkIcon, TargetIcon, TrophyIcon } from "./icons";
 import styles from "./universal-command-center.module.css";
 
 type LocalKind = "navigate" | "action" | "learn" | "browse" | "recent";
@@ -21,6 +21,7 @@ const localCommands: CommandResult[] = [
   { id: "navigate:for-you", kind: "navigate", group: "Navigate", title: "For You", subtitle: "Open your verified personalized shortlist.", href: "/advisor", score: 0, keywords: "recommendations matches personalized" },
   { id: "navigate:planner", kind: "navigate", group: "Navigate", title: "Planner", subtitle: "See verified dates and your opportunity mix across the months ahead.", href: "/planner", score: 0, keywords: "year ahead timeline upcoming watch opportunity plan" },
   { id: "navigate:journey", kind: "navigate", group: "Navigate", title: "Journey", subtitle: "Manage opportunities, progress, and outcomes.", href: "/", score: 0, keywords: "saved tracked progress active opportunities" },
+  { id: "navigate:accomplishments", kind: "navigate", group: "Navigate", title: "Accomplishments", subtitle: "Open your private record of completed and earned opportunities.", href: "/accomplishments", score: 0, keywords: "college record achievements awards completed history" },
   { id: "navigate:notifications", kind: "navigate", group: "Navigate", title: "Notifications", subtitle: "Review deadlines, changes, and Journey updates.", href: "/notifications", score: 0, keywords: "alerts reminders updates" },
   { id: "navigate:profile", kind: "navigate", group: "Navigate", title: "Profile", subtitle: "Update your account and personalization.", href: "/profile", score: 0, keywords: "account settings school major dark mode appearance" },
   { id: "navigate:interests", kind: "navigate", group: "Navigate", title: "Interests and goals", subtitle: "Refine the profile used for recommendations.", href: "/profile#interests", score: 0, keywords: "preferences career goals majors" },
@@ -34,6 +35,7 @@ const localCommands: CommandResult[] = [
   { id: "browse:research", kind: "browse", group: "Browse", title: "Browse Research", subtitle: "Undergraduate research and lab programs.", href: "/opportunities?type=Research", score: 0, keywords: "research lab science undergraduate" },
   { id: "browse:ai", kind: "browse", group: "Browse", title: "Browse AI Tools", subtitle: "Student AI tools and software resources.", href: "/opportunities?type=AI", score: 0, keywords: "ai artificial intelligence tools software" },
   { id: "learn:journey", kind: "learn", group: "Learn UnlockED", title: "How Journey works", subtitle: "Save opportunities and manage progress in one private record.", href: "/learn#journey", score: 0, keywords: "help with journey how does journey work" },
+  { id: "learn:accomplishments", kind: "learn", group: "Learn UnlockED", title: "How Accomplishments works", subtitle: "Understand outcomes, manual records, editing, and privacy.", href: "/learn#accomplishments", score: 0, keywords: "accomplishments outcomes record privacy manual" },
   { id: "learn:planner", kind: "learn", group: "Learn UnlockED", title: "How Planner works", subtitle: "Understand Year Ahead, Watch, and verified dates.", href: "/learn#planner", score: 0, keywords: "planner help year ahead watch dates" },
   { id: "learn:deadlines", kind: "learn", group: "Learn UnlockED", title: "Smart Deadline Calendar", subtitle: "See how official deadlines and personal dates work.", href: "/learn#deadlines", score: 0, keywords: "how do deadlines work calendar help" },
   { id: "learn:applications", kind: "learn", group: "Learn UnlockED", title: "Application Command Center", subtitle: "Learn how UnlockED organizes requirements and tasks.", href: "/learn#applications", score: 0, keywords: "application tasks help resume" },
@@ -42,7 +44,7 @@ const localCommands: CommandResult[] = [
 ];
 
 const recentKey = "unlocked:universal-search-recents:v1";
-const groupOrder = ["Recent", "Quick Actions", "Your Journey", "Upcoming", "Application tasks", "Navigate", "Browse", "Opportunities", "Learn UnlockED"];
+const groupOrder = ["Recent", "Quick Actions", "Accomplishments", "Your Journey", "Upcoming", "Application tasks", "Navigate", "Browse", "Opportunities", "Learn UnlockED"];
 
 function normalize(value: string) {
   return value.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim().replace(/\s+/g, " ");
@@ -65,6 +67,7 @@ function localScore(result: CommandResult, query: string, pathname: string) {
 
 function ResultIcon({ kind }: { kind: CommandResult["kind"] }) {
   if (kind === "journey" || kind === "recent") return <BookmarkIcon />;
+  if (kind === "accomplishment") return <TrophyIcon />;
   if (kind === "deadline") return <CalendarIcon />;
   if (kind === "task") return <TargetIcon />;
   if (kind === "opportunity" || kind === "browse") return <SearchIcon />;
@@ -215,7 +218,7 @@ export function UniversalCommandCenter({ onClose, restoreFocus }: { onClose: () 
       </div>
       <div className={styles.results} id={listboxId} role="listbox" aria-label="Search results">
         {groups.map(({ group, items }) => <section key={group} role="group" aria-label={group} className={styles.group}>
-          <h2>{group}{group === "Your Journey" || group === "Upcoming" || group === "Application tasks" ? <span>Private</span> : null}</h2>
+          <h2>{group}{group === "Accomplishments" || group === "Your Journey" || group === "Upcoming" || group === "Application tasks" ? <span>Private</span> : null}</h2>
           {items.map((result) => {
             flatIndex += 1;
             const index = flatIndex;

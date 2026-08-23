@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect } from "react";
 import { trackProductEvent } from "@/data/product-analytics";
-import { ArrowIcon, BellIcon, BookmarkIcon, CalendarIcon, CheckIcon, PenLineIcon, SearchIcon, SparkIcon, TargetIcon } from "./icons";
+import { ArrowIcon, BellIcon, BookmarkIcon, CalendarIcon, CheckIcon, PenLineIcon, SearchIcon, SparkIcon, TargetIcon, TrophyIcon } from "./icons";
 
 const sections = [
   { id: "getting-started", title: "Getting started", copy: "Build your private profile once. UnlockED uses it to check eligibility and keep the rest of the product relevant.", href: "/profile", action: "Review profile", icon: PenLineIcon },
@@ -12,6 +12,7 @@ const sections = [
   { id: "for-you", title: "For You", copy: "A smaller set prioritized from your profile, interests, and Journey activity. Match labels show the strongest factual reasons.", href: "/advisor", action: "Open For You", icon: SparkIcon },
   { id: "planner", title: "Planner", copy: "See what matters now and which verified dates fall across your next several months. Journey holds what you pursue; Calendar manages the dates you chose to track.", href: "/planner?guide=planner_intro", action: "Replay Planner guide", icon: CalendarIcon },
   { id: "journey", title: "Journey", copy: "Keep opportunities, progress, important dates, and confirmed outcomes in one private record.", href: "/?guide=journey", action: "Replay Journey guide", icon: BookmarkIcon },
+  { id: "accomplishments", title: "Accomplishments", copy: "Keep a private record of opportunities you completed or earned. Journey outcomes appear automatically; records from elsewhere can be added manually and edited later.", href: "/accomplishments?guide=accomplishments_intro", action: "Open Accomplishments", icon: TrophyIcon },
   { id: "applications", title: "Applications", copy: "Verified requirements and your private tasks stay attached to the opportunity you are pursuing.", href: "/?guide=journey_application_workspace#active-opportunities", action: "Learn about applications", icon: TargetIcon },
   { id: "deadlines", title: "Deadlines", copy: "Official deadlines and personal dates appear together. Add reminders only for dates you want to manage.", href: "/?guide=journey_calendar", action: "Learn about deadlines", icon: CalendarIcon },
   { id: "notifications", title: "Notifications", copy: "Review deadline reminders, meaningful saved-opportunity changes, and Journey follow-ups without a noisy feed.", href: "/notifications", action: "Open notifications", icon: BellIcon },

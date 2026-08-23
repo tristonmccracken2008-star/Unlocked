@@ -21,6 +21,9 @@ export function redactInternalIdentifiers<T>(value: T): T {
 export function publicAccountData(data: AccountData): AccountData {
   return {
     ...data,
+    // Accomplishments can contain private notes and are loaded only by their
+    // dedicated authenticated surface, never through the general client sync.
+    accomplishments: undefined,
     billing: {
       ...data.billing,
       stripeCustomerId: undefined,

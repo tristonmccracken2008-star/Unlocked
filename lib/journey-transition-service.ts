@@ -10,6 +10,8 @@ import { createOpenLineMotionPlan, type OpenLineMotionPlan } from "@/data/open-l
 import type { JourneyMilestoneDetails, JourneyProgressTransition, OpportunityTrackerStatus, TrackedOpportunity } from "@/data/student-activity";
 import { resolveMilestoneCelebration, type MilestoneCelebration } from "@/data/milestone-celebrations";
 import { buildJourneyTimelineModel } from "./journey-timeline";
+import { reconcileJourneyAccomplishment } from "./accomplishments";
+import type { AccomplishmentKind, AccomplishmentOutcome } from "@/data/accomplishments";
 
 export type JourneyTransitionMutation = {
   opportunityId: string;
@@ -58,6 +60,7 @@ export type JourneyTransformationResponse = {
     preserved: string[];
   };
   summaryChanges: Array<{ id: string; label: string; before: number; after: number }>;
+  accomplishment?: { id: string; active: boolean; created: boolean; kind: AccomplishmentKind; outcome: AccomplishmentOutcome };
 };
 
 function trackedRecord(account: AccountData, opportunityId: string) {
@@ -144,7 +147,13 @@ export async function transformJourneyProgress(user: Pick<AuthUser, "id" | "name
         claimed: previousAccount.activity?.claimed ?? [],
         tracked,
       };
-      persistedAccount = await mergeAccountData(user.id, { tracker: tracked, activity });
+      const accomplishments = reconcileJourneyAccomplishment({
+        account: { ...previousAccount, tracker: tracked, activity },
+        opportunity,
+        record: applied.record,
+        now: occurredAt,
+      });
+      persistedAccount = await mergeAccountData(user.id, { tracker: tracked, activity, accomplishments });
     }
     const persistedRecord = trackedRecord(persistedAccount, mutation.opportunityId);
     if (!persistedRecord || persistedRecord.version !== applied.record.version || persistedRecord.status !== applied.record.status) {
@@ -152,6 +161,9 @@ export async function transformJourneyProgress(user: Pick<AuthUser, "id" | "name
     }
     const currentProjection = buildJourneyEditorialProjection({ user, account: persistedAccount, opportunities });
     const currentTimeline = buildJourneyTimelineModel({ user, account: persistedAccount, opportunities });
+    const accomplishmentId = `journey:${mutation.opportunityId}`;
+    const priorAccomplishment = previousAccount.accomplishments?.[accomplishmentId];
+    const currentAccomplishment = persistedAccount.accomplishments?.[accomplishmentId];
     const previousEventIds = new Set(previousProjection.pathprint.events.map((event) => event.id));
     const pathEvent = currentProjection.pathprint.events.find((event) => !previousEventIds.has(event.id) && event.opportunityId === mutation.opportunityId) ?? null;
     const previousMomentIds = new Set(historyMoments(previousProjection.model).map((moment) => moment.id));
@@ -202,6 +214,13 @@ export async function transformJourneyProgress(user: Pick<AuthUser, "id" | "name
         const after = current?.value ?? 0;
         return after !== before ? [{ id, label: current?.label ?? previous!.label, before, after }] : [];
       }),
+      accomplishment: currentAccomplishment ? {
+        id: currentAccomplishment.id,
+        active: !currentAccomplishment.inactiveAt && !currentAccomplishment.hidden,
+        created: Boolean(!priorAccomplishment && !currentAccomplishment.inactiveAt && !currentAccomplishment.hidden),
+        kind: currentAccomplishment.kind,
+        outcome: currentAccomplishment.outcome,
+      } : undefined,
     };
     if (process.env.NODE_ENV !== "production" && process.env.OPEN_LINE_TRANSITION_DIAGNOSTICS === "1") {
       console.info("[UnlockED Journey transition]", {
@@ -232,7 +251,11 @@ export async function undoJourneyProgress(user: Pick<AuthUser, "id">, mutation: 
     const restored = applied.record;
     const tracked = { ...(account.activity?.tracked ?? {}), ...(account.tracker ?? {}), [mutation.opportunityId]: restored };
     const activity = { viewed: account.activity?.viewed ?? [], saved: [...new Set([...(account.activity?.saved ?? []), mutation.opportunityId])], claimed: account.activity?.claimed ?? [], tracked };
-    const persisted = await mergeAccountData(user.id, { tracker: tracked, activity });
+    const opportunity = (await listPublishedOpportunitiesByIds([mutation.opportunityId], { includeArchived: true }))[0];
+    const accomplishments = opportunity
+      ? reconcileJourneyAccomplishment({ account: { ...account, tracker: tracked, activity }, opportunity, record: restored, now })
+      : account.accomplishments;
+    const persisted = await mergeAccountData(user.id, { tracker: tracked, activity, accomplishments });
     const record = trackedRecord(persisted, mutation.opportunityId);
     if (!record || record.version !== restored.version || record.status !== restored.status) throw new JourneyTransitionError("The Journey changed before Undo could be saved.", "stale_state");
     return { ok: true as const, duplicate: false, record };

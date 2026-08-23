@@ -6,6 +6,7 @@ import type { BillingRecord } from "./billing";
 import type { ReferralAccountData } from "./referrals";
 import type { NotificationPreferences } from "./notification-types";
 import type { GuidanceState } from "./guidance";
+import type { AccomplishmentStore } from "@/data/accomplishments";
 
 export type AuthUser = {
   id: string;
@@ -129,6 +130,7 @@ export type AccountData = {
   journeyProgress: JourneyProgressRecord;
   calendarEvents?: JourneyCalendarRecord;
   applicationWorkspaces?: ApplicationWorkspaceStore;
+  accomplishments?: AccomplishmentStore;
   guidance?: GuidanceState;
   advisor: AdvisorAccountData | null;
   referrals: ReferralAccountData | null;

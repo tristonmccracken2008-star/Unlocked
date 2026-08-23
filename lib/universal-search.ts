@@ -5,6 +5,7 @@ import type { UniversalSearchPayload, UniversalSearchResult } from "@/data/unive
 import { buildDiscoverCatalog } from "./discover-catalog";
 import type { AccountData, AuthUser } from "./account-types";
 import { buildJourneyCommandCenterModel, type JourneyCommandRecord } from "./journey-command-center";
+import { buildAccomplishmentsModel } from "./accomplishments";
 
 function normalize(value: string) {
   return value.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim().replace(/\s+/g, " ");
@@ -92,6 +93,19 @@ export function buildUniversalSearch(input: {
   });
   const records = [...model.activeRecords, ...model.historyGroups.flatMap((group) => group.records)];
   const personal = journeyResults(records, query);
+  const accomplishments = buildAccomplishmentsModel({ account: input.account, opportunities: trackedOpportunities }).records.flatMap((record): UniversalSearchResult[] => {
+    const score = matchScore(query, [record.snapshot.title, record.snapshot.organization, record.kindLabel, record.outcomeLabel]);
+    if (!score) return [];
+    return [{
+      id: `accomplishment:${record.id}`,
+      kind: "accomplishment",
+      group: "Accomplishments",
+      title: record.snapshot.title,
+      subtitle: `${record.outcomeLabel} · ${record.year}`,
+      href: `/accomplishments#accomplishment-${encodeURIComponent(record.id)}`,
+      score: score + 300,
+    }];
+  }).sort((left, right) => right.score - left.score || left.title.localeCompare(right.title)).slice(0, 4);
 
   const upcoming = model.calendar.items.flatMap((item): UniversalSearchResult[] => {
     if (item.urgency === "overdue" || item.statusAwarePassed) return [];
@@ -155,7 +169,7 @@ export function buildUniversalSearch(input: {
 
   return {
     query,
-    results: [...personal, ...upcoming, ...tasks, ...opportunities],
+    results: [...accomplishments, ...personal, ...upcoming, ...tasks, ...opportunities],
     totalOpportunityMatches: preciseCatalog.length ? catalog.total : 0,
   };
 }

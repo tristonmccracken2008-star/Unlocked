@@ -13,7 +13,7 @@ export default function Page() {
       <h2>Information UnlockED collects</h2>
       <p>If you sign in with Google, UnlockED receives basic Google account information such as your name, email address, and profile picture when Google provides one. Google authentication is handled through Google's OAuth services.</p>
       <p>UnlockED also stores the profile information you choose to provide: school, major, graduation year, interests, and career goals. This information is used to personalize your dashboard and recommend opportunities that better match your situation.</p>
-      <p>When you save opportunities, UnlockED stores those saved items, application stages, and reminders so you can return to them later. If you enable notification email, UnlockED uses your account email to deliver the categories you selected. UnlockED may also collect usage analytics such as page visits, searches, saves, onboarding completion, and bounded notification delivery events to understand what is working and improve the product.</p>
+      <p>When you save opportunities, UnlockED stores those saved items, application stages, outcomes, reminders, and private accomplishment records so you can return to them later. Accomplishments may include details and notes you choose to add. If you enable notification email, UnlockED uses your account email to deliver the categories you selected. UnlockED may also collect usage analytics such as page visits, searches, saves, onboarding completion, and bounded notification delivery events to understand what is working and improve the product.</p>
     </section>
 
     <section>
@@ -43,6 +43,6 @@ export default function Page() {
       <p>Questions about privacy or data deletion can be sent to support@unlockededu.com.</p>
     </section>
 
-    <p className="text-sm text-ink/45">Last updated: July 9, 2026</p>
+    <p className="text-sm text-ink/45">Last updated: August 23, 2026</p>
   </InfoPage>;
 }

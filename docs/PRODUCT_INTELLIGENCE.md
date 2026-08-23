@@ -82,6 +82,10 @@ All Journey action aggregates are retained for 90 days.
 | `journey_transition_started_v1` | `opportunityId`, `transition` | Where does status-update friction begin? |
 | `journey_transition_completed_v1` | `opportunityId`, `transition` | Did the canonical transition succeed? |
 | `journey_transition_failed_v1` | `component`, `errorType`, `action`, browser/theme/device | Which safe failure category blocked progress? |
+| `accomplishment_created_v1` | `source`, `category` | Did a successful Journey outcome create a private accomplishment? |
+| `outcome_recorded_v1` | `source`, `category` | Did a student record or refine a factual outcome? |
+| `accomplishment_viewed_v1` | none | Did a student open their private college record? |
+| `manual_accomplishment_added_v1` | `source`, `category` | Did a student preserve an accomplishment from outside UnlockED? |
 | `journey_application_management_opened_v1` | none | Did students need the operational workspace? |
 | `journey_card_creator_opened_v1` | `format` | Did students open the privacy-controlled Journey Card creator? |
 | `journey_card_downloaded_v1` | `format` | Did a Journey Card download complete? |
@@ -95,6 +99,8 @@ All Journey action aggregates are retained for 90 days.
 Journey Card events never include the card headline, identity choice, school, dates, statistics, highlights, image bytes, or share destination.
 
 Return briefing events contain no greeting, item copy, opportunity title, profile answer, notification content, or account identifier. First-save and activation events are emitted only by the authenticated Journey-add service after persistence succeeds. Replayed requests and opportunities already present in Journey do not increment them. They contain no profile answers, recommendation content, or account identifiers in their properties.
+
+Accomplishment events contain no title, organization, notes, description, role, award amount, dates, reflection text, or document data. They record only bounded source/category labels needed to evaluate the feature.
 
 ## Path Moment Events
 

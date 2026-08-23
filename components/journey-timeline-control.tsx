@@ -13,6 +13,8 @@ import { ResolvedOrganizationMark } from "@/components/organization-logo";
 import styles from "./journey-timeline.module.css";
 import { DelayedPendingLabel } from "./delayed-pending-label";
 import { useUndoRecovery } from "./undo-recovery";
+import { productIntelligenceEvents } from "@/lib/analytics-types";
+import { trackProductEvent } from "@/data/product-analytics";
 
 const MilestoneCelebrationEffect = lazy(() => import("./milestone-celebration-effect"));
 const celebrationStorageKey = "unlocked-shown-milestone-celebrations";
@@ -28,6 +30,7 @@ type TransitionResponse = {
   stageChange?: { before: string; after: string };
   narrative: { title: string; accomplishment: string; whatChanged: string; storyType: string };
   summaryChanges: Array<{ id: string; label: string; before: number; after: number }>;
+  accomplishment?: { id: string; active: boolean; created: boolean; kind: string; outcome: string };
 };
 
 class CelebrationBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
@@ -207,6 +210,8 @@ export function JourneyTimelineControl({ control, compactLabel = "Update Journey
         return;
       }
       setResult(body);
+      if (!body.duplicate && body.accomplishment?.created) trackProductEvent(productIntelligenceEvents.accomplishmentCreated, { source: "journey", category: body.accomplishment.kind });
+      if (!body.duplicate && body.accomplishment?.active) trackProductEvent(productIntelligenceEvents.outcomeRecorded, { source: "journey", category: body.accomplishment.kind });
       const undoRequestId = `journey-undo:${crypto.randomUUID()}`;
       if (!body.duplicate) offerUndo({
         message: body.stageChange ? `Marked as ${body.stageChange.after}.` : "Journey updated.",

@@ -83,6 +83,32 @@ export function PlannerGuidance({ initialState, hasWatching }: { initialState: G
   </aside>;
 }
 
+export function AccomplishmentsGuidance({ initialState, hasRecords }: { initialState: GuidanceState; hasRecords: boolean }) {
+  const [visible, setVisible] = useState(!guidanceHasBeenSeen(initialState, "accomplishments_intro"));
+  const [pending, setPending] = useState<GuidanceStatus | null>(null);
+  const [error, setError] = useState("");
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("guide") === "accomplishments_intro") setVisible(true);
+  }, []);
+  if (!visible) return null;
+  async function finish(status: GuidanceStatus) {
+    if (pending) return;
+    setPending(status); setError("");
+    try {
+      await saveGuide("accomplishments_intro", status);
+      setVisible(false);
+      trackProductEvent(status === "completed" ? "guide_completed_v1" : "guide_dismissed_v1", { control: "accomplishments_intro" });
+    } catch { setError("We couldn’t save this guide preference. Try again."); }
+    finally { setPending(null); }
+  }
+  return <aside className={styles.guide} aria-label="Accomplishments guide" data-contextual-guide="accomplishments_intro">
+    <span className={styles.index} aria-hidden="true">1</span>
+    <div className={styles.copy}><strong>A private record that grows with Journey</strong><p>{hasRecords ? "Completed opportunities and awards stay here even after their listings change. Personal notes remain private." : "Completed opportunities and awards will appear here. You can also add something you completed outside UnlockED."}</p></div>
+    <div className={styles.actions}><button type="button" className={styles.primary} disabled={Boolean(pending)} onClick={() => void finish("completed")}>Got it</button><button type="button" disabled={Boolean(pending)} onClick={() => void finish("dismissed")}>Dismiss</button></div>
+    {error ? <ActionFeedback className={styles.error} message={error} state="error" level="routine" /> : null}
+  </aside>;
+}
+
 function showAnchor(anchor: string) {
   const element = document.querySelector<HTMLElement>(`[data-guide-anchor="${anchor}"]`);
   if (!element) return;

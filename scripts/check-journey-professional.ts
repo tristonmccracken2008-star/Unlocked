@@ -9,18 +9,20 @@ function base(id: string): TrackedOpportunity {
 }
 
 const requiredStages = {
-  career: ["Saved", "Preparing application", "Application submitted", "Interview received", "Final round interview", "Offer received", "Offer accepted", "Experience completed", "Archived"],
-  scholarship: ["Saved", "Preparing submission", "Application submitted", "Finalist", "Awarded", "Funds received", "Archived"],
-  research: ["Saved", "Contacted lab", "Application submitted", "Research interview", "Research position accepted", "Research underway", "Research completed", "Archived"],
-  competition: ["Saved", "Registered", "Competition entered", "Finalist", "Competition won", "Competition completed", "Archived"],
+  career: ["Saved", "Preparing application", "Application submitted", "Interview received", "Final round interview", "Offer received", "Offer accepted", "Experience underway", "Experience completed", "Not selected", "Withdrawn", "Offer declined", "Archived"],
+  scholarship: ["Saved", "Preparing submission", "Application submitted", "Waitlisted", "Finalist", "Awarded", "Funds received", "Not selected", "Withdrawn", "Award declined", "Archived"],
+  research: ["Saved", "Contacted lab", "Application submitted", "Waitlisted", "Research interview", "Research position accepted", "Research underway", "Research completed", "Not selected", "Withdrawn", "Position declined", "Archived"],
+  competition: ["Saved", "Registered", "Competition entered", "Finalist", "Placed", "Competition won", "Competition completed", "Withdrawn", "Archived"],
   resource: ["Saved", "Resource activated", "Resource completed", "Archived"],
 } as const;
+
+const terminalOutcomeIds = new Set(["not_selected", "withdrawn", "declined_offer", "declined_award", "declined_position"]);
 
 for (const [kind, labels] of Object.entries(requiredStages)) {
   const workflow = journeyProfessionalWorkflows[kind as keyof typeof journeyProfessionalWorkflows];
   assert.deepEqual(workflow.stages.map((stage) => stage.label), labels, `${kind} must expose only its professional workflow stages.`);
   let record = base(`professional-${kind}`);
-  for (const [index, target] of workflow.stages.filter((stage) => !["saved", "archived"].includes(stage.id)).entries()) {
+  for (const [index, target] of workflow.stages.filter((stage) => !["saved", "archived"].includes(stage.id) && !terminalOutcomeIds.has(stage.id)).entries()) {
     const actions = getJourneyProfessionalActions(record, workflow);
     assert.equal(actions[0]?.stage?.id, target.id, `${kind} must expose only the next valid milestone.`);
     const details: JourneyMilestoneDetails = index === 0 ? {
@@ -45,6 +47,16 @@ for (const [kind, labels] of Object.entries(requiredStages)) {
   }
   assert.ok(getJourneyProfessionalActions(record, workflow).every((action) => action.correction), `${kind} completed records may offer corrections but cannot invent another forward milestone.`);
 }
+
+const submittedCareer = applyJourneyProfessionalUpdate(base("professional-outcome"), journeyProfessionalWorkflows.career, {
+  targetStageId: "application_submitted",
+  expectedStatus: "Saved",
+  expectedVersion: 0,
+  idempotencyKey: "journey:professional:outcome:submitted",
+  occurredAt: "2026-08-02T12:00:00.000Z",
+}).record;
+assert.ok(getJourneyProfessionalActions(submittedCareer, journeyProfessionalWorkflows.career).some((action) => action.id === "not_selected"), "Submitted applications must allow a factual not-selected outcome.");
+assert.equal(getJourneyProfessionalActions(base("professional-no-outcome"), journeyProfessionalWorkflows.career).some((action) => action.id === "not_selected"), false, "Saved records must not expose an impossible not-selected outcome.");
 
 const career = journeyProfessionalWorkflows.career;
 let active = applyJourneyProfessionalUpdate(base("professional-pause"), career, {

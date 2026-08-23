@@ -194,6 +194,7 @@ export function JourneyCommandActions({ trackedIds }: { trackedIds: string[] }) 
   return <div className={styles.headerActions} data-journey-command-actions="" data-guide-anchor="add-opportunity">
     <div>
       <button ref={addTriggerRef} type="button" className={styles.addButton} onClick={open}>Add opportunity</button>
+      <a href="/accomplishments" className={styles.recordsButton}>Accomplishments</a>
       <button type="button" className={styles.exportButton} onClick={() => void exportData()} disabled={exporting} aria-busy={exporting ? "true" : undefined} data-action-state={exporting ? "loading" : "idle"}><DelayedPendingLabel pending={exporting} idle="Export data" pendingLabel="Preparing export…" /></button>
     </div>
     {error && !dialogRef.current?.open ? <ActionFeedback message={error} state="error" level="confirmatory" /> : null}

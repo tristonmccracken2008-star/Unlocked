@@ -10,6 +10,7 @@ import { meaningfulAdvisorProfileChanged } from "./advisor/profile-version";
 import { constantTimeEqual, requiredAuthSecret } from "./security";
 import { normalizedFirstLaunchComplete } from "./first-launch-state";
 import { normalizeApplicationWorkspaces } from "./application-workspace";
+import { normalizeAccomplishmentStore } from "@/data/accomplishments";
 
 export const sessionCookieName = "unlocked_session";
 export const oauthStateCookieName = "unlocked_oauth_state";
@@ -34,7 +35,7 @@ const kvTimeoutMs = 2800;
 const kvRetryDelayMs = 120;
 const releaseLockScript = "if redis.call('GET',KEYS[1]) == ARGV[1] then return redis.call('DEL',KEYS[1]) else return 0 end";
 
-const emptyData = (): AccountData => ({ profile: null, onboardingComplete: false, firstLaunchComplete: false, billing: defaultBillingRecord(), activity: null, savedOpportunities: [], watchedOpportunities: [], tracker: {}, preferences: null, journeyProgress: {}, calendarEvents: {}, applicationWorkspaces: {}, guidance: {}, advisor: null, referrals: null, updatedAt: new Date().toISOString() });
+const emptyData = (): AccountData => ({ profile: null, onboardingComplete: false, firstLaunchComplete: false, billing: defaultBillingRecord(), activity: null, savedOpportunities: [], watchedOpportunities: [], tracker: {}, preferences: null, journeyProgress: {}, calendarEvents: {}, applicationWorkspaces: {}, accomplishments: {}, guidance: {}, advisor: null, referrals: null, updatedAt: new Date().toISOString() });
 
 function requireProductionStore() {
   if (!hasKv && process.env.NODE_ENV === "production") throw new Error("A production data store is required. Set KV_REST_API_URL/KV_REST_API_TOKEN or UPSTASH_REDIS_REST_URL/UPSTASH_REDIS_REST_TOKEN.");
@@ -374,6 +375,7 @@ function normalizeAccountData(value: AccountData | null | undefined): AccountDat
     journeyProgress: value.journeyProgress ?? {},
     calendarEvents: value.calendarEvents ?? {},
     applicationWorkspaces: normalizeApplicationWorkspaces(value.applicationWorkspaces),
+    accomplishments: normalizeAccomplishmentStore(value.accomplishments),
     guidance: normalizeGuidanceState(value.guidance),
     advisor: normalizeAdvisorData(value.advisor),
     referrals: normalizeReferralData(value.referrals),
@@ -423,6 +425,7 @@ export async function mergeAccountData(userId: string, incoming: Partial<Account
     journeyProgress: { ...(current.journeyProgress ?? {}), ...(incoming.journeyProgress ?? {}) },
     calendarEvents: current.calendarEvents ?? {},
     applicationWorkspaces: current.applicationWorkspaces ?? {},
+    accomplishments: normalizeAccomplishmentStore(incoming.accomplishments ?? current.accomplishments),
     guidance: normalizeGuidanceState(current.guidance),
     advisor: profileChangedForAdvisor ? null : normalizeAdvisorData(incoming.advisor ?? current.advisor),
     referrals: current.referrals,

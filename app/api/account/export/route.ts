@@ -4,6 +4,8 @@ import { getSession, readAccountData, sessionCookieName } from "@/lib/auth-store
 import { readNotifications } from "@/lib/notification-store";
 import { publicAccountData } from "@/lib/public-account";
 import { assertSameOrigin, enforceRateLimit, securityErrorResponse } from "@/lib/security";
+import { listPublishedOpportunitiesByIds } from "@/lib/content-store";
+import { buildAccomplishmentsModel } from "@/lib/accomplishments";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -20,6 +22,13 @@ export async function POST(request: Request) {
       readNotifications(session.user.id, 0, 200),
     ]);
     const safe = publicAccountData(data);
+    const accomplishmentIds = [...new Set([
+      ...Object.keys(data.tracker ?? {}),
+      ...Object.keys(data.activity?.tracked ?? {}),
+      ...Object.values(data.accomplishments ?? {}).flatMap((record) => record.canonicalOpportunityId ? [record.canonicalOpportunityId] : []),
+    ])];
+    const accomplishmentOpportunities = await listPublishedOpportunitiesByIds(accomplishmentIds, { includeArchived: true }).catch(() => []);
+    const accomplishments = buildAccomplishmentsModel({ account: data, opportunities: accomplishmentOpportunities }).records.map(({ kindLabel: _kindLabel, outcomeLabel: _outcomeLabel, opportunityHref: _opportunityHref, journeyHref: _journeyHref, year: _year, ...record }) => record);
     const payload = {
       format: "unlocked-account-export",
       version: 1,
@@ -30,6 +39,7 @@ export async function POST(request: Request) {
       savedOpportunities: safe.savedOpportunities,
       watchedOpportunities: safe.watchedOpportunities ?? [],
       journey: { tracker: safe.tracker, progress: safe.journeyProgress, applicationWorkspaces: data.applicationWorkspaces ?? {} },
+      accomplishments,
       notifications: notificationData.notifications.map((item) => ({
         type: item.type,
         state: item.state,

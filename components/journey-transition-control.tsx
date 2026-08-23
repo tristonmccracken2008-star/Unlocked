@@ -26,6 +26,7 @@ type TransitionResponse = {
   narrative: { title: string; accomplishment: string; whatChanged: string; storyType: string };
   geometries: JourneyEditorialModel["geometries"];
   horizonGeometries: JourneyEditorialModel["horizon"]["geometries"];
+  accomplishment?: { id: string; active: boolean; created: boolean; kind: string; outcome: string };
 };
 
 function messageForStatus(status: number, fallback?: string) {
@@ -122,6 +123,8 @@ export function JourneyTransitionControl({ control }: { control: NonNullable<Jou
       setRecord(body.record);
       const latency = performance.now() - started;
       trackProductEvent(productIntelligenceEvents.transitionCompleted, { opportunityId: control.opportunityId, transition: action.transition });
+      if (!body.duplicate && body.accomplishment?.created) trackProductEvent(productIntelligenceEvents.accomplishmentCreated, { source: "journey", category: body.accomplishment.kind });
+      if (!body.duplicate && body.accomplishment?.active) trackProductEvent(productIntelligenceEvents.outcomeRecorded, { source: "journey", category: body.accomplishment.kind });
       trackProductEvent(productIntelligenceEvents.waypointCompleted, { transition: action.transition });
       trackProductTiming("journey_transition", "transition_latency", latency);
       const attribution = recommendationAttributionDetailsFor(control.opportunityId);

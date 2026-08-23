@@ -102,6 +102,7 @@ const transport = source("data/product-analytics.ts");
 const api = source("app/api/analytics/event/route.ts");
 const journey = source("components/journey-analytics.tsx");
 const transition = source("components/journey-transition-control.tsx");
+const timelineControl = source("components/journey-timeline-control.tsx");
 const pathMoment = source("components/path-moment-creator.tsx");
 const semesterStory = source("components/semester-story-creator.tsx");
 const journeyCard = source("components/journey-card-creator.tsx");
@@ -114,6 +115,7 @@ for (const token of ["analyticsQueueKey", "navigator.onLine", "sendBeacon", "sch
 for (const token of ["assertSameOrigin", "enforceRateLimit", "readBoundedJson", "recordAnalyticsEnvelope"]) assert.ok(api.includes(token), `Analytics API must enforce ${token}.`);
 for (const token of ["trackJourneyView", "waypointClicked", "historyExpanded", "historyExplored", "horizonOpened", "applicationManagementOpened"]) assert.ok(journey.includes(token), `Journey analytics must emit ${token}.`);
 for (const token of ["transitionStarted", "transitionCompleted", "transitionFailed", "waypointCompleted", "transition_latency"]) assert.ok(transition.includes(token), `Transition analytics must emit ${token}.`);
+for (const token of ["accomplishmentCreated", "outcomeRecorded", "!body.duplicate"]) assert.ok(`${transition}\n${timelineControl}`.includes(token), `Journey outcome analytics must preserve ${token}.`);
 for (const token of ["pathMomentCreatorOpened", "pathMomentPrivacyChanged", "pathMomentAppearanceChanged", "pathMomentPreviewRendered", "pathMomentDownloaded", "pathMomentShared", "pathMomentCopied", "pathMomentCanceled"]) assert.ok(pathMoment.includes(token), `Path Moment analytics must emit ${token}.`);
 for (const token of ["semesterStoryCreatorOpened", "semesterStoryPreviousViewed", "semesterStoryComparisonViewed", "semesterStoryPrivacyChanged", "semesterStoryDownloaded", "semesterStoryShared", "semesterStoryCanceled"]) assert.ok(semesterStory.includes(token), `Semester Story analytics must emit ${token}.`);
 for (const token of ["journeyCardDownloaded", "journeyCardShared", "journeyCardCopied"]) assert.ok(journeyCard.includes(token), `Journey Card analytics must emit ${token}.`);
