@@ -5,7 +5,7 @@
   "scripts": {
     "prepare:brand": "node scripts/prepare-unlocked-logo.mjs",
     "dev": "next dev",
-    "validate:data": "node scripts/validate-data.mjs",
+    "validate:data": "npm run check:opportunity-planner && node scripts/validate-data.mjs",
     "check:data-enrichment": "node scripts/check-opportunity-enrichment.mjs",
     "generate:opportunity-duplicates": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/generate-opportunity-duplicates.ts",
     "check:opportunity-intelligence-platform": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-opportunity-intelligence-platform.ts",
@@ -99,6 +99,7 @@
     "check:journey-workspace": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-journey-workspace.ts",
     "check:journey-career-dashboard": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-journey-career-dashboard.ts",
     "check:journey-calendar": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-journey-calendar.ts",
+    "check:opportunity-planner": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-opportunity-planner.ts",
     "check:application-command-center": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-application-command-center.ts",
     "check:contextual-guidance": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-contextual-guidance.ts",
     "check:smart-empty-states": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-smart-empty-states.ts",

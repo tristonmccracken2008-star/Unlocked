@@ -283,6 +283,14 @@ dialog[open]::backdrop { opacity: 1; }
   transition: opacity var(--motion-micro) var(--motion-ease), transform var(--motion-micro) var(--motion-ease), visibility 0ms;
   visibility: visible;
 }
+[data-context-destination]:last-child [data-context-panel] {
+  right: 0;
+  left: auto;
+  transform: translate(0, -4px);
+}
+[data-context-destination]:last-child[data-open="true"] [data-context-panel] {
+  transform: translate(0, 0);
+}
 [data-navigation-item][data-active="true"]::after {
   position: absolute;
   right: 1rem;

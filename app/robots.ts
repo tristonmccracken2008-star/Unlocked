@@ -8,6 +8,7 @@ export default function robots(): MetadataRoute.Robots {
         "/admin/",
         "/api/",
         "/advisor",
+        "/planner",
         "/ai",
         "/best-edu-email-perks",
         "/benefits",

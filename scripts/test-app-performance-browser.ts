@@ -210,6 +210,15 @@ async function settleAccountWrites(page: Page) {
 
 async function assertStableLayout(page: Page, label: string) {
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  if (overflow > 1) {
+    const offenders = await page.evaluate(() => [...document.querySelectorAll<HTMLElement>("body *")].flatMap((element) => {
+      const rect = element.getBoundingClientRect();
+      return rect.right > document.documentElement.clientWidth + 1 || rect.left < -1
+        ? [{ tag: element.tagName, marker: element.getAttribute("data-primary-navigation") ?? element.className?.toString().slice(0, 100), left: Math.round(rect.left), right: Math.round(rect.right), width: Math.round(rect.width) }]
+        : [];
+    }).slice(0, 12));
+    console.error(`${label} overflow elements`, offenders);
+  }
   assert.ok(overflow <= 1, `${label} must not create horizontal overflow; received ${overflow}px.`);
 }
 
@@ -480,6 +489,31 @@ async function verifyPrimaryRoutes(page: Page, origin: string, screenshotLabel: 
   await page.screenshot({ path: path.join(outputDirectory, `${screenshotLabel}-for-you.png`), fullPage: true, caret: "initial" });
   await settleAccountWrites(page);
 
+  const plannerStartedAt = performance.now();
+  await page.goto(`${origin}/planner`, { waitUntil: "domcontentloaded", timeout: 45_000 });
+  await page.locator("[data-opportunity-planner]").waitFor({ state: "visible", timeout: 45_000 });
+  const plannerReadyMs = Math.round(performance.now() - plannerStartedAt);
+  assert.equal(await page.getByRole("heading", { name: "Your year ahead.", exact: true }).count(), 1, "Planner must have one clear purpose.");
+  assert.equal(await page.getByText(/Expected opening|Historically opens/i).count(), 0, "Planner must not present inferred future dates.");
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth), false, `${screenshotLabel} Planner must not overflow horizontally.`);
+  const populatedMonth = page.locator("[data-opportunity-planner] details").first();
+  if (await populatedMonth.count()) {
+    await populatedMonth.locator("summary").click();
+    assert.notEqual(await populatedMonth.getAttribute("open"), null, "A populated Planner month must expand with keyboard-accessible native disclosure.");
+    await populatedMonth.locator("summary").click();
+  }
+  await page.evaluate(() => { (document.activeElement as HTMLElement | null)?.blur(); window.scrollTo(0, 0); });
+  await assertStableLayout(page, `${screenshotLabel} Planner`);
+  await page.screenshot({ path: path.join(outputDirectory, `${screenshotLabel}-planner.png`), fullPage: true, caret: "initial" });
+  if (screenshotLabel === "desktop") {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.screenshot({ path: path.join(outputDirectory, "planner-1280x800.png"), fullPage: true, caret: "initial" });
+    await page.setViewportSize({ width: 1728, height: 1117 });
+    await page.screenshot({ path: path.join(outputDirectory, "planner-1728x1117.png"), fullPage: true, caret: "initial" });
+    await page.setViewportSize({ width: 1440, height: 960 });
+  }
+  await settleAccountWrites(page);
+
   const journeyStartedAt = performance.now();
   await page.goto(origin, { waitUntil: "domcontentloaded", timeout: 45_000 });
   await page.locator("[data-journey-command-center]").waitFor({ state: "visible", timeout: 45_000 });
@@ -487,7 +521,7 @@ async function verifyPrimaryRoutes(page: Page, origin: string, screenshotLabel: 
   await assertStableLayout(page, `${screenshotLabel} Journey`);
   await page.screenshot({ path: path.join(outputDirectory, `${screenshotLabel}-journey.png`), fullPage: true, caret: "initial" });
   await settleAccountWrites(page);
-  return { forYouReadyMs, journeyReadyMs };
+  return { forYouReadyMs, plannerReadyMs, journeyReadyMs };
 }
 
 const kvServer = createKvServer();

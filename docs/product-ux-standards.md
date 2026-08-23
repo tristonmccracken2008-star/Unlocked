@@ -5,7 +5,7 @@ They are intentionally small and product-specific.
 
 ## Navigation
 
-- Primary destinations are **Discover**, **For You**, and **Journey**.
+- Primary destinations are **Discover**, **For You**, **Planner**, and **Journey**. Planner summarizes the opportunity landscape over time; it does not replace Calendar or Journey.
 - Profile, notifications, referrals, billing, and data controls are secondary
   account destinations.
 - `aria-current="page"` identifies the active destination.
@@ -113,4 +113,3 @@ They are intentionally small and product-specific.
 - Status is never conveyed by color alone.
 - Motion is brief, interruptible, and disabled under reduced motion.
 - DOM order remains meaningful at 200% zoom and on small mobile screens.
-

@@ -51,6 +51,14 @@ Guidance analytics retain only an allowlisted guide ID in `control`. They never 
 - `guide_show_me_clicked_v1`: the user asked to move to the real feature anchor.
 - `learn_unlocked_opened_v1`: the permanent Learn UnlockED reference was opened.
 
+## Planner events
+
+Planner analytics are aggregate navigation signals. They never include dates, task text, watched titles, recommendation contents, Journey records, or profile fields.
+
+- `planner_viewed_v1`: the private Planner was opened.
+- `planner_month_opened_v1`: a calendar month disclosure was opened; only a `YYYY-MM` section token is retained.
+- `planner_handoff_v1`: Planner led to Journey, For You, Discover, or Calendar; only the destination and optional canonical category are retained.
+
 ## Journey Events
 
 All Journey action aggregates are retained for 90 days.

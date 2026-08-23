@@ -8,12 +8,12 @@ import { AccountButton } from "./account-auth";
 import { accountSessionEvent, readAccountSession } from "@/data/account-sync";
 import type { AccountSession } from "@/lib/account-types";
 import { NotificationNavButton } from "./notification-nav-button";
-import { ArrowIcon, BookmarkIcon, PenLineIcon, SearchIcon, SparkIcon, TrophyIcon } from "./icons";
+import { ArrowIcon, BookmarkIcon, CalendarIcon, PenLineIcon, SearchIcon, SparkIcon, TrophyIcon } from "./icons";
 
 const loadUniversalCommandCenter = () => import("./universal-command-center").then((module) => module.UniversalCommandCenter);
 const UniversalCommandCenter = dynamic(loadUniversalCommandCenter, { ssr: false });
 
-const destinations = [["Discover", "/opportunities"], ["For You", "/advisor"], ["Journey", "/"]] as const;
+const destinations = [["Discover", "/opportunities"], ["For You", "/advisor"], ["Planner", "/planner"], ["Journey", "/"]] as const;
 type DestinationLabel = (typeof destinations)[number][0];
 
 const contextualDestinations: Record<DestinationLabel, Array<{ label: string; description: string; href: string; icon: typeof SearchIcon }>> = {
@@ -29,6 +29,12 @@ const contextualDestinations: Record<DestinationLabel, Array<{ label: string; de
     { label: "More matches", description: "Continue through your current verified shortlist.", href: "/advisor#more-matches-title", icon: SearchIcon },
     { label: "Recommendation preferences", description: "Refine the interests that shape your matches.", href: "/profile#interests", icon: PenLineIcon },
   ],
+  Planner: [
+    { label: "What matters now", description: "Review the few dated items and matches worth attention.", href: "/planner", icon: SparkIcon },
+    { label: "Year Ahead", description: "See confirmed openings and deadlines across the months ahead.", href: "/planner#year-ahead", icon: CalendarIcon },
+    { label: "Calendar", description: "Manage the dates attached to opportunities in Journey.", href: "/#journey-calendar", icon: CalendarIcon },
+    { label: "Learn Planner", description: "Understand Planner, Watch, Journey, and verified dates.", href: "/learn#planner", icon: BookmarkIcon },
+  ],
   Journey: [
     { label: "Active opportunities", description: "Return to everything currently in motion.", href: "/#active-opportunities", icon: BookmarkIcon },
     { label: "Applications", description: "Review opportunities you have applied to.", href: "/?stage=applied#active-opportunities", icon: PenLineIcon },
@@ -39,6 +45,7 @@ const contextualDestinations: Record<DestinationLabel, Array<{ label: string; de
 
 function isServerProtectedProductPath(pathname: string) {
   return pathname === "/advisor"
+    || pathname === "/planner"
     || pathname === "/profile"
     || pathname === "/notifications"
     || pathname === "/learn"
@@ -179,7 +186,7 @@ export function Header() {
         ? `relative inline-flex min-h-11 items-center justify-center rounded-full px-3 text-center transition duration-200 active:scale-[.98] ${active ? "bg-white text-forest" : "text-white/70 hover:text-white"}`
         : `relative inline-flex min-h-11 items-center rounded-full px-4 transition duration-200 active:scale-[.98] ${active ? "bg-white text-forest shadow-[0_8px_20px_rgba(43,33,26,.08)]" : "hover:bg-white/75 hover:text-forest"}`}
     >
-      {label === "Journey" ? <span data-journey-destination-icon="" aria-hidden="true" className="inline-grid h-4 w-4 shrink-0 place-items-center"><BookmarkIcon className="h-4 w-4" /></span> : null}
+      {label === "Journey" || label === "Planner" ? <span data-journey-destination-icon={label === "Journey" ? "" : undefined} aria-hidden="true" className="inline-grid h-4 w-4 shrink-0 place-items-center">{label === "Journey" ? <BookmarkIcon className="h-4 w-4" /> : <CalendarIcon className="h-4 w-4" />}</span> : null}
       {label}
     </a>;
   }
@@ -213,7 +220,7 @@ export function Header() {
         data-journey-destination={label === "Journey" ? "desktop" : undefined}
         className={`relative inline-flex min-h-11 items-center rounded-full px-4 transition duration-200 active:scale-[.98] ${active ? "bg-white text-forest shadow-[0_8px_20px_rgba(43,33,26,.08)]" : "hover:bg-white/75 hover:text-forest"}`}
       >
-        {label === "Journey" ? <span data-journey-destination-icon="" aria-hidden="true" className="inline-grid h-4 w-4 shrink-0 place-items-center"><BookmarkIcon className="h-4 w-4" /></span> : null}
+        {label === "Journey" || label === "Planner" ? <span data-journey-destination-icon={label === "Journey" ? "" : undefined} aria-hidden="true" className="inline-grid h-4 w-4 shrink-0 place-items-center">{label === "Journey" ? <BookmarkIcon className="h-4 w-4" /> : <CalendarIcon className="h-4 w-4" />}</span> : null}
         {label}
       </a>
       <div id={panelId} data-context-panel="" aria-label={`${label} shortcuts`} aria-hidden={!expanded} className="absolute left-1/2 top-[calc(100%+.7rem)] hidden w-[21rem] -translate-x-1/2 opacity-0 lg:grid">
@@ -249,7 +256,7 @@ export function Header() {
         </div>
       </div>
     </header>
-    <nav aria-label="Mobile navigation" data-primary-navigation="" className="fixed inset-x-4 bottom-[max(1rem,env(safe-area-inset-bottom))] z-40 grid grid-cols-3 rounded-full bg-ink/95 p-1 text-xs font-bold text-white shadow-[0_20px_60px_rgba(43,33,26,.24)] backdrop-blur sm:hidden">
+    <nav aria-label="Mobile navigation" data-primary-navigation="" className="fixed inset-x-4 bottom-[max(1rem,env(safe-area-inset-bottom))] z-40 grid grid-cols-4 rounded-full bg-ink/95 p-1 text-[11px] font-bold text-white shadow-[0_20px_60px_rgba(43,33,26,.24)] backdrop-blur sm:hidden">
       {destinations.map(([label, href]) => navigationLink(label, href, true))}
     </nav>
     {commandOpen ? <UniversalCommandCenter onClose={() => setCommandOpen(false)} restoreFocus={() => commandTrigger.current?.focus()} /> : null}

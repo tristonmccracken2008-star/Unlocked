@@ -53,6 +53,7 @@ export const config = {
     "/profile",
     "/my-opportunities",
     "/advisor",
+    "/planner",
     "/onboarding",
     "/welcome",
     "/referral",

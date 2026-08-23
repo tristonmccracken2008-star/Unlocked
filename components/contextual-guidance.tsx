@@ -43,6 +43,46 @@ function replayGuide(): GuidanceId | null {
   return value && value in featureTips ? value as GuidanceId : null;
 }
 
+export function PlannerGuidance({ initialState, hasWatching }: { initialState: GuidanceState; hasWatching: boolean }) {
+  const [visible, setVisible] = useState(!guidanceHasBeenSeen(initialState, "planner_intro"));
+  const [step, setStep] = useState(0);
+  const [pending, setPending] = useState<GuidanceStatus | null>(null);
+  const [error, setError] = useState("");
+  const steps: Step[] = [
+    { title: "Start with Now", explanation: "Only deadlines, tasks, and matches worth reviewing soon appear here.", anchor: "planner-now" },
+    { title: "See confirmed dates", explanation: "Year Ahead uses verified dates. Historical cycles never become future promises.", anchor: "planner-year" },
+    ...(hasWatching ? [{ title: "Keep uncertain cycles separate", explanation: "Watched recurring programs stay undated until their next cycle is officially announced.", anchor: "planner-watching" }] : []),
+  ];
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("guide") === "planner_intro") setVisible(true);
+  }, []);
+  if (!visible) return null;
+  const current = steps[step];
+  async function finish(status: GuidanceStatus) {
+    if (pending) return;
+    setPending(status);
+    setError("");
+    try {
+      await saveGuide("planner_intro", status);
+      setVisible(false);
+      trackProductEvent(status === "completed" ? "guide_completed_v1" : "guide_dismissed_v1", { control: "planner_intro" });
+    } catch { setError("We couldn’t save this guide preference. Try again."); }
+    finally { setPending(null); }
+  }
+  return <aside className={styles.guide} aria-label="Planner guide" data-contextual-guide="planner_intro">
+    <span className={styles.index} aria-hidden="true">{step + 1}</span>
+    <div className={styles.copy}><strong>{current.title}</strong><p>{current.explanation}</p></div>
+    <div className={styles.actions}>
+      {step > 0 ? <button type="button" onClick={() => setStep((value) => value - 1)}>Back</button> : null}
+      <button type="button" onClick={() => showAnchor(current.anchor)}>Show me</button>
+      {step < steps.length - 1 ? <button type="button" className={styles.primary} onClick={() => setStep((value) => value + 1)}>Next</button> : <button type="button" className={styles.primary} disabled={Boolean(pending)} onClick={() => void finish("completed")}>Got it</button>}
+      <button type="button" disabled={Boolean(pending)} onClick={() => void finish("dismissed")}>Dismiss</button>
+    </div>
+    <span className={styles.progress}>{step + 1} of {steps.length}</span>
+    {error ? <ActionFeedback className={styles.error} message={error} state="error" level="routine" /> : null}
+  </aside>;
+}
+
 function showAnchor(anchor: string) {
   const element = document.querySelector<HTMLElement>(`[data-guide-anchor="${anchor}"]`);
   if (!element) return;

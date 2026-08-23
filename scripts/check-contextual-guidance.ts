@@ -14,6 +14,7 @@ const guidance = await import("../lib/guidance");
 const auth = await import("../lib/auth-store");
 
 assert.equal(guidance.guidanceHasBeenSeen({}, "journey_intro"), false);
+assert.equal(guidance.guidanceHasBeenSeen({}, "planner_intro"), false);
 assert.equal(guidance.guidanceHasBeenSeen({ journey_intro: { status: "completed", guideVersion: 1, updatedAt: new Date().toISOString() } }, "journey_intro"), true);
 assert.deepEqual(guidance.normalizeGuidanceState({ unknown: { status: "completed", guideVersion: 99, updatedAt: new Date().toISOString() } } as never), {});
 
@@ -49,6 +50,7 @@ assert.doesNotMatch(route, /email|profile|tracker|calendarEvents/);
 const component = source("components/contextual-guidance.tsx");
 assert.match(component, /JourneyGuidance/);
 assert.match(component, /NotificationGuidance/);
+assert.match(component, /PlannerGuidance/);
 assert.match(component, /prefers-reduced-motion/);
 assert.match(component, /scrollIntoView/);
 assert.match(component, /\.find\(\(id\)[\s\S]*guidanceHasBeenSeen/, "Journey must select one eligible unseen contextual guide rather than rendering all tips.");
@@ -60,7 +62,8 @@ assert.ok(source("components/journey-command-actions.tsx").includes('data-guide-
 assert.ok(source("components/journey-deadline-calendar.tsx").includes('data-guide-anchor="journey-calendar"'));
 
 const learn = source("components/learn-unlocked.tsx");
-for (const section of ["Getting started", "Discover", "For You", "Journey", "Applications", "Deadlines", "Notifications", "Profile and privacy"]) assert.ok(learn.includes(section));
+for (const section of ["Getting started", "Discover", "For You", "Planner", "Journey", "Applications", "Deadlines", "Notifications", "Profile and privacy"]) assert.ok(learn.includes(section));
+assert.match(learn, /planner_intro/);
 assert.match(learn, /\?guide=journey/);
 assert.match(learn, /\?guide=journey_application_workspace/);
 assert.match(learn, /\?guide=journey_calendar/);

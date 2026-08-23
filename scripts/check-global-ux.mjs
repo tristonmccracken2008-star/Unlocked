@@ -34,9 +34,9 @@ assert.match(layout, /href="#main-content"/, "The global shell must expose a ski
 assert.match(layout, /id="main-content"/, "The global shell must expose a stable content target.");
 assert.match(globals, /\.skip-link/, "The skip link must become visible on focus.");
 
-assert.match(header, /const destinations = \[\["Discover", "\/opportunities"\], \["For You", "\/advisor"\], \["Journey", "\/"\]\]/, "Primary navigation must use the three canonical product destinations.");
+assert.match(header, /const destinations = \[\["Discover", "\/opportunities"\], \["For You", "\/advisor"\], \["Planner", "\/planner"\], \["Journey", "\/"\]\]/, "Primary navigation must use the four canonical product destinations.");
 assert.doesNotMatch(header, /\["Refer", "\/referral"\]/, "Referrals must not compete with primary product navigation.");
-assert.match(header, /grid-cols-3/, "Mobile navigation must reserve equal space for the three primary destinations.");
+assert.match(header, /grid-cols-4/, "Mobile navigation must reserve equal space for the four primary destinations.");
 assert.match(footer, /safe-area-inset-bottom/, "The footer must clear mobile navigation and the device safe area.");
 
 for (const token of ["sectionFromHash", "billingReturnMessage", '"popstate"', '"hashchange"', 'href="/referral"']) {
