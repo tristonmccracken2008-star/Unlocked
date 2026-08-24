@@ -132,6 +132,32 @@ export function PathsGuidance({ initialState }: { initialState: GuidanceState })
   </aside>;
 }
 
+export function ExplorerGuidance({ initialState }: { initialState: GuidanceState }) {
+  const [visible, setVisible] = useState(!guidanceHasBeenSeen(initialState, "explorer_intro"));
+  const [pending, setPending] = useState<GuidanceStatus | null>(null);
+  const [error, setError] = useState("");
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("guide") === "explorer_intro") setVisible(true);
+  }, []);
+  if (!visible) return null;
+  async function finish(status: GuidanceStatus) {
+    if (pending) return;
+    setPending(status); setError("");
+    try {
+      await saveGuide("explorer_intro", status);
+      setVisible(false);
+      trackProductEvent(status === "completed" ? "guide_completed_v1" : "guide_dismissed_v1", { control: "explorer_intro" });
+    } catch { setError("We couldn’t save this guide preference. Try again."); }
+    finally { setPending(null); }
+  }
+  return <aside className={styles.guide} aria-label="Explore guide" data-contextual-guide="explorer_intro">
+    <span className={styles.index} aria-hidden="true">1</span>
+    <div className={styles.copy}><strong>Start broad, then look closer</strong><p>Explore shows kinds of opportunities you may not know to search for. Discover remains the complete catalog.</p></div>
+    <div className={styles.actions}><button type="button" className={styles.primary} disabled={Boolean(pending)} onClick={() => void finish("completed")}>Got it</button><button type="button" disabled={Boolean(pending)} onClick={() => void finish("dismissed")}>Dismiss</button></div>
+    {error ? <ActionFeedback className={styles.error} message={error} state="error" level="routine" /> : null}
+  </aside>;
+}
+
 export function MaterialsGuidance({ initialState, hasRecords }: { initialState: GuidanceState; hasRecords: boolean }) {
   const [visible, setVisible] = useState(!guidanceHasBeenSeen(initialState, "materials_intro"));
   const [pending, setPending] = useState<GuidanceStatus | null>(null);

@@ -18,6 +18,7 @@ type CommandResult = Omit<UniversalSearchResult, "kind" | "group" | "score"> & {
 
 const localCommands: CommandResult[] = [
   { id: "navigate:discover", kind: "navigate", group: "Navigate", title: "Discover", subtitle: "Search the complete opportunity catalog.", href: "/opportunities", score: 0, keywords: "search opportunities browse catalog" },
+  { id: "navigate:explore", kind: "navigate", group: "Navigate", title: "Explore", subtitle: "Discover opportunity types and areas you may not know to search for.", href: "/explore", score: 0, keywords: "possibilities fields experiences not sure what can i do with major" },
   { id: "navigate:for-you", kind: "navigate", group: "Navigate", title: "For You", subtitle: "Open your verified personalized shortlist.", href: "/advisor", score: 0, keywords: "recommendations matches personalized" },
   { id: "navigate:paths", kind: "navigate", group: "Navigate", title: "Opportunity Paths", subtitle: "Explore how opportunities connect to a goal.", href: "/paths", score: 0, keywords: "paths goals quant medicine research finance careers directions" },
   { id: "navigate:planner", kind: "navigate", group: "Navigate", title: "Planner", subtitle: "See verified dates and your opportunity mix across the months ahead.", href: "/planner", score: 0, keywords: "year ahead timeline upcoming watch opportunity plan" },
@@ -31,7 +32,7 @@ const localCommands: CommandResult[] = [
   { id: "action:journey", kind: "action", group: "Quick Actions", title: "Open Journey", subtitle: "Return to your active opportunities.", href: "/#active-opportunities", score: 0, keywords: "saved tracked" },
   { id: "action:planner", kind: "action", group: "Quick Actions", title: "Open Planner", subtitle: "Review what matters now and what is coming.", href: "/planner", score: 0, keywords: "year ahead plan upcoming" },
   { id: "action:deadlines", kind: "action", group: "Quick Actions", title: "View deadlines", subtitle: "Open the Smart Deadline Calendar.", href: "/#journey-upcoming-heading", score: 0, keywords: "calendar upcoming due this week dates" },
-  { id: "action:explore", kind: "action", group: "Quick Actions", title: "Explore opportunities", subtitle: "Browse all verified catalog listings.", href: "/opportunities", score: 0, keywords: "discover search browse" },
+  { id: "action:explore", kind: "action", group: "Quick Actions", title: "Explore possibilities", subtitle: "See kinds of opportunities you may not know to search for.", href: "/explore", score: 0, keywords: "explore ideas fields experiences not sure" },
   { id: "action:applications", kind: "action", group: "Quick Actions", title: "Application Command Center", subtitle: "Organize requirements and private application tasks.", href: "/?stage=preparing#active-opportunities", score: 0, keywords: "applications tasks resume essay requirements" },
   { id: "action:materials", kind: "action", group: "Quick Actions", title: "Add application material", subtitle: "Keep a reusable material record in Materials.", href: "/materials", score: 0, keywords: "add resume transcript essay document" },
   { id: "browse:scholarships", kind: "browse", group: "Browse", title: "Browse Scholarships", subtitle: "Funding opportunities from official sources.", href: "/opportunities?type=Scholarship", score: 0, keywords: "scholarship scholarships funding grants awards" },
@@ -50,7 +51,7 @@ const localCommands: CommandResult[] = [
 ];
 
 const recentKey = "unlocked:universal-search-recents:v1";
-const groupOrder = ["Recent", "Quick Actions", "Materials", "Paths", "Accomplishments", "Your Journey", "Upcoming", "Application tasks", "Navigate", "Browse", "Opportunities", "Learn UnlockED"];
+const groupOrder = ["Recent", "Quick Actions", "Explore", "Materials", "Paths", "Accomplishments", "Your Journey", "Upcoming", "Application tasks", "Navigate", "Browse", "Opportunities", "Learn UnlockED"];
 
 function normalize(value: string) {
   return value.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim().replace(/\s+/g, " ");
@@ -72,6 +73,7 @@ function localScore(result: CommandResult, query: string, pathname: string) {
 }
 
 function ResultIcon({ kind }: { kind: CommandResult["kind"] }) {
+  if (kind === "explorer") return <SparkIcon />;
   if (kind === "journey" || kind === "recent") return <BookmarkIcon />;
   if (kind === "path") return <SparkIcon />;
   if (kind === "accomplishment") return <TrophyIcon />;

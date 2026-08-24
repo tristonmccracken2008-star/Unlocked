@@ -5,6 +5,7 @@ Each product area owns one primary student question.
 | Feature | Primary question | Boundary |
 | --- | --- | --- |
 | Discover | What exists? | Comprehensive catalog search and filtering. |
+| Explore | What possibilities have I not considered? | Structured fields and experience types that broaden awareness, then hand off to Discover or Paths. |
 | For You | What fits me? | Personalized, eligibility-gated priorities. |
 | Paths | How can opportunities connect to a goal? | Structured exploration; never an active-work tracker. |
 | Watch | What am I monitoring? | Passive interest in a future or changing opportunity. |
@@ -24,12 +25,15 @@ Each product area owns one primary student question.
 - A date or reminder: **Calendar**.
 - A future time-based view: **Planner**.
 - Goal-oriented exploration: **Paths**.
+- Broad possibility discovery: **Explore**.
 - Personalized priority: **For You**.
 - Completed or earned outcome: **Accomplishments**.
 - A reusable resume, essay, transcript, or related record: **Materials**.
 - A summary of past activity and patterns: **Insights**.
 
 Paths may display Watch, Journey, and Accomplishment state, but it never owns or duplicates those records. Following a Path is only a return preference; it does not add opportunities to Journey or modify profile goals.
+
+Explorer may display existing Watch, Journey, and Accomplishment state, but it stores no view history and infers no permanent preference from opening an area. Curated adjacency broadens awareness; it is not a personal recommendation claim. Deeper lists always hand off to Discover, while goal-oriented structure remains in Paths.
 
 Materials may appear inside an application workspace, but Journey remains the source of truth for whether the opportunity is actively pursued. Selecting a material does not complete a task or change an application status.
 

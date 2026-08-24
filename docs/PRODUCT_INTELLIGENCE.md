@@ -79,6 +79,19 @@ Path events measure whether goal-oriented exploration leads into existing produc
 - `material_selected_for_application_v1`: a reusable material was selected for an application; document metadata is excluded.
 - `material_archived_v1`: a material record was archived; document metadata is excluded.
 
+## Opportunity Explorer Events
+
+Explorer events measure whether structured exploration leads students toward the existing catalog, Paths, Watch, or Journey. They retain only curated area/type identifiers, opaque opportunity IDs, and bounded action/source labels. They never include profile fields, eligibility details, search text, private history, or recommendation contents.
+
+- `explorer_opened_v1`: Explorer was opened.
+- `explorer_area_opened_v1`: a curated field landscape or current example was opened.
+- `explorer_type_opened_v1`: an experience-type explanation was opened.
+- `explorer_to_discover_v1`: Explorer handed off to deterministic Discover filters.
+- `explorer_to_path_v1`: Explorer handed off to an existing Path.
+- `explorer_to_watch_v1`: Watch intent changed from Explorer.
+- `explorer_to_journey_v1`: an opportunity entered the existing Journey workflow from Explorer.
+- `explorer_serendipity_opened_v1`: the deterministic adjacent-area suggestion was opened.
+
 ## Journey Events
 
 All Journey action aggregates are retained for 90 days.

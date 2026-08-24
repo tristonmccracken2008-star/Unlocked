@@ -7,6 +7,7 @@ import type { AccountData, AuthUser } from "./account-types";
 import { buildJourneyCommandCenterModel, type JourneyCommandRecord } from "./journey-command-center";
 import { buildAccomplishmentsModel } from "./accomplishments";
 import { opportunityPaths } from "@/data/opportunity-paths";
+import { explorerAreas, explorerExperienceTypes } from "@/data/opportunity-explorer";
 import { applicationMaterialStatusLabels, applicationMaterialTypeLabels, normalizeApplicationMaterialStore } from "@/data/application-materials";
 
 function normalize(value: string) {
@@ -104,6 +105,17 @@ export function buildUniversalSearch(input: {
     const score = matchScore(query, [path.name, path.shortName, `${path.name} path`, `${path.shortName} path`, path.description, ...path.profileAliases]);
     return score ? [{ id: `path:${path.id}`, kind: "path", group: "Paths", title: path.name, subtitle: "Explore opportunities by goal", href: `/paths/${path.id}`, score: score + 340 }] : [];
   }).sort((left, right) => right.score - left.score || left.title.localeCompare(right.title)).slice(0, 4);
+  const explorationQuery = query.replace(/^(what (?:can|could) i do with|explore|opportunities (?:in|for)|interested in)\s+/i, "").trim() || query;
+  const explorer = [
+    ...explorerAreas.flatMap((area): UniversalSearchResult[] => {
+      const score = matchScore(explorationQuery, [area.name, area.shortName, area.description, ...area.aliases, ...area.landscapes.flatMap((landscape) => [landscape.name, landscape.description])]);
+      return score ? [{ id: `explorer:${area.id}`, kind: "explorer", group: "Explore", title: area.name, subtitle: "Explore related fields and experience types", href: `/explore/${area.id}`, score: score + 380 }] : [];
+    }),
+    ...explorerExperienceTypes.flatMap((experience): UniversalSearchResult[] => {
+      const score = matchScore(explorationQuery, [experience.name, experience.description, `${experience.name} opportunities`]);
+      return score ? [{ id: `explorer-type:${experience.id}`, kind: "explorer", group: "Explore", title: `Explore ${experience.name}`, subtitle: experience.description, href: `/explore?type=${experience.id}#experience-types`, score: score + 350 }] : [];
+    }),
+  ].sort((left, right) => right.score - left.score || left.title.localeCompare(right.title)).slice(0, 4);
   const accomplishments = buildAccomplishmentsModel({ account: input.account, opportunities: trackedOpportunities }).records.flatMap((record): UniversalSearchResult[] => {
     const score = matchScore(query, [record.snapshot.title, record.snapshot.organization, record.kindLabel, record.outcomeLabel]);
     if (!score) return [];
@@ -180,7 +192,7 @@ export function buildUniversalSearch(input: {
 
   return {
     query,
-    results: [...materials, ...paths, ...accomplishments, ...personal, ...upcoming, ...tasks, ...opportunities],
+    results: [...explorer, ...materials, ...paths, ...accomplishments, ...personal, ...upcoming, ...tasks, ...opportunities],
     totalOpportunityMatches: preciseCatalog.length ? catalog.total : 0,
   };
 }

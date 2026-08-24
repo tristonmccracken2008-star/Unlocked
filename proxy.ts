@@ -58,6 +58,8 @@ export const config = {
     "/materials",
     "/insights",
     "/paths/:path*",
+    "/explore",
+    "/explore/:path*",
     "/accomplishments",
     "/onboarding",
     "/welcome",

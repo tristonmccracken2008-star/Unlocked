@@ -6,6 +6,7 @@ import { readClientReferenceManifest } from "./lib/read-client-reference-manifes
 const routes = [
   ["Journey", ".next/server/app/page_client-reference-manifest.js", "[project]/app/page"],
   ["Discover", ".next/server/app/opportunities/page_client-reference-manifest.js", "[project]/app/opportunities/page"],
+  ["Explorer", ".next/server/app/explore/page_client-reference-manifest.js", "[project]/app/explore/page"],
   ["For You", ".next/server/app/advisor/page_client-reference-manifest.js", "[project]/app/advisor/page"],
 ];
 const results = [];

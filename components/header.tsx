@@ -19,6 +19,7 @@ type DestinationLabel = (typeof destinations)[number][0];
 const contextualDestinations: Record<DestinationLabel, Array<{ label: string; description: string; href: string; icon: typeof SearchIcon }>> = {
   Discover: [
     { label: "Browse all", description: "Search the complete opportunity catalog.", href: "/opportunities", icon: SearchIcon },
+    { label: "Explore possibilities", description: "Discover opportunity types and areas you may not know to search for.", href: "/explore", icon: SparkIcon },
     { label: "Opportunity Paths", description: "Explore how opportunities connect to a goal.", href: "/paths", icon: SparkIcon },
     { label: "Scholarships", description: "Funding from verified and official sources.", href: "/opportunities?type=Scholarship", icon: TrophyIcon },
     { label: "Internships", description: "Career opportunities and early programs.", href: "/opportunities?type=Career&category=Internships", icon: PenLineIcon },
@@ -51,6 +52,7 @@ function isServerProtectedProductPath(pathname: string) {
   return pathname === "/advisor"
     || pathname === "/planner"
     || pathname.startsWith("/paths")
+    || pathname.startsWith("/explore")
     || pathname === "/accomplishments"
     || pathname === "/materials"
     || pathname === "/insights"
@@ -180,7 +182,7 @@ export function Header() {
   }
 
   function navigationLink(label: string, href: string, mobile = false) {
-    const active = href === "/" ? pathname === "/" : pathname?.startsWith(href);
+    const active = href === "/" ? pathname === "/" : label === "Discover" ? pathname?.startsWith("/opportunities") || pathname?.startsWith("/explore") || pathname?.startsWith("/paths") : pathname?.startsWith(href);
     return <a
       key={href}
       href={href}
@@ -200,7 +202,7 @@ export function Header() {
   }
 
   function desktopDestination(label: DestinationLabel, href: string) {
-    const active = href === "/" ? pathname === "/" : pathname?.startsWith(href);
+    const active = href === "/" ? pathname === "/" : label === "Discover" ? pathname?.startsWith("/opportunities") || pathname?.startsWith("/explore") || pathname?.startsWith("/paths") : pathname?.startsWith(href);
     const expanded = openDestination === label;
     const panelId = `navigation-panel-${label.toLowerCase().replaceAll(" ", "-")}`;
     return <div
