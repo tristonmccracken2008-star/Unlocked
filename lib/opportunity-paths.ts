@@ -79,16 +79,38 @@ export type OpportunityPathsLandingModel = {
 type PathIndex = ReadonlyMap<string, ReadonlyMap<string, readonly Opportunity[]>>;
 const indexCache = new WeakMap<readonly Opportunity[], PathIndex>();
 const normalize = (value: string) => value.toLowerCase().replace(/&/g, " and ").replace(/[^a-z0-9+#.]+/g, " ").replace(/\s+/g, " ").trim();
-const normalizedSet = (values: readonly string[]) => new Set(values.map(normalize));
-const intersects = (actual: readonly string[], expected: readonly string[] | undefined) => !expected?.length || expected.some((value) => normalizedSet(actual).has(normalize(value)));
+type OpportunityPathSearchIndex = { category: Set<string>; majors: Set<string>; tags: Set<string>; careerPaths: Set<string> };
+const opportunitySearchCache = new WeakMap<Opportunity, OpportunityPathSearchIndex>();
+const normalizedValueCache = new Map<string, string>();
+const normalized = (value: string) => {
+  const cached = normalizedValueCache.get(value);
+  if (cached !== undefined) return cached;
+  const result = normalize(value);
+  if (normalizedValueCache.size < 2_000) normalizedValueCache.set(value, result);
+  return result;
+};
+const searchIndex = (opportunity: Opportunity) => {
+  const cached = opportunitySearchCache.get(opportunity);
+  if (cached) return cached;
+  const index = {
+    category: new Set([normalized(opportunity.category)]),
+    majors: new Set(opportunity.majors.map(normalized)),
+    tags: new Set(opportunity.tags.map(normalized)),
+    careerPaths: new Set((opportunity.metadata.careerPaths ?? []).map(normalized)),
+  };
+  opportunitySearchCache.set(opportunity, index);
+  return index;
+};
+const intersects = (actual: ReadonlySet<string>, expected: readonly string[] | undefined) => !expected?.length || expected.some((value) => actual.has(normalized(value)));
 
 function ruleMatches(opportunity: Opportunity, rule: OpportunityPathRule) {
+  const index = searchIndex(opportunity);
   if (rule.opportunityIds?.length && !rule.opportunityIds.includes(opportunity.id)) return false;
   if (rule.types?.length && !rule.types.includes(opportunity.type)) return false;
-  if (!intersects([opportunity.category], rule.categories)) return false;
-  if (!intersects(opportunity.majors, rule.majors)) return false;
-  if (!intersects(opportunity.tags, rule.tags)) return false;
-  if (!intersects(opportunity.metadata.careerPaths ?? [], rule.careerPaths)) return false;
+  if (!intersects(index.category, rule.categories)) return false;
+  if (!intersects(index.majors, rule.majors)) return false;
+  if (!intersects(index.tags, rule.tags)) return false;
+  if (!intersects(index.careerPaths, rule.careerPaths)) return false;
   return true;
 }
 

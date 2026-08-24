@@ -158,6 +158,32 @@ export function MaterialsGuidance({ initialState, hasRecords }: { initialState: 
   </aside>;
 }
 
+export function InsightsGuidance({ initialState, eligible }: { initialState: GuidanceState; eligible: boolean }) {
+  const [visible, setVisible] = useState(eligible && !guidanceHasBeenSeen(initialState, "insights_intro"));
+  const [pending, setPending] = useState<GuidanceStatus | null>(null);
+  const [error, setError] = useState("");
+  useEffect(() => {
+    if (eligible && new URLSearchParams(window.location.search).get("guide") === "insights_intro") setVisible(true);
+  }, [eligible]);
+  if (!visible) return null;
+  async function finish(status: GuidanceStatus) {
+    if (pending) return;
+    setPending(status); setError("");
+    try {
+      await saveGuide("insights_intro", status);
+      setVisible(false);
+      trackProductEvent(status === "completed" ? "guide_completed_v1" : "guide_dismissed_v1", { control: "insights_intro" });
+    } catch { setError("We couldn’t save this guide preference. Try again."); }
+    finally { setPending(null); }
+  }
+  return <aside className={styles.guide} aria-label="Insights guide" data-contextual-guide="insights_intro">
+    <span className={styles.index} aria-hidden="true">1</span>
+    <div className={styles.copy}><strong>Your history, without guesses</strong><p>Insights summarizes the private activity recorded in UnlockED. Journey, Materials, Paths, and Accomplishments remain the places where those records are managed.</p></div>
+    <div className={styles.actions}><button type="button" className={styles.primary} disabled={Boolean(pending)} onClick={() => void finish("completed")}>Got it</button><button type="button" disabled={Boolean(pending)} onClick={() => void finish("dismissed")}>Dismiss</button></div>
+    {error ? <ActionFeedback className={styles.error} message={error} state="error" level="routine" /> : null}
+  </aside>;
+}
+
 function showAnchor(anchor: string) {
   const element = document.querySelector<HTMLElement>(`[data-guide-anchor="${anchor}"]`);
   if (!element) return;

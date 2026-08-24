@@ -10,6 +10,7 @@ export const guidanceIds = [
   "accomplishments_intro",
   "paths_intro",
   "materials_intro",
+  "insights_intro",
   "notifications_intro",
 ] as const;
 
@@ -34,6 +35,7 @@ export const guidanceVersions: Record<GuidanceId, number> = {
   accomplishments_intro: 1,
   paths_intro: 1,
   materials_intro: 1,
+  insights_intro: 1,
   notifications_intro: 1,
 };
 

@@ -16,6 +16,7 @@ const sections = [
   { id: "accomplishments", title: "Accomplishments", copy: "Keep a private record of opportunities you completed or earned. Journey outcomes appear automatically; records from elsewhere can be added manually and edited later.", href: "/accomplishments?guide=accomplishments_intro", action: "Open Accomplishments", icon: TrophyIcon },
   { id: "applications", title: "Applications", copy: "Verified requirements and your private tasks stay attached to the opportunity you are pursuing.", href: "/?guide=journey_application_workspace#active-opportunities", action: "Learn about applications", icon: TargetIcon },
   { id: "materials", title: "Materials", copy: "Keep reusable application material records organized and connect them to verified requirements. UnlockED does not currently store the documents themselves.", href: "/materials?guide=materials_intro", action: "Open Materials", icon: ListIcon },
+  { id: "insights", title: "Insights", copy: "See a factual summary of the opportunity activity recorded in your private Journey, outcomes, accomplishments, Paths, Watch, and Materials history. Missing history is never guessed.", href: "/insights", action: "Open Insights", icon: ListIcon },
   { id: "deadlines", title: "Deadlines", copy: "Official deadlines and personal dates appear together. Add reminders only for dates you want to manage.", href: "/?guide=journey_calendar", action: "Learn about deadlines", icon: CalendarIcon },
   { id: "notifications", title: "Notifications", copy: "Review deadline reminders, meaningful saved-opportunity changes, and Journey follow-ups without a noisy feed.", href: "/notifications", action: "Open notifications", icon: BellIcon },
   { id: "profile", title: "Profile and privacy", copy: "Update personalization, notification, privacy, appearance, billing, and account controls from one place.", href: "/profile", action: "Open profile", icon: PenLineIcon },
@@ -23,7 +24,7 @@ const sections = [
 
 const productMap = [
   ["Discover", "Browse what exists"], ["For You", "See what fits"], ["Paths", "Explore by goal"],
-  ["Planner", "Look ahead"], ["Journey", "Manage what you’re pursuing"], ["Materials", "Organize reusable application assets"], ["Accomplishments", "Keep your completed history"],
+  ["Planner", "Look ahead"], ["Journey", "Manage what you’re pursuing"], ["Materials", "Organize reusable application assets"], ["Accomplishments", "Keep your completed history"], ["Insights", "Understand your recorded history"],
 ] as const;
 
 export function LearnUnlocked() {

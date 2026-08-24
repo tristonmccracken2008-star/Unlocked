@@ -59,6 +59,10 @@ Planner analytics are aggregate navigation signals. They never include dates, ta
 - `planner_month_opened_v1`: a calendar month disclosure was opened; only a `YYYY-MM` section token is retained.
 - `planner_handoff_v1`: Planner led to Journey, For You, Discover, or Calendar; only the destination and optional canonical category are retained.
 
+## Insights events
+
+`opportunity_insights_opened_v1` measures whether students use their private historical summary. It retains only the fixed section token `insights`; application counts, outcomes, material names, opportunity names, accomplishments, profile data, dates, and chart values are prohibited. Insights itself is a server-side projection of account records and is never reconstructed from product analytics.
+
 ## Opportunity Path Events
 
 Path events measure whether goal-oriented exploration leads into existing product workflows. They retain only canonical Path IDs, opaque opportunity IDs, bounded category labels, and action/source labels. They never include profile goals, Path copy, eligibility reasons, Journey notes, accomplishment content, or recommendation explanations.

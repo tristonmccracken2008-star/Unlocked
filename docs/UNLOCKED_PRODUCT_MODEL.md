@@ -15,6 +15,7 @@ Each product area owns one primary student question.
 | Calendar | When? | Official and student-managed dates. |
 | Radar | What changed? | Meaningful lifecycle and recommendation updates. |
 | Accomplishments | What have I done? | Private successful-outcome history. |
+| Insights | What does my history show me? | Private, factual projection of recorded history; no editing, prediction, or peer comparison. |
 
 ## State ownership
 
@@ -26,7 +27,10 @@ Each product area owns one primary student question.
 - Personalized priority: **For You**.
 - Completed or earned outcome: **Accomplishments**.
 - A reusable resume, essay, transcript, or related record: **Materials**.
+- A summary of past activity and patterns: **Insights**.
 
 Paths may display Watch, Journey, and Accomplishment state, but it never owns or duplicates those records. Following a Path is only a return preference; it does not add opportunities to Journey or modify profile goals.
 
 Materials may appear inside an application workspace, but Journey remains the source of truth for whether the opportunity is actively pursued. Selecting a material does not complete a task or change an application status.
+
+Insights stores no duplicate lifecycle history. It derives a read-only projection from Journey, outcomes, Accomplishments, Materials, Paths, and current Watch state. Planner owns the future; Insights summarizes the past that UnlockED actually recorded.
