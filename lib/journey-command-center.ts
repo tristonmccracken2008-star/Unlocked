@@ -246,7 +246,7 @@ function projectRecord(record: TrackedOpportunity, opportunity: Opportunity | un
   const stageLabel = resolvedStage?.label ?? fallbackStatusLabels[record.status];
   const details = latestDetails(record);
   const lifecycle = opportunity ? resolveOpportunityLifecycle(opportunity, now) : undefined;
-  const applicationWorkspace = opportunity ? projectApplicationWorkspace({ opportunity, record, workspace: account.applicationWorkspaces?.[record.id], now }) : undefined;
+  const applicationWorkspace = opportunity ? projectApplicationWorkspace({ opportunity, record, workspace: account.applicationWorkspaces?.[record.id], materials: account.applicationMaterials, now }) : undefined;
   const recentChangeEvent = opportunity ? recentOpportunityChanges(opportunity, 4).find((event) => event.importance !== "informational"
     && now.getTime() - Date.parse(event.detectedAt) <= 30 * 86_400_000) : undefined;
   const submitAction = workflow ? getJourneyProfessionalActions(record, workflow).find((action) => action.resultingStatus === "Submitted" && action.stage) : undefined;

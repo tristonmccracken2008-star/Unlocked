@@ -40,6 +40,7 @@ export async function POST(request: Request) {
       watchedOpportunities: safe.watchedOpportunities ?? [],
       followedPaths: Object.keys(safe.pathPreferences ?? {}),
       journey: { tracker: safe.tracker, progress: safe.journeyProgress, applicationWorkspaces: data.applicationWorkspaces ?? {} },
+      materials: data.applicationMaterials ?? { records: {}, associations: {}, version: 0 },
       accomplishments,
       notifications: notificationData.notifications.map((item) => ({
         type: item.type,

@@ -70,6 +70,10 @@ Path events measure whether goal-oriented exploration leads into existing produc
 - `opportunity_path_to_watch_v1`: passive monitoring changed from a Path.
 - `opportunity_path_to_journey_v1`: an opportunity entered the existing Journey workflow from a Path.
 - `opportunity_path_to_discover_v1`: a stage handed off to filtered Discover.
+- `materials_page_opened_v1`: the private Materials workspace was opened.
+- `material_created_v1`: a material record was created; names, notes, and document contents are excluded.
+- `material_selected_for_application_v1`: a reusable material was selected for an application; document metadata is excluded.
+- `material_archived_v1`: a material record was archived; document metadata is excluded.
 
 ## Journey Events
 

@@ -25,6 +25,7 @@ export type PlannerItem = {
   action: string;
   category: string;
   priority: number;
+  missingMaterials?: number;
 };
 
 export type PlannerMonth = {
@@ -134,6 +135,9 @@ function itemFromCalendar(item: JourneyCalendarItem, record: JourneyCommandRecor
   const kind: PlannerEventKind = item.source === "application_task" ? "task"
     : item.type === "application_open" ? "opening"
       : item.type === "program_start" ? "program_start" : "deadline";
+  const missingMaterials = kind === "deadline" && record.applicationWorkspace?.materials.mappedRequirements.length
+    ? record.applicationWorkspace.materials.missingCount
+    : 0;
   return {
     id: `calendar:${item.id}`,
     opportunityId: item.opportunityId,
@@ -144,10 +148,11 @@ function itemFromCalendar(item: JourneyCalendarItem, record: JourneyCommandRecor
     label: kind === "task" ? item.title : eventLabel(kind),
     date: item.date,
     timing: item.timingLabel,
-    href: plannerHref("Pursuing", item.opportunityId, kind),
-    action: plannerAction("Pursuing", kind),
+    href: missingMaterials ? "/materials" : plannerHref("Pursuing", item.opportunityId, kind),
+    action: missingMaterials ? "Prepare materials" : plannerAction("Pursuing", kind),
     category: canonicalCategory(record.opportunity),
     priority: kind === "task" ? 1 : item.urgency === "today" || item.urgency === "tomorrow" ? 0 : 2,
+    missingMaterials: missingMaterials || undefined,
   };
 }
 

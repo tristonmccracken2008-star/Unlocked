@@ -88,6 +88,6 @@ export async function updateApplicationWorkspace(user: Pick<AuthUser, "id">, mut
   return {
     ok: true as const,
     duplicate: result.duplicate,
-    workspace: projectApplicationWorkspace({ opportunity, record: persistedRecord, workspace: result.workspace }),
+    workspace: projectApplicationWorkspace({ opportunity, record: persistedRecord, workspace: result.workspace, materials: result.account.applicationMaterials }),
   };
 }

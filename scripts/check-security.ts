@@ -93,6 +93,7 @@ const cleaned = cleanAccountDataInput({
   billing: { tier: "pro", status: "active", stripeCustomerId: "cus_attacker" },
   pathPreferences: { "quantitative-data": { pathId: "quantitative-data", followedAt: now, updatedAt: now, version: 1 } },
   referrals: { code: "ATTACKER" },
+  applicationMaterials: { records: { forged: { notes: "must not sync" } }, associations: {}, version: 99 },
   firstLaunchComplete: true,
   firstLaunchCompletedAt: now,
 });
@@ -105,6 +106,7 @@ assert.equal("arbitrary" in (cleaned.preferences as object), false);
 assert.equal("billing" in cleaned, false, "Clients must not mutate billing.");
 assert.equal("pathPreferences" in cleaned, false, "Clients must not mutate followed Paths through generic account writes.");
 assert.equal("referrals" in cleaned, false, "Clients must not mutate referrals.");
+assert.equal("applicationMaterials" in cleaned, false, "Clients must not mutate private materials through generic account writes.");
 assert.equal("firstLaunchComplete" in cleaned, false, "Generic account writes must not complete first launch.");
 assert.equal("firstLaunchCompletedAt" in cleaned, false, "Generic account writes must not forge first-launch timestamps.");
 
@@ -217,6 +219,7 @@ assert.equal(new Set(referralAfterRace.referrals?.rewardHistory.map((item) => it
 const mutationRoutes = [
   "app/api/account/data/route.ts",
   "app/api/accomplishments/route.ts",
+  "app/api/materials/route.ts",
   "app/api/admin/content/route.ts",
   "app/api/admin/content/[id]/route.ts",
   "app/api/advisor/feedback/route.ts",
@@ -233,7 +236,7 @@ for (const route of mutationRoutes) {
   assert.match(source, /enforceRateLimit\(/, `${route} must enforce an abuse limit.`);
 }
 
-for (const route of ["app/api/account/data/route.ts", "app/api/accomplishments/route.ts", "app/api/admin/content/route.ts", "app/api/admin/content/[id]/route.ts", "app/api/advisor/feedback/route.ts", "app/api/advisor/recommend/route.ts", "app/api/analytics/event/route.ts", "app/api/paths/follow/route.ts"]) {
+for (const route of ["app/api/account/data/route.ts", "app/api/accomplishments/route.ts", "app/api/materials/route.ts", "app/api/admin/content/route.ts", "app/api/admin/content/[id]/route.ts", "app/api/advisor/feedback/route.ts", "app/api/advisor/recommend/route.ts", "app/api/analytics/event/route.ts", "app/api/paths/follow/route.ts"]) {
   assert.ok(readFileSync(route, "utf8").includes("readBoundedJson"), `${route} must use bounded JSON parsing.`);
 }
 
@@ -254,7 +257,7 @@ for (const page of ["app/categories/[slug]/page.tsx", "app/schools/[slug]/page.t
 }
 
 const publicAccount = readFileSync("lib/public-account.ts", "utf8");
-for (const field of ["stripeCustomerId: undefined", "stripeSubscriptionId: undefined", "stripePriceId: undefined", "referrerUserId: \"self\"", "abuseFlags: []"]) {
+for (const field of ["stripeCustomerId: undefined", "stripeSubscriptionId: undefined", "stripePriceId: undefined", "applicationMaterials: undefined", "referrerUserId: \"self\"", "abuseFlags: []"]) {
   assert.ok(publicAccount.includes(field), `Browser account data must redact ${field}.`);
 }
 

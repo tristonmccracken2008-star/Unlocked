@@ -15,7 +15,7 @@ function destinationFor(item: PlannerItem): "journey" | "for_you" | "discover" {
 function PlannerRow({ item, compact = false }: { item: PlannerItem; compact?: boolean }) {
   return <article className={compact ? styles.comingItem : styles.nowItem}>
     <span className={styles.relationship}>{item.relationship}</span>
-    <div><h3 className={styles.itemTitle}>{item.title}</h3><p className={styles.itemMeta}>{item.organization} · {item.label}</p><PlannerTrackedLink href={item.href} destination={destinationFor(item)} className={styles.textLink}>{item.action} →</PlannerTrackedLink></div>
+    <div><h3 className={styles.itemTitle}>{item.title}</h3><p className={styles.itemMeta}>{item.organization} · {item.label}{item.missingMaterials ? ` · ${item.missingMaterials} ${item.missingMaterials === 1 ? "material" : "materials"} missing` : ""}</p><PlannerTrackedLink href={item.href} destination={destinationFor(item)} className={styles.textLink}>{item.action} →</PlannerTrackedLink></div>
     <div className={styles.itemDate}>{item.date ? <><strong>{readableDate(item.date)}</strong>{item.timing ? <span>{item.timing}</span> : null}</> : <strong>{item.label}</strong>}</div>
   </article>;
 }

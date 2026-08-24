@@ -4,6 +4,7 @@ import { journeyWorkflowKind } from "@/data/journey-professional";
 import { recentOpportunityChanges, requirementAddedByRecentChange, opportunityChangeLabel, opportunityChangeSummary } from "@/data/opportunity-changelog";
 import { projectOpportunityTrust, verifiedApplicationRequirements } from "@/data/opportunity-trust";
 import type { AccountData, ApplicationTaskRecord, ApplicationWorkspaceRecord, JourneyCalendarEventRecord } from "./account-types";
+import { projectApplicationMaterialReadiness, type ApplicationMaterialReadiness } from "./application-materials";
 
 export type ApplicationWorkspaceTask = ApplicationTaskRecord & { recentlyUpdated?: boolean };
 
@@ -25,6 +26,7 @@ export type ApplicationWorkspaceProjection = {
   deadlineDaysRemaining?: number;
   unfinishedCount: number;
   recentProviderUpdate?: { label: string; summary: string; detectedAt: string };
+  materials: ApplicationMaterialReadiness;
 };
 
 const terminalPreparationStatuses = new Set<OpportunityTrackerStatus>(["Submitted", "Interview", "Accepted", "Completed"]);
@@ -90,6 +92,7 @@ export function projectApplicationWorkspace(input: {
   opportunity: Opportunity;
   record: TrackedOpportunity;
   workspace?: ApplicationWorkspaceRecord;
+  materials?: AccountData["applicationMaterials"];
   now?: Date;
 }) {
   const eligible = applicationWorkspaceEligible(input.opportunity);
@@ -135,6 +138,11 @@ export function projectApplicationWorkspace(input: {
       summary: opportunityChangeSummary(providerUpdate),
       detectedAt: providerUpdate.detectedAt,
     } : undefined,
+    materials: projectApplicationMaterialReadiness({
+      opportunity: input.opportunity,
+      store: input.materials,
+      recentlyAddedRequirements: new Set(tasks.filter((task) => task.recentlyUpdated).map((task) => task.title)),
+    }),
   } satisfies ApplicationWorkspaceProjection;
 }
 

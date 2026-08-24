@@ -132,6 +132,32 @@ export function PathsGuidance({ initialState }: { initialState: GuidanceState })
   </aside>;
 }
 
+export function MaterialsGuidance({ initialState, hasRecords }: { initialState: GuidanceState; hasRecords: boolean }) {
+  const [visible, setVisible] = useState(!guidanceHasBeenSeen(initialState, "materials_intro"));
+  const [pending, setPending] = useState<GuidanceStatus | null>(null);
+  const [error, setError] = useState("");
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("guide") === "materials_intro") setVisible(true);
+  }, []);
+  if (!visible) return null;
+  async function finish(status: GuidanceStatus) {
+    if (pending) return;
+    setPending(status); setError("");
+    try {
+      await saveGuide("materials_intro", status);
+      setVisible(false);
+      trackProductEvent(status === "completed" ? "guide_completed_v1" : "guide_dismissed_v1", { control: "materials_intro" });
+    } catch { setError("We couldn’t save this guide preference. Try again."); }
+    finally { setPending(null); }
+  }
+  return <aside className={styles.guide} aria-label="Materials guide" data-contextual-guide="materials_intro">
+    <span className={styles.index} aria-hidden="true">1</span>
+    <div className={styles.copy}><strong>Reuse what you already prepared</strong><p>{hasRecords ? "Materials connects your versions to verified application requirements. A selected material is not the same as a submitted application." : "Add a material record once, then select that version wherever a verified application requirement calls for it."}</p></div>
+    <div className={styles.actions}><button type="button" className={styles.primary} disabled={Boolean(pending)} onClick={() => void finish("completed")}>Got it</button><button type="button" disabled={Boolean(pending)} onClick={() => void finish("dismissed")}>Dismiss</button></div>
+    {error ? <ActionFeedback className={styles.error} message={error} state="error" level="routine" /> : null}
+  </aside>;
+}
+
 function showAnchor(anchor: string) {
   const element = document.querySelector<HTMLElement>(`[data-guide-anchor="${anchor}"]`);
   if (!element) return;

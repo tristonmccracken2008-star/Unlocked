@@ -8,7 +8,7 @@ import { AccountButton } from "./account-auth";
 import { accountSessionEvent, readAccountSession } from "@/data/account-sync";
 import type { AccountSession } from "@/lib/account-types";
 import { NotificationNavButton } from "./notification-nav-button";
-import { ArrowIcon, BookmarkIcon, CalendarIcon, PenLineIcon, SearchIcon, SparkIcon, TrophyIcon } from "./icons";
+import { ArrowIcon, BookmarkIcon, CalendarIcon, ListIcon, PenLineIcon, SearchIcon, SparkIcon, TrophyIcon } from "./icons";
 
 const loadUniversalCommandCenter = () => import("./universal-command-center").then((module) => module.UniversalCommandCenter);
 const UniversalCommandCenter = dynamic(loadUniversalCommandCenter, { ssr: false });
@@ -38,6 +38,7 @@ const contextualDestinations: Record<DestinationLabel, Array<{ label: string; de
   ],
   Journey: [
     { label: "Active opportunities", description: "Return to everything currently in motion.", href: "/#active-opportunities", icon: BookmarkIcon },
+    { label: "Materials", description: "Organize reusable application materials and versions.", href: "/materials", icon: ListIcon },
     { label: "Accomplishments", description: "Review the private record of opportunities you completed or earned.", href: "/accomplishments", icon: TrophyIcon },
     { label: "Applications", description: "Review opportunities you have applied to.", href: "/?stage=applied#active-opportunities", icon: PenLineIcon },
     { label: "Professional history", description: "See completed and archived records.", href: "/?stage=history#journey-history", icon: TrophyIcon },
@@ -50,6 +51,7 @@ function isServerProtectedProductPath(pathname: string) {
     || pathname === "/planner"
     || pathname.startsWith("/paths")
     || pathname === "/accomplishments"
+    || pathname === "/materials"
     || pathname === "/profile"
     || pathname === "/notifications"
     || pathname === "/learn"

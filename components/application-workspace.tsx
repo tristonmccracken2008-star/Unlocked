@@ -13,6 +13,8 @@ import { useUndoRecovery } from "@/components/undo-recovery";
 import { ContextualCalendarAction } from "@/components/contextual-calendar-action";
 import { dateAfterOfficialDeadline, dateShortcutOptions, explicitDateFromShortcut } from "@/data/form-experience";
 import styles from "./application-workspace.module.css";
+import type { ApplicationMaterialsModel } from "@/lib/application-materials";
+import { trackProductEvent } from "@/data/product-analytics";
 
 type SubmissionAction = {
   professionalStageId: string;
@@ -69,6 +71,28 @@ export function ApplicationWorkspace({ initial, opportunityTitle, submission }: 
     if (left.source !== right.source) return left.source === "verified_requirement" ? -1 : 1;
     return Number(left.completed) - Number(right.completed);
   }), [workspace.tasks]);
+
+  async function selectMaterial(requirementType: string, materialId: string) {
+    const key = `material:${requirementType}`;
+    if (pending) return;
+    setPending(key); setError(""); setMessage("");
+    try {
+      const response = await authenticatedFetch("/api/materials", {
+        method: "POST",
+        credentials: "same-origin",
+        cache: "no-store",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "associate", expectedVersion: workspace.materials.storeVersion, opportunityId: workspace.opportunityId, requirementType, materialId }),
+      });
+      const payload = await response.json().catch(() => null) as { model?: ApplicationMaterialsModel; error?: string } | null;
+      const readiness = payload?.model?.applications.find((item) => item.opportunityId === workspace.opportunityId)?.readiness;
+      if (!response.ok || !readiness) throw new Error(errorMessage(response.status, payload?.error));
+      setWorkspace((current) => ({ ...current, materials: readiness }));
+      setMessage("Material selected for this application.");
+      trackProductEvent("material_selected_for_application_v1", { category: requirementType });
+    } catch (cause) { setError(cause instanceof Error ? cause.message : errorMessage(500)); }
+    finally { setPending(""); }
+  }
 
   useEffect(() => setWorkspace(initial), [initial]);
   useEffect(() => {
@@ -244,6 +268,17 @@ export function ApplicationWorkspace({ initial, opportunityTitle, submission }: 
     </div>
 
     {workspace.recentProviderUpdate ? <p className={styles.providerUpdate} role="status"><strong>{workspace.recentProviderUpdate.label}</strong> {workspace.recentProviderUpdate.summary}</p> : null}
+    {workspace.materials.mappedRequirements.length ? <section className={styles.materials} aria-labelledby={`application-materials-${workspace.opportunityId}`}>
+      <header><div><h5 id={`application-materials-${workspace.opportunityId}`}>Required materials</h5><p>{workspace.materials.summary}</p></div><a href="/materials">Open Materials <ArrowIcon /></a></header>
+      <ul>{workspace.materials.mappedRequirements.map((requirement) => <li key={requirement.type} data-state={requirement.state}>
+        <span className={styles.materialState} aria-hidden="true">{requirement.state === "selected" || requirement.state === "available" ? <CheckIcon /> : "—"}</span>
+        <div><strong>{requirement.typeLabel}</strong><small>{requirement.recentlyAdded ? "Verified requirement · Added by provider" : "Verified requirement"}</small></div>
+        {requirement.selected ? <span className={styles.selectedMaterial}>{requirement.selected.title}{requirement.selected.versionLabel ? ` · ${requirement.selected.versionLabel}` : ""}<small>Selected · marked {requirement.selected.status === "ready" ? "Ready" : "Needs attention"} by you</small></span>
+          : requirement.candidates.length ? <label className={styles.materialSelect}><span className="sr-only">Choose {requirement.typeLabel}</span><select defaultValue="" disabled={Boolean(pending)} onChange={(event) => { if (event.target.value) void selectMaterial(requirement.type, event.target.value); }}><option value="">Choose version</option>{requirement.candidates.map((candidate) => <option key={candidate.id} value={candidate.id}>{candidate.title}{candidate.versionLabel ? ` · ${candidate.versionLabel}` : ""}{candidate.status !== "ready" ? ` · ${candidate.status === "draft" ? "Draft" : "Needs update"}` : ""}</option>)}</select></label>
+            : <a className={styles.addMaterialLink} href={`/materials?type=${requirement.type}`}>Add {requirement.typeLabel.toLocaleLowerCase()}</a>}
+      </li>)}</ul>
+      <p>Available means you have a record marked Ready. Confirm the provider’s exact format before submitting.</p>
+    </section> : workspace.materials.requirementsVerified ? <p className={styles.materialsUnknown}>UnlockED verified application requirements, but none map to reusable material types.</p> : null}
     {workspace.tasks.length ? <section className={styles.taskSection} aria-labelledby={`application-tasks-${workspace.opportunityId}`}><header><h5 id={`application-tasks-${workspace.opportunityId}`}>Application requirements and your tasks</h5><span>{workspace.unfinishedCount ? `${workspace.unfinishedCount} remaining` : "All complete"}</span></header><ul className={styles.tasks}>{orderedTasks.map((task, index) => <li key={task.id} data-task-source={task.source} data-source-start={index === 0 || orderedTasks[index - 1]?.source !== task.source ? "true" : undefined} data-completed={task.completed ? "true" : undefined} data-pending={pending === task.id ? "true" : undefined}>
       <button type="button" className={styles.check} aria-pressed={task.completed} aria-busy={pending === task.id ? "true" : undefined} aria-label={`${task.completed ? "Mark incomplete" : "Mark complete"}: ${task.title}`} disabled={Boolean(pending)} onClick={() => {
         const completed = !task.completed;

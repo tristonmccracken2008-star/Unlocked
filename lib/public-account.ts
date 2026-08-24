@@ -21,6 +21,8 @@ export function redactInternalIdentifiers<T>(value: T): T {
 export function publicAccountData(data: AccountData): AccountData {
   return {
     ...data,
+    // Materials can contain private notes and are loaded only by their dedicated authenticated surfaces.
+    applicationMaterials: undefined,
     // Accomplishments can contain private notes and are loaded only by their
     // dedicated authenticated surface, never through the general client sync.
     accomplishments: undefined,

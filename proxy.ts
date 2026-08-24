@@ -55,6 +55,7 @@ export const config = {
     "/advisor",
     "/planner",
     "/paths",
+    "/materials",
     "/paths/:path*",
     "/accomplishments",
     "/onboarding",

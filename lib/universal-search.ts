@@ -7,6 +7,7 @@ import type { AccountData, AuthUser } from "./account-types";
 import { buildJourneyCommandCenterModel, type JourneyCommandRecord } from "./journey-command-center";
 import { buildAccomplishmentsModel } from "./accomplishments";
 import { opportunityPaths } from "@/data/opportunity-paths";
+import { applicationMaterialStatusLabels, applicationMaterialTypeLabels, normalizeApplicationMaterialStore } from "@/data/application-materials";
 
 function normalize(value: string) {
   return value.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim().replace(/\s+/g, " ");
@@ -94,6 +95,11 @@ export function buildUniversalSearch(input: {
   });
   const records = [...model.activeRecords, ...model.historyGroups.flatMap((group) => group.records)];
   const personal = journeyResults(records, query);
+  const materials = Object.values(normalizeApplicationMaterialStore(input.account.applicationMaterials).records).flatMap((record): UniversalSearchResult[] => {
+    const score = matchScore(query, [record.title, record.versionLabel ?? "", applicationMaterialTypeLabels[record.type], ...record.contexts]);
+    if (!score) return [];
+    return [{ id: `material:${record.id}`, kind: "material", group: "Materials", title: record.title, subtitle: `${applicationMaterialTypeLabels[record.type]} · ${applicationMaterialStatusLabels[record.status]}`, href: `/materials#material-${encodeURIComponent(record.id)}`, score: score + 360 }];
+  }).sort((left, right) => right.score - left.score || left.title.localeCompare(right.title)).slice(0, 4);
   const paths = opportunityPaths.flatMap((path): UniversalSearchResult[] => {
     const score = matchScore(query, [path.name, path.shortName, `${path.name} path`, `${path.shortName} path`, path.description, ...path.profileAliases]);
     return score ? [{ id: `path:${path.id}`, kind: "path", group: "Paths", title: path.name, subtitle: "Explore opportunities by goal", href: `/paths/${path.id}`, score: score + 340 }] : [];
@@ -174,7 +180,7 @@ export function buildUniversalSearch(input: {
 
   return {
     query,
-    results: [...paths, ...accomplishments, ...personal, ...upcoming, ...tasks, ...opportunities],
+    results: [...materials, ...paths, ...accomplishments, ...personal, ...upcoming, ...tasks, ...opportunities],
     totalOpportunityMatches: preciseCatalog.length ? catalog.total : 0,
   };
 }

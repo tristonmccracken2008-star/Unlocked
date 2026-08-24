@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import type { UniversalSearchPayload, UniversalSearchResult } from "@/data/universal-search";
 import { authenticatedFetch } from "@/data/authenticated-request";
-import { ArrowIcon, BellIcon, BookmarkIcon, CalendarIcon, CloseIcon, PenLineIcon, SearchIcon, SparkIcon, TargetIcon, TrophyIcon } from "./icons";
+import { ArrowIcon, BellIcon, BookmarkIcon, CalendarIcon, CloseIcon, ListIcon, PenLineIcon, SearchIcon, SparkIcon, TargetIcon, TrophyIcon } from "./icons";
 import styles from "./universal-command-center.module.css";
 
 type LocalKind = "navigate" | "action" | "learn" | "browse" | "recent";
@@ -23,6 +23,7 @@ const localCommands: CommandResult[] = [
   { id: "navigate:planner", kind: "navigate", group: "Navigate", title: "Planner", subtitle: "See verified dates and your opportunity mix across the months ahead.", href: "/planner", score: 0, keywords: "year ahead timeline upcoming watch opportunity plan" },
   { id: "navigate:journey", kind: "navigate", group: "Navigate", title: "Journey", subtitle: "Manage opportunities, progress, and outcomes.", href: "/", score: 0, keywords: "saved tracked progress active opportunities" },
   { id: "navigate:accomplishments", kind: "navigate", group: "Navigate", title: "Accomplishments", subtitle: "Open your private record of completed and earned opportunities.", href: "/accomplishments", score: 0, keywords: "college record achievements awards completed history" },
+  { id: "navigate:materials", kind: "navigate", group: "Navigate", title: "Materials", subtitle: "Organize reusable application materials and versions.", href: "/materials", score: 0, keywords: "resume transcript essay cover letter portfolio application documents" },
   { id: "navigate:notifications", kind: "navigate", group: "Navigate", title: "Notifications", subtitle: "Review deadlines, changes, and Journey updates.", href: "/notifications", score: 0, keywords: "alerts reminders updates" },
   { id: "navigate:profile", kind: "navigate", group: "Navigate", title: "Profile", subtitle: "Update your account and personalization.", href: "/profile", score: 0, keywords: "account settings school major dark mode appearance" },
   { id: "navigate:interests", kind: "navigate", group: "Navigate", title: "Interests and goals", subtitle: "Refine the profile used for recommendations.", href: "/profile#interests", score: 0, keywords: "preferences career goals majors" },
@@ -31,6 +32,7 @@ const localCommands: CommandResult[] = [
   { id: "action:deadlines", kind: "action", group: "Quick Actions", title: "View deadlines", subtitle: "Open the Smart Deadline Calendar.", href: "/#journey-upcoming-heading", score: 0, keywords: "calendar upcoming due this week dates" },
   { id: "action:explore", kind: "action", group: "Quick Actions", title: "Explore opportunities", subtitle: "Browse all verified catalog listings.", href: "/opportunities", score: 0, keywords: "discover search browse" },
   { id: "action:applications", kind: "action", group: "Quick Actions", title: "Application Command Center", subtitle: "Organize requirements and private application tasks.", href: "/?stage=preparing#active-opportunities", score: 0, keywords: "applications tasks resume essay requirements" },
+  { id: "action:materials", kind: "action", group: "Quick Actions", title: "Add application material", subtitle: "Keep a reusable material record in Materials.", href: "/materials", score: 0, keywords: "add resume transcript essay document" },
   { id: "browse:scholarships", kind: "browse", group: "Browse", title: "Browse Scholarships", subtitle: "Funding opportunities from official sources.", href: "/opportunities?type=Scholarship", score: 0, keywords: "scholarship scholarships funding grants awards" },
   { id: "browse:internships", kind: "browse", group: "Browse", title: "Browse Internships", subtitle: "Internships and early-career programs.", href: "/opportunities?type=Career&category=Internships", score: 0, keywords: "internship internships software engineering freshman career" },
   { id: "browse:research", kind: "browse", group: "Browse", title: "Browse Research", subtitle: "Undergraduate research and lab programs.", href: "/opportunities?type=Research", score: 0, keywords: "research lab science undergraduate" },
@@ -40,12 +42,13 @@ const localCommands: CommandResult[] = [
   { id: "learn:planner", kind: "learn", group: "Learn UnlockED", title: "How Planner works", subtitle: "Understand Year Ahead, Watch, and verified dates.", href: "/learn#planner", score: 0, keywords: "planner help year ahead watch dates" },
   { id: "learn:deadlines", kind: "learn", group: "Learn UnlockED", title: "Smart Deadline Calendar", subtitle: "See how official deadlines and personal dates work.", href: "/learn#deadlines", score: 0, keywords: "how do deadlines work calendar help" },
   { id: "learn:applications", kind: "learn", group: "Learn UnlockED", title: "Application Command Center", subtitle: "Learn how UnlockED organizes requirements and tasks.", href: "/learn#applications", score: 0, keywords: "application tasks help resume" },
+  { id: "learn:materials", kind: "learn", group: "Learn UnlockED", title: "How Materials works", subtitle: "Learn how reusable materials connect to verified requirements.", href: "/learn#materials", score: 0, keywords: "materials resume transcript essay versions reuse help" },
   { id: "learn:cards", kind: "learn", group: "Learn UnlockED", title: "Journey Cards", subtitle: "Learn when confirmed milestones become shareable.", href: "/?guide=journey_card#journey-cards", score: 0, keywords: "journey card share milestone" },
   { id: "learn:all", kind: "learn", group: "Learn UnlockED", title: "Learn UnlockED", subtitle: "Open the concise product guide.", href: "/learn", score: 0, keywords: "help guide learn support" },
 ];
 
 const recentKey = "unlocked:universal-search-recents:v1";
-const groupOrder = ["Recent", "Quick Actions", "Paths", "Accomplishments", "Your Journey", "Upcoming", "Application tasks", "Navigate", "Browse", "Opportunities", "Learn UnlockED"];
+const groupOrder = ["Recent", "Quick Actions", "Materials", "Paths", "Accomplishments", "Your Journey", "Upcoming", "Application tasks", "Navigate", "Browse", "Opportunities", "Learn UnlockED"];
 
 function normalize(value: string) {
   return value.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim().replace(/\s+/g, " ");
@@ -70,6 +73,7 @@ function ResultIcon({ kind }: { kind: CommandResult["kind"] }) {
   if (kind === "journey" || kind === "recent") return <BookmarkIcon />;
   if (kind === "path") return <SparkIcon />;
   if (kind === "accomplishment") return <TrophyIcon />;
+  if (kind === "material") return <ListIcon />;
   if (kind === "deadline") return <CalendarIcon />;
   if (kind === "task") return <TargetIcon />;
   if (kind === "opportunity" || kind === "browse") return <SearchIcon />;

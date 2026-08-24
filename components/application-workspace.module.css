@@ -1,4 +1,22 @@
 .workspace { margin-top: 0 !important; border-top: 0 !important; padding: 1.15rem 0 .2rem !important; }
+.materials { margin: 1rem 0; border-block: 1px solid var(--unlocked-border); padding: 1rem 0; }
+.materials > header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.materials > header h5 { font-size: .82rem; }
+.materials > header p, .materials > p, .materialsUnknown { color: var(--unlocked-muted); font-size: .7rem; line-height: 1.5; }
+.materials > header a { display: inline-flex; min-height: 2.75rem; align-items: center; gap: .35rem; color: rgb(var(--color-forest)); font-size: .72rem; font-weight: 750; }
+.materials > header svg { width: .7rem; }
+.materials ul { margin-top: .6rem; }
+.materials li { display: grid; grid-template-columns: 1.6rem minmax(9rem, .7fr) minmax(11rem, 1fr); align-items: center; gap: .65rem; min-height: 3.7rem; border-top: 1px solid var(--unlocked-border); }
+.materialState { display: grid; width: 1.4rem; height: 1.4rem; place-items: center; border-radius: 50%; background: rgb(var(--color-ink) / .05); color: var(--unlocked-muted); }
+.materials li[data-state="selected"] .materialState, .materials li[data-state="available"] .materialState { background: rgb(var(--color-forest) / .1); color: rgb(var(--color-forest)); }
+.materialState svg { width: .7rem; }
+.materials li strong, .materials li small { display: block; }
+.materials li strong { font-size: .76rem; }
+.materials li small { color: var(--unlocked-muted); font-size: .65rem; }
+.selectedMaterial { font-size: .74rem; font-weight: 650; }
+.materialSelect select { width: 100%; min-height: 2.6rem; border: 1px solid var(--unlocked-border); border-radius: .4rem; background: var(--unlocked-surface); padding: .5rem; color: var(--unlocked-text); font-size: .72rem; }
+.addMaterialLink { display: inline-flex; min-height: 2.75rem; align-items: center; color: rgb(var(--color-forest)); font-size: .72rem; font-weight: 750; }
+@media (max-width: 560px) { .materials li { grid-template-columns: 1.6rem 1fr; padding: .6rem 0; } .materials li > :last-child { grid-column: 2; } }
 .summary { display: flex; align-items: flex-end; justify-content: space-between; gap: 1.5rem; }
 .summary p { margin: 0 0 .35rem; color: var(--journey-green); font-size: .58rem; font-weight: 850; letter-spacing: .09em; text-transform: uppercase; }
 .summary h4 { margin: 0; color: var(--journey-ink); font: 700 1.45rem/1.08 var(--font-editorial), Georgia, serif; letter-spacing: 0; text-transform: none; }

@@ -8,6 +8,7 @@ import type { NotificationPreferences } from "./notification-types";
 import type { GuidanceState } from "./guidance";
 import type { AccomplishmentStore } from "@/data/accomplishments";
 import type { OpportunityPathPreferences } from "@/data/opportunity-paths";
+import type { ApplicationMaterialStore } from "@/data/application-materials";
 
 export type AuthUser = {
   id: string;
@@ -131,6 +132,7 @@ export type AccountData = {
   journeyProgress: JourneyProgressRecord;
   calendarEvents?: JourneyCalendarRecord;
   applicationWorkspaces?: ApplicationWorkspaceStore;
+  applicationMaterials?: ApplicationMaterialStore;
   accomplishments?: AccomplishmentStore;
   pathPreferences?: OpportunityPathPreferences;
   guidance?: GuidanceState;

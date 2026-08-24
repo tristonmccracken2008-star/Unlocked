@@ -12,6 +12,7 @@ import { normalizedFirstLaunchComplete } from "./first-launch-state";
 import { normalizeApplicationWorkspaces } from "./application-workspace";
 import { normalizeAccomplishmentStore } from "@/data/accomplishments";
 import { normalizeOpportunityPathPreferences, opportunityPathIds, type OpportunityPathId } from "@/data/opportunity-paths";
+import { emptyApplicationMaterialStore, normalizeApplicationMaterialStore, type ApplicationMaterialStore } from "@/data/application-materials";
 
 export const sessionCookieName = "unlocked_session";
 export const oauthStateCookieName = "unlocked_oauth_state";
@@ -36,7 +37,7 @@ const kvTimeoutMs = 2800;
 const kvRetryDelayMs = 120;
 const releaseLockScript = "if redis.call('GET',KEYS[1]) == ARGV[1] then return redis.call('DEL',KEYS[1]) else return 0 end";
 
-const emptyData = (): AccountData => ({ profile: null, onboardingComplete: false, firstLaunchComplete: false, billing: defaultBillingRecord(), activity: null, savedOpportunities: [], watchedOpportunities: [], tracker: {}, preferences: null, journeyProgress: {}, calendarEvents: {}, applicationWorkspaces: {}, accomplishments: {}, pathPreferences: {}, guidance: {}, advisor: null, referrals: null, updatedAt: new Date().toISOString() });
+const emptyData = (): AccountData => ({ profile: null, onboardingComplete: false, firstLaunchComplete: false, billing: defaultBillingRecord(), activity: null, savedOpportunities: [], watchedOpportunities: [], tracker: {}, preferences: null, journeyProgress: {}, calendarEvents: {}, applicationWorkspaces: {}, applicationMaterials: emptyApplicationMaterialStore(), accomplishments: {}, pathPreferences: {}, guidance: {}, advisor: null, referrals: null, updatedAt: new Date().toISOString() });
 
 function requireProductionStore() {
   if (!hasKv && process.env.NODE_ENV === "production") throw new Error("A production data store is required. Set KV_REST_API_URL/KV_REST_API_TOKEN or UPSTASH_REDIS_REST_URL/UPSTASH_REDIS_REST_TOKEN.");
@@ -376,6 +377,7 @@ function normalizeAccountData(value: AccountData | null | undefined): AccountDat
     journeyProgress: value.journeyProgress ?? {},
     calendarEvents: value.calendarEvents ?? {},
     applicationWorkspaces: normalizeApplicationWorkspaces(value.applicationWorkspaces),
+    applicationMaterials: normalizeApplicationMaterialStore(value.applicationMaterials),
     accomplishments: normalizeAccomplishmentStore(value.accomplishments),
     pathPreferences: normalizeOpportunityPathPreferences(value.pathPreferences),
     guidance: normalizeGuidanceState(value.guidance),
@@ -427,6 +429,8 @@ export async function mergeAccountData(userId: string, incoming: Partial<Account
     journeyProgress: { ...(current.journeyProgress ?? {}), ...(incoming.journeyProgress ?? {}) },
     calendarEvents: current.calendarEvents ?? {},
     applicationWorkspaces: current.applicationWorkspaces ?? {},
+    // Materials are high-sensitivity private data and only change through their dedicated endpoint.
+    applicationMaterials: normalizeApplicationMaterialStore(current.applicationMaterials),
     accomplishments: normalizeAccomplishmentStore(incoming.accomplishments ?? current.accomplishments),
     // Path follows may only change through the dedicated same-origin endpoint.
     pathPreferences: normalizeOpportunityPathPreferences(current.pathPreferences),
@@ -572,6 +576,27 @@ export async function mutateApplicationWorkspace(userId: string, input: {
     const next = { ...account, applicationWorkspaces: workspaces, updatedAt: result.workspace.updatedAt };
     await writeAccountData(userId, next);
     return { account: next, workspace: result.workspace, duplicate: false };
+  });
+}
+
+export async function mutateApplicationMaterials(userId: string, input: {
+  expectedVersion: number;
+  mutate: (store: ApplicationMaterialStore, account: AccountData) => { store: ApplicationMaterialStore; duplicate: boolean };
+}) {
+  return await withSecurityLock("application-materials", userId, async () => {
+    const account = await readAccountData(userId);
+    const current = normalizeApplicationMaterialStore(account.applicationMaterials);
+    const result = input.mutate(current, account);
+    if (result.duplicate) return { account, store: result.store, duplicate: true };
+    if (current.version !== input.expectedVersion) {
+      const error = new Error("Your materials changed elsewhere. Refresh and try again.");
+      error.name = "ApplicationMaterialsConflictError";
+      throw error;
+    }
+    const store = normalizeApplicationMaterialStore(result.store);
+    const next = { ...account, applicationMaterials: store, updatedAt: store.updatedAt ?? new Date().toISOString() };
+    await writeAccountData(userId, next);
+    return { account: next, store, duplicate: false };
   });
 }
 
