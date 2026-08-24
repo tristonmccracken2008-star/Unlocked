@@ -7,6 +7,7 @@ import type { ReferralAccountData } from "./referrals";
 import type { NotificationPreferences } from "./notification-types";
 import type { GuidanceState } from "./guidance";
 import type { AccomplishmentStore } from "@/data/accomplishments";
+import type { OpportunityPathPreferences } from "@/data/opportunity-paths";
 
 export type AuthUser = {
   id: string;
@@ -131,6 +132,7 @@ export type AccountData = {
   calendarEvents?: JourneyCalendarRecord;
   applicationWorkspaces?: ApplicationWorkspaceStore;
   accomplishments?: AccomplishmentStore;
+  pathPreferences?: OpportunityPathPreferences;
   guidance?: GuidanceState;
   advisor: AdvisorAccountData | null;
   referrals: ReferralAccountData | null;

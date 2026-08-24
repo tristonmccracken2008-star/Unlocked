@@ -5,7 +5,7 @@
   "scripts": {
     "prepare:brand": "node scripts/prepare-unlocked-logo.mjs",
     "dev": "next dev",
-    "validate:data": "npm run check:opportunity-planner && npm run check:accomplishments && node scripts/validate-data.mjs",
+    "validate:data": "npm run check:opportunity-planner && npm run check:accomplishments && npm run check:opportunity-paths && node scripts/validate-data.mjs",
     "check:data-enrichment": "node scripts/check-opportunity-enrichment.mjs",
     "generate:opportunity-duplicates": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/generate-opportunity-duplicates.ts",
     "check:opportunity-intelligence-platform": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-opportunity-intelligence-platform.ts",
@@ -101,6 +101,8 @@
     "check:journey-calendar": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-journey-calendar.ts",
     "check:opportunity-planner": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-opportunity-planner.ts",
     "check:accomplishments": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-accomplishments.ts",
+    "check:opportunity-paths": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-opportunity-paths.ts",
+    "test:opportunity-paths-browser": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/test-opportunity-paths-browser.ts",
     "test:accomplishments-browser": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/test-accomplishments-browser.ts",
     "check:application-command-center": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-application-command-center.ts",
     "check:contextual-guidance": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-contextual-guidance.ts",

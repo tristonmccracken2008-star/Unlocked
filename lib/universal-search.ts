@@ -6,6 +6,7 @@ import { buildDiscoverCatalog } from "./discover-catalog";
 import type { AccountData, AuthUser } from "./account-types";
 import { buildJourneyCommandCenterModel, type JourneyCommandRecord } from "./journey-command-center";
 import { buildAccomplishmentsModel } from "./accomplishments";
+import { opportunityPaths } from "@/data/opportunity-paths";
 
 function normalize(value: string) {
   return value.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim().replace(/\s+/g, " ");
@@ -93,6 +94,10 @@ export function buildUniversalSearch(input: {
   });
   const records = [...model.activeRecords, ...model.historyGroups.flatMap((group) => group.records)];
   const personal = journeyResults(records, query);
+  const paths = opportunityPaths.flatMap((path): UniversalSearchResult[] => {
+    const score = matchScore(query, [path.name, path.shortName, `${path.name} path`, `${path.shortName} path`, path.description, ...path.profileAliases]);
+    return score ? [{ id: `path:${path.id}`, kind: "path", group: "Paths", title: path.name, subtitle: "Explore opportunities by goal", href: `/paths/${path.id}`, score: score + 340 }] : [];
+  }).sort((left, right) => right.score - left.score || left.title.localeCompare(right.title)).slice(0, 4);
   const accomplishments = buildAccomplishmentsModel({ account: input.account, opportunities: trackedOpportunities }).records.flatMap((record): UniversalSearchResult[] => {
     const score = matchScore(query, [record.snapshot.title, record.snapshot.organization, record.kindLabel, record.outcomeLabel]);
     if (!score) return [];
@@ -169,7 +174,7 @@ export function buildUniversalSearch(input: {
 
   return {
     query,
-    results: [...accomplishments, ...personal, ...upcoming, ...tasks, ...opportunities],
+    results: [...paths, ...accomplishments, ...personal, ...upcoming, ...tasks, ...opportunities],
     totalOpportunityMatches: preciseCatalog.length ? catalog.total : 0,
   };
 }

@@ -54,6 +54,8 @@ export const config = {
     "/my-opportunities",
     "/advisor",
     "/planner",
+    "/paths",
+    "/paths/:path*",
     "/accomplishments",
     "/onboarding",
     "/welcome",

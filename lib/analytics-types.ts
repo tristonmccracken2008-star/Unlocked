@@ -62,6 +62,13 @@ export const productIntelligenceEvents = {
   outcomeRecorded: "outcome_recorded_v1",
   accomplishmentViewed: "accomplishment_viewed_v1",
   manualAccomplishmentAdded: "manual_accomplishment_added_v1",
+  pathOpened: "opportunity_path_opened_v1",
+  pathFollowed: "opportunity_path_followed_v1",
+  pathUnfollowed: "opportunity_path_unfollowed_v1",
+  pathOpportunityOpened: "opportunity_path_opportunity_opened_v1",
+  pathToWatch: "opportunity_path_to_watch_v1",
+  pathToJourney: "opportunity_path_to_journey_v1",
+  pathToDiscover: "opportunity_path_to_discover_v1",
   discoverResultImpression: "discover_result_impression_v1",
   discoverResultOpened: "discover_result_opened_v1",
   discoverZeroResult: "discover_zero_result_v1",
@@ -125,6 +132,7 @@ export type AnalyticsEventName = (typeof analyticsEvents)[number];
 
 export type AnalyticsEventProperties = {
   opportunityId?: string;
+  pathId?: string;
   recommendationId?: string;
   milestoneId?: string;
   status?: string;
@@ -239,6 +247,13 @@ export const productIntelligenceDefinitions: Record<ProductIntelligenceEventName
   outcome_recorded_v1: action("Measure explicit outcome and accomplishment-detail updates without recording private content.", ["source", "category"]),
   accomplishment_viewed_v1: action("Measure use of the private Accomplishments record."),
   manual_accomplishment_added_v1: action("Measure manual record creation without recording titles, notes, amounts, or descriptions.", ["source", "category"]),
+  opportunity_path_opened_v1: action("Measure goal-based Path exploration without recording profile or opportunity content.", ["pathId", "source"]),
+  opportunity_path_followed_v1: action("Measure account-scoped Path follows.", ["pathId"]),
+  opportunity_path_unfollowed_v1: action("Measure account-scoped Path unfollows.", ["pathId"]),
+  opportunity_path_opportunity_opened_v1: action("Measure handoff from a Path to a catalog record.", ["pathId", "opportunityId"]),
+  opportunity_path_to_watch_v1: action("Measure passive monitoring chosen from a Path.", ["pathId", "opportunityId"]),
+  opportunity_path_to_journey_v1: action("Measure active pursuit chosen from a Path.", ["pathId", "opportunityId"]),
+  opportunity_path_to_discover_v1: action("Measure deeper catalog exploration from a Path.", ["pathId", "category"]),
   discover_result_impression_v1: action("Measure which catalog records are rendered without recording search text.", ["opportunityId", "category", "source"]),
   discover_result_opened_v1: action("Measure which catalog records students choose to inspect.", ["opportunityId", "category", "source"]),
   discover_zero_result_v1: action("Measure bounded zero-result frequency without recording queries or filter values.", ["source"]),

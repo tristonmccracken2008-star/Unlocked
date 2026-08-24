@@ -76,6 +76,9 @@ const accomplishmentResults = buildUniversalSearch({ user, account: account(trac
 assert.ok(accomplishmentResults.results.some((item) => item.group === "Accomplishments" && item.title === "Research Assistant"), "Private accomplishment titles must be searchable by their owner.");
 assert.doesNotMatch(JSON.stringify(accomplishmentResults), /private accomplishment note/, "Private accomplishment notes must never enter broad search results.");
 assert.equal(buildUniversalSearch({ user: { ...user, id: "other-account" }, account: account(), opportunities, query: "Research Assistant", now }).results.some((item) => item.group === "Accomplishments"), false, "Accomplishments must remain account-isolated in search.");
+const pathResults = buildUniversalSearch({ user, account: account(tracked), opportunities, query: "quant path", now });
+assert.ok(pathResults.results.some((item) => item.group === "Paths" && item.href === "/paths/quantitative-data"), "Universal Search must distinguish goal-oriented Paths from catalog opportunities.");
+assert.equal(pathResults.results.filter((item) => item.group === "Paths").every((item) => item.kind === "path"), true);
 
 const timings: number[] = [];
 for (let run = 0; run < 8; run += 1) {

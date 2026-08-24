@@ -19,6 +19,7 @@ type CommandResult = Omit<UniversalSearchResult, "kind" | "group" | "score"> & {
 const localCommands: CommandResult[] = [
   { id: "navigate:discover", kind: "navigate", group: "Navigate", title: "Discover", subtitle: "Search the complete opportunity catalog.", href: "/opportunities", score: 0, keywords: "search opportunities browse catalog" },
   { id: "navigate:for-you", kind: "navigate", group: "Navigate", title: "For You", subtitle: "Open your verified personalized shortlist.", href: "/advisor", score: 0, keywords: "recommendations matches personalized" },
+  { id: "navigate:paths", kind: "navigate", group: "Navigate", title: "Opportunity Paths", subtitle: "Explore how opportunities connect to a goal.", href: "/paths", score: 0, keywords: "paths goals quant medicine research finance careers directions" },
   { id: "navigate:planner", kind: "navigate", group: "Navigate", title: "Planner", subtitle: "See verified dates and your opportunity mix across the months ahead.", href: "/planner", score: 0, keywords: "year ahead timeline upcoming watch opportunity plan" },
   { id: "navigate:journey", kind: "navigate", group: "Navigate", title: "Journey", subtitle: "Manage opportunities, progress, and outcomes.", href: "/", score: 0, keywords: "saved tracked progress active opportunities" },
   { id: "navigate:accomplishments", kind: "navigate", group: "Navigate", title: "Accomplishments", subtitle: "Open your private record of completed and earned opportunities.", href: "/accomplishments", score: 0, keywords: "college record achievements awards completed history" },
@@ -44,7 +45,7 @@ const localCommands: CommandResult[] = [
 ];
 
 const recentKey = "unlocked:universal-search-recents:v1";
-const groupOrder = ["Recent", "Quick Actions", "Accomplishments", "Your Journey", "Upcoming", "Application tasks", "Navigate", "Browse", "Opportunities", "Learn UnlockED"];
+const groupOrder = ["Recent", "Quick Actions", "Paths", "Accomplishments", "Your Journey", "Upcoming", "Application tasks", "Navigate", "Browse", "Opportunities", "Learn UnlockED"];
 
 function normalize(value: string) {
   return value.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim().replace(/\s+/g, " ");
@@ -67,6 +68,7 @@ function localScore(result: CommandResult, query: string, pathname: string) {
 
 function ResultIcon({ kind }: { kind: CommandResult["kind"] }) {
   if (kind === "journey" || kind === "recent") return <BookmarkIcon />;
+  if (kind === "path") return <SparkIcon />;
   if (kind === "accomplishment") return <TrophyIcon />;
   if (kind === "deadline") return <CalendarIcon />;
   if (kind === "task") return <TargetIcon />;

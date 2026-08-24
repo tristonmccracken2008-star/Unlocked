@@ -1,7 +1,7 @@
-export const universalSearchGroups = ["Accomplishments", "Your Journey", "Upcoming", "Application tasks", "Opportunities"] as const;
+export const universalSearchGroups = ["Paths", "Accomplishments", "Your Journey", "Upcoming", "Application tasks", "Opportunities"] as const;
 
 export type UniversalSearchGroup = (typeof universalSearchGroups)[number];
-export type UniversalSearchKind = "accomplishment" | "journey" | "deadline" | "task" | "opportunity";
+export type UniversalSearchKind = "path" | "accomplishment" | "journey" | "deadline" | "task" | "opportunity";
 
 export type UniversalSearchResult = {
   id: string;

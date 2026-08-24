@@ -109,6 +109,29 @@ export function AccomplishmentsGuidance({ initialState, hasRecords }: { initialS
   </aside>;
 }
 
+export function PathsGuidance({ initialState }: { initialState: GuidanceState }) {
+  const [visible, setVisible] = useState(!guidanceHasBeenSeen(initialState, "paths_intro"));
+  const [pending, setPending] = useState<GuidanceStatus | null>(null);
+  const [error, setError] = useState("");
+  if (!visible) return null;
+  async function finish(status: GuidanceStatus) {
+    if (pending) return;
+    setPending(status); setError("");
+    try {
+      await saveGuide("paths_intro", status);
+      setVisible(false);
+      trackProductEvent(status === "completed" ? "guide_completed_v1" : "guide_dismissed_v1", { control: "paths_intro" });
+    } catch { setError("We couldn’t save this guide preference. Try again."); }
+    finally { setPending(null); }
+  }
+  return <aside className={styles.guide} aria-label="Opportunity Paths guide" data-contextual-guide="paths_intro">
+    <span className={styles.index} aria-hidden="true">1</span>
+    <div className={styles.copy}><strong>Explore a direction without committing to it</strong><p>Paths organize real opportunities around goals. Watch a possibility, or add it to Journey only when you decide to pursue it.</p></div>
+    <div className={styles.actions}><button type="button" className={styles.primary} disabled={Boolean(pending)} onClick={() => void finish("completed")}>Got it</button><button type="button" disabled={Boolean(pending)} onClick={() => void finish("dismissed")}>Dismiss</button></div>
+    {error ? <ActionFeedback className={styles.error} message={error} state="error" level="routine" /> : null}
+  </aside>;
+}
+
 function showAnchor(anchor: string) {
   const element = document.querySelector<HTMLElement>(`[data-guide-anchor="${anchor}"]`);
   if (!element) return;

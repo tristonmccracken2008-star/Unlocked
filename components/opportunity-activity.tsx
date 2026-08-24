@@ -38,11 +38,10 @@ export function OpportunityActivityActions({ opportunityId, type, officialSource
   </div>;
 }
 
-export function AddToJourneyButton({ opportunityId, recommendationId, recommendationCategory, recommendationExposureCount, className = "" }: { opportunityId: string; recommendationId?: string; recommendationCategory?: string; recommendationExposureCount?: number; className?: string }) {
-  const [added, setAdded] = useState(() => {
-    const activity = readStudentActivity();
-    return Boolean(activity.tracked?.[opportunityId] || activity.saved.includes(opportunityId));
-  });
+export function AddToJourneyButton({ opportunityId, recommendationId, recommendationCategory, recommendationExposureCount, origin = "discover", pathId, initialAdded = false, className = "" }: { opportunityId: string; recommendationId?: string; recommendationCategory?: string; recommendationExposureCount?: number; origin?: "discover" | "path"; pathId?: string; initialAdded?: boolean; className?: string }) {
+  // The first client render must match the server. Local activity is reconciled
+  // after hydration by the effect below.
+  const [added, setAdded] = useState(initialAdded);
   const [confirmedThisSession, setConfirmedThisSession] = useState(false);
   const [pending, setPending] = useState(false);
   const [firstSave, setFirstSave] = useState(false);
@@ -54,7 +53,7 @@ export function AddToJourneyButton({ opportunityId, recommendationId, recommenda
   useEffect(() => {
     const update = () => {
       const activity = readStudentActivity();
-      setAdded(Boolean(activity.tracked?.[opportunityId] || activity.saved.includes(opportunityId)));
+      setAdded(initialAdded || Boolean(activity.tracked?.[opportunityId] || activity.saved.includes(opportunityId)));
     };
     const reset = () => {
       controllerRef.current?.abort("account-changed");
@@ -75,7 +74,7 @@ export function AddToJourneyButton({ opportunityId, recommendationId, recommenda
       window.removeEventListener(studentActivityEvent, update);
       window.removeEventListener(accountSessionEvent, reset);
     };
-  }, [opportunityId]);
+  }, [opportunityId, initialAdded]);
 
   async function add() {
     if (pendingRef.current || added) return;
@@ -89,7 +88,7 @@ export function AddToJourneyButton({ opportunityId, recommendationId, recommenda
     const attribution = recommendationId ?? remembered?.recommendationId;
     const category = recommendationCategory ?? remembered?.category;
     const exposureCount = recommendationExposureCount ?? remembered?.exposureCount;
-    const source = attribution ? "for_you" : "discover";
+    const source = attribution ? "for_you" : origin;
     try {
       const response = await queueJourneySaveRequest(async () => {
         timeout = window.setTimeout(() => controller.abort("timeout"), 8_000);
@@ -127,6 +126,7 @@ export function AddToJourneyButton({ opportunityId, recommendationId, recommenda
       setFirstSave(Boolean(body.firstSave));
       setSmartDefaults(body.defaults ?? null);
       trackProductEvent("opportunity_added_to_journey", { opportunityId });
+      if (source === "path" && pathId) trackProductEvent(productIntelligenceEvents.pathToJourney, { opportunityId, pathId });
       if (attribution) {
         rememberRecommendationAttribution(opportunityId, attribution, category, exposureCount);
         trackProductEvent(productIntelligenceEvents.recommendationSaved, { opportunityId, recommendationId: attribution, category, exposureCount });

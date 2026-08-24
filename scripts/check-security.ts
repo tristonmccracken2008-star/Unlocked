@@ -91,6 +91,7 @@ const cleaned = cleanAccountDataInput({
   },
   preferences: { appearance: "forest", updatedAt: now, arbitrary: "removed" },
   billing: { tier: "pro", status: "active", stripeCustomerId: "cus_attacker" },
+  pathPreferences: { "quantitative-data": { pathId: "quantitative-data", followedAt: now, updatedAt: now, version: 1 } },
   referrals: { code: "ATTACKER" },
   firstLaunchComplete: true,
   firstLaunchCompletedAt: now,
@@ -102,6 +103,7 @@ assert.deepEqual(Object.keys(cleaned.tracker ?? {}), ["valid"]);
 assert.equal(cleaned.tracker?.valid.id, "valid", "Tracker IDs must come from validated record keys.");
 assert.equal("arbitrary" in (cleaned.preferences as object), false);
 assert.equal("billing" in cleaned, false, "Clients must not mutate billing.");
+assert.equal("pathPreferences" in cleaned, false, "Clients must not mutate followed Paths through generic account writes.");
 assert.equal("referrals" in cleaned, false, "Clients must not mutate referrals.");
 assert.equal("firstLaunchComplete" in cleaned, false, "Generic account writes must not complete first launch.");
 assert.equal("firstLaunchCompletedAt" in cleaned, false, "Generic account writes must not forge first-launch timestamps.");
@@ -223,6 +225,7 @@ const mutationRoutes = [
   "app/api/auth/logout/route.ts",
   "app/api/billing/checkout/route.ts",
   "app/api/billing/portal/route.ts",
+  "app/api/paths/follow/route.ts",
 ];
 for (const route of mutationRoutes) {
   const source = readFileSync(route, "utf8");
@@ -230,7 +233,7 @@ for (const route of mutationRoutes) {
   assert.match(source, /enforceRateLimit\(/, `${route} must enforce an abuse limit.`);
 }
 
-for (const route of ["app/api/account/data/route.ts", "app/api/accomplishments/route.ts", "app/api/admin/content/route.ts", "app/api/admin/content/[id]/route.ts", "app/api/advisor/feedback/route.ts", "app/api/advisor/recommend/route.ts", "app/api/analytics/event/route.ts"]) {
+for (const route of ["app/api/account/data/route.ts", "app/api/accomplishments/route.ts", "app/api/admin/content/route.ts", "app/api/admin/content/[id]/route.ts", "app/api/advisor/feedback/route.ts", "app/api/advisor/recommend/route.ts", "app/api/analytics/event/route.ts", "app/api/paths/follow/route.ts"]) {
   assert.ok(readFileSync(route, "utf8").includes("readBoundedJson"), `${route} must use bounded JSON parsing.`);
 }
 

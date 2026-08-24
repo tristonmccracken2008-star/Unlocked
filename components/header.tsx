@@ -19,6 +19,7 @@ type DestinationLabel = (typeof destinations)[number][0];
 const contextualDestinations: Record<DestinationLabel, Array<{ label: string; description: string; href: string; icon: typeof SearchIcon }>> = {
   Discover: [
     { label: "Browse all", description: "Search the complete opportunity catalog.", href: "/opportunities", icon: SearchIcon },
+    { label: "Opportunity Paths", description: "Explore how opportunities connect to a goal.", href: "/paths", icon: SparkIcon },
     { label: "Scholarships", description: "Funding from verified and official sources.", href: "/opportunities?type=Scholarship", icon: TrophyIcon },
     { label: "Internships", description: "Career opportunities and early programs.", href: "/opportunities?type=Career&category=Internships", icon: PenLineIcon },
     { label: "Research", description: "Undergraduate research and lab programs.", href: "/opportunities?type=Research", icon: SparkIcon },
@@ -47,6 +48,7 @@ const contextualDestinations: Record<DestinationLabel, Array<{ label: string; de
 function isServerProtectedProductPath(pathname: string) {
   return pathname === "/advisor"
     || pathname === "/planner"
+    || pathname.startsWith("/paths")
     || pathname === "/accomplishments"
     || pathname === "/profile"
     || pathname === "/notifications"

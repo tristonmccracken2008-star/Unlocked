@@ -11,6 +11,7 @@ import { constantTimeEqual, requiredAuthSecret } from "./security";
 import { normalizedFirstLaunchComplete } from "./first-launch-state";
 import { normalizeApplicationWorkspaces } from "./application-workspace";
 import { normalizeAccomplishmentStore } from "@/data/accomplishments";
+import { normalizeOpportunityPathPreferences, opportunityPathIds, type OpportunityPathId } from "@/data/opportunity-paths";
 
 export const sessionCookieName = "unlocked_session";
 export const oauthStateCookieName = "unlocked_oauth_state";
@@ -35,7 +36,7 @@ const kvTimeoutMs = 2800;
 const kvRetryDelayMs = 120;
 const releaseLockScript = "if redis.call('GET',KEYS[1]) == ARGV[1] then return redis.call('DEL',KEYS[1]) else return 0 end";
 
-const emptyData = (): AccountData => ({ profile: null, onboardingComplete: false, firstLaunchComplete: false, billing: defaultBillingRecord(), activity: null, savedOpportunities: [], watchedOpportunities: [], tracker: {}, preferences: null, journeyProgress: {}, calendarEvents: {}, applicationWorkspaces: {}, accomplishments: {}, guidance: {}, advisor: null, referrals: null, updatedAt: new Date().toISOString() });
+const emptyData = (): AccountData => ({ profile: null, onboardingComplete: false, firstLaunchComplete: false, billing: defaultBillingRecord(), activity: null, savedOpportunities: [], watchedOpportunities: [], tracker: {}, preferences: null, journeyProgress: {}, calendarEvents: {}, applicationWorkspaces: {}, accomplishments: {}, pathPreferences: {}, guidance: {}, advisor: null, referrals: null, updatedAt: new Date().toISOString() });
 
 function requireProductionStore() {
   if (!hasKv && process.env.NODE_ENV === "production") throw new Error("A production data store is required. Set KV_REST_API_URL/KV_REST_API_TOKEN or UPSTASH_REDIS_REST_URL/UPSTASH_REDIS_REST_TOKEN.");
@@ -376,6 +377,7 @@ function normalizeAccountData(value: AccountData | null | undefined): AccountDat
     calendarEvents: value.calendarEvents ?? {},
     applicationWorkspaces: normalizeApplicationWorkspaces(value.applicationWorkspaces),
     accomplishments: normalizeAccomplishmentStore(value.accomplishments),
+    pathPreferences: normalizeOpportunityPathPreferences(value.pathPreferences),
     guidance: normalizeGuidanceState(value.guidance),
     advisor: normalizeAdvisorData(value.advisor),
     referrals: normalizeReferralData(value.referrals),
@@ -426,6 +428,8 @@ export async function mergeAccountData(userId: string, incoming: Partial<Account
     calendarEvents: current.calendarEvents ?? {},
     applicationWorkspaces: current.applicationWorkspaces ?? {},
     accomplishments: normalizeAccomplishmentStore(incoming.accomplishments ?? current.accomplishments),
+    // Path follows may only change through the dedicated same-origin endpoint.
+    pathPreferences: normalizeOpportunityPathPreferences(current.pathPreferences),
     guidance: normalizeGuidanceState(current.guidance),
     advisor: profileChangedForAdvisor ? null : normalizeAdvisorData(incoming.advisor ?? current.advisor),
     referrals: current.referrals,
@@ -461,6 +465,27 @@ export async function updateWatchedOpportunity(userId: string, opportunityId: st
     };
     await writeAccountData(userId, next);
     return { account: next, changed: true, record };
+  });
+}
+
+export async function updateFollowedOpportunityPath(userId: string, pathId: OpportunityPathId, following: boolean) {
+  if (!opportunityPathIds.includes(pathId)) throw new Error("Unknown opportunity path.");
+  return await withSecurityLock("opportunity-path-follow", userId, async () => {
+    const current = await readAccountData(userId);
+    const preferences = normalizeOpportunityPathPreferences(current.pathPreferences);
+    const existing = preferences[pathId];
+    if (Boolean(existing) === following) return { account: current, changed: false, record: existing ?? null };
+    const now = new Date().toISOString();
+    if (following) preferences[pathId] = {
+      pathId,
+      followedAt: now,
+      updatedAt: now,
+      version: (existing?.version ?? 0) + 1,
+    };
+    else delete preferences[pathId];
+    const next: AccountData = { ...current, pathPreferences: preferences, updatedAt: now };
+    await writeAccountData(userId, next);
+    return { account: next, changed: true, record: preferences[pathId] ?? null };
   });
 }
 
