@@ -15,6 +15,7 @@ import type { AccountData, AuthUser } from "./account-types";
 import type { JourneyTimelineControl, JourneyTimelineModel } from "./journey-timeline";
 import { buildJourneyTimelineModel } from "./journey-timeline";
 import { buildJourneyCalendarModel, type JourneyCalendarModel } from "./journey-calendar";
+import { buildCalendarIntelligenceModel, type CalendarIntelligenceModel } from "./calendar-intelligence";
 import { projectApplicationWorkspace, type ApplicationWorkspaceProjection } from "./application-workspace";
 import { opportunityChangeLabel, recentOpportunityChanges } from "@/data/opportunity-changelog";
 import { journeyGuidanceEligibility, normalizeGuidanceState, type GuidanceState } from "./guidance";
@@ -111,6 +112,7 @@ export type JourneyCommandCenterModel = {
   theme: JourneyTimelineModel["theme"];
   showFirstUseHints: boolean;
   calendar: JourneyCalendarModel;
+  calendarIntelligence: CalendarIntelligenceModel;
   guidance: {
     state: GuidanceState;
     eligibility: ReturnType<typeof journeyGuidanceEligibility>;
@@ -509,6 +511,7 @@ export function buildJourneyCommandCenterModel(input: {
   ])) as Record<JourneyCommandFilter, number>;
   const timeline = buildJourneyTimelineModel({ user: input.user, account: input.account, opportunities: input.opportunities, resolvedTheme: input.resolvedTheme, now });
   const calendar = buildJourneyCalendarModel({ account: input.account, opportunities: input.opportunities, now });
+  const calendarIntelligence = buildCalendarIntelligenceModel({ account: input.account, opportunities: input.opportunities, calendar, now });
   const cardEligible = records.some((record) => record.history.some((item) => validationTransitions.has(item.transition)))
     || Object.values(input.account.journeyProgress ?? {}).some(Boolean);
   return {
@@ -535,6 +538,7 @@ export function buildJourneyCommandCenterModel(input: {
     theme: timeline.theme,
     showFirstUseHints: records.length > 0 && !records.some((record) => record.history.some((item) => item.transition !== "choose")),
     calendar,
+    calendarIntelligence,
     guidance: {
       state: normalizeGuidanceState(input.account.guidance),
       eligibility: journeyGuidanceEligibility(input.account, {

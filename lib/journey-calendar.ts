@@ -86,7 +86,7 @@ export function officialDeadlineIsCalendarReady(opportunity: Opportunity, now = 
   return Number.isFinite(verifiedAt) && now.getTime() - verifiedAt <= 366 * 86_400_000;
 }
 
-function exactLifecycleDate(opportunity: Opportunity, kind: "openingDate" | "programStartDate", now: Date) {
+export function exactLifecycleDate(opportunity: Opportunity, kind: "openingDate" | "programStartDate", now: Date) {
   const lifecycle = opportunity.metadata.lifecycle;
   const date = lifecycle?.[kind];
   if (opportunity.verification_status !== "verified" || !lifecycle || !["confirmed", "strong"].includes(lifecycle.confidence ?? "")) return undefined;

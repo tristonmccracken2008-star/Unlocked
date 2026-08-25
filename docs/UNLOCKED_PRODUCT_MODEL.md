@@ -16,6 +16,7 @@ Each product area owns one primary student question.
 | Application Command Center | What do I need to do for this application? | Detailed verified requirements, Material selections, and private tasks for one application. |
 | Materials | What can I reuse? | Private material records and selections for verified application requirements; no document storage. |
 | Calendar | When? | Official and student-managed dates. |
+| Conflict Planning | Where are my dates bunching together? | Read-only Calendar Intelligence over verified provider dates, private tasks, Materials context, and watched openings. It owns no dates. |
 | Radar | What changed? | Meaningful lifecycle and recommendation updates. |
 | Accomplishments | What have I done? | Private successful-outcome history. |
 | Insights | What does my history show me? | Private, factual projection of recorded history; no editing, prediction, or peer comparison. |
@@ -26,6 +27,7 @@ Each product area owns one primary student question.
 - Actively being pursued: **Journey**.
 - Cross-application execution: **Applications**.
 - A date or reminder: **Calendar**.
+- Concentration across existing dates: **Conflict Planning** inside Calendar.
 - A future time-based view: **Planner**.
 - Goal-oriented exploration: **Paths**.
 - Broad possibility discovery: **Explore**.
@@ -48,3 +50,5 @@ Applications is a projection over Journey lifecycle records, Application Command
 Materials may appear inside Applications or an individual Application Command Center, but Journey remains the source of truth for whether the opportunity is actively pursued. Selecting a Material does not complete a task or change an application status. Calendar remains authoritative for dates, while Applications only projects verified application deadlines and private task dates relevant to active execution.
 
 Insights stores no duplicate lifecycle history. It derives a read-only projection from Journey, outcomes, Accomplishments, Materials, Paths, and current Watch state. Planner owns the future; Insights summarizes the past that UnlockED actually recorded.
+
+Conflict Planning stores no dates or conflict records. It derives short-horizon clusters from Calendar, active Applications, Application Command Center tasks, Materials readiness, verified provider changes, and Watch. Calendar remains authoritative for every displayed date; Applications and Materials remain authoritative for their context.

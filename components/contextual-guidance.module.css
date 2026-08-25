@@ -18,7 +18,7 @@
 .copy strong { display: block; font: 700 1.02rem/1.2 var(--font-editorial), Georgia, serif; }
 .copy p { max-width: 46rem; margin: .25rem 0 0; color: var(--journey-muted, #716962); font-size: .74rem; line-height: 1.5; }
 .actions { display: flex; align-items: center; gap: .35rem; }
-.actions button, .actions a { display: inline-flex; min-width: 44px; height: 44px; min-height: 44px; align-items: center; justify-content: center; border: 0; border-radius: .45rem; background: transparent; color: var(--journey-green, #075b3d); padding: 0 .75rem; font-size: .7rem; font-weight: 800; text-decoration: none; cursor: pointer; }
+.actions button, .actions a { display: inline-flex; min-width: 46px; height: 46px; min-height: 46px; align-items: center; justify-content: center; border: 0; border-radius: .45rem; background: transparent; color: var(--journey-green, #075b3d); padding: 0 .75rem; font-size: .7rem; font-weight: 800; text-decoration: none; cursor: pointer; }
 .actions .primary { background: var(--journey-green, #075b3d); color: var(--journey-canvas, #f8f4ec); }
 .actions button:focus-visible, .actions a:focus-visible { outline: 2px solid color-mix(in srgb, var(--journey-green, #075b3d) 50%, transparent); outline-offset: 2px; }
 .progress { position: absolute; inset: auto 1rem .4rem auto; color: var(--journey-muted, #716962); font-size: .58rem; font-weight: 750; }

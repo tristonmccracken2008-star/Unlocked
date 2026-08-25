@@ -8,6 +8,7 @@ import { accountSessionEvent } from "@/data/account-sync";
 import { ArrowIcon, CalendarIcon, CheckIcon, CloseIcon } from "@/components/icons";
 import type { JourneyCalendarItem, JourneyCalendarModel } from "@/lib/journey-calendar";
 import { calendarEventTypeLabels } from "@/lib/journey-calendar";
+import type { CalendarIntelligenceCluster, CalendarIntelligenceEvent, CalendarIntelligenceHorizon, CalendarIntelligenceModel } from "@/lib/calendar-intelligence";
 import type { JourneyCalendarEventType } from "@/lib/account-types";
 import styles from "./journey-deadline-calendar.module.css";
 import { SmartEmptyState } from "./smart-empty-state";
@@ -18,7 +19,7 @@ import { productIntelligenceEvents } from "@/lib/analytics-types";
 import { trackProductEvent } from "@/data/product-analytics";
 import { dateAfterOfficialDeadline, dateShortcutOptions, explicitDateFromShortcut } from "@/data/form-experience";
 
-type View = "upcoming" | "calendar";
+type View = "upcoming" | "calendar" | "conflicts";
 type Draft = {
   id?: string;
   version?: number;
@@ -60,6 +61,85 @@ function eventLabel(item: JourneyCalendarItem) {
   if (item.type === "application_open") return "Applications open";
   if (item.type === "program_start") return "Program starts";
   return calendarEventTypeLabels[item.type];
+}
+
+function intelligenceEventLabel(item: CalendarIntelligenceEvent) {
+  if (item.kind === "application_deadline") return "Application deadline";
+  if (item.kind === "personal_task") return "Private application task";
+  if (item.kind === "opening_date") return item.relationship === "watching" ? "Watched opening" : "Applications open";
+  return "Journey date";
+}
+
+function formatDateRange(startDate: string, endDate: string) {
+  if (startDate === endDate) return formatDay(startDate);
+  const start = new Date(`${startDate}T12:00:00.000Z`);
+  const end = new Date(`${endDate}T12:00:00.000Z`);
+  const sameMonth = startDate.slice(0, 7) === endDate.slice(0, 7);
+  const first = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", timeZone: "UTC" }).format(start);
+  const last = new Intl.DateTimeFormat("en-US", sameMonth ? { day: "numeric", timeZone: "UTC" } : { month: "short", day: "numeric", timeZone: "UTC" }).format(end);
+  return `${first}–${last}`;
+}
+
+function clusterHeadline(cluster: CalendarIntelligenceCluster) {
+  const parts = [
+    cluster.deadlineCount ? `${cluster.deadlineCount} application ${cluster.deadlineCount === 1 ? "deadline" : "deadlines"}` : "",
+    cluster.taskCount ? `${cluster.taskCount} private ${cluster.taskCount === 1 ? "task" : "tasks"}` : "",
+    cluster.openingCount ? `${cluster.openingCount} watched ${cluster.openingCount === 1 ? "opening" : "openings"}` : "",
+  ].filter(Boolean);
+  return parts.join(" · ");
+}
+
+function IntelligenceEventList({ events, label }: { events: CalendarIntelligenceEvent[]; label: string }) {
+  if (!events.length) return null;
+  return <section className={styles.intelligenceEventGroup}><h4>{label}</h4><ol>{events.map((event) => <li key={event.id}>
+    <time dateTime={event.date}>{formatDay(event.date)}</time>
+    <div><strong>{event.title}</strong><span>{intelligenceEventLabel(event)}{event.organization ? ` · ${event.organization}` : ""}</span>{event.workspace?.requirementChangeLabel ? <small>{event.workspace.requirementChangeLabel}</small> : null}</div>
+  </li>)}</ol></section>;
+}
+
+function CalendarIntelligence({ model, horizon, onHorizon }: { model: CalendarIntelligenceModel; horizon: CalendarIntelligenceHorizon; onHorizon: (horizon: CalendarIntelligenceHorizon) => void }) {
+  const period = model.periods[String(horizon) as `${CalendarIntelligenceHorizon}`];
+  const featured = period.clusters.find((cluster) => cluster.id === period.featuredClusterId);
+  const hasDates = period.fixedCount + period.userEditableCount > 0;
+  return <div className={styles.intelligence} data-calendar-intelligence="">
+    <div className={styles.intelligenceIntro}>
+      <p>Conflict Planning groups nearby deadlines and tasks so you can spot busy periods early. Official dates never move.</p>
+      <div className={styles.horizonToggle} aria-label="Conflict planning horizon">{([30, 60, 90] as const).map((days) => <button key={days} type="button" aria-pressed={horizon === days} onClick={() => onHorizon(days)}>{days === 90 ? "Next 90 days" : `Next ${days} days`}</button>)}</div>
+    </div>
+    {hasDates ? <>
+      <dl className={styles.intelligenceSummary}>
+        <div><dt>Fixed provider dates</dt><dd>{period.fixedCount}</dd></div>
+        <div><dt>Your editable dates</dt><dd>{period.userEditableCount}</dd></div>
+        <div><dt>Application deadlines</dt><dd>{period.deadlineCount}</dd></div>
+        <div><dt>Private tasks</dt><dd>{period.taskCount}</dd></div>
+      </dl>
+      {featured ? <p className={styles.busiest}><span>Busiest period</span><strong>{formatDateRange(featured.startDate, featured.endDate)}</strong><small>{clusterHeadline(featured)}</small></p> : <p className={styles.calmState}>No nearby date clusters in the next {horizon} days. Your dates remain visible below.</p>}
+      {period.clusters.length ? <section className={styles.clusters} aria-labelledby="calendar-busy-periods"><header><div><p>Upcoming concentration</p><h3 id="calendar-busy-periods">Busy periods</h3></div><span>{period.clusters.length} {period.clusters.length === 1 ? "period" : "periods"}</span></header>{period.clusters.map((cluster) => {
+        const fixed = cluster.events.filter((event) => event.dateControl === "fixed");
+        const editable = cluster.events.filter((event) => event.dateControl === "user_editable");
+        return <details key={cluster.id} className={styles.cluster} data-featured={cluster.id === period.featuredClusterId ? "true" : undefined} onToggle={(event) => { if (event.currentTarget.open) trackProductEvent(productIntelligenceEvents.calendarClusterOpened, { source: cluster.sameDay ? "same_day" : "multi_day", action: String(horizon) }); }}>
+          <summary><time dateTime={cluster.startDate}>{formatDateRange(cluster.startDate, cluster.endDate)}</time><span><strong>{clusterHeadline(cluster)}</strong><small>{cluster.sameDay ? "Same-day fixed dates" : `${cluster.spanDays}-day period`} · {cluster.applicationCount} ${cluster.applicationCount === 1 ? "application" : "applications"}</small></span><ArrowIcon /></summary>
+          <div className={styles.clusterDetails}>
+            <div className={styles.clusterContext}>
+              <span>{cluster.fixedCount} fixed</span><span>{cluster.userEditableCount} user-editable</span>
+              {cluster.missingMaterialApplicationCount ? <span>{cluster.missingMaterialApplicationCount} {cluster.missingMaterialApplicationCount === 1 ? "application needs" : "applications need"} Materials</span> : null}
+              {cluster.requirementChangeCount ? <span>{cluster.requirementChangeCount} recent verified requirement {cluster.requirementChangeCount === 1 ? "change" : "changes"}</span> : null}
+            </div>
+            <IntelligenceEventList events={fixed} label="Fixed dates" />
+            <IntelligenceEventList events={editable} label="Your dates" />
+            <nav className={styles.clusterActions} aria-label={`Actions for ${formatDateRange(cluster.startDate, cluster.endDate)}`}>
+              {cluster.applicationCount ? <Link href="/applications" onClick={() => trackProductEvent(productIntelligenceEvents.calendarClusterToApplication, { source: cluster.sameDay ? "same_day" : "multi_day" })}>View affected applications <ArrowIcon /></Link> : null}
+              {cluster.missingMaterialApplicationCount ? <Link href="/materials">Open Materials <ArrowIcon /></Link> : null}
+              {cluster.userEditableCount ? <Link href="/applications">Review task dates <ArrowIcon /></Link> : null}
+            </nav>
+          </div>
+        </details>;
+      })}</section> : null}
+      {period.unclustered.length ? <details className={styles.otherDates}><summary>Other dates in this horizon <span>{period.unclustered.length}</span></summary><div><IntelligenceEventList events={period.unclustered} label="Upcoming dates" /></div></details> : null}
+      {period.monthSummaries.length ? <section className={styles.monthSummaries} aria-labelledby="calendar-month-summary"><header><p>At a glance</p><h3 id="calendar-month-summary">By month</h3></header><div>{period.monthSummaries.map((month) => <dl key={month.month}><dt>{formatMonth(month.month)}</dt><dd>{month.deadlineCount} {month.deadlineCount === 1 ? "deadline" : "deadlines"}</dd><dd>{month.taskCount} {month.taskCount === 1 ? "task" : "tasks"}</dd>{month.openingCount ? <dd>{month.openingCount} watched {month.openingCount === 1 ? "opening" : "openings"}</dd> : null}</dl>)}</div></section> : null}
+      {model.undatedTaskCount ? <p className={styles.undated}>{model.undatedTaskCount} incomplete application {model.undatedTaskCount === 1 ? "task has" : "tasks have"} no due date. <Link href="/applications">Review tasks</Link></p> : null}
+    </> : <SmartEmptyState compact title="No upcoming application dates yet." description="Verified dates from Journey, Applications, and watched opportunities will appear here. Conflict Planning only creates a busy period when dates actually cluster." primaryAction={{ label: "Explore opportunities", href: "/opportunities" }} secondaryAction={{ label: "Open Planner", href: "/planner" }} icon={CalendarIcon} />}
+  </div>;
 }
 
 function errorMessage(status: number, fallback?: string) {
@@ -107,7 +187,7 @@ function EventGroups({ groups, onEdit, onAction, pending, idPrefix = "primary" }
   return groups.map((group) => <section key={group.id} className={styles.group} aria-labelledby={`calendar-group-${idPrefix}-${group.id}`}><h3 id={`calendar-group-${idPrefix}-${group.id}`}>{group.label}</h3><div>{group.items.map((item) => <EventRow key={item.id} item={item} onEdit={onEdit} onAction={onAction} pending={pending} />)}</div></section>);
 }
 
-export function JourneyDeadlineCalendar({ model }: { model: JourneyCalendarModel }) {
+export function JourneyDeadlineCalendar({ model, intelligence }: { model: JourneyCalendarModel; intelligence: CalendarIntelligenceModel }) {
   const router = useRouter();
   const { offerUndo } = useUndoRecovery();
   const dialogRef = useRef<HTMLDialogElement>(null);
@@ -118,6 +198,7 @@ export function JourneyDeadlineCalendar({ model }: { model: JourneyCalendarModel
   const openedDraftRef = useRef<Draft>(emptyDraft());
   const titleId = useId();
   const [view, setView] = useState<View>("upcoming");
+  const [horizon, setHorizon] = useState<CalendarIntelligenceHorizon>(30);
   const [month, setMonth] = useState(model.initialMonth);
   const [selectedDate, setSelectedDate] = useState(model.items.find((item) => item.date.startsWith(model.initialMonth))?.date ?? `${model.initialMonth}-01`);
   const [draft, setDraft] = useState<Draft>(emptyDraft);
@@ -148,7 +229,9 @@ export function JourneyDeadlineCalendar({ model }: { model: JourneyCalendarModel
   useEffect(() => {
     try {
       const remembered = sessionStorage.getItem(viewStorageKey);
-      if (remembered === "calendar" || remembered === "upcoming") setView(remembered);
+      const requested = new URLSearchParams(window.location.search).get("calendar");
+      const initial = requested === "conflicts" ? "conflicts" : remembered;
+      if (initial === "calendar" || initial === "upcoming" || initial === "conflicts") setView(initial);
     } catch { /* Session preference is best effort. */ }
     const contextualAdd = (event: Event) => {
       const detail = (event as CustomEvent<JourneyCalendarAddContext>).detail;
@@ -176,6 +259,8 @@ export function JourneyDeadlineCalendar({ model }: { model: JourneyCalendarModel
 
   function selectView(next: View) {
     setView(next);
+    trackProductEvent(productIntelligenceEvents.calendarViewChanged, { action: next });
+    if (next === "conflicts") trackProductEvent(productIntelligenceEvents.calendarIntelligenceOpened, { source: "journey_calendar" });
     try { sessionStorage.setItem(viewStorageKey, next); } catch { /* Session preference is best effort. */ }
   }
 
@@ -310,19 +395,19 @@ export function JourneyDeadlineCalendar({ model }: { model: JourneyCalendarModel
 
   return <section className={styles.shell} aria-labelledby="journey-upcoming-heading" data-journey-calendar="" data-guide-anchor="journey-calendar">
     <header className={styles.header}>
-      <div><p>Schedule</p><h2 id="journey-upcoming-heading">Upcoming</h2></div>
+      <div><p>Schedule</p><h2 id="journey-upcoming-heading">{view === "conflicts" ? "Conflict Planning" : "Upcoming"}</h2></div>
       <div className={styles.headerActions}>
-        <div className={styles.toggle} aria-label="Deadline view"><button type="button" aria-pressed={view === "upcoming"} onClick={() => selectView("upcoming")}>Upcoming</button><button type="button" aria-pressed={view === "calendar"} onClick={() => selectView("calendar")}>Calendar</button></div>
+        <div className={styles.toggle} aria-label="Deadline view"><button type="button" aria-pressed={view === "upcoming"} onClick={() => selectView("upcoming")}>Upcoming</button><button type="button" aria-pressed={view === "calendar"} onClick={() => selectView("calendar")}>Calendar</button><button type="button" aria-pressed={view === "conflicts"} onClick={() => selectView("conflicts")}>Busy periods</button></div>
         <button ref={addButtonRef} type="button" className={styles.add} onClick={() => openAdd()}>Add date</button>
       </div>
     </header>
-    {model.items.some((item) => item.source === "official") ? <p className={styles.automaticNote}>Verified official dates appear automatically. Personal dates remain yours to edit.</p> : null}
+    {view !== "conflicts" && model.items.some((item) => item.source === "official") ? <p className={styles.automaticNote}>Verified official dates appear automatically. Personal dates remain yours to edit.</p> : null}
     {feedback ? <ActionFeedback message={feedback} state="success" level="routine" /> : null}
     {error && !dialogRef.current?.open ? <ActionFeedback message={error} state="error" action={retry ? { label: "Try again", onClick: retry, pending: Boolean(pending) } : undefined} /> : null}
 
     {view === "upcoming" ? <div className={styles.upcoming}>
       {model.groups.length ? <><EventGroups groups={primaryGroups} onEdit={openEdit} onAction={updateState} pending={pending} />{additionalCount ? <details className={styles.additional}><summary>Show {additionalCount} more {additionalCount === 1 ? "date" : "dates"}</summary><div><EventGroups groups={additionalGroups} onEdit={openEdit} onAction={updateState} pending={pending} idPrefix="additional" /></div></details> : null}</> : <SmartEmptyState compact title="Nothing coming up yet." description="Opportunity deadlines and the dates you add yourself will appear here." primaryAction={{ label: "Add date", onClick: () => openAdd() }} secondaryAction={model.trackedOptions.length ? { label: "Explore opportunities", href: "/opportunities" } : undefined} icon={CalendarIcon} />}
-    </div> : <div className={styles.calendarLayout}>
+    </div> : view === "calendar" ? <div className={styles.calendarLayout}>
       <div className={styles.calendar}>
         <header><button type="button" onClick={() => setMonth(shiftMonth(month, -1))} aria-label="Previous month"><ArrowIcon /></button><h3 aria-live="polite">{formatMonth(month)}</h3><button type="button" onClick={() => setMonth(shiftMonth(month, 1))} aria-label="Next month"><ArrowIcon /></button></header>
         <div className={styles.weekdays} aria-hidden="true">{weekdays.map((day) => <span key={day}>{day}</span>)}</div>
@@ -333,7 +418,7 @@ export function JourneyDeadlineCalendar({ model }: { model: JourneyCalendarModel
         })}</div>
       </div>
       <aside className={styles.dayPanel} aria-live="polite"><header><div><p>Selected day</p><h3>{formatDay(selectedDate)}</h3></div><button type="button" onClick={() => openAdd(selectedDate)}>Add date</button></header>{selectedItems.length ? selectedItems.map((item) => <EventRow key={item.id} item={item} onEdit={openEdit} onAction={updateState} pending={pending} />) : <p className={styles.noDayEvents}>No dates on this day.</p>}</aside>
-    </div>}
+    </div> : <CalendarIntelligence model={intelligence} horizon={horizon} onHorizon={setHorizon} />}
 
     <dialog ref={dialogRef} className={styles.dialog} aria-labelledby={titleId} onCancel={(event) => { event.preventDefault(); if (!saving) close(); }}>
       <form method="dialog" onSubmit={(event) => { event.preventDefault(); void save(); }}>

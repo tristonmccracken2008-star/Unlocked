@@ -179,7 +179,7 @@ export function JourneyCommandCenter({ model, returnBriefing = null }: { model: 
           </li>)}</ol>
         </section> : null}
 
-        <JourneyDeadlineCalendar model={model.calendar} />
+        <JourneyDeadlineCalendar model={model.calendar} intelligence={model.calendarIntelligence} />
 
         <section className={styles.active} id="active-opportunities" data-guide-anchor="active-opportunities" aria-labelledby="active-opportunities-heading">
           <div className={styles.sectionHeading}><h2 id="active-opportunities-heading">Active opportunities <span>{model.activeCount}</span></h2></div>
@@ -231,7 +231,7 @@ export function JourneyCommandCenter({ model, returnBriefing = null }: { model: 
           <div><strong>Nothing to share yet.</strong><p>Record an interview, acceptance, award, or completed experience to create a private, shareable card.</p><a href={model.activeCount ? "/#active-opportunities" : hrefFor(model, { stage: "history" })}>{model.activeCount ? "Review active opportunities" : "View professional history"}</a></div>
         </details>}
       </>}
-      {!hasRecords ? <JourneyDeadlineCalendar model={model.calendar} /> : null}
+      {!hasRecords ? <JourneyDeadlineCalendar model={model.calendar} intelligence={model.calendarIntelligence} /> : null}
     </div>
   </main>;
 }

@@ -49,6 +49,7 @@ export default async function Home({ searchParams }: { searchParams?: Promise<Re
     ...Object.keys(session.data.activity?.tracked ?? {}),
     ...(session.data.activity?.saved ?? []),
     ...session.data.savedOpportunities.map((record) => record.opportunityId),
+    ...(session.data.watchedOpportunities ?? []).map((record) => record.opportunityId),
   ])];
   try {
     const query = await searchParams;

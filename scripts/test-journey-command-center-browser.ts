@@ -83,7 +83,7 @@ async function seed(label: string, mode: "empty" | "rich" | "heavy" | "alternate
   const career = opportunities.filter((item) => item.type === "Career");
   const research = opportunities.filter((item) => item.type === "Research");
   const scholarships = opportunities.filter((item) => item.type === "Scholarship");
-  const selected = mode === "empty" ? [] : mode === "alternate" ? [career[8]] : mode === "heavy" ? opportunities.slice(0, 600) : [career[0], career[1], research[0], scholarships[0], scholarships[1], career[2]];
+  const selected = mode === "empty" ? [] : mode === "alternate" ? [career[8]] : mode === "heavy" ? opportunities.slice(0, 600) : [career[0], career[1], research[0], scholarships[0], scholarships[1], career[2], career[3]];
   const statuses: OpportunityTrackerStatus[] = ["Applying", "Submitted", "Interview", "Accepted", "Completed", "Rejected", "Saved"];
   const stageIds = ["preparing_application", "application_submitted", "research_interview", "awarded", "funds_received", "archived", "saved"];
   const tracker = Object.fromEntries(selected.map((item, index) => {
@@ -93,6 +93,7 @@ async function seed(label: string, mode: "empty" | "rich" | "heavy" | "alternate
     }
     return [item.id, tracked(item.id, mode === "alternate" ? "Saved" : statuses[index], index, mode === "alternate" ? "saved" : stageIds[index], index === 0)];
   }));
+  if (mode === "rich" && selected[6]) tracker[selected[6].id] = tracked(selected[6].id, "Applying", 6, "preparing_application");
   const user = await upsertUser({ googleSub: `journey-command-${label}`, email: `${label}@example.test`, name: `${label} Student` });
   await mergeAccountData(user.id, {
     profile: { firstName: label, schoolSlug: "university-of-chicago", major: "Mathematics", graduationYear: "2030", year: "First year", careerGoal: "Research", interests: "Research", onboardingCompletedAt: "2026-07-20T12:00:00.000Z" },
@@ -126,7 +127,30 @@ async function seed(label: string, mode: "empty" | "rich" | "heavy" | "alternate
   }
   if (pro) await updateAccountBilling(user.id, { tier: "pro", status: "active", billingInterval: "month", cancelAtPeriodEnd: false });
   const addCandidate = opportunities.find((item) => item.type === "Career" && !selected.some((selectedItem) => selectedItem.id === item.id));
-  return { session: await createSession(user), title: selected[0]?.title ?? "", searchTitle: selected.at(-1)?.title ?? "", addTitle: addCandidate?.title ?? "" };
+  return { session: await createSession(user), userId: user.id, title: selected[0]?.title ?? "", calendarOpportunityId: selected[6]?.id ?? selected[0]?.id ?? "", searchTitle: selected.at(-1)?.title ?? "", addTitle: addCandidate?.title ?? "" };
+}
+
+async function seedCalendarTaskCluster(userId: string, opportunityId: string) {
+  const { mutateApplicationWorkspace } = await import("../lib/auth-store");
+  await mutateApplicationWorkspace(userId, {
+    opportunityId,
+    expectedVersion: 0,
+    mutate(existing) {
+      const timestamp = new Date().toISOString();
+      const workspace = existing ?? { opportunityId, tasks: {}, deletedTasks: {}, createdAt: timestamp, updatedAt: timestamp, version: 0 };
+      for (let index = 0; index < 3; index += 1) workspace.tasks[`browser-task-${index}`] = {
+        id: `browser-task-${index}`,
+        title: ["Review requirements", "Prepare materials", "Final application review"][index]!,
+        dueDate: new Date(Date.now() + (index + 3) * 86_400_000).toISOString().slice(0, 10),
+        source: "user",
+        completed: false,
+        createdAt: timestamp,
+        updatedAt: timestamp,
+        version: 0,
+      };
+      return { workspace: { ...workspace, updatedAt: timestamp, version: workspace.version + 1 }, duplicate: false };
+    },
+  });
 }
 
 async function install(context: BrowserContext, origin: string, token: string) {
@@ -236,11 +260,14 @@ try {
     const page = await context.newPage();
     const noErrors = observe(page, "Chromium desktop");
     await page.goto(origin, { waitUntil: "domcontentloaded" });
-    const root = await baseAssertions(page, "Chromium desktop");
+    let root = await baseAssertions(page, "Chromium desktop");
     assert.ok(await root.locator("[aria-label='Journey overview'] > *").count() >= 1);
     assert.ok(await root.locator("[aria-label='Journey overview'] > *").count() <= 4);
     assert.equal(Number(await root.locator("[aria-label='Journey overview']").getAttribute("data-count")), await root.locator("[aria-label='Journey overview'] > *").count(), "The overview layout must reflect only supported summary items.");
     assert.ok(await root.locator("[data-journey-record]").count() >= 4);
+    await seedCalendarTaskCluster(rich.userId, rich.calendarOpportunityId);
+    await page.reload({ waitUntil: "domcontentloaded" });
+    root = await baseAssertions(page, "Chromium desktop with task cluster");
     const calendar = root.locator("[data-journey-calendar]");
     await calendar.waitFor({ state: "visible" });
     await calendar.getByText("Practice interview", { exact: true }).waitFor();
@@ -252,6 +279,16 @@ try {
     await calendarUndo.getByText("Date restored.", { exact: true }).waitFor();
     await calendar.getByRole("button", { name: "Calendar", exact: true }).click();
     assert.equal(await calendar.locator('[role="grid"]').count(), 1, "Calendar view must expose a semantic month grid.");
+    await calendar.getByRole("button", { name: "Upcoming", exact: true }).click();
+    await calendar.getByRole("button", { name: "Busy periods", exact: true }).click();
+    await calendar.locator("[data-calendar-intelligence]").waitFor({ state: "visible" });
+    await calendar.getByText(/Conflict Planning groups nearby deadlines and tasks/).waitFor();
+    await calendar.getByText("Busiest period", { exact: true }).waitFor();
+    await calendar.getByText("3 private tasks", { exact: true }).first().waitFor();
+    await calendar.locator("details").filter({ hasText: "3 private tasks" }).first().locator("summary").click();
+    await calendar.getByRole("heading", { name: "Your dates", exact: true }).waitFor();
+    await calendar.getByRole("link", { name: /Review task dates/ }).waitFor();
+    await calendar.screenshot({ path: path.join(output, "calendar-intelligence-desktop.png"), caret: "initial" });
     await calendar.getByRole("button", { name: "Upcoming", exact: true }).click();
     await calendar.getByRole("button", { name: "Add date", exact: true }).first().click();
     const calendarDialog = page.locator("dialog").filter({ hasText: "Add a date" });

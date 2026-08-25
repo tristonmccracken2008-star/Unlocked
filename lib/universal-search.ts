@@ -66,7 +66,11 @@ function journeyResults(records: readonly JourneyCommandRecord[], query: string)
 }
 
 function deadlineIntent(query: string) {
-  return /\b(calendar|deadline|deadlines|due|upcoming|this week)\b/i.test(query);
+  return /\b(calendar|deadline|deadlines|due|upcoming|this week|schedule|busy week|busy weeks|conflict|conflicts)\b/i.test(query);
+}
+
+function conflictIntent(query: string) {
+  return /\b(deadline conflict|deadline conflicts|busy week|busy weeks|conflict planning|my schedule)\b/i.test(query);
 }
 
 function applicationIntent(query: string) {
@@ -148,7 +152,7 @@ export function buildUniversalSearch(input: {
       group: "Upcoming",
       title: item.opportunityTitle ?? item.title,
       subtitle: `${item.timingLabel} · ${item.title}`,
-      href: "/#journey-upcoming-heading",
+      href: conflictIntent(query) ? "/?calendar=conflicts#journey-upcoming-heading" : "/#journey-upcoming-heading",
       score: score + (item.urgency === "today" || item.urgency === "tomorrow" ? 90 : 0),
     }];
   }).sort((left, right) => right.score - left.score || left.title.localeCompare(right.title)).slice(0, 3);
