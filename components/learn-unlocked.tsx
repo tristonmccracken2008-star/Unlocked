@@ -18,6 +18,7 @@ const sections = [
   { id: "accomplishments", title: "Accomplishments", copy: "Keep a private record of opportunities you completed or earned. Journey outcomes appear automatically; records from elsewhere can be added manually and edited later.", href: "/accomplishments?guide=accomplishments_intro", action: "Open Accomplishments", icon: TrophyIcon },
   { id: "applications", title: "Applications", copy: "Manage what needs attention across active applications. Open a Command Center when you need the verified requirements, Materials, and private tasks for one application.", href: "/applications", action: "Open Applications", icon: TargetIcon },
   { id: "materials", title: "Materials", copy: "Keep reusable application material records organized and connect them to verified requirements. UnlockED does not currently store the documents themselves.", href: "/materials?guide=materials_intro", action: "Open Materials", icon: ListIcon },
+  { id: "resume-lab", title: "Resume Lab", copy: "Build master and targeted resumes from facts you confirm. Resume versions stay connected to Materials; application associations still live there.", href: "/resume-lab", action: "Open Resume Lab", icon: PenLineIcon },
   { id: "insights", title: "Insights", copy: "See a factual summary of the opportunity activity recorded in your private Journey, outcomes, accomplishments, Paths, Watch, and Materials history. Missing history is never guessed.", href: "/insights", action: "Open Insights", icon: ListIcon },
   { id: "deadlines", title: "Deadlines", copy: "Official deadlines and personal dates appear together. Add reminders only for dates you want to manage.", href: "/?guide=journey_calendar", action: "Learn about deadlines", icon: CalendarIcon },
   { id: "conflict-planning", title: "Conflict Planning", copy: "See when verified deadlines and your private application tasks bunch together. It groups dates without moving provider deadlines or estimating effort.", href: "/?calendar=conflicts#journey-upcoming-heading", action: "Review busy periods", icon: CalendarIcon },
@@ -27,7 +28,7 @@ const sections = [
 
 const productMap = [
   ["Discover", "Browse what exists"], ["Collections", "Find a useful starting point"], ["For You", "See what fits"], ["Paths", "Explore by goal"],
-  ["Planner", "Look ahead"], ["Calendar", "See your dates"], ["Conflict Planning", "Find date concentration"], ["Journey", "Track what you’re pursuing"], ["Applications", "Manage active application work"], ["Materials", "Organize reusable application assets"], ["Accomplishments", "Keep your completed history"], ["Insights", "Understand your recorded history"],
+  ["Planner", "Look ahead"], ["Calendar", "See your dates"], ["Conflict Planning", "Find date concentration"], ["Journey", "Track what you’re pursuing"], ["Applications", "Manage active application work"], ["Materials", "Organize application assets"], ["Resume Lab", "Build evidence-first resumes"], ["Accomplishments", "Keep your completed history"], ["Insights", "Understand your recorded history"],
 ] as const;
 
 export function LearnUnlocked() {

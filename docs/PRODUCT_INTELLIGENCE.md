@@ -83,6 +83,17 @@ Path events measure whether goal-oriented exploration leads into existing produc
 - `material_selected_for_application_v1`: a reusable material was selected for an application; document metadata is excluded.
 - `material_archived_v1`: a material record was archived; document metadata is excluded.
 
+## Resume Lab Events
+
+Resume Lab events measure use of the private evidence-to-resume workflow. They never include resume text, facts, skills, contact details, organization or role names, target opportunity names, audit findings, or exported content.
+
+- `resume_lab_opened_v1`: the private Resume Lab workspace was opened.
+- `resume_experience_added_v1`: evidence was linked or added; only `manual` or `accomplishment` source is retained.
+- `resume_created_v1`: a master or targeted resume version was created; only the bounded version category is retained.
+- `resume_targeted_v1`: an opportunity-targeted copy was created; no target identifier or title is retained.
+- `resume_marked_ready_v1`: a resume version was marked ready.
+- `resume_export_opened_v1`: the protected print export was opened; only `print` format is retained.
+
 ## Applications Workspace Events
 
 Applications events measure whether the cross-application workspace helps students reach existing application controls. They retain only bounded state, filter, category, and source tokens. Application titles, organization names, requirement text, task text, Material names, document metadata, dates, outcomes, and private notes are prohibited.

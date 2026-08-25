@@ -52,3 +52,6 @@ Materials may appear inside Applications or an individual Application Command Ce
 Insights stores no duplicate lifecycle history. It derives a read-only projection from Journey, outcomes, Accomplishments, Materials, Paths, and current Watch state. Planner owns the future; Insights summarizes the past that UnlockED actually recorded.
 
 Conflict Planning stores no dates or conflict records. It derives short-horizon clusters from Calendar, active Applications, Application Command Center tasks, Materials readiness, verified provider changes, and Watch. Calendar remains authoritative for every displayed date; Applications and Materials remain authoritative for their context.
+## Resume Lab
+
+Resume Lab turns confirmed Accomplishments and manually entered experience facts into master and targeted resume versions. It complements Materials rather than replacing it: Resume Lab owns composition and evidence, while Materials owns application associations and reusable-material status. See `docs/RESUME_LAB.md`.

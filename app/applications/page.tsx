@@ -3,6 +3,7 @@ import { requireCompletedOnboarding } from "@/lib/onboarding";
 import { listPublishedOpportunitiesByIds } from "@/lib/content-store";
 import { buildApplicationsWorkspace } from "@/lib/applications-workspace";
 import { ApplicationsWorkspace, ApplicationsWorkspaceUnavailable } from "@/components/applications-workspace";
+import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -17,7 +18,7 @@ export default async function ApplicationsPage() {
   const ids = [...new Set([...Object.keys(session.data.tracker ?? {}), ...Object.keys(session.data.activity?.tracked ?? {})])];
   try {
     const opportunities = await listPublishedOpportunitiesByIds(ids, { includeArchived: true });
-    return <ApplicationsWorkspace initial={buildApplicationsWorkspace({ account: session.data, opportunities })} />;
+    return <><div className="mx-auto flex max-w-7xl justify-end px-5 pt-6 sm:px-8"><Link href="/resume-lab" className="button button-secondary">Open Resume Lab</Link></div><ApplicationsWorkspace initial={buildApplicationsWorkspace({ account: session.data, opportunities })} /></>;
   } catch (error) {
     console.error("[UnlockED Applications] composition failed", { errorType: error instanceof Error ? error.name : "UnknownError" });
     return <ApplicationsWorkspaceUnavailable />;

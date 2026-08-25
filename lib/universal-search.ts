@@ -11,6 +11,7 @@ import { explorerAreas, explorerExperienceTypes } from "@/data/opportunity-explo
 import { opportunityCollections } from "@/data/opportunity-collections";
 import { applicationMaterialStatusLabels, applicationMaterialTypeLabels, normalizeApplicationMaterialStore } from "@/data/application-materials";
 import { opportunityCollectionCoverage } from "./opportunity-collections";
+import { normalizeResumeLabStore } from "@/data/resume-lab";
 
 function normalize(value: string) {
   return value.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim().replace(/\s+/g, " ");
@@ -106,6 +107,11 @@ export function buildUniversalSearch(input: {
     const score = matchScore(query, [record.title, record.versionLabel ?? "", applicationMaterialTypeLabels[record.type], ...record.contexts]);
     if (!score) return [];
     return [{ id: `material:${record.id}`, kind: "material", group: "Materials", title: record.title, subtitle: `${applicationMaterialTypeLabels[record.type]} · ${applicationMaterialStatusLabels[record.status]}`, href: `/materials#material-${encodeURIComponent(record.id)}`, score: score + 360 }];
+  }).sort((left, right) => right.score - left.score || left.title.localeCompare(right.title)).slice(0, 4);
+  const resumes = Object.values(normalizeResumeLabStore(input.account.resumeLab).resumes).filter((record) => !record.archivedAt).flatMap((record): UniversalSearchResult[] => {
+    const score = matchScore(query, [record.title, record.kind, record.target.label ?? "", "resume lab"]);
+    if (!score) return [];
+    return [{ id: `resume:${record.id}`, kind: "resume", group: "Resume Lab", title: record.title, subtitle: `${record.kind === "master" ? "Master" : "Targeted"} resume · Private`, href: `/resume-lab?resume=${encodeURIComponent(record.id)}`, score: score + 410 }];
   }).sort((left, right) => right.score - left.score || left.title.localeCompare(right.title)).slice(0, 4);
   const paths = opportunityPaths.flatMap((path): UniversalSearchResult[] => {
     const score = matchScore(query, [path.name, path.shortName, `${path.name} path`, `${path.shortName} path`, path.description, ...path.profileAliases]);
@@ -204,7 +210,7 @@ export function buildUniversalSearch(input: {
 
   return {
     query,
-    results: [...collections, ...explorer, ...materials, ...paths, ...accomplishments, ...personal, ...upcoming, ...tasks, ...opportunities],
+    results: [...collections, ...explorer, ...resumes, ...materials, ...paths, ...accomplishments, ...personal, ...upcoming, ...tasks, ...opportunities],
     totalOpportunityMatches: preciseCatalog.length ? catalog.total : 0,
   };
 }

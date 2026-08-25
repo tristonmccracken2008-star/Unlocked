@@ -42,6 +42,7 @@ const contextualDestinations: Record<DestinationLabel, Array<{ label: string; de
     { label: "Active opportunities", description: "Return to everything currently in motion.", href: "/#active-opportunities", icon: BookmarkIcon },
     { label: "Applications", description: "Manage requirements, tasks, Materials, and deadlines across active applications.", href: "/applications", icon: PenLineIcon },
     { label: "Materials", description: "Organize reusable application materials and versions.", href: "/materials", icon: ListIcon },
+    { label: "Resume Lab", description: "Build evidence-first master and targeted resumes.", href: "/resume-lab", icon: PenLineIcon },
     { label: "Accomplishments", description: "Review the private record of opportunities you completed or earned.", href: "/accomplishments", icon: TrophyIcon },
     { label: "Insights", description: "Understand the opportunity history recorded in your account.", href: "/insights", icon: ListIcon },
     { label: "Professional history", description: "See completed and archived records.", href: "/?stage=history#journey-history", icon: TrophyIcon },
@@ -58,6 +59,7 @@ function isServerProtectedProductPath(pathname: string) {
     || pathname === "/accomplishments"
     || pathname === "/applications"
     || pathname === "/materials"
+    || pathname.startsWith("/resume-lab")
     || pathname === "/insights"
     || pathname === "/profile"
     || pathname === "/notifications"

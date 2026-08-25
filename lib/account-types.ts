@@ -9,6 +9,7 @@ import type { GuidanceState } from "./guidance";
 import type { AccomplishmentStore } from "@/data/accomplishments";
 import type { OpportunityPathPreferences } from "@/data/opportunity-paths";
 import type { ApplicationMaterialStore } from "@/data/application-materials";
+import type { ResumeLabStore } from "@/data/resume-lab";
 
 export type AuthUser = {
   id: string;
@@ -133,6 +134,7 @@ export type AccountData = {
   calendarEvents?: JourneyCalendarRecord;
   applicationWorkspaces?: ApplicationWorkspaceStore;
   applicationMaterials?: ApplicationMaterialStore;
+  resumeLab?: ResumeLabStore;
   accomplishments?: AccomplishmentStore;
   pathPreferences?: OpportunityPathPreferences;
   guidance?: GuidanceState;

@@ -23,6 +23,8 @@ export function publicAccountData(data: AccountData): AccountData {
     ...data,
     // Materials can contain private notes and are loaded only by their dedicated authenticated surfaces.
     applicationMaterials: undefined,
+    // Resume Lab includes private contact details, facts, and drafts.
+    resumeLab: undefined,
     // Accomplishments can contain private notes and are loaded only by their
     // dedicated authenticated surface, never through the general client sync.
     accomplishments: undefined,

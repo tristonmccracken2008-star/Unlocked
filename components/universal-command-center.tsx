@@ -26,6 +26,7 @@ const localCommands: CommandResult[] = [
   { id: "navigate:applications", kind: "navigate", group: "Navigate", title: "Applications", subtitle: "Manage active application requirements, tasks, Materials, and deadlines.", href: "/applications", score: 0, keywords: "my applications application workspace what do i need to finish tasks requirements command center" },
   { id: "navigate:accomplishments", kind: "navigate", group: "Navigate", title: "Accomplishments", subtitle: "Open your private record of completed and earned opportunities.", href: "/accomplishments", score: 0, keywords: "college record achievements awards completed history" },
   { id: "navigate:materials", kind: "navigate", group: "Navigate", title: "Materials", subtitle: "Organize reusable application materials and versions.", href: "/materials", score: 0, keywords: "resume transcript essay cover letter portfolio application documents" },
+  { id: "navigate:resume-lab", kind: "navigate", group: "Navigate", title: "Resume Lab", subtitle: "Build evidence-first master and targeted resumes.", href: "/resume-lab", score: 0, keywords: "resume cv experience bullets evidence master targeted" },
   { id: "navigate:insights", kind: "navigate", group: "Navigate", title: "Insights", subtitle: "Review the private opportunity history recorded in your account.", href: "/insights", score: 0, keywords: "my history applications this year my activity outcomes opportunity insights" },
   { id: "navigate:notifications", kind: "navigate", group: "Navigate", title: "Notifications", subtitle: "Review deadlines, changes, and Journey updates.", href: "/notifications", score: 0, keywords: "alerts reminders updates" },
   { id: "navigate:profile", kind: "navigate", group: "Navigate", title: "Profile", subtitle: "Update your account and personalization.", href: "/profile", score: 0, keywords: "account settings school major dark mode appearance" },
@@ -37,6 +38,7 @@ const localCommands: CommandResult[] = [
   { id: "action:explore", kind: "action", group: "Quick Actions", title: "Explore possibilities", subtitle: "See kinds of opportunities you may not know to search for.", href: "/explore", score: 0, keywords: "explore ideas fields experiences not sure" },
   { id: "action:applications", kind: "action", group: "Quick Actions", title: "Open Applications", subtitle: "Review what needs attention across active applications.", href: "/applications", score: 0, keywords: "applications tasks resume essay requirements finish application" },
   { id: "action:materials", kind: "action", group: "Quick Actions", title: "Add application material", subtitle: "Keep a reusable material record in Materials.", href: "/materials", score: 0, keywords: "add resume transcript essay document" },
+  { id: "action:resume", kind: "action", group: "Quick Actions", title: "Open Resume Lab", subtitle: "Turn confirmed experience into a resume version.", href: "/resume-lab", score: 0, keywords: "build edit target resume bullet" },
   { id: "browse:scholarships", kind: "browse", group: "Browse", title: "Browse Scholarships", subtitle: "Funding opportunities from official sources.", href: "/opportunities?type=Scholarship", score: 0, keywords: "scholarship scholarships funding grants awards" },
   { id: "browse:internships", kind: "browse", group: "Browse", title: "Browse Internships", subtitle: "Internships and early-career programs.", href: "/opportunities?type=Career&category=Internships", score: 0, keywords: "internship internships software engineering freshman career" },
   { id: "browse:research", kind: "browse", group: "Browse", title: "Browse Research", subtitle: "Undergraduate research and lab programs.", href: "/opportunities?type=Research", score: 0, keywords: "research lab science undergraduate" },
@@ -48,13 +50,14 @@ const localCommands: CommandResult[] = [
   { id: "learn:conflicts", kind: "learn", group: "Learn UnlockED", title: "Conflict Planning", subtitle: "See how UnlockED groups nearby dates.", href: "/learn#conflict-planning", score: 0, keywords: "how do busy periods work deadline conflict help" },
   { id: "learn:applications", kind: "learn", group: "Learn UnlockED", title: "Applications and Command Center", subtitle: "Learn how cross-application work and single-application detail fit together.", href: "/learn#applications", score: 0, keywords: "application workspace command center tasks help resume" },
   { id: "learn:materials", kind: "learn", group: "Learn UnlockED", title: "How Materials works", subtitle: "Learn how reusable materials connect to verified requirements.", href: "/learn#materials", score: 0, keywords: "materials resume transcript essay versions reuse help" },
+  { id: "learn:resume-lab", kind: "learn", group: "Learn UnlockED", title: "How Resume Lab works", subtitle: "Learn how facts, bullets, versions, and Materials stay connected.", href: "/learn#resume-lab", score: 0, keywords: "resume lab evidence bullets targeted help" },
   { id: "learn:insights", kind: "learn", group: "Learn UnlockED", title: "How Insights works", subtitle: "Learn which private account records support your history.", href: "/learn#insights", score: 0, keywords: "insights history activity applications outcomes help" },
   { id: "learn:cards", kind: "learn", group: "Learn UnlockED", title: "Journey Cards", subtitle: "Learn when confirmed milestones become shareable.", href: "/?guide=journey_card#journey-cards", score: 0, keywords: "journey card share milestone" },
   { id: "learn:all", kind: "learn", group: "Learn UnlockED", title: "Learn UnlockED", subtitle: "Open the concise product guide.", href: "/learn", score: 0, keywords: "help guide learn support" },
 ];
 
 const recentKey = "unlocked:universal-search-recents:v1";
-const groupOrder = ["Recent", "Quick Actions", "Explore", "Materials", "Paths", "Accomplishments", "Your Journey", "Upcoming", "Application tasks", "Navigate", "Browse", "Opportunities", "Learn UnlockED"];
+const groupOrder = ["Recent", "Quick Actions", "Explore", "Resume Lab", "Materials", "Paths", "Accomplishments", "Your Journey", "Upcoming", "Application tasks", "Navigate", "Browse", "Opportunities", "Learn UnlockED"];
 
 function normalize(value: string) {
   return value.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim().replace(/\s+/g, " ");
@@ -82,6 +85,7 @@ function ResultIcon({ kind }: { kind: CommandResult["kind"] }) {
   if (kind === "path") return <SparkIcon />;
   if (kind === "accomplishment") return <TrophyIcon />;
   if (kind === "material") return <ListIcon />;
+  if (kind === "resume") return <PenLineIcon />;
   if (kind === "deadline") return <CalendarIcon />;
   if (kind === "task") return <TargetIcon />;
   if (kind === "opportunity" || kind === "browse") return <SearchIcon />;
@@ -232,7 +236,7 @@ export function UniversalCommandCenter({ onClose, restoreFocus }: { onClose: () 
       </div>
       <div className={styles.results} id={listboxId} role="listbox" aria-label="Search results">
         {groups.map(({ group, items }) => <section key={group} role="group" aria-label={group} className={styles.group}>
-          <h2>{group}{group === "Accomplishments" || group === "Your Journey" || group === "Upcoming" || group === "Application tasks" ? <span>Private</span> : null}</h2>
+          <h2>{group}{group === "Resume Lab" || group === "Accomplishments" || group === "Your Journey" || group === "Upcoming" || group === "Application tasks" ? <span>Private</span> : null}</h2>
           {items.map((result) => {
             flatIndex += 1;
             const index = flatIndex;
