@@ -33,6 +33,12 @@ export type ApplicationMaterialReadiness = {
   summary: string;
 };
 
+export type ApplicationMaterialProjectionContext = {
+  store: ApplicationMaterialStore;
+  recordsByType: ReadonlyMap<ApplicationMaterialType, readonly ApplicationMaterialRecord[]>;
+  candidatesByContext: Map<string, ApplicationMaterialRecord[]>;
+};
+
 export type ApplicationMaterialRow = ApplicationMaterialRecord & {
   typeLabel: string;
   statusLabel: string;
@@ -87,27 +93,42 @@ function candidateOrder(contexts: ReadonlySet<ApplicationMaterialContext>, left:
   return relevance(right) - relevance(left) || right.updatedAt.localeCompare(left.updatedAt) || left.title.localeCompare(right.title);
 }
 
-function projectNormalizedApplicationMaterialReadiness(input: {
-  opportunity: Opportunity;
-  store: ApplicationMaterialStore;
-  recentlyAddedRequirements?: ReadonlySet<string>;
-}): ApplicationMaterialReadiness {
-  const store = input.store;
-  const verifiedRequirements = verifiedApplicationRequirements(input.opportunity);
-  const opportunityContexts = new Set(contextForOpportunity(input.opportunity));
+export function createApplicationMaterialProjectionContext(store: ApplicationMaterialStore | null | undefined): ApplicationMaterialProjectionContext {
+  const normalized = normalizeApplicationMaterialStore(store);
   const recordsByType = new Map<ApplicationMaterialType, ApplicationMaterialRecord[]>();
-  for (const record of Object.values(store.records)) {
+  for (const record of Object.values(normalized.records)) {
     if (record.status === "archived") continue;
     const records = recordsByType.get(record.type) ?? [];
     records.push(record);
     recordsByType.set(record.type, records);
   }
+  return { store: normalized, recordsByType, candidatesByContext: new Map() };
+}
+
+function candidatesFor(context: ApplicationMaterialProjectionContext, type: ApplicationMaterialType, opportunityContexts: ReadonlySet<ApplicationMaterialContext>) {
+  const contextKey = [...opportunityContexts].sort().join("|");
+  const key = `${type}:${contextKey}`;
+  const cached = context.candidatesByContext.get(key);
+  if (cached) return cached;
+  const candidates = [...(context.recordsByType.get(type) ?? [])].sort((a, b) => candidateOrder(opportunityContexts, a, b));
+  context.candidatesByContext.set(key, candidates);
+  return candidates;
+}
+
+function projectNormalizedApplicationMaterialReadiness(input: {
+  opportunity: Opportunity;
+  context: ApplicationMaterialProjectionContext;
+  recentlyAddedRequirements?: ReadonlySet<string>;
+}): ApplicationMaterialReadiness {
+  const store = input.context.store;
+  const verifiedRequirements = verifiedApplicationRequirements(input.opportunity);
+  const opportunityContexts = new Set(contextForOpportunity(input.opportunity));
   const mappedTypes = new Set<ApplicationMaterialType>();
   const mappedRequirements = verifiedRequirements.flatMap((title): MaterialRequirementProjection[] => {
     const type = materialTypeForRequirement(title);
     if (!type || mappedTypes.has(type)) return [];
     mappedTypes.add(type);
-    const candidates = [...(recordsByType.get(type) ?? [])].sort((a, b) => candidateOrder(opportunityContexts, a, b));
+    const candidates = candidatesFor(input.context, type, opportunityContexts);
     const association = store.associations[materialAssociationId(input.opportunity.id, type)];
     const selectedRecord = association && !association.materialDeletedAt ? store.records[association.materialId] : undefined;
     const selected = selectedRecord?.status === "archived" ? undefined : selectedRecord;
@@ -134,13 +155,15 @@ function projectNormalizedApplicationMaterialReadiness(input: {
 export function projectApplicationMaterialReadiness(input: {
   opportunity: Opportunity;
   store: ApplicationMaterialStore | null | undefined;
+  context?: ApplicationMaterialProjectionContext;
   recentlyAddedRequirements?: ReadonlySet<string>;
 }): ApplicationMaterialReadiness {
-  return projectNormalizedApplicationMaterialReadiness({ ...input, store: normalizeApplicationMaterialStore(input.store) });
+  return projectNormalizedApplicationMaterialReadiness({ ...input, context: input.context ?? createApplicationMaterialProjectionContext(input.store) });
 }
 
 export function buildApplicationMaterialsModel(input: { account: AccountData; opportunities: readonly Opportunity[] }): ApplicationMaterialsModel {
-  const store = normalizeApplicationMaterialStore(input.account.applicationMaterials);
+  const projectionContext = createApplicationMaterialProjectionContext(input.account.applicationMaterials);
+  const store = projectionContext.store;
   const opportunityById = new Map(input.opportunities.map((item) => [item.id, item]));
   const tracked = { ...(input.account.activity?.tracked ?? {}), ...(input.account.tracker ?? {}) };
   const activeOpportunities = Object.values(tracked).flatMap((record) => {
@@ -148,7 +171,7 @@ export function buildApplicationMaterialsModel(input: { account: AccountData; op
     return opportunity && !terminalStatuses.has(record.status) ? [opportunity] : [];
   });
   const applications = activeOpportunities.flatMap((opportunity) => {
-    const readiness = projectNormalizedApplicationMaterialReadiness({ opportunity, store });
+    const readiness = projectNormalizedApplicationMaterialReadiness({ opportunity, context: projectionContext });
     return readiness.requirementsVerified ? [{ opportunityId: opportunity.id, title: opportunity.title, organization: opportunity.organization, readiness }] : [];
   });
   const demand = new Map<ApplicationMaterialType, Set<string>>();

@@ -4,7 +4,7 @@ import { journeyWorkflowKind } from "@/data/journey-professional";
 import { recentOpportunityChanges, requirementAddedByRecentChange, opportunityChangeLabel, opportunityChangeSummary } from "@/data/opportunity-changelog";
 import { projectOpportunityTrust, verifiedApplicationRequirements } from "@/data/opportunity-trust";
 import type { AccountData, ApplicationTaskRecord, ApplicationWorkspaceRecord, JourneyCalendarEventRecord } from "./account-types";
-import { projectApplicationMaterialReadiness, type ApplicationMaterialReadiness } from "./application-materials";
+import { projectApplicationMaterialReadiness, type ApplicationMaterialProjectionContext, type ApplicationMaterialReadiness } from "./application-materials";
 
 export type ApplicationWorkspaceTask = ApplicationTaskRecord & { recentlyUpdated?: boolean };
 
@@ -93,6 +93,7 @@ export function projectApplicationWorkspace(input: {
   record: TrackedOpportunity;
   workspace?: ApplicationWorkspaceRecord;
   materials?: AccountData["applicationMaterials"];
+  materialContext?: ApplicationMaterialProjectionContext;
   now?: Date;
 }) {
   const eligible = applicationWorkspaceEligible(input.opportunity);
@@ -141,6 +142,7 @@ export function projectApplicationWorkspace(input: {
     materials: projectApplicationMaterialReadiness({
       opportunity: input.opportunity,
       store: input.materials,
+      context: input.materialContext,
       recentlyAddedRequirements: new Set(tasks.filter((task) => task.recentlyUpdated).map((task) => task.title)),
     }),
   } satisfies ApplicationWorkspaceProjection;

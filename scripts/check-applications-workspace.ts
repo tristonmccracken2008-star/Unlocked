@@ -1,11 +1,14 @@
 import assert from "node:assert/strict";
 import { performance } from "node:perf_hooks";
 import { readFileSync } from "node:fs";
+import type { OpportunityChangeEvent } from "../data/opportunity-changelog-types";
+import type { TrackedOpportunity } from "../data/student-activity";
 
 const { opportunities } = await import("../data/opportunities");
 const { materialAssociationId, emptyApplicationMaterialStore } = await import("../data/application-materials");
 const { defaultBillingRecord } = await import("../lib/billing");
-const { applicationWorkspaceEligible, materializeApplicationWorkspace, trustedApplicationRequirements } = await import("../lib/application-workspace");
+const { createApplicationMaterialProjectionContext } = await import("../lib/application-materials");
+const { applicationWorkspaceEligible, materializeApplicationWorkspace, projectApplicationWorkspace, trustedApplicationRequirements } = await import("../lib/application-workspace");
 const { buildApplicationsWorkspace } = await import("../lib/applications-workspace");
 
 const source = opportunities.find((item) => applicationWorkspaceEligible(item) && trustedApplicationRequirements(item).length >= 2);
@@ -107,18 +110,75 @@ const changed = synthetic("applications-ready", "Ready Research", ["Resume", "Tr
 const changedModel = buildApplicationsWorkspace({ account, opportunities: [changed], now });
 assert.equal(changedModel.applications[0]?.state, "needs_attention", "A new verified requirement must invalidate prior readiness when uncovered.");
 
+const unindexedProjection = projectApplicationWorkspace({ opportunity: readyOpportunity, record: records[readyOpportunity.id]!, workspace: account.applicationWorkspaces[readyOpportunity.id], materials: materialStore, now });
+const indexedProjection = projectApplicationWorkspace({ opportunity: readyOpportunity, record: records[readyOpportunity.id]!, workspace: account.applicationWorkspaces[readyOpportunity.id], materials: materialStore, materialContext: createApplicationMaterialProjectionContext(materialStore), now });
+assert.deepEqual(indexedProjection, unindexedProjection, "Request-scoped Material indexes must preserve the exact application projection.");
+
 const largeOpportunities = Array.from({ length: 25 }, (_, index) => synthetic(`applications-load-${index}`, `Application ${index}`, ["Resume", "Transcript"], `2026-09-${String((index % 20) + 1).padStart(2, "0")}`));
 const largeRecords = Object.fromEntries(largeOpportunities.map((item) => [item.id, { id: item.id, status: "Applying" as const, savedAt: iso, updatedAt: iso, version: 1, history: [] }]));
 const largeStore = emptyApplicationMaterialStore();
 for (let index = 0; index < 200; index += 1) largeStore.records[`material:${index}`] = { id: `material:${index}`, type: index % 2 ? "resume" : "transcript", title: `Material ${index}`, status: index % 3 ? "ready" : "needs_update", contexts: ["general"], preferred: index < 2, createdAt: iso, updatedAt: iso, version: 0 };
-const timings: number[] = [];
-for (let run = 0; run < 35; run += 1) {
-  const started = performance.now();
-  buildApplicationsWorkspace({ account: { ...account, tracker: largeRecords, activity: { viewed: [], saved: Object.keys(largeRecords), claimed: [], tracked: largeRecords }, applicationWorkspaces: {}, applicationMaterials: largeStore }, opportunities: largeOpportunities, now });
-  if (run >= 5) timings.push(performance.now() - started);
+
+function statistics(samples: number[]) {
+  const sorted = [...samples].sort((left, right) => left - right);
+  const trim = Math.max(1, Math.floor(sorted.length * 0.1));
+  const trimmed = sorted.slice(trim, -trim);
+  const average = (values: number[]) => values.reduce((sum, value) => sum + value, 0) / values.length;
+  return {
+    average: average(sorted),
+    median: sorted[Math.floor(sorted.length / 2)]!,
+    trimmedAverage: average(trimmed),
+    p95: sorted[Math.min(sorted.length - 1, Math.ceil(sorted.length * 0.95) - 1)]!,
+    maximum: sorted.at(-1)!,
+  };
 }
-const averageMs = timings.reduce((sum, value) => sum + value, 0) / timings.length;
-assert.ok(averageMs < 25, `25 applications and 200 materials must project under 25ms average; received ${averageMs.toFixed(2)}ms.`);
+
+function benchmarkProjection(opportunityItems: typeof largeOpportunities, store = materialStore, measuredRuns = 30, sourceRecords: Record<string, TrackedOpportunity> = largeRecords) {
+  const ids = new Set(opportunityItems.map((item) => item.id));
+  const tracked = Object.fromEntries(Object.entries(sourceRecords).filter(([id]) => ids.has(id)));
+  const fixtureAccount = { ...account, tracker: tracked, activity: { viewed: [], saved: Object.keys(tracked), claimed: [], tracked }, applicationWorkspaces: {}, applicationMaterials: store };
+  const project = () => buildApplicationsWorkspace({ account: fixtureAccount, opportunities: opportunityItems, now });
+  const coldStarted = performance.now();
+  const coldModel = project();
+  const cold = performance.now() - coldStarted;
+  for (let run = 0; run < 10; run += 1) project();
+  const timings: number[] = [];
+  for (let run = 0; run < measuredRuns; run += 1) {
+    const started = performance.now();
+    const result = project();
+    const duration = performance.now() - started;
+    assert.deepEqual(result, coldModel, "Repeated projections must remain deterministic.");
+    timings.push(duration);
+  }
+  return { cold, ...statistics(timings) };
+}
+
+const historyRecords = Object.fromEntries(Object.entries(largeRecords).map(([id, record]) => [id, {
+  ...record,
+  history: Array.from({ length: 100 }, (_, index) => ({ id: `${id}:history:${index}`, transition: "choose" as const, priorStatus: "Saved" as const, resultingStatus: "Interested" as const, occurredAt: iso })),
+}]));
+const changeHeavyOpportunities = largeOpportunities.map((opportunity) => {
+  const event = {
+    id: `${opportunity.id}:requirements-change`, opportunityId: opportunity.id, identityId: opportunity.id, cycleId: "2026", field: "requirements", changeType: "requirements_changed", previousValue: "Resume", newValue: "Resume · Transcript", detectedAt: iso, effectiveAt: iso, source: "manual_review", confidence: "confirmed", importance: "important", userRelevant: true, notificationEligible: true, calendarImpact: false, workspaceImpact: true, idempotencyKey: `${opportunity.id}:requirements-change`,
+  } satisfies OpportunityChangeEvent;
+  return { ...opportunity, metadata: { ...opportunity.metadata, changelog: [event] } };
+});
+
+const scaling = {
+  zero: benchmarkProjection([]),
+  one: benchmarkProjection(largeOpportunities.slice(0, 1)),
+  five: benchmarkProjection(largeOpportunities.slice(0, 5)),
+  ten: benchmarkProjection(largeOpportunities.slice(0, 10)),
+  heavy: benchmarkProjection(largeOpportunities, largeStore, 50),
+  largeHistory: benchmarkProjection(largeOpportunities, largeStore, 20, historyRecords),
+  requirementChanges: benchmarkProjection(changeHeavyOpportunities, largeStore, 20),
+};
+assert.ok(scaling.heavy.trimmedAverage < 25, `25 applications and 200 materials must project under 25ms trimmed average; received ${scaling.heavy.trimmedAverage.toFixed(2)}ms.`);
+assert.ok(scaling.heavy.p95 < 35, `25 applications and 200 materials must remain under 35ms p95; received ${scaling.heavy.p95.toFixed(2)}ms.`);
+assert.ok(scaling.heavy.maximum < 100, `25 applications and 200 materials exceeded the 100ms catastrophic ceiling; received ${scaling.heavy.maximum.toFixed(2)}ms.`);
+assert.ok(scaling.heavy.cold < 150, `Cold 25-application projection exceeded the 150ms ceiling; received ${scaling.heavy.cold.toFixed(2)}ms.`);
+assert.ok(scaling.largeHistory.p95 < 35, `Large Journey histories must remain under 35ms p95; received ${scaling.largeHistory.p95.toFixed(2)}ms.`);
+assert.ok(scaling.requirementChanges.p95 < 35, `Requirement-change-heavy projections must remain under 35ms p95; received ${scaling.requirementChanges.p95.toFixed(2)}ms.`);
 
 const route = readFileSync("app/applications/page.tsx", "utf8");
 const component = readFileSync("components/applications-workspace.tsx", "utf8");
@@ -132,4 +192,4 @@ assert.match(header, /href: "\/applications"/);
 assert.match(docs, /stores no application workspace of its own/i);
 assert.match(docs, /never projected as Ready/i);
 
-console.log("Applications Workspace checks passed", { activeSemantics: true, readiness: true, unknownRequirements: true, submittedHandoff: true, nonApplicationsExcluded: true, requirementChange: true, deadlineClusters: true, averageLargeProjectionMs: Number(averageMs.toFixed(2)) });
+console.log("Applications Workspace checks passed", { activeSemantics: true, readiness: true, unknownRequirements: true, submittedHandoff: true, nonApplicationsExcluded: true, requirementChange: true, deadlineClusters: true, projectionOutputStable: true, performanceMs: Object.fromEntries(Object.entries(scaling).map(([key, value]) => [key, Object.fromEntries(Object.entries(value).map(([metric, number]) => [metric, Number(number.toFixed(2))]))])) });

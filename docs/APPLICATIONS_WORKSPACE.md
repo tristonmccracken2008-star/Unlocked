@@ -50,6 +50,12 @@ The core workspace, readiness, requirements, tasks, Materials, and deadlines are
 
 The projection runs for the authenticated account on the server and receives only that account’s records. No titles, organizations, task text, Material names, or requirement text are sent to product analytics. A route composition failure renders a truthful recovery state and does not mutate Journey, Materials, Calendar, or notifications.
 
+## Performance
+
+Material normalization, type grouping, and context-sensitive candidate ordering use one request-scoped projection context. The context exists for one account projection, is never global, and cannot be shared across accounts. The catalog, Journey history, and Material store are not serialized to the browser.
+
+The regression suite keeps fixture construction outside timed work, performs explicit warmup, and reports cold time, median, 10% trimmed average, p95, and maximum. The 25-application, 200-Material stress case retains a strict 25ms trimmed-average budget, adds a 35ms p95 budget, and retains 100ms warm and 150ms cold catastrophic ceilings. These gates separate sustained projection cost from build-worker scheduling noise while still failing material algorithmic regressions.
+
 ## Validation
 
 Run:

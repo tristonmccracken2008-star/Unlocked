@@ -4,6 +4,7 @@ import type { OpportunityTrackerStatus, TrackedOpportunity } from "@/data/studen
 import { getJourneyProfessionalActions, getJourneyProfessionalWorkflow, resolveJourneyProfessionalStage } from "@/data/journey-professional";
 import type { AccountData } from "./account-types";
 import { applicationWorkspaceEligible, projectApplicationWorkspace, type ApplicationWorkspaceProjection } from "./application-workspace";
+import { createApplicationMaterialProjectionContext } from "./application-materials";
 
 export type ApplicationsWorkspaceState = "needs_attention" | "ready" | "waiting" | "submitted" | "requirements_unknown";
 export type ApplicationsWorkspaceAttentionKind = "material_missing" | "material_update" | "task" | "task_due" | "deadline" | "provider_change";
@@ -169,12 +170,13 @@ export function buildApplicationsWorkspace(input: { account: AccountData; opport
   const now = input.now ?? new Date();
   const records = { ...(input.account.activity?.tracked ?? {}), ...(input.account.tracker ?? {}) };
   const opportunityById = new Map(input.opportunities.map((item) => [item.id, item]));
+  const materialContext = createApplicationMaterialProjectionContext(input.account.applicationMaterials);
   const applications: ApplicationsWorkspaceApplication[] = [];
   for (const record of Object.values(records)) {
     if (!preparationStatuses.has(record.status) && !postSubmissionStatuses.has(record.status)) continue;
     const opportunity = opportunityById.get(record.id);
     if (!opportunity || !applicationWorkspaceEligible(opportunity)) continue;
-    const workspace = projectApplicationWorkspace({ opportunity, record, workspace: input.account.applicationWorkspaces?.[record.id], materials: input.account.applicationMaterials, now });
+    const workspace = projectApplicationWorkspace({ opportunity, record, workspace: input.account.applicationWorkspaces?.[record.id], materialContext, now });
     const workflow = getJourneyProfessionalWorkflow(opportunity);
     const submit = getJourneyProfessionalActions(record, workflow).find((action) => action.resultingStatus === "Submitted" && action.stage);
     const base = {
