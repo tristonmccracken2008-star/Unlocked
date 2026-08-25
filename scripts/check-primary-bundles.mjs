@@ -7,6 +7,7 @@ const routes = [
   ["Journey", ".next/server/app/page_client-reference-manifest.js", "[project]/app/page"],
   ["Discover", ".next/server/app/opportunities/page_client-reference-manifest.js", "[project]/app/opportunities/page"],
   ["Explorer", ".next/server/app/explore/page_client-reference-manifest.js", "[project]/app/explore/page"],
+  ["Collections", ".next/server/app/collections/page_client-reference-manifest.js", "[project]/app/collections/page"],
   ["For You", ".next/server/app/advisor/page_client-reference-manifest.js", "[project]/app/advisor/page"],
 ];
 const results = [];

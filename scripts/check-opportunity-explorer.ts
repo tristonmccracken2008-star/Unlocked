@@ -64,6 +64,7 @@ const mathArea = explorerAreas.find((area) => area.id === "mathematics-data")!;
 const mathModel = buildOpportunityExplorerArea({ area: mathArea, account: account(), opportunities, pro: false });
 assert.ok(mathModel.landscapes.some((landscape) => landscape.id === "quantitative-finance"));
 assert.equal(mathModel.path?.href, "/paths/quantitative-data");
+assert.equal(mathModel.collection?.href, "/collections/finance-quant");
 assert.ok(mathModel.landscapes.every((landscape) => landscape.opportunities.length <= 2), "Free examples must be useful but bounded.");
 
 const active = mathModel.landscapes.flatMap((landscape) => landscape.opportunities)[0]!;

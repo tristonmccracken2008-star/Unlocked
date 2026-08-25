@@ -92,6 +92,17 @@ Explorer events measure whether structured exploration leads students toward the
 - `explorer_to_journey_v1`: an opportunity entered the existing Journey workflow from Explorer.
 - `explorer_serendipity_opened_v1`: the deterministic adjacent-area suggestion was opened.
 
+## Opportunity Collection Events
+
+Collection events measure whether curated starting points help students reach the existing catalog, Paths, Watch, or Journey. They retain only curated collection identifiers, opaque opportunity IDs, and bounded action/source labels. They never include profile values, eligibility decisions, search text, or private Journey contents.
+
+- `collections_opened_v1`: the Collections index was opened.
+- `collection_opened_v1`: a launched collection or one of its examples was opened.
+- `collection_to_discover_v1`: a collection handed off to its deterministic Discover filters.
+- `collection_to_path_v1`: a collection handed off to an existing Path.
+- `collection_to_watch_v1`: Watch intent changed from a collection.
+- `collection_to_journey_v1`: an opportunity entered the existing Journey workflow from a collection.
+
 ## Journey Events
 
 All Journey action aggregates are retained for 90 days.

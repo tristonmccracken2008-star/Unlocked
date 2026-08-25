@@ -102,6 +102,7 @@ export function OpportunityExplorerArea({ model }: { model: ExplorerAreaModel })
       </header>
       <aside className={styles.landscapeNote}><SparkIcon /><p><strong>This is a map, not a ranking.</strong> Explore a kind of experience, then use Discover for the full catalog.</p></aside>
       <div className={styles.landscapeList}>{model.landscapes.map((landscape) => <Landscape key={landscape.id} landscape={landscape} areaId={model.id} pro={model.pro} />)}</div>
+      {model.collection ? <aside className={styles.pathHandoff}><div><p>Want a shorter place to start?</p><strong>{model.collection.name} is a curated shortlist from this landscape.</strong></div><Link href={model.collection.href}>Open Collection <ArrowIcon /></Link></aside> : null}
       {model.path ? <aside className={styles.pathHandoff}><div><p>Want to follow this direction over time?</p><strong>Opportunity Paths shows how related experience types connect.</strong></div><ExplorerLink href={model.path.href} event="path" areaId={model.id} pathId={model.path.id}>View {model.path.name} Path <ArrowIcon /></ExplorerLink></aside> : null}
       {model.adjacent.length ? <section className={styles.adjacent} aria-labelledby="adjacent-title"><p>Related areas</p><h2 id="adjacent-title">Explore another possibility</h2><div>{model.adjacent.map((area) => <ExplorerLink key={area.id} href={area.href} event="area" areaId={area.id}>{area.name}<ArrowIcon /></ExplorerLink>)}</div></section> : null}
     </div>

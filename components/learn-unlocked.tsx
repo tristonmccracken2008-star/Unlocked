@@ -9,6 +9,7 @@ const sections = [
   { id: "getting-started", title: "Getting started", copy: "Build your private profile once. UnlockED uses it to check eligibility and keep the rest of the product relevant.", href: "/profile", action: "Review profile", icon: PenLineIcon },
   { id: "discover", title: "Discover", copy: "Search the complete catalog, use filters to narrow it, and open the official source before applying.", href: "/opportunities", action: "Open Discover", icon: SearchIcon },
   { id: "explore", title: "Explore", copy: "Discover fields and experience types you may not know to search for yet. Explore maps possibilities; Discover holds the full catalog.", href: "/explore?guide=explorer_intro", action: "Open Explore", icon: SparkIcon },
+  { id: "collections", title: "Collections", copy: "Use a curated starting point when you know your situation or field but do not know which opportunities to review first.", href: "/collections", action: "Browse Collections", icon: BookmarkIcon },
   { id: "trust", title: "How verification works", copy: "UnlockED labels verified deadlines and requirements field by field. A recommendation can fit your profile without guaranteeing eligibility.", href: "/opportunities", action: "Review opportunities", icon: CheckIcon },
   { id: "for-you", title: "For You", copy: "A smaller set prioritized from your profile, interests, and Journey activity. Match labels show the strongest factual reasons.", href: "/advisor", action: "Open For You", icon: SparkIcon },
   { id: "paths", title: "Opportunity Paths", copy: "Explore how real opportunity types connect to a goal. Paths show possibilities; Journey holds only what you choose to pursue.", href: "/paths", action: "Explore Paths", icon: TargetIcon },
@@ -24,7 +25,7 @@ const sections = [
 ] as const;
 
 const productMap = [
-  ["Discover", "Browse what exists"], ["For You", "See what fits"], ["Paths", "Explore by goal"],
+  ["Discover", "Browse what exists"], ["Collections", "Find a useful starting point"], ["For You", "See what fits"], ["Paths", "Explore by goal"],
   ["Planner", "Look ahead"], ["Journey", "Manage what you’re pursuing"], ["Materials", "Organize reusable application assets"], ["Accomplishments", "Keep your completed history"], ["Insights", "Understand your recorded history"],
 ] as const;
 

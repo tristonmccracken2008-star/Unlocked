@@ -16,6 +16,7 @@ import { buildOpportunityStudentContext } from "@/data/recommendation-engine";
 import { auditRecommendationSafety } from "@/data/recommendation-safe-catalog";
 import { schools } from "@/data/seed";
 import type { AccountData } from "./account-types";
+import { opportunityCollections } from "@/data/opportunity-collections";
 
 export type ExplorerOpportunityState = "exploring" | "watching" | "in_journey" | "completed";
 export type ExplorerEligibilityState = "eligible" | "check" | "not_eligible";
@@ -81,6 +82,7 @@ export type ExplorerLandingModel = {
 
 export type ExplorerAreaModel = ExplorerAreaSummary & {
   path: { id: string; name: string; href: string } | null;
+  collection: { id: string; name: string; href: string } | null;
   landscapes: ExplorerLandscapeView[];
   adjacent: ExplorerAreaSummary[];
   pro: boolean;
@@ -372,6 +374,10 @@ export function buildOpportunityExplorerArea(input: { area: ExplorerAreaDefiniti
   return {
     ...summary,
     path: input.area.pathId ? { id: input.area.pathId, name: input.area.shortName, href: `/paths/${input.area.pathId}` } : null,
+    collection: (() => {
+      const collection = opportunityCollections.find((candidate) => candidate.explorerAreaId === input.area.id);
+      return collection ? { id: collection.id, name: collection.title, href: `/collections/${collection.id}` } : null;
+    })(),
     landscapes: input.area.landscapes.flatMap((landscape) => {
       const view = landscapeView(landscape, input.area.id, index, input.account, context, input.pro);
       return view ? [view] : [];

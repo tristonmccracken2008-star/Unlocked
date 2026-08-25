@@ -8,7 +8,9 @@ import { buildJourneyCommandCenterModel, type JourneyCommandRecord } from "./jou
 import { buildAccomplishmentsModel } from "./accomplishments";
 import { opportunityPaths } from "@/data/opportunity-paths";
 import { explorerAreas, explorerExperienceTypes } from "@/data/opportunity-explorer";
+import { opportunityCollections } from "@/data/opportunity-collections";
 import { applicationMaterialStatusLabels, applicationMaterialTypeLabels, normalizeApplicationMaterialStore } from "@/data/application-materials";
+import { opportunityCollectionCoverage } from "./opportunity-collections";
 
 function normalize(value: string) {
   return value.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim().replace(/\s+/g, " ");
@@ -105,6 +107,12 @@ export function buildUniversalSearch(input: {
     const score = matchScore(query, [path.name, path.shortName, `${path.name} path`, `${path.shortName} path`, path.description, ...path.profileAliases]);
     return score ? [{ id: `path:${path.id}`, kind: "path", group: "Paths", title: path.name, subtitle: "Explore opportunities by goal", href: `/paths/${path.id}`, score: score + 340 }] : [];
   }).sort((left, right) => right.score - left.score || left.title.localeCompare(right.title)).slice(0, 4);
+  const launchedCollectionIds = new Set(opportunityCollectionCoverage(input.opportunities, input.now).filter((item) => item.readiness === "launched").map((item) => item.id));
+  const collections = opportunityCollections.flatMap((collection): UniversalSearchResult[] => {
+    if (!launchedCollectionIds.has(collection.id)) return [];
+    const score = matchScore(query, [collection.title, collection.shortTitle, collection.description, ...collection.profileAliases, `${collection.shortTitle} opportunities`]);
+    return score ? [{ id: `collection:${collection.id}`, kind: "collection", group: "Collections", title: collection.title, subtitle: "Open a curated starting point", href: `/collections/${collection.id}`, score: score + 370 }] : [];
+  }).sort((left, right) => right.score - left.score || left.title.localeCompare(right.title)).slice(0, 4);
   const explorationQuery = query.replace(/^(what (?:can|could) i do with|explore|opportunities (?:in|for)|interested in)\s+/i, "").trim() || query;
   const explorer = [
     ...explorerAreas.flatMap((area): UniversalSearchResult[] => {
@@ -192,7 +200,7 @@ export function buildUniversalSearch(input: {
 
   return {
     query,
-    results: [...explorer, ...materials, ...paths, ...accomplishments, ...personal, ...upcoming, ...tasks, ...opportunities],
+    results: [...collections, ...explorer, ...materials, ...paths, ...accomplishments, ...personal, ...upcoming, ...tasks, ...opportunities],
     totalOpportunityMatches: preciseCatalog.length ? catalog.total : 0,
   };
 }

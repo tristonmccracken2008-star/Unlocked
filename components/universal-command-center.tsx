@@ -73,6 +73,7 @@ function localScore(result: CommandResult, query: string, pathname: string) {
 }
 
 function ResultIcon({ kind }: { kind: CommandResult["kind"] }) {
+  if (kind === "collection") return <BookmarkIcon />;
   if (kind === "explorer") return <SparkIcon />;
   if (kind === "journey" || kind === "recent") return <BookmarkIcon />;
   if (kind === "path") return <SparkIcon />;

@@ -13,7 +13,7 @@ import { officialDeadlineIsCalendarReady } from "./journey-calendar";
 export type JourneyAddMutation = {
   opportunityId: string;
   idempotencyKey: string;
-  source: "discover" | "for_you" | "opportunity" | "journey" | "path";
+  source: "discover" | "for_you" | "opportunity" | "journey" | "path" | "collection";
   initialStage: "saved" | "preparing" | "applied";
   details?: JourneyMilestoneDetails;
 };

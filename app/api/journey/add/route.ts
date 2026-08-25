@@ -13,7 +13,7 @@ export const revalidate = 0;
 
 const opportunityIdPattern = /^[A-Za-z0-9][A-Za-z0-9._:-]{0,159}$/;
 const requestIdPattern = /^[A-Za-z0-9][A-Za-z0-9._:-]{7,127}$/;
-const validSources = new Set(["discover", "for_you", "opportunity", "journey", "path"]);
+const validSources = new Set(["discover", "for_you", "opportunity", "journey", "path", "collection"]);
 const validInitialStages = new Set(["saved", "preparing", "applied"]);
 
 function cleanDetails(value: unknown): JourneyMilestoneDetails | undefined {
@@ -32,7 +32,7 @@ function parseBody(value: unknown) {
   const body = value as Record<string, unknown>;
   if (typeof body.opportunityId !== "string" || !opportunityIdPattern.test(body.opportunityId)) throw new SecurityError("Invalid opportunity.", 400, "invalid_request");
   if (typeof body.idempotencyKey !== "string" || !requestIdPattern.test(body.idempotencyKey)) throw new SecurityError("Invalid request identifier.", 400, "invalid_request");
-  const source = typeof body.source === "string" && validSources.has(body.source) ? body.source as "discover" | "for_you" | "opportunity" | "journey" | "path" : "opportunity";
+  const source = typeof body.source === "string" && validSources.has(body.source) ? body.source as "discover" | "for_you" | "opportunity" | "journey" | "path" | "collection" : "opportunity";
   if (body.initialStage !== undefined && (typeof body.initialStage !== "string" || !validInitialStages.has(body.initialStage))) throw new SecurityError("Invalid starting stage.", 400, "invalid_request");
   const initialStage = (body.initialStage ?? "saved") as "saved" | "preparing" | "applied";
   return { opportunityId: body.opportunityId, idempotencyKey: body.idempotencyKey, source, initialStage, details: cleanDetails(body.details) };

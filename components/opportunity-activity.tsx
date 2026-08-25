@@ -38,7 +38,7 @@ export function OpportunityActivityActions({ opportunityId, type, officialSource
   </div>;
 }
 
-export function AddToJourneyButton({ opportunityId, recommendationId, recommendationCategory, recommendationExposureCount, origin = "discover", pathId, explorerAreaId, initialAdded = false, className = "" }: { opportunityId: string; recommendationId?: string; recommendationCategory?: string; recommendationExposureCount?: number; origin?: "discover" | "path" | "explorer"; pathId?: string; explorerAreaId?: string; initialAdded?: boolean; className?: string }) {
+export function AddToJourneyButton({ opportunityId, recommendationId, recommendationCategory, recommendationExposureCount, origin = "discover", pathId, explorerAreaId, collectionId, initialAdded = false, className = "" }: { opportunityId: string; recommendationId?: string; recommendationCategory?: string; recommendationExposureCount?: number; origin?: "discover" | "path" | "explorer" | "collection"; pathId?: string; explorerAreaId?: string; collectionId?: string; initialAdded?: boolean; className?: string }) {
   // The first client render must match the server. Local activity is reconciled
   // after hydration by the effect below.
   const [added, setAdded] = useState(initialAdded);
@@ -128,6 +128,7 @@ export function AddToJourneyButton({ opportunityId, recommendationId, recommenda
       trackProductEvent("opportunity_added_to_journey", { opportunityId });
       if (source === "path" && pathId) trackProductEvent(productIntelligenceEvents.pathToJourney, { opportunityId, pathId });
       if (source === "explorer" && explorerAreaId) trackProductEvent(productIntelligenceEvents.explorerToJourney, { opportunityId, section: explorerAreaId });
+      if (source === "collection" && collectionId) trackProductEvent(productIntelligenceEvents.collectionToJourney, { opportunityId, section: collectionId });
       if (attribution) {
         rememberRecommendationAttribution(opportunityId, attribution, category, exposureCount);
         trackProductEvent(productIntelligenceEvents.recommendationSaved, { opportunityId, recommendationId: attribution, category, exposureCount });
