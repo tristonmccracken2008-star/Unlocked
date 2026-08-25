@@ -79,6 +79,16 @@ Path events measure whether goal-oriented exploration leads into existing produc
 - `material_selected_for_application_v1`: a reusable material was selected for an application; document metadata is excluded.
 - `material_archived_v1`: a material record was archived; document metadata is excluded.
 
+## Applications Workspace Events
+
+Applications events measure whether the cross-application workspace helps students reach existing application controls. They retain only bounded state, filter, category, and source tokens. Application titles, organization names, requirement text, task text, Material names, document metadata, dates, outcomes, and private notes are prohibited.
+
+- `applications_workspace_opened_v1`: the private Applications workspace was opened; only `active` or `empty` is retained.
+- `application_summary_opened_v1`: an inline application summary was opened; only bounded readiness state and the generic `application` category are retained.
+- `application_task_completed_v1`: an existing task update succeeded; only bounded application state and `private` or `verified` source are retained.
+- `application_filter_changed_v1`: one of the fixed Applications views was selected.
+- `application_command_center_opened_v1`: Applications handed off to the existing single-application Command Center; only bounded readiness state is retained.
+
 ## Opportunity Explorer Events
 
 Explorer events measure whether structured exploration leads students toward the existing catalog, Paths, Watch, or Journey. They retain only curated area/type identifiers, opaque opportunity IDs, and bounded action/source labels. They never include profile fields, eligibility details, search text, private history, or recommendation contents.

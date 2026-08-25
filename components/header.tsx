@@ -40,10 +40,10 @@ const contextualDestinations: Record<DestinationLabel, Array<{ label: string; de
   ],
   Journey: [
     { label: "Active opportunities", description: "Return to everything currently in motion.", href: "/#active-opportunities", icon: BookmarkIcon },
+    { label: "Applications", description: "Manage requirements, tasks, Materials, and deadlines across active applications.", href: "/applications", icon: PenLineIcon },
     { label: "Materials", description: "Organize reusable application materials and versions.", href: "/materials", icon: ListIcon },
     { label: "Accomplishments", description: "Review the private record of opportunities you completed or earned.", href: "/accomplishments", icon: TrophyIcon },
     { label: "Insights", description: "Understand the opportunity history recorded in your account.", href: "/insights", icon: ListIcon },
-    { label: "Applications", description: "Review opportunities you have applied to.", href: "/?stage=applied#active-opportunities", icon: PenLineIcon },
     { label: "Professional history", description: "See completed and archived records.", href: "/?stage=history#journey-history", icon: TrophyIcon },
     { label: "Journey Cards", description: "Present a confirmed milestone when one is ready.", href: "/#journey-cards", icon: SparkIcon },
   ],
@@ -56,6 +56,7 @@ function isServerProtectedProductPath(pathname: string) {
     || pathname.startsWith("/explore")
     || pathname.startsWith("/collections")
     || pathname === "/accomplishments"
+    || pathname === "/applications"
     || pathname === "/materials"
     || pathname === "/insights"
     || pathname === "/profile"

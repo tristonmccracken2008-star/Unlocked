@@ -16,7 +16,7 @@ for (const href of [
   "/opportunities?type=Benefit",
   "/advisor#more-matches-title",
   "/profile#interests",
-  "/?stage=applied#active-opportunities",
+  "/applications",
   "/?stage=history#journey-history",
   "/#journey-cards",
 ]) assert.ok(header.includes(href), `Premium navigation must preserve real destination ${href}.`);

@@ -125,7 +125,7 @@ export function ApplicationMaterials({ initial, guidance }: { initial: Applicati
         <MaterialsSection title="Needs attention" records={model.needsAttention} pending={pending} onMutate={mutate} />
         <MaterialsSection title="Archived" records={model.archived} pending={pending} onMutate={mutate} />
       </>}
-      {model.applications.length ? <section className={styles.applications} aria-labelledby="material-applications-heading"><header><h2 id="material-applications-heading">Active applications</h2><span>Materials only</span></header>{model.applications.map((application) => <Link key={application.opportunityId} href={`/?q=${encodeURIComponent(application.title)}#journey-record-${application.opportunityId}`}><div><strong>{application.title}</strong><span>{application.organization}</span></div><p>{application.readiness.summary}</p><ArrowIcon /></Link>)}</section> : null}
+      {model.applications.length ? <section className={styles.applications} aria-labelledby="material-applications-heading"><header><h2 id="material-applications-heading">Active applications</h2><Link href="/applications">Open Applications <ArrowIcon /></Link></header>{model.applications.map((application) => <Link key={application.opportunityId} href={`/applications#application-${encodeURIComponent(application.opportunityId)}`}><div><strong>{application.title}</strong><span>{application.organization}</span></div><p>{application.readiness.summary}</p><ArrowIcon /></Link>)}</section> : null}
       <p className={styles.disclaimer}>“Ready” reflects your own status. Available materials may still need changes for a program’s exact format or instructions.</p>
     </div>
   </main>;
