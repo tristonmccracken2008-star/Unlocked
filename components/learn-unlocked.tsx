@@ -3,32 +3,59 @@
 import Link from "next/link";
 import { useEffect } from "react";
 import { trackProductEvent } from "@/data/product-analytics";
-import { ArrowIcon, BellIcon, BookmarkIcon, CalendarIcon, CheckIcon, ListIcon, PenLineIcon, SearchIcon, SparkIcon, TargetIcon, TrophyIcon } from "./icons";
+import { ArrowIcon, BookmarkIcon, CalendarIcon, ListIcon, PenLineIcon, SearchIcon, TrophyIcon } from "./icons";
 
-const sections = [
-  { id: "getting-started", title: "Getting started", copy: "Build your private profile once. UnlockED uses it to check eligibility and keep the rest of the product relevant.", href: "/profile", action: "Review profile", icon: PenLineIcon },
-  { id: "discover", title: "Discover", copy: "Search the complete catalog, use filters to narrow it, and open the official source before applying.", href: "/opportunities", action: "Open Discover", icon: SearchIcon },
-  { id: "explore", title: "Explore", copy: "Discover fields and experience types you may not know to search for yet. Explore maps possibilities; Discover holds the full catalog.", href: "/explore?guide=explorer_intro", action: "Open Explore", icon: SparkIcon },
-  { id: "collections", title: "Collections", copy: "Use a curated starting point when you know your situation or field but do not know which opportunities to review first.", href: "/collections", action: "Browse Collections", icon: BookmarkIcon },
-  { id: "trust", title: "How verification works", copy: "UnlockED labels verified deadlines and requirements field by field. A recommendation can fit your profile without guaranteeing eligibility.", href: "/opportunities", action: "Review opportunities", icon: CheckIcon },
-  { id: "for-you", title: "For You", copy: "A smaller set prioritized from your profile, interests, and Journey activity. Match labels show the strongest factual reasons.", href: "/advisor", action: "Open For You", icon: SparkIcon },
-  { id: "paths", title: "Opportunity Paths", copy: "Explore how real opportunity types connect to a goal. Paths show possibilities; Journey holds only what you choose to pursue.", href: "/paths", action: "Explore Paths", icon: TargetIcon },
-  { id: "planner", title: "Planner", copy: "See what matters now and which verified dates fall across your next several months. Journey holds what you pursue; Calendar manages the dates you chose to track.", href: "/planner?guide=planner_intro", action: "Replay Planner guide", icon: CalendarIcon },
-  { id: "journey", title: "Journey", copy: "Keep opportunities, progress, important dates, and confirmed outcomes in one private record.", href: "/?guide=journey", action: "Replay Journey guide", icon: BookmarkIcon },
-  { id: "accomplishments", title: "Accomplishments", copy: "Keep a private record of opportunities you completed or earned. Journey outcomes appear automatically; records from elsewhere can be added manually and edited later.", href: "/accomplishments?guide=accomplishments_intro", action: "Open Accomplishments", icon: TrophyIcon },
-  { id: "applications", title: "Applications", copy: "See what needs attention across active applications. Open an Application Packet to review verified requirements, selected Materials, private tasks, dates, and submission history for one opportunity.", href: "/applications", action: "Open Applications", icon: TargetIcon },
-  { id: "materials", title: "Materials", copy: "Keep reusable application material records organized and connect them to verified requirements. UnlockED does not currently store the documents themselves.", href: "/materials?guide=materials_intro", action: "Open Materials", icon: ListIcon },
-  { id: "resume-lab", title: "Resume Lab", copy: "Build master and targeted resumes from facts you confirm. Resume versions stay connected to Materials; application associations still live there.", href: "/resume-lab", action: "Open Resume Lab", icon: PenLineIcon },
-  { id: "insights", title: "Insights", copy: "See a factual summary of the opportunity activity recorded in your private Journey, outcomes, accomplishments, Paths, Watch, and Materials history. Missing history is never guessed.", href: "/insights", action: "Open Insights", icon: ListIcon },
-  { id: "deadlines", title: "Deadlines", copy: "Official deadlines and personal dates appear together. Add reminders only for dates you want to manage.", href: "/?guide=journey_calendar", action: "Learn about deadlines", icon: CalendarIcon },
-  { id: "conflict-planning", title: "Conflict Planning", copy: "See when verified deadlines and your private application tasks bunch together. It groups dates without moving provider deadlines or estimating effort.", href: "/?calendar=conflicts#journey-upcoming-heading", action: "Review busy periods", icon: CalendarIcon },
-  { id: "notifications", title: "Notifications", copy: "Review deadline reminders, meaningful saved-opportunity changes, and Journey follow-ups without a noisy feed.", href: "/notifications", action: "Open notifications", icon: BellIcon },
-  { id: "profile", title: "Profile and privacy", copy: "Update personalization, notification, privacy, appearance, billing, and account controls from one place.", href: "/profile", action: "Open profile", icon: PenLineIcon },
-] as const;
-
-const productMap = [
-  ["Discover", "Browse what exists"], ["Collections", "Find a useful starting point"], ["For You", "See what fits"], ["Paths", "Explore by goal"],
-  ["Planner", "Look ahead"], ["Calendar", "See your dates"], ["Conflict Planning", "Find date concentration"], ["Journey", "Track what you’re pursuing"], ["Applications", "See work across applications"], ["Application Packet", "Prepare one application"], ["Materials", "Organize application assets"], ["Resume Lab", "Build evidence-first resumes"], ["Accomplishments", "Keep your completed history"], ["Insights", "Understand your recorded history"],
+const stages = [
+  {
+    id: "find", label: "Find", title: "Find something worth pursuing.",
+    copy: "Search everything, browse a curated starting point, or review matches selected for your profile.",
+    href: "/opportunities", action: "Open Discover", icon: SearchIcon,
+    items: [
+      ["discover", "Discover", "Search and filter the complete catalog.", "/opportunities"],
+      ["explore", "Explore", "Browse fields and experience types.", "/explore"],
+      ["collections", "Collections", "Start with a curated group.", "/collections"],
+      ["for-you", "For You", "Review your verified shortlist.", "/advisor"],
+      ["paths", "Paths", "See opportunities connected to a goal.", "/paths"],
+    ],
+  },
+  {
+    id: "pursue", label: "Pursue", title: "Keep the opportunities you choose.",
+    copy: "Add an opportunity to Journey when you want to track it. Watch is for something you only want to monitor.",
+    href: "/", action: "Open Journey", icon: BookmarkIcon,
+    items: [
+      ["journey", "Journey", "Update what you are actively pursuing.", "/"],
+      ["planner", "Planner", "Look ahead across confirmed dates.", "/planner"],
+      ["deadlines", "Calendar", "Manage specific dates and reminders.", "/#journey-calendar"],
+      ["conflict-planning", "Busy periods", "See when known dates bunch together.", "/?calendar=conflicts#journey-upcoming-heading"],
+    ],
+  },
+  {
+    id: "apply", label: "Apply", title: "Prepare one application at a time.",
+    copy: "Applications shows what needs attention. Open one application for its requirements, tasks, materials, dates, and submission record.",
+    href: "/applications", action: "Open Applications", icon: ListIcon,
+    items: [
+      ["applications", "Applications", "Review work across active applications.", "/applications"],
+      ["notifications", "Notifications", "Review deadlines and meaningful changes.", "/notifications"],
+    ],
+  },
+  {
+    id: "build", label: "Build", title: "Prepare assets you can reuse.",
+    copy: "Resume Lab creates resume content from confirmed experience. Materials records versions and connects them to applications; files stay where you keep them.",
+    href: "/resume-lab", action: "Open Resume Lab", icon: PenLineIcon,
+    items: [
+      ["resume-lab", "Resume Lab", "Build master and targeted resumes.", "/resume-lab"],
+      ["materials", "Materials", "Organize reusable asset records.", "/materials"],
+    ],
+  },
+  {
+    id: "look-back", label: "Look back", title: "Keep a factual record of what you did.",
+    copy: "Accomplishments stores completed outcomes. Insights summarizes the private history already recorded in your account.",
+    href: "/accomplishments", action: "Open Accomplishments", icon: TrophyIcon,
+    items: [
+      ["accomplishments", "Accomplishments", "Keep completed and earned outcomes.", "/accomplishments"],
+      ["insights", "Insights", "Review a factual summary of your history.", "/insights"],
+    ],
+  },
 ] as const;
 
 export function LearnUnlocked() {
@@ -37,24 +64,33 @@ export function LearnUnlocked() {
     <div className="mx-auto max-w-6xl">
       <header className="max-w-3xl border-b border-ink/10 pb-8">
         <p className="rule-label text-forest">Learn UnlockED</p>
-        <h1 className="mt-3 font-editorial text-4xl font-bold text-ink sm:text-6xl">Help, when you need it.</h1>
-        <p className="mt-4 max-w-2xl text-sm leading-6 text-ink/55">A short reference for the parts of UnlockED you already have. Replay a guide to see the feature in your own account.</p>
+        <h1 className="mt-3 font-editorial text-4xl font-bold text-ink sm:text-6xl">From finding it to finishing it.</h1>
+        <p className="mt-4 max-w-2xl text-sm leading-6 text-ink/55">Five parts of one workflow. Start with the step you need.</p>
       </header>
-      <section className="border-b border-ink/10 py-8" aria-labelledby="product-map-title">
-        <p className="rule-label text-forest">How UnlockED fits together</p>
-        <h2 id="product-map-title" className="mt-3 font-editorial text-3xl font-bold text-ink">One place for each part of the process.</h2>
-        <dl className="mt-6 grid gap-x-8 gap-y-3 sm:grid-cols-2 lg:grid-cols-3">{productMap.map(([name, purpose]) => <div key={name} className="grid grid-cols-[auto_1fr] gap-2 text-sm"><dt className="font-bold text-ink">{name}</dt><dd className="text-ink/50">— {purpose}</dd></div>)}</dl>
-      </section>
-      <div className="mt-9 grid gap-x-10 gap-y-2 md:grid-cols-2">
-        {sections.map((section) => {
-          const Icon = section.icon;
-          return <section id={section.id} key={section.id} className="grid grid-cols-[2.5rem_minmax(0,1fr)] gap-4 border-b border-ink/10 py-6">
-            <span className="grid h-10 w-10 place-items-center rounded-lg bg-forest/[.07] text-forest" aria-hidden="true"><Icon className="h-4 w-4" /></span>
-            <div><h2 className="font-editorial text-2xl font-bold text-ink">{section.title}</h2><p className="mt-2 text-sm leading-6 text-ink/55">{section.copy}</p><Link href={section.href} className="mt-4 inline-flex min-h-11 items-center gap-2 text-sm font-bold text-forest hover:text-ink">{section.action} <ArrowIcon className="h-3 w-3" /></Link></div>
+
+      <div className="divide-y divide-ink/10">
+        {stages.map((stage, index) => {
+          const Icon = stage.icon;
+          return <section id={stage.id} key={stage.id} className="grid gap-7 py-9 lg:grid-cols-[minmax(0,.8fr)_minmax(24rem,1.2fr)] lg:gap-14">
+            <div className="max-w-xl">
+              <div className="flex items-center gap-3"><span className="grid h-10 w-10 place-items-center rounded-lg bg-forest/[.07] text-forest" aria-hidden="true"><Icon className="h-4 w-4" /></span><p className="rule-label text-forest">{index + 1}. {stage.label}</p></div>
+              <h2 className="mt-4 font-editorial text-3xl font-bold text-ink sm:text-4xl">{stage.title}</h2>
+              <p className="mt-3 text-sm leading-6 text-ink/55">{stage.copy}</p>
+              <Link href={stage.href} className="mt-5 inline-flex min-h-11 items-center gap-2 text-sm font-bold text-forest hover:text-ink">{stage.action} <ArrowIcon className="h-3 w-3" /></Link>
+            </div>
+            <div className="divide-y divide-ink/10 border-y border-ink/10">
+              {stage.items.map(([id, title, copy, href]) => <Link id={id} key={id} href={href} className="group grid min-h-16 grid-cols-[minmax(0,1fr)_auto] items-center gap-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-forest/20">
+                <span><strong className="block text-ink">{title}</strong><small className="mt-1 block leading-5 text-ink/50">{copy}</small></span><ArrowIcon className="h-3.5 w-3.5 text-forest transition group-hover:translate-x-0.5" />
+              </Link>)}
+            </div>
           </section>;
         })}
       </div>
-      <p className="mt-8 text-xs leading-5 text-ink/45">Guides use your real interface and never create demo opportunities, tasks, or milestones.</p>
+
+      <aside id="getting-started" className="mt-4 flex flex-col justify-between gap-5 border-y border-ink/10 py-7 sm:flex-row sm:items-center">
+        <div><h2 className="font-editorial text-2xl font-bold text-ink">Account, privacy, and verification</h2><p id="trust" className="mt-2 max-w-2xl text-sm leading-6 text-ink/55">Update your profile from one place. UnlockED labels verified facts and links to official sources; it never guarantees eligibility or an outcome.</p></div>
+        <Link id="profile" href="/profile" className="inline-flex min-h-11 shrink-0 items-center gap-2 text-sm font-bold text-forest hover:text-ink">Open Profile <ArrowIcon className="h-3 w-3" /></Link>
+      </aside>
     </div>
   </main>;
 }

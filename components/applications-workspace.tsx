@@ -28,8 +28,7 @@ export function ApplicationsWorkspace({ initial }: { initial: ApplicationsWorksp
   return <main className={styles.page} data-applications-workspace>
     <div className={styles.shell}>
       <header className={styles.hero}>
-        <div><p className="rule-label">Private application workspace</p><h1>Applications</h1><span>Manage active applications in one place.</span></div>
-        <nav aria-label="Application workspace links"><Link href="/materials">Materials</Link><Link href="/#journey-calendar">Calendar</Link><Link href="/">Journey</Link></nav>
+        <div><p className="rule-label">Your application work</p><h1>Applications</h1><span>See what needs work and open one application to continue.</span></div>
       </header>
 
       {!initial.applications.length ? <SmartEmptyState className={styles.empty} title="No active applications yet." description="When you begin pursuing an application-based opportunity in Journey, it will appear here." primaryAction={{ label: "Browse For You", href: "/advisor" }} secondaryAction={{ label: "Open Journey", href: "/" }} /> : <>
@@ -67,7 +66,7 @@ function ApplicationRow({ application }: { application: ApplicationsWorkspaceApp
     <div className={styles.identity}><OrganizationMark organization={application.organization} officialSource={application.officialSource} type="Career" category={application.category} size="sm" /><div><h3>{application.title}</h3><p>{application.organization} · {application.stageLabel}</p></div></div>
     <div className={styles.applicationState}><strong>{application.stateLabel}</strong><span>{application.deadline ? `Application due ${formatDate(application.deadline)}` : "No verified deadline"}</span></div>
     <div className={styles.coverage}><strong>{application.workspace.requirementsVerified ? `${application.coveredRequirementCount} of ${application.verifiedRequirementCount} verified requirements recorded` : "Requirements not verified"}</strong><span>{application.incompleteTaskCount ? `${application.incompleteTaskCount} incomplete ${application.incompleteTaskCount === 1 ? "task" : "tasks"}` : "No incomplete tasks"}</span></div>
-    <Link className={styles.rowAction} href={application.commandCenterHref} onClick={() => trackProductEvent("application_packet_opened_v1", { status: application.state })}>Open packet <ArrowIcon /></Link>
+    <Link className={styles.rowAction} href={application.commandCenterHref} onClick={() => trackProductEvent("application_packet_opened_v1", { status: application.state })}>Open application <ArrowIcon /></Link>
   </article>;
 }
 

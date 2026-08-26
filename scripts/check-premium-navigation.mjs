@@ -6,19 +6,20 @@ const header = read("components/header.tsx");
 const styles = read("app/globals.css");
 const pkg = read("package.json");
 
-for (const label of ["Discover", "For You", "Journey"]) {
+for (const label of ["Discover", "For You", "Journey", "Build"]) {
   assert.ok(header.includes(`${label}: [`) || header.includes(`"${label}": [`), `${label} must have contextual navigation backed by real product states.`);
 }
 for (const href of [
-  "/opportunities?type=Scholarship",
-  "/opportunities?type=Career&category=Internships",
-  "/opportunities?type=Research",
-  "/opportunities?type=Benefit",
-  "/advisor#more-matches-title",
+  "/opportunities",
+  "/explore",
+  "/collections",
+  "/paths",
   "/profile#interests",
   "/applications",
-  "/?stage=history#journey-history",
-  "/#journey-cards",
+  "/planner",
+  "/#journey-calendar",
+  "/resume-lab",
+  "/materials",
 ]) assert.ok(header.includes(href), `Premium navigation must preserve real destination ${href}.`);
 
 for (const token of ["data-context-destination", "data-context-trigger", "data-context-panel", "aria-expanded", "aria-controls", "onMouseEnter", "onMouseLeave", "onFocusCapture", "onBlurCapture", 'event.key !== "Escape"', "140"]) {

@@ -8,47 +8,43 @@ import { AccountButton } from "./account-auth";
 import { accountSessionEvent, readAccountSession } from "@/data/account-sync";
 import type { AccountSession } from "@/lib/account-types";
 import { NotificationNavButton } from "./notification-nav-button";
-import { ArrowIcon, BookmarkIcon, CalendarIcon, ListIcon, PenLineIcon, SearchIcon, SparkIcon, TrophyIcon } from "./icons";
+import { ArrowIcon, BookmarkIcon, CalendarIcon, ListIcon, PenLineIcon, SearchIcon, SparkIcon } from "./icons";
 
 const loadUniversalCommandCenter = () => import("./universal-command-center").then((module) => module.UniversalCommandCenter);
 const UniversalCommandCenter = dynamic(loadUniversalCommandCenter, { ssr: false });
 
-const destinations = [["Discover", "/opportunities"], ["For You", "/advisor"], ["Planner", "/planner"], ["Journey", "/"]] as const;
+const destinations = [["Discover", "/opportunities"], ["For You", "/advisor"], ["Journey", "/"], ["Build", "/resume-lab"]] as const;
 type DestinationLabel = (typeof destinations)[number][0];
 
 const contextualDestinations: Record<DestinationLabel, Array<{ label: string; description: string; href: string; icon: typeof SearchIcon }>> = {
   Discover: [
-    { label: "Browse all", description: "Search the complete opportunity catalog.", href: "/opportunities", icon: SearchIcon },
-    { label: "Explore possibilities", description: "Discover opportunity types and areas you may not know to search for.", href: "/explore", icon: SparkIcon },
-    { label: "Collections", description: "Start with a curated group for a situation, field, or moment.", href: "/collections", icon: BookmarkIcon },
-    { label: "Opportunity Paths", description: "Explore how opportunities connect to a goal.", href: "/paths", icon: SparkIcon },
-    { label: "Scholarships", description: "Funding from verified and official sources.", href: "/opportunities?type=Scholarship", icon: TrophyIcon },
-    { label: "Internships", description: "Career opportunities and early programs.", href: "/opportunities?type=Career&category=Internships", icon: PenLineIcon },
-    { label: "Research", description: "Undergraduate research and lab programs.", href: "/opportunities?type=Research", icon: SparkIcon },
-    { label: "Student benefits", description: "Software, services, and student offers.", href: "/opportunities?type=Benefit", icon: BookmarkIcon },
+    { label: "Search all", description: "Search and filter the complete catalog.", href: "/opportunities", icon: SearchIcon },
+    { label: "Explore", description: "Browse fields and experience types.", href: "/explore", icon: SparkIcon },
+    { label: "Collections", description: "Start with a curated group.", href: "/collections", icon: BookmarkIcon },
+    { label: "Paths", description: "See opportunities connected to a goal.", href: "/paths", icon: ArrowIcon },
   ],
   "For You": [
-    { label: "Your shortlist", description: "Review opportunities selected around your profile.", href: "/advisor", icon: SparkIcon },
-    { label: "More matches", description: "Continue through your current verified shortlist.", href: "/advisor#more-matches-title", icon: SearchIcon },
-    { label: "Recommendation preferences", description: "Refine the interests that shape your matches.", href: "/profile#interests", icon: PenLineIcon },
-  ],
-  Planner: [
-    { label: "What matters now", description: "Review the few dated items and matches worth attention.", href: "/planner", icon: SparkIcon },
-    { label: "Year Ahead", description: "See confirmed openings and deadlines across the months ahead.", href: "/planner#year-ahead", icon: CalendarIcon },
-    { label: "Calendar", description: "Manage the dates attached to opportunities in Journey.", href: "/#journey-calendar", icon: CalendarIcon },
-    { label: "Learn Planner", description: "Understand Planner, Watch, Journey, and verified dates.", href: "/learn#planner", icon: BookmarkIcon },
+    { label: "Your matches", description: "Review your current verified shortlist.", href: "/advisor", icon: SparkIcon },
+    { label: "Preferences", description: "Update the interests behind your matches.", href: "/profile#interests", icon: PenLineIcon },
   ],
   Journey: [
-    { label: "Active opportunities", description: "Return to everything currently in motion.", href: "/#active-opportunities", icon: BookmarkIcon },
-    { label: "Applications", description: "Manage requirements, tasks, Materials, and deadlines across active applications.", href: "/applications", icon: PenLineIcon },
-    { label: "Materials", description: "Organize reusable application materials and versions.", href: "/materials", icon: ListIcon },
-    { label: "Resume Lab", description: "Build evidence-first master and targeted resumes.", href: "/resume-lab", icon: PenLineIcon },
-    { label: "Accomplishments", description: "Review the private record of opportunities you completed or earned.", href: "/accomplishments", icon: TrophyIcon },
-    { label: "Insights", description: "Understand the opportunity history recorded in your account.", href: "/insights", icon: ListIcon },
-    { label: "Professional history", description: "See completed and archived records.", href: "/?stage=history#journey-history", icon: TrophyIcon },
-    { label: "Journey Cards", description: "Present a confirmed milestone when one is ready.", href: "/#journey-cards", icon: SparkIcon },
+    { label: "Journey", description: "See what you are pursuing and update progress.", href: "/", icon: BookmarkIcon },
+    { label: "Applications", description: "See what needs work across active applications.", href: "/applications", icon: ListIcon },
+    { label: "Planner", description: "Look ahead across confirmed opportunity dates.", href: "/planner", icon: CalendarIcon },
+    { label: "Calendar", description: "Manage the dates attached to your Journey.", href: "/#journey-calendar", icon: CalendarIcon },
+  ],
+  Build: [
+    { label: "Resume Lab", description: "Build master and targeted resumes from confirmed experience.", href: "/resume-lab", icon: PenLineIcon },
+    { label: "Materials", description: "Organize reusable application asset records.", href: "/materials", icon: ListIcon },
   ],
 };
+
+function isDestinationActive(label: DestinationLabel, pathname: string) {
+  if (label === "Discover") return ["/opportunities", "/explore", "/collections", "/paths"].some((href) => pathname.startsWith(href));
+  if (label === "For You") return pathname.startsWith("/advisor");
+  if (label === "Build") return pathname.startsWith("/resume-lab") || pathname.startsWith("/materials");
+  return pathname === "/" || pathname.startsWith("/applications") || pathname.startsWith("/planner") || pathname.startsWith("/accomplishments") || pathname.startsWith("/insights");
+}
 
 function isServerProtectedProductPath(pathname: string) {
   return pathname === "/advisor"
@@ -187,7 +183,7 @@ export function Header() {
   }
 
   function navigationLink(label: string, href: string, mobile = false) {
-    const active = href === "/" ? pathname === "/" : label === "Discover" ? pathname?.startsWith("/opportunities") || pathname?.startsWith("/explore") || pathname?.startsWith("/collections") || pathname?.startsWith("/paths") : pathname?.startsWith(href);
+    const active = isDestinationActive(label as DestinationLabel, pathname);
     return <a
       key={href}
       href={href}
@@ -201,13 +197,13 @@ export function Header() {
         ? `relative inline-flex min-h-11 items-center justify-center rounded-full px-3 text-center transition duration-200 active:scale-[.98] ${active ? "bg-white text-forest" : "text-white/70 hover:text-white"}`
         : `relative inline-flex min-h-11 items-center rounded-full px-4 transition duration-200 active:scale-[.98] ${active ? "bg-white text-forest shadow-[0_8px_20px_rgba(43,33,26,.08)]" : "hover:bg-white/75 hover:text-forest"}`}
     >
-      {label === "Journey" || label === "Planner" ? <span data-journey-destination-icon={label === "Journey" ? "" : undefined} aria-hidden="true" className="inline-grid h-4 w-4 shrink-0 place-items-center">{label === "Journey" ? <BookmarkIcon className="h-4 w-4" /> : <CalendarIcon className="h-4 w-4" />}</span> : null}
+      {label === "Journey" || label === "Build" ? <span data-journey-destination-icon={label === "Journey" ? "" : undefined} aria-hidden="true" className="inline-grid h-4 w-4 shrink-0 place-items-center">{label === "Journey" ? <BookmarkIcon className="h-4 w-4" /> : <PenLineIcon className="h-4 w-4" />}</span> : null}
       {label}
     </a>;
   }
 
   function desktopDestination(label: DestinationLabel, href: string) {
-    const active = href === "/" ? pathname === "/" : label === "Discover" ? pathname?.startsWith("/opportunities") || pathname?.startsWith("/explore") || pathname?.startsWith("/collections") || pathname?.startsWith("/paths") : pathname?.startsWith(href);
+    const active = isDestinationActive(label, pathname);
     const expanded = openDestination === label;
     const panelId = `navigation-panel-${label.toLowerCase().replaceAll(" ", "-")}`;
     return <div
@@ -235,7 +231,7 @@ export function Header() {
         data-journey-destination={label === "Journey" ? "desktop" : undefined}
         className={`relative inline-flex min-h-11 items-center rounded-full px-4 transition duration-200 active:scale-[.98] ${active ? "bg-white text-forest shadow-[0_8px_20px_rgba(43,33,26,.08)]" : "hover:bg-white/75 hover:text-forest"}`}
       >
-        {label === "Journey" || label === "Planner" ? <span data-journey-destination-icon={label === "Journey" ? "" : undefined} aria-hidden="true" className="inline-grid h-4 w-4 shrink-0 place-items-center">{label === "Journey" ? <BookmarkIcon className="h-4 w-4" /> : <CalendarIcon className="h-4 w-4" />}</span> : null}
+        {label === "Journey" || label === "Build" ? <span data-journey-destination-icon={label === "Journey" ? "" : undefined} aria-hidden="true" className="inline-grid h-4 w-4 shrink-0 place-items-center">{label === "Journey" ? <BookmarkIcon className="h-4 w-4" /> : <PenLineIcon className="h-4 w-4" />}</span> : null}
         {label}
       </a>
       <div id={panelId} data-context-panel="" aria-label={`${label} shortcuts`} aria-hidden={!expanded} className="absolute left-1/2 top-[calc(100%+.7rem)] hidden w-[21rem] -translate-x-1/2 opacity-0 lg:grid">
@@ -265,7 +261,6 @@ export function Header() {
             <SearchIcon className="h-4 w-4" /><span className="hidden lg:inline">Search</span><kbd className="hidden rounded border border-ink/10 bg-white/45 px-1.5 py-0.5 text-[10px] text-ink/35 xl:inline">⌘K</kbd>
           </button>
           <NotificationNavButton active={pathname?.startsWith("/notifications")} />
-          <a href="/learn" className="hidden min-h-11 items-center rounded-full px-3 text-xs font-bold text-ink/45 transition hover:bg-white/75 hover:text-forest lg:inline-flex">Learn</a>
           <a href="/profile" data-navigation-item="" data-active={pathname?.startsWith("/profile") ? "true" : undefined} className={`inline-flex min-h-11 items-center rounded-full px-3 text-xs font-bold transition duration-200 active:scale-[.98] ${pathname?.startsWith("/profile") ? "bg-white text-forest shadow-[0_8px_20px_rgba(43,33,26,.08)]" : "text-ink/45 hover:bg-white/75 hover:text-forest"}`}>Profile</a>
           <AccountButton compact />
         </div>

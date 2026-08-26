@@ -186,7 +186,7 @@ const header = readFileSync("components/header.tsx", "utf8");
 const docs = readFileSync("docs/APPLICATIONS_WORKSPACE.md", "utf8");
 assert.match(route, /requireCompletedOnboarding/);
 assert.match(route, /buildApplicationsWorkspace/);
-assert.match(component, /Open packet/);
+assert.match(component, /Open application/);
 assert.doesNotMatch(component, /\/api\/journey\/application|\/api\/materials|\/api\/journey\/transition/, "The cross-application overview must delegate mutations to the one-application Packet.");
 assert.doesNotMatch(component, /upload|application score|productivity score|confetti/i);
 assert.match(header, /href: "\/applications"/);

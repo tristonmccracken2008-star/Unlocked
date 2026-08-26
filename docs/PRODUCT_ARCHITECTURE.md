@@ -1,10 +1,11 @@
 # UnlockED Product Architecture
 
-UnlockED's authenticated experience is organized around three simple sections:
+UnlockED's authenticated experience is organized around four simple domains:
 
 - **Discover** answers: "What opportunities can I find?"
 - **For You** answers: "Which opportunities fit me best right now?"
-- **Journey** answers: "What have I already done, and what is active?"
+- **Journey** answers: "What am I pursuing, and what is coming up?"
+- **Build** answers: "What application assets can I prepare and reuse?"
 
 Profile remains secondary account navigation. Billing, onboarding, authentication, profile persistence, opportunity search, saves, tracking, and Advisor Brain infrastructure stay behind these surfaces.
 
@@ -15,8 +16,9 @@ The signed-in header exposes only:
 - Discover (`/opportunities`)
 - For You (`/advisor`)
 - Journey (`/`)
+- Build (`/resume-lab`)
 
-Profile stays available as account-level navigation. Mobile signed-in users receive the same three primary destinations in a compact bottom navigation.
+Planner, Calendar, and Applications are grouped under Journey. Resume Lab and Materials are grouped under Build. Profile stays available as account-level navigation. Mobile signed-in users receive the same four primary domains in a compact bottom navigation.
 
 Logged-out users still see only the UnlockED brand and Google sign-in.
 

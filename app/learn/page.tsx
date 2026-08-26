@@ -5,7 +5,7 @@ import { requireCompletedOnboarding } from "@/lib/onboarding";
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Learn UnlockED",
-  description: "A concise guide to Discover, Explore, Collections, For You, Paths, Planner, Journey, Applications, Materials, Resume Lab, Accomplishments, deadlines, notifications, and profile controls.",
+  description: "A concise guide to finding opportunities, pursuing them, preparing applications, building materials, and recording outcomes.",
   robots: { index: false, follow: false },
 };
 

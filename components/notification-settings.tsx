@@ -88,7 +88,7 @@ export function NotificationSettings({ embedded = false }: { embedded?: boolean 
 
   return <section id="notifications" className={embedded ? "scroll-mt-28 pt-7" : "scroll-mt-28 px-5 pt-6 sm:px-8"}>
     <div className={embedded ? "" : "mx-auto max-w-5xl rounded-[2rem] bg-[var(--unlocked-surface)] p-5 shadow-soft ring-1 ring-ink/8 sm:p-6"}>
-      {!embedded ? <><p className="rule-label text-forest">Notifications</p><h2 className="mt-2 font-editorial text-2xl font-bold">Choose what deserves your attention.</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-ink/50">Essential deadline protection remains available on Free. Weekly and recommendation emails are off unless you choose them.</p></> : <p className="max-w-2xl text-sm leading-6 text-ink/50">Deadline protection remains available on Free. Weekly and recommendation emails are off unless you choose them.</p>}
+      {!embedded ? <><p className="rule-label text-forest">Notifications</p><h2 className="mt-2 font-editorial text-2xl font-bold">Choose what you want to receive.</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-ink/50">Essential deadline protection remains available on Free. Weekly and recommendation emails are off unless you choose them.</p></> : <p className="max-w-2xl text-sm leading-6 text-ink/50">Deadline protection remains available on Free. Weekly and recommendation emails are off unless you choose them.</p>}
 
       <div className="mt-5 border-y border-ink/10">
         <Toggle checked={preferences.inAppEnabled} label="In-app notifications" description="Show timely updates inside UnlockED." onChange={(checked) => update("inAppEnabled", checked)} />

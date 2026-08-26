@@ -157,8 +157,10 @@ assert.doesNotMatch(followRoute, /body\.(userId|accountId)|searchParams\.get\(["
 assert.match(source("app/api/account/export/route.ts"), /followedPaths/);
 assert.match(source("lib/account-input.ts"), /cleanAccountDataInput/);
 assert.doesNotMatch(source("lib/account-input.ts"), /pathPreferences/, "Generic account input must not accept Path follow state.");
-assert.match(source("components/header.tsx"), /Opportunity Paths/);
-assert.match(source("components/learn-unlocked.tsx"), /How UnlockED fits together/);
+const headerSource = source("components/header.tsx");
+assert.match(headerSource, /Discover:[\s\S]*label: "Paths"[\s\S]*href: "\/paths"/, "Paths must remain reachable from Discover.");
+const learnSource = source("components/learn-unlocked.tsx");
+assert.match(learnSource, /id: "find"[\s\S]*\["paths", "Paths",[^\]]*"\/paths"\]/, "Learn must preserve Paths within the Find workflow.");
 assert.match(source("docs/UNLOCKED_PRODUCT_MODEL.md"), /Paths[\s\S]*How can opportunities connect to a goal/);
 assert.doesNotMatch(source("data/opportunity-paths.ts"), /description\.includes|title\.includes|description\.match|title\.match/, "Path mapping must not use opportunity prose substring rules.");
 

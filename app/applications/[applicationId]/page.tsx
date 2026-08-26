@@ -7,7 +7,7 @@ import { ApplicationPacket } from "@/components/application-packet";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
-export const metadata: Metadata = { title: "Application Packet", description: "Review verified requirements, selected Materials, tasks, and dates for one application.", robots: { index: false, follow: false } };
+export const metadata: Metadata = { title: "Application details", description: "Review requirements, selected Materials, tasks, and dates for one application.", robots: { index: false, follow: false } };
 
 export default async function ApplicationPacketPage({ params }: { params: Promise<{ applicationId: string }> }) {
   const session = await requireCompletedOnboarding();

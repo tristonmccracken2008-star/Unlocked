@@ -221,7 +221,7 @@ export function ProfilePage({ initialSession }: { initialSession: AccountSession
             trackProductEvent("recommendation_signals_reset");
             setMessage("Learned recommendation signals were reset. Your profile, saved opportunities, and Journey were kept.");
           }} /> : null}
-          {active === "notifications" ? <div><SectionHeading id="notifications-heading" eyebrow="Notifications" title="Choose what deserves your attention." description="Essential account messages remain separate from product reminders and optional email."/><NotificationSettings embedded /></div> : null}
+          {active === "notifications" ? <div><SectionHeading id="notifications-heading" eyebrow="Notifications" title="Choose what you want to receive." description="Essential account messages remain separate from product reminders and optional email."/><NotificationSettings embedded /></div> : null}
           {active === "privacy" ? <PrivacySection session={session} savePreferences={savePreferences} /> : null}
           {active === "appearance" ? <AppearanceSection session={session} savePreferences={savePreferences} /> : null}
           {active === "billing" ? <BillingSection session={session} /> : null}

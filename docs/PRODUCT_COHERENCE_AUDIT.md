@@ -4,8 +4,9 @@
 
 - **Discover** is the complete catalog and does not imply personalization.
 - **For You** is a selective, eligibility-gated shortlist.
-- **Journey** is the private record of opportunities a student is pursuing.
-- **Application Command Center** contains the work required for one Journey opportunity.
+- **Journey** is the private record of opportunities a student is pursuing and the parent for Applications, Planner, and Calendar.
+- **Application details** contains the work required for one Journey opportunity.
+- **Build** is the parent for Resume Lab and Materials.
 - **Calendar** combines verified official dates with clearly labeled personal dates and application tasks.
 - **Notifications** surface meaningful changes and return students to the relevant object.
 
@@ -15,13 +16,13 @@
 - Post-add feedback previously linked to the top of Journey. **View in Journey** now targets the exact opportunity record so identity and context survive the transition.
 - For You used **Review** while Discover used **Open Opportunity**. Both browsing surfaces now use **Open Opportunity** for the same destination.
 - Journey overflow controls were announced as **View details**, although they opened an action/detail surface. They are now announced as **More actions**; the actual destination link is **View opportunity**.
-- Journey called the deeper workflow an **Application workspace** in one place and **Application Command Center** elsewhere. The user-facing name is now consistent while internal type names remain unchanged.
+- Journey called the deeper workflow an **Application workspace** in one place and **Application Command Center** elsewhere. The user-facing name is now **Application details** while internal type names remain unchanged.
 - Journey’s official-source action now follows the product-wide **View official source** external-link language.
 - The updates page had a legacy **Dashboard / What’s New** breadcrumb. It now uses **Journey / Opportunity updates**.
 
 ## Shared continuity verified
 
-The regression check projects a representative verified opportunity through Journey, Application Command Center, and Calendar. It asserts that title, organization, opportunity ID, and official deadline stay canonical. Official dates remain distinct from editable personal dates.
+The regression check projects a representative verified opportunity through Journey, Application details, and Calendar. It asserts that title, organization, opportunity ID, and official deadline stay canonical. Official dates remain distinct from editable personal dates.
 
 ## Intentional differences preserved
 
@@ -35,13 +36,9 @@ The regression check projects a representative verified opportunity through Jour
 
 Current authenticated surfaces already use the shared loading, action-feedback, Undo, empty-state, organization-branding, and same-origin request systems. No replacement architecture was added. Internal identifiers such as `applicationWorkspace` and existing analytics event names remain for compatibility.
 
-## Validation completed
+## Current validation source
 
-- The complete prebuild chain, TypeScript compilation, 80-page production render, and postbuild bundle audits pass.
-- Chromium and WebKit pass the Journey, first-session, universal-search, return-experience, notification, account-center, and opportunity-lifecycle browser suites.
-- Browser coverage includes desktop, tablet, mobile, keyboard operation, reduced motion, account switching, and 200% reflow-equivalent layouts.
-- The Journey command-center large-data suite passes with 100 active and 500 historical records.
-- The final production bundle audit reports five chunks for Discover and Journey and four for For You; the largest shared product chunk remains 90,877 bytes.
+The current implementation evidence, viewport coverage, workflow counts, and qualitative surface scores are maintained in [Product Cohesion and UX](./PRODUCT_COHESION_AND_UX.md). Build and bundle numbers are reported from each release run rather than preserved here as stale snapshots.
 
 ## Remaining issues
 
@@ -51,4 +48,4 @@ Current authenticated surfaces already use the shared loading, action-feedback, 
 
 ## Not implemented
 
-No new dashboard, assistant, social surface, recommendation system, navigation destination, or workflow was added. A dedicated full-page Application Command Center and a global updates destination could be evaluated later, but neither is necessary for the current continuous workflow.
+No new dashboard, assistant, social surface, recommendation system, navigation destination, or workflow was added. Existing internal Command Center and Packet projections remain implementation details rather than separate student-facing products.

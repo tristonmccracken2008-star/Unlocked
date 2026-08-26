@@ -156,7 +156,7 @@ try {
   await install(isolated, origin, other.token);
   const isolatedPage = await isolated.newPage();
   await isolatedPage.goto(`${origin}/materials`, { waitUntil: "networkidle", timeout: 60_000 });
-  await isolatedPage.getByRole("heading", { name: "Keep reusable application materials here." }).waitFor();
+  await isolatedPage.getByRole("heading", { name: "No material records yet." }).waitFor();
   assert.equal(await isolatedPage.getByText("Current Application Material", { exact: true }).count(), 0, "Material metadata must not cross accounts.");
   await isolated.close();
 

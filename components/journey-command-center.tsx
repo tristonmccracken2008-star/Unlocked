@@ -79,7 +79,7 @@ function RecordDetails({ record }: { record: JourneyCommandRecord }) {
     <button type="button" popoverTarget={panelId} aria-label={`${record.applicationWorkspace ? "Continue application" : "More actions"} for ${record.title}`} aria-haspopup="dialog" data-application-trigger={record.applicationWorkspace ? "true" : undefined}>{record.applicationWorkspace ? <><span>Continue application</span><ArrowIcon /></> : <><MoreIcon /><span className="sr-only">More actions</span></>}</button>
     <section id={panelId} popover="auto" className={styles.detailGrid} role="dialog" aria-labelledby={titleId}>
       <header className={styles.detailHeader}>
-        <div><p>{record.applicationWorkspace ? "Application Command Center" : "Journey details"}</p><h3 id={titleId}>{record.title}</h3><span>{record.organization}</span></div>
+        <div><p>{record.applicationWorkspace ? "Application details" : "Journey details"}</p><h3 id={titleId}>{record.title}</h3><span>{record.organization}</span></div>
         <button type="button" popoverTarget={panelId} popoverTargetAction="hide" aria-label={`Close details for ${record.title}`}><CloseIcon /></button>
       </header>
       {record.applicationWorkspace ? <ApplicationWorkspace initial={record.applicationWorkspace} opportunityTitle={record.title} submission={record.applicationSubmission} /> : null}

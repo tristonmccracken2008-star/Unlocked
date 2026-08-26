@@ -5,7 +5,8 @@ They are intentionally small and product-specific.
 
 ## Navigation
 
-- Primary destinations are **Discover**, **For You**, **Planner**, and **Journey**. Planner summarizes the opportunity landscape over time; it does not replace Calendar or Journey.
+- Primary domains are **Discover**, **For You**, **Journey**, and **Build**. Planner and Calendar live under Journey; Resume Lab and Materials live under Build.
+- Accomplishments, Insights, Learn, and account controls are secondary contextual destinations.
 - Profile, notifications, referrals, billing, and data controls are secondary
   account destinations.
 - `aria-current="page"` identifies the active destination.
@@ -31,8 +32,8 @@ They are intentionally small and product-specific.
   irreversible.
 - Duplicate submission is blocked. Success is shown only after server
   confirmation.
-- Opportunity terminology is **Open opportunity**, **Add to Journey**, and
-  **Update Journey**. Status management exists only in Journey.
+- Opportunity terminology is **Open Opportunity**, **Add to Journey**, and
+  **Update Journey**. Application rows use **Open application**. Status management exists only in Journey.
 
 ## Loading
 

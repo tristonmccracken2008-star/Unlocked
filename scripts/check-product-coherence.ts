@@ -59,25 +59,41 @@ const cards = source("components/opportunity-card.tsx");
 const advisor = source("components/advisor-page.tsx");
 const journeyUi = source("components/journey-command-center.tsx");
 const application = source("components/application-workspace.tsx");
+const applicationDetail = source("components/application-packet.tsx");
 const calendarUi = source("components/journey-deadline-calendar.tsx");
 const updates = source("app/updates/page.tsx");
+const header = source("components/header.tsx");
+const learn = source("components/learn-unlocked.tsx");
+const materials = source("components/application-materials.tsx");
+const resumeLab = source("components/resume-lab.tsx");
+const productModel = source("docs/PRODUCT_COHESION_AND_UX.md");
 
 for (const ui of [activity, cards, advisor]) assert.match(ui, /AddToJourneyButton|Add to Journey/, "Discover, For You, and detail surfaces must share the Journey action.");
 assert.doesNotMatch(`${activity}\n${advisor}`, /Save to Journey|Track this/, "The add action must not change vocabulary between recommendation and catalog surfaces.");
 assert.match(activity, /#journey-record-/);
 assert.match(activity, /View in Journey/);
 assert.match(advisor, /Open Opportunity/);
-assert.match(journeyUi, /Application Command Center/);
+assert.doesNotMatch(journeyUi, /Application Command Center/);
+assert.match(journeyUi, /Application details/);
 assert.match(journeyUi, /View opportunity/);
 assert.match(journeyUi, /View official source/);
 assert.match(journeyUi, /More actions/);
 assert.match(application, /Official deadline/);
 assert.match(application, /Add personal date/);
+assert.doesNotMatch(application, /Application Command Center/);
+assert.match(applicationDetail, />Application details</);
+assert.doesNotMatch(applicationDetail, />Application Packet</);
 assert.match(calendarUi, /Official date · Verified/);
 assert.match(calendarUi, /Your date · Editable/);
 assert.match(calendarUi, /View opportunity/);
 assert.match(updates, /Opportunity updates/);
 assert.doesNotMatch(updates, />Dashboard</);
+for (const domain of ["Discover", "For You", "Journey", "Build"]) assert.match(header, new RegExp(`(?:"${domain}"|${domain}):?`), `${domain} must remain represented in primary navigation.`);
+for (const stage of ["Find", "Pursue", "Apply", "Build", "Look back"]) assert.ok(learn.includes(stage), `Learn must teach the ${stage} workflow stage.`);
+assert.doesNotMatch(learn, /Application Packet|Command Center/);
+assert.match(materials, /This saves a record, not a file/);
+assert.match(resumeLab, /returnTo\?: string/);
+assert.match(productModel, /Find -> Add to Journey -> Prepare application/);
 
 console.log("Product coherence checks passed", {
   opportunity: opportunity.id,

@@ -62,10 +62,7 @@ assert.ok(source("components/journey-command-actions.tsx").includes('data-guide-
 assert.ok(source("components/journey-deadline-calendar.tsx").includes('data-guide-anchor="journey-calendar"'));
 
 const learn = source("components/learn-unlocked.tsx");
-for (const section of ["Getting started", "Discover", "For You", "Planner", "Journey", "Applications", "Deadlines", "Notifications", "Profile and privacy"]) assert.ok(learn.includes(section));
-assert.match(learn, /planner_intro/);
-assert.match(learn, /\?guide=journey/);
-assert.match(learn, /\?guide=journey_application_workspace/);
-assert.match(learn, /\?guide=journey_calendar/);
+for (const section of ["Find", "Pursue", "Apply", "Build", "Look back", "Discover", "For You", "Planner", "Journey", "Applications", "Calendar", "Notifications", "Account, privacy, and verification"]) assert.ok(learn.includes(section));
+assert.doesNotMatch(learn, /Application Packet|Command Center/, "Learn must teach the student workflow instead of internal product architecture.");
 
 console.log(JSON.stringify({ message: "Contextual guidance checks passed.", guideIds: guidance.guidanceIds.length, accountIsolation: true, evidenceGated: true, productionStoreUsed: false }, null, 2));
