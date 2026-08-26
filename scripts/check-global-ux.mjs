@@ -34,8 +34,15 @@ assert.match(layout, /href="#main-content"/, "The global shell must expose a ski
 assert.match(layout, /id="main-content"/, "The global shell must expose a stable content target.");
 assert.match(globals, /\.skip-link/, "The skip link must become visible on focus.");
 
-assert.match(header, /const destinations = \[\["Discover", "\/opportunities"\], \["For You", "\/advisor"\], \["Journey", "\/"\], \["Build", "\/resume-lab"\]\]/, "Primary navigation must use the four canonical product domains.");
-for (const href of ["/explore", "/collections", "/paths", "/applications", "/planner", "/resume-lab", "/materials"]) assert.ok(header.includes(`href: "${href}"`), `${href} must remain reachable from its product domain.`);
+for (const [label, href] of [
+  ["Discover", "/opportunities"],
+  ["For You", "/advisor"],
+  ["Journey", "/"],
+  ["Build", "/build"],
+]) {
+  assert.match(header, new RegExp(`\\["${label}",\\s*"${href.replaceAll("/", "\\/")}"\\]`), `${label} must remain a canonical product destination.`);
+}
+for (const href of ["/explore", "/collections", "/paths", "/applications", "/planner", "/build", "/resume-lab", "/materials"]) assert.ok(header.includes(`href: "${href}`), `${href} must remain reachable from its product domain.`);
 assert.doesNotMatch(header, />Learn<\/a>/, "Learn must remain contextual rather than competing with product navigation.");
 assert.doesNotMatch(header, /\["Refer", "\/referral"\]/, "Referrals must not compete with primary product navigation.");
 assert.match(header, /grid-cols-4/, "Mobile navigation must reserve equal space for the four primary destinations.");

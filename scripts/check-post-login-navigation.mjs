@@ -9,7 +9,7 @@ const advisorRoute = read("app/advisor/page.tsx");
 const proxy = read("proxy.ts");
 
 assert.equal(existsSync("app/advisor/loading.tsx"), true, "For You must have an immediate route loading boundary.");
-assert.match(header, /return <a[\s\S]*href=\{href\}/, "Product navigation must use a native semantic link.");
+assert.match(header, /return\s*\(?\s*<a[\s\S]*?href=\{href\}/, "Product navigation must use a native semantic link.");
 assert.match(header, /isServerProtectedProductPath\(pathname\)/, "Protected product routes must render navigation without waiting for client session hydration.");
 assert.doesNotMatch(header, /<a[\s\S]{0,500}onClick=\{[^}]*preventDefault/, "Product navigation links must never intercept or defer a normal link click.");
 assert.match(header, /const openSearch = [\s\S]*event\.preventDefault\(\)/, "The explicit command shortcut must replace the browser's default Command-K behavior.");

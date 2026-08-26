@@ -10,7 +10,7 @@ const callback = read("app/api/auth/callback/google/route.ts");
 const proxy = read("proxy.ts");
 
 assert.equal(existsSync("app/advisor/loading.tsx"), true, "For You needs an App Router loading boundary for cold navigation.");
-assert.match(header, /return <a[\s\S]*href=\{href\}/, "For You navigation must use a native semantic link with immediate document navigation.");
+assert.match(header, /return\s*\(?\s*<a[\s\S]*?href=\{href\}/, "For You navigation must use a native semantic link with immediate document navigation.");
 assert.match(header, /\["For You", "\/advisor"\]/, "Desktop and mobile destinations must include For You.");
 assert.doesNotMatch(header, /from "next\/link"/, "Authenticated header navigation must not wait for an App Router RSC transition.");
 assert.doesNotMatch(header, /<a[\s\S]{0,500}onClick=\{[^}]*preventDefault/, "Header links must not intercept browser navigation.");

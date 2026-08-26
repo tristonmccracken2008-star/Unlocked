@@ -100,11 +100,11 @@ for (const contract of ["role=\"combobox\"", "role=\"listbox\"", "aria-activedes
   assert.ok(component.includes(contract), `Universal Search must preserve interaction contract: ${contract}`);
 }
 assert.match(component, /requestRef\.current\?\.abort/);
-assert.match(component, /authenticatedFetch\(`\/api\/search/);
+assert.match(component, /authenticatedFetch\(\s*`\/api\/search/);
 assert.doesNotMatch(component, /from "@\/data\/opportunities"|opportunities\.json/, "The client must never hydrate the opportunity catalog.");
 assert.match(header, /aria-keyshortcuts="Meta\+K Control\+K"/);
-assert.match(header, /const loadUniversalCommandCenter = \(\) => import\("\.\/universal-command-center"\)/);
-assert.match(header, /dynamic\(loadUniversalCommandCenter, \{ ssr: false \}\)/);
+assert.match(header, /const loadUniversalCommandCenter = \(\) =>\s*import\("\.\/universal-command-center"\)/);
+assert.match(header, /dynamic\(loadUniversalCommandCenter,\s*\{\s*ssr: false,?\s*\}\)/);
 assert.match(styles, /@media \(max-width: 639px\)/);
 assert.match(styles, /min-height: 100dvh/);
 assert.match(styles, /@media \(prefers-reduced-motion: reduce\)/);
