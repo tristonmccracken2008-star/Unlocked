@@ -69,6 +69,7 @@ export async function updateApplicationMaterials(user: Pick<AuthUser, "id">, mut
       } else if (mutation.action === "associate" || mutation.action === "dissociate") {
         const tracked = lockedAccount.tracker?.[mutation.opportunityId] ?? lockedAccount.activity?.tracked?.[mutation.opportunityId];
         if (!tracked) throw domainError("Materials can only be selected for opportunities in your Journey.", "ApplicationMaterialOwnershipError");
+        if (["Submitted", "Interview", "Accepted", "Rejected", "Completed"].includes(tracked.status)) throw domainError("Submitted application materials are preserved as history and cannot be replaced.", "ApplicationMaterialHistoricalError");
         const requirement = trustedApplicationRequirements(opportunity!).find((title) => materialTypeForRequirement(title) === mutation.requirementType);
         if (!requirement) throw domainError("This material requirement is not verified for the opportunity.", "ApplicationMaterialRequirementError");
         const id = materialAssociationId(mutation.opportunityId, mutation.requirementType);

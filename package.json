@@ -5,7 +5,7 @@
   "scripts": {
     "prepare:brand": "node scripts/prepare-unlocked-logo.mjs",
     "dev": "next dev",
-    "validate:data": "npm run check:opportunity-planner && npm run check:accomplishments && npm run check:opportunity-paths && npm run check:application-materials && npm run check:resume-lab && npm run check:applications-workspace && npm run check:opportunity-insights && npm run check:opportunity-explorer && npm run check:opportunity-collections && node scripts/validate-data.mjs",
+    "validate:data": "npm run check:opportunity-planner && npm run check:accomplishments && npm run check:opportunity-paths && npm run check:application-materials && npm run check:resume-lab && npm run check:applications-workspace && npm run check:application-packets && npm run check:opportunity-insights && npm run check:opportunity-explorer && npm run check:opportunity-collections && node scripts/validate-data.mjs",
     "check:data-enrichment": "node scripts/check-opportunity-enrichment.mjs",
     "generate:opportunity-duplicates": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/generate-opportunity-duplicates.ts",
     "check:opportunity-intelligence-platform": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-opportunity-intelligence-platform.ts",
@@ -108,7 +108,9 @@
     "test:accomplishments-browser": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/test-accomplishments-browser.ts",
     "check:application-command-center": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-application-command-center.ts",
     "check:applications-workspace": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-applications-workspace.ts",
+    "check:application-packets": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-application-packets.ts",
     "test:applications-workspace-browser": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/test-applications-workspace-browser.ts",
+    "test:application-packets-browser": "npm run test:applications-workspace-browser",
     "check:application-materials": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-application-materials.ts",
     "check:resume-lab": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-resume-lab.ts",
     "test:resume-lab-browser": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/test-resume-lab-browser.ts",

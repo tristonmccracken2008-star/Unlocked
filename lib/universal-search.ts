@@ -47,6 +47,10 @@ function journeyHref(record: JourneyCommandRecord) {
   return `/?${query.toString()}#journey-record-${encodeURIComponent(record.id)}`;
 }
 
+function recordHref(record: JourneyCommandRecord) {
+  return record.applicationWorkspace ? `/applications/${encodeURIComponent(record.id)}` : journeyHref(record);
+}
+
 function journeyResults(records: readonly JourneyCommandRecord[], query: string): UniversalSearchResult[] {
   return records.flatMap((record) => {
     const score = matchScore(query, [record.title, record.organization, record.category, record.stageLabel, record.statusDetail]);
@@ -60,7 +64,7 @@ function journeyResults(records: readonly JourneyCommandRecord[], query: string)
       group: "Your Journey" as const,
       title: record.title,
       subtitle: `${record.stageLabel}${progress}`,
-      href: journeyHref(record),
+      href: recordHref(record),
       score: score + 260,
     }];
   }).sort((left, right) => right.score - left.score || left.title.localeCompare(right.title)).slice(0, 4);
@@ -174,7 +178,7 @@ export function buildUniversalSearch(input: {
       group: "Application tasks",
       title: task.title,
       subtitle: `${record.title}${task.dueDate ? ` · Due ${task.dueDate}` : ""}`,
-      href: journeyHref(record),
+      href: `/applications/${encodeURIComponent(record.id)}#task-${encodeURIComponent(task.id)}`,
       score,
     }];
   }) ?? []).sort((left, right) => right.score - left.score || left.title.localeCompare(right.title)).slice(0, 3);

@@ -16,7 +16,7 @@ const sections = [
   { id: "planner", title: "Planner", copy: "See what matters now and which verified dates fall across your next several months. Journey holds what you pursue; Calendar manages the dates you chose to track.", href: "/planner?guide=planner_intro", action: "Replay Planner guide", icon: CalendarIcon },
   { id: "journey", title: "Journey", copy: "Keep opportunities, progress, important dates, and confirmed outcomes in one private record.", href: "/?guide=journey", action: "Replay Journey guide", icon: BookmarkIcon },
   { id: "accomplishments", title: "Accomplishments", copy: "Keep a private record of opportunities you completed or earned. Journey outcomes appear automatically; records from elsewhere can be added manually and edited later.", href: "/accomplishments?guide=accomplishments_intro", action: "Open Accomplishments", icon: TrophyIcon },
-  { id: "applications", title: "Applications", copy: "Manage what needs attention across active applications. Open a Command Center when you need the verified requirements, Materials, and private tasks for one application.", href: "/applications", action: "Open Applications", icon: TargetIcon },
+  { id: "applications", title: "Applications", copy: "See what needs attention across active applications. Open an Application Packet to review verified requirements, selected Materials, private tasks, dates, and submission history for one opportunity.", href: "/applications", action: "Open Applications", icon: TargetIcon },
   { id: "materials", title: "Materials", copy: "Keep reusable application material records organized and connect them to verified requirements. UnlockED does not currently store the documents themselves.", href: "/materials?guide=materials_intro", action: "Open Materials", icon: ListIcon },
   { id: "resume-lab", title: "Resume Lab", copy: "Build master and targeted resumes from facts you confirm. Resume versions stay connected to Materials; application associations still live there.", href: "/resume-lab", action: "Open Resume Lab", icon: PenLineIcon },
   { id: "insights", title: "Insights", copy: "See a factual summary of the opportunity activity recorded in your private Journey, outcomes, accomplishments, Paths, Watch, and Materials history. Missing history is never guessed.", href: "/insights", action: "Open Insights", icon: ListIcon },
@@ -28,7 +28,7 @@ const sections = [
 
 const productMap = [
   ["Discover", "Browse what exists"], ["Collections", "Find a useful starting point"], ["For You", "See what fits"], ["Paths", "Explore by goal"],
-  ["Planner", "Look ahead"], ["Calendar", "See your dates"], ["Conflict Planning", "Find date concentration"], ["Journey", "Track what you’re pursuing"], ["Applications", "Manage active application work"], ["Materials", "Organize application assets"], ["Resume Lab", "Build evidence-first resumes"], ["Accomplishments", "Keep your completed history"], ["Insights", "Understand your recorded history"],
+  ["Planner", "Look ahead"], ["Calendar", "See your dates"], ["Conflict Planning", "Find date concentration"], ["Journey", "Track what you’re pursuing"], ["Applications", "See work across applications"], ["Application Packet", "Prepare one application"], ["Materials", "Organize application assets"], ["Resume Lab", "Build evidence-first resumes"], ["Accomplishments", "Keep your completed history"], ["Insights", "Understand your recorded history"],
 ] as const;
 
 export function LearnUnlocked() {

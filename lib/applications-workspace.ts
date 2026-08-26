@@ -92,10 +92,10 @@ export type ApplicationsWorkspaceModel = {
 };
 
 const preparationStatuses = new Set<OpportunityTrackerStatus>(["Interested", "Applying", "Paused"]);
-const postSubmissionStatuses = new Set<OpportunityTrackerStatus>(["Submitted", "Interview"]);
+const postSubmissionStatuses = new Set<OpportunityTrackerStatus>(["Submitted", "Interview", "Accepted", "Rejected", "Completed"]);
 
 function commandCenterHref(id: string) {
-  return `/#journey-record-${encodeURIComponent(id)}`;
+  return `/applications/${encodeURIComponent(id)}`;
 }
 
 function datePriority(value: string | undefined) {
@@ -131,7 +131,10 @@ function attentionFor(application: Omit<ApplicationsWorkspaceApplication, "atten
 }
 
 function stateFor(record: TrackedOpportunity, workspace: ApplicationWorkspaceProjection, attention: readonly ApplicationsWorkspaceAttention[]): [ApplicationsWorkspaceState, string] {
-  if (postSubmissionStatuses.has(record.status)) return ["submitted", record.status === "Interview" ? "Interviewing" : "Submitted"];
+  if (postSubmissionStatuses.has(record.status)) {
+    const labels: Partial<Record<OpportunityTrackerStatus, string>> = { Submitted: "Submitted", Interview: "Interviewing", Accepted: "Accepted", Rejected: "Not selected", Completed: "Completed" };
+    return ["submitted", labels[record.status] ?? record.status];
+  }
   if (record.status === "Paused") return ["waiting", "Paused"];
   if (!workspace.requirementsVerified) return ["requirements_unknown", "Requirements not verified"];
   const unresolved = attention.some((item) => item.kind !== "deadline");

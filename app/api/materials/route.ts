@@ -60,7 +60,7 @@ export async function POST(request: Request) {
     if (error instanceof Error && ["ApplicationMaterialsConflictError", "ApplicationMaterialRecordConflictError", "ApplicationMaterialUsageConflictError"].includes(error.name)) return NextResponse.json({ error: error.message, code: "stale_materials" }, { status: 409, headers: noStore });
     if (error instanceof Error && /already in progress/i.test(error.message)) return NextResponse.json({ error: "Another materials update is still saving. Try again in a moment.", code: "operation_locked" }, { status: 423, headers: noStore });
     if (error instanceof Error && error.name === "ApplicationMaterialOwnershipError") return NextResponse.json({ error: error.message, code: "unowned_opportunity" }, { status: 403, headers: noStore });
-    if (error instanceof Error && ["ApplicationMaterialNotFoundError", "ApplicationMaterialRequirementError", "ApplicationMaterialSelectionError", "ApplicationMaterialOpportunityError", "ApplicationMaterialLimitError"].includes(error.name)) return NextResponse.json({ error: error.message, code: "invalid_material_operation" }, { status: 422, headers: noStore });
+    if (error instanceof Error && ["ApplicationMaterialNotFoundError", "ApplicationMaterialRequirementError", "ApplicationMaterialSelectionError", "ApplicationMaterialOpportunityError", "ApplicationMaterialLimitError", "ApplicationMaterialHistoricalError"].includes(error.name)) return NextResponse.json({ error: error.message, code: "invalid_material_operation" }, { status: 422, headers: noStore });
     return securityErrorResponse(error, "Materials could not be updated.");
   }
 }

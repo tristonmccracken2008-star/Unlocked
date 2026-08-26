@@ -103,6 +103,12 @@ Applications events measure whether the cross-application workspace helps studen
 - `application_task_completed_v1`: an existing task update succeeded; only bounded application state and `private` or `verified` source are retained.
 - `application_filter_changed_v1`: one of the fixed Applications views was selected.
 - `application_command_center_opened_v1`: Applications handed off to the existing single-application Command Center; only bounded readiness state is retained.
+- `application_packet_opened_v1`: a private Application Packet was opened; only bounded packet state is retained.
+- `packet_material_selected_v1`: a Material was selected from a Packet; only its bounded category is retained.
+- `packet_next_action_opened_v1`: a deterministic Packet handoff was used; only the action category is retained.
+- `official_application_opened_v1`: the provider handoff was opened; only whether the source was official or provider-attributed is retained.
+
+Application Packet analytics never include opportunity titles, organizations, requirement text, task text, Material names, resume names, notes, dates, or document content.
 
 ## Opportunity Explorer Events
 

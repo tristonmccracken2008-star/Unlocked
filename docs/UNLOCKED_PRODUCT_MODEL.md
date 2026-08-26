@@ -13,7 +13,7 @@ Each product area owns one primary student question.
 | Planner | What is coming? | Time-based summary of verified dates and relevant activity. |
 | Journey | What am I pursuing? | Single source of truth for active opportunity progress. |
 | Applications | What needs attention across my active applications? | Server-derived overview of requirements, tasks, Materials, verified deadlines, and provider changes. It stores no duplicate application state. |
-| Application Command Center | What do I need to do for this application? | Detailed verified requirements, Material selections, and private tasks for one application. |
+| Application Packet | What makes up this application, and what remains? | Detailed verified requirements, selected Material versions, private tasks, timing, and submission history for one application. |
 | Materials | What can I reuse? | Private material records and selections for verified application requirements; no document storage. |
 | Calendar | When? | Official and student-managed dates. |
 | Conflict Planning | Where are my dates bunching together? | Read-only Calendar Intelligence over verified provider dates, private tasks, Materials context, and watched openings. It owns no dates. |
@@ -55,3 +55,7 @@ Conflict Planning stores no dates or conflict records. It derives short-horizon 
 ## Resume Lab
 
 Resume Lab turns confirmed Accomplishments and manually entered experience facts into master and targeted resume versions. It complements Materials rather than replacing it: Resume Lab owns composition and evidence, while Materials owns application associations and reusable-material status. See `docs/RESUME_LAB.md`.
+
+## Application Packets
+
+Application Packets evolve the former single-application Command Center into one contextual preparation view. They store no packet readiness or duplicate status. Journey owns lifecycle and submission; Application Workspace owns tasks; Materials owns records and selections; Resume Lab owns resume content; Calendar owns dates; Opportunity Changelog owns provider changes. See `docs/APPLICATION_PACKETS.md`.
