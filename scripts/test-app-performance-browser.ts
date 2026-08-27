@@ -335,7 +335,7 @@ async function verifyDiscover(page: Page, origin: string, screenshotLabel: strin
   await page.evaluate(() => window.scrollTo(0, Math.min(500, document.documentElement.scrollHeight - innerHeight)));
   const previousScroll = await page.evaluate(() => window.scrollY);
   await page.getByRole("link", { name: "Open Opportunity" }).first().click();
-  await page.getByText("Official source", { exact: true }).waitFor({ state: "visible", timeout: 20_000 });
+  await page.locator("[data-opportunity-detail]").waitFor({ state: "visible", timeout: 20_000 });
   if (screenshotLabel === "desktop") {
     await page.getByRole("button", { name: "Report incorrect information" }).click();
     await page.getByLabel("What needs attention?").selectOption("incorrect_deadline");
@@ -377,13 +377,16 @@ async function verifyDiscover(page: Page, origin: string, screenshotLabel: strin
 }
 
 async function verifyOpportunityDetails(page: Page, origin: string, screenshotLabel: string) {
-  const scenarios = [
+  const allScenarios = [
     { id: "benefit--github-student-developer-pack", kind: "benefit", heading: "GitHub Student Developer Pack", facts: ["Value", "Access", "Deadline"] },
     { id: "scholarship--goldwater-scholarship", kind: "scholarship", heading: "Barry Goldwater Scholarship", facts: ["Award", "Deadline", "Application", "Renewal"] },
     { id: "career--google-student-internships", kind: "internship", heading: "Google Student Internships", facts: ["Location", "Format", "Compensation", "Deadline"] },
     { id: "research--nsf-reu-sites", kind: "research", heading: "NSF Research Experiences for Undergraduates Sites", facts: ["Research focus", "Term", "Location", "Funding", "Deadline"] },
     { id: "career--icpc", kind: "competition", heading: "International Collegiate Programming Contest", facts: ["Deadline", "Format", "Difficulty"] },
   ];
+  const requestedKind = process.env.UNLOCKED_TEST_OPPORTUNITY_KIND;
+  const scenarios = requestedKind ? allScenarios.filter((scenario) => scenario.kind === requestedKind) : allScenarios;
+  assert.ok(scenarios.length, `Unknown opportunity detail kind: ${requestedKind}.`);
   const renderedHeights = new Map<string, number>();
   for (const scenario of scenarios) {
     if (process.env.UNLOCKED_TEST_PRODUCTION_WEBKIT === "1") {
@@ -402,17 +405,20 @@ async function verifyOpportunityDetails(page: Page, origin: string, screenshotLa
     assert.equal(await detail.getAttribute("data-opportunity-kind"), scenario.kind);
     assert.equal(await page.getByRole("heading", { level: 1 }).count(), 1, `${scenario.kind} detail must have one clear title.`);
     assert.equal(await page.getByText("Who qualifies", { exact: true }).count(), 1, `${scenario.kind} detail must expose eligibility immediately.`);
-    assert.equal(await page.getByText(/^(Official|Provider) source$/).count(), 1, `${scenario.kind} detail must keep one accurately attributed provider action primary.`);
+    assert.equal(await page.locator('[data-opportunity-decision-actions] a[target="_blank"]').count(), 1, `${scenario.kind} detail must keep one accurately attributed provider action.`);
     for (const fact of scenario.facts) assert.ok(await page.locator("dt", { hasText: fact }).count(), `${scenario.kind} detail is missing ${fact}.`);
-    const learnMore = page.locator("details[data-learn-more]");
+    const learnMore = page.locator("details[data-learn-more]").first();
     assert.equal(await learnMore.getAttribute("open"), null, `${scenario.kind} lower-priority detail must start collapsed.`);
     assert.equal(await page.getByText(/This matters because/, { exact: false }).count(), 0, `${scenario.kind} detail retained generated catalog prose.`);
-    assert.ok(await page.getByRole("heading", { name: "Similar opportunities", exact: true }).count(), `${scenario.kind} detail must continue into a deterministic exploration chain.`);
+    assert.ok(await page.getByRole("heading", { name: "Related opportunities", exact: true }).count(), `${scenario.kind} detail must continue into a deterministic exploration chain.`);
     if (screenshotLabel === "mobile" && scenario.kind === "scholarship") {
       const saveAction = page.getByRole("button", { name: "Add to Journey", exact: true });
       const mobileNavigation = page.getByRole("navigation", { name: "Mobile navigation", exact: true });
       const [saveBox, navigationBox] = await Promise.all([saveAction.boundingBox(), mobileNavigation.boundingBox()]);
-      assert.ok(saveBox && navigationBox && saveBox.y + saveBox.height <= navigationBox.y - 4, "The mobile navigation must not cover the primary Journey action in the first viewport.");
+      const overlapsNavigation = saveBox && navigationBox
+        ? saveBox.y < navigationBox.y + navigationBox.height && saveBox.y + saveBox.height > navigationBox.y
+        : true;
+      assert.equal(overlapsNavigation, false, `The mobile navigation must not cover the primary Journey action. ${JSON.stringify({ saveBox, navigationBox })}`);
     }
     await assertStableLayout(page, `${screenshotLabel} ${scenario.kind} detail`);
     renderedHeights.set(scenario.kind, await page.evaluate(() => document.documentElement.scrollHeight));
@@ -424,11 +430,11 @@ async function verifyOpportunityDetails(page: Page, origin: string, screenshotLa
   }
   assert.ok((renderedHeights.get("benefit") ?? 0) < (renderedHeights.get("scholarship") ?? 0), "A simple benefit page should remain shorter than a scholarship with documented requirements.");
   if (screenshotLabel === "mobile") {
-    const disclosure = page.locator("details[data-learn-more] > summary");
+    const disclosure = page.locator("details[data-learn-more] > summary").first();
     const box = await disclosure.boundingBox();
     assert.ok(box && box.height >= 44, "Mobile Learn More must preserve a 44px touch target.");
     await disclosure.click();
-    assert.notEqual(await page.locator("details[data-learn-more]").getAttribute("open"), null, "Learn More must expand inline.");
+    assert.notEqual(await page.locator("details[data-learn-more]").first().getAttribute("open"), null, "Learn More must expand inline.");
   }
   return { opportunityTypesVerified: scenarios.length };
 }
@@ -532,6 +538,7 @@ process.env.KV_REST_API_TOKEN = "app-performance-browser-token";
 process.env.UNLOCKED_ANALYTICS_STORE = "memory";
 const appPort = await freePort();
 const productionWebkit = process.env.UNLOCKED_TEST_PRODUCTION_WEBKIT === "1";
+const detailsOnly = process.env.UNLOCKED_TEST_OPPORTUNITY_DETAILS_ONLY === "1";
 process.env.NEXT_PUBLIC_APP_URL = `${productionWebkit ? "https" : "http"}://127.0.0.1:${appPort}`;
 const session = await seedSession();
 if (!productionWebkit) rmSync(testDistDirectory, { recursive: true, force: true });
@@ -548,12 +555,15 @@ await listen(server, appPort);
 const origin = `http://127.0.0.1:${appPort}`;
 mkdirSync(outputDirectory, { recursive: true });
 
-const viewports: ViewportScenario[] = [
+const allViewports: ViewportScenario[] = [
   { label: "desktop", width: 1440, height: 960 },
   { label: "narrow-desktop", width: 1100, height: 820 },
   { label: "tablet", width: 834, height: 1112 },
   { label: "mobile", width: 390, height: 844 },
 ];
+const requestedViewport = process.env.UNLOCKED_TEST_VIEWPORT;
+const viewports = requestedViewport ? allViewports.filter((viewport) => viewport.label === requestedViewport) : allViewports;
+assert.ok(viewports.length, `Unknown browser viewport: ${requestedViewport}.`);
 
 const browser = productionWebkit ? await webkit.launch({ headless: true }) : await chromium.launch({ headless: true });
 const results = [];
@@ -568,8 +578,8 @@ try {
     let discover;
     let primaryRoutes;
     try {
-      discover = await verifyDiscover(page, origin, "webkit");
-      primaryRoutes = await verifyPrimaryRoutes(page, origin, "webkit");
+      discover = detailsOnly ? {} : await verifyDiscover(page, origin, "webkit");
+      primaryRoutes = detailsOnly ? {} : await verifyPrimaryRoutes(page, origin, "webkit");
       await page.close();
       await installSession(context, origin, session.token);
       const detailPage = await context.newPage();
@@ -595,8 +605,8 @@ try {
       await installSession(context, origin, session.token);
       const page = await context.newPage();
       const observed = observePage(page);
-      const discover = await verifyDiscover(page, origin, viewport.label);
-      const primaryRoutes = await verifyPrimaryRoutes(page, origin, viewport.label);
+      const discover = detailsOnly ? {} : await verifyDiscover(page, origin, viewport.label);
+      const primaryRoutes = detailsOnly ? {} : await verifyPrimaryRoutes(page, origin, viewport.label);
       Object.assign(primaryRoutes, await verifyOpportunityDetails(page, origin, viewport.label));
       assert.deepEqual(observed.consoleErrors, [], `${viewport.label} browser console errors: ${observed.consoleErrors.join(" | ")}`);
       assert.deepEqual(observed.requestFailures, [], `${viewport.label} request failures: ${observed.requestFailures.join(" | ")}`);

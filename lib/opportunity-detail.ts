@@ -39,8 +39,10 @@ export function conciseOpportunityDescription(item: Opportunity) {
     .filter((sentence) => !genericDescriptionPatterns.some((pattern) => pattern.test(sentence)));
   const first = sentences[0] || `${item.title} from ${item.organization}.`;
   const second = sentences[1];
-  if (second && first.length < 120 && first.length + second.length <= 220) return `${first} ${second}`;
-  return first;
+  const description = second && first.length < 120 && first.length + second.length <= 220 ? `${first} ${second}` : first;
+  if (description.length <= 220) return description;
+  const clipped = description.slice(0, 217).replace(/\s+\S*$/, "").replace(/[,:;\s]+$/, "");
+  return `${clipped}…`;
 }
 
 export function opportunityValueLabel(item: Opportunity) {
@@ -89,7 +91,7 @@ function applicationDeadline(item: Opportunity) {
 
 function meaningfulValue(item: Opportunity) {
   const value = opportunityValueLabel(item);
-  return value === "Not published by the provider" ? null : value;
+  return /^(unknown|n\/a|not available|not published by the provider)$/i.test(value.trim()) ? null : value;
 }
 
 function fact(label: string, value: string | null | undefined): OpportunityDetailFact | null {

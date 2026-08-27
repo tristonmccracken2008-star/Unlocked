@@ -47,6 +47,7 @@
     "check:performance": "node scripts/check-performance-regressions.mjs",
     "check:app-performance": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-app-performance.ts",
     "test:app-performance-browser": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/test-app-performance-browser.ts",
+    "test:opportunity-detail-browser": "UNLOCKED_TEST_OPPORTUNITY_DETAILS_ONLY=1 node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/test-app-performance-browser.ts",
     "test:for-you-webkit": "UNLOCKED_TEST_PRODUCTION_WEBKIT=1 node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/test-app-performance-browser.ts",
     "check:journey-board": "node scripts/check-journey-board.mjs",
     "check:college-journey": "node scripts/check-college-journey.mjs",

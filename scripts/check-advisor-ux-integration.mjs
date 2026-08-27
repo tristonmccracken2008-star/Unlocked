@@ -18,6 +18,7 @@ const advisorAccess = read("lib/advisor-access.ts");
 const profile = read("components/profile-page.tsx");
 const profileCareerTab = read("components/profile-career-tab.tsx");
 const opportunityPage = read("app/opportunities/[id]/page.tsx");
+const opportunityExperience = read("components/opportunity-detail-experience.tsx");
 const opportunityFilter = read("components/opportunity-filter.tsx");
 const journey = read("data/journey.ts");
 const recommendationService = read("data/recommendation-service.ts");
@@ -94,18 +95,11 @@ for (const state of ["free", "preview", "pro", "unavailable"]) {
   assert.ok(advisorAccess.includes(`"${state}"`), `Advisor access state must support ${state}.`);
 }
 
-for (const label of [
-  "Why this match",
-  "Skills gained",
-  "Competencies strengthened",
-  "Evidence generated",
-  "Resume impact",
-  "Interview value",
-  "Estimated ROI",
-]) {
-  assert.ok(opportunityPage.includes(label), `Opportunity page must render ${label}.`);
+for (const label of ["Why UnlockED connected this opportunity to you", "Why it fits", "Evidence used", "What it could build", "Tradeoffs"]) {
+  assert.ok(opportunityExperience.includes(label), `Opportunity experience must render ${label}.`);
 }
 assert.ok(opportunityPage.includes("explainOpportunityWithAdvisorBrain"), "Opportunity pages must use Advisor Brain explanations.");
+assert.ok(opportunityPage.includes("OpportunityDetailExperience"), "Opportunity route must pass Advisor Brain output into the canonical detail experience.");
 
 for (const label of [
   "Career Profile",

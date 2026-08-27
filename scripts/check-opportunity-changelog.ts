@@ -118,11 +118,14 @@ const nextCycle = fixture({}, { cycle: { cycleId: "change-fixture:2028" } });
 assert.equal(detectMeaningfulOpportunityChanges(before, nextCycle, now).some((event) => event.changeType === "cycle_updated"), true);
 
 const detailSource = await readFile(new URL("../app/opportunities/[id]/page.tsx", import.meta.url), "utf8");
+const detailExperienceSource = await readFile(new URL("../components/opportunity-detail-experience.tsx", import.meta.url), "utf8");
+const detailProjectionSource = await readFile(new URL("../lib/opportunity-detail-projection.ts", import.meta.url), "utf8");
 const journeySource = await readFile(new URL("../components/journey-command-center.tsx", import.meta.url), "utf8");
 const workspaceSource = await readFile(new URL("../components/application-workspace.tsx", import.meta.url), "utf8");
 const adminRoute = await readFile(new URL("../app/api/admin/content/route.ts", import.meta.url), "utf8");
-assert.match(detailSource, /Recent updates/);
-assert.match(detailSource, /recentChanges\.length/);
+assert.match(detailSource, /buildOpportunityDetailProjection/);
+assert.match(detailExperienceSource, /What changed/);
+assert.match(detailProjectionSource, /recentOpportunityChanges/);
 assert.match(journeySource, /record\.recentChange/);
 assert.match(workspaceSource, /Updated by the provider/);
 assert.match(adminRoute, /changeDiagnostics/);
