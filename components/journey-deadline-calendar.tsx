@@ -393,7 +393,7 @@ export function JourneyDeadlineCalendar({ model, intelligence }: { model: Journe
     }
   }
 
-  return <section className={styles.shell} aria-labelledby="journey-upcoming-heading" data-journey-calendar="" data-guide-anchor="journey-calendar">
+  return <section id="journey-calendar" className={styles.shell} aria-labelledby="journey-upcoming-heading" data-journey-calendar="" data-guide-anchor="journey-calendar">
     <header className={styles.header}>
       <div><p>Schedule</p><h2 id="journey-upcoming-heading">{view === "conflicts" ? "Conflict Planning" : "Upcoming"}</h2></div>
       <div className={styles.headerActions}>

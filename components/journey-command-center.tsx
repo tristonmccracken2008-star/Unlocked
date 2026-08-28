@@ -138,6 +138,49 @@ function EmptyRecords({ model }: { model: JourneyCommandCenterModel }) {
   return <SmartEmptyState compact title={heading} description="Choose another stage to return to the opportunities already in your Journey." primaryAction={{ label: "Show all active opportunities", href: "/#active-opportunities" }} />;
 }
 
+function StrategySection({ model }: { model: JourneyCommandCenterModel }) {
+  const strategy = model.strategy;
+  if (!strategy.currentCount) return null;
+  return <section className={styles.strategy} aria-labelledby="journey-strategy-heading" data-guide-anchor="journey-strategy">
+    <header>
+      <div><p>Strategy</p><h2 id="journey-strategy-heading">How your current opportunities fit together</h2></div>
+      <span>{strategy.pursuingCount} pursuing · {strategy.watchingCount} watching</span>
+    </header>
+    <div className={styles.strategyGrid}>
+      <section aria-labelledby="strategy-mix-heading">
+        <h3 id="strategy-mix-heading">Current mix</h3>
+        {strategy.typeMix.length ? <ul className={styles.mixList}>{strategy.typeMix.slice(0, 6).map((item) => <li key={item.id}><span>{item.label}</span><strong>{item.count}</strong></li>)}</ul> : <p>No categorized Journey items yet.</p>}
+        {strategy.organizationContext.map((line) => <small key={line}>{line}</small>)}
+        {strategy.watching.overlappingCount ? <small>{strategy.watching.overlappingCount} watched {strategy.watching.overlappingCount === 1 ? "opportunity overlaps" : "opportunities overlap"} with what you are pursuing.</small> : null}
+        {strategy.historyContext.slice(0, 2).map((line) => <small key={line}>Previously: {line}.</small>)}
+        {strategy.pro && strategy.fieldMix.length ? <details className={styles.strategyDetails}>
+          <summary>Fields represented <span>View</span></summary>
+          <ul className={styles.mixList}>{strategy.fieldMix.slice(0, 6).map((item) => <li key={item.id}><span>{item.label}</span><strong>{item.count}</strong></li>)}</ul>
+        </details> : null}
+      </section>
+      <section aria-labelledby="strategy-timing-heading">
+        <h3 id="strategy-timing-heading">Timing</h3>
+        <p>{strategy.timing.summary}</p>
+        {strategy.activeApplicationCount ? <small>{strategy.activeApplicationCount} active {strategy.activeApplicationCount === 1 ? "application" : "applications"}{strategy.applications.openRequirementCount ? ` · ${strategy.applications.openRequirementCount} known reusable ${strategy.applications.openRequirementCount === 1 ? "requirement needs" : "requirements need"} attention` : ""}</small> : <small>No active applications are recorded.</small>}
+        {strategy.applications.recurringRequirements.slice(0, 2).map((requirement) => <small key={requirement.label}>{requirement.label} appears in {requirement.applicationCount} active applications.</small>)}
+        <a href="#journey-calendar">View calendar</a>
+      </section>
+      {strategy.pro ? <section aria-labelledby="strategy-similar-heading">
+        <h3 id="strategy-similar-heading">Similar opportunities</h3>
+        {strategy.similarities.length ? <div className={styles.similarGroups}>{strategy.similarities.slice(0, 3).map((group) => <details key={group.id}>
+          <summary>{group.opportunityIds.length} opportunities overlap <span>View</span></summary>
+          <p>{group.reasons.join(" · ")}</p>
+          <ul>{group.opportunities.map((item) => <li key={item.id}><Link href={`/opportunities/${encodeURIComponent(item.id)}`}>{item.title}<small>{item.organization}</small></Link></li>)}</ul>
+        </details>)}</div> : <p>No strongly similar groups among your current opportunities.</p>}
+      </section> : <section className={styles.strategyPro} aria-labelledby="strategy-pro-heading"><h3 id="strategy-pro-heading">See how opportunities overlap</h3><p>Pro adds similarity groups, Path context, and what each new opportunity contributes.</p><Link href="/pricing">View Pro</Link></section>}
+      {strategy.pro && strategy.goals.length ? <section aria-labelledby="strategy-goals-heading">
+        <h3 id="strategy-goals-heading">Your goals</h3>
+        <ul className={styles.goalList}>{strategy.goals.map((goal) => <li key={goal.id}><Link href={`/paths/${goal.id}`}><span>{goal.label}</span><strong>{goal.currentCount ? `${goal.currentCount} current` : "No current Journey items"}</strong></Link></li>)}</ul>
+      </section> : null}
+    </div>
+  </section>;
+}
+
 export function JourneyCommandCenter({ model, returnBriefing = null }: { model: JourneyCommandCenterModel; returnBriefing?: ReturnBriefingModel | null }) {
   const hasRecords = model.activeCount + model.historyCount > 0;
   const introGuidePending = model.guidance.eligibility.journey_intro && !guidanceHasBeenSeen(model.guidance.state, "journey_intro");
@@ -154,7 +197,8 @@ export function JourneyCommandCenter({ model, returnBriefing = null }: { model: 
       <JourneySessionFeedback accountKey={model.accountKey} overview={model.overview} attentionCount={model.attentionCount} showHints={!introGuidePending && !returnBriefing && model.showFirstUseHints} />
       {returnBriefing ? <ReturnBriefing model={returnBriefing} /> : null}
 
-      {!hasRecords && model.calendar.groups.length === 0 ? <SmartEmptyState className={styles.primaryEmpty} eyebrow="Journey" title="Start building your Journey." description="Add an opportunity from Discover and UnlockED will help you organize deadlines, applications, and meaningful progress in one private place." primaryAction={{ label: "Explore opportunities", href: "/opportunities" }} icon={BookmarkIcon} /> : null}
+      {!hasRecords && model.strategy.currentCount === 0 && model.calendar.groups.length === 0 ? <SmartEmptyState className={styles.primaryEmpty} eyebrow="Journey" title="Start building your Journey." description="Add an opportunity from Discover and UnlockED will help you organize deadlines, applications, and meaningful progress in one private place." primaryAction={{ label: "Explore opportunities", href: "/opportunities" }} icon={BookmarkIcon} /> : null}
+      {!hasRecords && model.strategy.currentCount ? <StrategySection model={model} /> : null}
 
       {hasRecords && model.overview.length && !briefingReplacesSummary ? <section className={styles.overview} aria-label="Journey overview" data-count={model.overview.length}>
           {model.overview.map((card) => <a key={card.id} href={card.href} data-tone={card.tone} data-overview-id={card.id}>
@@ -180,6 +224,8 @@ export function JourneyCommandCenter({ model, returnBriefing = null }: { model: 
         </section> : null}
 
         <JourneyDeadlineCalendar model={model.calendar} intelligence={model.calendarIntelligence} />
+
+        <StrategySection model={model} />
 
         <section className={styles.active} id="active-opportunities" data-guide-anchor="active-opportunities" aria-labelledby="active-opportunities-heading">
           <div className={styles.sectionHeading}><h2 id="active-opportunities-heading">Active opportunities <span>{model.activeCount}</span></h2></div>

@@ -3,6 +3,7 @@ import type { Opportunity } from "@/data/opportunities";
 import type { RecommendationViewModel } from "@/data/recommendation-service";
 import type { StudentActivity } from "@/data/student-activity";
 import type { ForYouComparisonProjection, ForYouDecisionFact, ForYouRecommendationInsight } from "@/lib/advisor/types";
+import { projectOpportunityStrategyContribution, type OpportunityStrategyContext } from "./personal-opportunity-strategy";
 
 export const forYouDecisionVersion = "for-you-decision-v1" as const;
 
@@ -30,16 +31,6 @@ function effortFor(opportunity: Opportunity | null) {
   return { label, detail: requirements.join(" + "), rank: involved ? 3 : requirements.length <= 2 ? 1 : 2 };
 }
 
-function journeyContribution(view: RecommendationViewModel, activity: StudentActivity, opportunityById: ReadonlyMap<string, Opportunity>) {
-  const category = view.recommendation.portfolio?.canonicalCategory ?? view.opportunity?.category;
-  if (!category || !Object.keys(activity.tracked ?? {}).length) return undefined;
-  const existing = Object.values(activity.tracked ?? {}).filter((record) => {
-    if (["Rejected", "Completed"].includes(record.status)) return false;
-    return opportunityById.get(record.id)?.category === category;
-  }).length;
-  return existing === 0 ? `Adds ${category.toLowerCase()}` : undefined;
-}
-
 function verifiedDeadline(opportunity: Opportunity | null, now: Date) {
   if (!opportunity?.application_deadline || opportunity.metadata.verification?.deadlineVerified !== true) return undefined;
   const deadline = new Date(`${opportunity.application_deadline}T23:59:59.999Z`);
@@ -61,6 +52,7 @@ export function buildForYouDecisionInsights(input: {
   opportunityById: ReadonlyMap<string, Opportunity>;
   watchedIds: ReadonlySet<string>;
   priorRecommendationIds: ReadonlySet<string>;
+  strategyContext?: OpportunityStrategyContext;
   now: Date;
 }) {
   const insights: Record<string, ForYouRecommendationInsight> = {};
@@ -73,7 +65,7 @@ export function buildForYouDecisionInsights(input: {
     if (!id || !opportunity) return;
     const deadline = verifiedDeadline(opportunity, input.now);
     const effort = effortFor(opportunity);
-    const contribution = journeyContribution(view, input.activity, input.opportunityById);
+    const contribution = input.strategyContext ? projectOpportunityStrategyContribution(input.strategyContext, opportunity).line : undefined;
     const value = valueLabel(view);
     const facts: ForYouDecisionFact[] = [];
     if (deadline) facts.push({ kind: "deadline", label: deadline.label });
@@ -94,7 +86,7 @@ export function buildForYouDecisionInsights(input: {
       estimatedApplicationTime: opportunity.metadata.estimatedApplicationTime ?? "Unknown",
       priorityLabel,
       factLine,
-      whyThisOne: contribution ? `${contribution} to your current Journey.` : reason,
+      whyThisOne: contribution ?? reason,
       facts,
       comparison: {
         opportunityId: id,

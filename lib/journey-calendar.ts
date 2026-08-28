@@ -173,10 +173,11 @@ export function buildJourneyCalendarModel(input: {
   const items = [...official, ...personal, ...applicationTasks].sort(eventSort);
   const endOfWeek = new Date(dateValue(today) + 7 * 86_400_000).toISOString().slice(0, 10);
   const endOfMonth = `${today.slice(0, 8)}${String(new Date(Date.UTC(Number(today.slice(0, 4)), Number(today.slice(5, 7)), 0)).getUTCDate()).padStart(2, "0")}`;
+  const laterStartsAfter = endOfWeek > endOfMonth ? endOfWeek : endOfMonth;
   const groups: JourneyCalendarGroup[] = [
     { id: "this_week", label: "This week", items: items.filter((item) => item.date >= today && item.date <= endOfWeek) },
     { id: "this_month", label: "This month", items: items.filter((item) => item.date > endOfWeek && item.date <= endOfMonth) },
-    { id: "later", label: "Later", items: items.filter((item) => item.date > endOfMonth) },
+    { id: "later", label: "Later", items: items.filter((item) => item.date > laterStartsAfter) },
     { id: "passed", label: "Passed", items: items.filter((item) => item.date < today) },
   ].filter((group) => group.items.length) as JourneyCalendarGroup[];
   const trackedOptions = trackedIds.flatMap((id) => {

@@ -82,6 +82,8 @@ assert.equal(pathResults.results.filter((item) => item.group === "Paths").every(
 const collectionResults = buildUniversalSearch({ user, account: account(tracked), opportunities, query: "first year opportunities", now });
 assert.ok(collectionResults.results.some((item) => item.group === "Collections" && item.href === "/collections/first-year"), "Universal Search must expose launched curated starting points.");
 assert.equal(collectionResults.results.some((item) => item.href === "/collections/transfer-friendly"), false, "Deferred collections must remain absent from search.");
+const strategyResults = buildUniversalSearch({ user, account: account(tracked), opportunities, query: "current mix", now });
+assert.equal(strategyResults.results[0]?.href, "/#journey-strategy", "Strategy intent must hand off to the private Journey context instead of creating a top-level destination.");
 
 const timings: number[] = [];
 for (let run = 0; run < 8; run += 1) {

@@ -6,6 +6,8 @@ import type { StudentActivity } from "@/data/student-activity";
 import type { StudentProfile } from "@/data/student-profile";
 import type { ForYouBriefing, ForYouRadarEvent, ForYouRecommendationSnapshot } from "@/lib/advisor/types";
 import { buildForYouDecisionInsights, forYouDecisionVersion } from "@/lib/for-you-decision-intelligence";
+import type { AccountData } from "./account-types";
+import { createOpportunityStrategyContext } from "./personal-opportunity-strategy";
 
 const terminalStatuses = new Set(["Rejected", "Completed"]);
 
@@ -99,6 +101,7 @@ export function buildForYouBriefing(input: {
   totalMatches: number;
   profile: StudentProfile;
   activity: StudentActivity;
+  account?: AccountData;
   opportunityById: Map<string, Opportunity>;
   priorSnapshot?: ForYouRecommendationSnapshot | null;
   watchedOpportunityIds?: string[];
@@ -119,7 +122,8 @@ export function buildForYouBriefing(input: {
   const moreMatches = uncommitted.filter((view) => !used.has(opportunityId(view)));
   const portfolio = portfolioBrief(input.activity, input.opportunityById);
   const priorIds = new Set((input.priorSnapshot?.recommendations ?? []).map(opportunityId));
-  const decisions = buildForYouDecisionInsights({ recommendations, activity: input.activity, opportunityById: input.opportunityById, watchedIds, priorRecommendationIds: priorIds, now });
+  const strategyContext = input.account ? createOpportunityStrategyContext({ account: input.account, opportunities: [...input.opportunityById.values()], now }) : undefined;
+  const decisions = buildForYouDecisionInsights({ recommendations, activity: input.activity, opportunityById: input.opportunityById, watchedIds, priorRecommendationIds: priorIds, strategyContext, now });
   const insights = decisions.insights;
   for (const view of recommendations) {
     const id = opportunityId(view);

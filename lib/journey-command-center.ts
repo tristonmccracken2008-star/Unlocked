@@ -19,6 +19,7 @@ import { buildCalendarIntelligenceModel, type CalendarIntelligenceModel } from "
 import { projectApplicationWorkspace, type ApplicationWorkspaceProjection } from "./application-workspace";
 import { opportunityChangeLabel, recentOpportunityChanges } from "@/data/opportunity-changelog";
 import { journeyGuidanceEligibility, normalizeGuidanceState, type GuidanceState } from "./guidance";
+import { buildPersonalOpportunityStrategy, createOpportunityStrategyContext, type PersonalOpportunityStrategy } from "./personal-opportunity-strategy";
 
 export const journeyCommandFilters = ["active", "saved", "preparing", "applied", "interviewing", "offers", "accepted", "paused", "history"] as const;
 export type JourneyCommandFilter = (typeof journeyCommandFilters)[number];
@@ -113,6 +114,7 @@ export type JourneyCommandCenterModel = {
   showFirstUseHints: boolean;
   calendar: JourneyCalendarModel;
   calendarIntelligence: CalendarIntelligenceModel;
+  strategy: PersonalOpportunityStrategy;
   guidance: {
     state: GuidanceState;
     eligibility: ReturnType<typeof journeyGuidanceEligibility>;
@@ -512,6 +514,10 @@ export function buildJourneyCommandCenterModel(input: {
   const timeline = buildJourneyTimelineModel({ user: input.user, account: input.account, opportunities: input.opportunities, resolvedTheme: input.resolvedTheme, now });
   const calendar = buildJourneyCalendarModel({ account: input.account, opportunities: input.opportunities, now });
   const calendarIntelligence = buildCalendarIntelligenceModel({ account: input.account, opportunities: input.opportunities, calendar, now });
+  const strategy = buildPersonalOpportunityStrategy({
+    context: createOpportunityStrategyContext({ account: input.account, opportunities: input.opportunities, now }),
+    calendar: calendarIntelligence,
+  });
   const cardEligible = records.some((record) => record.history.some((item) => validationTransitions.has(item.transition)))
     || Object.values(input.account.journeyProgress ?? {}).some(Boolean);
   return {
@@ -539,6 +545,7 @@ export function buildJourneyCommandCenterModel(input: {
     showFirstUseHints: records.length > 0 && !records.some((record) => record.history.some((item) => item.transition !== "choose")),
     calendar,
     calendarIntelligence,
+    strategy,
     guidance: {
       state: normalizeGuidanceState(input.account.guidance),
       eligibility: journeyGuidanceEligibility(input.account, {

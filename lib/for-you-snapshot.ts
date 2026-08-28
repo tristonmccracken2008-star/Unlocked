@@ -306,6 +306,7 @@ async function generateSnapshot(user: AuthUser, data: AccountData, profile: Stud
     totalMatches: service.recommendations.length,
     profile,
     activity,
+    account: data,
     opportunityById: index.opportunityById,
     priorSnapshot: priorCompatibleSnapshot(data, user.id),
     watchedOpportunityIds: (data.watchedOpportunities ?? []).map((item) => item.opportunityId),

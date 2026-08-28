@@ -82,6 +82,10 @@ function applicationIntent(query: string) {
   return /\b(application|applications|task|tasks|resume|résumé|essay|transcript|recommendation)\b/i.test(query);
 }
 
+function strategyIntent(query: string) {
+  return /^(strategy|my strategy|current mix|my current opportunities|what am i pursuing|opportunity mix)$/i.test(query.trim());
+}
+
 function supportedConceptQuery(query: string) {
   return /^(scholarships?|grants?|funding|internships?|research|ai tools?|software|engineering|finance|quant|freshman opportunities?|first year opportunities?|remote opportunities?|student benefits?)$/i.test(query.trim());
 }
@@ -107,6 +111,15 @@ export function buildUniversalSearch(input: {
   });
   const records = [...model.activeRecords, ...model.historyGroups.flatMap((group) => group.records)];
   const personal = journeyResults(records, query);
+  const strategy: UniversalSearchResult[] = strategyIntent(query) ? [{
+    id: "journey:strategy",
+    kind: "journey",
+    group: "Your Journey",
+    title: "Current opportunity mix",
+    subtitle: "See how your current opportunities overlap and differ",
+    href: "/#journey-strategy",
+    score: 1_200,
+  }] : [];
   const materials = Object.values(normalizeApplicationMaterialStore(input.account.applicationMaterials).records).flatMap((record): UniversalSearchResult[] => {
     const score = matchScore(query, [record.title, record.versionLabel ?? "", applicationMaterialTypeLabels[record.type], ...record.contexts]);
     if (!score) return [];
@@ -214,7 +227,7 @@ export function buildUniversalSearch(input: {
 
   return {
     query,
-    results: [...collections, ...explorer, ...resumes, ...materials, ...paths, ...accomplishments, ...personal, ...upcoming, ...tasks, ...opportunities],
+    results: [...strategy, ...collections, ...explorer, ...resumes, ...materials, ...paths, ...accomplishments, ...personal, ...upcoming, ...tasks, ...opportunities],
     totalOpportunityMatches: preciseCatalog.length ? catalog.total : 0,
   };
 }

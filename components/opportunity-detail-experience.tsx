@@ -141,6 +141,13 @@ export function OpportunityDetailExperience({
             </p>
           </div>
         ) : null}
+        {model.context.strategy?.line ? (
+          <div className="mt-6 max-w-3xl border-l-2 border-forest/35 pl-4" data-strategy-context="">
+            <p className="rule-label text-forest">What this adds</p>
+            <p className="mt-2 text-sm leading-6 text-ink/60">{model.context.strategy.line}</p>
+            {model.context.strategy.details.length > 1 ? <details className="mt-2 group"><summary className="min-h-11 cursor-pointer list-none py-3 text-xs font-bold text-forest marker:content-none">Your current mix</summary><ul className="space-y-2 pb-2 text-xs leading-5 text-ink/55">{model.context.strategy.details.slice(1).map((detail) => <li key={detail}>{detail}</li>)}</ul></details> : null}
+          </div>
+        ) : null}
         </div>
       </header>
 

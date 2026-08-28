@@ -95,6 +95,15 @@ assert.equal(model.trackedOptions[0]?.id, opportunity.id);
 const passed = buildJourneyCalendarModel({ account: { ...account, tracker: { [opportunity.id]: { ...tracked, status: "Submitted" } } }, opportunities: [{ ...opportunity, application_deadline: "2026-08-07", deadline: "2026-08-07" }], now });
 assert.equal(passed.items.find((item) => item.source === "official")?.statusAwarePassed, true, "Submitted opportunities must not imply that the student missed a passed deadline");
 
+const monthBoundaryEvent = { ...personal, id: "calendar:month-boundary", date: "2026-09-01" };
+const monthBoundary = buildJourneyCalendarModel({
+  account: { ...account, calendarEvents: { [monthBoundaryEvent.id]: monthBoundaryEvent } },
+  opportunities: [],
+  now: new Date("2026-08-28T12:00:00.000Z"),
+});
+assert.equal(monthBoundary.groups.flatMap((group) => group.items).filter((item) => item.id === monthBoundaryEvent.id).length, 1, "A next-month date inside the current seven-day window must belong to exactly one group.");
+assert.equal(monthBoundary.groups.find((group) => group.items.some((item) => item.id === monthBoundaryEvent.id))?.id, "this_week");
+
 const reminder = buildCalendarEventNotificationSchedule({ userId: "user-1", event: personal, now, preferences: { timezone: "America/New_York" } });
 assert.ok(reminder?.calendarEventId === personal.id);
 assert.equal(reminder?.scheduledFor, "2026-08-09T14:00:00.000Z", "Interview reminder should respect the saved local time and timezone");

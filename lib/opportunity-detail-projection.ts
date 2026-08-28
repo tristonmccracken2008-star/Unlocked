@@ -42,6 +42,7 @@ import {
   type OpportunityDetailFact,
 } from "./opportunity-detail";
 import { opportunityMatchesPathStage } from "./opportunity-paths";
+import { createOpportunityStrategyContext, projectOpportunityStrategyContribution, type OpportunityStrategyContribution } from "./personal-opportunity-strategy";
 
 export type PersonalEligibilityState =
   "meets_recorded" | "does_not_meet" | "cannot_determine";
@@ -102,6 +103,7 @@ export type OpportunityDetailProjection = {
     forYou: { label: string; reasons: string[] } | null;
     paths: Array<{ id: string; name: string; stage: string; href: string }>;
     collections: Array<{ id: string; title: string; href: string }>;
+    strategy: OpportunityStrategyContribution | null;
   };
   advisorExplanation: OpportunityAdvisorExplanation | null;
   changes: ReturnType<typeof recentOpportunityChanges>;
@@ -415,7 +417,18 @@ export function buildOpportunityDetailProjection(input: {
           }
         : null,
     },
-    context: opportunityContext(opportunity, account, input.catalog),
+    context: {
+      ...opportunityContext(opportunity, account, input.catalog),
+      strategy: isProUser(account.billing) && input.catalog
+        ? (() => {
+            const projected = projectOpportunityStrategyContribution(
+              createOpportunityStrategyContext({ account, opportunities: input.catalog, now }),
+              opportunity,
+            );
+            return projected.details.length ? projected : null;
+          })()
+        : null,
+    },
     advisorExplanation: input.advisorExplanation ?? null,
     changes: recentOpportunityChanges(opportunity, 4),
     related: input.related,

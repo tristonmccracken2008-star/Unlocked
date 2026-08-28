@@ -22,6 +22,7 @@ import { serializeJsonLd } from "@/lib/json-ld";
 import { requireCompletedOnboarding } from "@/lib/onboarding";
 import { conciseOpportunityDescription } from "@/lib/opportunity-detail";
 import { buildOpportunityDetailProjection } from "@/lib/opportunity-detail-projection";
+import { strategyOpportunityIds } from "@/lib/personal-opportunity-strategy";
 
 export const dynamic = "force-dynamic";
 const getOpportunity = cache((id: string) =>
@@ -119,13 +120,15 @@ export default async function Page({
     getOpportunity(id),
   ]);
   if (!item) notFound();
-  const [related, advisorExplanation] = await Promise.all([
+  const [related, advisorExplanation, strategyCatalog] = await Promise.all([
     listPublishedOpportunitiesByIds(relatedDiscoverOpportunityIds(item, 3)),
     personalizedExplanation(item, session),
+    listPublishedOpportunitiesByIds([...new Set([...strategyOpportunityIds(session.data), item.id])], { includeArchived: true }),
   ]);
   const model = buildOpportunityDetailProjection({
     opportunity: item,
     account: session.data,
+    catalog: strategyCatalog,
     related,
     advisorExplanation,
   });
