@@ -17,6 +17,7 @@ const majors = ["Computer Science", "Mathematics", "Economics", "Finance", "Biol
 const years = ["First year", "Second year", "Third year", "Fourth year", "Graduate student"];
 const careerGoals = ["Software Engineering", "Quantitative Finance", "Medicine", "Research", "Investment Banking", "Consulting", "Law", "Graduate School", "Entrepreneurship", "Undecided"];
 const citizenshipStatuses: NonNullable<StudentProfile["citizenshipStatus"]>[] = ["us_citizen", "permanent_resident", "international", "unknown"];
+const fixtureVerificationDate = new Date().toISOString().slice(0, 10);
 
 function institutionType(name: string): NonNullable<StudentProfile["institutionType"]> {
   const normalized = name.toLowerCase();
@@ -82,11 +83,11 @@ function baseOpportunity(id: string, eligibilityRules: OpportunityEligibilityRul
     official_source: "https://example.org/official",
     official_source_url: "https://example.org/official",
     verification_status: "verified",
-    last_verified: "2026-07-13",
+    last_verified: fixtureVerificationDate,
     deadline: null,
     reviewer_notes: "Fixture with explicit eligibility verification.",
     estimated_value_note: "Unknown - no verified dollar value is documented by the official source.",
-    date_added: "2026-07-13",
+    date_added: fixtureVerificationDate,
     difficulty: "Open",
     prestige: "Established",
     icon: null,
@@ -97,7 +98,7 @@ function baseOpportunity(id: string, eligibilityRules: OpportunityEligibilityRul
       eligibilityRules,
       verification: {
         status: "verified",
-        lastVerifiedAt: "2026-07-13",
+        lastVerifiedAt: fixtureVerificationDate,
         officialSourceUrl: "https://example.org/official",
         applicationUrlVerified: true,
         deadlineVerified: true,

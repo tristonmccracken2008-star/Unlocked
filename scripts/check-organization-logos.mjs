@@ -8,7 +8,7 @@ const component = read("components/organization-logo.tsx");
 const opportunityCard = read("components/opportunity-card.tsx");
 const advisor = read("components/advisor-page.tsx");
 const tracker = read("components/journey-timeline.tsx");
-const detail = read("app/opportunities/[id]/page.tsx");
+const detail = read("components/opportunity-detail-experience.tsx");
 const notifications = read("components/notification-center.tsx");
 const commandCenter = read("components/journey-command-center.tsx");
 const config = read("next.config.mjs");
@@ -86,7 +86,7 @@ for (const [path, source] of [
   ["components/opportunity-card.tsx", opportunityCard],
   ["components/advisor-page.tsx", advisor],
   ["components/journey-timeline.tsx", tracker],
-  ["app/opportunities/[id]/page.tsx", detail],
+  ["components/opportunity-detail-experience.tsx", detail],
 ]) {
   assert.ok(source.includes("OrganizationLogo"), `${path} must render shared organization logos.`);
 }

@@ -50,7 +50,7 @@ assert.match(styles, /prefers-reduced-motion/, "Logo transitions must respect re
 for (const [path, token] of [
   ["components/opportunity-card.tsx", "OrganizationLogo"],
   ["components/advisor-page.tsx", "OrganizationLogo"],
-  ["app/opportunities/[id]/page.tsx", "OrganizationLogo"],
+  ["components/opportunity-detail-experience.tsx", "OrganizationLogo"],
   ["components/journey-command-center.tsx", "OrganizationMark"],
   ["components/journey-timeline.tsx", "OrganizationLogo"],
   ["components/journey-timeline-control.tsx", "ResolvedOrganizationMark"],

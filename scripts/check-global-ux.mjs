@@ -20,7 +20,7 @@ const loading = read("app/loading.tsx");
 const loadingSystem = read("components/loading-system.tsx");
 const authBoundary = read("components/auth-boundary.tsx");
 const opportunityActivity = read("components/opportunity-activity.tsx");
-const opportunityDetail = read("app/opportunities/[id]/page.tsx");
+const opportunityDetail = read("components/opportunity-detail-experience.tsx");
 const benefitDetail = read("app/benefits/[slug]/page.tsx");
 const lifecycleSections = [
   read("components/career-section.tsx"),

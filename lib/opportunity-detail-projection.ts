@@ -8,7 +8,10 @@ import {
 } from "@/data/opportunity-eligibility";
 import { resolveOpportunityLifecycle } from "@/data/opportunity-lifecycle";
 import { opportunityCollections } from "@/data/opportunity-collections";
-import { opportunityPaths } from "@/data/opportunity-paths";
+import {
+  opportunityPaths,
+  type OpportunityPathDefinition,
+} from "@/data/opportunity-paths";
 import type { Opportunity } from "@/data/opportunities";
 import { buildOpportunityStudentContext } from "@/data/recommendation-engine";
 import { schools } from "@/data/seed";
@@ -251,7 +254,8 @@ function opportunityContext(
   catalog?: readonly Opportunity[],
 ) {
   const paths = opportunityPaths.flatMap((path) => {
-    const stage = [...path.stages]
+    const stages = path.stages as OpportunityPathDefinition["stages"];
+    const stage = [...stages]
       .sort(
         (left, right) =>
           (right.mappingPriority ?? 0) - (left.mappingPriority ?? 0),

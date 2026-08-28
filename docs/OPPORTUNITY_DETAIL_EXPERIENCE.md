@@ -16,7 +16,7 @@ The existing systems remain authoritative:
 
 ## Data Flow
 
-`app/opportunities/[id]/page.tsx` loads the authenticated account, managed opportunity, published catalog, safe related records, and existing Advisor explanation in parallel where possible. It passes those values to `buildOpportunityDetailProjection()`.
+`app/opportunities/[id]/page.tsx` loads the authenticated account and managed opportunity together, then loads only the bounded related IDs and existing Advisor explanation needed for that record. The normal request path never reads or scans the full published catalog. It passes those values to `buildOpportunityDetailProjection()`.
 
 `lib/opportunity-detail-projection.ts` is a server-only, read-only composition layer. It returns one typed projection covering:
 
@@ -25,7 +25,7 @@ The existing systems remain authoritative:
 - strict personal eligibility comparison;
 - Journey/watch/application/accomplishment state;
 - verified requirements, material readiness, and resume context;
-- current For You, Path, and collection relationships;
+- current For You and Path relationships, plus collection relationships when a caller already has a precomputed catalog context;
 - meaningful verified changes and safe related records;
 - one state-adaptive primary action.
 
@@ -52,12 +52,13 @@ The page then reveals eligibility, application preparation, product context, ver
 
 `npm run check:opportunity-detail` now audits every catalog record for a unique canonical ID, valid source URL, bounded summary, non-empty identity, non-duplicated facts, and omission of meaningless unknown values. It also tests sparse and rich records, strict unknown eligibility, available and Applying states, non-mutating material context, and use of canonical trust, Path, collection, and application projections.
 
-The detail route remains dynamic because it includes private account context. The loading boundary continues to use the shared opportunity-detail skeleton. Related opportunities remain structured and recommendation-safe rather than personalized guesses.
+The detail route remains dynamic because it includes private account context. The loading boundary continues to use the shared opportunity-detail skeleton. Path membership is resolved against the current record with the canonical stage matcher. Collection membership is accepted only from an already-built catalog context; the production detail route intentionally omits it instead of introducing an all-catalog request scan. Related opportunities remain bounded, structured, and recommendation-safe rather than personalized guesses.
 
 ## Intentional Limits
 
 - The page reports the facts available in the catalog; it does not manufacture missing deadlines, value, requirements, or eligibility.
 - For You context appears only when the current saved recommendation snapshot contains the opportunity.
+- Collection context is omitted on the normal detail request until a precomputed membership lookup is available; it is never derived by scanning the full catalog per request.
 - Application workspaces appear only after the opportunity is in Journey.
 - Resume context is informational and does not select or mutate a resume.
 - Archived historical records may still be opened by direct authenticated URL, but current application actions remain controlled by lifecycle state.
