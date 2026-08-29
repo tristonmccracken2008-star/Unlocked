@@ -374,7 +374,7 @@ async function verifyFirstSave(page: Page, origin: string, browserName: string) 
   const journeyStartedAt = performance.now();
   await page.goto(origin, { waitUntil: "domcontentloaded", timeout: 60_000 });
   await page.getByRole("heading", { name: "Journey", exact: true }).waitFor({ state: "visible" });
-  assert.equal(await page.getByText("Your private record of what you saved, pursued, and accomplished.", { exact: true }).count(), 1);
+  assert.equal(await page.getByText("See what you are pursuing and what needs attention next.", { exact: true }).count(), 1);
   await page.getByRole("button", { name: "Update", exact: true }).first().waitFor({ state: "visible", timeout: 15_000 });
   const firstJourneyMs = performance.now() - journeyStartedAt;
 

@@ -261,13 +261,12 @@ try {
     const noErrors = observe(page, "Chromium desktop");
     await page.goto(origin, { waitUntil: "domcontentloaded" });
     let root = await baseAssertions(page, "Chromium desktop");
-    assert.ok(await root.locator("[aria-label='Journey overview'] > *").count() >= 1);
-    assert.ok(await root.locator("[aria-label='Journey overview'] > *").count() <= 4);
-    assert.equal(Number(await root.locator("[aria-label='Journey overview']").getAttribute("data-count")), await root.locator("[aria-label='Journey overview'] > *").count(), "The overview layout must reflect only supported summary items.");
+    assert.equal(await root.locator("[aria-label='Journey overview']").count(), 1, "Journey must expose one dominant next-action region.");
     assert.ok(await root.locator("[data-journey-record]").count() >= 4);
     await seedCalendarTaskCluster(rich.userId, rich.calendarOpportunityId);
     await page.reload({ waitUntil: "domcontentloaded" });
     root = await baseAssertions(page, "Chromium desktop with task cluster");
+    await root.locator("#journey-calendar > summary").click();
     const calendar = root.locator("[data-journey-calendar]");
     await calendar.waitFor({ state: "visible" });
     await calendar.getByText("Practice interview", { exact: true }).waitFor();
@@ -300,11 +299,11 @@ try {
     await page.route("**/api/journey/calendar", async (route) => { await new Promise((resolve) => setTimeout(resolve, 550)); await route.continue(); }, { times: 1 });
     await calendarDialog.getByRole("button", { name: "Save date" }).click();
     await calendarDialog.getByText("Adding date…", { exact: true }).waitFor();
-    await page.getByText("Essay draft due", { exact: true }).waitFor();
+    await calendar.getByText("Essay draft due", { exact: true }).waitFor();
     await calendar.getByText("Date added.", { exact: true }).waitFor();
     assert.ok(await root.getByRole("heading", { name: /Needs attention/ }).count() <= 1);
     const firstRecord = root.locator("[data-journey-record]").filter({ hasText: rich.title }).first();
-    const detailsTrigger = firstRecord.getByRole("button", { name: `Continue application for ${rich.title}` });
+    const detailsTrigger = firstRecord.getByRole("button", { name: `More actions for ${rich.title}` });
     await detailsTrigger.click();
     const detailsPanel = firstRecord.locator("section[popover]:popover-open");
     await detailsPanel.waitFor({ state: "visible" });
@@ -339,7 +338,7 @@ try {
     await page.waitForTimeout(350);
     const refreshedRecord = root.locator("[data-journey-record]").filter({ hasText: rich.title }).first();
     const refreshedPanel = refreshedRecord.locator("section[popover]");
-    const refreshedDetailsTrigger = refreshedRecord.getByRole("button", { name: `Continue application for ${rich.title}` });
+    const refreshedDetailsTrigger = refreshedRecord.getByRole("button", { name: `More actions for ${rich.title}` });
     if (await refreshedPanel.isVisible()) {
       await page.keyboard.press("Escape");
       await refreshedPanel.waitFor({ state: "hidden" });
@@ -372,9 +371,11 @@ try {
     await detailsPanel.screenshot({ path: path.join(output, "journey-record-details-desktop.png"), caret: "initial" });
     await page.keyboard.press("Escape");
     await detailsPanel.waitFor({ state: "hidden" });
-    await page.waitForFunction((label) => document.activeElement?.getAttribute("aria-label") === label, `Continue application for ${rich.title}`);
+    await page.waitForFunction((label) => document.activeElement?.getAttribute("aria-label") === label, `More actions for ${rich.title}`);
     assert.equal(await refreshedDetailsTrigger.evaluate((node) => document.activeElement === node), true, "Light-dismiss must restore focus to the record-details trigger.");
-    const updateTrigger = firstRecord.getByRole("button", { name: "Update", exact: true });
+    await refreshedDetailsTrigger.click();
+    await refreshedPanel.waitFor({ state: "visible" });
+    const updateTrigger = refreshedPanel.getByRole("button", { name: "Update progress", exact: true });
     await updateTrigger.click();
     const dialog = page.locator("dialog[data-journey-update-dialog][open]");
     await dialog.waitFor({ state: "visible" });
@@ -403,7 +404,9 @@ try {
     await transitionUndo.getByText(/^Restored to .+\.$/).waitFor();
     await root.locator('[data-journey-record][data-stage="preparing"]').filter({ hasText: rich.title }).first().waitFor();
     const interviewRecord = root.locator('[data-journey-record][data-stage="interviewing"]').first();
-    await interviewRecord.getByRole("button", { name: "Update", exact: true }).click();
+    await interviewRecord.getByRole("button", { name: /^More actions for/ }).click();
+    const interviewPanel = interviewRecord.locator("section[popover]:popover-open");
+    await interviewPanel.getByRole("button", { name: "Update progress", exact: true }).click();
     const milestoneDialog = page.locator("dialog[data-journey-update-dialog][open]");
     await milestoneDialog.getByText("Research position accepted", { exact: true }).first().click();
     await milestoneDialog.getByRole("button", { name: "Save milestone" }).click();
@@ -435,8 +438,9 @@ try {
     });
     const briefingOrder = hierarchy.briefing >= 0 && hierarchy.overview < 0 && hierarchy.attention < 0
       && hierarchy.header < hierarchy.briefing && hierarchy.briefing < hierarchy.active;
-    const summaryOrder = hierarchy.briefing < 0 && hierarchy.overview >= 0 && hierarchy.attention >= 0
-      && hierarchy.header < hierarchy.overview && hierarchy.overview < hierarchy.attention && hierarchy.attention < hierarchy.active;
+    const summaryOrder = hierarchy.briefing < 0 && hierarchy.overview >= 0
+      && hierarchy.header < hierarchy.overview && hierarchy.overview < hierarchy.active
+      && (hierarchy.attention < 0 || (hierarchy.overview < hierarchy.attention && hierarchy.attention < hierarchy.active));
     assert.ok(hierarchy.header >= 0 && (briefingOrder || summaryOrder) && hierarchy.active < hierarchy.history, `Journey sections must retain a clear reading order: ${JSON.stringify(hierarchy)}`);
     const desktopRecord = page.locator("[data-journey-record]").first();
     const desktopRecordBox = await desktopRecord.boundingBox();
@@ -529,7 +533,9 @@ try {
     await mobileDetailsPanel.getByRole("button", { name: /^Close details for/ }).press("Enter");
     await mobileDetailsPanel.waitFor({ state: "hidden" });
     assert.equal(await mobileDetailsTrigger.evaluate((node) => document.activeElement === node), true, "Closing mobile record details must restore focus to its trigger.");
-    await record.getByRole("button", { name: "Update", exact: true }).click();
+    await mobileDetailsTrigger.press("Enter");
+    await mobileDetailsPanel.waitFor({ state: "visible" });
+    await mobileDetailsPanel.getByRole("button", { name: "Update progress", exact: true }).click();
     const reducedDialog = page.locator("dialog[data-journey-update-dialog][open]");
     await reducedDialog.getByText("Choose a different stage", { exact: true }).click();
     await reducedDialog.getByText("Offer received", { exact: true }).click();
@@ -564,10 +570,10 @@ try {
     const page = await context.newPage();
     await page.goto(origin, { waitUntil: "domcontentloaded" });
     const root = await baseAssertions(page, "Chromium empty");
-    await root.getByRole("heading", { name: "Nothing coming up yet." }).waitFor();
+    await root.getByRole("heading", { name: "Start building your Journey." }).waitFor();
     assert.equal(await root.locator("[aria-label='Journey overview']").count(), 0);
     assert.equal(await root.getByRole("link", { name: "Explore opportunities" }).count(), 1);
-    assert.equal(await root.getByRole("button", { name: "Add date" }).count(), 2);
+    assert.equal(await root.locator("button:visible").filter({ hasText: "Add date" }).count(), 0, "An empty Journey should present one clear first action.");
     await context.close();
   }
   console.log("Journey command-center browser checks passed", { browsers: ["Chromium", "WebKit"], datasets: ["empty", "rich", "100-active", "500-history"], viewports: ["desktop", "tablet", "mobile", "200%-effective-zoom"], screenshots: output });

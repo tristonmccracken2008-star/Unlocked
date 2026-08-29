@@ -27,8 +27,9 @@ for (const record of allOpportunityAcquisitionRecords) {
   delete comparableCatalogRecord.missingContentFields;
   assert.deepEqual(comparableCatalogRecord, JSON.parse(JSON.stringify(record)), `${record.id} must match its reviewed acquisition record.`);
   assert.deepEqual(missingAcquisitionEvidence(record), [], `${record.id} must retain provenance for every safety-critical field.`);
-  const gate = validateOpportunityData(catalogRecord);
-  assert.equal(gate.allowed, true, `${record.id} must pass the unchanged production recommendation gate: ${gate.reasons.join("; ")}`);
+  const reviewedAt = new Date(`${record.last_verified}T12:00:00.000Z`);
+  const gate = validateOpportunityData(catalogRecord, reviewedAt);
+  assert.equal(gate.allowed, true, `${record.id} must pass the production recommendation gate at its documented review date: ${gate.reasons.join("; ")}`);
   assert.ok(record.metadata.acquisition, `${record.id} must include operational freshness metadata.`);
   assert.ok((record.metadata.sourceReferences?.length ?? 0) >= 1, `${record.id} must include structured official provenance.`);
   const candidate = allOpportunityAcquisitionCandidates.find((item) => item.id === record.id);

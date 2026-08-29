@@ -46,8 +46,8 @@ export type RecommendationHealthMonitor = {
   };
 };
 
-function hasKnownDeadlineProblem(opportunity: Opportunity) {
-  const deadlineDays = getDeadlineDays(opportunity);
+function hasKnownDeadlineProblem(opportunity: Opportunity, now = new Date()) {
+  const deadlineDays = getDeadlineDays(opportunity, now);
   return deadlineDays !== null && deadlineDays < 0;
 }
 
@@ -57,18 +57,19 @@ function hasUsableSource(opportunity: Opportunity) {
 
 const opportunityValidationCache = new WeakMap<Opportunity, CandidateGateResult>();
 
-export function validateOpportunityData(opportunity: Opportunity): CandidateGateResult {
-  const cached = opportunityValidationCache.get(opportunity);
+export function validateOpportunityData(opportunity: Opportunity, referenceTime?: Date): CandidateGateResult {
+  const cached = referenceTime ? undefined : opportunityValidationCache.get(opportunity);
   if (cached) return cached;
+  const now = referenceTime ?? new Date();
   const reasons: string[] = [];
   const canonical = normalizeOpportunityEligibility(opportunity);
   const duplicateOf = duplicateCanonicalId(opportunity.id);
-  const lifecycle = resolveOpportunityLifecycle(opportunity);
+  const lifecycle = resolveOpportunityLifecycle(opportunity, now);
   if (duplicateOf) reasons.push(`Superseded by canonical opportunity ${duplicateOf}.`);
   if (!lifecycle.recommendationEligible) reasons.push(`Lifecycle is not currently recommendation eligible: ${lifecycle.state} (${lifecycle.confidence}).`);
   if (!hasUsableSource(opportunity)) reasons.push("Missing usable source, organization, or eligibility.");
   if (recommendationConfig.verificationQuality.excludedStatuses.includes(opportunity.verification_status as never)) reasons.push(`Verification status is ${opportunity.verification_status}.`);
-  if (hasKnownDeadlineProblem(opportunity)) reasons.push("Deadline has passed.");
+  if (hasKnownDeadlineProblem(opportunity, now)) reasons.push("Deadline has passed.");
   if (opportunity.verification_status === "needs_review") reasons.push("Details need manual review before premium promotion.");
   if (opportunity.verification_status === "temporarily_closed") reasons.push("Opportunity is temporarily closed.");
   if (opportunity.verification_status !== "verified") reasons.push("Eligibility has not been positively verified for Pro recommendations.");
@@ -85,7 +86,7 @@ export function validateOpportunityData(opportunity: Opportunity): CandidateGate
     reasons,
     confidenceImpact: reasons.length ? "medium" : "none",
   };
-  opportunityValidationCache.set(opportunity, result);
+  if (!referenceTime) opportunityValidationCache.set(opportunity, result);
   return result;
 }
 

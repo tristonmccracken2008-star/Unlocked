@@ -140,7 +140,7 @@ assert.equal(evaluationFor("fellowship--fulbright-us-student-2027-28", { year: "
 assert.equal(evaluationFor("fellowship--fulbright-us-student-2027-28", { year: "Fourth year", graduationYear: "2027", citizenshipStatus: "international", workAuthorization: "unknown" }).eligible, false, "Fulbright must enforce U.S. citizenship.");
 assert.equal(evaluationFor("career--americorps-fema-corps-2027", { age: 25 }).eligible, false, "FEMA Corps must enforce its maximum member age.");
 
-const rankingCatalog = opportunities.filter((item) => validateOpportunityData(item).allowed);
+const rankingCatalog = opportunities.filter((item) => validateOpportunityData(item, auditDate).allowed);
 const profileCoverage: Record<string, { count: number; ids: string[] }> = {};
 for (const [name, override] of Object.entries(profiles)) {
   const profile = { ...baseProfile, ...override };
@@ -158,7 +158,7 @@ assert.ok(profileCoverage.research.ids.some((id) => id.startsWith("research--"))
 
 const verified = opportunities.filter((item) => item.verification_status === "verified");
 const canonical = opportunities.filter((item) => isCanonicalCatalogOpportunity(item.id) && !["archived", "broken_source"].includes(item.verification_status));
-const recommendationSafe = opportunities.filter((item) => validateOpportunityData(item).allowed);
+const recommendationSafe = opportunities.filter((item) => validateOpportunityData(item, auditDate).allowed);
 const highValueRecommendationSafe = recommendationSafe.filter((item) => recommendationOpportunityClass(item) !== "resource");
 const categoryCounts = verified.reduce<Record<string, number>>((counts, item) => {
   const category = recommendationOpportunityClass(item);

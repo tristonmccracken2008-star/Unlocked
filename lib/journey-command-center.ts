@@ -20,6 +20,7 @@ import { projectApplicationWorkspace, type ApplicationWorkspaceProjection } from
 import { opportunityChangeLabel, recentOpportunityChanges } from "@/data/opportunity-changelog";
 import { journeyGuidanceEligibility, normalizeGuidanceState, type GuidanceState } from "./guidance";
 import { buildPersonalOpportunityStrategy, createOpportunityStrategyContext, type PersonalOpportunityStrategy } from "./personal-opportunity-strategy";
+import { projectJourneyWorkspace, type JourneyWorkspaceProjection } from "./journey-workspace";
 
 export const journeyCommandFilters = ["active", "saved", "preparing", "applied", "interviewing", "offers", "accepted", "paused", "history"] as const;
 export type JourneyCommandFilter = (typeof journeyCommandFilters)[number];
@@ -115,6 +116,7 @@ export type JourneyCommandCenterModel = {
   calendar: JourneyCalendarModel;
   calendarIntelligence: CalendarIntelligenceModel;
   strategy: PersonalOpportunityStrategy;
+  workspace: JourneyWorkspaceProjection;
   guidance: {
     state: GuidanceState;
     eligibility: ReturnType<typeof journeyGuidanceEligibility>;
@@ -123,6 +125,24 @@ export type JourneyCommandCenterModel = {
 
 const terminalStatuses = new Set<OpportunityTrackerStatus>(["Rejected", "Completed"]);
 const validationTransitions = new Set(["interview", "accept", "complete"]);
+
+function emptyCalendar(timezone: string, now: Date): JourneyCalendarModel {
+  return { items: [], groups: [], initialMonth: now.toISOString().slice(0, 7), timezone, trackedOptions: [] };
+}
+
+function emptyCalendarIntelligence(timezone: string, now: Date): CalendarIntelligenceModel {
+  const period = <T extends 30 | 60 | 90>(horizonDays: T) => ({ horizonDays, clusters: [], unclustered: [], fixedCount: 0, userEditableCount: 0, deadlineCount: 0, taskCount: 0, openingCount: 0, monthSummaries: [] });
+  return { version: "calendar-intelligence-v1", timezone, generatedForDate: now.toISOString().slice(0, 10), periods: { "30": period(30), "60": period(60), "90": period(90) }, undatedTaskCount: 0 };
+}
+
+function emptyStrategy(now: Date): PersonalOpportunityStrategy {
+  return {
+    version: "personal-opportunity-strategy-v1", generatedAt: now.toISOString(), pro: false,
+    currentCount: 0, pursuingCount: 0, watchingCount: 0, activeApplicationCount: 0, unknownRecordCount: 0,
+    typeMix: [], fieldMix: [], organizationContext: [], timing: { knownDeadlineCount: 0, clusterCount: 0, summary: "No verified dates are currently recorded." },
+    similarities: [], goals: [], watching: { count: 0, overlappingCount: 0 }, applications: { activeCount: 0, openRequirementCount: 0, recurringRequirements: [] }, historyContext: [],
+  };
+}
 
 function safeTime(value: string | undefined) {
   const parsed = value ? Date.parse(value) : Number.NaN;
@@ -512,12 +532,24 @@ export function buildJourneyCommandCenterModel(input: {
     key === "active" ? allActive.length : key === "history" ? allHistory.length : allActive.filter((record) => record.stageFilter === key).length,
   ])) as Record<JourneyCommandFilter, number>;
   const timeline = buildJourneyTimelineModel({ user: input.user, account: input.account, opportunities: input.opportunities, resolvedTheme: input.resolvedTheme, now });
-  const calendar = buildJourneyCalendarModel({ account: input.account, opportunities: input.opportunities, now });
-  const calendarIntelligence = buildCalendarIntelligenceModel({ account: input.account, opportunities: input.opportunities, calendar, now });
-  const strategy = buildPersonalOpportunityStrategy({
-    context: createOpportunityStrategyContext({ account: input.account, opportunities: input.opportunities, now }),
-    calendar: calendarIntelligence,
-  });
+  let calendar = emptyCalendar(timezone, now);
+  let calendarIntelligence = emptyCalendarIntelligence(timezone, now);
+  let strategy = emptyStrategy(now);
+  try {
+    calendar = buildJourneyCalendarModel({ account: input.account, opportunities: input.opportunities, now });
+    calendarIntelligence = buildCalendarIntelligenceModel({ account: input.account, opportunities: input.opportunities, calendar, now });
+  } catch (error) {
+    console.error("[UnlockED Journey] calendar projection unavailable", { errorType: error instanceof Error ? error.name : "UnknownError" });
+  }
+  try {
+    strategy = buildPersonalOpportunityStrategy({
+      context: createOpportunityStrategyContext({ account: input.account, opportunities: input.opportunities, now }),
+      calendar: calendarIntelligence,
+    });
+  } catch (error) {
+    console.error("[UnlockED Journey] strategy projection unavailable", { errorType: error instanceof Error ? error.name : "UnknownError" });
+  }
+  const workspace = projectJourneyWorkspace({ records: allActive, calendar, calendarIntelligence, strategy });
   const cardEligible = records.some((record) => record.history.some((item) => validationTransitions.has(item.transition)))
     || Object.values(input.account.journeyProgress ?? {}).some(Boolean);
   return {
@@ -546,6 +578,7 @@ export function buildJourneyCommandCenterModel(input: {
     calendar,
     calendarIntelligence,
     strategy,
+    workspace,
     guidance: {
       state: normalizeGuidanceState(input.account.guidance),
       eligibility: journeyGuidanceEligibility(input.account, {

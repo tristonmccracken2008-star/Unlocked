@@ -1,6 +1,6 @@
 import Link from "next/link";
-import type { JourneyCommandCenterModel, JourneyCommandFilter, JourneyCommandRecord, JourneyCommandSort, JourneyOverviewCard } from "@/lib/journey-command-center";
-import { ArrowIcon, BellIcon, BookmarkIcon, CloseIcon, MoreIcon, SearchIcon, SendIcon, SparkIcon, TargetIcon, TrophyIcon } from "@/components/icons";
+import type { JourneyCommandCenterModel, JourneyCommandFilter, JourneyCommandRecord, JourneyCommandSort } from "@/lib/journey-command-center";
+import { ArrowIcon, BookmarkIcon, CalendarIcon, CloseIcon, MoreIcon, SearchIcon, SendIcon } from "@/components/icons";
 import { OrganizationLogo, OrganizationMark } from "@/components/organization-logo";
 import { JourneyTimelineControl } from "@/components/journey-timeline-control";
 import { JourneyCardEntry } from "@/components/journey-card-entry";
@@ -65,18 +65,11 @@ function hrefFor(model: JourneyCommandCenterModel, patch: { stage?: JourneyComma
   return value ? `/?${value}#active-opportunities` : "/#active-opportunities";
 }
 
-function OverviewIcon({ card }: { card: JourneyOverviewCard }) {
-  if (card.id === "next_deadline") return <TargetIcon />;
-  if (card.id === "waiting_on") return <BellIcon />;
-  if (card.id === "newest_milestone") return <TrophyIcon />;
-  return <SparkIcon />;
-}
-
 function RecordDetails({ record }: { record: JourneyCommandRecord }) {
   const panelId = `journey-record-details-${record.id}`;
   const titleId = `${panelId}-title`;
   return <div className={styles.recordDetails} data-journey-record-details="">
-    <button type="button" popoverTarget={panelId} aria-label={`${record.applicationWorkspace ? "Continue application" : "More actions"} for ${record.title}`} aria-haspopup="dialog" data-application-trigger={record.applicationWorkspace ? "true" : undefined}>{record.applicationWorkspace ? <><span>Continue application</span><ArrowIcon /></> : <><MoreIcon /><span className="sr-only">More actions</span></>}</button>
+    <button type="button" popoverTarget={panelId} aria-label={`More actions for ${record.title}`} aria-haspopup="dialog"><MoreIcon /><span className="sr-only">More actions</span></button>
     <section id={panelId} popover="auto" className={styles.detailGrid} role="dialog" aria-labelledby={titleId}>
       <header className={styles.detailHeader}>
         <div><p>{record.applicationWorkspace ? "Application details" : "Journey details"}</p><h3 id={titleId}>{record.title}</h3><span>{record.organization}</span></div>
@@ -95,6 +88,7 @@ function RecordDetails({ record }: { record: JourneyCommandRecord }) {
       {record.latestDetails?.notes ? <section><h4>Private note</h4><p>{record.latestDetails.notes}</p></section> : null}
       {record.latestDetails?.documents?.length ? <section><h4>Document references</h4><ul>{record.latestDetails.documents.map((document) => <li key={document.id}>{document.name}</li>)}</ul><p>References only. Files are not stored by UnlockED.</p></section> : null}
       {record.history.length ? <section><h4>Recent progress</h4><ol>{record.history.map((item) => <li key={item.id}><span>{item.label}</span><time dateTime={item.occurredAt}>{formatDate(item.occurredAt)}</time></li>)}</ol></section> : null}
+      {record.control ? <section className={styles.progressControl}><h4>Update progress</h4><JourneyTimelineControl control={record.control} compactLabel="Update progress" showFollowUp={false} /></section> : null}
       <div className={styles.detailLinks}>
         {record.opportunity ? <Link href={`/opportunities/${record.id}`}>View opportunity <ArrowIcon /></Link> : <span>The original public listing is no longer available.</span>}
         {record.opportunity?.official_source_url ? <a href={record.opportunity.official_source_url} target="_blank" rel="noreferrer">View official source <ArrowIcon /><span className="sr-only">(opens in a new tab)</span></a> : null}
@@ -103,9 +97,9 @@ function RecordDetails({ record }: { record: JourneyCommandRecord }) {
   </div>;
 }
 
-function JourneyRecordRow({ record, theme }: { record: JourneyCommandRecord; theme: JourneyCommandCenterModel["theme"] }) {
+function JourneyRecordRow({ record, theme, deferRendering = false }: { record: JourneyCommandRecord; theme: JourneyCommandCenterModel["theme"]; deferRendering?: boolean }) {
   const urgency = record.nextDate?.urgency ?? (record.stageFilter === "interviewing" ? "interview" : "normal");
-  return <article id={`journey-record-${record.id}`} className={styles.record} data-journey-record="" data-guide-anchor={record.recentChange ? "journey-changelog" : record.applicationWorkspace ? "application-workspace" : undefined} data-stage={record.stageFilter} data-urgency={urgency} data-unavailable={record.unavailable ? "true" : undefined}>
+  return <article id={`journey-record-${record.id}`} className={styles.record} data-journey-record="" data-deferred={deferRendering ? "true" : undefined} data-guide-anchor={record.recentChange ? "journey-changelog" : record.applicationWorkspace ? "application-workspace" : undefined} data-stage={record.stageFilter} data-urgency={urgency} data-unavailable={record.unavailable ? "true" : undefined}>
     <div className={styles.recordMain} data-record-identity="">
       {record.opportunity
         ? <OrganizationLogo opportunity={record.opportunity} size="sm" className={theme === "dark" ? styles.darkLogo : ""} />
@@ -123,10 +117,12 @@ function JourneyRecordRow({ record, theme }: { record: JourneyCommandRecord; the
         : record.nextDate ? <span data-urgency={record.nextDate.urgency}>{record.nextDate.timingLabel}{record.nextDate.urgency === "normal" ? ` ${formatDate(record.nextDate.value)}` : ""}</span> : <span>{record.statusDetail}</span>}
     </div>
     <div className={styles.recordActions} data-record-actions="">
+      {record.applicationWorkspace && ["Interested", "Applying"].includes(record.status)
+        ? <Link className={styles.rowPrimaryAction} href={`/applications/${encodeURIComponent(record.id)}`}>Continue application <ArrowIcon /></Link>
+        : record.opportunity ? <Link className={styles.rowPrimaryAction} href={`/opportunities/${encodeURIComponent(record.id)}`}>{["Submitted", "Interview", "Accepted"].includes(record.status) ? "View record" : "Open opportunity"} <ArrowIcon /></Link> : null}
       <RecordDetails record={record} />
-      {record.control ? <JourneyTimelineControl control={record.control} compactLabel="Update" showFollowUp={false} /> : null}
     </div>
-    {record.lifecycle && !record.lifecycle.actionable ? <p className={styles.lifecycle}>Public listing: {record.lifecycle.label}. Your Journey stage remains {record.stageLabel}.</p> : null}
+    {record.lifecycle && ["canceled", "closed", "temporarily_closed"].includes(record.lifecycle.state) ? <p className={styles.lifecycle}>Public listing: {record.lifecycle.label}. Your Journey stage remains {record.stageLabel}.</p> : null}
   </article>;
 }
 
@@ -138,7 +134,7 @@ function EmptyRecords({ model }: { model: JourneyCommandCenterModel }) {
   return <SmartEmptyState compact title={heading} description="Choose another stage to return to the opportunities already in your Journey." primaryAction={{ label: "Show all active opportunities", href: "/#active-opportunities" }} />;
 }
 
-function StrategySection({ model }: { model: JourneyCommandCenterModel }) {
+function StrategyDetails({ model }: { model: JourneyCommandCenterModel }) {
   const strategy = model.strategy;
   if (!strategy.currentCount) return null;
   return <section className={styles.strategy} aria-labelledby="journey-strategy-heading" data-guide-anchor="journey-strategy">
@@ -181,51 +177,59 @@ function StrategySection({ model }: { model: JourneyCommandCenterModel }) {
   </section>;
 }
 
+function JourneyWorkspaceSummary({ model }: { model: JourneyCommandCenterModel }) {
+  const next = model.workspace.nextAction;
+  return <>
+    {next ? <section className={styles.nextAction} aria-label="Journey overview" aria-labelledby="journey-next-heading">
+      <div className={styles.nextActionCopy}>
+        <p>Next</p>
+        <h2 id="journey-next-heading">{next.title}</h2>
+        {next.organization ? <span>{next.organization}</span> : null}
+        <strong>{next.reason}</strong>
+        {next.timing ? <small>{next.timing}</small> : null}
+      </div>
+      <Link href={next.href}>{next.label} <ArrowIcon /></Link>
+    </section> : <section className={styles.nextQuiet} aria-label="Journey overview"><p>Your active pursuits are current.</p><span>Open an opportunity below when you are ready to continue.</span></section>}
+    {model.workspace.secondaryActions.length ? <section className={styles.secondaryAttention} aria-labelledby="journey-attention-heading">
+      <header><h2 id="journey-attention-heading">Needs attention</h2><span>{model.workspace.secondaryActions.length}</span></header>
+      <ol>{model.workspace.secondaryActions.map((item) => <li key={item.id}><div><strong>{item.title}</strong><span>{item.reason}{item.timing ? ` ${item.timing}.` : ""}</span></div><Link href={item.href} aria-label={`${item.label}: ${item.title}`}>{item.label} <ArrowIcon /></Link></li>)}</ol>
+    </section> : null}
+  </>;
+}
+
+function JourneyContext({ model }: { model: JourneyCommandCenterModel }) {
+  const summary = model.workspace.strategySummary;
+  return <section className={styles.contextGrid} aria-label="Journey context">
+    <section className={styles.upcoming} aria-labelledby="journey-upcoming-heading">
+      <header><div><p>Coming up</p><h2 id="journey-upcoming-heading">Verified dates and your reminders</h2></div><a href="#journey-calendar">Open calendar</a></header>
+      {model.workspace.timingSummary ? <p className={styles.timingSummary}>{model.workspace.timingSummary}</p> : null}
+      {model.workspace.upcomingDates.length ? <ol>{model.workspace.upcomingDates.map((item) => <li key={item.id}><time dateTime={item.date}><strong>{new Date(`${item.date}T12:00:00Z`).toLocaleDateString("en-US", { month: "short", timeZone: "UTC" })}</strong><span>{new Date(`${item.date}T12:00:00Z`).getUTCDate()}</span></time><div><strong>{item.opportunityTitle ?? item.title}</strong><span>{item.title} · {item.timingLabel}</span></div></li>)}</ol> : <p className={styles.contextEmpty}>No verified dates or personal reminders are coming up.</p>}
+    </section>
+    {summary ? <section className={styles.mixSummary} aria-labelledby="journey-mix-heading"><header><p>Current mix</p><h2 id="journey-mix-heading">{summary.activeCount} active {summary.activeCount === 1 ? "opportunity" : "opportunities"}</h2></header><p>{summary.mix || "Your current pursuits are not yet categorized."}</p>{summary.context ? <span>{summary.context}</span> : null}<a href="#journey-strategy">View strategy</a></section> : null}
+  </section>;
+}
+
 export function JourneyCommandCenter({ model, returnBriefing = null }: { model: JourneyCommandCenterModel; returnBriefing?: ReturnBriefingModel | null }) {
   const hasRecords = model.activeCount + model.historyCount > 0;
   const introGuidePending = model.guidance.eligibility.journey_intro && !guidanceHasBeenSeen(model.guidance.state, "journey_intro");
-  const briefingReplacesSummary = Boolean(returnBriefing?.items.length);
+  const showReturnBriefing = Boolean(returnBriefing?.items.length && !model.workspace.nextAction);
   const analyticsState = !hasRecords ? "empty" : model.activeCount ? "active" : "validated";
   return <main className={styles.page} data-journey-command-center="" data-theme={model.theme}>
     <JourneyAnalytics state={analyticsState} />
     <div className={styles.container}>
       <header className={styles.header}>
-        <div><h1>Journey</h1><span>Your private record of what you saved, pursued, and accomplished.</span></div>
+        <div><h1>Journey</h1><span>See what you are pursuing and what needs attention next.</span></div>
         <JourneyCommandActions trackedIds={model.trackedIds} />
       </header>
-      <JourneyGuidance initialState={model.guidance.state} eligibility={model.guidance.eligibility} suppressed={Boolean(returnBriefing)} />
-      <JourneySessionFeedback accountKey={model.accountKey} overview={model.overview} attentionCount={model.attentionCount} showHints={!introGuidePending && !returnBriefing && model.showFirstUseHints} />
-      {returnBriefing ? <ReturnBriefing model={returnBriefing} /> : null}
+      <JourneyGuidance initialState={model.guidance.state} eligibility={model.guidance.eligibility} suppressed={showReturnBriefing} />
+      <JourneySessionFeedback accountKey={model.accountKey} overview={model.overview} attentionCount={model.attentionCount} showHints={!introGuidePending && !showReturnBriefing && model.showFirstUseHints} />
+      {showReturnBriefing && returnBriefing ? <ReturnBriefing model={returnBriefing} /> : null}
 
       {!hasRecords && model.strategy.currentCount === 0 && model.calendar.groups.length === 0 ? <SmartEmptyState className={styles.primaryEmpty} eyebrow="Journey" title="Start building your Journey." description="Add an opportunity from Discover and UnlockED will help you organize deadlines, applications, and meaningful progress in one private place." primaryAction={{ label: "Explore opportunities", href: "/opportunities" }} icon={BookmarkIcon} /> : null}
-      {!hasRecords && model.strategy.currentCount ? <StrategySection model={model} /> : null}
-
-      {hasRecords && model.overview.length && !briefingReplacesSummary ? <section className={styles.overview} aria-label="Journey overview" data-count={model.overview.length}>
-          {model.overview.map((card) => <a key={card.id} href={card.href} data-tone={card.tone} data-overview-id={card.id}>
-            <span className={styles.overviewIcon} aria-hidden="true"><OverviewIcon card={card} /></span>
-            <small>{card.label}</small>
-            <strong>{card.value}</strong>
-            <b>{card.title}</b>
-            <span>{card.detail}</span>
-            <i aria-hidden="true"><ArrowIcon /></i>
-          </a>)}
-        </section> : null}
+      {!hasRecords && model.strategy.currentCount ? <StrategyDetails model={model} /> : null}
 
       {!hasRecords ? null : <>
-
-        {model.attention.length && !briefingReplacesSummary ? <section className={styles.attention} aria-labelledby="journey-attention-heading">
-          <header><h2 id="journey-attention-heading">Needs attention <span>{model.attentionCount}</span></h2>{model.attentionCount > model.attention.length ? <a href={hrefFor(model, { active: "100" })}>View all</a> : null}</header>
-          <ol>{model.attention.map((item) => <li key={item.id} data-priority={item.priority}>
-            <span className={styles.attentionIcon} aria-hidden="true">{item.id.startsWith("deadline") ? <TargetIcon /> : item.id.startsWith("reminder") ? <BellIcon /> : <SparkIcon />}</span>
-            <div><strong>{item.title}</strong><span>{item.reason}</span></div>
-            <b>{item.priority === 1 ? "Urgent" : item.priority === 2 ? "Due soon" : item.priority === 3 ? "Update" : "Review"}</b>
-            <a href={`#journey-record-${item.recordId}`} aria-label={`Review ${item.title}`}><ArrowIcon /></a>
-          </li>)}</ol>
-        </section> : null}
-
-        <JourneyDeadlineCalendar model={model.calendar} intelligence={model.calendarIntelligence} />
-
-        <StrategySection model={model} />
+        {!showReturnBriefing ? <JourneyWorkspaceSummary model={model} /> : null}
 
         <section className={styles.active} id="active-opportunities" data-guide-anchor="active-opportunities" aria-labelledby="active-opportunities-heading">
           <div className={styles.sectionHeading}><h2 id="active-opportunities-heading">Active opportunities <span>{model.activeCount}</span></h2></div>
@@ -254,10 +258,22 @@ export function JourneyCommandCenter({ model, returnBriefing = null }: { model: 
           </div>
           {model.query ? <p className={styles.activeQuery}>Results for “{model.query}” <Link href={hrefFor(model, { query: "" })}>Clear search</Link></p> : null}
 
-          {model.activeRecords.length ? <div className={styles.records}>{model.activeRecords.map((record) => <JourneyRecordRow key={record.id} record={record} theme={model.theme} />)}</div> : <EmptyRecords model={model} />}
+          {model.activeRecords.length ? <div className={styles.records}>{model.activeRecords.map((record, index) => <JourneyRecordRow key={record.id} record={record} theme={model.theme} deferRendering={index >= 10} />)}</div> : <EmptyRecords model={model} />}
           {model.shownActiveCount < model.matchingActiveCount ? <Link className={styles.viewMore} href={hrefFor(model, { active: "100" })}>View {Math.min(94, model.matchingActiveCount - model.shownActiveCount)} more <span aria-hidden="true">⌄</span></Link> : null}
           {model.activeLimit === 100 && model.activeCount > 100 ? <p className={styles.limitNotice}>Showing the 100 most relevant active records. Use search or a stage filter to narrow the list.</p> : null}
         </section>
+
+        <JourneyContext model={model} />
+
+        <details className={styles.workspaceDisclosure} id="journey-calendar">
+          <summary><span><CalendarIcon /></span><span><strong>Calendar</strong><small>Open the complete schedule and planning view.</small></span><ArrowIcon /></summary>
+          <JourneyDeadlineCalendar model={model.calendar} intelligence={model.calendarIntelligence} />
+        </details>
+
+        {model.strategy.currentCount ? <details className={styles.workspaceDisclosure} id="journey-strategy">
+          <summary><span><BookmarkIcon /></span><span><strong>Strategy</strong><small>Review mix, timing, and opportunity overlap.</small></span><ArrowIcon /></summary>
+          <StrategyDetails model={model} />
+        </details> : null}
 
         {model.historyCount ? <section className={styles.history} id="journey-history" data-guide-anchor="journey-history" aria-labelledby="journey-history-heading">
           <header><h2 id="journey-history-heading">Professional history</h2>{model.shownHistoryCount < model.historyCount ? <Link href={hrefFor(model, { stage: "history", history: "100" })}>View full history</Link> : null}</header>
@@ -277,7 +293,6 @@ export function JourneyCommandCenter({ model, returnBriefing = null }: { model: 
           <div><strong>Nothing to share yet.</strong><p>Record an interview, acceptance, award, or completed experience to create a private, shareable card.</p><a href={model.activeCount ? "/#active-opportunities" : hrefFor(model, { stage: "history" })}>{model.activeCount ? "Review active opportunities" : "View professional history"}</a></div>
         </details>}
       </>}
-      {!hasRecords ? <JourneyDeadlineCalendar model={model.calendar} intelligence={model.calendarIntelligence} /> : null}
     </div>
   </main>;
 }
