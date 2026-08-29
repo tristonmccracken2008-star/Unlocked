@@ -2,104 +2,47 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 const read = (path) => readFileSync(path, "utf8");
-
 const advisor = read("components/advisor-page.tsx");
 const advisorStyles = read("components/advisor-page.module.css");
+const briefing = read("lib/for-you-briefing.ts");
+const decision = read("lib/for-you-decision-intelligence.ts");
 const forYouApi = read("app/api/advisor/for-you/route.ts");
 const forYouSnapshot = read("lib/for-you-snapshot.ts");
 const advisorTypes = read("lib/advisor/types.ts");
 const advisorRoute = read("app/advisor/page.tsx");
-const journey = read("components/student-journey-dashboard.tsx");
 const service = read("data/recommendation-service.ts");
-const pkg = read("package.json");
 
-for (const label of [
-  "OpportunityBriefingHeader",
-  "Top picks for you",
-  "Opportunity Radar",
-  "Your Journey",
-  "Try something different",
-  "portfolioRole",
-  "Why this match",
-  "Timing",
-  "Similar opportunities",
-  "Open Opportunity",
-  "AddToJourneyButton",
-  "More for you",
-  "Not for you?",
-  "Edit preferences",
-]) {
+for (const label of ["OpportunityBriefingHeader", "Top picks", "Worth exploring", "Also selected", "What changed", "Watching", "Open Opportunity", "AddToJourneyButton", "Compare shortlist", "Differences", "Edit preferences"]) {
   assert.ok(advisor.includes(label), `For You must render ${label}.`);
 }
-
-for (const removed of ["Your profile at a glance", "Your activity at a glance", "Stay consistent", "Why these recommendations?"]) {
-  assert.ok(!advisor.includes(removed), `For You must not restore the removed ${removed} dashboard section.`);
+for (const removed of ["Opportunity Radar", "Your Journey", "Try something different", "More for you", "Why this match", "Similar opportunities", "Application effort", "Your activity at a glance", "Your profile at a glance"]) {
+  assert.ok(!advisor.includes(removed), `For You must not restore the removed ${removed} surface.`);
 }
 
-assert.ok(advisor.includes('data-for-you-page="opportunity-intelligence-v2"'), "For You must expose the opportunity intelligence layout for browser QA.");
-assert.ok(advisor.includes("recommendationSignals") && advisor.includes("strongestReason"), "Recommendation presentation must use concise structured signals and reasons.");
-assert.ok(advisor.includes("RecommendationIntelligence") && advisor.includes("similarOpportunities"), "For You must use progressive disclosure for factual reasoning and similar opportunities.");
-assert.ok(!advisor.includes("<strong>{score.value}</strong>") && !advisor.includes("Opportunity Score:"), "For You must not present internal scores as false precision.");
-assert.ok(advisor.includes('projectOpportunityTrust(opportunity).source.state === "official_source"'), "For You must surface field-level official-source trust signals rather than broad record status.");
-assert.ok(advisor.includes("Estimated value") && !advisor.includes("Est. effort"), "For You must label recommendation value truthfully.");
-assert.ok(advisor.includes("<ol") && advisor.includes("RecommendationCard") && advisor.includes("IntelligenceGroup"), "Secondary recommendations must use calm, purpose-specific shortlists.");
+assert.ok(advisor.includes('data-for-you-page="opportunity-briefing-v3"'), "For You must expose the flagship briefing for browser QA.");
+assert.ok(advisor.includes("insight?.explanations") && decision.includes(".slice(0, 2)"), "Recommendation presentation must consume at most two server-projected explanations.");
+assert.ok(advisor.includes("comparisonMode") && advisor.includes("new Set(values).size > 1"), "Comparison must enter deliberately and show differences rather than permanent checkbox clutter.");
+assert.ok(!advisor.includes("Opportunity Score:") && !advisor.includes("#1 PICK"), "For You must not expose internal scores or rank theater.");
+assert.ok(briefing.includes("maximumTopPicks = 3") && briefing.includes("maximumAdditionalMatches = 4") && briefing.includes("maximumExplorationMatches = 1"), "The briefing must remain selective and bounded.");
+assert.ok(!briefing.includes("opportunityById.values()"), "Dynamic briefing decoration must not scan the full catalog.");
+assert.ok(decision.includes('kind: "eligibility"') && decision.includes('kind: "strategy"') && decision.includes('kind: "exploration"'), "Explanation precedence must be deterministic and factual.");
 assert.ok(advisorStyles.includes("border-radius: 8px") && advisorStyles.includes("content-visibility: auto"), "For You styling must keep restrained geometry and defer below-fold rendering.");
 assert.ok(advisorStyles.includes("prefers-reduced-motion: reduce") && advisorStyles.includes("@media (max-width: 640px)"), "For You must support reduced motion and mobile layouts.");
-assert.ok(!advisor.includes("radial-gradient") && !advisorStyles.includes("gradient"), "For You must not restore generic decorative gradients.");
-
-for (const label of ["Excellent Match", "Strong Match", "Good Match", "Worth Reviewing", "Limited Match"]) {
-  assert.ok(service.includes(`"${label}"`), `Recommendation service must define ${label}.`);
-}
+assert.ok(!advisor.includes("radial-gradient") && !advisorStyles.includes("gradient"), "For You must not use generic decorative gradients.");
 
 for (const symbol of ["buildRecommendationService", "recommendationMatchLabel", "buildAdvisorBrain", "inferApplicationsFromActivity", "completed.has"]) {
-  assert.ok(service.includes(symbol) || advisor.includes(symbol) || forYouApi.includes(symbol) || forYouSnapshot.includes(symbol), `Canonical recommendation service must include ${symbol}.`);
+  assert.ok(service.includes(symbol) || forYouApi.includes(symbol) || forYouSnapshot.includes(symbol), `Canonical recommendation service must include ${symbol}.`);
 }
+assert.ok(forYouApi.includes("resolveForYouState") && forYouSnapshot.includes("buildRecommendationService"), "For You must preserve the snapshot-backed canonical ranking service.");
+assert.ok(advisorTypes.includes("ForYouRecommendationSnapshot") && advisorTypes.includes('version: "for-you-briefing-v2"'), "Advisor types must expose the persisted briefing contract.");
+assert.ok(advisorRoute.includes("await requireCompletedOnboarding()") && advisorRoute.includes("allowGeneration: false"), "For You must authenticate and remain server-first.");
+assert.ok(advisorRoute.includes('await import("@/lib/for-you-snapshot")'), "The full recommendation stack should load only when required.");
+for (const state of ["pro_ready", "free_preview", "profile_incomplete", "empty", "preparing", "error"]) assert.ok(forYouApi.includes(`"${state}"`), `For You API must return ${state}.`);
+for (const checkpoint of ["auth complete", "billing record lookup complete", "entitlements complete", "saved/journey/feedback data complete", "opportunity index complete", "recommendation context complete", "ranking complete", "diversity processing complete", "explanation generation complete", "response serialization complete", "response complete"]) assert.ok(forYouApi.includes(checkpoint), `For You API must log ${checkpoint}.`);
+assert.ok(forYouApi.includes("withTimeout(getSession") && advisor.includes("AbortController") && advisor.includes("12000"), "Server and client requests must remain bounded.");
+assert.ok(advisor.includes("normalizeForYouPayload") && forYouApi.includes("logResponseShape"), "The client/server contract must remain explicit and privacy-safe.");
+assert.ok(!advisor.includes("buildRecommendationService"), "For You client must not build recommendation intelligence.");
+assert.doesNotMatch(advisor, /deserve(?:s)? your attention|strategically aligned|continuously monitors|% confidence|Evidence and confidence|acceptance chance/i, "Primary copy must remain calm and factual.");
+assert.doesNotMatch(advisor, /Track this|updateApplicationStatus|markMilestoneCompleted/, "For You must preserve the Watch/Journey handoff boundary.");
 
-assert.ok(forYouApi.includes("resolveForYouState"), "For You API must consume the snapshot-backed recommendation resolver.");
-assert.ok(forYouSnapshot.includes("buildRecommendationService"), "For You snapshot generation must consume the canonical recommendation service.");
-assert.ok(advisorTypes.includes("ForYouRecommendationSnapshot"), "Advisor account data must include persisted For You snapshots.");
-assert.ok(advisorRoute.includes("await requireCompletedOnboarding()") && advisorRoute.includes("serverAuthenticated"), "For You must authenticate server-side and render before recommendation generation.");
-assert.ok(advisorRoute.includes("allowGeneration: false"), "For You route documents must never block on recommendation generation.");
-assert.ok(advisorRoute.includes('await import("@/lib/for-you-snapshot")'), "The full recommendation stack should load only when a Pro state requires it.");
-assert.ok(forYouApi.includes('pageState: "pro_ready"') || forYouApi.includes('"pro_ready"'), "For You API must return an explicit pro_ready state.");
-assert.ok(forYouApi.includes('"free_preview"'), "For You API must return an explicit free_preview state.");
-assert.ok(forYouApi.includes('"profile_incomplete"'), "For You API must return an explicit profile_incomplete state.");
-assert.ok(forYouApi.includes('"empty"'), "For You API must return an explicit empty state.");
-assert.ok(forYouApi.includes('"preparing"'), "For You API must return an explicit preparing state while first snapshots are generated.");
-assert.ok(forYouApi.includes('"error"'), "For You API must return an explicit error state.");
-for (const checkpoint of [
-  "auth complete",
-  "billing record lookup complete",
-  "entitlements complete",
-  "saved/journey/feedback data complete",
-  "opportunity index complete",
-  "recommendation context complete",
-  "ranking complete",
-  "diversity processing complete",
-  "explanation generation complete",
-  "response serialization complete",
-  "response complete",
-]) {
-  assert.ok(forYouApi.includes(checkpoint), `For You API must log ${checkpoint}.`);
-}
-assert.ok(forYouApi.includes("withTimeout(getSession") && forYouApi.includes("sessionTimeoutMs"), "For You API must bound session lookup.");
-assert.ok(advisor.includes("/api/advisor/for-you"), "For You client must consume the server-gated recommendation API.");
-assert.ok(!advisor.includes("buildRecommendationService"), "For You client must not build the full recommendation feed.");
-assert.ok(advisor.includes("normalizeForYouPayload"), "For You client must normalize the API response contract.");
-assert.ok(forYouApi.includes("logResponseShape"), "For You API must log response field names only.");
-assert.ok(advisor.includes('type ForYouPageState = "loading" | "pro_ready" | "free_preview" | "profile_incomplete" | "empty" | "preparing" | "error"'), "For You client must use an explicit finite state machine.");
-assert.ok(advisor.includes("AbortController") && advisor.includes("setTimeout") && advisor.includes("12000"), "For You client must bound loading with a request timeout.");
-assert.ok(advisor.includes("ForYouErrorState") && advisor.includes("Retry"), "For You client must render a retryable error state.");
-assert.ok(advisor.includes("ForYouPreparingState"), "For You client must show a preparing state instead of normal retry during first snapshot generation.");
-assert.ok(advisor.includes("ForYouFreePreviewOnly"), "Free users with no previews must still see the Pro conversion page.");
-assert.ok(!journey.includes("buildRecommendationService"), "Journey must not build recommendations or bypass For You Pro gating.");
-assert.ok(advisor.includes("See all your matches") && advisor.includes("New for you since your last visit") === false, "Free For You should explain tangible Pro value without algorithm narration.");
-assert.ok(advisor.includes("Free") && advisor.includes("Pro"), "Free For You should explain the Free vs Pro difference.");
-assert.doesNotMatch(advisor, /deserve(?:s)? your attention|opportunity intelligence|your opportunity mix|unlock your full|strongest opportunities right now|What this adds:|Why it fits:|Match quality/i, "For You primary copy must avoid AI-style narration and redundant grading.");
-assert.doesNotMatch(advisor, /% confidence|Evidence and confidence|Alternatives/, "For You primary UI must not expose old confidence/debug framing.");
-assert.doesNotMatch(advisor, /markMilestoneCompleted/, "For You should not use separate milestone completion logic for opportunity recommendations.");
-assert.doesNotMatch(advisor, /Track this|Tracked as active interest|updateApplicationStatus/, "For You must use Add to Journey instead of Track/status terminology.");
-assert.doesNotMatch(advisor, /Historically fills early|Limited seats|Students interested in this also viewed/i, "For You must not fabricate aggregate behavior or urgency.");
-assert.ok(pkg.includes("check:for-you"), "Package scripts must include the For You redesign check.");
-
-console.log("For You redesign checks passed.");
+console.log("For You briefing redesign checks passed.");

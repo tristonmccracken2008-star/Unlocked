@@ -67,13 +67,12 @@ assert.ok(header.includes("Mobile navigation"), "Authenticated mobile users must
 
 for (const label of [
   "OpportunityBriefingHeader",
-  "Top picks for you",
-  "Opportunity Radar",
-  "Your Journey",
-  "portfolioRole",
-  "Why this match",
-  "Try something different",
-  "Not for you?",
+  "Top picks",
+  "Worth exploring",
+  "Also selected",
+  "What changed",
+  "Compare shortlist",
+  "Change this match",
   "AddToJourneyButton",
 ]) {
   assert.ok(advisorPage.includes(label), `Advisor page must render ${label}.`);

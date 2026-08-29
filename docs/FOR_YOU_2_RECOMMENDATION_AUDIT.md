@@ -1,5 +1,7 @@
 # For You 2.0 Recommendation Audit
 
+> Historical audit. The current For You 3.0 contract and current catalog coverage are documented in `FOR_YOU_QUALITY.md`.
+
 Audit date: 2026-08-13
 
 ## Architecture
@@ -91,4 +93,3 @@ Current safe profile coverage is strongest for broad STEM/research profiles and 
 - Current recommendation-safe depth often produces three to six results, limiting how often every optional section appears.
 - Location preferences and estimated application effort are useful only where catalog metadata is structured.
 - The deterministic daily snapshot is stable by design; it is not a real-time streaming feed.
-

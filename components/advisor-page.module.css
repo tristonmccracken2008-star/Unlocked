@@ -1847,3 +1847,330 @@
     transition: none;
   }
 }
+
+/* For You 3.0 briefing */
+.briefingSummary {
+  margin: 14px 0 0;
+  color: var(--unlocked-muted);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.briefingSection {
+  min-width: 0;
+}
+
+.briefingSection + .briefingSection {
+  padding-top: 18px;
+  border-top: 1px solid var(--unlocked-border);
+}
+
+.editorialList {
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--unlocked-border);
+  list-style: none;
+}
+
+.editorialList > li {
+  border-bottom: 1px solid var(--unlocked-border);
+}
+
+.compareModeButton {
+  min-height: 44px;
+  border: 0;
+  border-bottom: 1px solid var(--unlocked-border);
+  background: transparent;
+  padding: 0 2px;
+  color: rgb(var(--color-forest));
+  font: inherit;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.compareModeButton[aria-pressed="true"] {
+  border-color: rgb(var(--color-forest));
+}
+
+.recommendation {
+  grid-template-columns: minmax(0, 1fr) 206px;
+  gap: 40px;
+  padding: 30px 8px;
+  background: transparent;
+}
+
+.recommendationFeatured {
+  margin: 14px 0;
+  padding: 34px 30px;
+  border: 1px solid var(--unlocked-border);
+  border-radius: 8px;
+  background: var(--unlocked-surface);
+  box-shadow: 0 18px 50px rgb(var(--color-espresso) / .055);
+}
+
+.recommendationFeatured:hover,
+.recommendationFeatured:focus-within {
+  background: var(--unlocked-surface);
+}
+
+.recommendationBody {
+  display: grid;
+  min-width: 0;
+  align-content: start;
+}
+
+.recommendationTitle h2,
+.recommendationTitle h3 {
+  max-width: 680px;
+  margin: 0;
+  font-family: Iowan Old Style, Baskerville, Georgia, "Times New Roman", serif;
+  font-size: 25px;
+  font-weight: 700;
+  line-height: 1.16;
+  letter-spacing: 0;
+  overflow-wrap: anywhere;
+}
+
+.recommendationFeatured .recommendationTitle h2,
+.recommendationFeatured .recommendationTitle h3 {
+  font-size: 32px;
+}
+
+.explanations {
+  display: grid;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.explanationLine {
+  display: grid;
+  grid-template-columns: 126px minmax(0, 1fr);
+  gap: 16px;
+  max-width: 720px;
+  margin: 0;
+  color: var(--unlocked-muted);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.explanationLine strong {
+  color: rgb(var(--color-forest));
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.recommendationDecision {
+  display: grid;
+  align-content: center;
+  gap: 8px;
+}
+
+.meaningfulDate {
+  min-height: 20px;
+  margin: 0 0 5px;
+  color: var(--unlocked-text);
+  font-size: 12px;
+  font-weight: 750;
+  line-height: 1.4;
+}
+
+.recommendationDecision .primaryAction,
+.recommendationDecision .rowAddAction,
+.recommendationDecision .addAction {
+  width: 100%;
+}
+
+.recommendationDecision .decisionControls {
+  grid-template-columns: 1fr;
+}
+
+.recommendationDecision .decisionControls button {
+  min-height: 42px;
+}
+
+.feedbackCompact {
+  margin-top: 5px;
+  padding: 0;
+}
+
+.feedbackCompact summary {
+  min-height: 44px;
+  font-size: 11px;
+}
+
+.briefingUtilities {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  padding-top: 24px;
+  border-top: 1px solid var(--unlocked-border);
+}
+
+.utilityDisclosure {
+  min-width: 0;
+  border: 1px solid var(--unlocked-border);
+  border-radius: 8px;
+  background: var(--unlocked-surface);
+}
+
+.utilityDisclosure > summary {
+  display: flex;
+  min-height: 56px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 18px;
+  color: var(--unlocked-text);
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+  list-style: none;
+}
+
+.utilityDisclosure > summary::-webkit-details-marker {
+  display: none;
+}
+
+.utilityDisclosure > summary strong {
+  color: rgb(var(--color-forest));
+}
+
+.utilityDisclosure > ol {
+  display: grid;
+  margin: 0;
+  padding: 0 18px 16px;
+  list-style: none;
+}
+
+.utilityDisclosure > ol li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 0;
+  border-top: 1px solid var(--unlocked-border);
+}
+
+.utilityDisclosure > ol a {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+}
+
+.utilityDisclosure > ol a span,
+.utilityDisclosure > ol a strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.utilityDisclosure > ol a span {
+  color: rgb(var(--color-forest));
+  font-size: 10px;
+  font-weight: 750;
+}
+
+.utilityDisclosure > ol a strong {
+  color: var(--unlocked-text);
+  font-size: 11px;
+}
+
+.utilityDisclosure > ol button {
+  min-height: 40px;
+  border: 0;
+  background: transparent;
+  color: rgb(var(--color-forest));
+  font: inherit;
+  font-size: 10px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.comparisonNote {
+  margin: -4px 0 18px;
+  color: var(--unlocked-muted);
+  font-size: 12px;
+}
+
+@media (max-width: 900px) {
+  .recommendation {
+    grid-template-columns: minmax(0, 1fr) 184px;
+    gap: 24px;
+  }
+
+  .briefingUtilities {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .briefingUtilities .method {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 640px) {
+  .briefingHeader h1 {
+    font-size: 40px;
+  }
+
+  .sectionHeading {
+    align-items: center;
+  }
+
+  .sectionHeading h2 {
+    font-size: 27px;
+  }
+
+  .compareModeButton {
+    flex: 0 0 auto;
+  }
+
+  .recommendation,
+  .recommendationFeatured {
+    grid-template-columns: 1fr;
+    gap: 22px;
+    margin: 0;
+    padding: 26px 0;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .recommendationFeatured .recommendationTitle h2,
+  .recommendationFeatured .recommendationTitle h3 {
+    font-size: 26px;
+  }
+
+  .explanationLine {
+    grid-template-columns: 1fr;
+    gap: 3px;
+  }
+
+  .recommendationDecision {
+    grid-template-columns: 1fr;
+  }
+
+  .recommendationDecision .primaryAction,
+  .recommendationDecision .rowAddAction,
+  .recommendationDecision .addAction,
+  .recommendationDecision .decisionControls button {
+    min-height: 48px;
+  }
+
+  .briefingUtilities {
+    grid-template-columns: 1fr;
+  }
+
+  .briefingUtilities .method {
+    grid-column: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .recommendation,
+  .compareModeButton {
+    transition: none;
+  }
+}

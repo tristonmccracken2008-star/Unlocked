@@ -2,6 +2,8 @@ import { buildRecommendationSafeCatalogAudit } from "../data/recommendation-safe
 import { normalizeOpportunityEligibility } from "../data/opportunity-eligibility-model";
 import { validateOpportunityData } from "../data/recommendation-professional-pipeline";
 import { opportunities } from "../data/opportunities";
+import { opportunityPaths } from "../data/opportunity-paths";
+import { opportunityMatchesPathStage } from "../lib/opportunity-paths";
 
 const audit = buildRecommendationSafeCatalogAudit(opportunities);
 const safe = opportunities.filter((opportunity) => validateOpportunityData(opportunity).allowed);
@@ -29,6 +31,10 @@ for (const opportunity of safe) {
   }
 }
 const coverageDeserts = [...coverageMatrix.entries()].filter(([, count]) => count <= 2).sort((left, right) => left[1] - right[1] || left[0].localeCompare(right[0]));
+const pathCoverage = Object.fromEntries(opportunityPaths.map((path) => [
+  path.name,
+  safe.filter((opportunity) => path.stages.some((stage) => opportunityMatchesPathStage(opportunity, stage))).length,
+]).sort((left, right) => Number(right[1]) - Number(left[1]) || String(left[0]).localeCompare(String(right[0]))));
 
 console.log(JSON.stringify({
   generatedAt: new Date().toISOString(),
@@ -47,6 +53,7 @@ console.log(JSON.stringify({
     byYear: countBy(safe.flatMap((opportunity) => opportunity.academic_years)),
     byBroadArea: countBy(safe.flatMap((opportunity) => opportunity.majors.map(broadArea))),
     byUniqueBroadArea: Object.fromEntries([...uniqueBroadAreaCounts.entries()].sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0]))),
+    byPath: pathCoverage,
     highValueSafe: safe.filter((opportunity) => ["Career", "Research", "Scholarship"].includes(opportunity.type)).length,
     internationalSafe: safe.filter((opportunity) => normalizeOpportunityEligibility(opportunity).citizenship.includes("international_allowed")).length,
     transferEligibility: countBy(safe.map((opportunity) => normalizeOpportunityEligibility(opportunity).transferEligibility)),

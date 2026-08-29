@@ -6,17 +6,16 @@ For You Pro uses the existing eligibility and recommendation engine as its only 
 
 1. The professional recommendation pipeline proves eligibility and ranks candidates.
 2. `lib/for-you-snapshot.ts` selects the bounded Pro shortlist and loads the account's Watch records.
-3. `lib/for-you-decision-intelligence.ts` derives `for-you-decision-v1` projections once on the server.
-4. `lib/for-you-briefing.ts` assigns each opportunity one primary section, adds meaningful Radar events, and creates factual priority orders.
-5. `components/advisor-page.tsx` renders the projection. It does not calculate fit, urgency, effort, or Journey contribution.
+3. `lib/for-you-decision-intelligence.ts` derives `for-you-decision-v2` projections once on the server.
+4. `lib/for-you-briefing.ts` assigns each opportunity one bounded presentation role and selects at most two factual explanation lines.
+5. `components/advisor-page.tsx` renders the projection. It does not calculate fit, urgency, requirements, or Journey contribution.
 
 ## Signal rules
 
-- **Best fit** is the first result from the existing recommendation order. No second score is created.
 - **Deadline soon** requires an exact future deadline with `deadlineVerified: true`.
-- **Application workload** appears only when the application URL and structured requirements are verified. It describes materials, not competitiveness or acceptance odds.
+- **Known requirements** appear only when the application URL and structured requirements are verified. The count is not presented as total effort.
 - **Value** uses only structured award, stipend, compensation, or estimated-value fields. Unlike value types are not sorted against each other.
-- **Adds something new** compares the opportunity's canonical category with active Journey records. It is not a numerical diversification score.
+- **Current-pursuit context** comes from the canonical Strategy projection and remains neutral. It is not a numerical diversification score.
 - Unknown fields are omitted from cards, ordering, and comparison rather than inferred.
 
 ## Watch semantics
@@ -25,9 +24,9 @@ Watch is Pro-only potential interest. It is persisted as a versioned account rec
 
 Watch data is included in account export and remains private to the authenticated account.
 
-## Comparison and priority views
+## Comparison
 
-Comparison accepts two to four recommendations and uses only the server projection. Rows with no supported values are omitted. The optional deadline and workload views appear only when at least two opportunities have comparable evidence. Curated order remains the default.
+Comparison accepts two to four recommendations and uses only the server projection. It begins only after the student enters comparison mode, omits identical and unsupported rows, and shows at most four meaningful differences. The default briefing has no recommendation-mode tabs.
 
 ## Analytics and privacy
 

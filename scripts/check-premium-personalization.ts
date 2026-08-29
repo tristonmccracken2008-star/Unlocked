@@ -95,8 +95,8 @@ assert.notEqual(forYouProfileVersion(profile, { ...account, preferences: { prefe
 
 const page = readFileSync(new URL("../components/advisor-page.tsx", import.meta.url), "utf8");
 const timeline = readFileSync(new URL("../components/journey-timeline.tsx", import.meta.url), "utf8");
-assert.match(page, /view\.signals/);
-assert.match(page, /view\.summaryReason/);
+assert.match(page, /insight\?\.explanations/);
+assert.match(page, /data-explanation-kind=\{line\.kind\}/);
 assert.match(timeline, /formatMonth/);
 assert.match(timeline, /data-journey-moment/);
 

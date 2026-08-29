@@ -5,6 +5,8 @@ import { opportunities } from "../data/opportunities";
 import { schoolDirectory } from "../data/school-directory";
 import type { StudentActivity } from "../data/student-activity";
 import type { StudentProfile } from "../data/student-profile";
+import type { AccountData } from "../lib/account-types";
+import { defaultBillingRecord } from "../lib/billing";
 import { buildForYouBriefing } from "../lib/for-you-briefing";
 
 const school = schoolDirectory.find((item) => item.slug === "university-of-chicago");
@@ -58,15 +60,17 @@ const baseline = buildForYouBriefing({
   now: new Date("2026-08-13T12:00:00.000Z"),
 });
 
-assert.equal(baseline.version, "for-you-briefing-v1");
+assert.equal(baseline.version, "for-you-briefing-v2");
 assert.ok(baseline.topPickIds.length >= 1 && baseline.topPickIds.length <= 3, "Top Picks must remain intentionally scarce.");
-const sectionIds = [...baseline.topPickIds, ...baseline.dontMissIds, ...baseline.explorationIds, ...baseline.moreMatchIds];
+assert.ok(baseline.explorationIds.length <= 1, "Controlled exploration must remain singular and intentional.");
+assert.ok(baseline.additionalMatchIds.length <= 4, "Additional matches must remain bounded.");
+const sectionIds = [...baseline.topPickIds, ...baseline.explorationIds, ...baseline.additionalMatchIds];
 assert.equal(new Set(sectionIds).size, sectionIds.length, "A recommendation may appear in only one briefing section.");
 assert.deepEqual(new Set(sectionIds), new Set(baselineRecommendations.map((view) => view.opportunity!.id)), "The briefing must account for every selected recommendation without adding catalog records.");
-assert.ok(Object.values(baseline.insights).every((insight) => insight.whyItFits.length > 0), "Every recommendation must have a deterministic explanation.");
+assert.ok(Object.values(baseline.insights).every((insight) => insight.explanations.length >= 1 && insight.explanations.length <= 2), "Every recommendation must have one or two deterministic explanations.");
 assert.doesNotMatch(JSON.stringify(baseline), /\d{1,3}% match|limited seats|students like you|historically fills early/i, "The briefing cannot introduce fake precision, demand, or urgency.");
 assert.equal(baseline.portfolio.active, 0);
-assert.equal(baseline.title, "Top picks for you");
+assert.equal(baseline.title, "For You");
 assert.equal(baseline.portfolio.observation, "");
 assert.doesNotMatch(JSON.stringify(baseline), /deserve(?:s)? your attention|opportunity portfolio|opportunity landscape|strategically aligned|continuously monitors/i, "Briefing copy must remain plain and factual.");
 
@@ -88,6 +92,20 @@ const trackedActivity: StudentActivity = {
     updatedAt: "2026-08-12T12:00:00.000Z",
   }])),
 };
+const trackedAccount: AccountData = {
+  profile,
+  onboardingComplete: true,
+  billing: { ...defaultBillingRecord(), tier: "pro", status: "active" },
+  activity: trackedActivity,
+  savedOpportunities: trackedIds.map((opportunityId) => ({ opportunityId, savedAt: "2026-08-01T12:00:00.000Z" })),
+  watchedOpportunities: [],
+  tracker: trackedActivity.tracked ?? {},
+  preferences: { updatedAt: "2026-08-12T12:00:00.000Z" },
+  journeyProgress: {},
+  advisor: null,
+  referrals: null,
+  updatedAt: "2026-08-12T12:00:00.000Z",
+};
 const evolvedRecommendations = recommendations(trackedActivity);
 assert.ok(evolvedRecommendations.every((view) => !trackedIds.includes(view.opportunity!.id)), "Active Journey records must not consume new recommendation slots.");
 const evolved = buildForYouBriefing({
@@ -95,12 +113,18 @@ const evolved = buildForYouBriefing({
   totalMatches: evolvedRecommendations.length,
   profile,
   activity: trackedActivity,
+  account: trackedAccount,
   opportunityById,
   now: new Date("2026-08-13T12:00:00.000Z"),
 });
 assert.equal(evolved.portfolio.active, trackedIds.length, "The opportunity mix must reflect canonical active Journey records.");
 assert.ok(evolved.portfolio.categories.length > 0, "Journey-aware intelligence must identify the student's active category mix.");
-assert.ok(Object.values(evolved.insights).some((insight) => insight.whatItAdds), "At least one recommendation should explain incremental Journey value when the catalog supports it.");
+assert.ok(Object.values(evolved.insights).every((insight) => insight.explanations.length <= 2), "Journey context must not expand recommendation copy beyond two lines.");
+assert.ok(Object.values(evolved.insights).some((insight) => insight.explanations.some((line) => line.kind === "strategy")), "A rich Journey should add one neutral Strategy explanation when the candidates support it.");
+
+const guardedIndex = new Map(opportunityById);
+Object.defineProperty(guardedIndex, "values", { value: () => { throw new Error("Full-catalog scan attempted"); } });
+assert.doesNotThrow(() => buildForYouBriefing({ recommendations: evolvedRecommendations, totalMatches: evolvedRecommendations.length, profile, activity: trackedActivity, account: trackedAccount, opportunityById: guardedIndex, now: new Date("2026-08-13T12:00:00.000Z") }), "Briefing decoration must use direct candidate indexes instead of iterating the catalog.");
 
 for (let index = 0; index < 25; index += 1) {
   buildForYouBriefing({ recommendations: evolvedRecommendations, totalMatches: evolvedRecommendations.length, profile, activity: trackedActivity, opportunityById, now: new Date("2026-08-13T12:00:00.000Z") });

@@ -78,7 +78,7 @@ const snapshot = source("lib/for-you-snapshot.ts");
 assert.match(snapshot, /slice\(0, pro \? 8 : 1\)/);
 assert.match(snapshot, /entitlements\.canViewRecommendationExplanations \? view\.reasons : view\.reasons\.slice\(0, 1\)/);
 const advisorPage = source("components/advisor-page.tsx");
-assert.match(advisorPage, /premium=\{false\}/);
+assert.match(advisorPage, /<OrganizationLogo opportunity=\{opportunity\}/);
 assert.match(advisorPage, /<ForYouUpgradeGate totalMatches=\{state\.totalMatches\}/);
 assert.match(advisorPage, /Your first match\./);
 const journey = source("components/journey-timeline.tsx");

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { projectOpportunityTrust } from "@/data/opportunity-trust";
-import type { RecommendationDisplaySignal, RecommendationViewModel } from "@/data/recommendation-service";
+import type { RecommendationViewModel } from "@/data/recommendation-service";
 import type { School } from "@/data/seed";
 import type { StudentActivity } from "@/data/student-activity";
 import type { StudentProfile } from "@/data/student-profile";
@@ -16,7 +16,7 @@ import { accountSessionEvent, readAccountSession } from "@/data/account-sync";
 import { authenticatedFetch } from "@/data/authenticated-request";
 import { rememberRecommendationAttribution, trackProductError, trackProductEvent } from "@/data/product-analytics";
 import { productIntelligenceEvents } from "@/lib/analytics-types";
-import { ArrowIcon, CheckCircleIcon, SearchIcon } from "./icons";
+import { ArrowIcon, SearchIcon } from "./icons";
 import { OrganizationLogo } from "./organization-logo";
 import { AddToJourneyButton } from "./opportunity-activity";
 import type { FeedbackType } from "@/lib/advisor/types";
@@ -72,7 +72,7 @@ export function normalizeForYouPayload(payload: unknown): { pageState: Exclude<F
       access,
       entitlements: input.entitlements ?? null,
       recommendations,
-      briefing: input.briefing?.version === "for-you-briefing-v1" ? input.briefing : null,
+      briefing: input.briefing?.version === "for-you-briefing-v2" ? input.briefing : null,
       totalMatches: typeof input.totalMatches === "number" ? input.totalMatches : recommendations.length,
       snapshotStatus: typeof input.snapshotStatus === "string" ? input.snapshotStatus : undefined,
       isRefreshing: Boolean(input.isRefreshing),
@@ -403,7 +403,7 @@ export function AdvisorPage({ initialState = null, serverAuthenticated = false }
   if (pageState === "free_preview" && !top) return <ForYouFreePreviewOnly />;
   if (pageState === "empty" || !top) return <ForYouEmptyState />;
 
-  return <main className={styles.page} data-for-you-page="opportunity-intelligence-v2">
+  return <main className={styles.page} data-for-you-page="opportunity-briefing-v3">
     <section className={styles.container}>
       {pageState === "pro_ready" && state.briefing
         ? <OpportunityBriefingHeader state={state} firstName={firstName} briefing={state.briefing} />
@@ -411,7 +411,7 @@ export function AdvisorPage({ initialState = null, serverAuthenticated = false }
       {feedbackMessage ? <div role="status" aria-live="polite" className={styles.feedbackStatus}><span>{feedbackMessage}</span></div> : null}
       {pageState === "pro_ready" && state.briefing
         ? <ProIntelligenceExperience state={state} briefing={state.briefing} onFeedback={sendFeedback} />
-        : <><TopRecommendation view={top} onFeedback={sendFeedback} premium={false} /><ForYouUpgradeGate totalMatches={state.totalMatches} shown={state.recommendations.length} /></>}
+        : <><TopRecommendation view={top} onFeedback={sendFeedback} /><ForYouUpgradeGate totalMatches={state.totalMatches} shown={state.recommendations.length} /></>}
       <FooterNote />
     </section>
   </main>;
@@ -432,7 +432,7 @@ function OpportunityBriefingHeader({ state, firstName, briefing }: { state: Advi
     <div>
       <p className={styles.eyebrow}>For {firstName}</p>
       <h1>{briefing.title}</h1>
-      {briefing.summary ? <p className={styles.heroCopy}>{briefing.summary}</p> : null}
+      {briefing.summary ? <p className={styles.briefingSummary}>{briefing.summary}</p> : null}
     </div>
     <div className={styles.briefingContext}>
       <span>Updated {updated}{state.isRefreshing ? " · Updating" : ""}</span>
@@ -443,17 +443,13 @@ function OpportunityBriefingHeader({ state, firstName, briefing }: { state: Advi
 
 function ProIntelligenceExperience({ state, briefing, onFeedback }: { state: AdvisorState; briefing: ForYouBriefing; onFeedback: RecommendationFeedbackHandler }) {
   const topPicks = viewsForIds(state.recommendations, briefing.topPickIds);
-  const dontMiss = viewsForIds(state.recommendations, briefing.dontMissIds);
   const exploration = viewsForIds(state.recommendations, briefing.explorationIds);
-  const more = viewsForIds(state.recommendations, briefing.moreMatchIds);
-  const lead = topPicks[0];
-  const [priorityView, setPriorityView] = useState<"curated" | "deadline" | "effort">("curated");
+  const additional = viewsForIds(state.recommendations, briefing.additionalMatchIds);
   const [selected, setSelected] = useState<string[]>([]);
+  const [comparisonMode, setComparisonMode] = useState(false);
   const [watched, setWatched] = useState(() => new Set(briefing.watchingIds ?? []));
   const [watchPending, setWatchPending] = useState("");
   const [watchError, setWatchError] = useState("");
-  const priorityIds = briefing.priorityViews?.[priorityView] ?? [];
-  const priorityRecommendations = viewsForIds(state.recommendations, priorityIds);
   const toggleWatch = async (id: string) => {
     if (!id || watchPending) return;
     setWatchError("");
@@ -480,6 +476,7 @@ function ProIntelligenceExperience({ state, briefing, onFeedback }: { state: Adv
       watched: watched.has(id),
       watchPending: watchPending === id,
       selected: selected.includes(id),
+      comparisonMode,
       onWatch: () => void toggleWatch(id),
       onCompare: () => setSelected((current) => current.includes(id) ? current.filter((item) => item !== id) : current.length < 4 ? [...current, id] : current),
     };
@@ -490,50 +487,40 @@ function ProIntelligenceExperience({ state, briefing, onFeedback }: { state: Adv
   ].map((item) => [item.opportunityId, item])).values()].filter((item) => watched.has(item.opportunityId));
   const compared = viewsForIds(state.recommendations, selected);
   return <>
-    <PriorityView value={priorityView} briefing={briefing} onChange={(value) => { setPriorityView(value); trackProductEvent(productIntelligenceEvents.forYouPriorityViewUsed, { control: value }); }} />
     {watchError ? <p className={styles.decisionError} role="alert">{watchError}</p> : null}
-    {priorityView !== "curated" ? <IntelligenceGroup title={priorityView === "deadline" ? "By verified deadline" : "By application workload"} recommendations={priorityRecommendations} briefing={briefing} onFeedback={onFeedback} getDecisionActions={decisionActions} /> : <>
-    <section className={styles.intelligenceLayout} aria-label="Top picks for you">
-      <div className={styles.primaryBriefing}>
-        {lead ? <TopRecommendation view={lead} insight={briefing.insights[opportunityId(lead)]} onFeedback={onFeedback} premium decisionActions={decisionActions(lead)} /> : null}
-        {topPicks.length > 1 ? <ol className={styles.topPickList}>{topPicks.slice(1).map((view, index) => <li key={view.recommendation.id}><RecommendationCard view={view} insight={briefing.insights[opportunityId(view)]} index={index + 2} onFeedback={onFeedback} decisionActions={decisionActions(view)} /></li>)}</ol> : null}
+    <section className={styles.briefingSection} aria-labelledby="top-picks-title">
+      <div className={styles.sectionHeading}>
+        <div><p>Shortlist</p><h2 id="top-picks-title">Top picks</h2></div>
+        {state.recommendations.length >= 2 ? <button type="button" className={styles.compareModeButton} aria-pressed={comparisonMode} onClick={() => { setComparisonMode((current) => !current); setSelected([]); trackProductEvent(productIntelligenceEvents.forYouPriorityViewUsed, { control: "comparison" }); }}>{comparisonMode ? "Done comparing" : "Compare shortlist"}</button> : null}
       </div>
-      <aside className={styles.intelligenceRail} aria-label="For You details">
-        <OpportunityRadar briefing={briefing} recommendations={state.recommendations} />
-        <WatchingList items={watchingItems} pendingId={watchPending} onToggle={toggleWatch} />
-        <OpportunityPortfolio briefing={briefing} />
-        <HowForYouWorks signals={briefing.profileSignals} />
-      </aside>
+      <ol className={styles.editorialList}>{topPicks.map((view, index) => <li key={view.recommendation.id}><RecommendationCard view={view} insight={briefing.insights[opportunityId(view)]} index={index} onFeedback={onFeedback} decisionActions={decisionActions(view)} featured={index === 0} /></li>)}</ol>
     </section>
-    <IntelligenceGroup title="Deadlines coming up" recommendations={dontMiss} briefing={briefing} onFeedback={onFeedback} getDecisionActions={decisionActions} />
-    <IntelligenceGroup title="Try something different" recommendations={exploration} briefing={briefing} onFeedback={onFeedback} getDecisionActions={decisionActions} />
-    <IntelligenceGroup title="More for you" recommendations={more} briefing={briefing} onFeedback={onFeedback} getDecisionActions={decisionActions} />
-    </>}
+
+    {exploration.length ? <BriefingGroup eyebrow="Adjacent match" title="Worth exploring" recommendations={exploration} briefing={briefing} onFeedback={onFeedback} getDecisionActions={decisionActions} /> : null}
+    {additional.length ? <BriefingGroup eyebrow="More current matches" title="Also selected" recommendations={additional} briefing={briefing} onFeedback={onFeedback} getDecisionActions={decisionActions} /> : null}
     {selected.length ? <CompareTray count={selected.length} onClear={() => setSelected([])} /> : null}
     {selected.length >= 2 ? <OpportunityComparison recommendations={compared} briefing={briefing} onClear={() => setSelected([])} /> : null}
+    <section className={styles.briefingUtilities} aria-label="Briefing updates and saved context">
+      <OpportunityRadar briefing={briefing} recommendations={state.recommendations} />
+      <WatchingList items={watchingItems} pendingId={watchPending} onToggle={toggleWatch} />
+      <HowForYouWorks signals={briefing.profileSignals} />
+    </section>
     {state.recommendations.length < 4 ? <LimitedInventoryNote /> : null}
   </>;
 }
 
 function WatchingList({ items, pendingId, onToggle }: { items: ForYouWatchingItem[]; pendingId: string; onToggle: (id: string) => Promise<void> }) {
   if (!items.length) return null;
-  return <section className={styles.watching} aria-labelledby="watching-title"><div className={styles.railHeading}><p>Watching</p><h2 id="watching-title">{items.length} program{items.length === 1 ? "" : "s"}</h2></div><ol>{items.slice(0, 4).map((item) => <li key={item.opportunityId}><Link href={item.href}><strong>{item.title}</strong><span>{item.organization}</span></Link><button type="button" onClick={() => void onToggle(item.opportunityId)} disabled={pendingId === item.opportunityId} aria-label={`Stop watching ${item.title}`}>{pendingId === item.opportunityId ? "Updating…" : "Remove"}</button></li>)}</ol></section>;
+  return <details className={styles.utilityDisclosure}><summary><span>Watching</span><strong>{items.length}</strong></summary><ol>{items.slice(0, 4).map((item) => <li key={item.opportunityId}><Link href={item.href}><strong>{item.title}</strong><span>{item.organization}</span></Link><button type="button" onClick={() => void onToggle(item.opportunityId)} disabled={pendingId === item.opportunityId} aria-label={`Stop watching ${item.title}`}>{pendingId === item.opportunityId ? "Updating…" : "Remove"}</button></li>)}</ol></details>;
 }
 
-type DecisionActions = { watched: boolean; watchPending: boolean; selected: boolean; onWatch: () => void; onCompare: () => void };
-
-function PriorityView({ value, briefing, onChange }: { value: "curated" | "deadline" | "effort"; briefing: ForYouBriefing; onChange: (value: "curated" | "deadline" | "effort") => void }) {
-  const options: Array<{ id: "curated" | "deadline" | "effort"; label: string }> = [{ id: "curated", label: "Curated" }];
-  if ((briefing.priorityViews?.deadline.length ?? 0) >= 2) options.push({ id: "deadline", label: "Deadline" });
-  if ((briefing.priorityViews?.effort.length ?? 0) >= 2) options.push({ id: "effort", label: "Application effort" });
-  if (options.length === 1) return null;
-  return <div className={styles.priorityView} aria-label="Order recommendations">{options.map((option) => <button key={option.id} type="button" aria-pressed={value === option.id} onClick={() => onChange(option.id)}>{option.label}</button>)}</div>;
-}
+type DecisionActions = { watched: boolean; watchPending: boolean; selected: boolean; comparisonMode: boolean; onWatch: () => void; onCompare: () => void };
 
 function DecisionControls({ actions }: { actions: DecisionActions }) {
   return <div className={styles.decisionControls}>
-    <button type="button" onClick={actions.onWatch} disabled={actions.watchPending} aria-pressed={actions.watched}>{actions.watchPending ? "Updating…" : actions.watched ? "Watching" : "Watch"}</button>
-    <button type="button" onClick={actions.onCompare} aria-pressed={actions.selected}>{actions.selected ? "Selected" : "Compare"}</button>
+    {actions.comparisonMode
+      ? <button type="button" onClick={actions.onCompare} aria-pressed={actions.selected}>{actions.selected ? "Selected" : "Select"}</button>
+      : <button type="button" onClick={actions.onWatch} disabled={actions.watchPending} aria-pressed={actions.watched}>{actions.watchPending ? "Updating…" : actions.watched ? "Watching" : "Watch"}</button>}
   </div>;
 }
 
@@ -544,56 +531,46 @@ function CompareTray({ count, onClear }: { count: number; onClear: () => void })
 function OpportunityComparison({ recommendations, briefing, onClear }: { recommendations: RecommendationViewModel[]; briefing: ForYouBriefing; onClear: () => void }) {
   const projections: ForYouComparisonProjection[] = recommendations.flatMap((view) => briefing.insights[opportunityId(view)]?.comparison ?? []);
   const availableRows: Array<{ label: string; value: (item: ForYouComparisonProjection) => string | undefined }> = [
-    { label: "Type", value: (item: ForYouComparisonProjection) => item.type }, { label: "Organization", value: (item: ForYouComparisonProjection) => item.organization },
+    { label: "Type", value: (item: ForYouComparisonProjection) => item.type },
     { label: "Deadline", value: (item: ForYouComparisonProjection) => item.deadline }, { label: "Location", value: (item: ForYouComparisonProjection) => item.location },
-    { label: "Value", value: (item: ForYouComparisonProjection) => item.value }, { label: "Application workload", value: (item: ForYouComparisonProjection) => item.effort },
-    { label: "Requirements", value: (item: ForYouComparisonProjection) => item.applicationRequirements }, { label: "Why it fits", value: (item: ForYouComparisonProjection) => item.matchReason },
-    { label: "Journey", value: (item: ForYouComparisonProjection) => item.journeyContribution },
+    { label: "Compensation or value", value: (item: ForYouComparisonProjection) => item.value },
+    { label: "Known requirements", value: (item: ForYouComparisonProjection) => item.applicationRequirements },
+    { label: "Current pursuits", value: (item: ForYouComparisonProjection) => item.journeyContribution },
   ];
-  const rows = availableRows.filter((row) => projections.some((item) => Boolean(row.value(item))));
+  const rows = availableRows.filter((row) => {
+    const values = projections.map((item) => row.value(item) || "Unknown");
+    return values.some((value) => value !== "Unknown") && new Set(values).size > 1;
+  }).slice(0, 4);
   const comparisonKey = recommendations.map(opportunityId).join(":");
   useEffect(() => {
     trackProductEvent(productIntelligenceEvents.forYouComparisonOpened, { status: "active" });
     recommendations.forEach((view) => trackProductEvent(productIntelligenceEvents.forYouOpportunityCompared, { opportunityId: opportunityId(view) }));
   }, [comparisonKey]);
   return <section className={styles.comparison} aria-labelledby="compare-title">
-    <div className={styles.sectionHeading}><div><p>Decision view</p><h2 id="compare-title">Compare the facts</h2></div><button type="button" onClick={onClear}>Close comparison</button></div>
+    <div className={styles.sectionHeading}><div><p>Comparison</p><h2 id="compare-title">Differences</h2></div><button type="button" onClick={onClear}>Close comparison</button></div>
+    {!rows.length ? <p className={styles.comparisonNote}>The recorded facts do not show a meaningful difference yet. Open each opportunity for full details.</p> : null}
     <div className={styles.comparisonScroll}><table><thead><tr><th scope="col">Detail</th>{recommendations.map((view) => <th key={opportunityId(view)} scope="col"><Link href={view.href}>{view.opportunity?.title ?? view.recommendation.title}</Link></th>)}</tr></thead><tbody>{rows.map((row) => <tr key={row.label}><th scope="row">{row.label}</th>{projections.map((item) => <td key={`${row.label}-${item.opportunityId}`}>{row.value(item) || "—"}</td>)}</tr>)}</tbody></table></div>
   </section>;
 }
 
 function OpportunityRadar({ briefing, recommendations }: { briefing: ForYouBriefing; recommendations: RecommendationViewModel[] }) {
-  const comingUp = viewsForIds(recommendations, briefing.comingUpIds ?? []).slice(0, 3);
-  return <section className={styles.radar} aria-labelledby="opportunity-radar-title">
-    <div className={styles.railHeading}><p>Opportunity Radar</p><h2 id="opportunity-radar-title">{briefing.radar.length ? `${briefing.radar.length} update${briefing.radar.length === 1 ? "" : "s"}` : "You’re caught up"}</h2></div>
-    {briefing.radar.length ? <ol>{briefing.radar.map((event) => <li key={event.id}><Link href={event.href} onClick={() => trackProductEvent(productIntelligenceEvents.forYouRadarOpened, { opportunityId: event.opportunityId, category: event.type, source: event.source ?? "for_you" })}><span>{event.source === "watched" ? `Watching · ${event.label}` : event.label}</span><strong>{event.detail}</strong><ArrowIcon /></Link></li>)}</ol> : <p className={styles.radarEmpty}>Nothing new right now. New matches and meaningful changes will appear here.</p>}
-    {comingUp.length ? <div className={styles.comingUp}><p>Coming up</p><ol>{comingUp.map((view) => <li key={opportunityId(view)}><Link href={view.href}><span>{briefing.insights[opportunityId(view)]?.whyNow}</span><strong>{view.opportunity?.title}</strong></Link></li>)}</ol></div> : null}
-  </section>;
-}
-
-function OpportunityPortfolio({ briefing }: { briefing: ForYouBriefing }) {
-  const portfolio = briefing.portfolio;
-  return <section className={styles.portfolio} aria-labelledby="opportunity-mix-title">
-    <div className={styles.railHeading}><p>Your Journey</p><h2 id="opportunity-mix-title">{portfolio.active ? `${portfolio.active} active` : "Nothing added yet"}</h2></div>
-    {portfolio.categories.length ? <dl>{portfolio.categories.slice(0, 4).map((item) => <div key={item.id}><dt>{item.label}</dt><dd>{item.count}</dd></div>)}</dl> : null}
-    {portfolio.observation ? <p>{portfolio.observation}</p> : null}
-    <Link href="/">View Journey <ArrowIcon /></Link>
-  </section>;
+  if (!briefing.radar.length) return null;
+  return <details className={styles.utilityDisclosure}><summary><span>What changed</span><strong>{briefing.radar.length}</strong></summary><ol>{briefing.radar.map((event) => <li key={event.id}><Link href={event.href} onClick={() => trackProductEvent(productIntelligenceEvents.forYouRadarOpened, { opportunityId: event.opportunityId, category: event.type, source: event.source ?? "for_you" })}><span>{event.source === "watched" ? `Watching · ${event.label}` : event.label}</span><strong>{event.detail}</strong><ArrowIcon /></Link></li>)}</ol></details>;
 }
 
 function HowForYouWorks({ signals }: { signals: string[] }) {
-  return <details className={styles.method}>
+  return <details className={`${styles.method} ${styles.utilityDisclosure}`}>
     <summary>How matches are chosen</summary>
     <div><p>Known eligibility is checked first. Fit, source quality, timing, and your Journey determine the order.</p>{signals.length ? <p><strong>Using:</strong> {signals.join(" · ")}</p> : null}<p>A match is not a guarantee of eligibility. Check the official source before applying.</p></div>
   </details>;
 }
 
-function IntelligenceGroup({ title, recommendations, briefing, onFeedback, getDecisionActions }: { title: string; recommendations: RecommendationViewModel[]; briefing: ForYouBriefing; onFeedback: RecommendationFeedbackHandler; getDecisionActions?: (view: RecommendationViewModel) => DecisionActions }) {
+function BriefingGroup({ eyebrow, title, recommendations, briefing, onFeedback, getDecisionActions }: { eyebrow: string; title: string; recommendations: RecommendationViewModel[]; briefing: ForYouBriefing; onFeedback: RecommendationFeedbackHandler; getDecisionActions?: (view: RecommendationViewModel) => DecisionActions }) {
   if (!recommendations.length) return null;
   const id = `${title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-title`;
-  return <section className={styles.intelligenceGroup} aria-labelledby={id}>
-    <div className={styles.sectionHeading}><h2 id={id}>{title}</h2><span>{recommendations.length}</span></div>
-    <ol className={styles.recommendationList}>{recommendations.map((view, index) => <li key={view.recommendation.id}><RecommendationCard view={view} insight={briefing.insights[opportunityId(view)]} index={index + 1} onFeedback={onFeedback} decisionActions={getDecisionActions?.(view)} /></li>)}</ol>
+  return <section className={styles.briefingSection} aria-labelledby={id}>
+    <div className={styles.sectionHeading}><div><p>{eyebrow}</p><h2 id={id}>{title}</h2></div><span>{recommendations.length}</span></div>
+    <ol className={styles.editorialList}>{recommendations.map((view, index) => <li key={view.recommendation.id}><RecommendationCard view={view} insight={briefing.insights[opportunityId(view)]} index={index} onFeedback={onFeedback} decisionActions={getDecisionActions?.(view)} /></li>)}</ol>
   </section>;
 }
 
@@ -615,29 +592,6 @@ function Hero({ state, firstName, count }: { state: AdvisorState; firstName: str
   </header>;
 }
 
-function cleanValueLabel(value: string) {
-  return /^unknown/i.test(value) ? "Not listed" : value;
-}
-
-function recommendationSignals(view: RecommendationViewModel, limit = 3) {
-  if (view.signals?.length) return view.signals.slice(0, limit);
-  const opportunity = view.opportunity;
-  const reasons = view.reasons.join(" ");
-  const candidates: Array<RecommendationDisplaySignal | null> = [
-    /matches your major:/i.test(reasons) ? { kind: "major", label: "Matches your major" } : /open to students in any major/i.test(reasons) ? { kind: "eligibility", label: "Open to your major" } : null,
-    /career goal/i.test(reasons) ? { kind: "career", label: "Fits your goals" } : null,
-    /opportunity interests?/i.test(reasons) ? { kind: "interest", label: "Matches your interests" } : null,
-    view.chips.includes("Freshman eligible") ? { kind: "eligibility", label: "Freshman eligible" } : null,
-    opportunity?.difficulty === "Open" ? { kind: "eligibility", label: "Beginner friendly" } : null,
-    (opportunity?.estimated_value ?? 0) >= 5_000 ? { kind: "value", label: "High documented value" } : null,
-    view.chips.includes("Paid") ? { kind: "format", label: "Paid" } : null,
-    view.chips.includes("Remote") ? { kind: "format", label: "Remote" } : null,
-    opportunity && projectOpportunityTrust(opportunity).source.state === "official_source" ? { kind: "trust", label: "Official source" } : null,
-  ];
-  const signals = candidates.filter((signal): signal is RecommendationDisplaySignal => Boolean(signal));
-  return [...new Map(signals.map((signal) => [signal.label, signal])).values()].slice(0, limit);
-}
-
 function trustedDeadlineLabel(view: RecommendationViewModel) {
   return view.opportunity ? projectOpportunityTrust(view.opportunity).deadline.displayValue : "Deadline not announced";
 }
@@ -654,12 +608,8 @@ function strongestReason(view: RecommendationViewModel) {
 
 type RecommendationFeedbackHandler = (view: RecommendationViewModel, feedbackType: FeedbackType, label: string) => Promise<boolean>;
 
-function timingFor(view: RecommendationViewModel) {
-  return view.whyApplyNow;
-}
-
 function portfolioRole(view: RecommendationViewModel) {
-  if (view.recommendation.portfolio?.role === "exploration") return "Try something different";
+  if (view.recommendation.portfolio?.role === "exploration") return "Worth exploring";
   if (view.recommendation.portfolio?.selectionRole === "Deadline Approaching") return "Deadline soon";
   if (view.recommendation.portfolio?.selectionRole === "Newly Available") return "New for you";
   return "Top pick";
@@ -669,39 +619,22 @@ function portfolioRoleSlug(view: RecommendationViewModel) {
   return portfolioRole(view).toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "");
 }
 
-function TopRecommendation({ view, insight, onFeedback, premium = true, decisionActions }: { view: RecommendationViewModel; insight?: ForYouRecommendationInsight; onFeedback: RecommendationFeedbackHandler; premium?: boolean; decisionActions?: DecisionActions }) {
+function TopRecommendation({ view, insight, onFeedback, decisionActions }: { view: RecommendationViewModel; insight?: ForYouRecommendationInsight; onFeedback: RecommendationFeedbackHandler; decisionActions?: DecisionActions }) {
   const opportunity = view.opportunity;
-  const signals = recommendationSignals(view);
-  const timing = timingFor(view);
-  return <article className={styles.featured} data-for-you-card="featured" aria-labelledby={`recommendation-${view.recommendation.id}`}>
-    <div className={styles.featuredMain}>
-      <div className={styles.featuredIdentity}>
-        <div className={styles.featuredLabel}>
-          <span>{insight?.priorityLabel ?? portfolioRole(view)}</span>
-          {view.freshnessLabel ? <strong>{view.freshnessLabel}</strong> : view.historyLabel ? <strong>{view.historyLabel}</strong> : null}
-        </div>
-        <div className={styles.titleLockup}>
-          {opportunity ? <OrganizationLogo opportunity={opportunity} size="lg" className={styles.logo} /> : null}
-          <div><p>{opportunity?.organization ?? view.recommendation.kind}</p><h2 id={`recommendation-${view.recommendation.id}`}>{opportunity?.title ?? view.recommendation.title}</h2></div>
-        </div>
-        <p className={styles.featuredDescription}>{opportunity?.description ?? view.recommendation.description}</p>
-        <div className={styles.signals} aria-label="Why this matches">{signals.map((signal) => <span key={signal.label} data-signal-kind={signal.kind}><CheckCircleIcon />{signal.label}</span>)}</div>
-        {premium && insight?.whyThisOne ? <p className={styles.adds}><strong>Why this one:</strong> {insight.whyThisOne}</p> : null}
-      </div>
-      <aside className={styles.featuredDecision} aria-label="Opportunity details and actions">
-        <dl className={styles.featuredMeta}>
-          <div><dt>Deadline</dt><dd>{trustedDeadlineLabel(view)}</dd></div>
-          <div><dt>Estimated value</dt><dd>{cleanValueLabel(view.recommendation.estimatedValueLabel)}</dd></div>
-          {premium && insight?.estimatedApplicationTime !== "Unknown" ? <div><dt>Estimated effort</dt><dd>{insight?.estimatedApplicationTime}</dd></div> : null}
-        </dl>
-        {timing && !trustedDeadlineLabel(view).toLowerCase().includes(timing.label.toLowerCase()) ? <p className={styles.timing} data-urgency={timing.urgency}><strong>{timing.label}</strong></p> : null}
-        <Link href={view.href} onClick={() => trackRecommendationOpen(view)} className={styles.primaryAction}>Open Opportunity <ArrowIcon /></Link>
-        {view.recommendation.relatedOpportunityId ? <AddToJourneyButton opportunityId={view.recommendation.relatedOpportunityId} recommendationId={view.recommendation.id} recommendationCategory={analyticsCategory(view)} recommendationExposureCount={view.recommendation.portfolio?.exposureCount ?? 0} className={styles.addAction} /> : null}
-        {decisionActions ? <DecisionControls actions={decisionActions} /> : null}
-      </aside>
+  const reason = insight?.explanations[0]?.text ?? strongestReason(view);
+  return <article className={`${styles.recommendation} ${styles.recommendationFeatured}`} data-for-you-card="featured" aria-labelledby={`recommendation-${view.recommendation.id}`}>
+    <div className={styles.recommendationBody}>
+      <div className={styles.recommendationTitle}>{opportunity ? <OrganizationLogo opportunity={opportunity} size="lg" className={styles.logo} /> : null}<div><p>{opportunity?.organization ?? view.recommendation.kind}</p><h2 id={`recommendation-${view.recommendation.id}`}>{opportunity?.title ?? view.recommendation.title}</h2><span className={styles.trace}>{opportunity?.type ?? view.recommendation.kind}</span></div></div>
+      <p className={styles.featuredDescription}>{opportunity?.description ?? view.recommendation.description}</p>
+      <p className={styles.explanationLine}><strong>Why it appeared</strong><span>{reason}</span></p>
+      <RecommendationFeedback view={view} onFeedback={onFeedback} compact />
     </div>
-    <RecommendationIntelligence view={view} />
-    <RecommendationFeedback view={view} onFeedback={onFeedback} />
+    <div className={styles.recommendationDecision}>
+      <p className={styles.meaningfulDate}>{insight?.meaningfulDate?.label ?? trustedDeadlineLabel(view)}</p>
+      <Link href={view.href} onClick={() => trackRecommendationOpen(view)} className={styles.primaryAction}>Open Opportunity <ArrowIcon /></Link>
+      {view.recommendation.relatedOpportunityId ? <AddToJourneyButton opportunityId={view.recommendation.relatedOpportunityId} recommendationId={view.recommendation.id} recommendationCategory={analyticsCategory(view)} recommendationExposureCount={view.recommendation.portfolio?.exposureCount ?? 0} className={styles.addAction} /> : null}
+      {decisionActions ? <DecisionControls actions={decisionActions} /> : null}
+    </div>
   </article>;
 }
 
@@ -758,51 +691,35 @@ function StateShell({ eyebrow, title, text, actionHref, actionLabel, secondaryHr
   return <main className={styles.page}><section className={styles.state}>{Icon ? <span className={styles.stateIcon}><Icon /></span> : null}<p>{eyebrow}</p><h1>{title}</h1><span>{text}</span><div className={styles.stateActions}><Link href={actionHref}>{actionLabel}</Link>{secondaryHref && secondaryLabel ? <Link href={secondaryHref}>{secondaryLabel}</Link> : null}</div></section></main>;
 }
 
-function RecommendationCard({ view, insight, index, onFeedback, decisionActions }: { view: RecommendationViewModel; insight?: ForYouRecommendationInsight; index: number; onFeedback: RecommendationFeedbackHandler; decisionActions?: DecisionActions }) {
-  const opportunity = view.opportunity;
-  const signals = recommendationSignals(view, 3);
-  const timing = timingFor(view);
-  return <article className={styles.recommendation} data-for-you-card="recommendation" aria-labelledby={`recommendation-${view.recommendation.id}`}>
-    <span className={styles.rank} aria-hidden="true">{String(index).padStart(2, "0")}</span>
-    <div className={styles.recommendationBody}>
-      <div className={styles.recommendationTitle}>{opportunity ? <OrganizationLogo opportunity={opportunity} size="md" className={styles.logo} /> : null}<div><p>{opportunity?.organization ?? view.recommendation.kind}</p><h3 id={`recommendation-${view.recommendation.id}`}>{opportunity?.title ?? view.recommendation.title}</h3><span className={styles.trace}>{insight?.priorityLabel ?? portfolioRole(view)}{insight?.state.watched ? " · Watching" : insight?.state.inJourney ? " · In Journey" : view.freshnessLabel ? ` · ${view.freshnessLabel}` : ""}</span></div></div>
-      {insight?.whyThisOne ? <p className={styles.recommendationAdds}>{insight.whyThisOne}</p> : null}
-      {insight?.factLine ? <p className={styles.factLine}>{insight.factLine}</p> : null}
-      <div className={styles.signals} aria-label="Why this matches">{signals.map((signal) => <span key={signal.label} data-signal-kind={signal.kind}><CheckCircleIcon />{signal.label}</span>)}</div>
-      <RecommendationIntelligence view={view} compact />
-      <RecommendationFeedback view={view} onFeedback={onFeedback} compact />
-    </div>
-    <dl className={styles.rowMeta}>{timing ? <div><dt>Timing</dt><dd>{timing.label}</dd></div> : null}<div><dt>Deadline</dt><dd>{trustedDeadlineLabel(view)}</dd></div></dl>
-    <div className={styles.rowActions}><Link href={view.href} onClick={() => trackRecommendationOpen(view)}>Open Opportunity <ArrowIcon /></Link>{view.recommendation.relatedOpportunityId ? <AddToJourneyButton opportunityId={view.recommendation.relatedOpportunityId} recommendationId={view.recommendation.id} recommendationCategory={analyticsCategory(view)} recommendationExposureCount={view.recommendation.portfolio?.exposureCount ?? 0} className={styles.rowAddAction} /> : null}{decisionActions ? <DecisionControls actions={decisionActions} /> : null}</div>
-  </article>;
+function freshnessLabel(insight?: ForYouRecommendationInsight) {
+  switch (insight?.freshness) {
+    case "new_for_you": return "New for you";
+    case "new_to_unlocked": return "New to UnlockED";
+    case "previously_seen": return "Previously seen";
+    case "watching": return "Watching";
+    case "in_journey": return "In Journey";
+    default: return "";
+  }
 }
 
-function RecommendationIntelligence({ view, compact = false }: { view: RecommendationViewModel; compact?: boolean }) {
-  const reasons = view.whyThisOpportunity?.length
-    ? view.whyThisOpportunity
-    : [{ kind: "impact" as const, label: "Verified fit", detail: strongestReason(view) }];
-  const timing = timingFor(view);
-  const trustSignals = view.trustSignals ?? [];
-  const similar = view.similarOpportunities ?? [];
-  return <details className={`${styles.intelligence} ${compact ? styles.intelligenceCompact : ""}`}>
-    <summary>Why this match</summary>
-    <div className={styles.intelligencePanel}>
-      <section aria-labelledby={`why-fit-${view.recommendation.id}`}>
-        <h4 id={`why-fit-${view.recommendation.id}`}>Match details</h4>
-        <p className={styles.scoreMethod}>These signals explain the match. Check the official source before applying.</p>
-        <ul>{reasons.map((reason) => <li key={`${reason.label}-${reason.detail}`}><span data-signal-kind={reason.kind}>{reason.label}</span><p>{reason.detail}</p></li>)}</ul>
-      </section>
-      {timing ? <section aria-labelledby={`why-now-${view.recommendation.id}`}>
-        <h4 id={`why-now-${view.recommendation.id}`}>Timing</h4>
-        <p className={styles.intelligenceCopy}><strong>{timing.label}.</strong> {timing.detail}</p>
-        {trustSignals.length ? <div className={styles.trustSignals} aria-label="Verification signals">{trustSignals.map((signal) => <span key={signal.label} title={signal.detail}><CheckCircleIcon />{signal.label}</span>)}</div> : null}
-      </section> : trustSignals.length ? <section aria-labelledby={`trust-${view.recommendation.id}`}><h4 id={`trust-${view.recommendation.id}`}>Source checks</h4><div className={styles.trustSignals} aria-label="Verification signals">{trustSignals.map((signal) => <span key={signal.label} title={signal.detail}><CheckCircleIcon />{signal.label}</span>)}</div></section> : null}
-      {similar.length ? <section className={styles.similar} aria-labelledby={`similar-${view.recommendation.id}`}>
-        <h4 id={`similar-${view.recommendation.id}`}>Similar opportunities</h4>
-        <ul>{similar.map((item) => <li key={item.opportunityId}><Link href={item.href}><span>{item.relationship}</span><strong>{item.title}</strong><small>{item.organization}</small></Link></li>)}</ul>
-      </section> : null}
+function RecommendationCard({ view, insight, onFeedback, decisionActions, featured = false }: { view: RecommendationViewModel; insight?: ForYouRecommendationInsight; index: number; onFeedback: RecommendationFeedbackHandler; decisionActions?: DecisionActions; featured?: boolean }) {
+  const opportunity = view.opportunity;
+  const status = freshnessLabel(insight);
+  const explanations = insight?.explanations?.slice(0, 2) ?? [{ kind: "goal" as const, label: "Why it appeared", text: strongestReason(view) }];
+  return <article className={`${styles.recommendation} ${featured ? styles.recommendationFeatured : ""}`} data-for-you-card="recommendation" aria-labelledby={`recommendation-${view.recommendation.id}`}>
+    <div className={styles.recommendationBody}>
+      <div className={styles.recommendationTitle}>{opportunity ? <OrganizationLogo opportunity={opportunity} size={featured ? "lg" : "md"} className={styles.logo} /> : null}<div><p>{opportunity?.organization ?? view.recommendation.kind}</p><h3 id={`recommendation-${view.recommendation.id}`}>{opportunity?.title ?? view.recommendation.title}</h3><span className={styles.trace}>{opportunity?.type ?? view.recommendation.kind}{status ? ` · ${status}` : ""}</span></div></div>
+      {featured ? <p className={styles.featuredDescription}>{opportunity?.description ?? view.recommendation.description}</p> : null}
+      <div className={styles.explanations} aria-label="Why this opportunity was selected">{explanations.map((line) => <p key={`${line.kind}-${line.text}`} className={styles.explanationLine} data-explanation-kind={line.kind}><strong>{line.label}</strong><span>{line.text}</span></p>)}</div>
+      <RecommendationFeedback view={view} onFeedback={onFeedback} compact />
     </div>
-  </details>;
+    <div className={styles.recommendationDecision}>
+      {insight?.meaningfulDate ? <p className={styles.meaningfulDate}>{insight.meaningfulDate.label}</p> : null}
+      <Link href={view.href} onClick={() => trackRecommendationOpen(view)} className={styles.primaryAction}>Open Opportunity <ArrowIcon /></Link>
+      {!decisionActions?.comparisonMode && !insight?.state.inJourney && view.recommendation.relatedOpportunityId ? <AddToJourneyButton opportunityId={view.recommendation.relatedOpportunityId} recommendationId={view.recommendation.id} recommendationCategory={analyticsCategory(view)} recommendationExposureCount={view.recommendation.portfolio?.exposureCount ?? 0} className={styles.rowAddAction} /> : null}
+      {decisionActions ? <DecisionControls actions={decisionActions} /> : null}
+    </div>
+  </article>;
 }
 
 function RecommendationFeedback({ view, onFeedback, compact = false }: { view: RecommendationViewModel; onFeedback: RecommendationFeedbackHandler; compact?: boolean }) {

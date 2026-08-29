@@ -7,20 +7,18 @@ import type { StudentProfile } from "@/data/student-profile";
 import type { ForYouBriefing, ForYouRadarEvent, ForYouRecommendationSnapshot } from "@/lib/advisor/types";
 import { buildForYouDecisionInsights, forYouDecisionVersion } from "@/lib/for-you-decision-intelligence";
 import type { AccountData } from "./account-types";
-import { createOpportunityStrategyContext } from "./personal-opportunity-strategy";
+import { createOpportunityStrategyContext, type OpportunityStrategyContext } from "./personal-opportunity-strategy";
 
 const terminalStatuses = new Set(["Rejected", "Completed"]);
+const maximumTopPicks = 3;
+const maximumAdditionalMatches = 4;
+const maximumExplorationMatches = 1;
 
 function opportunityId(view: RecommendationViewModel) {
   return view.recommendation.relatedOpportunityId ?? view.opportunity?.id ?? "";
 }
 
-function pluralCategory(label: string, count: number) {
-  if (count === 1) return label.replace(/s$/i, "");
-  return label;
-}
-
-function portfolioBrief(activity: StudentActivity, opportunityById: Map<string, Opportunity>) {
+function portfolioBrief(activity: StudentActivity, opportunityById: ReadonlyMap<string, Opportunity>) {
   const tracked = Object.values(activity.tracked ?? {});
   const active = tracked.filter((record) => !terminalStatuses.has(record.status));
   const counts = new Map<string, number>();
@@ -33,27 +31,36 @@ function portfolioBrief(activity: StudentActivity, opportunityById: Map<string, 
   const categories = [...counts.entries()]
     .sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0]))
     .map(([label, count]) => ({ id: label.toLowerCase().replace(/[^a-z0-9]+/g, "-"), label, count }));
-  const observation = "";
-  return { total: tracked.length, active: active.length, categories, observation };
+  return { total: tracked.length, active: active.length, categories, observation: "" };
 }
 
-function whatThisAdds(view: RecommendationViewModel, portfolio: ReturnType<typeof portfolioBrief>) {
-  const category = view.recommendation.portfolio?.canonicalCategory ?? view.opportunity?.category;
-  if (!category) return undefined;
-  const current = portfolio.categories.find((item) => item.label === category)?.count ?? 0;
-  if (current === 0 && portfolio.active === 0) return undefined;
-  if (current === 0) {
-    const concentration = portfolio.categories[0];
-    return concentration
-      ? `You’ve mostly added ${pluralCategory(concentration.label.toLowerCase(), concentration.count)}. This is ${category.toLowerCase()}.`
-      : undefined;
+function boundedStrategyContext(input: {
+  account?: AccountData;
+  activity: StudentActivity;
+  recommendations: RecommendationViewModel[];
+  opportunityById: ReadonlyMap<string, Opportunity>;
+  watchedIds: ReadonlySet<string>;
+  now: Date;
+}): OpportunityStrategyContext | undefined {
+  if (!input.account) return undefined;
+  const ids = new Set([
+    ...input.recommendations.map(opportunityId),
+    ...Object.keys(input.activity.tracked ?? {}),
+    ...input.activity.saved,
+    ...input.account.savedOpportunities.map((record) => record.opportunityId),
+    ...input.watchedIds,
+  ]);
+  const candidates = [...ids].flatMap((id) => input.opportunityById.get(id) ?? []);
+  try {
+    return createOpportunityStrategyContext({ account: input.account, opportunities: candidates, now: input.now });
+  } catch {
+    return undefined;
   }
-  return undefined;
 }
 
 function radarEvents(
   recommendations: RecommendationViewModel[],
-  topPickIds: Set<string>,
+  visibleRecommendationIds: ReadonlySet<string>,
   watchedIds: ReadonlySet<string>,
   opportunityById: ReadonlyMap<string, Opportunity>,
   priorSnapshot: ForYouRecommendationSnapshot | null,
@@ -64,7 +71,7 @@ function radarEvents(
   const seen = new Set<string>();
   const add = (event: ForYouRadarEvent) => {
     const key = `${event.type}:${event.opportunityId}`;
-    if (seen.has(key) || topPickIds.has(event.opportunityId)) return;
+    if (seen.has(key) || visibleRecommendationIds.has(event.opportunityId)) return;
     seen.add(key);
     events.push(event);
   };
@@ -86,7 +93,9 @@ function radarEvents(
     else if (view && (view.freshnessLabel === "New this week" || view.freshnessLabel === "Recently added")) add({ id: `radar:new-catalog:${id}`, type: "newly_added", label: "New to UnlockED", detail: opportunity.title, opportunityId: id, href, occurredAt: opportunity.date_added, source });
     else if (view?.freshnessLabel === "Recently verified") add({ id: `radar:verified:${id}`, type: "recently_verified", label: "Recently verified", detail: opportunity.title, opportunityId: id, href, occurredAt: opportunity.last_verified, source });
   }
-  return events.sort((left, right) => (right.occurredAt ?? "").localeCompare(left.occurredAt ?? "") || left.label.localeCompare(right.label)).slice(0, 4);
+  return events
+    .sort((left, right) => (right.occurredAt ?? "").localeCompare(left.occurredAt ?? "") || left.label.localeCompare(right.label))
+    .slice(0, 2);
 }
 
 function profileSignals(profile: StudentProfile) {
@@ -94,6 +103,12 @@ function profileSignals(profile: StudentProfile) {
     .map((value) => value?.trim())
     .filter((value): value is string => Boolean(value))
     .slice(0, 3);
+}
+
+function presentationOrder(ids: string[], insights: ReturnType<typeof buildForYouDecisionInsights>["insights"]) {
+  const fresh = ids.filter((id) => !["previously_seen", "watching", "in_journey"].includes(insights[id]?.freshness ?? "current"));
+  const seen = ids.filter((id) => !fresh.includes(id));
+  return [...fresh, ...seen];
 }
 
 export function buildForYouBriefing(input: {
@@ -108,51 +123,62 @@ export function buildForYouBriefing(input: {
   now?: Date;
 }): ForYouBriefing {
   const now = input.now ?? new Date();
-  const recommendations = input.recommendations.filter((view) => Boolean(opportunityId(view)));
+  const recommendations = input.recommendations.filter((view) => Boolean(opportunityId(view)) && Boolean(view.opportunity));
   const watchedIds = new Set(input.watchedOpportunityIds ?? []);
-  const uncommitted = recommendations.filter((view) => !watchedIds.has(opportunityId(view)));
-  const core = uncommitted.filter((view) => view.recommendation.portfolio?.role !== "exploration" && view.recommendation.tier !== "explore");
-  const topPicks = (core.length ? core : uncommitted).slice(0, 3);
-  const topPickIds = topPicks.map(opportunityId);
-  const used = new Set(topPickIds);
-  const dontMiss = uncommitted.filter((view) => !used.has(opportunityId(view)) && ["high", "medium"].includes(view.whyApplyNow?.urgency ?? "")).slice(0, 2);
-  dontMiss.forEach((view) => used.add(opportunityId(view)));
-  const exploration = uncommitted.filter((view) => !used.has(opportunityId(view)) && (view.recommendation.portfolio?.role === "exploration" || view.recommendation.tier === "explore")).slice(0, 2);
-  exploration.forEach((view) => used.add(opportunityId(view)));
-  const moreMatches = uncommitted.filter((view) => !used.has(opportunityId(view)));
-  const portfolio = portfolioBrief(input.activity, input.opportunityById);
   const priorIds = new Set((input.priorSnapshot?.recommendations ?? []).map(opportunityId));
-  const strategyContext = input.account ? createOpportunityStrategyContext({ account: input.account, opportunities: [...input.opportunityById.values()], now }) : undefined;
-  const decisions = buildForYouDecisionInsights({ recommendations, activity: input.activity, opportunityById: input.opportunityById, watchedIds, priorRecommendationIds: priorIds, strategyContext, now });
-  const insights = decisions.insights;
-  for (const view of recommendations) {
-    const id = opportunityId(view);
-    if (insights[id] && !insights[id].whatItAdds) insights[id].whatItAdds = whatThisAdds(view, portfolio);
-  }
-  const radar = radarEvents(recommendations, new Set(topPickIds), watchedIds, input.opportunityById, input.priorSnapshot ?? null, now);
-  const urgentCount = recommendations.filter((view) => view.whyApplyNow?.urgency === "high").length;
-  const newCount = radar.filter((event) => event.type === "new_match" || event.type === "newly_added").length;
-  const reopenedCount = radar.filter((event) => event.type === "applications_reopened").length;
-  const otherUpdateCount = radar.length - newCount - reopenedCount;
-  const title = "Top picks for you";
-  const summaryParts = [
-    newCount ? `${newCount} new match${newCount === 1 ? "" : "es"}` : "",
-    reopenedCount ? `${reopenedCount} application${reopenedCount === 1 ? "" : "s"} reopened` : "",
-    urgentCount ? `${urgentCount} deadline${urgentCount === 1 ? "" : "s"} soon` : "",
-    otherUpdateCount ? `${otherUpdateCount} update${otherUpdateCount === 1 ? "" : "s"}` : "",
-  ].filter(Boolean);
+  const strategyContext = boundedStrategyContext({
+    account: input.account,
+    activity: input.activity,
+    recommendations,
+    opportunityById: input.opportunityById,
+    watchedIds,
+    now,
+  });
+  const decisions = buildForYouDecisionInsights({
+    recommendations,
+    activity: input.activity,
+    opportunityById: input.opportunityById,
+    watchedIds,
+    priorRecommendationIds: priorIds,
+    hasPriorSnapshot: Boolean(input.priorSnapshot),
+    strategyContext,
+    now,
+  });
+  const available = recommendations.filter((view) => {
+    const insight = decisions.insights[opportunityId(view)];
+    return insight && !insight.state.watched && !insight.state.inJourney;
+  });
+  const coreIds = available
+    .filter((view) => view.recommendation.portfolio?.role !== "exploration" && view.recommendation.tier !== "explore")
+    .map(opportunityId);
+  const orderedCoreIds = presentationOrder(coreIds, decisions.insights);
+  const topPickIds = (orderedCoreIds.length ? orderedCoreIds : presentationOrder(available.map(opportunityId), decisions.insights)).slice(0, maximumTopPicks);
+  const used = new Set(topPickIds);
+  const explorationIds = presentationOrder(available
+    .filter((view) => !used.has(opportunityId(view)) && (view.recommendation.portfolio?.role === "exploration" || view.recommendation.tier === "explore"))
+    .map(opportunityId), decisions.insights).slice(0, maximumExplorationMatches);
+  explorationIds.forEach((id) => used.add(id));
+  const additionalMatchIds = presentationOrder(available.filter((view) => !used.has(opportunityId(view))).map(opportunityId), decisions.insights)
+    .slice(0, maximumAdditionalMatches);
+  const visibleIds = new Set([...topPickIds, ...explorationIds, ...additionalMatchIds]);
+  const radar = radarEvents(recommendations, visibleIds, watchedIds, input.opportunityById, input.priorSnapshot ?? null, now);
+  const primaryIds = [...topPickIds, ...explorationIds, ...additionalMatchIds];
+  const newCount = primaryIds.filter((id) => ["new_for_you", "new_to_unlocked"].includes(decisions.insights[id]?.freshness ?? "")).length;
+  const summary = newCount > 0
+    ? `${newCount} new ${newCount === 1 ? "match" : "matches"}`
+    : `${primaryIds.length} current ${primaryIds.length === 1 ? "match" : "matches"}`;
+
   return {
-    version: "for-you-briefing-v1",
+    version: "for-you-briefing-v2",
     generatedAt: now.toISOString(),
-    title,
-    summary: summaryParts.join(" · "),
+    title: "For You",
+    summary,
     topPickIds,
-    dontMissIds: dontMiss.map(opportunityId),
-    explorationIds: exploration.map(opportunityId),
-    moreMatchIds: moreMatches.map(opportunityId),
-    insights,
+    additionalMatchIds,
+    explorationIds,
+    insights: decisions.insights,
     radar,
-    portfolio,
+    portfolio: portfolioBrief(input.activity, input.opportunityById),
     profileSignals: profileSignals(input.profile),
     decisionVersion: forYouDecisionVersion,
     watchingIds: [...watchedIds],
@@ -160,11 +186,11 @@ export function buildForYouBriefing(input: {
       const opportunity = input.opportunityById.get(id);
       return opportunity ? [{ opportunityId: id, title: opportunity.title, organization: opportunity.organization, href: `/opportunities/${id}` }] : [];
     }),
-    comingUpIds: decisions.priorityViews.deadline.slice(0, 4),
+    comingUpIds: decisions.priorityViews.deadline.filter((id) => visibleIds.has(id)).slice(0, 3),
     priorityViews: {
-      curated: decisions.priorityViews.curated.filter((id) => !watchedIds.has(id)),
-      deadline: decisions.priorityViews.deadline.filter((id) => !watchedIds.has(id)),
-      effort: decisions.priorityViews.effort.filter((id) => !watchedIds.has(id)),
+      curated: decisions.priorityViews.curated.filter((id) => visibleIds.has(id)),
+      deadline: decisions.priorityViews.deadline.filter((id) => visibleIds.has(id)),
+      requirements: decisions.priorityViews.requirements.filter((id) => visibleIds.has(id)),
     },
   };
 }

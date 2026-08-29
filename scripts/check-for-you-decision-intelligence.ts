@@ -32,16 +32,16 @@ const briefing = buildForYouBriefing({
   now: new Date("2026-08-20T12:00:00.000Z"),
 });
 
-assert.equal(briefing.decisionVersion, "for-you-decision-v1");
+assert.equal(briefing.decisionVersion, "for-you-decision-v2");
 assert.deepEqual(briefing.watchingIds, [watchedId]);
-const recommendationSections = [...briefing.topPickIds, ...briefing.dontMissIds, ...briefing.explorationIds, ...briefing.moreMatchIds];
+const recommendationSections = [...briefing.topPickIds, ...briefing.explorationIds, ...briefing.additionalMatchIds];
 assert.ok(!recommendationSections.includes(watchedId), "Watched items must not be duplicated as a new recommendation section.");
 assert.equal(new Set([...recommendationSections, ...briefing.watchingIds]).size, recommendationViews.length, "Every recommendation must have one primary page context.");
 assert.ok(Object.values(briefing.priorityViews).every((ids) => !ids.includes(watchedId)), "Priority views must not duplicate watched opportunities.");
-assert.ok(Object.values(briefing.insights).every((insight) => insight.priorityLabel && insight.whyThisOne && insight.comparison.matchReason));
-assert.ok(Object.values(briefing.insights).every((insight) => !insight.facts.some((fact) => fact.kind === "effort") || Boolean(opportunityById.get(insight.opportunityId)?.metadata.verification?.applicationUrlVerified)), "Application workload must require verified application evidence.");
+assert.ok(Object.values(briefing.insights).every((insight) => insight.explanations.length >= 1 && insight.explanations.length <= 2 && insight.comparison.matchReason));
+assert.ok(Object.values(briefing.insights).every((insight) => !insight.facts.some((fact) => fact.kind === "requirements") || Boolean(opportunityById.get(insight.opportunityId)?.metadata.verification?.applicationUrlVerified)), "Application requirements must require verified application evidence.");
 assert.ok(briefing.priorityViews.deadline.every((id) => opportunityById.get(id)?.metadata.verification?.deadlineVerified === true), "Deadline ordering may use only verified deadlines.");
-assert.ok(briefing.priorityViews.effort.every((id) => briefing.insights[id]?.comparison.effort), "Effort ordering may not include unknown workloads.");
+assert.ok(briefing.priorityViews.requirements.every((id) => briefing.insights[id]?.comparison.applicationRequirements), "Requirements ordering may not include unknown workloads.");
 assert.doesNotMatch(JSON.stringify(briefing), /\d{1,3}% fit|prestige score|acceptance chance|career impact score/i);
 
 const watchRoute = readFileSync("app/api/advisor/watch/route.ts", "utf8");
@@ -61,5 +61,5 @@ console.log("For You decision intelligence checks passed", {
   recommendations: recommendationViews.length,
   watched: briefing.watchingIds.length,
   deadlineComparable: briefing.priorityViews.deadline.length,
-  effortComparable: briefing.priorityViews.effort.length,
+  requirementsComparable: briefing.priorityViews.requirements.length,
 });

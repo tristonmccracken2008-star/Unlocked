@@ -1,5 +1,7 @@
 # For You 2.0 Pro Value Audit
 
+> Historical audit. The current For You 3.0 product boundary and measured constraints are documented in `FOR_YOU_QUALITY.md`.
+
 Audit date: 2026-08-13
 
 ## Product Roles
@@ -72,4 +74,3 @@ In the equivalent-account browser flow, Free displays one safe recommendation an
 - No fake match percentages, urgency, scarcity, applicant counts, or locked fake records.
 - No new onboarding flow; “Tune For You” uses the existing Profile surface.
 - No new notification or email types in this sprint.
-

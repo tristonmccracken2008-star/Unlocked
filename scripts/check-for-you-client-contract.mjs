@@ -13,9 +13,9 @@ assert.ok(advisor.includes("normalizeForYouPayload"), "Client must normalize the
 assert.ok(advisor.includes("validForYouPageStates"), "Client must validate pageState values.");
 assert.ok(advisor.includes('pageState === "pro_ready" && recommendations.length === 0'), "Client must convert impossible pro_ready-without-recommendations into empty.");
 assert.ok(advisor.includes('pageState === "free_preview" && !top'), "Free preview with zero recommendations must still render the Pro conversion page.");
-assert.ok(advisor.includes("<ProIntelligenceExperience") && advisor.includes("<TopRecommendation view={lead}"), "pro_ready must render the briefing and recommendation cards.");
+assert.ok(advisor.includes("<ProIntelligenceExperience") && advisor.includes("briefing.topPickIds"), "pro_ready must render the server-selected briefing and recommendation rows.");
 assert.ok(advisor.includes("state.briefing"), "Client must consume the typed server briefing instead of rebuilding premium intelligence locally.");
-assert.ok(advisor.includes('premium={false}') && advisor.includes('<ForYouUpgradeGate totalMatches={state.totalMatches}'), "free_preview with recommendations must render one preview card plus the Pro intelligence boundary.");
+assert.ok(advisor.includes('<TopRecommendation view={top}') && advisor.includes('<ForYouUpgradeGate totalMatches={state.totalMatches}'), "free_preview with recommendations must render one useful preview plus the Pro intelligence boundary.");
 assert.ok(advisor.includes("<ForYouSetupState"), "profile_incomplete must render profile guidance.");
 assert.ok(advisor.includes("<ForYouEmptyState"), "empty must render an honest empty state.");
 assert.ok(advisor.includes("<ForYouPreparingState"), "preparing must render an intentional non-error loading state.");

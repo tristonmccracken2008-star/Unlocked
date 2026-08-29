@@ -21,7 +21,7 @@ import { activeRecommendationFeedback } from "@/lib/advisor/feedback";
 import { listPublishedOpportunities } from "@/lib/content-store";
 import { buildForYouBriefing } from "@/lib/for-you-briefing";
 
-export const forYouSnapshotEngineVersion = "for-you-snapshot-v10-decision-intelligence";
+export const forYouSnapshotEngineVersion = "for-you-snapshot-v11-opportunity-briefing";
 export const forYouSnapshotTtlMs = 1000 * 60 * 60 * 6;
 const generationTimeoutMs = 2800;
 const globalIndexTimeoutMs = 1000;
