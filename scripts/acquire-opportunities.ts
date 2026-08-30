@@ -22,7 +22,8 @@ for (const candidate of sortAcquisitionQueue(allOpportunityAcquisitionCandidates
   if (!candidate.record || !acceptedIds.has(candidate.id)) throw new Error(`${candidate.id} is marked recommendation-safe without a batch record.`);
   const missingEvidence = missingAcquisitionEvidence(candidate.record);
   if (missingEvidence.length) diagnostics.missingEvidence.push({ id: candidate.id, fields: missingEvidence });
-  const gate = validateOpportunityData(candidate.record);
+  const reviewedAt = new Date(`${candidate.record.last_verified}T12:00:00.000Z`);
+  const gate = validateOpportunityData(candidate.record, reviewedAt);
   if (!gate.allowed) diagnostics.gateFailures.push({ id: candidate.id, reasons: gate.reasons });
   const existingIndex = catalog.findIndex((item) => item.id === candidate.record?.id);
   const duplicate = findAcquisitionDuplicate(candidate, catalog.filter((item) => item.id !== candidate.record?.id));
@@ -53,6 +54,6 @@ if (diagnostics.missingEvidence.length || diagnostics.gateFailures.length || dia
     summary: { researched: allOpportunityAcquisitionCandidates.length, accepted: allOpportunityAcquisitionRecords.length, wouldAdd: diagnostics.wouldAdd.length, wouldUpdate: diagnostics.wouldUpdate.length, unchanged: diagnostics.unchanged.length, rejected: diagnostics.rejected.length },
     accepted: allOpportunityAcquisitionRecords.map((record) => record.id),
     rejected: diagnostics.rejected,
-    priorityQueue: sortAcquisitionQueue(allOpportunityAcquisitionCandidates).map((candidate) => ({ id: candidate.id, status: candidate.status, priority: acquisitionPriority(candidate), disposition: candidate.disposition })),
+    priorityQueue: sortAcquisitionQueue(allOpportunityAcquisitionCandidates).map((candidate) => ({ id: candidate.id, status: candidate.status, priorityBand: acquisitionPriority(candidate), disposition: candidate.disposition })),
   }, null, 2));
 }

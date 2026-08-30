@@ -13,7 +13,7 @@ for (const candidate of allOpportunityAcquisitionCandidates) {
   assert.ok(acquisitionStatuses.includes(candidate.status), `${candidate.id} has an unsupported status.`);
   assert.ok(candidate.sourceUrls.every((url) => url.startsWith("https://")), `${candidate.id} must use HTTPS official sources.`);
   assert.ok(candidate.dispositionReason.length >= 30, `${candidate.id} needs an operational disposition reason.`);
-  assert.ok(Number.isFinite(acquisitionPriority(candidate)), `${candidate.id} must have a finite priority score.`);
+  assert.ok(["near_safe", "coverage_gap", "stale_recertification", "deeper_research"].includes(acquisitionPriority(candidate)), `${candidate.id} must have an explicit priority band.`);
   if (candidate.sourceWatch) assert.match(candidate.sourceWatch.expectedReviewAt, /^\d{4}-\d{2}-\d{2}$/, `${candidate.id} has an invalid source-watch date.`);
 }
 
@@ -46,4 +46,4 @@ assert.ok(queue.some((candidate) => candidate.coverageGaps.includes("transfer"))
 
 const batch2 = opportunityAcquisitionBatches[1];
 assert.ok(batch2.records.some((record) => record.metadata.eligibilityRules?.transferEligibility === "explicitly_eligible"), "Batch 2 must add an explicitly transfer-eligible record without marking it transfer-only.");
-console.log(JSON.stringify({ batchIds: opportunityAcquisitionBatches.map((batch) => batch.batchId), researched: allOpportunityAcquisitionCandidates.length, accepted: allOpportunityAcquisitionRecords.length, rejected: allOpportunityAcquisitionCandidates.filter((candidate) => candidate.status === "rejected").length, sourceWatch: allOpportunityAcquisitionCandidates.filter((candidate) => candidate.sourceWatch).length, topPriorities: queue.slice(0, 5).map((candidate) => ({ id: candidate.id, priority: acquisitionPriority(candidate), status: candidate.status })) }, null, 2));
+console.log(JSON.stringify({ batchIds: opportunityAcquisitionBatches.map((batch) => batch.batchId), researched: allOpportunityAcquisitionCandidates.length, accepted: allOpportunityAcquisitionRecords.length, rejected: allOpportunityAcquisitionCandidates.filter((candidate) => candidate.status === "rejected").length, sourceWatch: allOpportunityAcquisitionCandidates.filter((candidate) => candidate.sourceWatch).length, topPriorities: queue.slice(0, 5).map((candidate) => ({ id: candidate.id, priorityBand: acquisitionPriority(candidate), status: candidate.status })) }, null, 2));

@@ -251,7 +251,9 @@ function rankAndDiversify(items: readonly Opportunity[], definition: Opportunity
     const currentEligibility = eligibility(opportunity, context);
     const lifecycle = resolveOpportunityLifecycle(opportunity, now);
     const deadlineDays = opportunity.application_deadline ? Math.ceil((Date.parse(`${opportunity.application_deadline}T23:59:59.999Z`) - now.getTime()) / 86_400_000) : null;
-    const score = auditRecommendationSafety(opportunity).priority
+    const safety = auditRecommendationSafety(opportunity, now);
+    const safetyPriority = safety.queuePriority === "safe" ? 24 : safety.queuePriority === "one_critical_blocker" ? 18 : safety.queuePriority === "two_critical_blockers" ? 12 : safety.queuePriority === "coverage_gap" ? 6 : 0;
+    const score = safetyPriority
       + Number(highValue(opportunity)) * 18
       + Number(lifecycle.actionable) * 12
       + Number(currentEligibility === "eligible") * 8

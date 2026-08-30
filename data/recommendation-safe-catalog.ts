@@ -28,7 +28,7 @@ export type RecommendationSafetyAudit = {
   missingEvidenceFields: OpportunityEligibilityEvidenceField[];
   sourceAuthority: "official" | "unconfirmed" | "missing";
   lifecycle: ReturnType<typeof resolveOpportunityLifecycle>;
-  priority: number;
+  queuePriority: "safe" | "one_critical_blocker" | "two_critical_blockers" | "coverage_gap" | "stale_or_deeper_research";
   estimatedEffort: "low" | "medium" | "high";
 };
 
@@ -54,19 +54,22 @@ function blockerForReason(reason: string): CatalogBlocker {
   return "other";
 }
 
-function highValueWeight(opportunity: Opportunity) {
-  if (["Internship", "Research", "Scholarship"].includes(opportunity.type)) return 24;
-  if (/fellow|competition|leadership|career/i.test(`${opportunity.type} ${opportunity.category}`)) return 18;
-  if (["AI", "Benefit"].includes(opportunity.type)) return 2;
-  return 10;
-}
+const underservedPattern = /scholar|transfer|humanit|social|art|design|writing|journal|competition|fellow/i;
+const queuePriorityOrder: Record<RecommendationSafetyAudit["queuePriority"], number> = {
+  safe: -1,
+  one_critical_blocker: 0,
+  two_critical_blockers: 1,
+  coverage_gap: 2,
+  stale_or_deeper_research: 3,
+};
 
-export function auditRecommendationSafety(opportunity: Opportunity): RecommendationSafetyAudit {
-  const gate = validateOpportunityData(opportunity);
-  const lifecycle = resolveOpportunityLifecycle(opportunity);
+export function auditRecommendationSafety(opportunity: Opportunity, now?: Date): RecommendationSafetyAudit {
+  const gate = validateOpportunityData(opportunity, now);
+  const lifecycle = resolveOpportunityLifecycle(opportunity, now);
   const canonical = normalizeOpportunityEligibility(opportunity);
   const evidence = opportunity.metadata.eligibilityRules?.fieldEvidence ?? {};
-  const missingEvidenceFields = criticalEvidenceFields.filter((field) => !evidence[field] || evidence[field]?.state === "unreviewed");
+  const supportedFields = new Set(opportunity.metadata.sourceReferences?.flatMap((reference) => reference.supports) ?? []);
+  const missingEvidenceFields = criticalEvidenceFields.filter((field) => (!evidence[field] || evidence[field]?.state === "unreviewed") && !supportedFields.has(field));
   const sourceAuthority = !safeOfficialUrl(opportunity.official_source_url)
     ? "missing"
     : opportunity.metadata.verification?.officialSourceUrl === opportunity.official_source_url
@@ -80,17 +83,24 @@ export function auditRecommendationSafety(opportunity: Opportunity): Recommendat
   if (opportunity.metadata.deadlineType === "fixed" && opportunity.metadata.verification?.deadlineVerified !== true) blockers.add("missing_deadline_verification");
   if (lifecycle.issues.some((issue) => issue.severity === "conflicting_evidence")) blockers.add("contradictory_metadata");
   const effort = gate.allowed ? "low" : sourceAuthority === "official" && canonical.criticalUnknowns.length <= 1 ? "low" : sourceAuthority === "official" ? "medium" : "high";
-  const effortWeight = effort === "low" ? 18 : effort === "medium" ? 8 : 0;
-  const broadEligibility = canonical.majors.includes("Any Major") ? 8 : canonical.majors.length >= 5 ? 5 : 0;
-  const priority = Math.max(0, highValueWeight(opportunity) + effortWeight + broadEligibility + (sourceAuthority === "official" ? 14 : 0) + (lifecycle.state === "open" || lifecycle.state === "rolling" ? 12 : 0) - blockers.size * 2);
-  return { id: opportunity.id, safe: gate.allowed, blockers: [...blockers].sort(), gateReasons: gate.reasons, missingEvidenceFields, sourceAuthority, lifecycle, priority, estimatedEffort: effort };
+  const criticalBlockerCount = blockers.size;
+  const queuePriority: RecommendationSafetyAudit["queuePriority"] = gate.allowed
+    ? "safe"
+    : criticalBlockerCount === 1
+    ? "one_critical_blocker"
+    : criticalBlockerCount === 2
+      ? "two_critical_blockers"
+      : underservedPattern.test(`${opportunity.type} ${opportunity.category} ${opportunity.majors.join(" ")}`)
+        ? "coverage_gap"
+        : "stale_or_deeper_research";
+  return { id: opportunity.id, safe: gate.allowed, blockers: [...blockers].sort(), gateReasons: gate.reasons, missingEvidenceFields, sourceAuthority, lifecycle, queuePriority, estimatedEffort: effort };
 }
 
 export function buildRecommendationSafeCatalogAudit(opportunities: Opportunity[]) {
-  const records = opportunities.map(auditRecommendationSafety);
+  const records = opportunities.map((opportunity) => auditRecommendationSafety(opportunity));
   const countBy = <T extends string>(values: T[]) => Object.fromEntries([...values.reduce((map, value) => map.set(value, (map.get(value) ?? 0) + 1), new Map<T, number>())].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])));
   const queue = records.filter((record) => !record.safe && !["closed", "archived", "canceled"].includes(record.lifecycle.state))
-    .sort((left, right) => right.priority - left.priority || left.id.localeCompare(right.id));
+    .sort((left, right) => queuePriorityOrder[left.queuePriority] - queuePriorityOrder[right.queuePriority] || left.id.localeCompare(right.id));
   return {
     totals: { records: records.length, recommendationSafe: records.filter((record) => record.safe).length, needsReview: records.filter((record) => !record.safe).length },
     blockerCounts: countBy(records.flatMap((record) => record.blockers)),

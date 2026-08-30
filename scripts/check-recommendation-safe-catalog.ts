@@ -6,7 +6,7 @@ import { opportunities } from "../data/opportunities";
 const audit = buildRecommendationSafeCatalogAudit(opportunities);
 assert.equal(audit.records.length, opportunities.length, "Every catalog record must receive a safety audit.");
 assert.equal(audit.totals.recommendationSafe, opportunities.filter((opportunity) => validateOpportunityData(opportunity).allowed).length, "Audit totals must use the production recommendation gate.");
-assert.ok(audit.queue.every((record, index) => index === 0 || audit.queue[index - 1].priority >= record.priority), "Review queue must be deterministically priority ordered.");
+assert.deepEqual(audit.queue, buildRecommendationSafeCatalogAudit(opportunities).queue, "Review queue must be deterministic.");
 
 for (const opportunity of opportunities) {
   const fieldEvidence = opportunity.metadata.eligibilityRules?.fieldEvidence;

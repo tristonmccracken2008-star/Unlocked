@@ -49,7 +49,11 @@ export type OpportunityEligibilityEvidenceField =
   | "financial_need"
   | "invitation"
   | "application_status"
-  | "deadline";
+  | "deadline"
+  | "requirements"
+  | "compensation"
+  | "program_dates"
+  | "location";
 export type OpportunityFieldEvidence = {
   state: OpportunityEvidenceState;
   sourceUrl: string;

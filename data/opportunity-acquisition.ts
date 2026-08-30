@@ -52,25 +52,16 @@ export type OpportunityAcquisitionCandidate = {
   record?: Opportunity;
 };
 
-const scarcityWeights: Record<string, number> = {
-  scholarship: 24,
-  internship: 22,
-  research: 20,
-  fellowship: 20,
-  competition: 18,
-  humanities: 18,
-  "social sciences": 18,
-  "first year": 17,
-  international: 16,
-  transfer: 16,
-};
+export const acquisitionPriorityBands = ["near_safe", "coverage_gap", "stale_recertification", "deeper_research"] as const;
+export type AcquisitionPriorityBand = (typeof acquisitionPriorityBands)[number];
+const priorityBandOrder: Record<AcquisitionPriorityBand, number> = { near_safe: 0, coverage_gap: 1, stale_recertification: 2, deeper_research: 3 };
+const criticalCoverageGaps = new Set(["scholarship", "transfer", "humanities", "social sciences", "arts", "design", "competition", "fellowship", "first year", "international"]);
 
-export function acquisitionPriority(candidate: OpportunityAcquisitionCandidate) {
-  const gapScore = candidate.coverageGaps.reduce((sum, gap) => sum + (scarcityWeights[gap.toLowerCase()] ?? 8), 0);
-  const qualityScore = candidate.quality === "very_high" ? 24 : candidate.quality === "high" ? 18 : 12;
-  const stabilityScore = candidate.lifecycleStability === "high" ? 14 : candidate.lifecycleStability === "medium" ? 8 : 2;
-  const effortPenalty = candidate.verificationEffort === "high" ? 14 : candidate.verificationEffort === "medium" ? 7 : 0;
-  return gapScore + qualityScore + stabilityScore + (candidate.broadEligibility ? 12 : 0) - effortPenalty;
+export function acquisitionPriority(candidate: OpportunityAcquisitionCandidate): AcquisitionPriorityBand {
+  if (candidate.status === "source_confirmed" || candidate.status === "structuring" || candidate.status === "review_needed") return "near_safe";
+  if (candidate.coverageGaps.some((gap) => criticalCoverageGaps.has(gap.toLowerCase()))) return "coverage_gap";
+  if (candidate.disposition === "stale" || candidate.sourceWatch) return "stale_recertification";
+  return "deeper_research";
 }
 
 const normalize = (value: string) => value.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
@@ -105,5 +96,7 @@ export function missingAcquisitionEvidence(record: Opportunity) {
 }
 
 export function sortAcquisitionQueue(candidates: readonly OpportunityAcquisitionCandidate[]) {
-  return [...candidates].sort((left, right) => acquisitionPriority(right) - acquisitionPriority(left) || left.id.localeCompare(right.id));
+  return [...candidates].sort((left, right) => priorityBandOrder[acquisitionPriority(left)] - priorityBandOrder[acquisitionPriority(right)]
+    || left.verificationEffort.localeCompare(right.verificationEffort)
+    || left.id.localeCompare(right.id));
 }

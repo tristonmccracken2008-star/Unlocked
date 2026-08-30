@@ -68,7 +68,7 @@ export async function getOpportunityCatalogReport() {
       lifecycleCounts: safetyAudit.lifecycleCounts,
       queue: safetyAudit.queue.slice(0, 50).map((record) => ({
         id: record.id,
-        priority: record.priority,
+        priorityBand: record.queuePriority,
         effort: record.estimatedEffort,
         blockers: record.blockers,
         missingEvidenceFields: record.missingEvidenceFields,

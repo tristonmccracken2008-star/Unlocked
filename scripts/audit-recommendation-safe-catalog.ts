@@ -61,5 +61,5 @@ console.log(JSON.stringify({
     matrix: Object.fromEntries([...coverageMatrix.entries()].sort((left, right) => left[0].localeCompare(right[0]))),
     deserts: Object.fromEntries(coverageDeserts),
   },
-  highestPriorityReviewQueue: audit.queue.slice(0, 30).map((record) => ({ id: record.id, priority: record.priority, effort: record.estimatedEffort, lifecycle: record.lifecycle.state, blockers: record.blockers, missingEvidenceFields: record.missingEvidenceFields })),
+  highestPriorityReviewQueue: audit.queue.slice(0, 30).map((record) => ({ id: record.id, priorityBand: record.queuePriority, effort: record.estimatedEffort, lifecycle: record.lifecycle.state, blockers: record.blockers, missingEvidenceFields: record.missingEvidenceFields })),
 }, null, 2));
