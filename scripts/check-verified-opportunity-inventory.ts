@@ -12,11 +12,12 @@ import { opportunityAcquisitionBatch4 } from "../data/opportunity-acquisition-ba
 import { opportunityAcquisitionBatch5 } from "../data/opportunity-acquisition-batch-5";
 import { opportunityAcquisitionBatch6 } from "../data/opportunity-acquisition-batch-6";
 import { opportunityAcquisitionBatch7 } from "../data/opportunity-acquisition-batch-7";
+import { opportunityAcquisitionBatch8 } from "../data/opportunity-acquisition-batch-8";
 import { opportunities } from "../data/opportunities";
 import { schools } from "../data/seed";
 import type { StudentProfile } from "../data/student-profile";
 
-const auditDate = new Date("2026-08-20T12:00:00.000Z");
+const auditDate = new Date("2026-08-31T12:00:00.000Z");
 const newIds = [
   "career--comap-mcm-icm-2027",
   "career--forte-career-ready-certificate",
@@ -37,6 +38,7 @@ const archivedDuplicates = new Map([
   ["national-curated-2026--u-s-department-of-defense--smart-scholarship-for-service-program", "scholarship--dod-smart-scholarship"],
   ["national-curated-2026--u-s-department-of-state--gilman-international-scholarship", "scholarship--gilman-scholarship"],
 ]);
+const recertifiedStaleIds = new Set(["career--nsf-bridge-to-cyber-2026"]);
 
 for (const id of [...newIds, ...enrichedIds, ...allOpportunityAcquisitionRecords.map((item) => item.id)]) {
   const item = opportunities.find((opportunity) => opportunity.id === id);
@@ -69,7 +71,7 @@ const currentlyActionableIds = [
   "scholarship--dod-smart-scholarship",
   "scholarship--gilman-scholarship",
   "national-curated-2026--jack-kent-cooke-foundation--jack-kent-cooke-undergraduate-transfer-scholarship",
-  ...allOpportunityAcquisitionRecords.map((item) => item.id),
+  ...allOpportunityAcquisitionRecords.filter((item) => !recertifiedStaleIds.has(item.id)).map((item) => item.id),
 ] as const;
 for (const id of currentlyActionableIds) {
   const item = opportunities.find((opportunity) => opportunity.id === id);
@@ -82,6 +84,11 @@ for (const id of ["career--girls-who-invest-scholars-2027", "research--daad-rise
   assert.ok(item, `${id} must exist.`);
   assert.equal(resolveOpportunityLifecycle(item, auditDate).state, "upcoming", `${id} must remain suppressed until its verified window opens.`);
   assert.equal(resolveOpportunityLifecycle(item, auditDate).recommendationEligible, false);
+}
+for (const id of recertifiedStaleIds) {
+  const item = opportunities.find((opportunity) => opportunity.id === id);
+  assert.ok(item, `${id} must remain resolvable after recertification.`);
+  assert.equal(resolveOpportunityLifecycle(item, auditDate).recommendationEligible, false, `${id} must stay suppressed without a current official cycle.`);
 }
 
 const school = schools.find((item) => item.slug === "university-of-chicago");
@@ -171,11 +178,11 @@ const preTargetedCatalog = 6015;
 const preTargetedCanonical = 6004;
 const preTargetedVerified = 222;
 const preTargetedHighValueSafe = 31;
-const targetedAdditions = opportunityAcquisitionBatch4.records.length + opportunityAcquisitionBatch5.records.length + opportunityAcquisitionBatch6.records.length + opportunityAcquisitionBatch7.records.length;
+const targetedAdditions = opportunityAcquisitionBatch4.records.length + opportunityAcquisitionBatch5.records.length + opportunityAcquisitionBatch6.records.length + opportunityAcquisitionBatch7.records.length + opportunityAcquisitionBatch8.records.length;
 assert.equal(opportunities.length, preTargetedCatalog + targetedAdditions, "Catalog size must equal the approved pre-targeted baseline plus every distinct targeted addition.");
 assert.equal(canonical.length, preTargetedCanonical + targetedAdditions, "Canonical public inventory must include targeted additions while excluding archived and secondary duplicate records.");
 assert.equal(verified.length, preTargetedVerified + targetedAdditions, "Every targeted addition must contribute exactly one verified canonical identity.");
-assert.equal(highValueRecommendationSafe.length, preTargetedHighValueSafe + targetedAdditions, "Every targeted addition must remain safely actionable and non-resource on the audit date.");
+assert.equal(highValueRecommendationSafe.length, preTargetedHighValueSafe + targetedAdditions - recertifiedStaleIds.size, "Every targeted addition except explicitly recertified stale records must remain safely actionable and non-resource on the audit date.");
 
 console.log(JSON.stringify({
   auditDate: auditDate.toISOString().slice(0, 10),

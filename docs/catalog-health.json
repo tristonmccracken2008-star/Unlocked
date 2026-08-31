@@ -1,15 +1,15 @@
 {
   "schemaVersion": "catalog-reliability-v2",
-  "asOf": "2026-08-30",
+  "asOf": "2026-08-31",
   "totals": {
-    "canonical": 6035,
-    "recommendationSafe": 50,
-    "highValueSafe": 50,
+    "canonical": 6040,
+    "recommendationSafe": 55,
+    "highValueSafe": 55,
     "staleSafe": 0
   },
   "healthStates": {
     "NEEDS_RESEARCH": 5971,
-    "SAFE": 50,
+    "SAFE": 55,
     "DUPLICATE_CANDIDATE": 9,
     "ARCHIVE_CANDIDATE": 2,
     "NEAR_SAFE": 2,
@@ -30,7 +30,7 @@
   },
   "lifecycle": {
     "unknown": 5974,
-    "open": 32,
+    "open": 37,
     "rolling": 18,
     "temporarily_closed": 6,
     "archived": 3,
@@ -38,30 +38,32 @@
   },
   "sourceTiers": {
     "discovery_only": 5944,
-    "tier_1_official": 91
+    "tier_1_official": 96
   },
   "coverage": {
     "byType": {
-      "Career": 30,
-      "Research": 12,
-      "Scholarship": 8
+      "Career": 32,
+      "Research": 13,
+      "Scholarship": 10
     },
     "byCategory": {
+      "Public Policy": 7,
       "Internships": 6,
-      "Public Policy": 6,
       "Government & National Labs": 5,
       "Museums & Archives": 5,
       "Fellowships": 4,
       "Competitions": 3,
+      "National Laboratory Research": 3,
       "Government Internships": 2,
-      "National Laboratory Research": 2,
       "Public Service": 2,
+      "Research Fellowships": 2,
       "Business Scholarships": 1,
       "Career Resources": 1,
       "Certifications": 1,
       "Education & Libraries": 1,
       "Finance Internships": 1,
       "Graduate Fellowships": 1,
+      "Humanities Fellowships": 1,
       "Leadership Programs": 1,
       "Museums & Arts": 1,
       "Research": 1,
@@ -73,46 +75,46 @@
       "Transfer Scholarships": 1
     },
     "byStudentStage": {
-      "Fourth year": 46,
-      "Third year": 43,
-      "Second year": 40,
-      "First year": 33,
+      "Fourth year": 51,
+      "Third year": 46,
+      "Second year": 43,
+      "First year": 36,
       "Graduate student": 11
     },
     "byField": {
-      "social_sciences": 19,
-      "humanities": 18,
+      "social_sciences": 24,
+      "humanities": 19,
       "arts_design": 13
     },
     "byCoverageGap": {
-      "first_year": 33,
-      "social_sciences": 19,
-      "humanities": 18,
-      "international": 16,
+      "first_year": 36,
+      "social_sciences": 24,
+      "humanities": 19,
+      "international": 17,
       "arts_design": 13,
-      "scholarship": 8,
-      "fellowship": 5,
+      "scholarship": 10,
+      "fellowship": 8,
       "competition": 4,
       "transfer": 2
     },
-    "internationalSafe": 16,
+    "internationalSafe": 17,
     "transferSafe": 2,
     "byPath": {
-      "Quantitative Finance & Data": 19,
-      "Software Engineering & Cybersecurity": 18,
-      "Research & Graduate Study": 17,
-      "Public Policy & Service": 17,
-      "Finance & Business": 17,
+      "Quantitative Finance & Data": 22,
+      "Software Engineering & Cybersecurity": 21,
+      "Research & Graduate Study": 19,
+      "Public Policy & Service": 18,
+      "Finance & Business": 18,
       "Journalism & Public Humanities": 11
     }
   },
   "trustCoverage": {
-    "officialSource": 91,
-    "eligibility": 42,
-    "classYear": 42,
-    "citizenship": 42,
-    "deadline": 64,
-    "lifecycle": 55,
+    "officialSource": 96,
+    "eligibility": 47,
+    "classYear": 47,
+    "citizenship": 47,
+    "deadline": 69,
+    "lifecycle": 60,
     "requirements": 0,
     "compensation": 0,
     "programDates": 0,
@@ -122,7 +124,7 @@
     "due": 1,
     "queueByTier": {
       "deeper_research": 4470,
-      "coverage_gap": 1550,
+      "coverage_gap": 1555,
       "archive_or_duplicate_review": 11,
       "one_critical_blocker": 2,
       "recertify_stale": 1
@@ -5608,6 +5610,39 @@
         "duplicateOf": null
       },
       {
+        "id": "career--hertog-humanities-fall-2026",
+        "title": "Humanities at Hertog Fellowship",
+        "organization": "Hertog Foundation",
+        "normalizedOrganization": "hertog foundation",
+        "canonicalUrl": "https://hertogfoundation.org/application-2026",
+        "identityId": "career--hertog-humanities-fall-2026",
+        "cycleId": "fall-2026",
+        "lifecycle": "open",
+        "lifecycleConfidence": "confirmed",
+        "recommendationSafe": true,
+        "state": "SAFE",
+        "blockers": [],
+        "criticalBlockers": [],
+        "missingEvidenceFields": [],
+        "sourceTier": "tier_1_official",
+        "queueTier": "coverage_gap",
+        "coverageGaps": [
+          "humanities",
+          "social_sciences",
+          "fellowship",
+          "first_year",
+          "international"
+        ],
+        "review": {
+          "due": false,
+          "nextReviewAt": "2026-09-09",
+          "lifecycleCadenceDays": 14,
+          "eligibilityCadenceDays": 180,
+          "organizationCadenceDays": 365
+        },
+        "duplicateOf": null
+      },
+      {
         "id": "career--hrt-student-opportunities",
         "title": "Hudson River Trading Internships",
         "organization": "Hudson River Trading",
@@ -5800,56 +5835,6 @@
           "arts_design",
           "competition",
           "first_year"
-        ],
-        "review": {
-          "due": false,
-          "nextReviewAt": null,
-          "lifecycleCadenceDays": 14,
-          "eligibilityCadenceDays": 180,
-          "organizationCadenceDays": 365
-        },
-        "duplicateOf": null
-      },
-      {
-        "id": "career--imc-student-internships",
-        "title": "IMC Student Internships",
-        "organization": "IMC Trading",
-        "normalizedOrganization": "imc trading",
-        "canonicalUrl": "https://imc.com/us/careers/students-graduates",
-        "identityId": "career--imc-student-internships",
-        "cycleId": "legacy:undated",
-        "lifecycle": "unknown",
-        "lifecycleConfidence": "estimated",
-        "recommendationSafe": false,
-        "state": "NEEDS_RESEARCH",
-        "blockers": [
-          "lifecycle_unknown",
-          "weak_source_evidence"
-        ],
-        "criticalBlockers": [
-          "lifecycle_unknown",
-          "weak_source_evidence"
-        ],
-        "missingEvidenceFields": [
-          "academic_level",
-          "institution_type",
-          "enrollment_status",
-          "school_restriction",
-          "external_student_eligibility",
-          "class_year",
-          "major",
-          "citizenship",
-          "residency",
-          "gpa",
-          "age",
-          "financial_need",
-          "invitation",
-          "application_status"
-        ],
-        "sourceTier": "discovery_only",
-        "queueTier": "coverage_gap",
-        "coverageGaps": [
-          "arts_design"
         ],
         "review": {
           "due": false,
@@ -7317,42 +7302,51 @@
       "targeted-coverage-gaps-2026-08-wave-4",
       "institutional-mining-2026-08-wave-5",
       "catalog-breakthrough-2026-08-research-wave",
-      "catalog-breakthrough-2026-08-breadth-wave"
+      "catalog-breakthrough-2026-08-breadth-wave",
+      "verified-acquisition-sprint-2026-08"
     ],
     "ledger": {
-      "researched": 260,
-      "accepted": 42,
-      "rejectedOrDeferred": 218,
-      "sourceWatch": 218,
+      "researched": 520,
+      "accepted": 47,
+      "rejectedOrDeferred": 473,
+      "sourceWatch": 457,
       "dispositions": {
-        "current_cycle_unavailable": 98,
-        "accepted": 42,
+        "current_cycle_unavailable": 232,
+        "variable_position_eligibility": 71,
+        "institution_membership_unproven": 56,
+        "accepted": 47,
         "graduate_only": 39,
+        "duplicate": 32,
         "eligibility_unclear": 23,
-        "institution_membership_unproven": 21,
-        "duplicate": 16,
-        "variable_position_eligibility": 16,
+        "low_quality": 15,
         "conflicting_official_sources": 3,
         "stale": 2
       },
       "coverageGapsResearched": {
-        "research": 62,
+        "social sciences": 121,
+        "humanities": 104,
+        "research": 100,
+        "scholarship": 93,
+        "international": 86,
+        "competition": 78,
+        "first year": 57,
+        "transfer": 49,
+        "arts design": 45,
+        "fellowship": 45,
         "STEM": 45,
-        "humanities": 43,
         "institutional opportunity": 43,
-        "scholarship": 41,
-        "international": 40,
-        "social sciences": 34,
+        "public service": 32,
+        "engineering": 31,
         "internship": 31,
-        "first year": 25,
-        "transfer": 24,
-        "competition": 23,
+        "writing journalism": 30,
         "economics": 18,
-        "fellowship": 13,
+        "public policy": 16,
+        "math data": 15,
         "policy": 13,
         "finance": 11,
         "paid internship": 7,
         "health": 3,
+        "senior": 3,
         "career training": 2,
         "computing": 2,
         "government": 2,
@@ -7361,17 +7355,15 @@
         "agriculture": 1,
         "career": 1,
         "environment": 1,
-        "public service": 1,
         "remote": 1,
-        "research funding": 1,
-        "senior": 1
+        "research funding": 1
       },
       "acceptedSourceMix": {
-        "government": 11,
+        "government": 14,
         "nonprofit": 8,
         "museum_or_library": 7,
+        "foundation": 5,
         "university": 4,
-        "foundation": 3,
         "international_organization": 3,
         "other": 3,
         "professional_society": 3
@@ -7380,7 +7372,7 @@
     "currentDryRun": {
       "wouldAdd": 0,
       "wouldUpdate": 0,
-      "unchangedAcceptedRecords": 42,
+      "unchangedAcceptedRecords": 47,
       "duplicateAdditions": 0
     }
   }

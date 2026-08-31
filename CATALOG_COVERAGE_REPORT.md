@@ -1,168 +1,99 @@
 # Catalog Coverage Report
 
-Audit date: **2026-08-30**
+Audit date: **2026-08-31**
 
-Source of truth: `docs/catalog-health.json`. Counts below are results, not targets.
+Source of truth: `docs/catalog-health.json`. Counts are measured outcomes, not quotas.
 
-## Before and after
+## Verified acquisition result
 
-This sprint prioritized repeatable reliability infrastructure and recertification over raw additions. No candidate whose current official cycle was closed, future, ambiguous, or unsupported was activated.
+The acquisition sprint investigated 244 genuinely new candidates across 189 organizations and retained 16 cross-wave matches as explicit duplicates. Five programs passed every official-source, lifecycle, eligibility, provenance, and recommendation-safety gate. No gate or ranking threshold was changed.
 
-| Metric | Start | Final | Change |
+| Metric | Before | After | Change |
 | --- | ---: | ---: | ---: |
-| Canonical records | 6,035 | 6,035 | 0 |
-| Recommendation-safe | 50 | 50 | 0 |
-| High-value safe | 50 | 50 | 0 |
-| International-safe | 16 | 16 | 0 |
+| Canonical records | 6,035 | 6,040 | +5 |
+| Recommendation-safe | 50 | 55 | +5 |
+| High-value safe | 50 | 55 | +5 |
+| Career | 30 | 32 | +2 |
+| Research | 12 | 13 | +1 |
+| Scholarship | 8 | 10 | +2 |
+| First year | 33 | 36 | +3 |
+| Second year | 40 | 43 | +3 |
+| Third year | 43 | 46 | +3 |
+| Fourth year | 46 | 51 | +5 |
+| International-safe | 16 | 17 | +1 |
 | Transfer-safe | 2 | 2 | 0 |
+| Humanities | 18 | 19 | +1 |
+| Social sciences | 19 | 24 | +5 |
+| Arts/design | 13 | 13 | 0 |
+| Fellowship signal | 5 | 8 | +3 |
+| Competition signal | 4 | 4 | 0 |
 
-No recommendation-safe record was found stale. One previously maintained but already unsafe record, `career--nsf-bridge-to-cyber-2026`, is overdue and remains outside recommendations.
+## Accepted programs
+
+- Humanities at Hertog Fellowship: international-safe, first-year-accessible humanities fellowship.
+- NSF Graduate Research Fellowship Program: senior-level research funding across STEM, psychology, and social science.
+- Hertz Fellowship: senior-level doctoral funding in applied science, mathematics, and engineering.
+- White House Council of Economic Advisers Internship: undergraduate public-policy and economic-research experience.
+- Argonne Undergraduate Seasonal Internship: first-year-accessible national-laboratory research.
+
+All five are new canonical records. No existing record was activated or enriched, and no previously safe record was removed. The already-unsafe NSF Bridge To Cyber record remains suppressed because no current official cycle could be established.
 
 ## Current safe coverage
 
-### Type
-
-| Type | Safe |
-| --- | ---: |
-| Career | 30 |
-| Research | 12 |
-| Scholarship | 8 |
-
-Canonical categories account for distinctions not represented as top-level types: 5 fellowship-category records, 4 competition-related records, 2 public-service-category records, and 1 professional/career-resource record are safe.
-
-### Student stage
-
-| Stage | Safe |
-| --- | ---: |
-| First year | 33 |
-| Second year | 40 |
-| Third year | 43 |
-| Fourth year | 46 |
-| Graduate student | 11 |
-
-### Field and gap signals
-
-| Signal | Safe |
-| --- | ---: |
-| Humanities | 18 |
-| Social sciences | 19 |
-| Arts/design | 13 |
-| Fellowships | 5 |
-| Competitions | 4 |
-| International explicitly allowed | 16 |
-| Transfer explicitly eligible or targeted | 2 |
-
-The field counts are multi-label and must not be summed. Transfer is still severely constrained. Scholarships, competitions, fellowships, and recommendation diversity for writing/journalism also remain thin.
-
 ### Paths
 
-| Path | Safe matches |
-| --- | ---: |
-| Quantitative Finance & Data | 19 |
-| Software Engineering & Cybersecurity | 18 |
-| Research & Graduate Study | 17 |
-| Public Policy & Service | 17 |
-| Finance & Business | 17 |
-| Journalism & Public Humanities | 11 |
+| Path | Before | After |
+| --- | ---: | ---: |
+| Quantitative Finance & Data | 19 | 22 |
+| Software Engineering & Cybersecurity | 18 | 21 |
+| Research & Graduate Study | 17 | 19 |
+| Public Policy & Service | 17 | 18 |
+| Finance & Business | 17 | 18 |
+| Journalism & Public Humanities | 11 | 11 |
 
-## Health and trust
+### Health and evidence
 
 | Health state | Records |
 | --- | ---: |
-| Safe | 50 |
+| Safe | 55 |
 | Near-safe | 2 |
 | Needs research | 5,971 |
 | Stale | 1 |
 | Duplicate candidate | 9 |
 | Archive candidate | 2 |
 
-The two near-safe records are current official future cycles: Girls Who Invest Scholars Program and DAAD RISE Germany. Their only production blocker is that applications are not actionable yet. They remain outside For You.
+Official-source coverage increased from 91 to 96 records. Explicit eligibility, class-year, and citizenship evidence increased from 42 to 47; deadline evidence increased from 64 to 69; lifecycle evidence increased from 55 to 60.
 
-| Trust evidence | Records |
-| --- | ---: |
-| Official source confirmed | 91 |
-| Eligibility explicitly verified with references | 42 |
-| Class-year evidence | 42 |
-| Citizenship evidence | 42 |
-| Deadline evidence | 64 |
-| Lifecycle evidence/review | 55 |
-| Requirements field provenance | 0 |
-| Compensation field provenance | 0 |
-| Program-date field provenance | 0 |
-| Location field provenance | 0 |
-
-The last four fields are newly supported provenance dimensions. Zero means the source references have not yet been assigned those field labels, not that display data is absent. Future review should add labels only when the cited official source actually supports the field.
+Girls Who Invest Scholars and DAAD RISE Germany remain near-safe. Their official future cycles are published, but applications are not actionable, so both remain outside For You. NSF Bridge To Cyber remains stale and recommendation-ineligible.
 
 ## Acquisition funnel
 
-The durable ledger now contains seven research waves:
-
-- 260 plausible candidates researched
-- 42 accepted into canonical acquisition records
-- 218 rejected or deferred with reasons
-- 218 retained with source-watch dates
-- 0 duplicate additions on the current dry run
-- 0 proposed additions or updates on the current dry run
-
-Top disposition reasons:
-
-| Reason | Count |
+| Sprint measure | Count |
 | --- | ---: |
-| Current cycle unavailable | 98 |
-| Accepted | 42 |
-| Graduate only | 39 |
-| Eligibility unclear | 23 |
-| Institution/membership condition unproven | 21 |
-| Duplicate | 16 |
-| Position-specific eligibility varies | 16 |
-| Conflicting official sources | 3 |
-| Stale | 2 |
+| New candidates researched | 244 |
+| Organizations represented | 189 |
+| Accepted | 5 |
+| Deferred/rejected new candidates | 239 |
+| Cross-wave duplicates | 16 |
+| New canonical records | 5 |
+| Existing records enriched | 0 |
+| Existing records activated | 0 |
+| Newly recommendation-safe | 5 |
+| Safe records removed | 0 |
 
-Research intentionally covered 62 research, 43 humanities, 41 scholarship, 40 international, 34 social-science, 25 first-year, 24 transfer, 23 competition, and 13 fellowship gap signals. Accepted-source mix includes government (11), nonprofit (8), museum/library (7), university (4), foundation (3), international organization (3), professional society (3), and other official providers (3).
+The sprint researched 52 scholarship, 25 transfer, 58 humanities, 76 social-science, 45 arts/design, 53 competition, 24 fellowship, 31 first-year, and 43 international gap candidates. Counts overlap because one candidate can address multiple gaps.
 
-## Current source-watch review
+Top sprint dispositions were: current cycle unavailable (134), variable position eligibility (55), institution or membership condition unproven (35), low quality or pay-to-enter value (15), accepted (5), plus 16 cross-wave duplicates. Acceptance efficiency was 2.05% of genuinely new research. This low rate is expected under the fail-closed standard and identifies current-cycle evidence, not catalog machinery, as the main bottleneck.
 
-The highest-priority August 30 review produced no safe new addition:
+## Representative recommendation coverage
 
-- Gilman is already represented by a current safe canonical record.
-- Ritchie-Jennings opens September 1, 2026.
-- PPIA JSI opens September 8, 2026, while its official pages still contain mixed opening language.
-- RTDNA's next application window opens September 9, 2026.
-- D-Prize announces a fall launch without a current application.
-- Point Foundation's prior cycle is closed.
-- MoMA, National Gallery, Whitney, and Guggenheim pages did not expose a current reusable undergraduate cycle.
+The deterministic named profiles remain stable before and after the five additions: first-year CS 7, economics/finance 5, pre-med 7, engineering 7, humanities 5, scholarship seeker 7, research seeker 7, and undecided 5. The new records expand the safe candidate universe but do not displace stronger top-eight results for these profiles.
 
-These remain deferred. Researching broadly and accepting none is the correct result when current official evidence does not support activation.
-
-## Golden-profile coverage
-
-The existing 250-profile production coverage suite remains green:
-
-- 249 ranked undergraduate profiles
-- 4.98 average recommendations
-- minimum 3
-- p10 4
-- p25 4
-- median 5
-- 0 empty undergraduate feeds
-- 4.23 average categories and 4.98 average organizations
-
-Weakest named profiles remain English/publishing and no-GPA at 3 recommendations each. The community-college transfer profile receives 5 recommendations, but only 2 catalog records have explicit transfer-safe semantics; fallback breadth should not be mistaken for strong transfer inventory.
-
-## Operational targets
-
-Targets are planning goals, never safety quotas: 100 recommendation-safe, 15 scholarships, 20 research, 35 career, 40 first-year, 25 international, 10 transfer, 8 fellowships, and 8 competitions. The next acquisition sequence should be:
-
-1. Recheck source-watch items on their exact opening dates.
-2. Expand explicitly transfer-safe scholarships and programs.
-3. Add current scholarships with complete citizenship, class-year, and lifecycle evidence.
-4. Expand writing/journalism, competitions, and undergraduate fellowships.
-5. Add field provenance for requirements, compensation, program dates, and location during normal recertification.
+Transfer remains the weakest inventory dimension at two explicit safe records. Arts/design and competitions gained no safe records. Humanities improved by one but remains thin, and the journalism/public-humanities Path did not grow. These areas should drive the next source-watch cycle.
 
 ## Product implications
 
-- Discover and For You receive no unsafe inventory and no ranking change from this sprint.
-- Collections and Paths keep their existing mapping; no collection was padded to create breadth.
-- Opportunity Detail can continue showing existing trust metadata. The new reliability states remain internal.
-- No client bundle or request path imports acquisition or report generation.
-- The current weaknesses are catalog evidence and breadth, not recommendation-gate strictness.
+- Discover, For You, Opportunity Detail, Paths, and Collections receive five additional safe canonical records without ranking changes.
+- Summer, Competitions, Transfer-Friendly, and Next Cycle collections still lack enough incremental safe breadth to justify automatic activation in this sprint.
+- Potential consulting, law, medicine, and entrepreneurship Paths remain research opportunities, not supported additions.
+- Acquisition replay is idempotent: zero additions, zero updates, and zero duplicate additions.
