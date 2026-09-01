@@ -2,18 +2,14 @@ import styles from "./journey-save-motion.module.css";
 
 const activeFlights = new Set<HTMLElement>();
 const activeAnimations = new Map<HTMLElement, Animation>();
-const activeChips = new Set<HTMLElement>();
-const activeBursts = new Set<HTMLElement>();
 const decoratedCards = new Set<HTMLElement>();
 const decoratedDestinations = new Set<HTMLElement>();
 const destinationTimers = new WeakMap<HTMLElement, number>();
 const cardTimers = new WeakMap<HTMLElement, number>();
 const maximumConcurrentFlights = 2;
 const transferQueue: DOMRect[] = [];
-const confirmationQueue: boolean[] = [];
 const scheduledTransferTimers = new Set<number>();
 let scheduledTransfers = 0;
-let confirmationActive = false;
 
 function prefersReducedMotion() {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -38,40 +34,8 @@ function brieflyConfirmCard(source: HTMLElement) {
     card.removeAttribute("data-journey-save-card");
     decoratedCards.delete(card);
     cardTimers.delete(card);
-  }, 820);
+  }, 420);
   cardTimers.set(card, timer);
-}
-
-function showNextConfirmationChip() {
-  const reducedMotion = confirmationQueue.shift();
-  if (reducedMotion === undefined) {
-    confirmationActive = false;
-    return;
-  }
-  confirmationActive = true;
-  const chip = document.createElement("span");
-  chip.className = styles.chip;
-  chip.setAttribute("data-journey-save-chip", "");
-  chip.dataset.reducedMotion = reducedMotion ? "true" : "false";
-  chip.setAttribute("aria-hidden", "true");
-  chip.textContent = "✓  Added to Journey";
-  document.body.append(chip);
-  activeChips.add(chip);
-  let removed = false;
-  const remove = () => {
-    if (removed) return;
-    removed = true;
-    activeChips.delete(chip);
-    chip.remove();
-    showNextConfirmationChip();
-  };
-  chip.addEventListener("animationend", remove, { once: true });
-  window.setTimeout(remove, reducedMotion ? 500 : 1_200);
-}
-
-function queueConfirmationChip(reducedMotion: boolean) {
-  confirmationQueue.push(reducedMotion);
-  if (!confirmationActive) showNextConfirmationChip();
 }
 
 function pulseDestination(destination: HTMLElement) {
@@ -85,37 +49,9 @@ function pulseDestination(destination: HTMLElement) {
       destination.removeAttribute("data-journey-arrival");
       decoratedDestinations.delete(destination);
       destinationTimers.delete(destination);
-    }, 620);
+    }, 420);
     destinationTimers.set(destination, timer);
   });
-}
-
-function provideSoftHaptic() {
-  if (!window.matchMedia("(pointer: coarse)").matches || typeof navigator.vibrate !== "function") return;
-  navigator.vibrate(8);
-}
-
-function showSuccessBurst(sourceRect: DOMRect) {
-  const burst = document.createElement("span");
-  burst.className = styles.burst;
-  burst.setAttribute("data-journey-save-burst", "");
-  burst.setAttribute("aria-hidden", "true");
-  burst.style.left = `${sourceRect.left + sourceRect.width / 2}px`;
-  burst.style.top = `${sourceRect.top + sourceRect.height / 2}px`;
-  for (let index = 0; index < 8; index += 1) burst.append(document.createElement("i"));
-  document.body.append(burst);
-  activeBursts.add(burst);
-  let removed = false;
-  const remove = () => {
-    if (removed) return;
-    removed = true;
-    activeBursts.delete(burst);
-    burst.remove();
-  };
-  burst.addEventListener("animationend", (event) => {
-    if (event.target === burst && event.pseudoElement === "") remove();
-  });
-  window.setTimeout(remove, 900);
 }
 
 function startTransfer(sourceRect: DOMRect) {
@@ -146,7 +82,7 @@ function startTransfer(sourceRect: DOMRect) {
     { opacity: 0.96, offset: 0.58, transform: `translate3d(${deltaX * 0.58}px, ${deltaY * 0.48 - arc}px, 0) scale(.82) rotate(3deg)` },
     { opacity: 0.12, transform: `translate3d(${deltaX}px, ${deltaY}px, 0) scale(.42) rotate(0deg)` },
   ], {
-    duration: 540,
+    duration: 360,
     easing: "cubic-bezier(.22, .72, .16, 1)",
     fill: "forwards",
   });
@@ -169,7 +105,7 @@ function startTransfer(sourceRect: DOMRect) {
     flight.remove();
     drainTransferQueue();
   });
-  window.setTimeout(finish, 680);
+  window.setTimeout(finish, 440);
 }
 
 function drainTransferQueue() {
@@ -189,21 +125,14 @@ function drainTransferQueue() {
 export function playJourneySaveMotion(source: HTMLElement | null) {
   if (!source || typeof window === "undefined") return;
   const sourceRect = source.getBoundingClientRect();
-  const reducedMotion = prefersReducedMotion();
   brieflyConfirmCard(source);
-  queueConfirmationChip(reducedMotion);
-  provideSoftHaptic();
-
-  if (reducedMotion) return;
-  showSuccessBurst(sourceRect);
+  if (prefersReducedMotion()) return;
   transferQueue.push(sourceRect);
   drainTransferQueue();
 }
 
 export function cancelJourneySaveMotion() {
   transferQueue.length = 0;
-  confirmationQueue.length = 0;
-  confirmationActive = false;
   for (const timer of scheduledTransferTimers) window.clearTimeout(timer);
   scheduledTransferTimers.clear();
   scheduledTransfers = 0;
@@ -213,10 +142,6 @@ export function cancelJourneySaveMotion() {
   }
   activeAnimations.clear();
   activeFlights.clear();
-  for (const chip of activeChips) chip.remove();
-  activeChips.clear();
-  for (const burst of activeBursts) burst.remove();
-  activeBursts.clear();
   for (const card of decoratedCards) card.removeAttribute("data-journey-save-card");
   decoratedCards.clear();
   for (const destination of decoratedDestinations) destination.removeAttribute("data-journey-arrival");

@@ -15,6 +15,7 @@ import { dateAfterOfficialDeadline, dateShortcutOptions, explicitDateFromShortcu
 import styles from "./application-workspace.module.css";
 import type { ApplicationMaterialsModel } from "@/lib/application-materials";
 import { trackProductEvent } from "@/data/product-analytics";
+import { useLayoutContinuity } from "@/components/use-layout-continuity";
 
 type SubmissionAction = {
   professionalStageId: string;
@@ -71,6 +72,8 @@ export function ApplicationWorkspace({ initial, opportunityTitle, submission }: 
     if (left.source !== right.source) return left.source === "verified_requirement" ? -1 : 1;
     return Number(left.completed) - Number(right.completed);
   }), [workspace.tasks]);
+  const taskListRef = useLayoutContinuity<HTMLUListElement>(orderedTasks.map((task) => `${task.id}:${task.completed}`).join("|"));
+  const materialListRef = useLayoutContinuity<HTMLUListElement>(workspace.materials.mappedRequirements.map((requirement) => `${requirement.type}:${requirement.state}:${requirement.selected?.id ?? "none"}`).join("|"));
 
   async function selectMaterial(requirementType: string, materialId: string) {
     const key = `material:${requirementType}`;
@@ -243,7 +246,7 @@ export function ApplicationWorkspace({ initial, opportunityTitle, submission }: 
     }
   }
 
-  if (workspace.submitted) return <section ref={workspaceRef} className={styles.workspace} aria-labelledby={`application-${workspace.opportunityId}`} data-application-workspace="submitted">
+  if (workspace.submitted) return <section ref={workspaceRef} className={styles.workspace} aria-labelledby={`application-${workspace.opportunityId}`} data-application-workspace="submitted" data-motion-surface="workflow">
     <div className={styles.submitted}><span aria-hidden="true"><CheckIcon /></span><div><h4 id={`application-${workspace.opportunityId}`}>Application submitted</h4><p>{workspace.submittedAt ? `Submitted ${formatDate(workspace.submittedAt)}. ` : ""}Keep Journey updated when you hear back.</p></div></div>
     <a className={styles.official} href={workspace.officialSource} target="_blank" rel="noreferrer">{workspace.sourceVerified ? "Open official application" : "Open provider source"} <ArrowIcon /><span className="sr-only">(opens in a new tab)</span></a>
   </section>;
@@ -270,7 +273,7 @@ export function ApplicationWorkspace({ initial, opportunityTitle, submission }: 
     {workspace.recentProviderUpdate ? <p className={styles.providerUpdate} role="status"><strong>{workspace.recentProviderUpdate.label}</strong> {workspace.recentProviderUpdate.summary}</p> : null}
     {workspace.materials.mappedRequirements.length ? <section className={styles.materials} aria-labelledby={`application-materials-${workspace.opportunityId}`}>
       <header><div><h5 id={`application-materials-${workspace.opportunityId}`}>Required materials</h5><p>{workspace.materials.summary}</p></div><a href="/materials">Open Materials <ArrowIcon /></a></header>
-      <ul>{workspace.materials.mappedRequirements.map((requirement) => <li key={requirement.type} data-state={requirement.state}>
+      <ul ref={materialListRef}>{workspace.materials.mappedRequirements.map((requirement) => <li key={requirement.type} data-motion-key={requirement.type} data-state={requirement.state}>
         <span className={styles.materialState} aria-hidden="true">{requirement.state === "selected" || requirement.state === "available" ? <CheckIcon /> : "—"}</span>
         <div><strong>{requirement.typeLabel}</strong><small>{requirement.recentlyAdded ? "Verified requirement · Added by provider" : "Verified requirement"}</small></div>
         {requirement.selected ? <span className={styles.selectedMaterial}>{requirement.selected.title}{requirement.selected.versionLabel ? ` · ${requirement.selected.versionLabel}` : ""}<small>Selected · marked {requirement.selected.status === "ready" ? "Ready" : "Needs attention"} by you</small></span>
@@ -279,7 +282,7 @@ export function ApplicationWorkspace({ initial, opportunityTitle, submission }: 
       </li>)}</ul>
       <p>Available means you have a record marked Ready. Confirm the provider’s exact format before submitting.</p>
     </section> : workspace.materials.requirementsVerified ? <p className={styles.materialsUnknown}>UnlockED verified application requirements, but none map to reusable material types.</p> : null}
-    {workspace.tasks.length ? <section className={styles.taskSection} aria-labelledby={`application-tasks-${workspace.opportunityId}`}><header><h5 id={`application-tasks-${workspace.opportunityId}`}>Application requirements and your tasks</h5><span>{workspace.unfinishedCount ? `${workspace.unfinishedCount} remaining` : "All complete"}</span></header><ul className={styles.tasks}>{orderedTasks.map((task, index) => <li key={task.id} data-task-source={task.source} data-source-start={index === 0 || orderedTasks[index - 1]?.source !== task.source ? "true" : undefined} data-completed={task.completed ? "true" : undefined} data-pending={pending === task.id ? "true" : undefined}>
+    {workspace.tasks.length ? <section className={styles.taskSection} aria-labelledby={`application-tasks-${workspace.opportunityId}`}><header><h5 id={`application-tasks-${workspace.opportunityId}`}>Application requirements and your tasks</h5><span>{workspace.unfinishedCount ? `${workspace.unfinishedCount} remaining` : "All complete"}</span></header><ul ref={taskListRef} className={styles.tasks}>{orderedTasks.map((task, index) => <li key={task.id} data-motion-key={task.id} data-task-source={task.source} data-source-start={index === 0 || orderedTasks[index - 1]?.source !== task.source ? "true" : undefined} data-completed={task.completed ? "true" : undefined} data-pending={pending === task.id ? "true" : undefined}>
       <button type="button" className={styles.check} aria-pressed={task.completed} aria-busy={pending === task.id ? "true" : undefined} aria-label={`${task.completed ? "Mark incomplete" : "Mark complete"}: ${task.title}`} disabled={Boolean(pending)} onClick={() => {
         const completed = !task.completed;
         void mutate({ action: "set_completion", taskId: task.id, completed }, task.id, {
@@ -307,7 +310,7 @@ export function ApplicationWorkspace({ initial, opportunityTitle, submission }: 
       </form>
     </details>
 
-    {workspace.readyForSubmission ? <div className={styles.ready}><div><strong>Everything looks ready.</strong><span>Did you submit your application?</span></div>{submission ? <button type="button" disabled={Boolean(pending)} aria-busy={pending === "submit" ? "true" : undefined} data-action-state={pending === "submit" ? "loading" : "idle"} onClick={() => void markApplied()}><ActionButtonLabel phase={pending === "submit" ? "pending" : "idle"} idle="Mark as Applied" pending="Saving application…" /></button> : null}</div> : null}
+    {workspace.readyForSubmission ? <div className={styles.ready} data-motion-surface="state"><div><strong>Everything looks ready.</strong><span>Did you submit your application?</span></div>{submission ? <button type="button" disabled={Boolean(pending)} aria-busy={pending === "submit" ? "true" : undefined} data-action-state={pending === "submit" ? "loading" : "idle"} onClick={() => void markApplied()}><ActionButtonLabel phase={pending === "submit" ? "pending" : "idle"} idle="Mark as Applied" pending="Saving application…" /></button> : null}</div> : null}
     {message ? <ActionFeedback message={message} state="success" level="routine" /> : null}
     {error ? <ActionFeedback message={error} state="error" level="confirmatory" action={retry ? { label: "Try again", onClick: retry, pending: Boolean(pending) } : undefined} /> : null}
     <p className="sr-only" aria-live="polite" aria-atomic="true">{announcement}</p>

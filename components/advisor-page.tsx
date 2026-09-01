@@ -16,7 +16,7 @@ import { accountSessionEvent, readAccountSession } from "@/data/account-sync";
 import { authenticatedFetch } from "@/data/authenticated-request";
 import { rememberRecommendationAttribution, trackProductError, trackProductEvent } from "@/data/product-analytics";
 import { productIntelligenceEvents } from "@/lib/analytics-types";
-import { ArrowIcon, SearchIcon } from "./icons";
+import { ArrowIcon, BookmarkIcon, CheckIcon, SearchIcon } from "./icons";
 import { OrganizationLogo } from "./organization-logo";
 import { AddToJourneyButton } from "./opportunity-activity";
 import type { FeedbackType } from "@/lib/advisor/types";
@@ -25,6 +25,7 @@ import { AdvisorRecommendationLoading } from "./loading-system";
 import { DelayedPendingLabel } from "./delayed-pending-label";
 import { SmartEmptyState } from "./smart-empty-state";
 import { useUndoRecovery } from "./undo-recovery";
+import { useLayoutContinuity } from "./use-layout-continuity";
 
 type ForYouPageState = "loading" | "pro_ready" | "free_preview" | "profile_incomplete" | "empty" | "preparing" | "error";
 type SessionReadiness = "checking" | "authenticated" | "unauthenticated" | "error";
@@ -450,6 +451,7 @@ function ProIntelligenceExperience({ state, briefing, onFeedback }: { state: Adv
   const [watched, setWatched] = useState(() => new Set(briefing.watchingIds ?? []));
   const [watchPending, setWatchPending] = useState("");
   const [watchError, setWatchError] = useState("");
+  const topPicksRef = useLayoutContinuity<HTMLOListElement>(topPicks.map((view) => view.recommendation.id).join(":"));
   const toggleWatch = async (id: string) => {
     if (!id || watchPending) return;
     setWatchError("");
@@ -493,7 +495,7 @@ function ProIntelligenceExperience({ state, briefing, onFeedback }: { state: Adv
         <div><p>Shortlist</p><h2 id="top-picks-title">Top picks</h2></div>
         {state.recommendations.length >= 2 ? <button type="button" className={styles.compareModeButton} aria-pressed={comparisonMode} onClick={() => { setComparisonMode((current) => !current); setSelected([]); trackProductEvent(productIntelligenceEvents.forYouPriorityViewUsed, { control: "comparison" }); }}>{comparisonMode ? "Done comparing" : "Compare shortlist"}</button> : null}
       </div>
-      <ol className={styles.editorialList}>{topPicks.map((view, index) => <li key={view.recommendation.id}><RecommendationCard view={view} insight={briefing.insights[opportunityId(view)]} index={index} onFeedback={onFeedback} decisionActions={decisionActions(view)} featured={index === 0} /></li>)}</ol>
+      <ol ref={topPicksRef} className={styles.editorialList}>{topPicks.map((view, index) => <li key={view.recommendation.id} data-motion-key={view.recommendation.id}><RecommendationCard view={view} insight={briefing.insights[opportunityId(view)]} index={index} onFeedback={onFeedback} decisionActions={decisionActions(view)} featured={index === 0} /></li>)}</ol>
     </section>
 
     {exploration.length ? <BriefingGroup eyebrow="Adjacent match" title="Worth exploring" recommendations={exploration} briefing={briefing} onFeedback={onFeedback} getDecisionActions={decisionActions} /> : null}
@@ -510,8 +512,9 @@ function ProIntelligenceExperience({ state, briefing, onFeedback }: { state: Adv
 }
 
 function WatchingList({ items, pendingId, onToggle }: { items: ForYouWatchingItem[]; pendingId: string; onToggle: (id: string) => Promise<void> }) {
+  const listRef = useLayoutContinuity<HTMLOListElement>(items.map((item) => item.opportunityId).join(":"));
   if (!items.length) return null;
-  return <details className={styles.utilityDisclosure}><summary><span>Watching</span><strong>{items.length}</strong></summary><ol>{items.slice(0, 4).map((item) => <li key={item.opportunityId}><Link href={item.href}><strong>{item.title}</strong><span>{item.organization}</span></Link><button type="button" onClick={() => void onToggle(item.opportunityId)} disabled={pendingId === item.opportunityId} aria-label={`Stop watching ${item.title}`}>{pendingId === item.opportunityId ? "Updating…" : "Remove"}</button></li>)}</ol></details>;
+  return <details className={styles.utilityDisclosure}><summary><span>Watching</span><strong>{items.length}</strong></summary><ol ref={listRef}>{items.slice(0, 4).map((item) => <li key={item.opportunityId} data-motion-key={item.opportunityId}><Link href={item.href}><strong>{item.title}</strong><span>{item.organization}</span></Link><button type="button" onClick={() => void onToggle(item.opportunityId)} disabled={pendingId === item.opportunityId} aria-label={`Stop watching ${item.title}`}>{pendingId === item.opportunityId ? "Updating…" : "Remove"}</button></li>)}</ol></details>;
 }
 
 type DecisionActions = { watched: boolean; watchPending: boolean; selected: boolean; comparisonMode: boolean; onWatch: () => void; onCompare: () => void };
@@ -520,12 +523,12 @@ function DecisionControls({ actions }: { actions: DecisionActions }) {
   return <div className={styles.decisionControls}>
     {actions.comparisonMode
       ? <button type="button" onClick={actions.onCompare} aria-pressed={actions.selected}>{actions.selected ? "Selected" : "Select"}</button>
-      : <button type="button" onClick={actions.onWatch} disabled={actions.watchPending} aria-pressed={actions.watched}>{actions.watchPending ? "Updating…" : actions.watched ? "Watching" : "Watch"}</button>}
+      : <button type="button" onClick={actions.onWatch} disabled={actions.watchPending} aria-pressed={actions.watched} data-action-state={actions.watchPending ? "loading" : actions.watched ? "success" : "idle"}><span className={styles.watchStateIcon} aria-hidden="true"><BookmarkIcon /><CheckIcon /></span><span>{actions.watchPending ? "Updating…" : actions.watched ? "Watching" : "Watch"}</span></button>}
   </div>;
 }
 
 function CompareTray({ count, onClear }: { count: number; onClear: () => void }) {
-  return <aside className={styles.compareTray} aria-live="polite"><strong>{count < 2 ? "Choose one more to compare" : `Comparing ${count} opportunities`}</strong><button type="button" onClick={onClear}>Clear</button></aside>;
+  return <aside className={styles.compareTray} data-motion-surface="state" aria-live="polite"><strong>{count < 2 ? "Choose one more to compare" : `Comparing ${count} opportunities`}</strong><button type="button" onClick={onClear}>Clear</button></aside>;
 }
 
 function OpportunityComparison({ recommendations, briefing, onClear }: { recommendations: RecommendationViewModel[]; briefing: ForYouBriefing; onClear: () => void }) {
@@ -546,7 +549,7 @@ function OpportunityComparison({ recommendations, briefing, onClear }: { recomme
     trackProductEvent(productIntelligenceEvents.forYouComparisonOpened, { status: "active" });
     recommendations.forEach((view) => trackProductEvent(productIntelligenceEvents.forYouOpportunityCompared, { opportunityId: opportunityId(view) }));
   }, [comparisonKey]);
-  return <section className={styles.comparison} aria-labelledby="compare-title">
+  return <section className={styles.comparison} data-motion-surface="workflow" aria-labelledby="compare-title">
     <div className={styles.sectionHeading}><div><p>Comparison</p><h2 id="compare-title">Differences</h2></div><button type="button" onClick={onClear}>Close comparison</button></div>
     {!rows.length ? <p className={styles.comparisonNote}>The recorded facts do not show a meaningful difference yet. Open each opportunity for full details.</p> : null}
     <div className={styles.comparisonScroll}><table><thead><tr><th scope="col">Detail</th>{recommendations.map((view) => <th key={opportunityId(view)} scope="col"><Link href={view.href}>{view.opportunity?.title ?? view.recommendation.title}</Link></th>)}</tr></thead><tbody>{rows.map((row) => <tr key={row.label}><th scope="row">{row.label}</th>{projections.map((item) => <td key={`${row.label}-${item.opportunityId}`}>{row.value(item) || "—"}</td>)}</tr>)}</tbody></table></div>
@@ -566,11 +569,12 @@ function HowForYouWorks({ signals }: { signals: string[] }) {
 }
 
 function BriefingGroup({ eyebrow, title, recommendations, briefing, onFeedback, getDecisionActions }: { eyebrow: string; title: string; recommendations: RecommendationViewModel[]; briefing: ForYouBriefing; onFeedback: RecommendationFeedbackHandler; getDecisionActions?: (view: RecommendationViewModel) => DecisionActions }) {
+  const listRef = useLayoutContinuity<HTMLOListElement>(recommendations.map((view) => view.recommendation.id).join(":"));
   if (!recommendations.length) return null;
   const id = `${title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-title`;
   return <section className={styles.briefingSection} aria-labelledby={id}>
     <div className={styles.sectionHeading}><div><p>{eyebrow}</p><h2 id={id}>{title}</h2></div><span>{recommendations.length}</span></div>
-    <ol className={styles.editorialList}>{recommendations.map((view, index) => <li key={view.recommendation.id}><RecommendationCard view={view} insight={briefing.insights[opportunityId(view)]} index={index} onFeedback={onFeedback} decisionActions={getDecisionActions?.(view)} /></li>)}</ol>
+    <ol ref={listRef} className={styles.editorialList}>{recommendations.map((view, index) => <li key={view.recommendation.id} data-motion-key={view.recommendation.id}><RecommendationCard view={view} insight={briefing.insights[opportunityId(view)]} index={index} onFeedback={onFeedback} decisionActions={getDecisionActions?.(view)} /></li>)}</ol>
   </section>;
 }
 

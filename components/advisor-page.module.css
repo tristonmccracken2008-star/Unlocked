@@ -343,6 +343,28 @@
   color: rgb(var(--color-forest));
 }
 
+.decisionControls button > span:last-child { min-width: 4.25rem; }
+
+.watchStateIcon {
+  position: relative;
+  display: inline-grid;
+  width: 1rem;
+  height: 1rem;
+  margin-right: .35rem;
+  place-items: center;
+}
+
+.watchStateIcon svg {
+  position: absolute;
+  width: .9rem;
+  height: .9rem;
+  transition: opacity var(--motion-micro) var(--motion-ease), transform var(--motion-standard) var(--motion-ease-emphasis);
+}
+
+.watchStateIcon svg:last-child { opacity: 0; transform: scale(.72); }
+.decisionControls button[aria-pressed="true"] .watchStateIcon svg:first-child { opacity: 0; transform: scale(.76); }
+.decisionControls button[aria-pressed="true"] .watchStateIcon svg:last-child { opacity: 1; transform: scale(1); }
+
 .decisionControls button[aria-pressed="true"] {
   border-color: rgb(var(--color-forest) / .45);
   background: rgb(var(--color-forest) / .08);

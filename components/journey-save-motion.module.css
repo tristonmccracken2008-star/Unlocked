@@ -16,67 +16,6 @@
   will-change: transform, opacity;
 }
 
-.burst {
-  position: fixed;
-  z-index: 82;
-  width: 1px;
-  height: 1px;
-  pointer-events: none;
-  animation: journey-save-burst-life 720ms linear both;
-}
-
-.burst::before {
-  position: absolute;
-  inset: -28px;
-  border: 1px solid rgb(var(--color-forest) / 0.46);
-  border-radius: 999px;
-  content: "";
-  animation: journey-save-ring 520ms var(--motion-ease-emphasis) both;
-  box-shadow: 0 0 24px rgb(var(--color-gold) / 0.16);
-}
-
-.burst > i {
-  --particle-x: 0px;
-  --particle-y: -32px;
-  --particle-rotation: 20deg;
-  position: absolute;
-  top: -3px;
-  left: -2px;
-  width: 4px;
-  height: 7px;
-  border-radius: 1px;
-  background: rgb(var(--color-forest));
-  animation: journey-save-particle 620ms var(--motion-ease-emphasis) both;
-  will-change: transform, opacity;
-}
-
-.burst > i:nth-child(2n) { background: rgb(var(--color-gold)); }
-.burst > i:nth-child(1) { --particle-x: 0px; --particle-y: -39px; --particle-rotation: 16deg; }
-.burst > i:nth-child(2) { --particle-x: 29px; --particle-y: -27px; --particle-rotation: 54deg; animation-delay: 25ms; }
-.burst > i:nth-child(3) { --particle-x: 38px; --particle-y: 1px; --particle-rotation: 88deg; animation-delay: 45ms; }
-.burst > i:nth-child(4) { --particle-x: 25px; --particle-y: 30px; --particle-rotation: 132deg; }
-.burst > i:nth-child(5) { --particle-x: -2px; --particle-y: 38px; --particle-rotation: 176deg; animation-delay: 35ms; }
-.burst > i:nth-child(6) { --particle-x: -30px; --particle-y: 25px; --particle-rotation: 218deg; }
-.burst > i:nth-child(7) { --particle-x: -39px; --particle-y: -2px; --particle-rotation: 264deg; animation-delay: 45ms; }
-.burst > i:nth-child(8) { --particle-x: -26px; --particle-y: -29px; --particle-rotation: 310deg; animation-delay: 20ms; }
-
-@keyframes journey-save-ring {
-  0% { opacity: 0; transform: scale(0.34); }
-  28% { opacity: 0.72; }
-  100% { opacity: 0; transform: scale(1.42); }
-}
-
-@keyframes journey-save-particle {
-  0% { opacity: 0; transform: translate3d(0, 0, 0) rotate(0) scale(0.55); }
-  20% { opacity: 0.9; }
-  100% { opacity: 0; transform: translate3d(var(--particle-x), var(--particle-y), 0) rotate(var(--particle-rotation)) scale(0.78); }
-}
-
-@keyframes journey-save-burst-life {
-  from { opacity: 1; }
-  to { opacity: 0.99; }
-}
-
 .flight::before {
   position: absolute;
   top: 4px;
@@ -88,37 +27,8 @@
   content: "";
 }
 
-.chip {
-  position: fixed;
-  z-index: 81;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  min-height: 32px;
-  padding: 6px 11px;
-  pointer-events: none;
-  white-space: nowrap;
-  color: rgb(255 255 255);
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0;
-  border-radius: 999px;
-  background: rgb(var(--color-forest) / 0.96);
-  box-shadow: 0 10px 28px rgb(var(--color-forest) / 0.2);
-  animation: journey-save-chip 1100ms var(--motion-ease-emphasis) both;
-  will-change: transform, opacity;
-  left: 50%;
-  bottom: 24px;
-}
-
-@keyframes journey-save-chip {
-  0% { opacity: 0; transform: translate(-50%, 5px) scale(0.98); }
-  18%, 68% { opacity: 1; transform: translate(-50%, 0) scale(1); }
-  100% { opacity: 0; transform: translate(-50%, -7px) scale(0.99); }
-}
-
 :global([data-journey-destination][data-journey-arrival="true"]) {
-  animation: journey-destination-surface 560ms var(--motion-ease-emphasis) both;
+  animation: journey-destination-surface var(--motion-deliberate) var(--motion-ease-emphasis) both;
 }
 
 @keyframes journey-destination-surface {
@@ -132,7 +42,7 @@
 }
 
 :global([data-journey-destination][data-journey-arrival="true"] [data-journey-destination-icon]) {
-  animation: journey-destination-icon 560ms var(--motion-ease-emphasis) both;
+  animation: journey-destination-icon var(--motion-deliberate) var(--motion-ease-emphasis) both;
 }
 
 @keyframes journey-destination-icon {
@@ -141,7 +51,7 @@
 }
 
 :global([data-journey-save-card="confirmed"]) {
-  animation: journey-card-confirmed 760ms var(--motion-ease-emphasis) both;
+  animation: journey-card-confirmed var(--motion-deliberate) var(--motion-ease-emphasis) both;
 }
 
 @keyframes journey-card-confirmed {
@@ -161,29 +71,9 @@
     display: none;
   }
 
-  .burst {
-    display: none;
-  }
-
-  .chip {
-    animation: journey-save-chip-reduced 420ms ease-out both;
-  }
-
   :global([data-journey-destination][data-journey-arrival="true"]),
   :global([data-journey-destination][data-journey-arrival="true"] [data-journey-destination-icon]),
   :global([data-journey-save-card="confirmed"]) {
     animation: none;
   }
-}
-
-@media (max-width: 639px) {
-  .chip {
-    bottom: max(84px, calc(env(safe-area-inset-bottom) + 72px));
-  }
-}
-
-@keyframes journey-save-chip-reduced {
-  0% { opacity: 0; transform: translate(-50%, 0); }
-  25%, 75% { opacity: 1; transform: translate(-50%, 0); }
-  100% { opacity: 0; transform: translate(-50%, 0); }
 }

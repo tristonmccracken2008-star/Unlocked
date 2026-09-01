@@ -3,6 +3,7 @@
 import {
   useEffect,
   useMemo,
+  useRef,
   useState,
   useTransition,
   type FormEvent,
@@ -27,6 +28,7 @@ import { trackProductEvent } from "@/data/product-analytics";
 import styles from "./resume-lab.module.css";
 import { extractClaims } from "@/lib/resume-intelligence";
 import { BuildNavigation } from "./build-navigation";
+import { useLayoutContinuity } from "./use-layout-continuity";
 
 type Tab = "resumes" | "experience";
 const sectionLabels: Partial<Record<ResumeSectionKind, string>> = { education: "Education", experience: "Experience", projects: "Projects", research: "Research", leadership: "Leadership", activities: "Activities", awards: "Awards", skills: "Skills" };
@@ -889,6 +891,7 @@ export function ResumeLab({
       model.resumes[0],
     [model, selectedId],
   );
+  const resumeStripRef = useLayoutContinuity<HTMLDivElement>(model.resumes.map((resume) => `${resume.id}:${resume.version}:${resume.statusLabel}`).join("|"));
   useEffect(() => {
     trackProductEvent("resume_lab_opened_v1");
   }, []);
@@ -1021,10 +1024,11 @@ export function ResumeLab({
         {tab === "resumes" ? (
           model.resumes.length ? (
             <>
-              <div className={styles.resumeStrip}>
+              <div ref={resumeStripRef} className={styles.resumeStrip}>
                 {model.resumes.map((resume) => (
                   <button
                     key={resume.id}
+                    data-motion-key={resume.id}
                     type="button"
                     aria-pressed={resume.id === selected?.id}
                     onClick={() => setSelectedId(resume.id)}
@@ -1043,13 +1047,14 @@ export function ResumeLab({
                 ))}
               </div>
               {selected ? (
-                <ResumeEditor
-                  key={`${selected.id}:${selected.version}:${initialTargetId ?? "general"}`}
-                  resume={selected}
-                  model={model}
-                  save={save}
-                  initialTargetId={initialTargetId}
-                />
+                <div key={`${selected.id}:${selected.version}:${initialTargetId ?? "general"}`} className={styles.resumeTransition} data-motion-surface="state">
+                  <ResumeEditor
+                    resume={selected}
+                    model={model}
+                    save={save}
+                    initialTargetId={initialTargetId}
+                  />
+                </div>
               ) : null}
             </>
           ) : (

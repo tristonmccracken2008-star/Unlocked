@@ -27,6 +27,7 @@ import { ArrowIcon, CheckIcon, ListIcon } from "@/components/icons";
 import { SmartEmptyState } from "@/components/smart-empty-state";
 import styles from "./application-materials.module.css";
 import { BuildNavigation } from "./build-navigation";
+import { useLayoutContinuity } from "./use-layout-continuity";
 
 const contextLabels: Record<ApplicationMaterialContext, string> = {
   general: "General",
@@ -233,6 +234,7 @@ function MaterialRow({
     <article
       className={styles.row}
       id={`material-${record.id}`}
+      data-motion-key={record.id}
       data-status={record.status}
     >
       <div className={styles.identity}>
@@ -396,6 +398,7 @@ function MaterialsSection({
   pending: string;
   onMutate: (body: Record<string, unknown>, key: string) => Promise<boolean>;
 }) {
+  const rowsRef = useLayoutContinuity<HTMLDivElement>(records.map((record) => `${record.id}:${record.status}:${record.updatedAt}`).join("|"));
   if (!records.length) return null;
   return (
     <section
@@ -408,7 +411,7 @@ function MaterialsSection({
         </h2>
         <span>{records.length}</span>
       </header>
-      <div className={styles.rows}>
+      <div ref={rowsRef} className={styles.rows}>
         {records.map((record) => (
           <MaterialRow
             key={record.id}

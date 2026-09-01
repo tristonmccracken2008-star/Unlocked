@@ -81,7 +81,7 @@
 .overview { display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: .85rem; margin-top: 2.4rem; }
 .overview > a { position: relative; display: grid; min-width: 0; min-height: 8.8rem; align-content: start; border: 1px solid var(--journey-line); border-radius: .75rem; background: color-mix(in srgb, var(--journey-panel) 90%, transparent); color: inherit; padding: 1.05rem 1.15rem; text-decoration: none; box-shadow: 0 7px 22px rgba(40, 30, 22, .03); transition: border-color 160ms ease, transform 160ms ease, box-shadow 160ms ease; }
 .overview > a:hover { border-color: color-mix(in srgb, var(--journey-green) 45%, var(--journey-line)); transform: translateY(-2px); box-shadow: 0 12px 28px rgba(40, 30, 22, .07); }
-.overview > a[data-value-changed="true"] { animation: journey-overview-updated 720ms var(--motion-ease) both; }
+.overview > a[data-value-changed="true"] { animation: journey-overview-updated var(--motion-deliberate) var(--motion-ease) both; }
 @keyframes journey-overview-updated {
   0% { opacity: .66; transform: translateY(3px); }
   100% { opacity: 1; transform: translateY(0); }
@@ -191,7 +191,7 @@
 .record[data-urgency="overdue"]::before { background: var(--journey-error); }
 .record[data-urgency="interview"]::before { background: var(--journey-blue); }
 .record:last-child { border-bottom: 0; }
-.record[data-recently-updated="true"] { animation: journey-row-confirmed 1800ms var(--motion-ease) both; }
+.record[data-recently-updated="true"] { animation: journey-row-confirmed var(--motion-deliberate) var(--motion-ease) both; }
 @keyframes journey-row-confirmed {
   0% { background: color-mix(in srgb, var(--journey-green) 14%, var(--journey-panel)); }
   28% { background: color-mix(in srgb, var(--journey-green) 9%, var(--journey-panel)); }

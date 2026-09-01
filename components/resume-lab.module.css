@@ -99,6 +99,8 @@
   background: white;
   transform: translateY(-1px);
 }
+.resumeStrip button[aria-pressed="true"] { transform: translateY(0); }
+.resumeTransition { min-width: 0; }
 .resumeStrip strong,
 .resumeStrip small {
   display: block;

@@ -20,6 +20,7 @@
   --motion-micro: 140ms;
   --motion-standard: 220ms;
   --motion-surface: 280ms;
+  --motion-deliberate: 320ms;
   --motion-success: 360ms;
   --motion-celebration: 1200ms;
   --motion-ease: cubic-bezier(.2, .7, .2, 1);
@@ -175,14 +176,6 @@ button, input, select, textarea { font: inherit; }
   outline: 0;
 }
 
-#main-content > :where(main, section) {
-  animation: unlocked-page-enter var(--motion-surface) var(--motion-ease-emphasis) both;
-}
-@keyframes unlocked-page-enter {
-  from { opacity: .72; transform: translateY(4px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
 :where(
   [data-ui-card],
   [data-discover-opportunity],
@@ -197,11 +190,11 @@ button, input, select, textarea { font: inherit; }
 }
 @media (hover: hover) and (pointer: fine) {
   :where(
-    [data-ui-card],
-    [data-discover-opportunity],
-    [data-for-you-card],
-    [data-profile-identity-card],
-    [data-journey-card-entry]
+    [data-ui-card][data-clickable="true"],
+    [data-discover-opportunity][data-clickable="true"],
+    [data-for-you-card][data-clickable="true"],
+    [data-profile-identity-card][data-clickable="true"],
+    [data-journey-card-entry][data-clickable="true"]
   ):hover {
     transform: translateY(-2px);
     box-shadow: var(--elevation-hover);
@@ -348,11 +341,16 @@ dialog[open]::backdrop { opacity: 1; }
   opacity: .62;
   transform: translateY(2px);
 }
-[data-filter-results] > * { animation: unlocked-results-in var(--motion-standard) var(--motion-ease) both; }
-@keyframes unlocked-results-in {
-  from { opacity: .65; transform: translateY(3px); }
+
+[data-motion-surface] {
+  animation: unlocked-surface-in var(--motion-standard) var(--motion-ease-emphasis) both;
+}
+@keyframes unlocked-surface-in {
+  from { opacity: .72; transform: translateY(4px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+[data-motion-key] { transform-origin: center; }
 
 [data-loading-region][data-loading-delay="true"] {
   animation: unlocked-loading-reveal 1ms linear 300ms both;
