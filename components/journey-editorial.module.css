@@ -9,7 +9,7 @@
   --unlocked-border: var(--journey-border);
   min-height: 100vh;
   overflow: hidden;
-  background: var(--journey-canvas);
+  background: radial-gradient(ellipse 48rem 34rem at 86% 8%, var(--unlocked-accent-glow), transparent 74%), radial-gradient(ellipse 44rem 30rem at 4% 32%, var(--unlocked-ambient-c), transparent 78%), var(--journey-canvas);
   color: var(--journey-text-primary);
 }
 
@@ -64,8 +64,11 @@
   gap: 4.5rem;
   align-items: start;
   margin-top: 4.25rem;
-  border-top: 1px solid var(--unlocked-border);
-  padding-top: 2.5rem;
+  border: 1px solid var(--unlocked-border-highlight);
+  border-radius: var(--radius-panel);
+  background: var(--unlocked-surface-subtle);
+  padding: 2.6rem;
+  box-shadow: var(--shadow-md), var(--surface-inner-highlight);
 }
 
 .orientation {
@@ -178,8 +181,13 @@
 }
 
 .nextStep {
-  border-left: 2px solid var(--journey-green);
-  padding: .25rem 0 .25rem 1.75rem;
+  border: 1px solid var(--unlocked-border-highlight);
+  border-radius: var(--radius-surface);
+  background: var(--unlocked-glass);
+  padding: 1.75rem;
+  box-shadow: var(--shadow-elevated), var(--surface-inner-highlight);
+  backdrop-filter: blur(var(--blur-standard));
+  -webkit-backdrop-filter: blur(var(--blur-standard));
 }
 
 .nextStep h2 {
@@ -226,6 +234,8 @@
   border: 1px solid transparent;
   border-radius: .35rem;
   background: var(--journey-forest-strong);
+  background-image: linear-gradient(to bottom, rgb(255 255 255 / .1), rgb(0 0 0 / .08));
+  box-shadow: inset 0 1px rgb(255 255 255 / .15), 0 12px 28px color-mix(in srgb, var(--journey-green) 18%, transparent);
   padding-inline: 1.15rem;
   color: var(--journey-text-inverse);
   cursor: pointer;

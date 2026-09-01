@@ -1,4 +1,4 @@
-.page { min-height: 72vh; padding: 3rem 1.25rem 7rem; color: var(--unlocked-text); }
+.page { min-height: 72vh; padding: 3rem 1.25rem 7rem; color: var(--unlocked-text); background: radial-gradient(ellipse 46rem 28rem at 90% 0%, var(--unlocked-ambient-a), transparent 74%), transparent; }
 .shell { width: min(1440px, 100%); margin: 0 auto; }
 .hero { display: flex; align-items: flex-end; justify-content: space-between; gap: 2rem; padding-bottom: 2rem; border-bottom: 1px solid var(--unlocked-border); }
 .hero h1 { margin-top: .4rem; font: 700 clamp(3.25rem, 6vw, 5.6rem)/.92 Iowan Old Style, Baskerville, Georgia, serif; }
@@ -10,12 +10,12 @@
 .overview { display: grid; grid-template-columns: minmax(18rem, 1fr) minmax(34rem, .9fr); gap: 2rem; align-items: end; padding: 2rem 0; border-bottom: 1px solid var(--unlocked-border); }
 .overviewCopy h2 { margin-top: .45rem; font: 700 clamp(1.9rem, 3vw, 3rem)/1.02 Iowan Old Style, Baskerville, Georgia, serif; }
 .overviewCopy > p:last-child { margin-top: .65rem; color: var(--unlocked-muted); font-size: .84rem; }
-.counts { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--unlocked-border); border-radius: .65rem; background: var(--unlocked-surface); }
+.counts { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--unlocked-border-highlight); border-radius: var(--radius-surface); background: var(--unlocked-surface-subtle); box-shadow: var(--shadow-sm), var(--surface-inner-highlight); }
 .counts div { padding: 1rem 1.1rem; border-right: 1px solid var(--unlocked-border); }
 .counts div:last-child { border: 0; }
 .counts dt { color: var(--unlocked-muted); font-size: .66rem; font-weight: 750; text-transform: uppercase; }
 .counts dd { margin-top: .25rem; color: rgb(var(--color-forest)); font: 700 2rem/1 Iowan Old Style, Baskerville, Georgia, serif; }
-.attention { margin: 1.5rem 0 2rem; border: 1px solid var(--unlocked-border); border-radius: .65rem; background: var(--unlocked-surface); }
+.attention { margin: 1.5rem 0 2rem; border: 1px solid var(--unlocked-border-highlight); border-radius: var(--radius-surface); background: var(--unlocked-glass-subtle); box-shadow: var(--shadow-md), var(--surface-inner-highlight); }
 .attention > header, .applications > header { display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; padding: 1rem 1.15rem; border-bottom: 1px solid var(--unlocked-border); }
 .attention h2, .applications h2 { margin-top: .2rem; font: 700 1.5rem/1.05 Iowan Old Style, Baskerville, Georgia, serif; }
 .attention > header > span { color: var(--unlocked-muted); font-size: .7rem; }
@@ -27,7 +27,7 @@
 .attention p { margin-top: .12rem; color: var(--unlocked-muted); font-size: .7rem; line-height: 1.45; }
 .attention li > a { display: grid; min-width: 2.75rem; min-height: 2.75rem; place-items: center; color: rgb(var(--color-forest)); }
 .workspaceGrid { display: grid; grid-template-columns: minmax(0, 1fr) 19rem; gap: 1.5rem; align-items: start; }
-.applications { min-width: 0; border: 1px solid var(--unlocked-border); border-radius: .65rem; background: var(--unlocked-surface); overflow: hidden; }
+.applications { min-width: 0; overflow: hidden; border: 1px solid var(--unlocked-border-highlight); border-radius: var(--radius-panel); background: var(--unlocked-surface-elevated); box-shadow: var(--shadow-md), var(--surface-inner-highlight); }
 .applications > header { align-items: center; }
 .filters { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .35rem; }
 .filters button { min-height: 2.4rem; border-radius: 999px; padding: .42rem .65rem; color: var(--unlocked-muted); font-size: .7rem; font-weight: 700; }
@@ -65,7 +65,7 @@
 .detailBody footer a, .detailBody footer button { display: inline-flex; min-height: 2.75rem; align-items: center; gap: .4rem; border: 1px solid var(--unlocked-border); border-radius: .45rem; padding: .55rem .75rem; font-size: .7rem; font-weight: 750; }
 .detailBody footer button { background: rgb(var(--color-forest)); color: white; }
 .context { display: grid; gap: 1rem; }
-.context > section { border: 1px solid var(--unlocked-border); border-radius: .65rem; background: var(--unlocked-surface); padding: 1rem; }
+.context > section { border: 1px solid var(--unlocked-border-highlight); border-radius: var(--radius-surface); background: var(--unlocked-surface-subtle); padding: 1.1rem; box-shadow: var(--shadow-sm), var(--surface-inner-highlight); }
 .context header { display: flex; align-items: center; justify-content: space-between; gap: .75rem; padding-bottom: .7rem; border-bottom: 1px solid var(--unlocked-border); }
 .context header a { display: inline-flex; align-items: center; gap: .35rem; color: rgb(var(--color-forest)); font-size: .68rem; font-weight: 750; }
 .cluster { margin: .75rem 0 .25rem; border-radius: .35rem; background: rgb(var(--color-gold) / .1); padding: .55rem .65rem; color: rgb(var(--color-espresso)); font-size: .7rem; font-weight: 750; }

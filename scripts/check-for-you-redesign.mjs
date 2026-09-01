@@ -28,7 +28,8 @@ assert.ok(!briefing.includes("opportunityById.values()"), "Dynamic briefing deco
 assert.ok(decision.includes('kind: "eligibility"') && decision.includes('kind: "strategy"') && decision.includes('kind: "exploration"'), "Explanation precedence must be deterministic and factual.");
 assert.ok(advisorStyles.includes("border-radius: 8px") && advisorStyles.includes("content-visibility: auto"), "For You styling must keep restrained geometry and defer below-fold rendering.");
 assert.ok(advisorStyles.includes("prefers-reduced-motion: reduce") && advisorStyles.includes("@media (max-width: 640px)"), "For You must support reduced motion and mobile layouts.");
-assert.ok(!advisor.includes("radial-gradient") && !advisorStyles.includes("gradient"), "For You must not use generic decorative gradients.");
+const featuredRule = advisorStyles.match(/\.recommendationFeatured\s*\{([^}]*)\}/)?.[1] ?? "";
+assert.ok(!advisor.includes("radial-gradient") && !featuredRule.includes("gradient"), "For You recommendation content must not use generic decorative gradients.");
 
 for (const symbol of ["buildRecommendationService", "recommendationMatchLabel", "buildAdvisorBrain", "inferApplicationsFromActivity", "completed.has"]) {
   assert.ok(service.includes(symbol) || forYouApi.includes(symbol) || forYouSnapshot.includes(symbol), `Canonical recommendation service must include ${symbol}.`);

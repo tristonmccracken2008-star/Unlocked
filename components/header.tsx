@@ -328,7 +328,7 @@ export function Header() {
 
   if (!authenticated) {
     return (
-      <header className="sticky top-0 z-30 border-b border-ink/10 bg-paper/90 backdrop-blur-xl">
+      <header data-product-header="" data-scrolled={scrolled ? "true" : "false"} className="sticky top-0 z-30 border-b border-ink/10 bg-paper/90 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 sm:px-8">
           <Logo className="py-4" />
           <div className="py-4">

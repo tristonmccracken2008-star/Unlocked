@@ -321,8 +321,8 @@ async function verifyDiscover(page: Page, origin: string, screenshotLabel: strin
       title: getComputedStyle(card.querySelector("h3 a")!).color,
       description: getComputedStyle(card.querySelector("p[class*='line-clamp']")!).color,
     }));
-    assert.match(cardTextColors.title, /251,\s*243,\s*232/, "Discover card titles must use the readable dark-theme text token.");
-    assert.match(cardTextColors.description, /251,\s*243,\s*232/, "Discover card descriptions must use the readable dark-theme text token.");
+    assert.match(cardTextColors.title, /244,\s*247,\s*251/, "Discover card titles must use the readable dark-theme text token.");
+    assert.match(cardTextColors.description, /244,\s*247,\s*251/, "Discover card descriptions must use the readable dark-theme text token.");
   }
   await assertStableLayout(page, screenshotLabel);
   await page.screenshot({ path: path.join(outputDirectory, `${screenshotLabel}-discover.png`), fullPage: true, caret: "initial" });

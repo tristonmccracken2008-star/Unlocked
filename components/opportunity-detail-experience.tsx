@@ -33,6 +33,7 @@ export function OpportunityDetailExperience({
     <>
       <header
         data-opportunity-detail=""
+        data-visual-hero="opportunity"
         data-opportunity-kind={model.kind}
         className="border-b border-ink/10 bg-white px-5 py-9 sm:px-8 sm:py-14"
       >
@@ -77,6 +78,7 @@ export function OpportunityDetailExperience({
             </div>
             <aside
               aria-label="Opportunity decision"
+              data-visual-focus-surface=""
               className="rounded-lg border border-ink/10 bg-paper p-5 shadow-soft lg:sticky lg:top-24"
             >
               <p className="rule-label text-forest">Your next action</p>
@@ -151,7 +153,7 @@ export function OpportunityDetailExperience({
         </div>
       </header>
 
-      <main className="px-5 py-12 sm:px-8 sm:py-16">
+      <main data-visual-reading-surface="" className="px-5 py-12 sm:px-8 sm:py-16">
         <div className="mx-auto max-w-5xl space-y-14">
           <EligibilitySection model={model} />
           <ApplicationSection model={model} />

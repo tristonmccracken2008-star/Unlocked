@@ -140,7 +140,7 @@ async function exercise(browser: Browser, origin: string, token: string, name: s
       pageHeading: getComputedStyle(document.querySelector("h1")!).color,
       identityHeading: getComputedStyle(document.querySelector("[data-profile-identity-card] h2")!).color,
     }));
-    assert.deepEqual(themeColors, { pageHeading: "rgb(251, 243, 232)", identityHeading: "rgb(251, 243, 232)" }, "Midnight Profile headings must use the active high-contrast theme token.");
+    assert.deepEqual(themeColors, { pageHeading: "rgb(244, 247, 251)", identityHeading: "rgb(244, 247, 251)" }, "Midnight Profile headings must use the active high-contrast theme token.");
     await page.waitForTimeout(250);
     await page.screenshot({ path: "/tmp/unlocked-profile-identity-dark-mobile.png", fullPage: false, caret: "initial" });
   }

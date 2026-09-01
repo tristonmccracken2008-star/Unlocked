@@ -137,7 +137,7 @@ for (const layout of Object.keys(pathMomentLayouts) as Array<keyof typeof pathMo
     theme="dark"
   />);
   assert.match(darkMarkup, /data-export-theme="dark"/);
-  assert.match(darkMarkup, /fill="#17120f"/);
+  assert.match(darkMarkup, /fill="#0b111b"/);
   assert.match(darkMarkup, new RegExp(`width="${pathMomentLayouts[layout].width}"`));
   assert.match(darkMarkup, new RegExp(`height="${pathMomentLayouts[layout].height}"`));
 }

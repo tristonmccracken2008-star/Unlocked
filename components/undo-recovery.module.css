@@ -4,10 +4,12 @@
   right: max(1rem, env(safe-area-inset-right));
   bottom: max(1rem, env(safe-area-inset-bottom));
   width: min(24rem, calc(100vw - 2rem));
-  filter: drop-shadow(0 16px 28px rgb(20 35 28 / 14%));
+  pointer-events: none;
+  filter: drop-shadow(0 22px 38px rgb(8 13 20 / 24%));
   animation: undo-enter 180ms cubic-bezier(.2, .7, .2, 1) both;
 }
-.host > div { background: var(--unlocked-surface); }
+.host > div { border-color: var(--unlocked-border-highlight); background: var(--unlocked-glass-strong); box-shadow: var(--shadow-elevated), var(--surface-inner-highlight); backdrop-filter: blur(var(--blur-elevated)); -webkit-backdrop-filter: blur(var(--blur-elevated)); }
+.host :is(button, a) { pointer-events: auto; }
 .count {
   display: block;
   margin-top: .35rem;

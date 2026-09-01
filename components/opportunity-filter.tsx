@@ -437,7 +437,7 @@ export function OpportunityFilter({ opportunities: initialOpportunities = [] }: 
       <p className="mt-5 max-w-2xl text-base leading-7 text-ink/60">Search UnlockED’s complete catalog of scholarships, internships, research, student tools, and benefits.</p>
     </header>
 
-    <section className="mt-8 max-w-5xl rounded-[1.5rem] bg-white/50 p-3 shadow-[0_18px_55px_rgba(43,33,26,.05)] ring-1 ring-ink/10 sm:p-4" aria-label="Search opportunities">
+    <section data-discover-search-shell="" className="mt-8 max-w-5xl rounded-[1.5rem] bg-white/50 p-3 shadow-[0_18px_55px_rgba(43,33,26,.05)] ring-1 ring-ink/10 sm:p-4" aria-label="Search opportunities">
       <div data-search-surface="" className="flex min-h-16 items-center gap-4 rounded-2xl border border-transparent bg-white px-5 shadow-[0_12px_34px_rgba(43,33,26,.065)] ring-1 ring-ink/10">
         <SearchIcon className="h-5 w-5 text-forest" />
         <label htmlFor="discover-search" className="sr-only">Search all opportunities</label>
@@ -506,7 +506,7 @@ export function OpportunityFilter({ opportunities: initialOpportunities = [] }: 
 }
 
 function FilterPanel({ filters, update, clearFilters, activeFilterCount, categories, majors }: { filters: FilterState; update: (partial: Partial<FilterState>, eventName?: FilterKey) => void; clearFilters: () => void; activeFilterCount: number; categories: string[]; majors: string[] }) {
-  return <section className="rounded-[1.25rem] bg-white/70 p-5 shadow-[0_14px_45px_rgba(43,33,26,.04)] ring-1 ring-ink/10">
+  return <section data-discover-filter-panel="" className="rounded-[1.25rem] bg-white/70 p-5 shadow-[0_14px_45px_rgba(43,33,26,.04)] ring-1 ring-ink/10">
     <div className="flex items-center justify-between gap-3 border-b border-ink/10 pb-4"><p className="rule-label text-ink/45">Filters</p><button type="button" onClick={clearFilters} className="min-h-11 text-xs font-black text-forest hover:text-ink">{activeFilterCount ? "Clear all" : "Reset"}</button></div>
     <div className="mt-5 space-y-5">
       <FilterGroup title="Opportunity">

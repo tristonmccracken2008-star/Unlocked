@@ -7,7 +7,7 @@
 .toggle { display: flex; border: 1px solid var(--journey-line); border-radius: .55rem; padding: .2rem; }
 .toggle button, .add, .dayPanel header button { min-height: 44px; border: 0; border-radius: .38rem; background: transparent; color: var(--journey-muted); padding: 0 .75rem; font-size: .66rem; font-weight: 800; cursor: pointer; }
 .toggle button[aria-pressed="true"] { background: var(--journey-panel); color: var(--journey-green); box-shadow: 0 2px 8px rgba(28, 22, 17, .06); }
-.add { min-height: 44px; border: 1px solid color-mix(in srgb, var(--journey-green) 42%, var(--journey-line)); background: transparent; color: var(--journey-green); }
+.add { min-height: 44px; scroll-margin-block-start: 6rem; border: 1px solid color-mix(in srgb, var(--journey-green) 42%, var(--journey-line)); background: transparent; color: var(--journey-green); }
 .add:hover { border-color: var(--journey-green); background: color-mix(in srgb, var(--journey-green) 6%, transparent); }
 .upcoming { display: grid; gap: .8rem; margin-top: .8rem; }
 .group { display: grid; grid-template-columns: 5.4rem minmax(0, 1fr); align-items: start; gap: .8rem; }

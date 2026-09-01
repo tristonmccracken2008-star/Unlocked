@@ -13,8 +13,8 @@
 }
 
 .page[data-theme="dark"] {
-  --journey-canvas: #17120f;
-  --journey-panel: #211a16;
+  --journey-canvas: #0b111b;
+  --journey-panel: #141e2d;
   --journey-ink: #fbf3e8;
   --journey-muted: #c2b7aa;
   --journey-green: #91c9ad;

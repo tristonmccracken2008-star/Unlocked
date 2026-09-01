@@ -4,4 +4,4 @@ import { requireCompletedOnboarding } from "@/lib/onboarding";
 
 export const metadata: Metadata = { title: "Discover Opportunities", description: "Search verified student scholarships, benefits, AI tools, internships, research programs, fellowships, and competitions." };
 export const dynamic="force-dynamic";
-export default async function Page(){await requireCompletedOnboarding();return <section className="bg-paper px-5 py-10 sm:px-8 sm:py-14"><div className="mx-auto max-w-[112rem]"><OpportunityFilter /></div></section>}
+export default async function Page(){await requireCompletedOnboarding();return <section data-visual-page="discover" className="px-5 py-10 sm:px-8 sm:py-14"><div className="mx-auto max-w-[112rem]"><OpportunityFilter /></div></section>}

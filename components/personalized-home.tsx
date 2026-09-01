@@ -109,7 +109,7 @@ function WorkspaceLoading() {
 }
 
 function LoggedOutLanding({ authIssue }: { authIssue: string }) {
-  return <main className="bg-paper">
+  return <main className="visual-public-page bg-paper">
     <section className="px-5 py-20 sm:px-8 sm:py-28">
       <div className="mx-auto grid max-w-7xl gap-14 lg:grid-cols-[minmax(0,1fr)_420px] lg:items-end">
         <div className="max-w-5xl">
@@ -119,8 +119,8 @@ function LoggedOutLanding({ authIssue }: { authIssue: string }) {
           <p className="mt-5 max-w-xl text-sm leading-7 text-ink/45">Sign in with Google, complete one short profile, and start with the opportunities most likely to matter.</p>
           {authIssue && <div role="alert" className="mt-7 max-w-2xl rounded-2xl border border-red-700/20 bg-white px-5 py-4 text-sm font-bold leading-6 text-red-700">{authIssue}</div>}
         </div>
-        <div className="rounded-[2rem] bg-white/75 p-4 shadow-soft ring-1 ring-ink/8">
-          <div className="rounded-[1.4rem] bg-paper p-5">
+        <div className="visual-hero-preview p-4">
+          <div className="visual-hero-preview-inner p-5">
             <div className="flex items-center justify-between border-b border-ink/10 pb-4"><p className="rule-label text-forest">Today</p><span className="text-xs font-bold text-ink/35">Verified</span></div>
             <div className="py-6">
               <p className="text-xs font-bold uppercase tracking-wider text-ink/35">Best match</p>

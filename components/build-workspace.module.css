@@ -2,6 +2,7 @@
   min-height: 75vh;
   padding: 3rem 1.25rem 7rem;
   color: var(--unlocked-text);
+  background: radial-gradient(ellipse 48rem 30rem at 80% 4%, var(--unlocked-ambient-a), transparent 72%), radial-gradient(ellipse 38rem 26rem at 8% 48%, var(--unlocked-ambient-c), transparent 76%), transparent;
 }
 .shell {
   width: min(1180px, 100%);
@@ -34,7 +35,14 @@
   align-items: end;
   gap: 2rem;
   padding: 2.5rem 0;
-  border-bottom: 1px solid var(--unlocked-border);
+  margin-top: 1.5rem;
+  border: 1px solid var(--unlocked-border-highlight);
+  border-radius: var(--radius-panel);
+  background: var(--unlocked-glass);
+  padding: 2.5rem;
+  box-shadow: var(--shadow-elevated), var(--surface-inner-highlight);
+  backdrop-filter: blur(var(--blur-standard));
+  -webkit-backdrop-filter: blur(var(--blur-standard));
 }
 .next h2 {
   margin: 0.35rem 0;
@@ -108,11 +116,11 @@
   align-items: center;
   gap: 1.5rem;
   margin-top: 1.35rem;
-  border: 1px solid var(--unlocked-border);
-  border-left: 3px solid rgb(var(--color-forest));
-  border-radius: 8px;
-  background: var(--unlocked-surface);
+  border: 1px solid var(--unlocked-border-highlight);
+  border-radius: var(--radius-surface);
+  background: var(--unlocked-surface-subtle);
   padding: 1.35rem 1.5rem;
+  box-shadow: var(--shadow-sm), var(--surface-inner-highlight);
 }
 .resumeFeature > div > span:first-child {
   font-size: 0.68rem;

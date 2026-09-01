@@ -191,7 +191,7 @@ try {
   await mobilePage.getByText("20 accomplishments").waitFor();
   await mobilePage.evaluate(() => { document.documentElement.dataset.theme = "midnight"; document.documentElement.style.colorScheme = "dark"; });
   assert.equal(await mobilePage.locator('html[data-theme="midnight"]').count(), 1, "The accomplishment record must honor the selected dark theme.");
-  assert.equal(await mobilePage.locator("[data-accomplishments]").evaluate((element) => getComputedStyle(element).color), "rgb(251, 243, 232)", "The record must inherit the active dark-theme text token.");
+  assert.equal(await mobilePage.locator("[data-accomplishments]").evaluate((element) => getComputedStyle(element).color), "rgb(244, 247, 251)", "The record must inherit the active dark-theme text token.");
   await assertNoOverflow(mobilePage, "Mobile accomplishment record");
   await mobilePage.screenshot({ path: `${output}/senior-mobile-dark.png`, fullPage: true, caret: "initial" });
   mobileNoErrors();

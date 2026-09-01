@@ -1,4 +1,4 @@
-.page { --planner-line: color-mix(in srgb, var(--unlocked-text) 11%, transparent); padding: 3.5rem 2rem 7rem; }
+.page { --planner-line: color-mix(in srgb, var(--unlocked-text) 11%, transparent); padding: 3.5rem 2rem 7rem; background: radial-gradient(ellipse 44rem 28rem at 90% 2%, var(--unlocked-ambient-a), transparent 76%), transparent; }
 .shell { max-width: 1440px; margin: 0 auto; }
 .hero { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 2rem; padding-bottom: 2.5rem; border-bottom: 1px solid var(--planner-line); }
 .eyebrow { color: rgb(var(--color-forest)); font-size: .7rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }

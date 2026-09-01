@@ -1,5 +1,6 @@
 .page {
   padding: 3rem 1.25rem 6rem;
+  background: radial-gradient(ellipse 48rem 30rem at 84% 2%, var(--unlocked-ambient-a), transparent 72%), radial-gradient(ellipse 36rem 28rem at 8% 44%, var(--unlocked-ambient-c), transparent 78%), transparent;
 }
 .shell {
   max-width: 80rem;
@@ -11,7 +12,7 @@
   justify-content: space-between;
   gap: 2rem;
   padding-bottom: 2rem;
-  border-bottom: 1px solid rgb(43 33 26/0.1);
+  border-bottom: 1px solid var(--unlocked-border);
 }
 .hero h1 {
   margin: 0.45rem 0;
@@ -22,7 +23,7 @@
 }
 .hero p {
   max-width: 42rem;
-  color: rgb(43 33 26/0.58);
+  color: var(--unlocked-muted);
   line-height: 1.65;
 }
 .heroActions,
@@ -36,8 +37,12 @@
   gap: 0.4rem;
   margin: 1.4rem 0;
   padding: 0.3rem;
-  border-radius: 12px;
-  background: rgb(255 255 255/0.45);
+  border: 1px solid var(--unlocked-border-highlight);
+  border-radius: var(--radius-surface);
+  background: var(--unlocked-glass-subtle);
+  box-shadow: var(--shadow-sm), var(--surface-inner-highlight);
+  backdrop-filter: blur(var(--blur-subtle));
+  -webkit-backdrop-filter: blur(var(--blur-subtle));
   width: max-content;
   max-width: 100%;
   overflow: auto;
@@ -54,9 +59,9 @@
   white-space: nowrap;
 }
 .tabs button[aria-current="page"] {
-  background: white;
-  color: var(--unlocked-forest);
-  box-shadow: 0 8px 24px rgb(43 33 26/0.07);
+  background: var(--unlocked-surface-elevated);
+  color: rgb(var(--color-forest));
+  box-shadow: var(--shadow-sm), var(--surface-inner-highlight);
 }
 .tabs svg {
   width: 1rem;
@@ -88,15 +93,15 @@
 .resumeStrip button {
   text-align: left;
   padding: 1rem;
-  border: 1px solid rgb(43 33 26/0.1);
+  border: 1px solid var(--unlocked-border);
   border-radius: 10px;
-  background: rgb(255 255 255/0.55);
+  background: var(--unlocked-surface-subtle);
   transition: 0.18s;
 }
 .resumeStrip button:hover,
 .resumeStrip button[aria-pressed="true"] {
-  border-color: rgb(12 91 66/0.35);
-  background: white;
+  border-color: rgb(var(--color-forest) / .36);
+  background: var(--unlocked-surface-elevated);
   transform: translateY(-1px);
 }
 .resumeStrip button[aria-pressed="true"] { transform: translateY(0); }
@@ -121,9 +126,12 @@
 .audit,
 .alignment {
   padding: 1.35rem;
-  border: 1px solid rgb(43 33 26/0.1);
-  border-radius: 12px;
-  background: rgb(255 255 255/0.58);
+  border: 1px solid var(--unlocked-border-highlight);
+  border-radius: var(--radius-panel);
+  background: var(--unlocked-glass);
+  box-shadow: var(--shadow-md), var(--surface-inner-highlight);
+  backdrop-filter: blur(var(--blur-standard));
+  -webkit-backdrop-filter: blur(var(--blur-standard));
 }
 .editorPanel h2,
 .bank h2 {
@@ -143,19 +151,19 @@
   margin-top: 1rem;
   font-size: 0.78rem;
   font-weight: 750;
-  color: rgb(43 33 26/0.7);
+  color: var(--unlocked-text);
 }
 .editorPanel label span {
   font-weight: 500;
-  color: rgb(43 33 26/0.4);
+  color: var(--unlocked-muted);
 }
 .editorPanel input,
 .editorPanel textarea,
 .editorPanel select {
   width: 100%;
-  border: 1px solid rgb(43 33 26/0.15);
+  border: 1px solid var(--unlocked-border);
   border-radius: 8px;
-  background: white;
+  background: var(--unlocked-surface-elevated);
   padding: 0.75rem;
   color: var(--unlocked-text);
   font: inherit;
@@ -188,9 +196,9 @@
   gap: 0.7rem;
   margin: 0;
   padding: 0.65rem;
-  border: 1px solid rgb(43 33 26/0.08);
+  border: 1px solid var(--unlocked-border);
   border-radius: 8px;
-  background: white;
+  background: var(--unlocked-surface-subtle);
 }
 .checkList input {
   width: auto;
@@ -201,7 +209,7 @@
 }
 .checkList small,
 .quiet {
-  color: rgb(43 33 26/0.48);
+  color: var(--unlocked-muted);
   font-weight: 500;
 }
 .actions {

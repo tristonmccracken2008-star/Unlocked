@@ -9,3 +9,4 @@
 
 .sectionHeading h2,.areaCopy strong,.experienceItem strong,.serendipity h2,.landscapeIntro h2,.opportunityCopy h3,.adjacent h2{color:rgb(var(--color-ink))}
 @media(prefers-reduced-motion:reduce){.areaRow{transition:none}.areaRow:hover{transform:none}}
+.page{background:radial-gradient(ellipse 46rem 28rem at 86% 2%,var(--unlocked-ambient-a),transparent 74%),rgb(var(--color-paper))}
