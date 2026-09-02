@@ -161,11 +161,11 @@ try {
   await mobilePage.getByRole("heading", { name: "Discover what’s possible." }).waitFor();
   await mobilePage.evaluate(() => { document.documentElement.dataset.theme = "midnight"; document.documentElement.style.colorScheme = "dark"; });
   const colors = await mobilePage.locator("[data-opportunity-explorer]").evaluate((element) => ({ color: getComputedStyle(element).color, background: getComputedStyle(element).backgroundColor }));
-  assert.deepEqual(colors, { color: "rgb(244, 247, 251)", background: "rgb(11, 17, 27)" });
+  assert.deepEqual(colors, { color: "rgb(241, 243, 242)", background: "rgb(17, 23, 29)" });
   const sectionHeadingColor = await mobilePage.getByRole("heading", { name: "Areas connected to what you study" }).evaluate((element) => getComputedStyle(element).color);
   const areaHeadingColor = await mobilePage.getByText("Computer Science", { exact: true }).first().evaluate((element) => getComputedStyle(element).color);
-  assert.equal(sectionHeadingColor, "rgb(244, 247, 251)");
-  assert.equal(areaHeadingColor, "rgb(244, 247, 251)");
+  assert.equal(sectionHeadingColor, "rgb(241, 243, 242)");
+  assert.equal(areaHeadingColor, "rgb(241, 243, 242)");
   await assertNoOverflow(mobilePage, "Explorer mobile WebKit");
   await mobilePage.screenshot({ path: `${output}/landing-mobile-webkit-dark.png`, fullPage: true, caret: "initial" });
   mobileNoErrors();

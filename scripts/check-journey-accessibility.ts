@@ -73,12 +73,12 @@ function contrast(foreground: string, background: string) {
 }
 
 const contrastChecks = {
-  lightPrimary: contrast("#2b211a", "#f6f0e6"),
-  lightSecondary: contrast("#6f675f", "#f6f0e6"),
-  lightGreen: contrast("#1f5f43", "#f6f0e6"),
-  darkPrimary: contrast("#f4f7fb", "#0b111b"),
-  darkSecondary: contrast("#c9d1dc", "#0b111b"),
-  darkGreen: contrast("#82c7a3", "#0b111b"),
+  lightPrimary: contrast("#0f1419", "#f7f8f8"),
+  lightSecondary: contrast("#34404c", "#f7f8f8"),
+  lightGreen: contrast("#1e7f56", "#f7f8f8"),
+  darkPrimary: contrast("#f1f3f2", "#11171d"),
+  darkSecondary: contrast("#c9d1dc", "#11171d"),
+  darkGreen: contrast("#82c7a3", "#11171d"),
 };
 for (const [name, value] of Object.entries(contrastChecks)) assert.ok(value >= 4.5, `${name} must meet WCAG AA; received ${value.toFixed(2)}.`);
 

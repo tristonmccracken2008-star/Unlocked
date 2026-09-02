@@ -23,7 +23,7 @@ function contrast(foreground: string, background: string) {
   const values = [luminance(foreground), luminance(background)].sort((left, right) => right - left);
   return (values[0] + 0.05) / (values[1] + 0.05);
 }
-for (const [foreground, background] of [["#2b211a", "#f6f0e6"], ["#1f5f43", "#f6f0e6"], ["#f4f7fb", "#0b111b"], ["#82c7a3", "#0b111b"]] as const) assert.ok(contrast(foreground, background) >= 4.5);
+for (const [foreground, background] of [["#0f1419", "#f7f8f8"], ["#1e7f56", "#f7f8f8"], ["#f1f3f2", "#11171d"], ["#82c7a3", "#11171d"]] as const) assert.ok(contrast(foreground, background) >= 4.5);
 
 assert.match(journey, /<ol className=\{styles\.timeline\} aria-label="Journey events in chronological order">/);
 assert.match(journey, /JourneyTimelineControl/);

@@ -13,6 +13,12 @@ const search = read("components/universal-command-center.module.css");
 const packageJson = read("package.json");
 
 for (const token of [
+  "--canvas",
+  "--surface-solid",
+  "--surface-glass",
+  "--border-soft",
+  "--text-primary",
+  "--brand-soft",
   "--unlocked-surface-subtle",
   "--unlocked-surface-elevated",
   "--unlocked-glass-subtle",
@@ -23,6 +29,11 @@ for (const token of [
   "--radius-panel",
   "--blur-elevated",
 ]) assert.match(globalStyles, new RegExp(token), `Missing visual-language token ${token}.`);
+
+for (const referenceValue of ["#f7f8f8", "#0f1419", "#1e7f56", "#125d3e", "#eef2f5"]) {
+  assert.match(globalStyles, new RegExp(referenceValue), `The approved mockup foundation must preserve ${referenceValue}.`);
+}
+assert.match(globalStyles, /\[data-product-header\][\s\S]*border-radius:\s*var\(--radius-surface\)/, "The production header must use the approved floating-glass geometry.");
 
 assert.match(globalStyles, /radial-gradient/, "The global shell needs static ambient depth.");
 assert.doesNotMatch(globalStyles, /@keyframes[^}]*gradient/i, "Authenticated ambient gradients must remain static.");

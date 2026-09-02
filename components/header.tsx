@@ -442,7 +442,7 @@ export function Header() {
                   href={item.href}
                   className="group flex min-h-14 items-center gap-3 rounded-lg px-3 py-2 text-left hover:bg-forest/[.065] focus:bg-forest/[.065] focus:outline-none focus:ring-2 focus:ring-forest/20"
                 >
-                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-forest/[.075] text-forest">
+                  <span className="grid h-8 w-8 shrink-0 place-items-center text-forest">
                     <Icon className="h-4 w-4" />
                   </span>
                   <span className="min-w-0 flex-1">
@@ -522,7 +522,7 @@ export function Header() {
       <nav
         aria-label="Mobile navigation"
         data-primary-navigation=""
-        className="fixed inset-x-4 bottom-[max(1rem,env(safe-area-inset-bottom))] z-40 grid grid-cols-4 rounded-full bg-ink/95 p-1 text-[11px] font-bold text-white shadow-[0_20px_60px_rgba(43,33,26,.24)] backdrop-blur sm:hidden"
+        className="fixed inset-x-4 bottom-[env(safe-area-inset-bottom)] z-40 grid grid-cols-4 rounded-full bg-ink/95 p-0 text-[11px] font-bold text-white shadow-[0_20px_60px_rgba(43,33,26,.24)] backdrop-blur sm:hidden"
       >
         {destinations.map(([label, href]) => navigationLink(label, href, true))}
       </nav>

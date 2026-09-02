@@ -11,9 +11,9 @@ const semanticKeys: Array<keyof JourneyThemeTokens> = [
   "pathAlternate", "pathClosed", "border", "borderStrong", "focus", "error", "success", "dark",
 ];
 for (const theme of [journeyLightTheme, journeyDarkTheme]) for (const key of semanticKeys) assert.notEqual(theme[key], undefined, `${theme.name} is missing ${key}.`);
-assert.equal(journeyDarkTheme.canvas, "#0b111b");
-assert.equal(journeyDarkTheme.surface, "#141e2d");
-assert.equal(journeyDarkTheme.textPrimary, "#f4f7fb");
+assert.equal(journeyDarkTheme.canvas, "#11171d");
+assert.equal(journeyDarkTheme.surface, "#202a34");
+assert.equal(journeyDarkTheme.textPrimary, "#f1f3f2");
 assert.equal(journeyDarkTheme.forest, "#82c7a3");
 assert.equal(journeyDarkTheme.gold, "#d4b06a");
 assert.deepEqual(

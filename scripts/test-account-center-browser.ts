@@ -140,7 +140,7 @@ async function exercise(browser: Browser, origin: string, token: string, name: s
       pageHeading: getComputedStyle(document.querySelector("h1")!).color,
       identityHeading: getComputedStyle(document.querySelector("[data-profile-identity-card] h2")!).color,
     }));
-    assert.deepEqual(themeColors, { pageHeading: "rgb(244, 247, 251)", identityHeading: "rgb(244, 247, 251)" }, "Midnight Profile headings must use the active high-contrast theme token.");
+    assert.deepEqual(themeColors, { pageHeading: "rgb(241, 243, 242)", identityHeading: "rgb(241, 243, 242)" }, "Midnight Profile headings must use the active high-contrast theme token.");
     await page.waitForTimeout(250);
     await page.screenshot({ path: "/tmp/unlocked-profile-identity-dark-mobile.png", fullPage: false, caret: "initial" });
   }
@@ -185,7 +185,7 @@ try {
     await install(context, origin, free.session.token);
     await context.route("**/api/auth/session", (route) => route.fulfill({ status: 503, contentType: "application/json", body: JSON.stringify({ error: "temporary_failure" }) }));
     const page = await context.newPage();
-    await page.goto(`${origin}/profile`, { waitUntil: "domcontentloaded" });
+    await page.goto(`${origin}/profile`, { waitUntil: "networkidle" });
     await page.getByRole("heading", { name: "Your account." }).waitFor();
     await page.getByText("Your account details could not be refreshed. Your session is still active; retry or refresh the page.").waitFor();
     assert.equal(await page.getByRole("heading", { name: "Your session has ended." }).count(), 0, "Temporary session API failure must not show a false sign-out state.");
@@ -196,7 +196,7 @@ try {
     const context = await chromiumBrowser.newContext({ viewport: { width: 640, height: 900 } });
     await install(context, origin, free.session.token);
     const page = await context.newPage();
-    await page.goto(`${origin}/profile`, { waitUntil: "domcontentloaded" });
+    await page.goto(`${origin}/profile`, { waitUntil: "networkidle" });
     await page.getByRole("heading", { name: "Avery Verified", exact: true }).waitFor();
     assert.ok(await page.locator("[data-profile-identity-card]").isVisible(), "Identity card must remain visible at a 200% reflow-equivalent viewport.");
     assert.ok(await page.getByRole("button", { name: "Edit profile", exact: true }).isVisible(), "Primary identity edit action must remain reachable at 200% reflow.");
@@ -222,9 +222,10 @@ try {
       else await route.continue();
     });
     const page = await context.newPage();
-    await page.goto(`${origin}/profile`, { waitUntil: "domcontentloaded" });
+    await page.goto(`${origin}/profile`, { waitUntil: "networkidle" });
     await page.getByRole("heading", { name: "Avery Verified", exact: true }).waitFor();
-    await page.locator("#first-name").fill("Unsaved");
+    await page.getByRole("button", { name: "No changes to save" }).waitFor();
+    await page.locator("#first-name").fill(`Unsaved ${Date.now()}`);
     await page.getByRole("button", { name: "Save profile" }).click();
     await page.getByText("Profile could not be saved.").waitFor();
     await page.getByRole("heading", { name: "Avery Verified", exact: true }).waitFor();

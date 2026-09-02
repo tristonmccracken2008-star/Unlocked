@@ -1,8 +1,8 @@
 .page{min-height:calc(100vh - 72px);background:rgb(var(--color-paper,246 240 230));color:rgb(var(--color-ink,43 33 26))}
-.shell{width:min(1320px,calc(100% - 64px));margin:0 auto;padding:56px 0 88px}
-.eyebrow,.groupHeading>p,.stageIntro>p:first-of-type,.related>p{font:800 .69rem/1.2 ui-sans-serif,system-ui,sans-serif;text-transform:uppercase;letter-spacing:.12em;color:rgb(var(--color-forest,31 95 67))}
+.shell{width:min(1320px,calc(100% - 64px));margin:0 auto;padding:48px 0 88px}
+.eyebrow,.groupHeading>p,.stageIntro>p:first-of-type,.related>p{font:800 .69rem/1.2 var(--font-sans);text-transform:uppercase;letter-spacing:.12em;color:rgb(var(--color-forest,30 127 86))}
 .landingHeader{max-width:800px;padding:16px 0 48px}
-.landingHeader h1,.detailHeader h1,.unavailable h1{margin:12px 0 0;font:700 clamp(3rem,6vw,5.7rem)/.96 Georgia,"Times New Roman",serif;letter-spacing:0;color:rgb(var(--color-ink,43 33 26))}
+.landingHeader h1,.detailHeader h1,.unavailable h1{margin:12px 0 0;font:650 clamp(2.8rem,5vw,4.7rem)/.97 var(--font-editorial);letter-spacing:0;color:rgb(var(--color-ink,15 20 25))}
 .landingHeader>p:last-child,.detailHeader>div>p:last-child{max-width:680px;margin:20px 0 0;font:400 1.02rem/1.75 ui-sans-serif,system-ui,sans-serif;color:color-mix(in srgb,rgb(var(--color-ink,43 33 26)) 58%,transparent)}
 .pathGroup{display:grid;grid-template-columns:240px minmax(0,1fr);gap:42px;padding:38px 0;border-top:1px solid color-mix(in srgb,rgb(var(--color-ink,43 33 26)) 12%,transparent)}
 .groupHeading h2{margin:8px 0 0;font:700 1.8rem/1.1 Georgia,"Times New Roman",serif}

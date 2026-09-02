@@ -1,8 +1,8 @@
-.page { --planner-line: color-mix(in srgb, var(--unlocked-text) 11%, transparent); padding: 3.5rem 2rem 7rem; background: radial-gradient(ellipse 44rem 28rem at 90% 2%, var(--unlocked-ambient-a), transparent 76%), transparent; }
+.page { --planner-line: color-mix(in srgb, var(--unlocked-text) 11%, transparent); padding: 2.75rem 2rem 7rem; background: radial-gradient(ellipse 42rem 26rem at 90% 2%, var(--unlocked-ambient-a), transparent 78%), transparent; }
 .shell { max-width: 1440px; margin: 0 auto; }
 .hero { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 2rem; padding-bottom: 2.5rem; border-bottom: 1px solid var(--planner-line); }
 .eyebrow { color: rgb(var(--color-forest)); font-size: .7rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
-.title { margin-top: .65rem; max-width: 760px; color: var(--unlocked-text); font-family: var(--font-editorial), Georgia, serif; font-size: 5.2rem; line-height: .94; letter-spacing: 0; }
+.title { margin-top: .65rem; max-width: 760px; color: var(--unlocked-text); font-family: var(--font-editorial), Georgia, serif; font-size: clamp(2.7rem, 4.8vw, 4.5rem); line-height: .96; letter-spacing: 0; }
 .dek { margin-top: 1.25rem; max-width: 620px; color: color-mix(in srgb, var(--unlocked-text) 56%, transparent); font-size: .98rem; line-height: 1.7; }
 .heroLinks { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .75rem; }
 .linkButton, .primaryLink { display: inline-flex; min-height: 44px; align-items: center; justify-content: center; border-radius: 7px; padding: .7rem 1rem; font-size: .8rem; font-weight: 800; transition: transform 160ms ease, background 160ms ease, color 160ms ease; }

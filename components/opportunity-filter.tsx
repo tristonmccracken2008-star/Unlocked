@@ -433,7 +433,7 @@ export function OpportunityFilter({ opportunities: initialOpportunities = [] }: 
   return <>
     <header className="max-w-4xl">
       <p className="rule-label text-forest">Discover opportunities</p>
-      <h1 className="mt-4 font-editorial text-5xl font-bold leading-[.98] text-ink sm:text-7xl">Find what’s out there.</h1>
+      <h1 className="mt-4 font-editorial text-5xl font-semibold leading-[1] text-ink sm:text-6xl">Find what’s out there.</h1>
       <p className="mt-5 max-w-2xl text-base leading-7 text-ink/60">Search UnlockED’s complete catalog of scholarships, internships, research, student tools, and benefits.</p>
     </header>
 

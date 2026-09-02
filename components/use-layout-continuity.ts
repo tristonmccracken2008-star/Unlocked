@@ -39,7 +39,10 @@ export function useLayoutContinuity<T extends HTMLElement>(changeKey: string) {
         if (previous) {
           const x = previous.left - next.left;
           const y = previous.top - next.top;
-          if (Math.abs(x) > 0.5 || Math.abs(y) > 0.5) {
+          // Let rows displaced downward by an insertion take their final place
+          // immediately. Replaying their former position would stack them over
+          // the newly restored row, obscuring both actions during the transition.
+          if (y >= -0.5 && (Math.abs(x) > 0.5 || Math.abs(y) > 0.5)) {
             element.animate(
               [
                 { transform: `translate3d(${x}px, ${y}px, 0)` },

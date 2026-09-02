@@ -157,7 +157,7 @@ try {
   await mobilePage.getByRole("heading", { name: "International-Friendly" }).waitFor();
   await mobilePage.evaluate(() => { document.documentElement.dataset.theme = "midnight"; document.documentElement.style.colorScheme = "dark"; });
   const colors = await mobilePage.locator("[data-opportunity-collections]").evaluate((element) => ({ color: getComputedStyle(element).color, background: getComputedStyle(element).backgroundColor }));
-  assert.deepEqual(colors, { color: "rgb(244, 247, 251)", background: "rgb(11, 17, 27)" });
+  assert.deepEqual(colors, { color: "rgb(241, 243, 242)", background: "rgb(17, 23, 29)" });
   await assertNoOverflow(mobilePage, "Collections mobile WebKit");
   await mobilePage.screenshot({ path: `${output}/international-mobile-webkit-dark.png`, fullPage: true, caret: "initial" });
   mobileNoErrors();

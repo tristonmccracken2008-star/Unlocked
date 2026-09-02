@@ -114,7 +114,7 @@ function LoggedOutLanding({ authIssue }: { authIssue: string }) {
       <div className="mx-auto grid max-w-7xl gap-14 lg:grid-cols-[minmax(0,1fr)_420px] lg:items-end">
         <div className="max-w-5xl">
           <p className="rule-label text-forest">College opportunities, finally in one place</p>
-          <h1 className="mt-6 max-w-5xl font-editorial text-6xl font-bold leading-[.96] text-ink sm:text-8xl">Find what college forgot to tell you about.</h1>
+          <h1 className="mt-6 max-w-5xl font-editorial text-6xl font-semibold leading-[.98] text-ink sm:text-7xl">Find what college forgot to tell you about.</h1>
           <p className="mt-8 max-w-2xl text-lg leading-8 text-ink/60">UnlockED brings scattered scholarships, research, internships, AI tools, student benefits, and career resources into one calm place built around you.</p>
           <p className="mt-5 max-w-xl text-sm leading-7 text-ink/45">Sign in with Google, complete one short profile, and start with the opportunities most likely to matter.</p>
           {authIssue && <div role="alert" className="mt-7 max-w-2xl rounded-2xl border border-red-700/20 bg-white px-5 py-4 text-sm font-bold leading-6 text-red-700">{authIssue}</div>}

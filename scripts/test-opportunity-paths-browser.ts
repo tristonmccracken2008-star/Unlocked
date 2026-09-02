@@ -185,7 +185,7 @@ try {
   await mobilePage.getByRole("heading", { name: "Quantitative Finance & Data" }).waitFor();
   await mobilePage.evaluate(() => { document.documentElement.dataset.theme = "midnight"; document.documentElement.style.colorScheme = "dark"; });
   const darkColors = await mobilePage.locator("[data-opportunity-paths]").evaluate((element) => ({ color: getComputedStyle(element).color, background: getComputedStyle(element).backgroundColor }));
-  assert.deepEqual(darkColors, { color: "rgb(244, 247, 251)", background: "rgb(11, 17, 27)" }, "Paths must consume the shared dark-theme color tokens correctly.");
+  assert.deepEqual(darkColors, { color: "rgb(241, 243, 242)", background: "rgb(17, 23, 29)" }, "Paths must consume the shared dark-theme color tokens correctly.");
   await assertNoOverflow(mobilePage, "Mobile WebKit Path detail");
   await mobilePage.screenshot({ path: `${output}/quant-mobile-webkit-dark.png`, fullPage: true, caret: "initial" });
   mobileNoErrors();

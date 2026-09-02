@@ -1,6 +1,6 @@
 .page {
   min-height: 75vh;
-  padding: 3rem 1.25rem 7rem;
+  padding: 2.5rem 1.25rem 7rem;
   color: var(--unlocked-text);
   background: radial-gradient(ellipse 48rem 30rem at 80% 4%, var(--unlocked-ambient-a), transparent 72%), radial-gradient(ellipse 38rem 26rem at 8% 48%, var(--unlocked-ambient-c), transparent 76%), transparent;
 }
@@ -20,10 +20,11 @@
   max-width: 47rem;
   margin: 0.55rem 0 0.8rem;
   font-family: var(--font-editorial), serif;
-  font-size: clamp(2.8rem, 5.4vw, 5.2rem);
+  font-size: clamp(2.55rem, 4.6vw, 4.35rem);
   font-weight: 700;
   line-height: 0.96;
 }
+.header h1::after { margin-left: .55rem; color: rgb(var(--color-forest)); content: "✦"; font-family: var(--font-sans); font-size: .3em; vertical-align: .6em; }
 .header > div > p:last-child {
   max-width: 42rem;
   color: var(--unlocked-muted);
@@ -33,14 +34,13 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: end;
-  gap: 2rem;
-  padding: 2.5rem 0;
-  margin-top: 1.5rem;
+  gap: 1.5rem;
+  margin-top: 1.25rem;
   border: 1px solid var(--unlocked-border-highlight);
   border-radius: var(--radius-panel);
   background: var(--unlocked-glass);
-  padding: 2.5rem;
-  box-shadow: var(--shadow-elevated), var(--surface-inner-highlight);
+  padding: 2rem;
+  box-shadow: var(--shadow-md), var(--surface-inner-highlight);
   backdrop-filter: blur(var(--blur-standard));
   -webkit-backdrop-filter: blur(var(--blur-standard));
 }
@@ -73,7 +73,7 @@
   align-items: center;
   justify-content: center;
   gap: 1rem;
-  padding: 1.4rem 0;
+  padding: 1.15rem 0;
   color: var(--unlocked-muted);
   font-size: 0.72rem;
   font-weight: 750;
