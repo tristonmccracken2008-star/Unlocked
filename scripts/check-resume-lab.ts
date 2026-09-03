@@ -7,7 +7,7 @@ delete process.env.KV_REST_API_URL; delete process.env.KV_REST_API_TOKEN; delete
 Reflect.set(process.env, "NODE_ENV", "test");
 
 const { normalizeResumeLabStore } = await import("../data/resume-lab");
-const { draftBulletFromFacts, extractClaims, unsupportedClaims, auditResume, analyzeResumeAlignment } = await import("../lib/resume-intelligence");
+const { draftBulletFromFacts, bulletAlternatives, extractClaims, factDiscoveryQuestions, resumeStudioState, unsupportedClaims, auditResume, analyzeResumeAlignment } = await import("../lib/resume-intelligence");
 const { updateResumeLab } = await import("../lib/resume-lab-service");
 const { mergeAccountData, readAccountData, upsertUser } = await import("../lib/auth-store");
 const { publicAccountData } = await import("../lib/public-account");
@@ -16,6 +16,8 @@ const { opportunities } = await import("../data/opportunities");
 assert.equal(process.env.KV_REST_API_URL, undefined, "Resume Lab checks must never use production storage.");
 const facts = [{ id: "fact:action", kind: "action" as const, text: "Built a scheduling tool", confirmed: true }, { id: "fact:outcome", kind: "outcome" as const, text: "Used by 24 students", confirmed: true }];
 assert.deepEqual(draftBulletFromFacts(facts), { text: "Built a scheduling tool; Used by 24 students.", factIds: ["fact:action", "fact:outcome"] });
+assert.ok(bulletAlternatives(facts).length >= 2, "Confirmed facts should produce labeled wording alternatives without changing the evidence.");
+assert.ok(factDiscoveryQuestions("research").some((question) => /samples|records|papers/i.test(question)), "Fact discovery should adapt to experience type.");
 assert.equal(draftBulletFromFacts([{ ...facts[0], confirmed: false }]), null, "Unconfirmed facts must never generate resume text.");
 assert.deepEqual(extractClaims("Supported 20 students and improved attendance by 8%."), ["20 students", "8%"]);
 const unsupported = unsupportedClaims({ id: "bullet:1", text: "Built a tool used by 24 students and improved speed by 50%.", factIds: facts.map((item) => item.id), confirmedClaims: [], createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), version: 0 }, facts);
@@ -57,6 +59,8 @@ assert.match(authStore, /withSecurityLock\("resume-lab"/); assert.match(printPag
 assert.doesNotMatch(route, /STRIPE_SECRET|KV_REST_API_TOKEN|console\.log\(.*body/i);
 
 const audit = auditResume(saved.model.resumes[0], Object.fromEntries(saved.model.experiences.map((item) => [item.id, item]))); assert.equal(audit.issues.some((item) => item.title === "No resume bullets yet"), false);
+assert.equal(audit.layout.estimatedPages >= 1, true); assert.equal(Object.keys(audit.counts).length, 6, "Review findings must remain categorical rather than collapsing into a fake score.");
+const studio = resumeStudioState(saved.model.resumes[0], Object.fromEntries(saved.model.experiences.map((item) => [item.id, item])), audit); assert.ok(studio.nextAction.label); assert.equal(studio.factsCount, 2);
 const alignment = analyzeResumeAlignment(saved.model.resumes[0], Object.fromEntries(saved.model.experiences.map((item) => [item.id, item])), opportunity); assert.equal(typeof alignment.note, "string");
 const loadExperiences = Object.fromEntries(Array.from({ length: 300 }, (_, index) => { const experienceId = `experience:load-${index}`; const bulletList = Array.from({ length: 4 }, (__, bulletIndex) => ({ id: `bullet:load-${index}-${bulletIndex}`, text: `Built project ${index} for ${bulletIndex + 5} students.`, factIds: [`fact:load-${index}`], confirmedClaims: [], createdAt: now, updatedAt: now, version: 0 })); return [experienceId, { ...project, id: experienceId, facts: [{ id: `fact:load-${index}`, kind: "action" as const, text: `Built project ${index} for ${5} students`, confirmed: true }], bullets: bulletList }]; }));
 const loadResume = { ...saved.model.resumes[0], sections: [{ id: "section:load", kind: "experience" as const, title: "Experience", visible: true, entries: Object.values(loadExperiences).map((item) => ({ experienceId: item.id, bulletIds: item.bullets.map((bullet) => bullet.id) })) }] };

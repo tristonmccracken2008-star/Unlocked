@@ -205,17 +205,18 @@ try {
   await page.getByRole("link", { name: "Experience" }).first().click();
   await page.getByRole("heading", { name: "Experience Bank", exact: true }).waitFor();
   await page.getByLabel("Role or project").fill("Project Lead");
-  await page.getByLabel("Organization").fill("Student Team");
-  await page.getByLabel("What did you do?").fill("Built a scheduling tool");
+  await page.getByLabel("Organization", { exact: true }).fill("Student Team");
+  await page.getByLabel("What did you actually do?").fill("Built a scheduling tool");
   await page.getByLabel(/What happened/).fill("Used by 24 students");
   await page.getByRole("button", { name: "Add to Experience Bank" }).click();
   await page.getByText("Experience added from confirmed facts.").waitFor();
   await page.getByRole("button", { name: "Resumes 0" }).click();
   await page.getByRole("button", { name: "Create master resume" }).click();
   await page.getByText("Resume version created.").waitFor();
-  await page
-    .getByRole("heading", { name: "Master resume", exact: true })
-    .waitFor();
+  await page.getByRole("heading", { name: "Master resume", exact: true }).last().waitFor();
+  await page.getByRole("tab", { name: "review", exact: true }).click();
+  await page.getByText("Resume review").waitFor();
+  await page.getByRole("tab", { name: "edit", exact: true }).click();
   await page
     .locator("fieldset")
     .filter({ hasText: "Experience included" })
@@ -223,7 +224,7 @@ try {
     .click();
   await page.getByRole("button", { name: "Save draft" }).click();
   await page.getByText("Resume saved.").waitFor();
-  await page.getByRole("link", { name: "Export / print" }).waitFor();
+  await page.getByRole("link", { name: "Download PDF / print" }).waitFor();
   await noOverflow(page, "Resume Lab desktop");
   noErrors();
   await page.screenshot({
@@ -232,11 +233,11 @@ try {
   });
   const print = await desktop.newPage();
   const href = await page
-    .getByRole("link", { name: "Export / print" })
+    .getByRole("link", { name: "Download PDF / print" })
     .getAttribute("href");
   assert.ok(href);
   await print.goto(`${origin}${href}`, { waitUntil: "networkidle" });
-  await print.getByRole("button", { name: "Print or save as PDF" }).waitFor();
+  await print.getByRole("button", { name: "Download PDF / print" }).waitFor();
   assert.equal(
     await print
       .getByText("Built a scheduling tool; Used by 24 students.")

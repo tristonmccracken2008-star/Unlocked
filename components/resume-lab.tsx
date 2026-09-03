@@ -15,7 +15,7 @@ import type {
   ResumeDocumentView,
   ResumeExperienceView,
 } from "@/lib/resume-lab";
-import type { ResumeFactKind, ResumeSection, ResumeSectionKind } from "@/data/resume-lab";
+import type { ResumeDocumentRecord, ResumeFactKind, ResumeSection, ResumeSectionKind } from "@/data/resume-lab";
 import {
   ArrowIcon,
   CheckIcon,
@@ -26,12 +26,13 @@ import {
 } from "./icons";
 import { trackProductEvent } from "@/data/product-analytics";
 import styles from "./resume-lab.module.css";
-import { extractClaims } from "@/lib/resume-intelligence";
+import { auditResume, bulletAlternatives, extractClaims, factDiscoveryQuestions, resumeStudioState } from "@/lib/resume-intelligence";
 import { BuildNavigation } from "./build-navigation";
 import { useLayoutContinuity } from "./use-layout-continuity";
 
 type Tab = "resumes" | "experience";
-const sectionLabels: Partial<Record<ResumeSectionKind, string>> = { education: "Education", experience: "Experience", projects: "Projects", research: "Research", leadership: "Leadership", activities: "Activities", awards: "Awards", skills: "Skills" };
+type EditorMode = "edit" | "review" | "tailor" | "preview";
+const sectionLabels: Partial<Record<ResumeSectionKind, string>> = { education: "Education", experience: "Experience", projects: "Projects", research: "Research", publications: "Publications", coursework: "Relevant Coursework", leadership: "Leadership", activities: "Activities", awards: "Awards", skills: "Skills" };
 const makeKey = () =>
   `resume-request-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
 
@@ -60,7 +61,7 @@ function ResumePreview({
 }) {
   const byId = new Map(model.experiences.map((item) => [item.id, item]));
   return (
-    <article className={styles.paper} aria-label={`${resume.title} preview`}>
+    <article className={styles.paper} data-template={resume.template} aria-label={`${resume.title} preview`}>
       <header>
         <h2>{model.profile.name}</h2>
         <p>
@@ -162,6 +163,8 @@ function ResumeEditor({
   const [summary, setSummary] = useState(resume.summary ?? "");
   const [skills, setSkills] = useState(resume.skills.join(", "));
   const [sections, setSections] = useState(resume.sections);
+  const [template, setTemplate] = useState(resume.template);
+  const [mode, setMode] = useState<EditorMode>("edit");
   const [targetId, setTargetId] = useState(initialTargetId ?? "");
   function toggleExperience(experience: ResumeExperienceView) {
     setSections((current) => {
@@ -213,9 +216,30 @@ function ResumeEditor({
       .map((item) => item.trim())
       .filter(Boolean),
     sections,
+    template,
   };
+  const experienceRecords = Object.fromEntries(model.experiences.map((experience) => [experience.id, experience]));
+  const liveAudit = auditResume(draft as ResumeDocumentRecord, experienceRecords);
+  const studio = resumeStudioState(draft as ResumeDocumentRecord, experienceRecords, liveAudit);
   return (
-    <div className={styles.editorGrid}>
+    <>
+    <section className={styles.studioStatus} aria-label="Resume studio status">
+      <div>
+        <p className="rule-label text-forest">Resume &amp; Application Studio</p>
+        <h2>{title}</h2>
+        <p><strong>Next:</strong> {studio.nextAction.label}. {studio.nextAction.detail}</p>
+      </div>
+      <dl>
+        <div><dt>Confirmed facts</dt><dd>{studio.factsCount}</dd></div>
+        <div><dt>Resume bullets</dt><dd>{studio.bulletsCount}</dd></div>
+        <div><dt>Estimated pages</dt><dd>{liveAudit.layout.estimatedPages}</dd></div>
+        <div><dt>Application use</dt><dd>{resume.usageCount}</dd></div>
+      </dl>
+      <div className={styles.modeTabs} role="tablist" aria-label="Studio mode">
+        {(["edit", "review", "tailor", "preview"] as EditorMode[]).map((item) => <button key={item} type="button" role="tab" aria-selected={mode === item} onClick={() => setMode(item)}>{item}</button>)}
+      </div>
+    </section>
+    <div className={styles.editorGrid} data-studio-mode={mode}>
       <section
         className={styles.editorPanel}
         aria-labelledby="resume-editor-title"
@@ -289,6 +313,15 @@ function ResumeEditor({
             onChange={(event) => setSkills(event.target.value)}
           />
         </label>
+        <label>
+          Resume template
+          <select value={template} onChange={(event) => setTemplate(event.target.value as typeof template)}>
+            <option value="classic">Classic</option>
+            <option value="modern">Modern</option>
+            <option value="technical">Technical</option>
+            <option value="academic">Academic</option>
+          </select>
+        </label>
         <fieldset>
           <legend>Resume sections</legend>
           <div className={styles.sectionControls}>
@@ -337,7 +370,9 @@ function ResumeEditor({
                 const bullet = experience.bullets.find((item) => item.id === bulletId);
                 if (!bullet) return null;
                 const value = entry.bulletOverrides?.[bulletId] ?? bullet.text;
-                return <div key={bulletId} className={styles.bulletEditor}><label>Resume wording<textarea rows={3} value={value} onChange={(event) => setBulletOverride(experience.id, bulletId, event.target.value)} /></label><aside><strong>Confirmed source facts</strong>{experience.facts.filter((fact) => bullet.factIds.includes(fact.id)).map((fact) => <span key={fact.id}>{fact.text}</span>)}{!experience.facts.some((fact) => fact.kind === "outcome") ? <small>Could this show known scale or a result? Add it only if you can confirm it.</small> : null}</aside></div>;
+                const sourceFacts = experience.facts.filter((fact) => bullet.factIds.includes(fact.id) && fact.confirmed);
+                const alternatives = bulletAlternatives(sourceFacts);
+                return <div key={bulletId} className={styles.bulletEditor}><label>Resume wording<textarea rows={3} value={value} onChange={(event) => setBulletOverride(experience.id, bulletId, event.target.value)} /></label><aside><strong>Based on {sourceFacts.length} confirmed fact{sourceFacts.length === 1 ? "" : "s"}</strong>{sourceFacts.map((fact) => <span key={fact.id}>{fact.text}<small>{fact.sourceLabel ?? fact.source ?? "User confirmed"}</small></span>)}{alternatives.length ? <div className={styles.alternatives}>{alternatives.map((alternative) => <button type="button" key={alternative.label} onClick={() => setBulletOverride(experience.id, bulletId, alternative.text)}><strong>{alternative.label}</strong>{alternative.text}</button>)}</div> : null}{entry.bulletOverrides?.[bulletId] ? <button type="button" className={styles.resetWording} onClick={() => setBulletOverride(experience.id, bulletId, bullet.text)}>Use canonical wording</button> : null}{!experience.facts.some((fact) => fact.kind === "outcome") ? <small>Could this show known scale or a result? Add it only if you can confirm it.</small> : null}</aside></div>;
               })}</section>;
             })}
           </div>
@@ -400,7 +435,7 @@ function ResumeEditor({
                   summary,
                   skills: draft.skills,
                   sections,
-                  template: resume.template,
+                  template,
                   materialStatus: "draft",
                 },
                 "Resume saved.",
@@ -423,7 +458,7 @@ function ResumeEditor({
                   summary,
                   skills: draft.skills,
                   sections,
-                  template: resume.template,
+                  template,
                   materialStatus: "ready",
                 },
                 "Resume marked ready.",
@@ -437,7 +472,7 @@ function ResumeEditor({
             href={`/resume-lab/print/${encodeURIComponent(resume.id)}`}
             target="_blank"
           >
-            Export / print
+            Download PDF / print
           </Link>
         </div>
       </section>
@@ -447,28 +482,31 @@ function ResumeEditor({
           <div className={styles.sectionHeading}>
             <h3>Resume review</h3>
             <span>
-              {resume.audit.issues.length} item
-              {resume.audit.issues.length === 1 ? "" : "s"}
+              {liveAudit.issues.length} item
+              {liveAudit.issues.length === 1 ? "" : "s"}
             </span>
           </div>
-          {resume.audit.issues.slice(0, 3).map((issue) => (
+          <p className={styles.layoutNote}>{liveAudit.layout.note}</p>
+          <div className={styles.reviewCounts}>{Object.entries(liveAudit.counts).map(([category, count]) => <span key={category}><strong>{count}</strong>{category.replace("_", " ")}</span>)}</div>
+          {liveAudit.issues.slice(0, mode === "review" ? 12 : 3).map((issue) => (
             <div key={issue.id} data-severity={issue.severity}>
-              <strong>{issue.title}</strong>
+              <strong>{issue.title}</strong><small>{issue.category.replace("_", " ")}</small>
               <p>{issue.detail}</p>
             </div>
           ))}
-          {resume.audit.issues.length > 3 ? (
+          {mode !== "review" && liveAudit.issues.length > 3 ? (
             <p className={styles.quiet}>
-              {resume.audit.issues.length - 3} more items remain after these
+              {liveAudit.issues.length - 3} more items remain after these
               priorities.
             </p>
           ) : null}
-          {!resume.audit.issues.length ? (
+          {!liveAudit.issues.length ? (
             <p className={styles.ready}>
               <CheckIcon /> No unsupported claims or structural issues found.
             </p>
           ) : null}
         </section>
+        {(resume.revisions ?? []).length ? <details className={styles.history}><summary>Version history <span>{resume.revisions?.length}</span></summary><div>{[...(resume.revisions ?? [])].reverse().slice(0, 8).map((revision) => <article key={revision.id}><strong>Version {revision.version + 1} · {revision.title}</strong><span>{new Date(revision.createdAt).toLocaleString()} · {revision.template} · {revision.sections.filter((section) => section.visible).length} visible sections</span></article>)}</div></details> : null}
         {resume.target.type === "opportunity" ? (
           <section className={styles.alignment}>
             <h3>Compared with {resume.target.label ?? "target opportunity"}</h3>
@@ -490,6 +528,7 @@ function ResumeEditor({
         ) : null}
       </div>
     </div>
+    </>
   );
 }
 
@@ -511,9 +550,13 @@ function ExperienceForm({
   const [endDate, setEndDate] = useState("");
   const [current, setCurrent] = useState(false);
   const [action, setAction] = useState("");
+  const [collaboration, setCollaboration] = useState("");
+  const [scope, setScope] = useState("");
+  const [tools, setTools] = useState("");
   const [outcome, setOutcome] = useState("");
   const [skills, setSkills] = useState("");
   const [bullet, setBullet] = useState("");
+  const [importText, setImportText] = useState("");
   const [confirmClaims, setConfirmClaims] = useState(false);
   function reset() {
     setEditing(null);
@@ -525,9 +568,13 @@ function ExperienceForm({
     setEndDate("");
     setCurrent(false);
     setAction("");
+    setCollaboration("");
+    setScope("");
+    setTools("");
     setOutcome("");
     setSkills("");
     setBullet("");
+    setImportText("");
     setConfirmClaims(false);
   }
   function beginEdit(experience: ResumeExperienceView) {
@@ -542,6 +589,9 @@ function ExperienceForm({
     setAction(
       experience.facts.find((fact) => fact.kind === "action")?.text ?? "",
     );
+    setCollaboration(experience.facts.find((fact) => fact.kind === "collaboration" || fact.kind === "audience")?.text ?? "");
+    setScope(experience.facts.find((fact) => fact.kind === "scope" || fact.kind === "frequency")?.text ?? "");
+    setTools(experience.facts.find((fact) => fact.kind === "tool" || fact.kind === "method")?.text ?? "");
     setOutcome(
       experience.facts.find((fact) => fact.kind === "outcome")?.text ?? "",
     );
@@ -565,16 +615,24 @@ function ExperienceForm({
     const outcomeId =
       editing?.facts.find((fact) => fact.kind === "outcome")?.id ??
       `fact:${factSeed}:outcome`;
+    const supplemental = [
+      { kind: "collaboration" as ResumeFactKind, text: collaboration },
+      { kind: "scope" as ResumeFactKind, text: scope },
+      { kind: "tool" as ResumeFactKind, text: tools },
+    ];
+    const importLines = importText.split(/\n/).map((line) => line.replace(/^\s*[-•*]\s*/, "").trim()).filter(Boolean).slice(0, 12);
     const facts = [
       ...(editing?.facts.filter(
-        (fact) => fact.kind !== "action" && fact.kind !== "outcome",
+        (fact) => !["action", "outcome", "collaboration", "audience", "scope", "frequency", "tool", "method"].includes(fact.kind),
       ) ?? []),
       {
         id: actionId,
         kind: "action" as ResumeFactKind,
         text: action,
         confirmed: true,
+        source: "user" as const,
       },
+      ...supplemental.filter((fact) => fact.text.trim()).map((fact) => ({ id: editing?.facts.find((existing) => existing.kind === fact.kind)?.id ?? `fact:${factSeed}:${fact.kind}`, ...fact, confirmed: true, source: "user" as const })),
       ...(outcome
         ? [
             {
@@ -582,9 +640,11 @@ function ExperienceForm({
               kind: "outcome" as ResumeFactKind,
               text: outcome,
               confirmed: true,
+              source: "user" as const,
             },
           ]
         : []),
+      ...importLines.map((text, index) => ({ id: `fact:${factSeed}:import:${index}`, kind: "other" as ResumeFactKind, text, confirmed: true, source: "import" as const, sourceLabel: "Pasted resume text" })),
     ];
     const firstBullet = {
       id: editing?.bullets[0]?.id,
@@ -670,9 +730,18 @@ function ExperienceForm({
               <option value="internship">Internship</option>
               <option value="research">Research</option>
               <option value="project">Project</option>
+              <option value="course_project">Course project</option>
+              <option value="independent_project">Independent project</option>
               <option value="leadership">Leadership</option>
+              <option value="campus_organization">Campus organization</option>
+              <option value="teaching">Teaching or mentoring</option>
+              <option value="athletics">Athletics</option>
+              <option value="program">Program</option>
               <option value="volunteer">Volunteer</option>
               <option value="award">Award</option>
+              <option value="scholarship">Scholarship</option>
+              <option value="competition">Competition</option>
+              <option value="publication">Publication</option>
               <option value="other">Other</option>
             </select>
           </label>
@@ -710,7 +779,7 @@ function ExperienceForm({
           I currently hold this role or continue this project.
         </label>
         <label>
-          What did you do?
+          What did you actually do?
           <textarea
             required
             rows={3}
@@ -718,6 +787,24 @@ function ExperienceForm({
             onChange={(event) => setAction(event.target.value)}
             placeholder="Use the exact action you can support."
           />
+        </label>
+        <div className={styles.discovery}>
+          <p className="rule-label text-forest">Fact discovery</p>
+          <h3>Prompts for this kind of experience</h3>
+          <ul>{factDiscoveryQuestions(kind as ResumeExperienceView["kind"]).map((question) => <li key={question}>{question}</li>)}</ul>
+          <small>Numbers are optional. Add scale only when you know it.</small>
+        </div>
+        <label>
+          Who did you work with or help? <span>optional</span>
+          <textarea rows={2} value={collaboration} onChange={(event) => setCollaboration(event.target.value)} />
+        </label>
+        <label>
+          Scale or frequency <span>optional and never estimated</span>
+          <textarea rows={2} value={scope} onChange={(event) => setScope(event.target.value)} placeholder="For example: weekly, 4-person team, 120 records — only if known." />
+        </label>
+        <label>
+          Tools or methods used <span>optional</span>
+          <textarea rows={2} value={tools} onChange={(event) => setTools(event.target.value)} />
         </label>
         <label>
           What happened? <span>optional</span>
@@ -735,6 +822,7 @@ function ExperienceForm({
             onChange={(event) => setSkills(event.target.value)}
           />
         </label>
+        {!editing ? <details className={styles.importText}><summary>Paste an existing resume section</summary><p>Paste plain text to capture each non-empty bullet as a confirmed source fact. Review the text before saving; PDF and DOCX binaries are not stored.</p><textarea rows={6} value={importText} onChange={(event) => setImportText(event.target.value)} placeholder="Paste role details or bullets here…" />{importText.trim() ? <small>{importText.split(/\n/).filter((line) => line.trim()).length} line(s) will be preserved in the Fact Ledger.</small> : null}</details> : null}
         {editing ? (
           <>
             <label>
@@ -974,10 +1062,6 @@ export function ResumeLab({
             <button
               type="button"
               onClick={() => {
-                if (!model.experiences.length) {
-                  setTab("experience");
-                  return;
-                }
                 save(
                   {
                     action: "create_resume",
@@ -993,12 +1077,11 @@ export function ResumeLab({
               }}
               className="button button-primary"
             >
-              {!model.experiences.length
-                ? "Add first experience"
-                : model.resumes.length
+              {model.resumes.length
                   ? "Create targeted version"
                   : "Create master resume"}
             </button>
+            {!model.experiences.length ? <button type="button" className="button button-secondary" onClick={() => setTab("experience")}>Start with Experience Bank</button> : null}
           </div>
         </header>
         <nav className={styles.tabs} aria-label="Resume Lab sections">

@@ -1,12 +1,13 @@
-export const resumeExperienceKinds = ["work", "internship", "research", "project", "leadership", "activity", "volunteer", "competition", "award", "scholarship", "fellowship", "certification", "other"] as const;
+export const resumeExperienceKinds = ["work", "internship", "research", "project", "leadership", "campus_organization", "activity", "volunteer", "teaching", "athletics", "competition", "award", "scholarship", "fellowship", "program", "publication", "course_project", "independent_project", "certification", "other"] as const;
 export type ResumeExperienceKind = (typeof resumeExperienceKinds)[number];
-export const resumeFactKinds = ["action", "scope", "tool", "outcome", "audience", "frequency", "other"] as const;
+export const resumeFactKinds = ["action", "responsibility", "creation", "collaboration", "audience", "tool", "method", "scope", "frequency", "decision", "challenge", "outcome", "link", "other"] as const;
 export type ResumeFactKind = (typeof resumeFactKinds)[number];
-export const resumeSectionKinds = ["education", "experience", "projects", "research", "leadership", "activities", "awards", "skills", "custom"] as const;
+export const resumeSectionKinds = ["education", "experience", "projects", "research", "leadership", "activities", "awards", "publications", "coursework", "skills", "custom"] as const;
 export type ResumeSectionKind = (typeof resumeSectionKinds)[number];
 
-export type ResumeFact = { id: string; kind: ResumeFactKind; text: string; confirmed: boolean };
-export type ResumeBullet = { id: string; text: string; factIds: string[]; confirmedClaims: string[]; createdAt: string; updatedAt: string; version: number };
+export type ResumeFactSource = "user" | "accomplishment" | "profile" | "journey" | "import";
+export type ResumeFact = { id: string; kind: ResumeFactKind; text: string; confirmed: boolean; source?: ResumeFactSource; sourceLabel?: string };
+export type ResumeBullet = { id: string; text: string; factIds: string[]; confirmedClaims: string[]; reviewState?: "draft" | "reviewed"; createdAt: string; updatedAt: string; version: number };
 export type ResumeExperienceRecord = {
   id: string;
   source: "manual" | "accomplishment";
@@ -29,6 +30,20 @@ export type ResumeExperienceRecord = {
 export type ResumeEntry = { experienceId: string; bulletIds: string[]; bulletOverrides?: Record<string, string> };
 export type ResumeSection = { id: string; kind: ResumeSectionKind; title: string; visible: boolean; entries: ResumeEntry[] };
 export type ResumeTarget = { type: "general" | "opportunity" | "path"; id?: string; label?: string };
+export const resumeTemplates = ["classic", "modern", "technical", "academic"] as const;
+export type ResumeTemplate = (typeof resumeTemplates)[number];
+export type ResumeRevision = {
+  id: string;
+  createdAt: string;
+  version: number;
+  title: string;
+  target: ResumeTarget;
+  contact: ResumeDocumentRecord["contact"];
+  summary?: string;
+  sections: ResumeSection[];
+  skills: string[];
+  template: ResumeTemplate;
+};
 export type ResumeDocumentRecord = {
   id: string;
   materialId: string;
@@ -40,7 +55,8 @@ export type ResumeDocumentRecord = {
   summary?: string;
   sections: ResumeSection[];
   skills: string[];
-  template: "classic" | "compact";
+  template: ResumeTemplate;
+  revisions?: ResumeRevision[];
   archivedAt?: string;
   createdAt: string;
   updatedAt: string;
@@ -66,12 +82,13 @@ export function normalizeResumeLabStore(value: unknown): ResumeLabStore {
     if (!createdAt || !updatedAt || (candidate.source !== "manual" && candidate.source !== "accomplishment")) continue;
     const facts = (candidate.facts ?? []).flatMap((fact): ResumeFact[] => {
       const factId = id(fact?.id); const text = clean(fact?.text, 300);
-      return factId && text && resumeFactKinds.includes(fact.kind) ? [{ id: factId, kind: fact.kind, text, confirmed: Boolean(fact.confirmed) }] : [];
+      const source = ["user", "accomplishment", "profile", "journey", "import"].includes(String(fact?.source)) ? fact.source as ResumeFactSource : undefined;
+      return factId && text && resumeFactKinds.includes(fact.kind) ? [{ id: factId, kind: fact.kind, text, confirmed: Boolean(fact.confirmed), source, sourceLabel: clean(fact.sourceLabel, 120) || undefined }] : [];
     }).slice(0, 80);
     const factIds = new Set(facts.map((fact) => fact.id));
     const bullets = (candidate.bullets ?? []).flatMap((bullet): ResumeBullet[] => {
       const bulletId = id(bullet?.id); const text = clean(bullet?.text, 500); const created = timestamp(bullet?.createdAt); const updated = timestamp(bullet?.updatedAt);
-      return bulletId && text && created && updated ? [{ id: bulletId, text, factIds: [...new Set((bullet.factIds ?? []).filter((item) => factIds.has(item)))].slice(0, 12), confirmedClaims: [...new Set((bullet.confirmedClaims ?? []).map((item) => clean(item, 80)).filter(Boolean))].slice(0, 20), createdAt: created, updatedAt: updated, version: Number.isInteger(bullet.version) && bullet.version >= 0 ? bullet.version : 0 }] : [];
+      return bulletId && text && created && updated ? [{ id: bulletId, text, factIds: [...new Set((bullet.factIds ?? []).filter((item) => factIds.has(item)))].slice(0, 12), confirmedClaims: [...new Set((bullet.confirmedClaims ?? []).map((item) => clean(item, 80)).filter(Boolean))].slice(0, 20), reviewState: bullet.reviewState === "reviewed" ? "reviewed" : "draft", createdAt: created, updatedAt: updated, version: Number.isInteger(bullet.version) && bullet.version >= 0 ? bullet.version : 0 }] : [];
     }).slice(0, 100);
     const accomplishmentId = id(candidate.accomplishmentId);
     if (candidate.source === "accomplishment" && !accomplishmentId) continue;
@@ -95,7 +112,16 @@ export function normalizeResumeLabStore(value: unknown): ResumeLabStore {
       return [{ id: sectionId, kind: section.kind, title: sectionTitle, visible: section.visible !== false, entries }];
     }).slice(0, 12);
     const targetType = candidate.target?.type === "opportunity" || candidate.target?.type === "path" ? candidate.target.type : "general";
-    resumes[recordId] = { id: recordId, materialId: candidate.materialId, title, kind: candidate.kind, baseResumeId: id(candidate.baseResumeId), target: { type: targetType, id: id(candidate.target?.id), label: clean(candidate.target?.label, 180) || undefined }, contact: { email: clean(candidate.contact?.email, 160) || undefined, phone: clean(candidate.contact?.phone, 40) || undefined, city: clean(candidate.contact?.city, 100) || undefined, linkedIn: clean(candidate.contact?.linkedIn, 240) || undefined, portfolio: clean(candidate.contact?.portfolio, 240) || undefined }, summary: clean(candidate.summary, 800) || undefined, sections, skills: [...new Set((candidate.skills ?? []).map((item) => clean(item, 80)).filter(Boolean))].slice(0, 60), template: candidate.template === "compact" ? "compact" : "classic", archivedAt: timestamp(candidate.archivedAt), createdAt, updatedAt, version: Number.isInteger(candidate.version) && candidate.version >= 0 ? candidate.version : 0 };
+    const rawTemplate = String(candidate.template ?? "classic");
+    const normalizedTemplate: ResumeTemplate = rawTemplate === "modern" || rawTemplate === "technical" || rawTemplate === "academic" ? rawTemplate : rawTemplate === "compact" ? "technical" : "classic";
+    const revisions = (candidate.revisions ?? []).flatMap((revision): ResumeRevision[] => {
+      const revisionId = id(revision?.id); const revisionCreatedAt = timestamp(revision?.createdAt); const revisionTitle = clean(revision?.title, 120);
+      if (!revisionId || !revisionCreatedAt || !revisionTitle) return [];
+      const revisionTargetType = revision.target?.type === "opportunity" || revision.target?.type === "path" ? revision.target.type : "general";
+      const revisionTemplate: ResumeTemplate = revision.template === "modern" || revision.template === "technical" || revision.template === "academic" ? revision.template : "classic";
+      return [{ id: revisionId, createdAt: revisionCreatedAt, version: Number.isInteger(revision.version) && revision.version >= 0 ? revision.version : 0, title: revisionTitle, target: { type: revisionTargetType, id: id(revision.target?.id), label: clean(revision.target?.label, 180) || undefined }, contact: { email: clean(revision.contact?.email, 160) || undefined, phone: clean(revision.contact?.phone, 40) || undefined, city: clean(revision.contact?.city, 100) || undefined, linkedIn: clean(revision.contact?.linkedIn, 240) || undefined, portfolio: clean(revision.contact?.portfolio, 240) || undefined }, summary: clean(revision.summary, 800) || undefined, sections: (revision.sections ?? []).slice(0, 12).map((section) => ({ ...section, entries: (section.entries ?? []).slice(0, 40) })), skills: [...new Set((revision.skills ?? []).map((item) => clean(item, 80)).filter(Boolean))].slice(0, 60), template: revisionTemplate }];
+    }).slice(-30);
+    resumes[recordId] = { id: recordId, materialId: candidate.materialId, title, kind: candidate.kind, baseResumeId: id(candidate.baseResumeId), target: { type: targetType, id: id(candidate.target?.id), label: clean(candidate.target?.label, 180) || undefined }, contact: { email: clean(candidate.contact?.email, 160) || undefined, phone: clean(candidate.contact?.phone, 40) || undefined, city: clean(candidate.contact?.city, 100) || undefined, linkedIn: clean(candidate.contact?.linkedIn, 240) || undefined, portfolio: clean(candidate.contact?.portfolio, 240) || undefined }, summary: clean(candidate.summary, 800) || undefined, sections, skills: [...new Set((candidate.skills ?? []).map((item) => clean(item, 80)).filter(Boolean))].slice(0, 60), template: normalizedTemplate, revisions, archivedAt: timestamp(candidate.archivedAt), createdAt, updatedAt, version: Number.isInteger(candidate.version) && candidate.version >= 0 ? candidate.version : 0 };
   }
   const version = typeof input.version === "number" && Number.isInteger(input.version) && input.version >= 0 ? input.version : 0;
   return { experiences, resumes, version, updatedAt: timestamp(input.updatedAt) };

@@ -15,7 +15,7 @@ import {
   buildAccomplishmentsModel,
   type AccomplishmentView,
 } from "./accomplishments";
-import { analyzeResumeAlignment, auditResume } from "./resume-intelligence";
+import { analyzeResumeAlignment, auditResume, resumeStudioState } from "./resume-intelligence";
 
 export type ResumeExperienceView = ResumeExperienceRecord & {
   resolved: {
@@ -33,8 +33,10 @@ export type ResumeDocumentView = ResumeDocumentRecord & {
   status: string;
   statusLabel: string;
   usageCount: number;
+  usage: Array<{ opportunityId: string; title: string; organization: string; selectedAt: string }>;
   audit: ReturnType<typeof auditResume>;
   alignment: ReturnType<typeof analyzeResumeAlignment>;
+  studio: ReturnType<typeof resumeStudioState>;
 };
 export type ResumeLabModel = {
   storeVersion: number;
@@ -139,18 +141,24 @@ export function buildResumeLabModel(input: {
         item.target.type === "opportunity" && item.target.id
           ? opportunityById.get(item.target.id)
           : undefined;
+      const usage = Object.values(materials.associations)
+        .filter((association) => association.materialId === item.materialId && !association.materialDeletedAt)
+        .map((association) => {
+          const opportunity = opportunityById.get(association.opportunityId);
+          return { opportunityId: association.opportunityId, title: opportunity?.title ?? association.requirementTitle, organization: opportunity?.organization ?? "Application", selectedAt: association.selectedAt };
+        })
+        .sort((a, b) => b.selectedAt.localeCompare(a.selectedAt));
+      const audit = auditResume(item, experienceById);
       return {
         ...item,
         status: material?.status ?? "draft",
         statusLabel:
           applicationMaterialStatusLabels[material?.status ?? "draft"],
-        usageCount: Object.values(materials.associations).filter(
-          (association) =>
-            association.materialId === item.materialId &&
-            !association.materialDeletedAt,
-        ).length,
-        audit: auditResume(item, experienceById),
+        usageCount: usage.length,
+        usage,
+        audit,
         alignment: analyzeResumeAlignment(item, experienceById, target),
+        studio: resumeStudioState(item, experienceById, audit),
       };
     })
     .sort(

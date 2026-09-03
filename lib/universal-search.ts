@@ -125,10 +125,17 @@ export function buildUniversalSearch(input: {
     if (!score) return [];
     return [{ id: `material:${record.id}`, kind: "material", group: "Materials", title: record.title, subtitle: `${applicationMaterialTypeLabels[record.type]} · ${applicationMaterialStatusLabels[record.status]}`, href: `/materials#material-${encodeURIComponent(record.id)}`, score: score + 360 }];
   }).sort((left, right) => right.score - left.score || left.title.localeCompare(right.title)).slice(0, 4);
-  const resumes = Object.values(normalizeResumeLabStore(input.account.resumeLab).resumes).filter((record) => !record.archivedAt).flatMap((record): UniversalSearchResult[] => {
+  const resumeLab = normalizeResumeLabStore(input.account.resumeLab);
+  const resumes = Object.values(resumeLab.resumes).filter((record) => !record.archivedAt).flatMap((record): UniversalSearchResult[] => {
     const score = matchScore(query, [record.title, record.kind, record.target.label ?? "", "resume lab"]);
     if (!score) return [];
     return [{ id: `resume:${record.id}`, kind: "resume", group: "Resume Lab", title: record.title, subtitle: `${record.kind === "master" ? "Master" : "Targeted"} resume · Private`, href: `/resume-lab?resume=${encodeURIComponent(record.id)}`, score: score + 410 }];
+  }).sort((left, right) => right.score - left.score || left.title.localeCompare(right.title)).slice(0, 4);
+  const experiences = Object.values(resumeLab.experiences).flatMap((record): UniversalSearchResult[] => {
+    // Deliberately index structured Fact Ledger fields, not private resume-specific bullet prose.
+    const score = matchScore(query, [record.title ?? "", record.organization ?? "", record.kind, ...record.skills, ...record.facts.filter((fact) => fact.confirmed).map((fact) => fact.text)]);
+    if (!score) return [];
+    return [{ id: `experience:${record.id}`, kind: "resume", group: "Resume Lab", title: record.title ?? "Untitled experience", subtitle: `${record.organization ?? "Personal experience"} · Experience Bank`, href: `/resume-lab?view=experience&experience=${encodeURIComponent(record.id)}`, score: score + 390 }];
   }).sort((left, right) => right.score - left.score || left.title.localeCompare(right.title)).slice(0, 4);
   const paths = opportunityPaths.flatMap((path): UniversalSearchResult[] => {
     const score = matchScore(query, [path.name, path.shortName, `${path.name} path`, `${path.shortName} path`, path.description, ...path.profileAliases]);
@@ -227,7 +234,7 @@ export function buildUniversalSearch(input: {
 
   return {
     query,
-    results: [...strategy, ...collections, ...explorer, ...resumes, ...materials, ...paths, ...accomplishments, ...personal, ...upcoming, ...tasks, ...opportunities],
+    results: [...strategy, ...collections, ...explorer, ...resumes, ...experiences, ...materials, ...paths, ...accomplishments, ...personal, ...upcoming, ...tasks, ...opportunities],
     totalOpportunityMatches: preciseCatalog.length ? catalog.total : 0,
   };
 }
