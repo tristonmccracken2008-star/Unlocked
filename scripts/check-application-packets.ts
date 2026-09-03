@@ -40,7 +40,8 @@ for (const [type, title] of [["resume", "Research Resume"], ["transcript", "Univ
   materials.associations[associationId] = { id: associationId, opportunityId: opportunity.id, requirementType: type, requirementTitle: type === "resume" ? "Resume" : "Transcript", materialId: id, materialSnapshot: { type, title }, selectedAt: iso, updatedAt: iso, version: 0 };
 }
 const resumes = emptyResumeLabStore();
-resumes.resumes["packet-resume"] = { id: "packet-resume", materialId: "packet-material:resume", title: "Research Resume", kind: "targeted", target: { type: "opportunity", id: opportunity.id, label: opportunity.title }, contact: {}, sections: [], skills: [], template: "classic", createdAt: iso, updatedAt: iso, version: 0 };
+resumes.experiences["packet-experience"] = { id: "packet-experience", source: "manual", kind: "research", organization: "Campus Lab", title: "Research Assistant", current: false, skills: [], facts: [{ id: "packet-fact", kind: "action", text: "Analyzed survey data", confirmed: true }], bullets: [{ id: "packet-bullet", text: "Analyzed survey data.", factIds: ["packet-fact"], confirmedClaims: [], createdAt: iso, updatedAt: iso, version: 0 }], createdAt: iso, updatedAt: iso, version: 0 };
+resumes.resumes["packet-resume"] = { id: "packet-resume", materialId: "packet-material:resume", title: "Research Resume", kind: "targeted", target: { type: "opportunity", id: opportunity.id, label: opportunity.title }, contact: { email: "student@example.test" }, sections: [{ id: "section:experience", kind: "experience", title: "Experience", visible: true, entries: [{ experienceId: "packet-experience", bulletIds: ["packet-bullet"] }] }], skills: [], template: "classic", createdAt: iso, updatedAt: iso, version: 0 };
 
 function accountFor(tracked: TrackedOpportunity = record): AccountData {
   return { profile: null, onboardingComplete: true, firstLaunchComplete: true, billing: defaultBillingRecord(), activity: { viewed: [], saved: [tracked.id], claimed: [], tracked: { [tracked.id]: tracked } }, savedOpportunities: [], tracker: { [tracked.id]: tracked }, preferences: null, journeyProgress: {}, applicationWorkspaces: { [tracked.id]: workspace }, applicationMaterials: materials, resumeLab: resumes, accomplishments: {}, pathPreferences: {}, guidance: {}, advisor: null, referrals: null, updatedAt: iso };
@@ -53,7 +54,24 @@ assert.equal(ready.verifiedRequirementCount, 2);
 assert.equal(ready.assembledRequirementCount, 2);
 assert.equal(ready.nextAction.kind, "final_review");
 assert.equal(ready.resume?.targetState, "current_opportunity");
-assert.match(ready.statusDetail, /does not confirm provider submission or competitiveness/i);
+assert.match(ready.statusDetail, /not a prediction of selection/i);
+
+const promptAccount = accountFor();
+promptAccount.applicationWorkspaces![opportunity.id]!.writtenResponses = { "prompt:challenge": { id: "prompt:challenge", prompt: "Tell us about a challenge, your response, and what you learned.", source: "student", required: true, wordLimit: 500, draft: "", status: "not_started", revisions: [], createdAt: iso, updatedAt: iso, version: 0 } };
+const promptPacket = projectApplicationPacket({ account: promptAccount, opportunities: [opportunity], opportunityId: opportunity.id, now });
+assert.equal(promptPacket?.nextAction.kind, "write_response", "An unanswered required prompt must become the canonical next action after materials are assembled.");
+assert.equal(promptPacket?.status, "needs_attention");
+
+const recommendationOpportunity = { ...opportunity, metadata: { ...opportunity.metadata, applicationRequirements: ["Resume", "Transcript", "Recommendation"] } };
+const recommendationWorkspace = materializeApplicationWorkspace(undefined, recommendationOpportunity, iso);
+recommendationWorkspace.tasks = Object.fromEntries(Object.values(recommendationWorkspace.tasks).map((task) => [task.id, { ...task, completed: true }]));
+const recommendationMaterials = structuredClone(materials);
+recommendationMaterials.records["packet-material:recommendation"] = { id: "packet-material:recommendation", type: "recommendation", title: "Recommendation status", status: "ready", contexts: ["research"], preferred: true, createdAt: iso, updatedAt: iso, version: 0 };
+const recommendationAssociation = materialAssociationId(opportunity.id, "recommendation");
+recommendationMaterials.associations[recommendationAssociation] = { id: recommendationAssociation, opportunityId: opportunity.id, requirementType: "recommendation", requirementTitle: "Recommendation", materialId: "packet-material:recommendation", materialSnapshot: { type: "recommendation", title: "Recommendation status" }, selectedAt: iso, updatedAt: iso, version: 0 };
+const recommendationAccount = { ...accountFor(), applicationWorkspaces: { [opportunity.id]: recommendationWorkspace }, applicationMaterials: recommendationMaterials };
+const recommendationPacket = projectApplicationPacket({ account: recommendationAccount, opportunities: [recommendationOpportunity], opportunityId: opportunity.id, now });
+assert.equal(recommendationPacket?.nextAction.kind, "add_recommender", "A verified recommendation without a recorded recommender must produce a factual next action.");
 
 const reusedAccount = accountFor();
 reusedAccount.tracker!["packet-other-application"] = { ...record, id: "packet-other-application" };

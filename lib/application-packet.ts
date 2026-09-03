@@ -8,7 +8,7 @@ import {
   normalizeApplicationMaterialStore,
 } from "@/data/application-materials";
 import { materialTypeForRequirement } from "./application-materials";
-import type { AccountData } from "./account-types";
+import type { AccountData, ApplicationRecommenderRecord, WrittenResponseRecord } from "./account-types";
 import {
   buildApplicationsWorkspace,
   type ApplicationsWorkspaceApplication,
@@ -20,6 +20,9 @@ import {
   recentOpportunityChanges,
 } from "@/data/opportunity-changelog";
 import { normalizeResumeLabStore } from "@/data/resume-lab";
+import { auditResume } from "./resume-intelligence";
+import { normalizeAnswerBank } from "./application-workspace";
+import { recommendationNeedsAction, relevantAnswerStories, reviewWrittenResponse } from "./application-studio";
 
 export type ApplicationPacketRequirementState =
   | "assembled"
@@ -52,6 +55,9 @@ export type ApplicationPacketNextAction = {
     | "select_material"
     | "review_material"
     | "complete_task"
+    | "write_response"
+    | "add_recommender"
+    | "review_integrity"
     | "review_requirements"
     | "final_review"
     | "await_outcome";
@@ -64,6 +70,7 @@ export type ApplicationPacketNextAction = {
 
 export type ApplicationPacketModel = {
   application: ApplicationsWorkspaceApplication;
+  brief: { eligibility: string; openingDate?: string; officialSource: string; lastVerified?: string; requirementsState: string };
   packetHref: string;
   status:
     | "needs_attention"
@@ -106,6 +113,13 @@ export type ApplicationPacketModel = {
     reviewHref: string;
   };
   timeline: Array<{ id: string; label: string; occurredAt: string }>;
+  writtenResponses: Array<ReturnType<typeof reviewWrittenResponse> & { record: WrittenResponseRecord; storySuggestions: ReturnType<typeof relevantAnswerStories> }>;
+  answerBank: ReturnType<typeof normalizeAnswerBank>;
+  recommenders: ApplicationRecommenderRecord[];
+  recommendationRequired: boolean;
+  privateNotes?: string;
+  submissionSnapshots: NonNullable<NonNullable<AccountData["applicationWorkspaces"]>[string]["submissionSnapshots"]>;
+  finalReview: { items: Array<{ category: "requirements" | "resume" | "written_responses" | "materials" | "recommendations" | "dates" | "factual_integrity"; title: string; detail: string; severity: "fix" | "review" | "note" }>; readyToSubmit: boolean };
   submitted: boolean;
   historical: boolean;
 };
@@ -139,6 +153,10 @@ function packetNextAction(input: {
   requirements: ApplicationPacketRequirement[];
   changes: ApplicationPacketModel["changes"];
   personalTasks: ApplicationPacketModel["personalTasks"];
+  writtenResponses: ApplicationPacketModel["writtenResponses"];
+  recommenders: ApplicationPacketModel["recommenders"];
+  recommendationRequired: boolean;
+  resumeIssueCount: number;
 }): ApplicationPacketNextAction {
   if (input.application.state === "submitted")
     return {
@@ -198,6 +216,10 @@ function packetNextAction(input: {
           ? `/resume-lab?view=resumes&target=${encodeURIComponent(input.application.id)}`
           : "/materials",
     };
+  const response = input.writtenResponses.find((item) => item.record.required && (!item.record.draft.trim() || item.findings.some((finding) => finding.severity === "fix")));
+  if (response) return { kind: "write_response", label: response.record.draft.trim() ? "Review written response" : "Answer written prompt", reason: response.record.draft.trim() ? response.findings.find((finding) => finding.severity === "fix")?.detail ?? "This required response needs review." : "A required prompt has not been answered.", href: `#response-${response.record.id}` };
+  if (input.recommendationRequired && recommendationNeedsAction(input.recommenders)) return { kind: "add_recommender", label: "Add or update recommender", reason: input.recommenders.length ? "A required recommendation does not yet have a confirmed student-reported status." : "A recommendation is listed, but no recommender has been recorded.", href: "#references" };
+  if (input.resumeIssueCount) return { kind: "review_integrity", label: "Review selected resume", reason: `${input.resumeIssueCount} factual or structural resume ${input.resumeIssueCount === 1 ? "item needs" : "items need"} review.`, href: "#resume-review" };
   const requirementTask = input.requirements.find((item) => !item.completed);
   if (requirementTask)
     return {
@@ -445,16 +467,31 @@ export function projectApplicationPacket(input: {
       occurredAt: event.occurredAt,
     }))
     .sort((a, b) => b.occurredAt.localeCompare(a.occurredAt));
+  const workspaceRecord = input.account.applicationWorkspaces?.[application.id];
+  const answerBank = normalizeAnswerBank(input.account.answerBank);
+  const answerStories = Object.values(answerBank.records);
+  const writtenResponses = Object.values(workspaceRecord?.writtenResponses ?? {}).map((response) => ({ record: response, ...reviewWrittenResponse(response, resumes, answerStories), storySuggestions: relevantAnswerStories(response.prompt, answerStories) }));
+  const recommenders = Object.values(workspaceRecord?.recommenders ?? {});
+  const recommendationRequired = requirements.some((item) => /recommend|reference/i.test(item.title));
+  const resumeAudit = resumeDocument ? auditResume(resumeDocument, resumes.experiences) : undefined;
+  const finalItems: ApplicationPacketModel["finalReview"]["items"] = [];
+  for (const requirement of requirements.filter((item) => !item.completed || !["assembled", "recorded_complete"].includes(item.state))) finalItems.push({ category: requirement.materialType ? "materials" : "requirements", title: requirement.title, detail: requirement.stateLabel, severity: "fix" });
+  for (const response of writtenResponses) for (const finding of response.findings.filter((item) => item.severity !== "note")) finalItems.push({ category: finding.category === "evidence" ? "factual_integrity" : "written_responses", title: finding.title, detail: finding.detail, severity: finding.severity });
+  if (recommendationRequired && recommendationNeedsAction(recommenders)) finalItems.push({ category: "recommendations", title: "Recommendation needs attention", detail: recommenders.length ? "Confirm the student-reported recommender status." : "Add a recommender for the verified recommendation requirement.", severity: "fix" });
+  for (const issue of resumeAudit?.issues.filter((item) => item.severity === "fix") ?? []) finalItems.push({ category: issue.category === "evidence" ? "factual_integrity" : "resume", title: issue.title, detail: issue.detail, severity: "fix" });
+  if (!application.deadline) finalItems.push({ category: "dates", title: "Deadline is not verified", detail: "Confirm current timing on the official provider page. UnlockED will not invent a date.", severity: "review" });
+  const finalReview = { items: finalItems, readyToSubmit: Boolean(requirements.length) && !finalItems.some((item) => item.severity === "fix") };
   return {
     application,
+    brief: { eligibility: opportunity.eligibility || "Not available from official source", officialSource: application.officialSource, lastVerified: opportunity.last_verified || undefined, requirementsState: requirements.length ? `${requirements.length} verified requirement${requirements.length === 1 ? "" : "s"}` : "Complete requirement list not published or verified" },
     packetHref: `/applications/${encodeURIComponent(application.id)}`,
-    status,
-    statusLabel,
-    statusDetail,
+    status: historical ? "submitted" : !application.workspace.requirementsVerified ? "requirements_unknown" : finalReview.readyToSubmit ? "known_materials_assembled" : "needs_attention",
+    statusLabel: historical ? statusLabel : !application.workspace.requirementsVerified ? "Requirements not verified" : finalReview.readyToSubmit ? "Ready to submit" : `${finalItems.filter((item) => item.severity === "fix").length} known ${finalItems.filter((item) => item.severity === "fix").length === 1 ? "item needs" : "items need"} preparation`,
+    statusDetail: historical ? statusDetail : !application.workspace.requirementsVerified ? "Review the official provider page before relying on this workspace." : finalReview.readyToSubmit ? "Known required components are prepared. This is not a prediction of selection." : "Continue with the canonical next action below.",
     requirements,
     verifiedRequirementCount: requirements.length,
     assembledRequirementCount,
-    knownItemsNeedingAttention,
+    knownItemsNeedingAttention: finalItems.filter((item) => item.severity === "fix").length,
     requirementsCheckedAt: trust.requirements.checkedAt,
     requirementsSourceUrl: trust.requirements.sourceUrl,
     nextAction: packetNextAction({
@@ -462,12 +499,23 @@ export function projectApplicationPacket(input: {
       requirements,
       changes,
       personalTasks,
+      writtenResponses,
+      recommenders,
+      recommendationRequired,
+      resumeIssueCount: resumeAudit?.issues.filter((item) => item.severity === "fix").length ?? 0,
     }),
     personalTasks,
     changes,
     calendarContext,
     resume,
     timeline,
+    writtenResponses,
+    answerBank,
+    recommenders,
+    recommendationRequired,
+    privateNotes: workspaceRecord?.privateNotes,
+    submissionSnapshots: workspaceRecord?.submissionSnapshots ?? [],
+    finalReview,
     submitted: historical,
     historical,
   };

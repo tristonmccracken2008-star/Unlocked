@@ -108,10 +108,74 @@ export type ApplicationTaskRecord = {
   version: number;
 };
 
+export type WrittenResponseRecord = {
+  id: string;
+  prompt: string;
+  source: "verified" | "student";
+  sourceUrl?: string;
+  required: boolean;
+  wordLimit?: number;
+  characterLimit?: number;
+  draft: string;
+  status: "not_started" | "draft" | "ready";
+  revisions: Array<{ id: string; draft: string; createdAt: string }>;
+  createdAt: string;
+  updatedAt: string;
+  version: number;
+};
+
+export type ApplicationRecommenderRecord = {
+  id: string;
+  name: string;
+  role?: string;
+  organization?: string;
+  email?: string;
+  relationship?: string;
+  requestedDate?: string;
+  deadline?: string;
+  status: "not_requested" | "planning" | "requested" | "confirmed" | "submitted" | "unknown" | "declined";
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+  version: number;
+};
+
+export type AnswerBankRecord = {
+  id: string;
+  title: string;
+  category: string;
+  experienceIds: string[];
+  situation?: string;
+  action?: string;
+  challenge?: string;
+  result?: string;
+  learning?: string;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+  version: number;
+};
+
+export type AnswerBankStore = { records: Record<string, AnswerBankRecord>; version: number; updatedAt?: string };
+
+export type ApplicationSubmissionSnapshot = {
+  id: string;
+  createdAt: string;
+  opportunity: { title: string; organization: string; officialSource: string; deadline?: string };
+  materials: Array<{ materialId: string; requirementType: string; title: string; versionLabel?: string }>;
+  writtenResponses: Array<{ id: string; prompt: string; draft: string; version: number }>;
+  recommenders: Array<{ id: string; name: string; status: ApplicationRecommenderRecord["status"] }>;
+  notes?: string;
+};
+
 export type ApplicationWorkspaceRecord = {
   opportunityId: string;
   tasks: Record<string, ApplicationTaskRecord>;
   deletedTasks?: Record<string, ApplicationTaskRecord>;
+  writtenResponses?: Record<string, WrittenResponseRecord>;
+  recommenders?: Record<string, ApplicationRecommenderRecord>;
+  privateNotes?: string;
+  submissionSnapshots?: ApplicationSubmissionSnapshot[];
   createdAt: string;
   updatedAt: string;
   version: number;
@@ -133,6 +197,7 @@ export type AccountData = {
   journeyProgress: JourneyProgressRecord;
   calendarEvents?: JourneyCalendarRecord;
   applicationWorkspaces?: ApplicationWorkspaceStore;
+  answerBank?: AnswerBankStore;
   applicationMaterials?: ApplicationMaterialStore;
   resumeLab?: ResumeLabStore;
   accomplishments?: AccomplishmentStore;

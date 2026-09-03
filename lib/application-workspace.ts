@@ -3,7 +3,7 @@ import type { OpportunityTrackerStatus, TrackedOpportunity } from "@/data/studen
 import { journeyWorkflowKind } from "@/data/journey-professional";
 import { recentOpportunityChanges, requirementAddedByRecentChange, opportunityChangeLabel, opportunityChangeSummary } from "@/data/opportunity-changelog";
 import { projectOpportunityTrust, verifiedApplicationRequirements } from "@/data/opportunity-trust";
-import type { AccountData, ApplicationTaskRecord, ApplicationWorkspaceRecord, JourneyCalendarEventRecord } from "./account-types";
+import type { AccountData, AnswerBankStore, ApplicationRecommenderRecord, ApplicationTaskRecord, ApplicationWorkspaceRecord, JourneyCalendarEventRecord, WrittenResponseRecord } from "./account-types";
 import { projectApplicationMaterialReadiness, type ApplicationMaterialProjectionContext, type ApplicationMaterialReadiness } from "./application-materials";
 
 export type ApplicationWorkspaceTask = ApplicationTaskRecord & { recentlyUpdated?: boolean };
@@ -82,6 +82,10 @@ export function materializeApplicationWorkspace(existing: ApplicationWorkspaceRe
     opportunityId: opportunity.id,
     tasks,
     deletedTasks: existing?.deletedTasks ?? {},
+    writtenResponses: existing?.writtenResponses ?? {},
+    recommenders: existing?.recommenders ?? {},
+    privateNotes: existing?.privateNotes,
+    submissionSnapshots: existing?.submissionSnapshots ?? [],
     createdAt: existing?.createdAt ?? now,
     updatedAt: existing?.updatedAt ?? now,
     version: existing?.version ?? 0,
@@ -200,7 +204,29 @@ export function normalizeApplicationWorkspaces(value: AccountData["applicationWo
         version: Number.isInteger(task.version) && task.version >= 0 ? task.version : 0,
       };
     }
-    workspaces[opportunityId] = { ...candidate, opportunityId, tasks, deletedTasks, version: Number.isInteger(candidate.version) && candidate.version >= 0 ? candidate.version : 0 };
+    const writtenResponses: Record<string, WrittenResponseRecord> = {};
+    for (const [id, response] of Object.entries(candidate.writtenResponses ?? {}).slice(0, 40)) {
+      if (!response || response.id !== id || typeof response.prompt !== "string" || !response.prompt.trim()) continue;
+      writtenResponses[id] = { id, prompt: response.prompt.replace(/\s+/g, " ").trim().slice(0, 2_000), source: response.source === "verified" ? "verified" : "student", sourceUrl: typeof response.sourceUrl === "string" ? response.sourceUrl.slice(0, 500) : undefined, required: Boolean(response.required), wordLimit: Number.isInteger(response.wordLimit) && response.wordLimit! > 0 && response.wordLimit! <= 10_000 ? response.wordLimit : undefined, characterLimit: Number.isInteger(response.characterLimit) && response.characterLimit! > 0 && response.characterLimit! <= 100_000 ? response.characterLimit : undefined, draft: typeof response.draft === "string" ? response.draft.slice(0, 100_000) : "", status: response.status === "ready" ? "ready" : response.draft?.trim() ? "draft" : "not_started", revisions: (response.revisions ?? []).filter((item) => item?.id && typeof item.draft === "string" && item.createdAt).slice(-20).map((item) => ({ id: item.id, draft: item.draft.slice(0, 100_000), createdAt: item.createdAt })), createdAt: response.createdAt, updatedAt: response.updatedAt, version: Number.isInteger(response.version) && response.version >= 0 ? response.version : 0 };
+    }
+    const recommenderStatuses = new Set<ApplicationRecommenderRecord["status"]>(["not_requested", "planning", "requested", "confirmed", "submitted", "unknown", "declined"]);
+    const recommenders: Record<string, ApplicationRecommenderRecord> = {};
+    for (const [id, person] of Object.entries(candidate.recommenders ?? {}).slice(0, 20)) {
+      if (!person || person.id !== id || typeof person.name !== "string" || !person.name.trim()) continue;
+      recommenders[id] = { ...person, id, name: person.name.replace(/\s+/g, " ").trim().slice(0, 120), role: person.role?.replace(/\s+/g, " ").trim().slice(0, 120), organization: person.organization?.replace(/\s+/g, " ").trim().slice(0, 160), email: person.email?.trim().slice(0, 160), relationship: person.relationship?.replace(/\s+/g, " ").trim().slice(0, 300), notes: person.notes?.slice(0, 2_000), status: recommenderStatuses.has(person.status) ? person.status : "unknown", version: Number.isInteger(person.version) && person.version >= 0 ? person.version : 0 };
+    }
+    const submissionSnapshots = (candidate.submissionSnapshots ?? []).filter((item) => item?.id && item.createdAt && item.opportunity?.title && item.opportunity?.officialSource).slice(-10).map((item) => ({ id: item.id, createdAt: item.createdAt, opportunity: { title: item.opportunity.title.slice(0, 300), organization: item.opportunity.organization.slice(0, 200), officialSource: item.opportunity.officialSource.slice(0, 2_000), deadline: item.opportunity.deadline?.slice(0, 10) }, materials: (item.materials ?? []).slice(0, 40).map((material) => ({ materialId: material.materialId.slice(0, 160), requirementType: material.requirementType.slice(0, 80), title: material.title.slice(0, 200), versionLabel: material.versionLabel?.slice(0, 120) })), writtenResponses: (item.writtenResponses ?? []).slice(0, 40).map((response) => ({ id: response.id, prompt: response.prompt.slice(0, 2_000), draft: response.draft.slice(0, 100_000), version: response.version })), recommenders: (item.recommenders ?? []).slice(0, 20), notes: item.notes?.slice(0, 4_000) }));
+    workspaces[opportunityId] = { ...candidate, opportunityId, tasks, deletedTasks, writtenResponses, recommenders, privateNotes: typeof candidate.privateNotes === "string" ? candidate.privateNotes.slice(0, 4_000) : undefined, submissionSnapshots, version: Number.isInteger(candidate.version) && candidate.version >= 0 ? candidate.version : 0 };
   }
   return workspaces;
+}
+
+export function normalizeAnswerBank(value: AnswerBankStore | undefined): AnswerBankStore {
+  const records: AnswerBankStore["records"] = {};
+  for (const [id, story] of Object.entries(value?.records ?? {}).slice(0, 500)) {
+    if (!story || story.id !== id || typeof story.title !== "string" || !story.title.trim()) continue;
+    const clean = (text: string | undefined, max = 4_000) => text?.trim().slice(0, max) || undefined;
+    records[id] = { id, title: story.title.replace(/\s+/g, " ").trim().slice(0, 120), category: clean(story.category, 80) ?? "custom", experienceIds: [...new Set(story.experienceIds ?? [])].slice(0, 20), situation: clean(story.situation), action: clean(story.action), challenge: clean(story.challenge), result: clean(story.result), learning: clean(story.learning), notes: clean(story.notes), createdAt: story.createdAt, updatedAt: story.updatedAt, version: Number.isInteger(story.version) && story.version >= 0 ? story.version : 0 };
+  }
+  return { records, version: Number.isInteger(value?.version) && value!.version >= 0 ? value!.version : 0, updatedAt: value?.updatedAt };
 }

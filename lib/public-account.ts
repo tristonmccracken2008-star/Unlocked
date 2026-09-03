@@ -25,6 +25,10 @@ export function publicAccountData(data: AccountData): AccountData {
     applicationMaterials: undefined,
     // Resume Lab includes private contact details, facts, and drafts.
     resumeLab: undefined,
+    // Application Studio drafts, notes, and recommender details load only on the authenticated application route.
+    applicationWorkspaces: Object.fromEntries(Object.entries(data.applicationWorkspaces ?? {}).map(([id, workspace]) => [id, { ...workspace, writtenResponses: undefined, recommenders: undefined, privateNotes: undefined, submissionSnapshots: undefined }])),
+    // Answer Bank entries contain private factual stories.
+    answerBank: undefined,
     // Accomplishments can contain private notes and are loaded only by their
     // dedicated authenticated surface, never through the general client sync.
     accomplishments: undefined,

@@ -33,7 +33,7 @@ export function ApplicationsWorkspace({ initial }: { initial: ApplicationsWorksp
 
       {!initial.applications.length ? <SmartEmptyState className={styles.empty} title="No active applications yet." description="When you begin pursuing an application-based opportunity in Journey, it will appear here." primaryAction={{ label: "Browse For You", href: "/advisor" }} secondaryAction={{ label: "Open Journey", href: "/" }} /> : <>
         <section className={styles.overview} aria-labelledby="applications-overview-title">
-          <div className={styles.overviewCopy}><p className="rule-label">At a glance</p><h2 id="applications-overview-title">{initial.counts.needsAttention ? `${initial.counts.needsAttention} ${initial.counts.needsAttention === 1 ? "application needs" : "applications need"} attention.` : "Your active applications are current."}</h2><p>{initial.deadlines[0] ? `Nearest verified application deadline: ${formatDate(initial.deadlines[0].date)}.` : "No verified application deadlines are currently recorded."}</p></div>
+          <div className={styles.overviewCopy}><p className="rule-label">At a glance</p><h2 id="applications-overview-title">{initial.counts.needsAttention ? `${initial.counts.needsAttention} ${initial.counts.needsAttention === 1 ? "application needs" : "applications need"} preparation.` : "Your active applications are current."}</h2><p>{initial.deadlines[0] ? `Nearest verified application deadline: ${formatDate(initial.deadlines[0].date)}.` : "No verified application deadlines are currently recorded."}</p></div>
           <dl className={styles.counts}><div><dt>Active</dt><dd>{initial.counts.active}</dd></div><div><dt>Need attention</dt><dd>{initial.counts.needsAttention}</dd></div><div><dt>Ready</dt><dd>{initial.counts.ready}</dd></div><div><dt>Submitted</dt><dd>{initial.counts.submitted}</dd></div></dl>
         </section>
 
@@ -65,8 +65,8 @@ function ApplicationRow({ application }: { application: ApplicationsWorkspaceApp
   return <article id={`application-${application.id}`} className={styles.applicationRow} data-state={application.state}>
     <div className={styles.identity}><OrganizationMark organization={application.organization} officialSource={application.officialSource} type="Career" category={application.category} size="sm" /><div><h3>{application.title}</h3><p>{application.organization} · {application.stageLabel}</p></div></div>
     <div className={styles.applicationState}><strong>{application.stateLabel}</strong><span>{application.deadline ? `Application due ${formatDate(application.deadline)}` : "No verified deadline"}</span></div>
-    <div className={styles.coverage}><strong>{application.workspace.requirementsVerified ? `${application.coveredRequirementCount} of ${application.verifiedRequirementCount} verified requirements recorded` : "Requirements not verified"}</strong><span>{application.incompleteTaskCount ? `${application.incompleteTaskCount} incomplete ${application.incompleteTaskCount === 1 ? "task" : "tasks"}` : "No incomplete tasks"}</span></div>
-    <Link className={styles.rowAction} href={application.commandCenterHref} onClick={() => trackProductEvent("application_packet_opened_v1", { status: application.state })}>Open application <ArrowIcon /></Link>
+    <div className={styles.coverage}><strong>Next: {application.nextAction.label}</strong><span>{application.nextAction.detail}</span></div>
+    <Link className={styles.rowAction} aria-label={`Open application: ${application.title}`} href={application.commandCenterHref} onClick={() => trackProductEvent("application_packet_opened_v1", { status: application.state })}>Continue application <ArrowIcon /></Link>
   </article>;
 }
 

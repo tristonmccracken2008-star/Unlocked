@@ -3,11 +3,13 @@ import { applicationMaterialTypeLabels, type ApplicationMaterialType } from "@/d
 import type { OpportunityTrackerStatus, TrackedOpportunity } from "@/data/student-activity";
 import { getJourneyProfessionalActions, getJourneyProfessionalWorkflow, resolveJourneyProfessionalStage } from "@/data/journey-professional";
 import type { AccountData } from "./account-types";
-import { applicationWorkspaceEligible, projectApplicationWorkspace, type ApplicationWorkspaceProjection } from "./application-workspace";
+import { applicationWorkspaceEligible, normalizeAnswerBank, projectApplicationWorkspace, type ApplicationWorkspaceProjection } from "./application-workspace";
 import { createApplicationMaterialProjectionContext } from "./application-materials";
+import { recommendationNeedsAction, reviewWrittenResponse } from "./application-studio";
+import { normalizeResumeLabStore } from "@/data/resume-lab";
 
 export type ApplicationsWorkspaceState = "needs_attention" | "ready" | "waiting" | "submitted" | "requirements_unknown";
-export type ApplicationsWorkspaceAttentionKind = "material_missing" | "material_update" | "task" | "task_due" | "deadline" | "provider_change";
+export type ApplicationsWorkspaceAttentionKind = "material_missing" | "material_update" | "written_response" | "recommender" | "task" | "task_due" | "deadline" | "provider_change";
 
 export type ApplicationsWorkspaceAttention = {
   id: string;
@@ -21,7 +23,7 @@ export type ApplicationsWorkspaceAttention = {
 };
 
 export type ApplicationsWorkspaceNextAction = {
-  kind: "select_material" | "review_material" | "complete_task" | "review_change" | "open_provider" | "mark_applied" | "none";
+  kind: "select_material" | "review_material" | "write_response" | "add_recommender" | "complete_task" | "review_change" | "open_provider" | "mark_applied" | "none";
   label: string;
   detail: string;
   href: string;
@@ -47,6 +49,9 @@ export type ApplicationsWorkspaceApplication = {
   verifiedRequirementCount: number;
   coveredRequirementCount: number;
   materialRequirementCount: number;
+  writtenResponseCount: number;
+  writtenResponsesNeedingAttention: number;
+  recommenderNeedsAttention: boolean;
   recentChange?: ApplicationWorkspaceProjection["recentProviderUpdate"];
   commandCenterHref: string;
   officialSource: string;
@@ -123,6 +128,8 @@ function attentionFor(application: Omit<ApplicationsWorkspaceApplication, "atten
       href,
     });
   }
+  if (application.writtenResponsesNeedingAttention) items.push({ id: `${application.id}:written`, applicationId: application.id, kind: "written_response", label: application.writtenResponseCount ? "Continue written response" : "Record application prompt", detail: application.writtenResponseCount ? `${application.writtenResponsesNeedingAttention} required response ${application.writtenResponsesNeedingAttention === 1 ? "needs" : "need"} work.` : "A written requirement is listed, but no exact prompt is recorded.", priority: 2, href });
+  if (application.recommenderNeedsAttention) items.push({ id: `${application.id}:recommender`, applicationId: application.id, kind: "recommender", label: "Add or update recommender", detail: "A recommendation is listed and its student-reported status needs attention.", priority: 2, href });
   if (application.recentChange) items.push({ id: `${application.id}:change`, applicationId: application.id, kind: "provider_change", label: application.recentChange.label, detail: application.recentChange.summary, priority: 1, href });
   if (application.deadline && application.deadlineDaysRemaining !== undefined && application.deadlineDaysRemaining >= 0 && application.deadlineDaysRemaining <= 14) items.push({
     id: `${application.id}:deadline`, applicationId: application.id, kind: "deadline", label: application.deadlineDaysRemaining === 0 ? "Application due today" : application.deadlineDaysRemaining === 1 ? "Application due tomorrow" : `Application due in ${application.deadlineDaysRemaining} days`, detail: `Verified application deadline: ${application.deadline}.`, dueDate: application.deadline, priority: application.deadlineDaysRemaining <= 2 ? 1 : 5, href,
@@ -138,8 +145,8 @@ function stateFor(record: TrackedOpportunity, workspace: ApplicationWorkspacePro
   if (record.status === "Paused") return ["waiting", "Paused"];
   if (!workspace.requirementsVerified) return ["requirements_unknown", "Requirements not verified"];
   const unresolved = attention.some((item) => item.kind !== "deadline");
-  if (unresolved) return ["needs_attention", "Needs attention"];
-  return ["ready", "Ready"];
+  if (unresolved) return ["needs_attention", "Needs preparation"];
+  return ["ready", "Ready to submit"];
 }
 
 function nextActionFor(application: Omit<ApplicationsWorkspaceApplication, "nextAction">): ApplicationsWorkspaceNextAction {
@@ -147,6 +154,8 @@ function nextActionFor(application: Omit<ApplicationsWorkspaceApplication, "next
   if (first?.kind === "material_missing") return { kind: "select_material", label: first.label.startsWith("Select") ? first.label : "Add material", detail: first.detail, href: first.href, materialType: application.workspace.materials.mappedRequirements.find((item) => first.id.includes(`:${item.type}:`))?.type };
   if (first?.kind === "material_update") return { kind: "review_material", label: "Review material", detail: first.detail, href: first.href };
   if (first?.kind === "provider_change") return { kind: "review_change", label: "Review change", detail: first.detail, href: first.href };
+  if (first?.kind === "written_response") return { kind: "write_response", label: first.label, detail: first.detail, href: first.href };
+  if (first?.kind === "recommender") return { kind: "add_recommender", label: first.label, detail: first.detail, href: first.href };
   if (first?.kind === "task" || first?.kind === "task_due") return { kind: "complete_task", label: first.label, detail: first.detail, href: first.href, taskId: first.id.split(":task:")[1] };
   if (application.state === "ready" && application.submission) return { kind: "mark_applied", label: "Mark as applied", detail: "Use this only after you submit through the provider.", href: application.commandCenterHref };
   if (application.state === "requirements_unknown") return { kind: "open_provider", label: "Review provider requirements", detail: "UnlockED does not have verified requirements for this application.", href: application.officialSource };
@@ -174,6 +183,8 @@ export function buildApplicationsWorkspace(input: { account: AccountData; opport
   const records = { ...(input.account.activity?.tracked ?? {}), ...(input.account.tracker ?? {}) };
   const opportunityById = new Map(input.opportunities.map((item) => [item.id, item]));
   const materialContext = createApplicationMaterialProjectionContext(input.account.applicationMaterials);
+  const answerStories = Object.values(normalizeAnswerBank(input.account.answerBank).records);
+  const resumeLab = normalizeResumeLabStore(input.account.resumeLab);
   const applications: ApplicationsWorkspaceApplication[] = [];
   for (const record of Object.values(records)) {
     if (!preparationStatuses.has(record.status) && !postSubmissionStatuses.has(record.status)) continue;
@@ -182,6 +193,12 @@ export function buildApplicationsWorkspace(input: { account: AccountData; opport
     const workspace = projectApplicationWorkspace({ opportunity, record, workspace: input.account.applicationWorkspaces?.[record.id], materialContext, now });
     const workflow = getJourneyProfessionalWorkflow(opportunity);
     const submit = getJourneyProfessionalActions(record, workflow).find((action) => action.resultingStatus === "Submitted" && action.stage);
+    const studioRecord = input.account.applicationWorkspaces?.[record.id];
+    const responses = Object.values(studioRecord?.writtenResponses ?? {});
+    const writtenRequirement = workspace.tasks.some((task) => task.source === "verified_requirement" && /essay|short answer|personal statement|statement of interest|cover letter|application question/i.test(task.title));
+    const writtenResponsesNeedingAttention = responses.filter((response) => response.required && (!response.draft.trim() || reviewWrittenResponse(response, resumeLab, answerStories).findings.some((finding) => finding.severity === "fix"))).length + (writtenRequirement && !responses.length ? 1 : 0);
+    const recommendationRequired = workspace.tasks.some((task) => task.source === "verified_requirement" && /recommend|reference/i.test(task.title));
+    const recommenderNeedsAttention = recommendationRequired && recommendationNeedsAction(Object.values(studioRecord?.recommenders ?? {}));
     const base = {
       id: record.id,
       title: opportunity.title,
@@ -196,6 +213,9 @@ export function buildApplicationsWorkspace(input: { account: AccountData; opport
       verifiedRequirementCount: workspace.tasks.filter((task) => task.source === "verified_requirement").length,
       coveredRequirementCount: workspace.tasks.filter((task) => task.source === "verified_requirement" && task.completed).length,
       materialRequirementCount: workspace.materials.mappedRequirements.length,
+      writtenResponseCount: responses.length,
+      writtenResponsesNeedingAttention,
+      recommenderNeedsAttention,
       recentChange: workspace.recentProviderUpdate,
       commandCenterHref: commandCenterHref(record.id),
       officialSource: workspace.officialSource,

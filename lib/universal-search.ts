@@ -12,6 +12,7 @@ import { opportunityCollections } from "@/data/opportunity-collections";
 import { applicationMaterialStatusLabels, applicationMaterialTypeLabels, normalizeApplicationMaterialStore } from "@/data/application-materials";
 import { opportunityCollectionCoverage } from "./opportunity-collections";
 import { normalizeResumeLabStore } from "@/data/resume-lab";
+import { normalizeAnswerBank } from "./application-workspace";
 
 function normalize(value: string) {
   return value.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim().replace(/\s+/g, " ");
@@ -137,6 +138,12 @@ export function buildUniversalSearch(input: {
     if (!score) return [];
     return [{ id: `experience:${record.id}`, kind: "resume", group: "Resume Lab", title: record.title ?? "Untitled experience", subtitle: `${record.organization ?? "Personal experience"} · Experience Bank`, href: `/resume-lab?view=experience&experience=${encodeURIComponent(record.id)}`, score: score + 390 }];
   }).sort((left, right) => right.score - left.score || left.title.localeCompare(right.title)).slice(0, 4);
+  const answerStories = Object.values(normalizeAnswerBank(input.account.answerBank).records).flatMap((record): UniversalSearchResult[] => {
+    // Search metadata only. Story bodies remain intentionally unindexed.
+    const score = matchScore(query, [record.title, record.category, "answer bank"]);
+    if (!score) return [];
+    return [{ id: `answer-story:${record.id}`, kind: "resume", group: "Resume Lab", title: record.title, subtitle: `${record.category} · Private Answer Bank`, href: `/answer-bank#story-${encodeURIComponent(record.id)}`, score: score + 395 }];
+  }).sort((left, right) => right.score - left.score || left.title.localeCompare(right.title)).slice(0, 4);
   const paths = opportunityPaths.flatMap((path): UniversalSearchResult[] => {
     const score = matchScore(query, [path.name, path.shortName, `${path.name} path`, `${path.shortName} path`, path.description, ...path.profileAliases]);
     return score ? [{ id: `path:${path.id}`, kind: "path", group: "Paths", title: path.name, subtitle: "Explore opportunities by goal", href: `/paths/${path.id}`, score: score + 340 }] : [];
@@ -234,7 +241,7 @@ export function buildUniversalSearch(input: {
 
   return {
     query,
-    results: [...strategy, ...collections, ...explorer, ...resumes, ...experiences, ...materials, ...paths, ...accomplishments, ...personal, ...upcoming, ...tasks, ...opportunities],
+    results: [...strategy, ...collections, ...explorer, ...resumes, ...experiences, ...answerStories, ...materials, ...paths, ...accomplishments, ...personal, ...upcoming, ...tasks, ...opportunities],
     totalOpportunityMatches: preciseCatalog.length ? catalog.total : 0,
   };
 }

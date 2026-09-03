@@ -3,12 +3,13 @@ import Link from "next/link";
 export function BuildNavigation({
   current,
 }: {
-  current: "overview" | "experience" | "resumes" | "materials";
+  current: "overview" | "experience" | "resumes" | "answer_bank" | "materials";
 }) {
   const links = [
     ["overview", "Overview", "/build"],
     ["experience", "Experience", "/resume-lab?view=experience"],
     ["resumes", "Resumes", "/resume-lab?view=resumes"],
+    ["answer_bank", "Answer Bank", "/answer-bank"],
     ["materials", "Materials", "/materials"],
   ] as const;
   return (

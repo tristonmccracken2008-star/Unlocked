@@ -151,7 +151,13 @@ assert.ok(
   "Browser checks require eight verified application-capable opportunities.",
 );
 const now = "2026-08-24T12:00:00.000Z";
-async function seed(label: string, count: number) {
+async function seed(
+  label: string,
+  count: number,
+  appearance: "light" | "midnight" | "forest" | "system" = count
+    ? "midnight"
+    : "light",
+) {
   const user = await upsertUser({
     googleSub: `applications-browser-${label}`,
     email: `${label.toLowerCase()}@example.test`,
@@ -193,7 +199,7 @@ async function seed(label: string, count: number) {
     },
     savedOpportunities: [],
     tracker,
-    preferences: { appearance: count ? "midnight" : "light", updatedAt: now },
+    preferences: { appearance, updatedAt: now },
   });
   if (count)
     await updateAccountBilling(user.id, { tier: "pro", status: "active" });
@@ -201,6 +207,9 @@ async function seed(label: string, count: number) {
 }
 const owner = await seed("Avery", 8);
 const empty = await seed("Jordan", 0);
+const lightOwner = await seed("Taylor", 2, "light");
+const forestOwner = await seed("Morgan", 2, "forest");
+const systemOwner = await seed("Riley", 2, "system");
 const app = next({
   dev: true,
   dir: process.cwd(),
@@ -254,10 +263,33 @@ try {
   const complete = page.getByRole("button", { name: "Mark complete" }).first();
   await complete.click();
   await page.getByText("Application task completed.").waitFor();
+  await page.getByRole("button", { name: "Add a prompt from the official form" }).click();
+  await page.getByLabel("Prompt text").fill("Tell us about a challenge, how you responded, and what you learned.");
+  await page.getByLabel("Published limit").fill("500");
+  await page.getByRole("button", { name: "Save prompt" }).click();
+  await page.getByText("Student-added prompt saved.").waitFor();
+  await page.getByLabel("Response draft").fill("The challenge was incomplete data. I learned a lot and led 20 people.");
+  await page.getByRole("button", { name: "Save draft" }).click();
+  await page.getByText("Written response saved.").waitFor();
+  await page.getByText("Confirm new factual claims").first().waitFor();
+  await page.getByRole("button", { name: "Add recommender" }).click();
+  await page.getByLabel("Name", { exact: true }).fill("Professor Rivera");
+  await page.getByRole("button", { name: "Save recommender" }).click();
+  await page.getByText("Recommender recorded.").waitFor();
+  await page.getByRole("button", { name: "Save a factual story" }).click();
+  await page.getByLabel("Story title").fill("Research data challenge");
+  await page.getByLabel("What you actually did").fill("Reviewed missing records and documented a validation process.");
+  await page.getByRole("button", { name: "Save to Answer Bank" }).click();
+  await page.getByText("Story saved to Answer Bank.").waitFor();
+  await page.getByRole("heading", { name: "Reusable factual stories." }).waitFor();
   await page.screenshot({
     path: `${output}/application-detail-dark-1728.png`,
     fullPage: true,
   });
+  for (const width of [1440, 1280, 640]) {
+    await page.setViewportSize({ width, height: 900 });
+    await noOverflow(page, `Application detail at ${width}px`);
+  }
   await page.setViewportSize({ width: 720, height: 900 });
   await noOverflow(page, "Applications at 200% desktop zoom equivalent");
   await page.setViewportSize({ width: 1440, height: 900 });
@@ -335,6 +367,31 @@ try {
     0,
   );
   await isolated.close();
+  for (const [label, session, colorScheme] of [
+    ["light", lightOwner, "light"],
+    ["forest", forestOwner, "light"],
+    ["system", systemOwner, "dark"],
+  ] as const) {
+    const themed = await chromiumBrowser.newContext({
+      viewport: { width: 1280, height: 800 },
+      colorScheme,
+    });
+    await install(themed, origin, session.token);
+    const themedPage = await themed.newPage();
+    await themedPage.goto(`${origin}/applications`, {
+      waitUntil: "networkidle",
+      timeout: 60_000,
+    });
+    await themedPage
+      .getByRole("link", { name: "Open application" })
+      .first()
+      .click();
+    await themedPage
+      .getByRole("heading", { name: "Application contents" })
+      .waitFor();
+    await noOverflow(themedPage, `Application detail ${label} mode`);
+    await themed.close();
+  }
   const webkitContext = await webkitBrowser.newContext({
     viewport: { width: 1280, height: 800 },
     reducedMotion: "reduce",
@@ -381,12 +438,22 @@ if (failure) {
     chromium: true,
     webkit: true,
     mobile390: true,
+    mobile640: true,
+    desktop1280: true,
+    desktop1440: true,
     desktop1728: true,
     zoom200Percent: true,
+    normalMotion: true,
     reducedMotion: true,
+    lightMode: true,
     darkMode: true,
+    forestMode: true,
+    systemMode: true,
     accountIsolation: true,
     taskMutation: true,
+    writtenResponse: true,
+    recommender: true,
+    answerBank: true,
     workflowLearn: true,
   });
 process.exit(process.exitCode ?? 0);

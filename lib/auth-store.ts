@@ -9,7 +9,7 @@ import { isCompletedStudentProfile, normalizeStudentProfile } from "@/data/stude
 import { meaningfulAdvisorProfileChanged } from "./advisor/profile-version";
 import { constantTimeEqual, requiredAuthSecret } from "./security";
 import { normalizedFirstLaunchComplete } from "./first-launch-state";
-import { normalizeApplicationWorkspaces } from "./application-workspace";
+import { normalizeAnswerBank, normalizeApplicationWorkspaces } from "./application-workspace";
 import { normalizeAccomplishmentStore } from "@/data/accomplishments";
 import { normalizeOpportunityPathPreferences, opportunityPathIds, type OpportunityPathId } from "@/data/opportunity-paths";
 import { emptyApplicationMaterialStore, normalizeApplicationMaterialStore, type ApplicationMaterialStore } from "@/data/application-materials";
@@ -38,7 +38,7 @@ const kvTimeoutMs = 2800;
 const kvRetryDelayMs = 120;
 const releaseLockScript = "if redis.call('GET',KEYS[1]) == ARGV[1] then return redis.call('DEL',KEYS[1]) else return 0 end";
 
-const emptyData = (): AccountData => ({ profile: null, onboardingComplete: false, firstLaunchComplete: false, billing: defaultBillingRecord(), activity: null, savedOpportunities: [], watchedOpportunities: [], tracker: {}, preferences: null, journeyProgress: {}, calendarEvents: {}, applicationWorkspaces: {}, applicationMaterials: emptyApplicationMaterialStore(), resumeLab: emptyResumeLabStore(), accomplishments: {}, pathPreferences: {}, guidance: {}, advisor: null, referrals: null, updatedAt: new Date().toISOString() });
+const emptyData = (): AccountData => ({ profile: null, onboardingComplete: false, firstLaunchComplete: false, billing: defaultBillingRecord(), activity: null, savedOpportunities: [], watchedOpportunities: [], tracker: {}, preferences: null, journeyProgress: {}, calendarEvents: {}, applicationWorkspaces: {}, answerBank: { records: {}, version: 0 }, applicationMaterials: emptyApplicationMaterialStore(), resumeLab: emptyResumeLabStore(), accomplishments: {}, pathPreferences: {}, guidance: {}, advisor: null, referrals: null, updatedAt: new Date().toISOString() });
 
 function requireProductionStore() {
   if (!hasKv && process.env.NODE_ENV === "production") throw new Error("A production data store is required. Set KV_REST_API_URL/KV_REST_API_TOKEN or UPSTASH_REDIS_REST_URL/UPSTASH_REDIS_REST_TOKEN.");
@@ -378,6 +378,7 @@ function normalizeAccountData(value: AccountData | null | undefined): AccountDat
     journeyProgress: value.journeyProgress ?? {},
     calendarEvents: value.calendarEvents ?? {},
     applicationWorkspaces: normalizeApplicationWorkspaces(value.applicationWorkspaces),
+    answerBank: normalizeAnswerBank(value.answerBank),
     applicationMaterials: normalizeApplicationMaterialStore(value.applicationMaterials),
     resumeLab: normalizeResumeLabStore(value.resumeLab),
     accomplishments: normalizeAccomplishmentStore(value.accomplishments),
@@ -431,6 +432,8 @@ export async function mergeAccountData(userId: string, incoming: Partial<Account
     journeyProgress: { ...(current.journeyProgress ?? {}), ...(incoming.journeyProgress ?? {}) },
     calendarEvents: current.calendarEvents ?? {},
     applicationWorkspaces: current.applicationWorkspaces ?? {},
+    // Answer Bank contains private story material and only changes through Application Studio.
+    answerBank: normalizeAnswerBank(current.answerBank),
     // Materials are high-sensitivity private data and only change through their dedicated endpoint.
     applicationMaterials: normalizeApplicationMaterialStore(current.applicationMaterials),
     // Resume Lab is private, evidence-bearing data and only changes through its dedicated endpoint.
@@ -563,7 +566,7 @@ export async function mutateJourneyCalendarEvent(userId: string, input: {
 export async function mutateApplicationWorkspace(userId: string, input: {
   opportunityId: string;
   expectedVersion: number;
-  mutate: (workspace: ApplicationWorkspaceRecord | undefined, account: AccountData) => { workspace: ApplicationWorkspaceRecord; duplicate: boolean };
+  mutate: (workspace: ApplicationWorkspaceRecord | undefined, account: AccountData) => { workspace: ApplicationWorkspaceRecord; duplicate: boolean; answerBank?: AccountData["answerBank"] };
 }) {
   return await withSecurityLock("journey-application", userId, async () => {
     const account = await readAccountData(userId);
@@ -577,7 +580,7 @@ export async function mutateApplicationWorkspace(userId: string, input: {
       throw error;
     }
     workspaces[input.opportunityId] = result.workspace;
-    const next = { ...account, applicationWorkspaces: workspaces, updatedAt: result.workspace.updatedAt };
+    const next = { ...account, applicationWorkspaces: workspaces, answerBank: result.answerBank ? normalizeAnswerBank(result.answerBank) : account.answerBank, updatedAt: result.workspace.updatedAt };
     await writeAccountData(userId, next);
     return { account: next, workspace: result.workspace, duplicate: false };
   });

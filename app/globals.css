@@ -182,6 +182,7 @@
   color-scheme: dark;
 }
 html { scroll-behavior: smooth; }
+.application-studio-theme { --ink: var(--unlocked-text); --surface: var(--unlocked-surface-elevated); --forest: rgb(var(--color-forest)); --muted: var(--unlocked-muted); --canvas: var(--unlocked-page); --font-display: var(--font-editorial); }
 body { min-height: 100vh; overflow-x: hidden; background-color: var(--canvas); background-image: radial-gradient(ellipse 50rem 28rem at 12% -6%, var(--ambient-green), transparent 74%), radial-gradient(ellipse 44rem 28rem at 92% 5%, var(--ambient-blue), transparent 76%), radial-gradient(ellipse 48rem 30rem at 58% 108%, var(--unlocked-ambient-c), transparent 78%), radial-gradient(ellipse 34rem 22rem at 72% 20%, var(--unlocked-ambient-warm), transparent 78%); background-attachment: fixed; color: var(--text-primary); font-family: var(--font-sans); font-size: 16px; line-height: 1.5; text-rendering: optimizeLegibility; }
 #main-content { position: relative; isolation: isolate; }
 [data-theme="midnight"] input, [data-theme="midnight"] select, [data-theme="midnight"] textarea, [data-theme="forest"] input, [data-theme="forest"] select, [data-theme="forest"] textarea { color: var(--unlocked-text); }
