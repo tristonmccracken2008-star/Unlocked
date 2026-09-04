@@ -5,7 +5,7 @@
   "scripts": {
     "prepare:brand": "node scripts/prepare-unlocked-logo.mjs",
     "dev": "next dev",
-    "validate:data": "npm run check:strategy && npm run check:opportunity-planner && npm run check:accomplishments && npm run check:opportunity-paths && npm run check:application-materials && npm run check:resume-lab && npm run check:build-workspace && npm run check:applications-workspace && npm run check:application-packets && npm run check:application-studio && npm run check:opportunity-insights && npm run check:opportunity-explorer && npm run check:opportunity-collections && node scripts/validate-data.mjs",
+    "validate:data": "npm run check:strategy && npm run check:opportunity-planner && npm run check:accomplishments && npm run check:opportunity-paths && npm run check:careers && npm run check:application-materials && npm run check:resume-lab && npm run check:build-workspace && npm run check:applications-workspace && npm run check:application-packets && npm run check:application-studio && npm run check:opportunity-insights && npm run check:opportunity-explorer && npm run check:opportunity-collections && node scripts/validate-data.mjs",
     "check:data-enrichment": "node scripts/check-opportunity-enrichment.mjs",
     "generate:opportunity-duplicates": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/generate-opportunity-duplicates.ts",
     "check:opportunity-intelligence-platform": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-opportunity-intelligence-platform.ts",
@@ -98,6 +98,8 @@
     "preview:open-line-motion": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/render-open-line-motion-laboratory.tsx",
     "check:discover": "node scripts/check-discover-redesign.mjs && node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-discover-search.ts && node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-discovery-quality.ts && node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-opportunity-report.ts",
     "check:universal-search": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-universal-search.ts",
+    "check:careers": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-careers-explorer.ts",
+    "test:careers-browser": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/test-careers-browser.ts",
     "check:return-experience": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-return-experience.ts",
     "check:journey-redesign": "node scripts/check-journey-redesign.mjs",
     "check:journey-signature": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-journey-signature.ts",

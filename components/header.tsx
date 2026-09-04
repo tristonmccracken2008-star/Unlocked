@@ -63,6 +63,12 @@ const contextualDestinations: Record<
       icon: SparkIcon,
     },
     {
+      label: "Careers",
+      description: "Compare paths, tradeoffs, pay, and AI outlook.",
+      href: "/careers",
+      icon: ListIcon,
+    },
+    {
       label: "Collections",
       description: "Start with a curated group.",
       href: "/collections",
@@ -147,7 +153,7 @@ const contextualDestinations: Record<
 
 function isDestinationActive(label: DestinationLabel, pathname: string) {
   if (label === "Discover")
-    return ["/opportunities", "/explore", "/collections", "/paths"].some(
+    return ["/opportunities", "/explore", "/collections", "/paths", "/careers"].some(
       (href) => pathname.startsWith(href),
     );
   if (label === "For You") return pathname.startsWith("/advisor");
@@ -172,6 +178,7 @@ function isServerProtectedProductPath(pathname: string) {
     pathname === "/build" ||
     pathname === "/planner" ||
     pathname.startsWith("/paths") ||
+    pathname.startsWith("/careers") ||
     pathname.startsWith("/explore") ||
     pathname.startsWith("/collections") ||
     pathname === "/accomplishments" ||

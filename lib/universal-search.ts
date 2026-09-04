@@ -13,6 +13,7 @@ import { applicationMaterialStatusLabels, applicationMaterialTypeLabels, normali
 import { opportunityCollectionCoverage } from "./opportunity-collections";
 import { normalizeResumeLabStore } from "@/data/resume-lab";
 import { normalizeAnswerBank } from "./application-workspace";
+import { careers } from "@/data/careers";
 
 function normalize(value: string) {
   return value.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim().replace(/\s+/g, " ");
@@ -148,6 +149,10 @@ export function buildUniversalSearch(input: {
     const score = matchScore(query, [path.name, path.shortName, `${path.name} path`, `${path.shortName} path`, path.description, ...path.profileAliases]);
     return score ? [{ id: `path:${path.id}`, kind: "path", group: "Paths", title: path.name, subtitle: "Explore opportunities by goal", href: `/paths/${path.id}`, score: score + 340 }] : [];
   }).sort((left, right) => right.score - left.score || left.title.localeCompare(right.title)).slice(0, 4);
+  const careerResults = careers.flatMap((career): UniversalSearchResult[] => {
+    const score = matchScore(query, [career.name, ...career.aliases, career.category, career.industry, career.description, ...career.majors, ...Object.values(career.skills).flat()]);
+    return score ? [{ id: career.id, kind: "career", group: "Careers", title: career.name, subtitle: `${career.category} · ${career.description}`, href: `/careers/${career.slug}`, score: score + 400 }] : [];
+  }).sort((left, right) => right.score - left.score || left.title.localeCompare(right.title)).slice(0, 4);
   const launchedCollectionIds = new Set(opportunityCollectionCoverage(input.opportunities, input.now).filter((item) => item.readiness === "launched").map((item) => item.id));
   const collections = opportunityCollections.flatMap((collection): UniversalSearchResult[] => {
     if (!launchedCollectionIds.has(collection.id)) return [];
@@ -241,7 +246,7 @@ export function buildUniversalSearch(input: {
 
   return {
     query,
-    results: [...strategy, ...collections, ...explorer, ...resumes, ...experiences, ...answerStories, ...materials, ...paths, ...accomplishments, ...personal, ...upcoming, ...tasks, ...opportunities],
+    results: [...strategy, ...careerResults, ...collections, ...explorer, ...resumes, ...experiences, ...answerStories, ...materials, ...paths, ...accomplishments, ...personal, ...upcoming, ...tasks, ...opportunities],
     totalOpportunityMatches: preciseCatalog.length ? catalog.total : 0,
   };
 }

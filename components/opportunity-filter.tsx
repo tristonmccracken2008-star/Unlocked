@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import type { ReactNode } from "react";
 import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import type { Opportunity, OpportunityDifficulty, OpportunityType } from "@/data/opportunities";
@@ -435,6 +436,7 @@ export function OpportunityFilter({ opportunities: initialOpportunities = [] }: 
       <p className="rule-label text-forest">Discover opportunities</p>
       <h1 className="mt-4 font-editorial text-5xl font-semibold leading-[1] text-ink sm:text-6xl">Find what’s out there.</h1>
       <p className="mt-5 max-w-2xl text-base leading-7 text-ink/60">Search UnlockED’s complete catalog of scholarships, internships, research, student tools, and benefits.</p>
+      <Link href="/careers" className="mt-4 inline-flex min-h-11 items-center rounded-full border border-forest/20 bg-white/65 px-4 text-sm font-bold text-forest hover:border-forest/45">Exploring the work itself? Browse careers →</Link>
     </header>
 
     <section data-discover-search-shell="" className="mt-8 max-w-5xl rounded-[1.5rem] bg-white/50 p-3 shadow-[0_18px_55px_rgba(43,33,26,.05)] ring-1 ring-ink/10 sm:p-4" aria-label="Search opportunities">

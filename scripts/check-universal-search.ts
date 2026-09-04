@@ -79,6 +79,8 @@ assert.equal(buildUniversalSearch({ user: { ...user, id: "other-account" }, acco
 const pathResults = buildUniversalSearch({ user, account: account(tracked), opportunities, query: "quant path", now });
 assert.ok(pathResults.results.some((item) => item.group === "Paths" && item.href === "/paths/quantitative-data"), "Universal Search must distinguish goal-oriented Paths from catalog opportunities.");
 assert.equal(pathResults.results.filter((item) => item.group === "Paths").every((item) => item.kind === "path"), true);
+const careerResults = buildUniversalSearch({ user, account: account(tracked), opportunities, query: "quantitative trader", now });
+assert.ok(careerResults.results.some((item) => item.group === "Careers" && item.href === "/careers/quantitative-trader"), "Universal Search must open matching career profiles.");
 const collectionResults = buildUniversalSearch({ user, account: account(tracked), opportunities, query: "first year opportunities", now });
 assert.ok(collectionResults.results.some((item) => item.group === "Collections" && item.href === "/collections/first-year"), "Universal Search must expose launched curated starting points.");
 assert.equal(collectionResults.results.some((item) => item.href === "/collections/transfer-friendly"), false, "Deferred collections must remain absent from search.");
