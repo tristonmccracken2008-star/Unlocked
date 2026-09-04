@@ -140,14 +140,14 @@ export function FirstLaunchWalkthrough({ initialSession, pro }: { initialSession
       const response = await authenticatedFetch("/api/account/first-launch", { method: "POST", credentials: "same-origin" });
       if (response.status === 401) throw new Error("session");
       if (!response.ok) throw new Error("save");
-      const result = await response.json() as { ok?: boolean };
+      const result = await response.json() as { ok?: boolean; returnTo?: string };
       if (!result.ok || activeUserId.current !== userId) throw new Error("session");
       try { sessionStorage.removeItem(storageKey); } catch { /* Best effort. */ }
       trackProductEvent("first_launch_completed", { stepCount: String(steps.length) });
       resetAccountSessionCache();
       setFinishing(true);
       window.setTimeout(() => {
-        router.replace("/opportunities");
+        router.replace(result.returnTo || "/opportunities");
         router.refresh();
       }, window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 360);
     } catch (caught) {

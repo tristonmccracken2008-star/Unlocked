@@ -97,6 +97,12 @@ const contextualDestinations: Record<
   ],
   Journey: [
     {
+      label: "Opportunity Passport",
+      description: "Shape and share the story of your college journey.",
+      href: "/passport",
+      icon: SparkIcon,
+    },
+    {
       label: "Journey",
       description: "See what you are pursuing and update progress.",
       href: "/",
@@ -166,6 +172,7 @@ function isDestinationActive(label: DestinationLabel, pathname: string) {
   return (
     pathname === "/" ||
     pathname.startsWith("/applications") ||
+    pathname.startsWith("/passport") ||
     pathname.startsWith("/planner") ||
     pathname.startsWith("/accomplishments") ||
     pathname.startsWith("/insights")
@@ -177,6 +184,7 @@ function isServerProtectedProductPath(pathname: string) {
     pathname === "/advisor" ||
     pathname === "/build" ||
     pathname === "/planner" ||
+    pathname === "/passport" ||
     pathname.startsWith("/paths") ||
     pathname.startsWith("/careers") ||
     pathname.startsWith("/explore") ||

@@ -43,7 +43,7 @@ export function Accomplishments({ model, guidance }: { model: AccomplishmentsMod
     <div className={styles.shell}>
       <header className={styles.hero}>
         <div><p className={styles.eyebrow}>Private college record</p><h1>Accomplishments</h1><p>Meaningful opportunities you completed, earned, or experienced. This record is visible only to you.</p></div>
-        <div className={styles.heroActions}><AccomplishmentsManager showTrigger={model.total > 0} /><a href="/">View Journey</a></div>
+        <div className={styles.heroActions}><AccomplishmentsManager showTrigger={model.total > 0} /><a href="/passport">Add to Passport</a><a href="/">View Journey</a></div>
       </header>
 
       <AccomplishmentsGuidance initialState={guidance} hasRecords={model.total > 0} />

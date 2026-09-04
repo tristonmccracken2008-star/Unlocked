@@ -113,6 +113,8 @@
     "check:calendar-intelligence": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-calendar-intelligence.ts",
     "check:opportunity-planner": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-opportunity-planner.ts",
     "check:accomplishments": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-accomplishments.ts",
+    "check:opportunity-passport": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-opportunity-passport.ts",
+    "test:opportunity-passport-browser": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/test-opportunity-passport-browser.ts",
     "check:opportunity-paths": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-opportunity-paths.ts",
     "test:opportunity-paths-browser": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/test-opportunity-paths-browser.ts",
     "test:accomplishments-browser": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/test-accomplishments-browser.ts",

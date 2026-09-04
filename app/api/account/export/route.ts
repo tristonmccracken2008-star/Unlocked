@@ -43,6 +43,7 @@ export async function POST(request: Request) {
       materials: data.applicationMaterials ?? { records: {}, associations: {}, version: 0 },
       resumeLab: data.resumeLab ?? { experiences: {}, resumes: {}, version: 0 },
       accomplishments,
+      passport: data.passport,
       notifications: notificationData.notifications.map((item) => ({
         type: item.type,
         state: item.state,

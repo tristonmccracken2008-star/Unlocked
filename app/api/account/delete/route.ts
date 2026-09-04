@@ -5,6 +5,8 @@ import { deleteUserNotificationData } from "@/lib/notification-store";
 import { cancelStripeSubscription } from "@/lib/stripe";
 import { recordAnalyticsEvent } from "@/lib/analytics-store";
 import { assertSameOrigin, enforceRateLimit, readBoundedJson, SecurityError, securityErrorResponse } from "@/lib/security";
+import { normalizeOpportunityPassport } from "@/data/passport";
+import { revokeCollection, revokePassport } from "@/lib/passport-public-store";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -24,6 +26,8 @@ export async function POST(request: Request) {
       await cancelStripeSubscription(session.data.billing.stripeSubscriptionId, session.user.id);
       subscriptionCanceled = true;
     }
+    const passport = normalizeOpportunityPassport(session.data.passport);
+    await Promise.all([revokePassport(passport.shareToken), ...passport.collections.map((collection) => revokeCollection(collection.shareToken))]);
     await deleteUserNotificationData(session.user.id);
     const result = await deleteAccount(session.user.id);
     await recordAnalyticsEvent("account_deletion_completed", session.user.id, { action: "confirmed" }).catch(() => undefined);

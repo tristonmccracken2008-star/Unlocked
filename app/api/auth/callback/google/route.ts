@@ -62,12 +62,15 @@ export async function GET(request: NextRequest) {
     console.info("[UnlockED auth] Previous session cleanup complete", { requestId, durationMs: Math.round(performance.now() - startedAt) });
     const session = await createSession(user);
     console.info("[UnlockED auth] New session persistence complete", { requestId, durationMs: Math.round(performance.now() - startedAt) });
+    const safeReturn = /^\/(?:opportunities|discover|p|c)\/[A-Za-z0-9._:%-]+(?:\?[A-Za-z0-9._~!$&'()*+,;=:@%/?-]*)?$/;
+    const pendingReturn = cookieStore.get("unlocked_return_to")?.value;
     const destination = !accountHasCompletedOnboarding(accountData)
       ? "/onboarding"
-      : accountHasCompletedFirstLaunch(accountData) ? "/advisor" : "/welcome";
+      : accountHasCompletedFirstLaunch(accountData) ? (pendingReturn && safeReturn.test(pendingReturn) ? pendingReturn : "/advisor") : "/welcome";
     const response = NextResponse.redirect(new URL(destination, request.nextUrl.origin));
     clearOAuthCookies(response);
     response.cookies.delete(referralCookieName);
+    if (accountHasCompletedFirstLaunch(accountData)) response.cookies.delete("unlocked_return_to");
     response.cookies.set(sessionCookieName, session.token, { httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", expires: session.expires, maxAge: 60 * 60 * 24 * 30, path: "/", priority: "high" });
     console.info("[UnlockED auth] Session cookie committed", { requestId, cookieName: sessionCookieName, secure: process.env.NODE_ENV === "production", sameSite: "lax", path: "/", maxAge: 60 * 60 * 24 * 30, durationMs: Math.round(performance.now() - startedAt) });
     return response;

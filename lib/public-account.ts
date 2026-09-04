@@ -32,6 +32,8 @@ export function publicAccountData(data: AccountData): AccountData {
     // Accomplishments can contain private notes and are loaded only by their
     // dedicated authenticated surface, never through the general client sync.
     accomplishments: undefined,
+    // Passport editing choices include private items and opaque publishing tokens.
+    passport: undefined,
     billing: {
       ...data.billing,
       stripeCustomerId: undefined,

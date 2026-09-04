@@ -10,6 +10,7 @@ import type { AccomplishmentStore } from "@/data/accomplishments";
 import type { OpportunityPathPreferences } from "@/data/opportunity-paths";
 import type { ApplicationMaterialStore } from "@/data/application-materials";
 import type { ResumeLabStore } from "@/data/resume-lab";
+import type { OpportunityPassport } from "@/data/passport";
 
 export type AuthUser = {
   id: string;
@@ -200,6 +201,7 @@ export type AccountData = {
   answerBank?: AnswerBankStore;
   applicationMaterials?: ApplicationMaterialStore;
   resumeLab?: ResumeLabStore;
+  passport?: OpportunityPassport;
   accomplishments?: AccomplishmentStore;
   pathPreferences?: OpportunityPathPreferences;
   guidance?: GuidanceState;

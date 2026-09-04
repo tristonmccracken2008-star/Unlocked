@@ -14,6 +14,7 @@ import { normalizeAccomplishmentStore } from "@/data/accomplishments";
 import { normalizeOpportunityPathPreferences, opportunityPathIds, type OpportunityPathId } from "@/data/opportunity-paths";
 import { emptyApplicationMaterialStore, normalizeApplicationMaterialStore, type ApplicationMaterialStore } from "@/data/application-materials";
 import { emptyResumeLabStore, normalizeResumeLabStore, type ResumeLabStore } from "@/data/resume-lab";
+import { emptyOpportunityPassport, normalizeOpportunityPassport, type OpportunityPassport } from "@/data/passport";
 
 export const sessionCookieName = "unlocked_session";
 export const oauthStateCookieName = "unlocked_oauth_state";
@@ -38,7 +39,7 @@ const kvTimeoutMs = 2800;
 const kvRetryDelayMs = 120;
 const releaseLockScript = "if redis.call('GET',KEYS[1]) == ARGV[1] then return redis.call('DEL',KEYS[1]) else return 0 end";
 
-const emptyData = (): AccountData => ({ profile: null, onboardingComplete: false, firstLaunchComplete: false, billing: defaultBillingRecord(), activity: null, savedOpportunities: [], watchedOpportunities: [], tracker: {}, preferences: null, journeyProgress: {}, calendarEvents: {}, applicationWorkspaces: {}, answerBank: { records: {}, version: 0 }, applicationMaterials: emptyApplicationMaterialStore(), resumeLab: emptyResumeLabStore(), accomplishments: {}, pathPreferences: {}, guidance: {}, advisor: null, referrals: null, updatedAt: new Date().toISOString() });
+const emptyData = (): AccountData => ({ profile: null, onboardingComplete: false, firstLaunchComplete: false, billing: defaultBillingRecord(), activity: null, savedOpportunities: [], watchedOpportunities: [], tracker: {}, preferences: null, journeyProgress: {}, calendarEvents: {}, applicationWorkspaces: {}, answerBank: { records: {}, version: 0 }, applicationMaterials: emptyApplicationMaterialStore(), resumeLab: emptyResumeLabStore(), accomplishments: {}, passport: emptyOpportunityPassport(), pathPreferences: {}, guidance: {}, advisor: null, referrals: null, updatedAt: new Date().toISOString() });
 
 function requireProductionStore() {
   if (!hasKv && process.env.NODE_ENV === "production") throw new Error("A production data store is required. Set KV_REST_API_URL/KV_REST_API_TOKEN or UPSTASH_REDIS_REST_URL/UPSTASH_REDIS_REST_TOKEN.");
@@ -382,6 +383,7 @@ function normalizeAccountData(value: AccountData | null | undefined): AccountDat
     applicationMaterials: normalizeApplicationMaterialStore(value.applicationMaterials),
     resumeLab: normalizeResumeLabStore(value.resumeLab),
     accomplishments: normalizeAccomplishmentStore(value.accomplishments),
+    passport: normalizeOpportunityPassport(value.passport),
     pathPreferences: normalizeOpportunityPathPreferences(value.pathPreferences),
     guidance: normalizeGuidanceState(value.guidance),
     advisor: normalizeAdvisorData(value.advisor),
@@ -439,6 +441,8 @@ export async function mergeAccountData(userId: string, incoming: Partial<Account
     // Resume Lab is private, evidence-bearing data and only changes through its dedicated endpoint.
     resumeLab: normalizeResumeLabStore(current.resumeLab),
     accomplishments: normalizeAccomplishmentStore(incoming.accomplishments ?? current.accomplishments),
+    // Passport visibility and publishing change only through the dedicated endpoint.
+    passport: normalizeOpportunityPassport(current.passport),
     // Path follows may only change through the dedicated same-origin endpoint.
     pathPreferences: normalizeOpportunityPathPreferences(current.pathPreferences),
     guidance: normalizeGuidanceState(current.guidance),
@@ -452,6 +456,16 @@ export async function mergeAccountData(userId: string, incoming: Partial<Account
     return await readAccountData(userId);
   }
   return next;
+}
+
+export async function updateOpportunityPassport(userId: string, passport: OpportunityPassport) {
+  return await withSecurityLock("opportunity-passport", userId, async () => {
+    const current = await readAccountData(userId);
+    const normalized = normalizeOpportunityPassport(passport);
+    const next = { ...current, passport: normalized, updatedAt: new Date().toISOString() };
+    await writeAccountData(userId, next);
+    return next;
+  });
 }
 
 export async function updateWatchedOpportunity(userId: string, opportunityId: string, watching: boolean) {

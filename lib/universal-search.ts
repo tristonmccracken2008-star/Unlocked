@@ -113,6 +113,7 @@ export function buildUniversalSearch(input: {
   });
   const records = [...model.activeRecords, ...model.historyGroups.flatMap((group) => group.records)];
   const personal = journeyResults(records, query);
+  const passport: UniversalSearchResult[] = matchScore(query, ["my passport", "opportunity passport", "my projects", "my accomplishments", "my collections"]) ? [{ id: "passport:self", kind: "passport", group: "Passport", title: "My Opportunity Passport", subtitle: "Your private, shareable college journey", href: "/passport", score: 1_150 }] : [];
   const strategy: UniversalSearchResult[] = strategyIntent(query) ? [{
     id: "journey:strategy",
     kind: "journey",
@@ -246,7 +247,7 @@ export function buildUniversalSearch(input: {
 
   return {
     query,
-    results: [...strategy, ...careerResults, ...collections, ...explorer, ...resumes, ...experiences, ...answerStories, ...materials, ...paths, ...accomplishments, ...personal, ...upcoming, ...tasks, ...opportunities],
+    results: [...passport, ...strategy, ...careerResults, ...collections, ...explorer, ...resumes, ...experiences, ...answerStories, ...materials, ...paths, ...accomplishments, ...personal, ...upcoming, ...tasks, ...opportunities],
     totalOpportunityMatches: preciseCatalog.length ? catalog.total : 0,
   };
 }
