@@ -78,11 +78,11 @@ export function ApplicationPacket({ initial }: { initial: ApplicationPacketModel
         <div className={styles.deadline}><small>{initial.application.deadline ? "Verified deadline" : "Deadline"}</small><strong>{initial.application.deadline ? formatDate(initial.application.deadline) : "Not verified"}</strong>{initial.application.deadlineDaysRemaining !== undefined && initial.application.deadlineDaysRemaining >= 0 ? <span>{initial.application.deadlineDaysRemaining === 0 ? "Due today" : `${initial.application.deadlineDaysRemaining} days remaining`}</span> : null}</div>
       </header>
 
+      {!initial.submitted ? <section className={styles.nextAction} aria-labelledby="packet-next-title"><span aria-hidden="true"><ArrowIcon /></span><div><p className="rule-label">Next action</p><h2 id="packet-next-title">{initial.nextAction.label}</h2><p>{initial.nextAction.reason}</p></div><a href={nextHref} onClick={() => trackProductEvent("packet_next_action_opened_v1", { category: initial.nextAction.kind })}>Review next action <ArrowIcon /></a></section> : null}
       <details className={styles.applicationBrief}><summary>Application brief and sources</summary><dl><div><dt>Eligibility</dt><dd>{initial.brief.eligibility}</dd></div><div><dt>Requirements</dt><dd>{initial.brief.requirementsState}</dd></div><div><dt>Opening date</dt><dd>{initial.brief.openingDate ?? "Not published"}</dd></div><div><dt>Last verified</dt><dd>{initial.brief.lastVerified ? formatDate(initial.brief.lastVerified) : "Unknown"}</dd></div><div><dt>Official source</dt><dd><a href={initial.brief.officialSource} target="_blank" rel="noreferrer">Open provider source</a></dd></div></dl></details>
 
-      <section className={styles.statusBand} data-state={initial.status} aria-labelledby="packet-status-title"><div><p className="rule-label">Current state</p><h2 id="packet-status-title">{initial.statusLabel}</h2><p>{initial.statusDetail}</p></div><dl><div><dt>Verified requirements</dt><dd>{initial.verifiedRequirementCount || "Unknown"}</dd></div><div><dt>Recorded complete</dt><dd>{initial.verifiedRequirementCount ? `${initial.assembledRequirementCount} of ${initial.verifiedRequirementCount}` : "—"}</dd></div><div><dt>Private tasks left</dt><dd>{initial.personalTasks.filter((item) => !item.completed).length}</dd></div></dl></section>
+      <details className={styles.statusBand} data-state={initial.status} ><summary className={styles.statusSummary}>Preparation status · {initial.statusLabel}</summary><div><p className="rule-label">Current state</p><h2 id="packet-status-title">{initial.statusLabel}</h2><p>{initial.statusDetail}</p></div><dl><div><dt>Verified requirements</dt><dd>{initial.verifiedRequirementCount || "Unknown"}</dd></div><div><dt>Recorded complete</dt><dd>{initial.verifiedRequirementCount ? `${initial.assembledRequirementCount} of ${initial.verifiedRequirementCount}` : "—"}</dd></div><div><dt>Private tasks left</dt><dd>{initial.personalTasks.filter((item) => !item.completed).length}</dd></div></dl></details>
 
-      {!initial.submitted ? <section className={styles.nextAction} aria-labelledby="packet-next-title"><span aria-hidden="true"><ArrowIcon /></span><div><p className="rule-label">Next action</p><h2 id="packet-next-title">{initial.nextAction.label}</h2><p>{initial.nextAction.reason}</p></div><a href={nextHref} onClick={() => trackProductEvent("packet_next_action_opened_v1", { category: initial.nextAction.kind })}>Review next action <ArrowIcon /></a></section> : null}
 
       {initial.changes.length ? <section className={styles.changes} aria-labelledby="packet-changes-title"><header><p className="rule-label">Provider updates</p><h2 id="packet-changes-title">What changed</h2></header>{initial.changes.map((change) => <article key={change.id}><div><strong>{change.label}</strong><time dateTime={change.detectedAt}>{formatDate(change.detectedAt)}</time></div><p>{change.summary}</p></article>)}</section> : null}
 
@@ -108,6 +108,7 @@ export function ApplicationPacket({ initial }: { initial: ApplicationPacketModel
         {!initial.historical ? <AddPromptForm pending={pending} onSave={saveStudio} /> : null}
       </section>
 
+      <details className={styles.preparationTools}><summary>Reusable stories, references & private notes</summary>
       <section className={styles.answerBank} aria-labelledby="answer-bank-title">
         <header><div><p className="rule-label">Build · Answer Bank</p><h2 id="answer-bank-title">Reusable factual stories.</h2><p>Keep the real situation, action, result, and learning—not a canned essay.</p></div><span>{Object.keys(initial.answerBank.records).length} saved</span></header>
         {Object.values(initial.answerBank.records).slice(0, 6).map((story) => <article key={story.id}><strong>{story.title}</strong><span>{story.category}</span><p>{story.action ?? story.situation ?? story.challenge ?? "Story details saved privately."}</p></article>)}
@@ -121,6 +122,7 @@ export function ApplicationPacket({ initial }: { initial: ApplicationPacketModel
       </section>
 
       {!initial.historical ? <PrivateNotes initialValue={initial.privateNotes ?? ""} pending={pending} onSave={saveStudio} /> : null}
+      </details>
 
       {initial.personalTasks.length ? <section className={styles.tasks} aria-labelledby="packet-tasks-title"><header><p className="rule-label">Your preparation</p><h2 id="packet-tasks-title">Private tasks</h2></header><ul>{initial.personalTasks.map((task) => <li id={`task-${task.id}`} key={task.id}><div><strong>{task.title}</strong><span>{task.dueDate ? `Due ${formatDate(task.dueDate)}` : "No date"}</span></div>{task.completed ? <span className={styles.complete}><CheckIcon /> Complete</span> : <button type="button" disabled={Boolean(pending)} onClick={() => completeTask(task.id)}>{pending === `task:${task.id}` ? "Saving…" : "Mark complete"}</button>}</li>)}</ul></section> : null}
 

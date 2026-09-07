@@ -236,10 +236,11 @@ function ResumeEditor({
         <div><dt>Application use</dt><dd>{resume.usageCount}</dd></div>
       </dl>
       <div className={styles.modeTabs} role="tablist" aria-label="Studio mode">
-        {(["edit", "review", "tailor", "preview"] as EditorMode[]).map((item) => <button key={item} type="button" role="tab" aria-selected={mode === item} onClick={() => setMode(item)}>{item}</button>)}
+        {(["edit", "review", "tailor", "preview"] as EditorMode[]).map((item, index, modes) => <button key={item} id={`studio-tab-${item}`} type="button" role="tab" tabIndex={mode === item ? 0 : -1} aria-controls="resume-studio-panel" aria-selected={mode === item} onClick={() => setMode(item)} onKeyDown={(event) => { const target = event.key === "ArrowRight" ? (index + 1) % modes.length : event.key === "ArrowLeft" ? (index + modes.length - 1) % modes.length : event.key === "Home" ? 0 : event.key === "End" ? modes.length - 1 : -1; if (target < 0) return; event.preventDefault(); setMode(modes[target]); document.getElementById(`studio-tab-${modes[target]}`)?.focus(); }}>{item}</button>)}
       </div>
     </section>
-    <div className={styles.editorGrid} data-studio-mode={mode}>
+    {mode === "preview" ? <div className={styles.previewTools}><button type="button" onClick={() => setMode("edit")}>Back to editing</button><span>Preview includes your current edits. Save a draft before exporting.</span><Link href={`/resume-lab/print/${encodeURIComponent(resume.id)}`} target="_blank">Print saved resume</Link></div> : null}
+    <div id="resume-studio-panel" role="tabpanel" aria-labelledby={`studio-tab-${mode}`} className={styles.editorGrid} data-studio-mode={mode}>
       <section
         className={styles.editorPanel}
         aria-labelledby="resume-editor-title"
@@ -1049,16 +1050,16 @@ export function ResumeLab({
             <ArrowIcon className="h-3 w-3 rotate-180" /> Back to application
           </Link>
         ) : null}
-        <BuildNavigation current={tab === "experience" ? "experience" : "resumes"} />
+        <BuildNavigation current={tab === "experience" ? "experience" : "resumes"} onWorkspaceChange={setTab} />
         <header className={styles.hero}>
           <div>
             <p className="rule-label text-forest">Build</p>
             <h1>{tab === "experience" ? "Experience Bank" : "Resumes"}</h1>
             <p>
-              {tab === "experience" ? "Keep confirmed facts once, then reuse them across every resume version." : "Shape confirmed experience into a complete source and focused application versions."}
+              {tab === "experience" ? `${model.experiences.length} ${model.experiences.length === 1 ? "experience" : "experiences"} · Confirm facts here, then reuse them in your resumes.` : `${model.resumes.length} ${model.resumes.length === 1 ? "version" : "versions"} · Keep a master resume and tailor a copy for each application.`}
             </p>
           </div>
-          <div className={styles.heroActions}>
+          {tab === "resumes" ? <div className={styles.heroActions}>
             <button
               type="button"
               onClick={() => {
@@ -1082,24 +1083,8 @@ export function ResumeLab({
                   : "Create master resume"}
             </button>
             {!model.experiences.length ? <button type="button" className="button button-secondary" onClick={() => setTab("experience")}>Start with Experience Bank</button> : null}
-          </div>
+          </div> : <Link href="/passport" className="text-sm text-forest">View Passport →</Link>}
         </header>
-        <nav className={styles.tabs} aria-label="Resume Lab sections">
-          <button
-            type="button"
-            aria-current={tab === "experience" ? "page" : undefined}
-            onClick={() => setTab("experience")}
-          >
-            <TrophyIcon /> Experience <span>{model.experiences.length}</span>
-          </button>
-          <button
-            type="button"
-            aria-current={tab === "resumes" ? "page" : undefined}
-            onClick={() => setTab("resumes")}
-          >
-            <ListIcon /> Resumes <span>{model.resumes.length}</span>
-          </button>
-        </nav>
         <div className={styles.feedback} aria-live="polite">
           {pending ? "Saving…" : message}
           {error ? <span role="alert">{error}</span> : null}

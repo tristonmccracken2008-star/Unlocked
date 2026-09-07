@@ -2,8 +2,10 @@ import Link from "next/link";
 
 export function BuildNavigation({
   current,
+  onWorkspaceChange,
 }: {
   current: "overview" | "experience" | "resumes" | "answer_bank" | "materials";
+  onWorkspaceChange?: (view: "experience" | "resumes") => void;
 }) {
   const links = [
     ["overview", "Overview", "/build"],
@@ -21,6 +23,7 @@ export function BuildNavigation({
         <Link
           key={id}
           href={href}
+          onClick={onWorkspaceChange && (id === "experience" || id === "resumes") ? (event) => { event.preventDefault(); onWorkspaceChange(id); } : undefined}
           aria-current={current === id ? "page" : undefined}
           className={`inline-flex min-h-11 shrink-0 items-center rounded-md px-2.5 text-xs font-bold transition-colors sm:px-4 sm:text-sm ${current === id ? "bg-white text-forest shadow-sm" : "text-ink/55 hover:bg-white/60 hover:text-ink"}`}
         >

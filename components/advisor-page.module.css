@@ -2,8 +2,16 @@
   min-height: 72vh;
   background: radial-gradient(ellipse 42rem 26rem at 58% 6%, var(--unlocked-ambient-a), transparent 72%), radial-gradient(ellipse 34rem 24rem at 92% 22%, var(--unlocked-ambient-b), transparent 76%), transparent;
   color: var(--unlocked-text);
-  padding: 50px 32px 88px;
+  padding: 32px 32px 88px;
 }
+
+.matchContext { margin-top: .8rem; }
+.matchContext > summary, .matchActions > summary { cursor: pointer; min-height: 36px; padding-block: .45rem; color: var(--unlocked-muted); font-size: .75rem; font-weight: 500; }
+.matchActions { width: 100%; }
+.matchActions > button { width: 100%; margin-top: .35rem; }
+.recommendationCompact .primaryAction { background: transparent; color: rgb(var(--color-forest)); box-shadow: none; border-color: var(--unlocked-border); }
+.recommendationCompact .recommendationTitle h3 { font-size: 1.3rem; }
+.recommendationCompact .recommendationDecision { align-content: center; }
 
 .container,
 .loading {
@@ -14,7 +22,7 @@
 .container {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: 42px;
+  gap: 28px;
 }
 
 .briefingHeader {

@@ -1,21 +1,22 @@
 .page { min-height: 72vh; padding: 2.5rem 1.25rem 7rem; color: var(--unlocked-text); background: radial-gradient(ellipse 42rem 25rem at 90% 0%, var(--unlocked-ambient-a), transparent 76%), transparent; }
 .shell { width: min(1440px, 100%); margin: 0 auto; }
 .hero { display: flex; align-items: flex-end; justify-content: space-between; gap: 2rem; padding-bottom: 2rem; border-bottom: 1px solid var(--unlocked-border); }
-.hero h1 { margin-top: .4rem; font: 650 clamp(2.7rem, 5vw, 4.65rem)/.95 var(--font-editorial); }
+.hero h1 { margin-top: .4rem; font: 650 clamp(2.5rem, 4vw, 3.5rem)/1 var(--font-editorial); }
 .hero > div > span { display: block; margin-top: .75rem; color: var(--unlocked-muted); font-size: .95rem; }
 .hero p { color: rgb(var(--color-forest)); }
 .hero nav { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .45rem; }
 .hero nav a { display: grid; min-height: 2.75rem; place-items: center; border: 1px solid var(--unlocked-border); border-radius: .5rem; padding: .55rem .85rem; color: var(--unlocked-muted); font-size: .76rem; font-weight: 750; transition: border-color .18s ease, color .18s ease, transform .18s ease; }
 .hero nav a:hover { border-color: rgb(var(--color-forest) / .55); color: rgb(var(--color-forest)); transform: translateY(-1px); }
-.overview { display: grid; grid-template-columns: minmax(18rem, 1fr) minmax(34rem, .9fr); gap: 2rem; align-items: end; padding: 2rem 0; border-bottom: 1px solid var(--unlocked-border); }
-.overviewCopy h2 { margin-top: .45rem; font: 700 clamp(1.9rem, 3vw, 3rem)/1.02 Iowan Old Style, Baskerville, Georgia, serif; }
+.overview { padding: 1.25rem 0; border-bottom: 1px solid var(--unlocked-border); margin-bottom: 1rem; }
+.overviewCopy h2 { margin-top: .45rem; font: 600 1.4rem/1.2 var(--font-editorial); }
 .overviewCopy > p:last-child { margin-top: .65rem; color: var(--unlocked-muted); font-size: .84rem; }
-.counts { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--unlocked-border-highlight); border-radius: var(--radius-surface); background: var(--unlocked-surface-subtle); box-shadow: var(--shadow-sm), var(--surface-inner-highlight); }
+.counts { display: grid; grid-template-columns: repeat(4, 1fr); }
 .counts div { padding: 1rem 1.1rem; border-right: 1px solid var(--unlocked-border); }
 .counts div:last-child { border: 0; }
 .counts dt { color: var(--unlocked-muted); font-size: .66rem; font-weight: 750; text-transform: uppercase; }
 .counts dd { margin-top: .25rem; color: rgb(var(--color-forest)); font: 700 2rem/1 Iowan Old Style, Baskerville, Georgia, serif; }
-.attention { margin: 1.5rem 0 2rem; border: 1px solid var(--unlocked-border-highlight); border-radius: var(--radius-surface); background: var(--unlocked-glass-subtle); box-shadow: var(--shadow-sm), var(--surface-inner-highlight); }
+.attention { margin: 1rem 0 1.5rem; border-bottom: 1px solid var(--unlocked-border); }
+.attentionSummary { cursor: pointer; min-height: 44px; padding: .75rem 0; color: rgb(var(--color-forest)); font-size: .8rem; font-weight: 600; }
 .attention > header, .applications > header { display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; padding: 1rem 1.15rem; border-bottom: 1px solid var(--unlocked-border); }
 .attention h2, .applications h2 { margin-top: .2rem; font: 700 1.5rem/1.05 Iowan Old Style, Baskerville, Georgia, serif; }
 .attention > header > span { color: var(--unlocked-muted); font-size: .7rem; }

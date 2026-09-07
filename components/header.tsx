@@ -485,18 +485,18 @@ export function Header() {
         data-scrolled={scrolled ? "true" : "false"}
         className="sticky top-0 z-30 border-b border-ink/10 bg-paper/90 backdrop-blur-xl"
       >
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-x-6 gap-y-2 px-5 py-3 sm:px-8">
+        <div data-header-layout="" className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-2 sm:px-5">
           <Logo />
           <nav
             aria-label="Primary navigation"
             data-primary-navigation=""
-            className="order-3 hidden w-full gap-1 overflow-x-auto rounded-full bg-white/48 p-1 text-sm font-bold text-ink/55 shadow-[0_10px_30px_rgba(43,33,26,.04)] ring-1 ring-ink/6 sm:order-none sm:flex sm:w-auto lg:overflow-visible"
+            className="order-3 hidden w-full gap-1 overflow-x-auto rounded-full bg-white/48 p-1 text-sm font-bold text-ink/55 shadow-[0_10px_30px_rgba(43,33,26,.04)] ring-1 ring-ink/6 lg:order-none lg:flex lg:w-auto lg:overflow-visible"
           >
             {destinations.map(([label, href]) =>
               desktopDestination(label, href),
             )}
           </nav>
-          <div className="flex items-center gap-3">
+          <div data-header-utilities="" className="flex items-center gap-1">
             <button
               ref={commandTrigger}
               type="button"
@@ -530,14 +530,21 @@ export function Header() {
             >
               Profile
             </a>
-            <AccountButton compact />
+            <div data-header-account=""><AccountButton compact /></div>
           </div>
         </div>
       </header>
+      {destinations.filter(([label]) => label !== "Build" && isDestinationActive(label, pathname)).map(([label]) => (
+        <nav key={label} className="product-section-navigation" aria-label={`${label} sections`}>
+          {[...contextualDestinations[label]].sort((a, b) => Number(b.href === "/") - Number(a.href === "/")).map((item) => (
+            <a key={item.href} href={item.href} aria-current={pathname === item.href || (item.href !== "/" && !item.href.includes("#") && pathname?.startsWith(`${item.href}/`)) ? "page" : undefined}>{item.label === "Opportunity Passport" ? "Passport" : item.label}</a>
+          ))}
+        </nav>
+      ))}
       <nav
         aria-label="Mobile navigation"
         data-primary-navigation=""
-        className="fixed inset-x-4 bottom-[env(safe-area-inset-bottom)] z-40 grid grid-cols-4 rounded-full bg-ink/95 p-0 text-[11px] font-bold text-white shadow-[0_20px_60px_rgba(43,33,26,.24)] backdrop-blur sm:hidden"
+        className="fixed inset-x-4 bottom-[env(safe-area-inset-bottom)] z-40 grid grid-cols-4 rounded-full bg-ink/95 p-0 text-[11px] font-bold text-white shadow-[0_20px_60px_rgba(43,33,26,.24)] backdrop-blur lg:hidden"
       >
         {destinations.map(([label, href]) => navigationLink(label, href, true))}
       </nav>

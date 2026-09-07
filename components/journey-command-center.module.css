@@ -30,7 +30,12 @@
   --journey-error: #ffaaa3;
   --journey-line: rgba(255, 248, 238, .16);
 }
-.container { width: min(100%, 88rem); margin: 0 auto; }
+.container { width: min(100%, 80rem); margin: 0 auto; }
+.workspaceMenu { position: relative; }
+.workspaceMenu > summary { min-height: 44px; padding: .7rem 1rem; cursor: pointer; font-size: .8rem; color: var(--journey-muted); }
+.workspaceMenu > div { position: absolute; top: 100%; right: 0; z-index: 20; display: grid; min-width: 11rem; padding: .4rem; background: var(--journey-panel); border: 1px solid var(--journey-line); border-radius: .6rem; box-shadow: var(--shadow-md); }
+.workspaceMenu > div > :is(a, button) { display: block; min-height: 44px; text-align: left; padding: .7rem; font-size: .78rem; color: var(--journey-ink); }
+.workspaceMenu > div > :is(a, button):hover { background: var(--unlocked-surface-subtle); }
 .page [data-guide-anchor][data-guide-highlight="true"] { animation: journey-guide-highlight 1.6s ease both; }
 @keyframes journey-guide-highlight { 0%, 100% { box-shadow: none; } 25%, 70% { box-shadow: 0 0 0 3px color-mix(in srgb, var(--journey-green) 24%, transparent), 0 12px 34px rgba(35, 28, 22, .08); } }
 @media (prefers-reduced-motion: reduce) { .page [data-guide-anchor][data-guide-highlight="true"] { animation: none; outline: 2px solid color-mix(in srgb, var(--journey-green) 35%, transparent); outline-offset: 3px; } }

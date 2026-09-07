@@ -194,8 +194,7 @@ export function JourneyCommandActions({ trackedIds }: { trackedIds: string[] }) 
   return <div className={styles.headerActions} data-journey-command-actions="" data-guide-anchor="add-opportunity">
     <div>
       <button ref={addTriggerRef} type="button" className={styles.addButton} onClick={open}>Add opportunity</button>
-      <a href="/applications" className={styles.recordsButton}>Applications</a>
-      <button type="button" className={styles.exportButton} onClick={() => void exportData()} disabled={exporting} aria-busy={exporting ? "true" : undefined} data-action-state={exporting ? "loading" : "idle"}><DelayedPendingLabel pending={exporting} idle="Export data" pendingLabel="Preparing export…" /></button>
+      <details className={styles.workspaceMenu}><summary aria-label="Journey options">More</summary><div><a href="/applications">Applications</a><a href="/passport">View Passport</a><button type="button" onClick={() => void exportData()} disabled={exporting} aria-busy={exporting ? "true" : undefined} data-action-state={exporting ? "loading" : "idle"}><DelayedPendingLabel pending={exporting} idle="Export data" pendingLabel="Preparing export…" /></button></div></details>
     </div>
     {error && !dialogRef.current?.open ? <ActionFeedback message={error} state="error" level="confirmatory" /> : null}
     <dialog ref={dialogRef} className={styles.addDialog} aria-labelledby={titleId} onCancel={(event) => { if (saving || dirty) event.preventDefault(); if (!saving) close(); }}>

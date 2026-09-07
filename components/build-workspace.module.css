@@ -10,21 +10,21 @@
 }
 .header {
   display: flex;
-  align-items: flex-end;
+  align-items: flex-start;
+  flex-direction: column;
   justify-content: space-between;
-  gap: 2rem;
-  padding-bottom: 2rem;
+  gap: 1.25rem;
+  padding-bottom: 0;
   border-bottom: 1px solid var(--unlocked-border);
 }
 .header h1 {
   max-width: 47rem;
   margin: 0.55rem 0 0.8rem;
   font-family: var(--font-editorial), serif;
-  font-size: clamp(2.55rem, 4.6vw, 4.35rem);
+  font-size: clamp(2.5rem, 4vw, 3.5rem);
   font-weight: 700;
   line-height: 0.96;
 }
-.header h1::after { margin-left: .55rem; color: rgb(var(--color-forest)); content: "✦"; font-family: var(--font-sans); font-size: .3em; vertical-align: .6em; }
 .header > div > p:last-child {
   max-width: 42rem;
   color: var(--unlocked-muted);
@@ -39,15 +39,13 @@
   border: 1px solid var(--unlocked-border-highlight);
   border-radius: var(--radius-panel);
   background: var(--unlocked-glass);
-  padding: 2rem;
-  box-shadow: var(--shadow-md), var(--surface-inner-highlight);
-  backdrop-filter: blur(var(--blur-standard));
-  -webkit-backdrop-filter: blur(var(--blur-standard));
+  padding: 1.5rem;
+  box-shadow: var(--shadow-sm);
 }
 .next h2 {
   margin: 0.35rem 0;
   font-family: var(--font-editorial), serif;
-  font-size: clamp(1.8rem, 3vw, 2.65rem);
+  font-size: clamp(1.6rem, 2.5vw, 2rem);
   font-weight: 700;
   line-height: 1.08;
 }
@@ -92,7 +90,7 @@
   color: rgb(var(--color-ink) / 0.25);
 }
 .primary {
-  padding: 3rem 0;
+  padding: 1.5rem 0 2rem;
 }
 .sectionIntro {
   max-width: 42rem;

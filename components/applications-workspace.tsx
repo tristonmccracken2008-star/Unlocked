@@ -16,7 +16,7 @@ function formatDate(value: string) {
 }
 
 export function ApplicationsWorkspace({ initial }: { initial: ApplicationsWorkspaceModel }) {
-  const [filter, setFilter] = useState<Filter>("attention");
+  const [filter, setFilter] = useState<Filter>(initial.active.some((item) => item.state === "needs_attention" || item.attention.length > 0) ? "attention" : "active");
   const filtered = useMemo(() => {
     if (filter === "attention") return initial.active.filter((item) => item.state === "needs_attention" || item.attention.length > 0);
     if (filter === "ready") return initial.ready;
@@ -33,11 +33,10 @@ export function ApplicationsWorkspace({ initial }: { initial: ApplicationsWorksp
 
       {!initial.applications.length ? <SmartEmptyState className={styles.empty} title="No active applications yet." description="When you begin pursuing an application-based opportunity in Journey, it will appear here." primaryAction={{ label: "Browse For You", href: "/advisor" }} secondaryAction={{ label: "Open Journey", href: "/" }} /> : <>
         <section className={styles.overview} aria-labelledby="applications-overview-title">
-          <div className={styles.overviewCopy}><p className="rule-label">At a glance</p><h2 id="applications-overview-title">{initial.counts.needsAttention ? `${initial.counts.needsAttention} ${initial.counts.needsAttention === 1 ? "application needs" : "applications need"} preparation.` : "Your active applications are current."}</h2><p>{initial.deadlines[0] ? `Nearest verified application deadline: ${formatDate(initial.deadlines[0].date)}.` : "No verified application deadlines are currently recorded."}</p></div>
-          <dl className={styles.counts}><div><dt>Active</dt><dd>{initial.counts.active}</dd></div><div><dt>Need attention</dt><dd>{initial.counts.needsAttention}</dd></div><div><dt>Ready</dt><dd>{initial.counts.ready}</dd></div><div><dt>Submitted</dt><dd>{initial.counts.submitted}</dd></div></dl>
+          <div className={styles.overviewCopy}><p className="rule-label">At a glance</p><h2 id="applications-overview-title">{initial.counts.needsAttention ? `${initial.counts.needsAttention} ${initial.counts.needsAttention === 1 ? "application needs" : "applications need"} preparation.` : `${initial.counts.active} ${initial.counts.active === 1 ? "application" : "applications"} in progress.`}</h2><p>{initial.deadlines[0] ? `Nearest verified application deadline: ${formatDate(initial.deadlines[0].date)}.` : "No verified application deadlines are currently recorded."}</p></div>
         </section>
 
-        {initial.attention.length ? <section className={styles.attention} aria-labelledby="applications-attention-title"><header><div><p className="rule-label">Needs attention</p><h2 id="applications-attention-title">What needs doing</h2></div><span>{initial.attention.length} factual {initial.attention.length === 1 ? "item" : "items"}</span></header><ol>{initial.attention.slice(0, 6).map((item) => <li key={item.id}><span data-kind={item.kind} aria-hidden="true">{item.kind === "deadline" || item.kind === "task_due" ? <CalendarIcon /> : <ListIcon />}</span><div><strong>{item.label}</strong><p>{initial.applications.find((application) => application.id === item.applicationId)?.title} · {item.detail}</p></div><Link href={item.href} aria-label={`Review ${item.label}`}><ArrowIcon /></Link></li>)}</ol></section> : null}
+        {initial.attention.length ? <details className={styles.attention}><summary className={styles.attentionSummary}>{initial.attention.length} preparation {initial.attention.length === 1 ? "task" : "tasks"} across your applications</summary><ol>{initial.attention.slice(0, 6).map((item) => <li key={item.id}><span data-kind={item.kind} aria-hidden="true">{item.kind === "deadline" || item.kind === "task_due" ? <CalendarIcon /> : <ListIcon />}</span><div><strong>{item.label}</strong><p>{initial.applications.find((application) => application.id === item.applicationId)?.title} · {item.detail}</p></div><Link href={item.href} aria-label={`Review ${item.label}`}><ArrowIcon /></Link></li>)}</ol></details> : null}
 
         <div className={styles.workspaceGrid}>
           <section className={styles.applications} aria-labelledby="active-applications-title">
@@ -47,7 +46,7 @@ export function ApplicationsWorkspace({ initial }: { initial: ApplicationsWorksp
               ["ready", "Ready", initial.counts.ready],
               ["submitted", "Submitted", initial.counts.submitted],
             ] as const).map(([value, label, count]) => <button key={value} type="button" aria-pressed={filter === value} onClick={() => { setFilter(value); trackProductEvent("application_filter_changed_v1", { control: value }); }}>{label}<span>{count}</span></button>)}</div></header>
-            {filtered.length ? <div className={styles.applicationList}>{filtered.map((application) => <ApplicationRow key={application.id} application={application} />)}</div> : <SmartEmptyState compact className={styles.filteredEmpty} title={`No ${filter === "attention" ? "applications need attention" : filter} applications.`} description={filter === "attention" ? "Known requirements and recorded tasks are current." : "Choose another view to review your applications."} />}
+            {filtered.length ? <div className={styles.applicationList}>{filtered.map((application) => <ApplicationRow key={application.id} application={application} />)}</div> : <SmartEmptyState compact className={styles.filteredEmpty} title={filter === "attention" ? "No applications need attention." : `No ${filter} applications.`} description={filter === "attention" ? "Known requirements and recorded tasks are current." : "Choose another view to review your applications."} />}
           </section>
 
           <aside className={styles.context} aria-label="Application context">

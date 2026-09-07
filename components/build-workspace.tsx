@@ -28,11 +28,10 @@ export function BuildWorkspace({ model }: { model: BuildWorkspaceModel }) {
       <div className={styles.shell}>
         <header className={styles.header}>
           <div>
-            <p className="rule-label text-forest">Build</p>
-            <h1>Turn experience into materials you can use.</h1>
+            <p className="rule-label text-forest">Your career workshop</p>
+            <h1>Build</h1>
             <p>
-              Keep the facts once. Shape them into resumes and reuse the right
-              version in each application.
+              Turn your experience into resumes and application materials.
             </p>
           </div>
           <BuildNavigation current="overview" />

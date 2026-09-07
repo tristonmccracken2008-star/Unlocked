@@ -432,11 +432,10 @@ export function OpportunityFilter({ opportunities: initialOpportunities = [] }: 
   const hasRestrictiveFilters = activeFilters.some((filter) => filter.key !== "query");
 
   return <>
-    <header className="max-w-4xl">
+    <header data-discover-intro="" className="max-w-4xl">
       <p className="rule-label text-forest">Discover opportunities</p>
       <h1 className="mt-4 font-editorial text-5xl font-semibold leading-[1] text-ink sm:text-6xl">Find what’s out there.</h1>
-      <p className="mt-5 max-w-2xl text-base leading-7 text-ink/60">Search UnlockED’s complete catalog of scholarships, internships, research, student tools, and benefits.</p>
-      <Link href="/careers" className="mt-4 inline-flex min-h-11 items-center rounded-full border border-forest/20 bg-white/65 px-4 text-sm font-bold text-forest hover:border-forest/45">Exploring the work itself? Browse careers →</Link>
+      <p className="mt-3 max-w-2xl text-base leading-7 text-ink/60">Scholarships, internships, research, and more for your next step.</p>
     </header>
 
     <section data-discover-search-shell="" className="mt-8 max-w-5xl rounded-[1.5rem] bg-white/50 p-3 shadow-[0_18px_55px_rgba(43,33,26,.05)] ring-1 ring-ink/10 sm:p-4" aria-label="Search opportunities">
@@ -490,7 +489,7 @@ export function OpportunityFilter({ opportunities: initialOpportunities = [] }: 
         {catalogError && opportunities.length ? <div className="mt-1 flex items-center justify-between gap-4 rounded-xl bg-white/70 px-4 py-3 text-sm text-ink/55" role="alert"><span>{catalogError}</span><button type="button" onClick={() => setReloadToken((value) => value + 1)} className="min-h-11 font-bold text-forest">Retry</button></div> : null}
         {!loaded ? <ResultSkeleton /> : catalogError && !opportunities.length ? <CatalogUnavailable retry={() => setReloadToken((value) => value + 1)} /> : opportunities.length ? <>
           {totalMatches > 0 && totalMatches <= 4 && hasRestrictiveFilters ? <LowResultRecovery total={totalMatches} broadenFilters={broadenFilters} hasQuery={Boolean(filters.query.trim())} /> : null}
-          <div ref={resultGrid} className="mt-2 grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+          <div ref={resultGrid} data-discover-results="" className="mt-2 grid gap-4 sm:grid-cols-2">
             {opportunities.map((item) => <OpportunityCard key={item.id} opportunity={item} source="discover" />)}
           </div>
           {totalMatches > opportunities.length ? <div className="py-7 text-center"><button type="button" onClick={() => setVisibleCount((count) => Math.min(count + resultPageSize, totalMatches))} disabled={refreshing} aria-busy={refreshing ? "true" : undefined} data-action-state={refreshing ? "loading" : "idle"} className="min-h-12 rounded-full border border-ink/15 bg-white px-6 text-sm font-bold text-forest shadow-[0_8px_22px_rgba(43,33,26,.04)] hover:border-forest disabled:cursor-wait disabled:opacity-60"><DelayedPendingLabel pending={refreshing} idle={<>Show more ({(totalMatches - opportunities.length).toLocaleString()} remaining) <ArrowIcon className="inline h-3.5 w-3.5" /></>} pendingLabel="Updating results…" /></button></div> : null}
@@ -539,11 +538,11 @@ function FilterPanel({ filters, update, clearFilters, activeFilterCount, categor
 }
 
 function StartExploring({ explorationCounts, choosePath, chooseSearch }: { explorationCounts: Record<string, number>; choosePath: (path: (typeof discoverExplorationPaths)[number]) => void; chooseSearch: (query: string) => void }) {
-  return <section className="mt-9 max-w-5xl border-y border-ink/10 py-6" aria-labelledby="start-exploring-title">
-    <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between"><div><p className="rule-label text-forest">Start exploring</p><h2 id="start-exploring-title" className="mt-2 font-editorial text-2xl font-bold">Browse by what you’re looking for.</h2></div><p className="max-w-md text-sm leading-6 text-ink/50">These paths organize the complete catalog. They do not use your profile or activity.</p></div>
+  return <details data-discover-exploration="" className="mt-4 max-w-5xl border-b border-ink/10 pb-3">
+    <summary id="start-exploring-title" className="min-h-11 cursor-pointer py-3 text-sm font-semibold text-forest">Not sure where to start? Explore ideas</summary>
     <div className="mt-5 grid gap-x-8 sm:grid-cols-2 lg:grid-cols-3">{discoverExplorationPaths.map((path) => <button key={path.label} type="button" onClick={() => choosePath(path)} className="group flex min-h-20 items-center justify-between gap-4 border-b border-ink/10 py-3 text-left focus:outline-none focus:ring-2 focus:ring-forest/25"><span><span className="block text-sm font-bold text-ink group-hover:text-forest">{path.label}</span><span className="mt-1 block text-xs leading-5 text-ink/45">{path.description}</span></span><span className="shrink-0 font-mono text-xs text-ink/35">{(explorationCounts[path.label] ?? 0).toLocaleString()}</span></button>)}</div>
     <div className="mt-5 flex flex-wrap items-center gap-2"><span className="mr-1 text-xs font-bold text-ink/40">Try a search</span>{discoverSearchStarters.map((query) => <button key={query} type="button" onClick={() => chooseSearch(query)} className="min-h-11 rounded-full border border-ink/10 bg-white px-3 text-xs font-bold text-ink/55 hover:border-forest/30 hover:text-forest">{query}</button>)}</div>
-  </section>;
+  </details>;
 }
 
 function FilterGroup({ title, children }: { title: string; children: ReactNode }) {

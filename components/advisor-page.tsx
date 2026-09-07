@@ -710,18 +710,19 @@ function RecommendationCard({ view, insight, onFeedback, decisionActions, featur
   const opportunity = view.opportunity;
   const status = freshnessLabel(insight);
   const explanations = insight?.explanations?.slice(0, 2) ?? [{ kind: "goal" as const, label: "Why it appeared", text: strongestReason(view) }];
-  return <article className={`${styles.recommendation} ${featured ? styles.recommendationFeatured : ""}`} data-for-you-card="recommendation" aria-labelledby={`recommendation-${view.recommendation.id}`}>
+  return <article className={`${styles.recommendation} ${featured ? styles.recommendationFeatured : styles.recommendationCompact}`} data-for-you-card="recommendation" aria-labelledby={`recommendation-${view.recommendation.id}`}>
     <div className={styles.recommendationBody}>
       <div className={styles.recommendationTitle}>{opportunity ? <OrganizationLogo opportunity={opportunity} size={featured ? "lg" : "md"} className={styles.logo} /> : null}<div><p>{opportunity?.organization ?? view.recommendation.kind}</p><h3 id={`recommendation-${view.recommendation.id}`}>{opportunity?.title ?? view.recommendation.title}</h3><span className={styles.trace}>{opportunity?.type ?? view.recommendation.kind}{status ? ` · ${status}` : ""}</span></div></div>
       {featured ? <p className={styles.featuredDescription}>{opportunity?.description ?? view.recommendation.description}</p> : null}
-      <div className={styles.explanations} aria-label="Why this opportunity was selected">{explanations.map((line) => <p key={`${line.kind}-${line.text}`} className={styles.explanationLine} data-explanation-kind={line.kind}><strong>{line.label}</strong><span>{line.text}</span></p>)}</div>
-      <RecommendationFeedback view={view} onFeedback={onFeedback} compact />
+      <details className={styles.matchContext} open={featured || undefined}><summary>Why it appeared</summary><div className={styles.explanations} aria-label="Why this opportunity was selected">{explanations.map((line) => <p key={`${line.kind}-${line.text}`} className={styles.explanationLine} data-explanation-kind={line.kind}><strong>{line.label}</strong><span>{line.text}</span></p>)}</div><RecommendationFeedback view={view} onFeedback={onFeedback} compact /></details>
     </div>
     <div className={styles.recommendationDecision}>
       {insight?.meaningfulDate ? <p className={styles.meaningfulDate}>{insight.meaningfulDate.label}</p> : null}
       <Link href={view.href} onClick={() => trackRecommendationOpen(view)} className={styles.primaryAction}>Open Opportunity <ArrowIcon /></Link>
-      {!decisionActions?.comparisonMode && !insight?.state.inJourney && view.recommendation.relatedOpportunityId ? <AddToJourneyButton opportunityId={view.recommendation.relatedOpportunityId} recommendationId={view.recommendation.id} recommendationCategory={analyticsCategory(view)} recommendationExposureCount={view.recommendation.portfolio?.exposureCount ?? 0} className={styles.rowAddAction} /> : null}
-      {decisionActions ? <DecisionControls actions={decisionActions} /> : null}
+      <details className={styles.matchActions} open={featured || decisionActions?.comparisonMode || undefined}><summary>Journey & watch</summary>
+        {!decisionActions?.comparisonMode && !insight?.state.inJourney && view.recommendation.relatedOpportunityId ? <AddToJourneyButton opportunityId={view.recommendation.relatedOpportunityId} recommendationId={view.recommendation.id} recommendationCategory={analyticsCategory(view)} recommendationExposureCount={view.recommendation.portfolio?.exposureCount ?? 0} className={styles.rowAddAction} /> : null}
+        {decisionActions ? <DecisionControls actions={decisionActions} /> : null}
+      </details>
     </div>
   </article>;
 }

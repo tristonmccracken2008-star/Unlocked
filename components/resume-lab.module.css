@@ -1,4 +1,5 @@
 .page {
+  --unlocked-forest: rgb(var(--color-forest));
   padding: 2.5rem 1.25rem 6rem;
   background: radial-gradient(ellipse 48rem 30rem at 84% 2%, var(--unlocked-ambient-a), transparent 72%), radial-gradient(ellipse 36rem 28rem at 8% 44%, var(--unlocked-ambient-c), transparent 78%), transparent;
 }
@@ -11,13 +12,13 @@
   align-items: end;
   justify-content: space-between;
   gap: 2rem;
-  padding-bottom: 2rem;
+  padding-block: 1.5rem;
   border-bottom: 1px solid var(--unlocked-border);
 }
 .hero h1 {
   margin: 0.45rem 0;
   font-family: var(--font-editorial), serif;
-  font-size: clamp(2.55rem, 4.8vw, 4.5rem);
+  font-size: clamp(2.5rem, 4vw, 3.5rem);
   line-height: 0.96;
   color: var(--unlocked-text);
 }
@@ -106,6 +107,16 @@
 }
 .resumeStrip button[aria-pressed="true"] { transform: translateY(0); }
 .resumeTransition { min-width: 0; }
+.previewTools { display: flex; align-items: center; flex-wrap: wrap; gap: 1rem; padding: .5rem 0 1rem; font-size: .78rem; }
+.previewTools :is(a, button) { min-height: 44px; display: inline-flex; align-items: center; color: var(--unlocked-forest); }
+.previewTools span { flex: 1; color: var(--unlocked-muted); }
+.editorGrid[data-studio-mode="preview"], .editorGrid[data-studio-mode="review"] { grid-template-columns: minmax(0, 1fr); }
+.editorGrid[data-studio-mode="preview"] > .editorPanel, .editorGrid[data-studio-mode="review"] > .editorPanel { display: none; }
+.editorGrid[data-studio-mode="preview"] > div { width: min(100%, 850px); margin-inline: auto; }
+.editorGrid[data-studio-mode="preview"] :is(.audit, .alignment, .history) { display: none; }
+.editorGrid[data-studio-mode="review"] > div { display: flex; flex-direction: column; gap: 1rem; }
+.editorGrid[data-studio-mode="review"] .audit { order: -1; margin-top: 0; }
+.editorGrid[data-studio-mode="tailor"] > .editorPanel > :is(label, .twoColumns) { display: none; }
 .studioStatus {
   display: grid;
   grid-template-columns: minmax(16rem, 1.2fr) minmax(22rem, 1fr);
@@ -114,8 +125,8 @@
   padding: 1.25rem;
   border: 1px solid var(--unlocked-border-highlight);
   border-radius: var(--radius-panel);
-  background: linear-gradient(120deg, rgb(255 255 255 / .72), rgb(222 246 236 / .55), rgb(226 240 255 / .46));
-  box-shadow: var(--shadow-md), var(--surface-inner-highlight);
+  background: var(--unlocked-surface-subtle);
+  box-shadow: none;
 }
 .studioStatus h2 { margin-top: .2rem; font-family: var(--font-editorial), serif; font-size: 1.65rem; }
 .studioStatus p { margin-top: .35rem; color: var(--unlocked-muted); font-size: .8rem; line-height: 1.5; }
@@ -547,14 +558,14 @@
 .heroActions :global(.button-primary),
 .actions :global(.button-primary) {
   background: var(--unlocked-forest);
-  color: white;
+  color: var(--unlocked-page);
   box-shadow: 0 8px 22px rgb(12 91 66/0.15);
 }
 .heroActions :global(.button-secondary),
 .actions :global(.button-secondary),
 .targetRow :global(.button-secondary) {
   border: 1px solid rgb(12 91 66/0.25);
-  background: rgb(255 255 255/0.5);
+  background: var(--unlocked-surface-subtle);
   color: var(--unlocked-forest);
 }
 .heroActions > *:hover,

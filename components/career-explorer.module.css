@@ -5,3 +5,25 @@
 @media(max-width:720px){.differences{grid-template-columns:1fr}}
 @media(max-width:430px){.filters{grid-template-columns:1fr}.cardGrades{grid-template-columns:1fr 1fr}.quick{margin-inline:-4px}.comparePrompt{right:10px;bottom:10px;left:10px;justify-content:space-between}}
 @media(prefers-reduced-motion:reduce){.card{transition:none}.card:hover{transform:none}}
+.hero { padding: 1rem 0 1.5rem; gap: 1.5rem; }
+.hero h1 { font-family: var(--font-editorial); font-size: clamp(2.5rem, 4vw, 3.5rem); line-height: 1.05; }
+.hero p:not(.rule-label) { font-size: .95rem; }
+.searchPanel { padding: 0; border: 0; background: transparent; box-shadow: none; backdrop-filter: none; }
+.quick { flex-wrap: nowrap; overflow-x: auto; padding-bottom: .5rem; }
+.quick button { flex-shrink: 0; white-space: nowrap; }
+.card { border-radius: .7rem; box-shadow: none; }
+.cardGrades { gap: 1rem; }
+.cardGrades .grade { border: 0; background: transparent; }
+.filterToggle { display: none; }
+@media(max-width:980px) {
+ .filterToggle { display: inline-flex; align-items: center; min-height: 44px; margin-top: 1rem; border: 1px solid var(--unlocked-border); border-radius: .6rem; padding-inline: 1rem; color: var(--forest); font-size: .8rem; }
+ .filters[data-open=false] { display: none; }
+}
+@media(max-width:720px) {
+ .hero h1 { font-size: 2.6rem; }
+ .cardFacts { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem; }
+ .cardFacts div { padding: .4rem 0; }
+ .cardFacts div:last-child { grid-column: 1 / -1; }
+ .comparePrompt { bottom: 4rem; left: 1rem; right: 1rem; }
+ .differences { grid-template-columns: 1fr; }
+}

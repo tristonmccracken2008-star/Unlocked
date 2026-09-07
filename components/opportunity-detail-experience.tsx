@@ -35,7 +35,7 @@ export function OpportunityDetailExperience({
         data-opportunity-detail=""
         data-visual-hero="opportunity"
         data-opportunity-kind={model.kind}
-        className="border-b border-ink/10 bg-white px-5 py-9 sm:px-8 sm:py-14"
+        className="border-b border-ink/10 bg-white px-5 py-7 sm:px-8 sm:py-8"
       >
         <div className="mx-auto max-w-6xl">
           <nav
@@ -69,10 +69,10 @@ export function OpportunityDetailExperience({
                   {opportunity.organization}
                 </p>
               </div>
-              <h1 className="mt-5 max-w-4xl font-editorial text-4xl font-bold leading-[1.06] sm:text-6xl">
+              <h1 className="mt-4 max-w-4xl font-editorial text-4xl font-semibold leading-[1.08] sm:text-5xl">
                 {opportunity.title}
               </h1>
-              <p className="mt-5 max-w-3xl text-base leading-7 text-ink/65 sm:text-lg sm:leading-8">
+              <p className="mt-4 max-w-3xl text-base leading-7 text-ink/65">
                 {model.summary}
               </p>
             </div>
