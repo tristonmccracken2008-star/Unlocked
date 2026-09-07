@@ -10,6 +10,7 @@ import {
   type KeyboardEvent,
 } from "react";
 import { Logo } from "./logo";
+import "./header-desktop.css";
 import { AccountButton } from "./account-auth";
 import { accountSessionEvent, readAccountSession } from "@/data/account-sync";
 import type { AccountSession } from "@/lib/account-types";
