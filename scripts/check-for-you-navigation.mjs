@@ -31,7 +31,7 @@ const cookieSet = callback.indexOf("response.cookies.set(sessionCookieName");
 const callbackReturn = callback.indexOf("return response", cookieSet);
 assert.ok(cookieSet >= 0 && callbackReturn > cookieSet, "OAuth must attach the session cookie before redirecting to For You.");
 assert.match(callback, /!accountHasCompletedOnboarding\(accountData\)[\s\S]*\? "\/onboarding"/, "New users must still enter onboarding.");
-assert.match(callback, /accountHasCompletedFirstLaunch\(accountData\) \? "\/advisor" : "\/welcome"/, "Returning users must bypass first launch while newly onboarded users enter it.");
+assert.match(callback, /accountHasCompletedFirstLaunch\(accountData\) \? \(pendingReturn && safeReturn\.test\(pendingReturn\) \? pendingReturn : "\/advisor"\) : "\/welcome"/, "Returning users must bypass first launch while newly onboarded users enter it.");
 assert.match(proxy, /"\/advisor"/, "The edge proxy must protect For You immediately after login.");
 assert.match(proxy, /signedSessionIsValid/, "The proxy must validate the signed cookie without waiting for the remote session store.");
 

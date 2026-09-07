@@ -67,7 +67,7 @@ assert.match(onboarding, /window\.location\.assign\("\/welcome"\)/);
 const firstLaunch = source("components/first-launch-walkthrough.tsx");
 assert.match(firstLaunch, /Start Exploring/);
 assert.match(firstLaunch, /\/api\/account\/first-launch/);
-assert.match(firstLaunch, /router\.replace\("\/opportunities"\)/);
+assert.match(firstLaunch, /router\.replace\(result\.returnTo \|\| "\/opportunities"\)/);
 assert.match(onboarding, /unlocked-onboarding-draft-v2/);
 assert.doesNotMatch(onboarding, /title="Do you have a minor\?"/);
 assert.doesNotMatch(onboarding, /title="What is your current GPA\?"/);
