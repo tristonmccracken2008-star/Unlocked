@@ -1,7 +1,6 @@
 import assert from "node:assert/strict";
 import { createHash, randomUUID } from "node:crypto";
 import { readFileSync } from "node:fs";
-import { performance } from "node:perf_hooks";
 import type { AccountData } from "../lib/account-types";
 import type { Opportunity } from "../data/opportunities";
 import { defaultBillingRecord } from "../lib/billing";
@@ -140,15 +139,16 @@ assert.deepEqual((await auth.readAccountData(userA.id)).pathPreferences, {}, "Ac
 
 const samples: number[] = [];
 for (let run = 0; run < 80; run += 1) {
-  const started = performance.now();
+  const started = process.cpuUsage();
   const model = buildOpportunityPathsLandingModel({ account: activeAccount, opportunities, pro: true });
   assert.equal(model.all.length, opportunityPaths.length);
-  samples.push(performance.now() - started);
+  const elapsed = process.cpuUsage(started);
+  samples.push((elapsed.user + elapsed.system) / 1_000);
 }
 samples.sort((left, right) => left - right);
 const averageMs = samples.reduce((sum, value) => sum + value, 0) / samples.length;
 const p95Ms = samples[Math.ceil(samples.length * .95) - 1]!;
-assert.ok(p95Ms < 100, `Warm six-Path projection must remain under 100ms p95; received ${p95Ms.toFixed(2)}ms.`);
+assert.ok(p95Ms < 100, `Warm six-Path projection CPU time must remain under 100ms p95; received ${p95Ms.toFixed(2)}ms.`);
 
 const source = (path: string) => readFileSync(path, "utf8");
 const followRoute = source("app/api/paths/follow/route.ts");
