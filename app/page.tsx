@@ -38,7 +38,8 @@ async function returnNotifications(userId: string) {
 export default async function Home({ searchParams }: { searchParams?: Promise<Record<string, string | string[] | undefined>> }) {
   const session = await getServerSessionForProduct();
   if (session?.data.educationalStage === "high_school" || session?.data.educationalStage === "graduate") {
-    return <StageHome stage={session.data.educationalStage} firstName={session.data.profile?.firstName || session.user.name.split(" ")[0] || "Student"} />;
+    const collegeRecords = session.data.savedColleges ?? [];
+    return <StageHome stage={session.data.educationalStage} firstName={session.data.profile?.firstName || session.user.name.split(" ")[0] || "Student"} collegeList={session.data.educationalStage === "high_school" ? { saved: collegeRecords.length, active: collegeRecords.filter((item) => ["planning_to_apply", "applied", "decision_received"].includes(item.interestState)).length, decisions: collegeRecords.filter((item) => item.application?.decision).length } : undefined} />;
   }
   if (!session || !accountHasCompletedOnboarding(session.data) || !session.data.profile) {
     const initialSession = session

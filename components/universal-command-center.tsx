@@ -436,6 +436,7 @@ const localCommands: CommandResult[] = [
 
 const recentKey = "unlocked:universal-search-recents:v1";
 const groupOrder = [
+  "My College List",
   "Colleges",
   "Recent",
   "Quick Actions",
@@ -507,6 +508,7 @@ function localScore(result: CommandResult, query: string, pathname: string) {
 }
 
 function ResultIcon({ kind }: { kind: CommandResult["kind"] }) {
+  if (kind === "college_application") return <BookmarkIcon />;
   if (kind === "college") return <SearchIcon />;
   if (kind === "collection") return <BookmarkIcon />;
   if (kind === "explorer") return <SparkIcon />;

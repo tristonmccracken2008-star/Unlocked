@@ -203,8 +203,13 @@ function isServerProtectedProductPath(pathname: string) {
     pathname === "/my-opportunities" ||
     pathname.startsWith("/opportunities") ||
     pathname.startsWith("/colleges") ||
+    pathname.startsWith("/admissions") ||
     pathname.startsWith("/admin")
   );
+}
+
+function isCollegeListPath(pathname: string) {
+  return pathname.startsWith("/colleges/saved") || pathname.endsWith("/application");
 }
 
 export function Header() {
@@ -367,8 +372,9 @@ export function Header() {
           {stageLabel ? <nav aria-label="Primary navigation" className="hidden items-center gap-1 rounded-full bg-white/48 p-1 text-sm font-bold text-ink/55 ring-1 ring-ink/6 lg:flex">
             <a href="/" aria-current={pathname === "/" ? "page" : undefined} className={`inline-flex min-h-11 items-center rounded-full px-5 transition ${pathname === "/" ? "bg-white text-forest shadow-[0_8px_20px_rgba(43,33,26,.08)]" : "hover:bg-white/75 hover:text-forest"}`}>Home</a>
             {educationalStage === "high_school" ? <>
-              <a href="/colleges" aria-current={pathname === "/colleges" || (pathname.startsWith("/colleges/") && !pathname.startsWith("/colleges/saved")) ? "page" : undefined} className={`inline-flex min-h-11 items-center rounded-full px-5 transition ${pathname === "/colleges" || (pathname.startsWith("/colleges/") && !pathname.startsWith("/colleges/saved")) ? "bg-white text-forest shadow-[0_8px_20px_rgba(43,33,26,.08)]" : "hover:bg-white/75 hover:text-forest"}`}>Colleges</a>
-              <a href="/colleges/saved" aria-current={pathname.startsWith("/colleges/saved") ? "page" : undefined} className={`inline-flex min-h-11 items-center rounded-full px-5 transition ${pathname.startsWith("/colleges/saved") ? "bg-white text-forest shadow-[0_8px_20px_rgba(43,33,26,.08)]" : "hover:bg-white/75 hover:text-forest"}`}>Saved</a>
+              <a href="/colleges" aria-current={pathname === "/colleges" || (pathname.startsWith("/colleges/") && !isCollegeListPath(pathname)) ? "page" : undefined} className={`inline-flex min-h-11 items-center rounded-full px-5 transition ${pathname === "/colleges" || (pathname.startsWith("/colleges/") && !isCollegeListPath(pathname)) ? "bg-white text-forest shadow-[0_8px_20px_rgba(43,33,26,.08)]" : "hover:bg-white/75 hover:text-forest"}`}>Colleges</a>
+              <a href="/colleges/saved" aria-current={isCollegeListPath(pathname) ? "page" : undefined} className={`inline-flex min-h-11 items-center rounded-full px-5 transition ${isCollegeListPath(pathname) ? "bg-white text-forest shadow-[0_8px_20px_rgba(43,33,26,.08)]" : "hover:bg-white/75 hover:text-forest"}`}>My List</a>
+              <a href="/admissions" aria-current={pathname.startsWith("/admissions") ? "page" : undefined} className={`inline-flex min-h-11 items-center rounded-full px-5 transition ${pathname.startsWith("/admissions") ? "bg-white text-forest shadow-[0_8px_20px_rgba(43,33,26,.08)]" : "hover:bg-white/75 hover:text-forest"}`}>Journey</a>
             </> : <span className="px-4 text-[10px] font-bold uppercase tracking-[.14em] text-ink/35">{stageLabel}</span>}
           </nav> : null}
           <div className="flex items-center gap-1">
@@ -380,8 +386,7 @@ export function Header() {
       </header>
       {stageLabel ? <nav aria-label="Mobile navigation" className={`fixed inset-x-4 bottom-[env(safe-area-inset-bottom)] z-40 grid ${educationalStage === "high_school" ? "grid-cols-4" : "grid-cols-2"} rounded-full bg-ink/95 p-1 text-[11px] font-bold text-white shadow-[0_20px_60px_rgba(43,33,26,.24)] backdrop-blur lg:hidden`}>
         <a href="/" aria-current={pathname === "/" ? "page" : undefined} className={`inline-flex min-h-11 items-center justify-center rounded-full ${pathname === "/" ? "bg-white text-forest" : "text-white/70"}`}>Home</a>
-        {educationalStage === "high_school" ? <><a href="/colleges" aria-current={pathname === "/colleges" || (pathname.startsWith("/colleges/") && !pathname.startsWith("/colleges/saved")) ? "page" : undefined} className={`inline-flex min-h-11 items-center justify-center rounded-full ${pathname === "/colleges" || (pathname.startsWith("/colleges/") && !pathname.startsWith("/colleges/saved")) ? "bg-white text-forest" : "text-white/70"}`}>Colleges</a><a href="/colleges/saved" aria-current={pathname.startsWith("/colleges/saved") ? "page" : undefined} className={`inline-flex min-h-11 items-center justify-center rounded-full ${pathname.startsWith("/colleges/saved") ? "bg-white text-forest" : "text-white/70"}`}>Saved</a></> : null}
-        <a href="/profile#education" aria-current={pathname.startsWith("/profile") ? "page" : undefined} className={`inline-flex min-h-11 items-center justify-center rounded-full ${pathname.startsWith("/profile") ? "bg-white text-forest" : "text-white/70"}`}>Profile</a>
+        {educationalStage === "high_school" ? <><a href="/colleges" aria-current={pathname === "/colleges" || (pathname.startsWith("/colleges/") && !isCollegeListPath(pathname)) ? "page" : undefined} className={`inline-flex min-h-11 items-center justify-center rounded-full ${pathname === "/colleges" || (pathname.startsWith("/colleges/") && !isCollegeListPath(pathname)) ? "bg-white text-forest" : "text-white/70"}`}>Colleges</a><a href="/colleges/saved" aria-current={isCollegeListPath(pathname) ? "page" : undefined} className={`inline-flex min-h-11 items-center justify-center rounded-full ${isCollegeListPath(pathname) ? "bg-white text-forest" : "text-white/70"}`}>My List</a><a href="/admissions" aria-current={pathname.startsWith("/admissions") ? "page" : undefined} className={`inline-flex min-h-11 items-center justify-center rounded-full ${pathname.startsWith("/admissions") ? "bg-white text-forest" : "text-white/70"}`}>Journey</a></> : <a href="/profile#education" aria-current={pathname.startsWith("/profile") ? "page" : undefined} className={`inline-flex min-h-11 items-center justify-center rounded-full ${pathname.startsWith("/profile") ? "bg-white text-forest" : "text-white/70"}`}>Profile</a>}
       </nav> : null}
       {commandOpen ? <UniversalCommandCenter onClose={() => setCommandOpen(false)} restoreFocus={() => commandTrigger.current?.focus()} /> : null}
     </>;

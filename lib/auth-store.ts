@@ -16,6 +16,7 @@ import { emptyApplicationMaterialStore, normalizeApplicationMaterialStore, type 
 import { emptyResumeLabStore, normalizeResumeLabStore, type ResumeLabStore } from "@/data/resume-lab";
 import { emptyOpportunityPassport, normalizeOpportunityPassport, type OpportunityPassport } from "@/data/passport";
 import { educationalStageSchemaVersion, normalizeEducationalStage, type EducationalStage } from "./education-stages";
+import { collegeApplicationPlans, collegeDecisionOutcomes, collegeInterestStates, collegeRequirementStatuses, type CollegeAdmissionsJourney, type CollegeListRecord } from "@/data/college-admissions";
 
 export const sessionCookieName = "unlocked_session";
 export const oauthStateCookieName = "unlocked_oauth_state";
@@ -40,7 +41,7 @@ const kvTimeoutMs = 2800;
 const kvRetryDelayMs = 120;
 const releaseLockScript = "if redis.call('GET',KEYS[1]) == ARGV[1] then return redis.call('DEL',KEYS[1]) else return 0 end";
 
-const emptyData = (): AccountData => ({ educationalStage: null, educationalStageSchemaVersion, educationalStageTransitions: [], profile: null, onboardingComplete: false, firstLaunchComplete: false, billing: defaultBillingRecord(), activity: null, savedOpportunities: [], savedColleges: [], watchedOpportunities: [], tracker: {}, preferences: null, journeyProgress: {}, calendarEvents: {}, applicationWorkspaces: {}, answerBank: { records: {}, version: 0 }, applicationMaterials: emptyApplicationMaterialStore(), resumeLab: emptyResumeLabStore(), accomplishments: {}, passport: emptyOpportunityPassport(), pathPreferences: {}, guidance: {}, advisor: null, referrals: null, updatedAt: new Date().toISOString() });
+const emptyData = (): AccountData => ({ educationalStage: null, educationalStageSchemaVersion, educationalStageTransitions: [], profile: null, onboardingComplete: false, firstLaunchComplete: false, billing: defaultBillingRecord(), activity: null, savedOpportunities: [], savedColleges: [], collegeAdmissionsJourney: { tasks: [] }, watchedOpportunities: [], tracker: {}, preferences: null, journeyProgress: {}, calendarEvents: {}, applicationWorkspaces: {}, answerBank: { records: {}, version: 0 }, applicationMaterials: emptyApplicationMaterialStore(), resumeLab: emptyResumeLabStore(), accomplishments: {}, passport: emptyOpportunityPassport(), pathPreferences: {}, guidance: {}, advisor: null, referrals: null, updatedAt: new Date().toISOString() });
 
 function requireProductionStore() {
   if (!hasKv && process.env.NODE_ENV === "production") throw new Error("A production data store is required. Set KV_REST_API_URL/KV_REST_API_TOKEN or UPSTASH_REDIS_REST_URL/UPSTASH_REDIS_REST_TOKEN.");
@@ -342,6 +343,26 @@ export async function releaseStripeWebhookEvent(eventId: string) {
 
 const uniqueStrings = (items: unknown) => Array.isArray(items) ? [...new Set(items.filter((item): item is string => typeof item === "string"))] : [];
 
+function normalizeCollegeListRecords(value: AccountData["savedColleges"]): CollegeListRecord[] {
+  return (value ?? []).filter((item) => item?.collegeId && item.savedAt).slice(-500).map((item) => {
+    const now = item.updatedAt ?? item.savedAt;
+    const application = item.application ? {
+      ...item.application,
+      plan: collegeApplicationPlans.includes(item.application.plan) ? item.application.plan : "unknown" as const,
+      requirements: (item.application.requirements ?? []).filter((record) => record?.id && record.title).map((record) => ({ ...record, status: collegeRequirementStatuses.includes(record.status) ? record.status : "needs_verification" as const })),
+      tasks: (item.application.tasks ?? []).filter((task) => task?.id && task.title).slice(-200),
+      decision: item.application.decision && collegeDecisionOutcomes.includes(item.application.decision.outcome) ? item.application.decision : undefined,
+      version: Number.isInteger(item.application.version) ? item.application.version : 0,
+      updatedAt: item.application.updatedAt ?? now,
+    } : undefined;
+    return { collegeId: item.collegeId, savedAt: item.savedAt, updatedAt: now, version: Number.isInteger(item.version) ? item.version : 0, interestState: collegeInterestStates.includes(item.interestState) ? item.interestState : "exploring", favorite: item.favorite === true, notes: typeof item.notes === "string" ? item.notes.slice(0, 4_000) : "", priorities: uniqueStrings(item.priorities).slice(0, 12), application };
+  });
+}
+
+function normalizeCollegeAdmissionsJourney(value: AccountData["collegeAdmissionsJourney"]): CollegeAdmissionsJourney {
+  return { tasks: (value?.tasks ?? []).filter((task) => task?.id && task.title && !task.collegeId).slice(-300), updatedAt: value?.updatedAt };
+}
+
 function normalizeAdvisorData(value: AdvisorAccountData | null | undefined): AdvisorAccountData | null {
   if (!value) return null;
   return {
@@ -381,7 +402,8 @@ function normalizeAccountData(value: AccountData | null | undefined): AccountDat
       tracked,
     } : null,
     savedOpportunities: value.savedOpportunities?.length ? value.savedOpportunities : uniqueStrings(value.activity?.saved).map((opportunityId) => ({ opportunityId, savedAt: tracked[opportunityId]?.savedAt ?? value.updatedAt })),
-    savedColleges: (value.savedColleges ?? []).filter((item) => item?.collegeId && item.savedAt).slice(-500),
+    savedColleges: normalizeCollegeListRecords(value.savedColleges),
+    collegeAdmissionsJourney: normalizeCollegeAdmissionsJourney(value.collegeAdmissionsJourney),
     watchedOpportunities: (value.watchedOpportunities ?? []).filter((item) => item?.opportunityId && item.watchedAt && item.updatedAt).slice(-500),
     tracker: tracked,
     preferences: value.preferences ?? null,
@@ -441,6 +463,7 @@ export async function mergeAccountData(userId: string, incoming: Partial<Account
     savedOpportunities: savedIds.map((opportunityId) => current.savedOpportunities.find((item) => item.opportunityId === opportunityId) ?? incoming.savedOpportunities?.find((item) => item.opportunityId === opportunityId) ?? { opportunityId, savedAt: tracker[opportunityId]?.savedAt ?? new Date().toISOString() }),
     // College interest history changes only through the dedicated same-origin endpoint.
     savedColleges: current.savedColleges ?? [],
+    collegeAdmissionsJourney: current.collegeAdmissionsJourney ?? { tasks: [] },
     // Watch is Pro-only state and may only change through updateWatchedOpportunity.
     watchedOpportunities: current.watchedOpportunities ?? [],
     tracker,
@@ -495,10 +518,24 @@ export async function updateSavedCollege(userId: string, collegeId: string, savi
     const existing = (current.savedColleges ?? []).find((item) => item.collegeId === collegeId);
     if (Boolean(existing) === saving) return { account: current, changed: false };
     const savedColleges = (current.savedColleges ?? []).filter((item) => item.collegeId !== collegeId);
-    if (saving) savedColleges.push({ collegeId, savedAt: new Date().toISOString() });
+    if (saving) {
+      const now = new Date().toISOString();
+      savedColleges.push({ collegeId, savedAt: now, updatedAt: now, version: 0, interestState: "exploring", favorite: false, notes: "", priorities: [] });
+    }
     const next = { ...current, savedColleges: savedColleges.slice(-500), updatedAt: new Date().toISOString() };
     await writeAccountData(userId, next);
     return { account: next, changed: true };
+  });
+}
+
+export async function mutateCollegeAdmissions(userId: string, mutation: (records: CollegeListRecord[], journey: CollegeAdmissionsJourney) => { records: CollegeListRecord[]; journey: CollegeAdmissionsJourney }) {
+  return await withSecurityLock("college-admissions", userId, async () => {
+    const current = await readAccountData(userId);
+    const result = mutation(normalizeCollegeListRecords(current.savedColleges), normalizeCollegeAdmissionsJourney(current.collegeAdmissionsJourney));
+    const now = new Date().toISOString();
+    const next = { ...current, savedColleges: normalizeCollegeListRecords(result.records), collegeAdmissionsJourney: normalizeCollegeAdmissionsJourney({ ...result.journey, updatedAt: now }), updatedAt: now };
+    await writeAccountData(userId, next);
+    return next;
   });
 }
 

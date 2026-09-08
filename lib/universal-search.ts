@@ -14,7 +14,8 @@ import { opportunityCollectionCoverage } from "./opportunity-collections";
 import { normalizeResumeLabStore } from "@/data/resume-lab";
 import { normalizeAnswerBank } from "./application-workspace";
 import { careers } from "@/data/careers";
-import { searchColleges } from "./colleges";
+import { getColleges, searchColleges } from "./colleges";
+import { collegeApplicationPlanLabels, collegeDecisionLabels, collegeInterestLabels } from "@/data/college-admissions";
 
 function normalize(value: string) {
   return value.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim().replace(/\s+/g, " ");
@@ -114,8 +115,39 @@ export function buildUniversalSearch(input: {
   });
   const records = [...model.activeRecords, ...model.historyGroups.flatMap((group) => group.records)];
   const personal = journeyResults(records, query);
+  const savedColleges = input.account.savedColleges ?? [];
   const collegeResults: UniversalSearchResult[] = input.account.educationalStage === "high_school"
     ? searchColleges({ query, limit: 4 }).colleges.map((college, index) => ({ id: `college:${college.id}`, kind: "college", group: "Colleges", title: college.name, subtitle: `${college.city}, ${college.state} · ${college.ownership}`, href: `/colleges/${college.slug}`, score: 1_000 - index }))
+    : [];
+  const savedCollegeLookup = input.account.educationalStage === "high_school"
+    ? new Map(getColleges(savedColleges.map((record) => record.collegeId)).map((college) => [college.id, college]))
+    : new Map();
+  const collegeListShortcut: UniversalSearchResult[] = input.account.educationalStage === "high_school" && matchScore(query, ["my college list", "saved colleges", "college applications", "admissions workspace"])
+    ? [{ id: "college-list:self", kind: "college_application", group: "My College List", title: "My College List", subtitle: `${savedColleges.length} saved ${savedColleges.length === 1 ? "college" : "colleges"} · Private`, href: "/colleges/saved", score: 1_240 }]
+    : [];
+  const savedCollegeResults: UniversalSearchResult[] = input.account.educationalStage === "high_school"
+    ? savedColleges.flatMap((record): UniversalSearchResult[] => {
+        const college = savedCollegeLookup.get(record.collegeId);
+        if (!college) return [];
+        const score = matchScore(query, [
+          college.name,
+          `${college.name} application`,
+          collegeInterestLabels[record.interestState],
+          record.application ? collegeApplicationPlanLabels[record.application.plan] : "",
+          record.application?.decision ? collegeDecisionLabels[record.application.decision.outcome] : "",
+          ...record.priorities,
+        ]);
+        if (!score) return [];
+        return [{
+          id: `college-application:${college.id}`,
+          kind: "college_application",
+          group: "My College List",
+          title: college.name,
+          subtitle: `${collegeInterestLabels[record.interestState]} · Private application workspace`,
+          href: `/colleges/${college.slug}/application`,
+          score: score + 500,
+        }];
+      }).sort((left, right) => right.score - left.score || left.title.localeCompare(right.title)).slice(0, 4)
     : [];
   const passport: UniversalSearchResult[] = matchScore(query, ["my passport", "opportunity passport", "my projects", "my accomplishments", "my collections"]) ? [{ id: "passport:self", kind: "passport", group: "Passport", title: "My Opportunity Passport", subtitle: "Your private, shareable college journey", href: "/passport", score: 1_150 }] : [];
   const strategy: UniversalSearchResult[] = strategyIntent(query) ? [{
@@ -251,7 +283,7 @@ export function buildUniversalSearch(input: {
 
   return {
     query,
-    results: [...collegeResults, ...passport, ...strategy, ...careerResults, ...collections, ...explorer, ...resumes, ...experiences, ...answerStories, ...materials, ...paths, ...accomplishments, ...personal, ...upcoming, ...tasks, ...opportunities],
+    results: [...collegeListShortcut, ...savedCollegeResults, ...collegeResults, ...passport, ...strategy, ...careerResults, ...collections, ...explorer, ...resumes, ...experiences, ...answerStories, ...materials, ...paths, ...accomplishments, ...personal, ...upcoming, ...tasks, ...opportunities],
     totalOpportunityMatches: preciseCatalog.length ? catalog.total : 0,
   };
 }

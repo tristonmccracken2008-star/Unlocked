@@ -22,7 +22,8 @@ process.env.KV_REST_API_TOKEN = "local-preview";
 process.env.UPSTASH_REDIS_REST_URL = "http://127.0.0.1:4398";
 process.env.UPSTASH_REDIS_REST_TOKEN = "local-preview";
 process.env.NEXT_PUBLIC_APP_URL = "http://127.0.0.1:4399";
-const { upsertUser, mergeAccountData, createSession, updateAccountBilling, updateEducationalStage } = await import("../lib/auth-store");
+const { upsertUser, mergeAccountData, createSession, updateAccountBilling, updateEducationalStage, updateSavedCollege } = await import("../lib/auth-store");
+const { updateCollegeAdmissions } = await import("../lib/college-admissions-service");
 const user = await upsertUser({ googleSub: "local-preview", email: "preview@example.test", name: "Avery Chen" });
 await updateEducationalStage(user.id, "undergraduate");
 const now = new Date().toISOString();
@@ -36,11 +37,23 @@ const newUserSession = await createSession(newUser);
 const highSchoolUser = await upsertUser({ googleSub: "local-high-school-preview", email: "high-school-preview@example.test", name: "Jordan Lee" });
 await mergeAccountData(highSchoolUser.id, { profile: { firstName: "Jordan", lastName: "Lee", schoolSlug: "lincoln-high-school", schoolName: "Lincoln High School", major: "Undecided", graduationYear: "2028", year: "Junior", careerGoal: "Explore colleges", interests: "Computer science, economics", onboardingCompletedAt: now }, onboardingComplete: true, firstLaunchComplete: true });
 await updateEducationalStage(highSchoolUser.id, "high_school");
+await updateSavedCollege(highSchoolUser.id, "144050", true);
+await updateSavedCollege(highSchoolUser.id, "170976", true);
+await updateSavedCollege(highSchoolUser.id, "147767", true);
+await updateCollegeAdmissions(highSchoolUser.id, { action: "update_college", collegeId: "144050", interestState: "planning_to_apply", favorite: true, plan: "early_action", priorities: ["Academic programs", "Research"], notes: "Compare the Core and computer science options after the fall visit." });
+await updateCollegeAdmissions(highSchoolUser.id, { action: "add_task", collegeId: "144050", title: "Draft the UChicago supplement outline", dueDate: "2026-09-28" });
+await updateCollegeAdmissions(highSchoolUser.id, { action: "update_college", collegeId: "170976", interestState: "considering", priorities: ["Cost", "Student life"] });
+await updateCollegeAdmissions(highSchoolUser.id, { action: "update_college", collegeId: "147767", interestState: "planning_to_apply", plan: "regular_decision", priorities: ["Location", "Career opportunities"] });
+await updateCollegeAdmissions(highSchoolUser.id, { action: "add_task", title: "Ask counselor about recommendation timing", dueDate: "2026-09-20" });
+await updateAccountBilling(highSchoolUser.id, { tier: "pro", status: "active" });
 const highSchoolSession = await createSession(highSchoolUser);
 const app = next({ dev: true, dir: process.cwd(), hostname: "127.0.0.1", port: 4399 }); await app.prepare();
 http.createServer((req, res) => {
   if (req.url === "/__preview") { res.writeHead(302, { "Set-Cookie": `unlocked_session=${session.token}; Path=/; HttpOnly; SameSite=Lax`, Location: "/opportunities" }); res.end(); return; }
   if (req.url === "/__preview-onboarding") { res.writeHead(302, { "Set-Cookie": `unlocked_session=${newUserSession.token}; Path=/; HttpOnly; SameSite=Lax`, Location: "/onboarding" }); res.end(); return; }
   if (req.url === "/__preview-colleges") { res.writeHead(302, { "Set-Cookie": `unlocked_session=${highSchoolSession.token}; Path=/; HttpOnly; SameSite=Lax`, Location: "/colleges" }); res.end(); return; }
+  if (req.url === "/__preview-college-list") { res.writeHead(302, { "Set-Cookie": `unlocked_session=${highSchoolSession.token}; Path=/; HttpOnly; SameSite=Lax`, Location: "/colleges/saved" }); res.end(); return; }
+  if (req.url === "/__preview-admissions") { res.writeHead(302, { "Set-Cookie": `unlocked_session=${highSchoolSession.token}; Path=/; HttpOnly; SameSite=Lax`, Location: "/admissions" }); res.end(); return; }
+  if (req.url === "/__preview-application") { res.writeHead(302, { "Set-Cookie": `unlocked_session=${highSchoolSession.token}; Path=/; HttpOnly; SameSite=Lax`, Location: "/colleges/university-of-chicago/application" }); res.end(); return; }
   void app.getRequestHandler()(req, res);
 }).listen(4399, "127.0.0.1", () => console.log("Local sample account preview: http://127.0.0.1:4399/__preview"));

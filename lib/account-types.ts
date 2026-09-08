@@ -12,6 +12,7 @@ import type { ApplicationMaterialStore } from "@/data/application-materials";
 import type { ResumeLabStore } from "@/data/resume-lab";
 import type { OpportunityPassport } from "@/data/passport";
 import type { EducationalStage, EducationalStageTransition } from "./education-stages";
+import type { CollegeAdmissionsJourney, CollegeListRecord } from "@/data/college-admissions";
 
 export type AuthUser = {
   id: string;
@@ -54,10 +55,7 @@ export type SavedOpportunityRecord = {
   savedAt: string;
 };
 
-export type SavedCollegeRecord = {
-  collegeId: string;
-  savedAt: string;
-};
+export type SavedCollegeRecord = CollegeListRecord;
 
 export type WatchedOpportunityRecord = {
   opportunityId: string;
@@ -202,6 +200,7 @@ export type AccountData = {
   activity: StudentActivity | null;
   savedOpportunities: SavedOpportunityRecord[];
   savedColleges?: SavedCollegeRecord[];
+  collegeAdmissionsJourney?: CollegeAdmissionsJourney;
   watchedOpportunities?: WatchedOpportunityRecord[];
   tracker: OpportunityTrackerRecord;
   preferences: UserPreferencesRecord | null;

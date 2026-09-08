@@ -1,7 +1,7 @@
-export const universalSearchGroups = ["Colleges", "Passport", "Careers", "Collections", "Explore", "Resume Lab", "Materials", "Paths", "Accomplishments", "Your Journey", "Upcoming", "Application tasks", "Opportunities"] as const;
+export const universalSearchGroups = ["My College List", "Colleges", "Passport", "Careers", "Collections", "Explore", "Resume Lab", "Materials", "Paths", "Accomplishments", "Your Journey", "Upcoming", "Application tasks", "Opportunities"] as const;
 
 export type UniversalSearchGroup = (typeof universalSearchGroups)[number];
-export type UniversalSearchKind = "college" | "passport" | "career" | "collection" | "explorer" | "resume" | "material" | "path" | "accomplishment" | "journey" | "deadline" | "task" | "opportunity";
+export type UniversalSearchKind = "college" | "college_application" | "passport" | "career" | "collection" | "explorer" | "resume" | "material" | "path" | "accomplishment" | "journey" | "deadline" | "task" | "opportunity";
 
 export type UniversalSearchResult = {
   id: string;
