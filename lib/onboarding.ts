@@ -15,9 +15,17 @@ export async function requireCompletedOnboarding() {
   return session;
 }
 
+export async function requireSelectedEducationalStage() {
+  const session = await getServerSessionForProduct();
+  if (!session) redirect("/");
+  if (!session.data.educationalStage) redirect("/onboarding");
+  return session;
+}
+
 export async function requireOnboardingSession() {
   const session = await getServerSessionForProduct();
   if (!session) redirect("/");
+  if (session.data.educationalStage && session.data.educationalStage !== "undergraduate") redirect("/");
   if (accountHasCompletedOnboarding(session.data)) redirect(accountHasCompletedFirstLaunch(session.data) ? "/advisor" : "/welcome");
   return session;
 }

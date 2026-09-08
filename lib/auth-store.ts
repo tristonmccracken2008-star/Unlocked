@@ -15,6 +15,7 @@ import { normalizeOpportunityPathPreferences, opportunityPathIds, type Opportuni
 import { emptyApplicationMaterialStore, normalizeApplicationMaterialStore, type ApplicationMaterialStore } from "@/data/application-materials";
 import { emptyResumeLabStore, normalizeResumeLabStore, type ResumeLabStore } from "@/data/resume-lab";
 import { emptyOpportunityPassport, normalizeOpportunityPassport, type OpportunityPassport } from "@/data/passport";
+import { educationalStageSchemaVersion, normalizeEducationalStage, type EducationalStage } from "./education-stages";
 
 export const sessionCookieName = "unlocked_session";
 export const oauthStateCookieName = "unlocked_oauth_state";
@@ -39,7 +40,7 @@ const kvTimeoutMs = 2800;
 const kvRetryDelayMs = 120;
 const releaseLockScript = "if redis.call('GET',KEYS[1]) == ARGV[1] then return redis.call('DEL',KEYS[1]) else return 0 end";
 
-const emptyData = (): AccountData => ({ profile: null, onboardingComplete: false, firstLaunchComplete: false, billing: defaultBillingRecord(), activity: null, savedOpportunities: [], watchedOpportunities: [], tracker: {}, preferences: null, journeyProgress: {}, calendarEvents: {}, applicationWorkspaces: {}, answerBank: { records: {}, version: 0 }, applicationMaterials: emptyApplicationMaterialStore(), resumeLab: emptyResumeLabStore(), accomplishments: {}, passport: emptyOpportunityPassport(), pathPreferences: {}, guidance: {}, advisor: null, referrals: null, updatedAt: new Date().toISOString() });
+const emptyData = (): AccountData => ({ educationalStage: null, educationalStageSchemaVersion, educationalStageTransitions: [], profile: null, onboardingComplete: false, firstLaunchComplete: false, billing: defaultBillingRecord(), activity: null, savedOpportunities: [], watchedOpportunities: [], tracker: {}, preferences: null, journeyProgress: {}, calendarEvents: {}, applicationWorkspaces: {}, answerBank: { records: {}, version: 0 }, applicationMaterials: emptyApplicationMaterialStore(), resumeLab: emptyResumeLabStore(), accomplishments: {}, passport: emptyOpportunityPassport(), pathPreferences: {}, guidance: {}, advisor: null, referrals: null, updatedAt: new Date().toISOString() });
 
 function requireProductionStore() {
   if (!hasKv && process.env.NODE_ENV === "production") throw new Error("A production data store is required. Set KV_REST_API_URL/KV_REST_API_TOKEN or UPSTASH_REDIS_REST_URL/UPSTASH_REDIS_REST_TOKEN.");
@@ -356,11 +357,18 @@ function normalizeAdvisorData(value: AdvisorAccountData | null | undefined): Adv
 
 function normalizeAccountData(value: AccountData | null | undefined): AccountData {
   if (!value) return emptyData();
+  const isLegacyAccount = !("educationalStage" in value);
+  const educationalStage = normalizeEducationalStage(value.educationalStage) ?? (isLegacyAccount ? "undergraduate" : null);
   const tracked = value.tracker ?? value.activity?.tracked ?? {};
   const profile = value.profile && isCompletedStudentProfile(value.profile) ? normalizeStudentProfile(value.profile) : value.profile ?? null;
   const onboardingComplete = Boolean(value.onboardingComplete || (profile && isCompletedStudentProfile(profile)));
   const hasPersistedFirstLaunchState = typeof value.firstLaunchComplete === "boolean";
   return {
+    educationalStage,
+    educationalStageSchemaVersion,
+    educationalStageTransitions: Array.isArray(value.educationalStageTransitions)
+      ? value.educationalStageTransitions.filter((transition) => normalizeEducationalStage(transition?.to) && (!transition?.from || normalizeEducationalStage(transition.from)) && !Number.isNaN(new Date(transition.changedAt).getTime())).slice(-20)
+      : [],
     profile,
     onboardingComplete,
     firstLaunchComplete: normalizedFirstLaunchComplete(value, onboardingComplete),
@@ -420,6 +428,9 @@ export async function mergeAccountData(userId: string, incoming: Partial<Account
   const profile = incomingProfile ?? current.profile ?? null;
   const profileChangedForAdvisor = Boolean(incomingProfile && meaningfulAdvisorProfileChanged(current.profile, incomingProfile));
   const next: AccountData = {
+    educationalStage: current.educationalStage,
+    educationalStageSchemaVersion,
+    educationalStageTransitions: current.educationalStageTransitions ?? [],
     profile,
     onboardingComplete: Boolean(current.onboardingComplete || incoming.onboardingComplete || (profile && isCompletedStudentProfile(profile))),
     firstLaunchComplete: Boolean(current.firstLaunchComplete || incoming.firstLaunchComplete),
@@ -456,6 +467,23 @@ export async function mergeAccountData(userId: string, incoming: Partial<Account
     return await readAccountData(userId);
   }
   return next;
+}
+
+export async function updateEducationalStage(userId: string, stage: EducationalStage) {
+  return await withSecurityLock("educational-stage", userId, async () => {
+    const current = await readAccountData(userId);
+    if (current.educationalStage === stage) return current;
+    const now = new Date().toISOString();
+    const next: AccountData = {
+      ...current,
+      educationalStage: stage,
+      educationalStageSchemaVersion,
+      educationalStageTransitions: [...(current.educationalStageTransitions ?? []), { from: current.educationalStage ?? null, to: stage, changedAt: now }].slice(-20),
+      updatedAt: now,
+    };
+    await writeAccountData(userId, next);
+    return next;
+  });
 }
 
 export async function updateOpportunityPassport(userId: string, passport: OpportunityPassport) {

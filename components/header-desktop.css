@@ -148,3 +148,9 @@
 @media (min-width: 1024px) and (prefers-reduced-motion: reduce) {
   [data-header-layout] :is(a, button) { transition: none; }
 }
+
+@media (max-width: 639px) {
+  [data-stage-header-account] form { flex-wrap: nowrap; gap: 2px; }
+  [data-stage-header-account] form > span:nth-child(2) { display: none; }
+  [data-stage-header-account] button { min-width: 3.5rem; padding-inline: .35rem; }
+}

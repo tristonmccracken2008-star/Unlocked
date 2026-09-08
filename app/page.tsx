@@ -11,6 +11,7 @@ import { readNotifications } from "@/lib/notification-store";
 import { cookies } from "next/headers";
 import { isProUser } from "@/lib/billing";
 import { redirect } from "next/navigation";
+import { StageHome } from "@/components/stage-home";
 
 export const metadata: Metadata = {
   title: { absolute: "UnlockED — Student opportunities, chosen for you" },
@@ -36,6 +37,9 @@ async function returnNotifications(userId: string) {
 
 export default async function Home({ searchParams }: { searchParams?: Promise<Record<string, string | string[] | undefined>> }) {
   const session = await getServerSessionForProduct();
+  if (session?.data.educationalStage === "high_school" || session?.data.educationalStage === "graduate") {
+    return <StageHome stage={session.data.educationalStage} firstName={session.data.profile?.firstName || session.user.name.split(" ")[0] || "Student"} />;
+  }
   if (!session || !accountHasCompletedOnboarding(session.data) || !session.data.profile) {
     const initialSession = session
       ? { authenticated: true, user: session.user, data: session.data }

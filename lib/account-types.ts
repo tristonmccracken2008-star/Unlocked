@@ -11,6 +11,7 @@ import type { OpportunityPathPreferences } from "@/data/opportunity-paths";
 import type { ApplicationMaterialStore } from "@/data/application-materials";
 import type { ResumeLabStore } from "@/data/resume-lab";
 import type { OpportunityPassport } from "@/data/passport";
+import type { EducationalStage, EducationalStageTransition } from "./education-stages";
 
 export type AuthUser = {
   id: string;
@@ -185,6 +186,9 @@ export type ApplicationWorkspaceRecord = {
 export type ApplicationWorkspaceStore = Record<string, ApplicationWorkspaceRecord>;
 
 export type AccountData = {
+  educationalStage?: EducationalStage | null;
+  educationalStageSchemaVersion?: 1;
+  educationalStageTransitions?: EducationalStageTransition[];
   profile: ProfileRecord | null;
   onboardingComplete: boolean;
   firstLaunchComplete?: boolean;

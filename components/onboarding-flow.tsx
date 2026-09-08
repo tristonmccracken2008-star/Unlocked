@@ -11,6 +11,7 @@ import { trackProductEvent } from "@/data/product-analytics";
 import { accountSessionEvent } from "@/data/account-sync";
 import type { AccountSession } from "@/lib/account-types";
 import { SearchIcon } from "./icons";
+import { EducationStageSelector } from "./education-stage-selector";
 
 type OnboardingDraft = {
   firstName: string;
@@ -86,6 +87,12 @@ function readDraft(key: string, fallback: OnboardingDraft) {
 }
 
 export function OnboardingFlow({ session, initialProfile }: { session: AccountSession; initialProfile: StudentProfile | null }) {
+  const [educationalStage, setEducationalStage] = useState(session.data?.educationalStage ?? null);
+  if (!educationalStage) return <EducationalStageOnboarding onSaved={(data) => setEducationalStage(data.educationalStage ?? null)} />;
+  return <UndergraduateOnboardingFlow session={session} initialProfile={initialProfile} />;
+}
+
+function UndergraduateOnboardingFlow({ session, initialProfile }: { session: AccountSession; initialProfile: StudentProfile | null }) {
   const [screen, setScreen] = useState<"welcome" | "question" | "complete">("welcome");
   const [step, setStep] = useState(0);
   const [draft, setDraft] = useState<OnboardingDraft>(() => profileToDraft(session, initialProfile));
@@ -361,6 +368,19 @@ export function OnboardingFlow({ session, initialProfile }: { session: AccountSe
         <button type="button" onClick={continueStep} disabled={continueDisabled} className="min-h-12 w-full rounded-xl bg-forest px-5 text-sm font-bold text-white shadow-[0_12px_24px_rgba(31,95,67,.18)] hover:bg-ink disabled:cursor-not-allowed disabled:opacity-50">
           {screen === "welcome" ? "Get started" : step === totalSteps - 1 ? "Finish setup" : "Continue"}
         </button>
+      </div>
+    </section>
+  </main>;
+}
+
+function EducationalStageOnboarding({ onSaved }: { onSaved: (data: NonNullable<AccountSession["data"]>) => void }) {
+  return <main className="min-h-[calc(100vh-80px)] bg-paper px-4 py-6 sm:px-8 sm:py-10">
+    <section className="mx-auto flex min-h-[72vh] max-w-4xl items-center rounded-[2rem] border border-ink/10 bg-white/72 px-6 py-12 shadow-soft sm:px-12">
+      <div className="mx-auto w-full max-w-2xl">
+        <p className="rule-label text-forest">Your UnlockED</p>
+        <h1 className="mt-4 max-w-xl font-editorial text-4xl font-semibold leading-tight text-[var(--unlocked-text)] sm:text-6xl">Where are you in your education?</h1>
+        <p className="mt-5 max-w-lg text-base leading-7 text-ink/55">UnlockED adapts to where you are now. Your journey and history stay with you as you move forward.</p>
+        <div className="mt-10"><EducationStageSelector onSaved={onSaved} /></div>
       </div>
     </section>
   </main>;

@@ -18,9 +18,17 @@ expect("lib/onboarding.ts", "protected product routes must use a shared server o
   source.includes("requireCompletedOnboarding") && source.includes("accountHasCompletedOnboarding(session.data)") && source.includes("redirect(\"/onboarding\")"),
 );
 
-for (const route of ["app/advisor/page.tsx", "app/profile/page.tsx", "app/my-opportunities/page.tsx", "app/opportunities/page.tsx"]) {
+for (const route of ["app/advisor/page.tsx", "app/my-opportunities/page.tsx", "app/opportunities/page.tsx"]) {
   expect(route, "product route must require completed onboarding", (source) => source.includes("requireCompletedOnboarding()"));
 }
+
+expect("app/profile/page.tsx", "profile route must allow stage selection while remaining account-protected", (source) =>
+  source.includes("requireSelectedEducationalStage()"),
+);
+
+expect("components/onboarding-flow.tsx", "onboarding must collect educational stage before stage-specific questions", (source) =>
+  source.includes("Where are you in your education?") && source.includes("EducationStageSelector"),
+);
 
 expect("app/onboarding/page.tsx", "onboarding route must reject signed-out and completed users server-side", (source) =>
   source.includes("requireOnboardingSession") && source.includes("<OnboardingFlow"),

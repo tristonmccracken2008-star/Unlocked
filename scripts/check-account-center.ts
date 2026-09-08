@@ -57,6 +57,10 @@ assert.equal(cleanStudentProfile({ ...profile, graduationYear: "1900" }), undefi
 const auth = await import("../lib/auth-store");
 const runId = crypto.randomUUID().replaceAll("-", "");
 const user = await auth.upsertUser({ googleSub: `account-${runId}`, email: `account-${runId}@example.edu`, name: "Account Center Test" });
+assert.equal((await auth.readAccountData(user.id)).educationalStage, null, "New accounts must explicitly select an educational stage.");
+const highSchoolAccount = await auth.updateEducationalStage(user.id, "high_school");
+assert.equal(highSchoolAccount.educationalStage, "high_school");
+assert.deepEqual(highSchoolAccount.educationalStageTransitions?.map(({ from, to }) => ({ from, to })), [{ from: null, to: "high_school" }]);
 const firstSession = await auth.createSession(user);
 const secondSession = await auth.createSession(user);
 const seeded = await auth.mergeAccountData(user.id, {
@@ -71,6 +75,10 @@ const seeded = await auth.mergeAccountData(user.id, {
   preferences: { preferredTypes: ["Research"], hiddenDismissedIds: ["dismissed-1"], useActivityForRecommendations: true, appearance: "light", updatedAt: now },
 });
 assert.equal(seeded.onboardingComplete, true);
+const graduateAccount = await auth.updateEducationalStage(user.id, "graduate");
+assert.equal(graduateAccount.educationalStage, "graduate");
+assert.equal(graduateAccount.activity?.tracked?.["saved-1"]?.status, "Saved", "Changing stage must preserve Journey history.");
+assert.equal(graduateAccount.profile?.major, "Undeclared", "Changing stage must preserve profile history.");
 const reset = await auth.resetRecommendationSignals(user.id);
 assert.deepEqual(reset.activity?.viewed, []);
 assert.equal(reset.activity?.tracked?.["saved-1"]?.status, "Saved");
@@ -86,7 +94,7 @@ assert.equal(await auth.getSession(secondSession.token), null);
 assert.equal((await auth.deleteAccount(user.id)).alreadyDeleted, true);
 
 const center = source("components/profile-page.tsx");
-for (const label of ["Profile", "Interests", "Notifications", "Privacy", "Appearance", "Plan and billing", "Data and account"]) assert.ok(center.includes(`"${label}"`));
+for (const label of ["Education", "Profile", "Interests", "Notifications", "Privacy", "Appearance", "Plan and billing", "Data and account"]) assert.ok(center.includes(`"${label}"`));
 for (const behavior of ["Reset For You learning", "Download your data", "Type DELETE to confirm", "Private by default", "Manage subscription in Stripe"]) assert.ok(center.includes(behavior));
 assert.match(center, /NotificationSettings embedded/);
 assert.match(center, /StudentProfileForm[\s\S]{0,300}mode="edit"/);
@@ -109,7 +117,7 @@ assert.match(source("components/referral-page.tsx"), /Your session is still acti
 const accountRoute = source("app/api/account/data/route.ts");
 assert.match(accountRoute, /stale_profile/);
 assert.match(accountRoute, /current\.updatedAt !== raw\.expectedUpdatedAt/);
-for (const routePath of ["app/api/account/export/route.ts", "app/api/account/recommendation-reset/route.ts", "app/api/account/delete/route.ts"]) {
+for (const routePath of ["app/api/account/export/route.ts", "app/api/account/recommendation-reset/route.ts", "app/api/account/delete/route.ts", "app/api/account/stage/route.ts"]) {
   const route = source(routePath);
   assert.match(route, /assertSameOrigin\(request\)/);
   assert.match(route, /getSession/);

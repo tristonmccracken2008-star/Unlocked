@@ -22,16 +22,20 @@ process.env.KV_REST_API_TOKEN = "local-preview";
 process.env.UPSTASH_REDIS_REST_URL = "http://127.0.0.1:4398";
 process.env.UPSTASH_REDIS_REST_TOKEN = "local-preview";
 process.env.NEXT_PUBLIC_APP_URL = "http://127.0.0.1:4399";
-const { upsertUser, mergeAccountData, createSession, updateAccountBilling } = await import("../lib/auth-store");
+const { upsertUser, mergeAccountData, createSession, updateAccountBilling, updateEducationalStage } = await import("../lib/auth-store");
 const user = await upsertUser({ googleSub: "local-preview", email: "preview@example.test", name: "Avery Chen" });
+await updateEducationalStage(user.id, "undergraduate");
 const now = new Date().toISOString();
 const selected = opportunities.filter((o) => o.type === "Research" || o.type === "Career").slice(0, 6);
 const tracker = Object.fromEntries(selected.map((o, i) => [o.id, { id: o.id, status: i < 3 ? "Applying" as const : "Saved" as const, savedAt: now, updatedAt: now, version: 0, history: [] }]));
 await mergeAccountData(user.id, { profile: { firstName: "Avery", lastName: "Chen", schoolSlug: "university-of-chicago", schoolName: "University of Chicago", major: "Mathematics", secondaryMajor: "Computer Science", graduationYear: "2030", year: "First year", careerGoal: "Quantitative research", interests: "Statistics, research", onboardingCompletedAt: now }, onboardingComplete: true, firstLaunchComplete: true, tracker, activity: { viewed: [], saved: selected.map((o) => o.id), claimed: [], tracked: tracker }, accomplishments: { "manual:project": { id: "manual:project", source: "manual", snapshot: { title: "Campus energy research", organization: "Student research group", capturedAt: now }, kind: "project", outcome: "completed", outcomeDate: "2026-08-20", skills: ["Python", "Data analysis"], description: "Analyzed campus energy use and presented findings to a student research group.", hidden: false, createdAt: now, updatedAt: now, version: 0 } } });
 await updateAccountBilling(user.id, { tier: "pro", status: "active" });
 const session = await createSession(user);
+const newUser = await upsertUser({ googleSub: "local-stage-preview", email: "stage-preview@example.test", name: "Jordan Lee" });
+const newUserSession = await createSession(newUser);
 const app = next({ dev: true, dir: process.cwd(), hostname: "127.0.0.1", port: 4399 }); await app.prepare();
 http.createServer((req, res) => {
   if (req.url === "/__preview") { res.writeHead(302, { "Set-Cookie": `unlocked_session=${session.token}; Path=/; HttpOnly; SameSite=Lax`, Location: "/opportunities" }); res.end(); return; }
+  if (req.url === "/__preview-onboarding") { res.writeHead(302, { "Set-Cookie": `unlocked_session=${newUserSession.token}; Path=/; HttpOnly; SameSite=Lax`, Location: "/onboarding" }); res.end(); return; }
   void app.getRequestHandler()(req, res);
 }).listen(4399, "127.0.0.1", () => console.log("Local sample account preview: http://127.0.0.1:4399/__preview"));

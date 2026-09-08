@@ -18,6 +18,8 @@ import { StudentProfileForm } from "./personalized-home";
 import { AccountPageLoading, SectionLoading, SkeletonBlock } from "./loading-system";
 import { DelayedPendingLabel } from "./delayed-pending-label";
 import { ActionFeedback } from "./action-feedback";
+import { EducationStageSelector } from "./education-stage-selector";
+import { educationalStageDetails } from "@/lib/education-stages";
 
 const AdvisorBrainProfileTab = dynamic(() => import("./profile-career-tab").then((module) => module.AdvisorBrainProfileTab), {
   ssr: false,
@@ -25,6 +27,7 @@ const AdvisorBrainProfileTab = dynamic(() => import("./profile-career-tab").then
 });
 
 const sections = [
+  ["education", "Education"],
   ["profile", "Profile"],
   ["interests", "Interests"],
   ["notifications", "Notifications"],
@@ -84,7 +87,7 @@ function billingReturnMessage(code: string | null) {
 export function ProfilePage({ initialSession }: { initialSession: AccountSession }) {
   const [profile, setProfile] = useState<StudentProfile | null | undefined>(initialSession.data?.profile);
   const [session, setSession] = useState<AccountSession | null>(initialSession);
-  const [active, setActive] = useState<SectionId>("profile");
+  const [active, setActive] = useState<SectionId>(initialSession.data?.educationalStage === "undergraduate" ? "profile" : "education");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const accountId = useRef<string | null>(null);
@@ -203,13 +206,15 @@ export function ProfilePage({ initialSession }: { initialSession: AccountSession
 
         <section aria-labelledby={`${active}-heading`} className="min-w-0">
           <StatusMessages message={message} error={error} />
-          {active === "profile" ? <ProfileSection profile={profile} session={session} onSaved={async (nextProfile) => {
+          {active === "education" ? <EducationSection session={session} /> : null}
+          {active === "profile" && session.data.educationalStage === "undergraduate" ? <ProfileSection profile={profile} session={session} onSaved={async (nextProfile) => {
             await writeStudentProfile(nextProfile, session.data?.updatedAt);
             setProfile(nextProfile);
             await refresh();
             trackProductEvent("profile_updated");
             setMessage("Profile saved. Eligibility and For You will use these details.");
           }} /> : null}
+          {active === "profile" && session.data.educationalStage !== "undergraduate" ? <StageProfileFoundation session={session} /> : null}
           {active === "interests" ? <InterestsSection session={session} profile={profile} savePreferences={savePreferences} onReset={async () => {
             setError("");
             const response = await authenticatedFetch("/api/account/recommendation-reset", { method: "POST", credentials: "same-origin", cache: "no-store" });
@@ -230,6 +235,23 @@ export function ProfilePage({ initialSession }: { initialSession: AccountSession
       </div>
     </div>
   </main>;
+}
+
+function EducationSection({ session }: { session: AccountSession }) {
+  const stage = session.data?.educationalStage;
+  return <div>
+    <SectionHeading id="education-heading" eyebrow="Education" title="Where you are now." description="UnlockED adapts its priorities and workspace to your current educational stage." />
+    <div className="mt-8"><EducationStageSelector currentStage={stage} mode="settings" /></div>
+  </div>;
+}
+
+function StageProfileFoundation({ session }: { session: AccountSession }) {
+  const stage = session.data?.educationalStage;
+  const label = stage ? educationalStageDetails[stage].label : "your current stage";
+  return <div>
+    <SectionHeading id="profile-heading" eyebrow="Profile" title="Your profile grows with you." description={`Stage-specific profile questions for ${label} are being prepared. Your account history and existing information remain safely connected.`} />
+    <div className="mt-8 border-y border-ink/12 py-6"><p className="text-sm leading-6 text-ink/55">You can update your educational stage now. More stage-specific profile details will appear here as those experiences are introduced.</p></div>
+  </div>;
 }
 
 function ProfileSection({ profile, session, onSaved }: { profile: StudentProfile | null; session: AccountSession; onSaved: (profile: StudentProfile) => Promise<void> }) {
