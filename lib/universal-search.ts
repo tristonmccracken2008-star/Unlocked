@@ -14,6 +14,7 @@ import { opportunityCollectionCoverage } from "./opportunity-collections";
 import { normalizeResumeLabStore } from "@/data/resume-lab";
 import { normalizeAnswerBank } from "./application-workspace";
 import { careers } from "@/data/careers";
+import { searchColleges } from "./colleges";
 
 function normalize(value: string) {
   return value.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim().replace(/\s+/g, " ");
@@ -113,6 +114,9 @@ export function buildUniversalSearch(input: {
   });
   const records = [...model.activeRecords, ...model.historyGroups.flatMap((group) => group.records)];
   const personal = journeyResults(records, query);
+  const collegeResults: UniversalSearchResult[] = input.account.educationalStage === "high_school"
+    ? searchColleges({ query, limit: 4 }).colleges.map((college, index) => ({ id: `college:${college.id}`, kind: "college", group: "Colleges", title: college.name, subtitle: `${college.city}, ${college.state} · ${college.ownership}`, href: `/colleges/${college.slug}`, score: 1_000 - index }))
+    : [];
   const passport: UniversalSearchResult[] = matchScore(query, ["my passport", "opportunity passport", "my projects", "my accomplishments", "my collections"]) ? [{ id: "passport:self", kind: "passport", group: "Passport", title: "My Opportunity Passport", subtitle: "Your private, shareable college journey", href: "/passport", score: 1_150 }] : [];
   const strategy: UniversalSearchResult[] = strategyIntent(query) ? [{
     id: "journey:strategy",
@@ -247,7 +251,7 @@ export function buildUniversalSearch(input: {
 
   return {
     query,
-    results: [...passport, ...strategy, ...careerResults, ...collections, ...explorer, ...resumes, ...experiences, ...answerStories, ...materials, ...paths, ...accomplishments, ...personal, ...upcoming, ...tasks, ...opportunities],
+    results: [...collegeResults, ...passport, ...strategy, ...careerResults, ...collections, ...explorer, ...resumes, ...experiences, ...answerStories, ...materials, ...paths, ...accomplishments, ...personal, ...upcoming, ...tasks, ...opportunities],
     totalOpportunityMatches: preciseCatalog.length ? catalog.total : 0,
   };
 }

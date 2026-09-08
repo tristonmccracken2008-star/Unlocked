@@ -99,6 +99,7 @@
     "check:discover": "node scripts/check-discover-redesign.mjs && node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-discover-search.ts && node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-discovery-quality.ts && node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-opportunity-report.ts",
     "check:universal-search": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-universal-search.ts",
     "check:careers": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-careers-explorer.ts",
+    "check:college-explorer": "AUTH_SECRET=college-explorer-check-secret node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-college-explorer.ts",
     "test:careers-browser": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/test-careers-browser.ts",
     "check:return-experience": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-return-experience.ts",
     "check:journey-redesign": "node scripts/check-journey-redesign.mjs",

@@ -40,7 +40,7 @@ const kvTimeoutMs = 2800;
 const kvRetryDelayMs = 120;
 const releaseLockScript = "if redis.call('GET',KEYS[1]) == ARGV[1] then return redis.call('DEL',KEYS[1]) else return 0 end";
 
-const emptyData = (): AccountData => ({ educationalStage: null, educationalStageSchemaVersion, educationalStageTransitions: [], profile: null, onboardingComplete: false, firstLaunchComplete: false, billing: defaultBillingRecord(), activity: null, savedOpportunities: [], watchedOpportunities: [], tracker: {}, preferences: null, journeyProgress: {}, calendarEvents: {}, applicationWorkspaces: {}, answerBank: { records: {}, version: 0 }, applicationMaterials: emptyApplicationMaterialStore(), resumeLab: emptyResumeLabStore(), accomplishments: {}, passport: emptyOpportunityPassport(), pathPreferences: {}, guidance: {}, advisor: null, referrals: null, updatedAt: new Date().toISOString() });
+const emptyData = (): AccountData => ({ educationalStage: null, educationalStageSchemaVersion, educationalStageTransitions: [], profile: null, onboardingComplete: false, firstLaunchComplete: false, billing: defaultBillingRecord(), activity: null, savedOpportunities: [], savedColleges: [], watchedOpportunities: [], tracker: {}, preferences: null, journeyProgress: {}, calendarEvents: {}, applicationWorkspaces: {}, answerBank: { records: {}, version: 0 }, applicationMaterials: emptyApplicationMaterialStore(), resumeLab: emptyResumeLabStore(), accomplishments: {}, passport: emptyOpportunityPassport(), pathPreferences: {}, guidance: {}, advisor: null, referrals: null, updatedAt: new Date().toISOString() });
 
 function requireProductionStore() {
   if (!hasKv && process.env.NODE_ENV === "production") throw new Error("A production data store is required. Set KV_REST_API_URL/KV_REST_API_TOKEN or UPSTASH_REDIS_REST_URL/UPSTASH_REDIS_REST_TOKEN.");
@@ -381,6 +381,7 @@ function normalizeAccountData(value: AccountData | null | undefined): AccountDat
       tracked,
     } : null,
     savedOpportunities: value.savedOpportunities?.length ? value.savedOpportunities : uniqueStrings(value.activity?.saved).map((opportunityId) => ({ opportunityId, savedAt: tracked[opportunityId]?.savedAt ?? value.updatedAt })),
+    savedColleges: (value.savedColleges ?? []).filter((item) => item?.collegeId && item.savedAt).slice(-500),
     watchedOpportunities: (value.watchedOpportunities ?? []).filter((item) => item?.opportunityId && item.watchedAt && item.updatedAt).slice(-500),
     tracker: tracked,
     preferences: value.preferences ?? null,
@@ -438,6 +439,8 @@ export async function mergeAccountData(userId: string, incoming: Partial<Account
     billing: normalizeBillingRecord(current.billing),
     activity,
     savedOpportunities: savedIds.map((opportunityId) => current.savedOpportunities.find((item) => item.opportunityId === opportunityId) ?? incoming.savedOpportunities?.find((item) => item.opportunityId === opportunityId) ?? { opportunityId, savedAt: tracker[opportunityId]?.savedAt ?? new Date().toISOString() }),
+    // College interest history changes only through the dedicated same-origin endpoint.
+    savedColleges: current.savedColleges ?? [],
     // Watch is Pro-only state and may only change through updateWatchedOpportunity.
     watchedOpportunities: current.watchedOpportunities ?? [],
     tracker,
@@ -483,6 +486,19 @@ export async function updateEducationalStage(userId: string, stage: EducationalS
     };
     await writeAccountData(userId, next);
     return next;
+  });
+}
+
+export async function updateSavedCollege(userId: string, collegeId: string, saving: boolean) {
+  return await withSecurityLock("saved-college", userId, async () => {
+    const current = await readAccountData(userId);
+    const existing = (current.savedColleges ?? []).find((item) => item.collegeId === collegeId);
+    if (Boolean(existing) === saving) return { account: current, changed: false };
+    const savedColleges = (current.savedColleges ?? []).filter((item) => item.collegeId !== collegeId);
+    if (saving) savedColleges.push({ collegeId, savedAt: new Date().toISOString() });
+    const next = { ...current, savedColleges: savedColleges.slice(-500), updatedAt: new Date().toISOString() };
+    await writeAccountData(userId, next);
+    return { account: next, changed: true };
   });
 }
 

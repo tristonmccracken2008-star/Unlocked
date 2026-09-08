@@ -54,6 +54,11 @@ export type SavedOpportunityRecord = {
   savedAt: string;
 };
 
+export type SavedCollegeRecord = {
+  collegeId: string;
+  savedAt: string;
+};
+
 export type WatchedOpportunityRecord = {
   opportunityId: string;
   watchedAt: string;
@@ -196,6 +201,7 @@ export type AccountData = {
   billing: BillingRecord;
   activity: StudentActivity | null;
   savedOpportunities: SavedOpportunityRecord[];
+  savedColleges?: SavedCollegeRecord[];
   watchedOpportunities?: WatchedOpportunityRecord[];
   tracker: OpportunityTrackerRecord;
   preferences: UserPreferencesRecord | null;

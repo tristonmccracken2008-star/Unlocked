@@ -15,6 +15,7 @@ export function StageHome({ stage, firstName }: { stage: Exclude<EducationalStag
             <p className="text-xs font-bold uppercase tracking-[.14em] text-forest/70">{String(index + 1).padStart(2, "0")}</p>
             <h2 className="mt-3 font-editorial text-2xl font-semibold text-[var(--unlocked-text)]">{priority.title}</h2>
             <p className="mt-2 max-w-sm text-sm leading-6 text-ink/50">{priority.description}</p>
+            {stage === "high_school" && priority.title === "Explore colleges" ? <Link href="/colleges" className="mt-4 inline-flex min-h-11 items-center text-sm font-bold text-forest">Open College Explorer →</Link> : null}
           </article>)}
         </div>
         <div className="mt-8 flex flex-wrap items-center justify-between gap-4">

@@ -33,9 +33,14 @@ await updateAccountBilling(user.id, { tier: "pro", status: "active" });
 const session = await createSession(user);
 const newUser = await upsertUser({ googleSub: "local-stage-preview", email: "stage-preview@example.test", name: "Jordan Lee" });
 const newUserSession = await createSession(newUser);
+const highSchoolUser = await upsertUser({ googleSub: "local-high-school-preview", email: "high-school-preview@example.test", name: "Jordan Lee" });
+await mergeAccountData(highSchoolUser.id, { profile: { firstName: "Jordan", lastName: "Lee", schoolSlug: "lincoln-high-school", schoolName: "Lincoln High School", major: "Undecided", graduationYear: "2028", year: "Junior", careerGoal: "Explore colleges", interests: "Computer science, economics", onboardingCompletedAt: now }, onboardingComplete: true, firstLaunchComplete: true });
+await updateEducationalStage(highSchoolUser.id, "high_school");
+const highSchoolSession = await createSession(highSchoolUser);
 const app = next({ dev: true, dir: process.cwd(), hostname: "127.0.0.1", port: 4399 }); await app.prepare();
 http.createServer((req, res) => {
   if (req.url === "/__preview") { res.writeHead(302, { "Set-Cookie": `unlocked_session=${session.token}; Path=/; HttpOnly; SameSite=Lax`, Location: "/opportunities" }); res.end(); return; }
   if (req.url === "/__preview-onboarding") { res.writeHead(302, { "Set-Cookie": `unlocked_session=${newUserSession.token}; Path=/; HttpOnly; SameSite=Lax`, Location: "/onboarding" }); res.end(); return; }
+  if (req.url === "/__preview-colleges") { res.writeHead(302, { "Set-Cookie": `unlocked_session=${highSchoolSession.token}; Path=/; HttpOnly; SameSite=Lax`, Location: "/colleges" }); res.end(); return; }
   void app.getRequestHandler()(req, res);
 }).listen(4399, "127.0.0.1", () => console.log("Local sample account preview: http://127.0.0.1:4399/__preview"));

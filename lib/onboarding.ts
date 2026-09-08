@@ -22,6 +22,12 @@ export async function requireSelectedEducationalStage() {
   return session;
 }
 
+export async function requireHighSchoolStage() {
+  const session = await requireSelectedEducationalStage();
+  if (session.data.educationalStage !== "high_school") redirect("/");
+  return session;
+}
+
 export async function requireOnboardingSession() {
   const session = await getServerSessionForProduct();
   if (!session) redirect("/");
