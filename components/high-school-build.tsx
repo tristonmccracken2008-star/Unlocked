@@ -35,12 +35,14 @@ const displayRange = (record: ResumeExperienceRecord) =>
 export function HighSchoolBuild({
   initialStore,
   accomplishmentCount,
+  opportunityPrefill,
 }: {
   initialStore: ResumeLabStore;
   accomplishmentCount: number;
+  opportunityPrefill?: { title: string; organization: string; category: string };
 }) {
   const [store, setStore] = useState(initialStore);
-  const [adding, setAdding] = useState(false);
+  const [adding, setAdding] = useState(Boolean(opportunityPrefill));
   const experiences = Object.values(store.experiences).sort((a, b) =>
     (b.startDate ?? b.createdAt).localeCompare(a.startDate ?? a.createdAt),
   );
@@ -101,6 +103,7 @@ export function HighSchoolBuild({
           <div className="mt-6">
             <ActivityForm
               store={store}
+              prefill={opportunityPrefill}
               onSaved={(next) => {
                 setStore(next);
                 setAdding(false);
@@ -214,19 +217,21 @@ export function HighSchoolBuild({
 export function ActivityForm({
   store,
   record,
+  prefill,
   onSaved,
 }: {
   store: ResumeLabStore;
   record?: ResumeExperienceRecord;
+  prefill?: { title: string; organization: string; category: string };
   onSaved: (store: ResumeLabStore) => void;
 }) {
   const hs = record?.highSchool;
   const latestRole = hs?.roleHistory.at(-1);
-  const [title, setTitle] = useState(record?.title ?? "");
-  const [organization, setOrganization] = useState(record?.organization ?? "");
+  const [title, setTitle] = useState(record?.title ?? prefill?.title ?? "");
+  const [organization, setOrganization] = useState(record?.organization ?? prefill?.organization ?? "");
   const [role, setRole] = useState(latestRole?.title ?? "");
   const [category, setCategory] = useState(
-    hs?.category ?? "Other meaningful experience",
+    hs?.category ?? prefill?.category ?? "Other meaningful experience",
   );
   const [location, setLocation] = useState(record?.location ?? "");
   const [startDate, setStartDate] = useState(record?.startDate ?? "");
@@ -370,8 +375,9 @@ export function ActivityForm({
         </span>
       </div>
       <p className="mt-3 max-w-2xl text-sm leading-6 text-ink/48">
-        Add what you know. Leave hours, dates, or outcomes unknown when you do
-        not know them.
+        {prefill && !record
+          ? "The opportunity name and provider came from its verified record. Confirm them, then add only what you actually did."
+          : "Add what you know. Leave hours, dates, or outcomes unknown when you do not know them."}
       </p>
       <div className="mt-6 grid gap-4 sm:grid-cols-2">
         <Field label="Activity or experience name">

@@ -18,9 +18,17 @@ const dateLabel = (value: string) =>
 export function AdmissionsJourney({
   model,
   generalTasks: initialTasks,
+  opportunityPursuits,
 }: {
   model: Model;
   generalTasks: CollegeAdmissionsTask[];
+  opportunityPursuits: Array<{
+    id: string;
+    title: string;
+    organization: string;
+    status: string;
+    deadline: string | null;
+  }>;
 }) {
   const [tasks, setTasks] = useState(initialTasks);
   const [title, setTitle] = useState("");
@@ -154,6 +162,55 @@ export function AdmissionsJourney({
               ) : null}
             </div>
           </div>
+        </section>
+        <section
+          id="opportunity-pursuits"
+          className="mt-6 rounded-2xl border border-ink/10 bg-[var(--unlocked-surface)] p-6"
+        >
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <p className="rule-label text-ink/40">Opportunity pursuits</p>
+              <h2 className="mt-2 font-editorial text-3xl font-semibold">
+                Experiences you chose to pursue
+              </h2>
+            </div>
+            <Link href="/opportunities" className="text-sm font-bold text-forest">
+              Find opportunities →
+            </Link>
+          </div>
+          {opportunityPursuits.length ? (
+            <div className="mt-5 divide-y divide-ink/10 border-y border-ink/10">
+              {opportunityPursuits.map((item) => (
+                <Link
+                  key={item.id}
+                  href={`/opportunities/${item.id}`}
+                  className="grid gap-3 py-4 sm:grid-cols-[1fr_auto] sm:items-center"
+                >
+                  <span>
+                    <strong className="block text-sm">{item.title}</strong>
+                    <small className="mt-1 block text-xs text-ink/42">
+                      {item.organization} · Opportunity
+                    </small>
+                  </span>
+                  <span className="flex items-center gap-3">
+                    {item.deadline ? (
+                      <time className="text-xs text-ink/45">
+                        {dateLabel(item.deadline)}
+                      </time>
+                    ) : null}
+                    <span className="rounded-full bg-mint/55 px-3 py-1 text-xs font-bold text-forest">
+                      {item.status}
+                    </span>
+                  </span>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <p className="mt-4 max-w-xl text-sm leading-6 text-ink/50">
+              Saved college applications and opportunity pursuits stay distinct
+              here. Add an opportunity when you intend to work toward it.
+            </p>
+          )}
         </section>
         <section
           id="general-tasks"

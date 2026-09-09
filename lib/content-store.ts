@@ -1,4 +1,5 @@
 import { opportunities as seedOpportunities, type Opportunity } from "@/data/opportunities";
+import { highSchoolOpportunities } from "@/data/high-school-opportunities";
 import { applyOpportunityLifecycleReview } from "@/data/opportunity-lifecycle";
 import { opportunityWithDetectedChanges } from "@/data/opportunity-changelog";
 import type { OpportunityChangeDiagnostic } from "@/data/opportunity-changelog-types";
@@ -14,7 +15,7 @@ const indexKey = "unlocked:content:opportunity-ids";
 const auditKey = "unlocked:content:audit-log";
 const changeDiagnosticKey = "unlocked:content:change-diagnostics";
 const recordKey = (id: string) => `unlocked:content:opportunity:${id}`;
-const seedOpportunityById = new Map(seedOpportunities.map((opportunity) => [opportunity.id, opportunity]));
+const seedOpportunityById = new Map([...seedOpportunities, ...highSchoolOpportunities].map((opportunity) => [opportunity.id, opportunity]));
 const publishedCacheTtlMs = 60_000;
 let publishedCache: { opportunities: Opportunity[]; expiresAt: number } | null = null;
 let publishedRequest: Promise<Opportunity[]> | null = null;

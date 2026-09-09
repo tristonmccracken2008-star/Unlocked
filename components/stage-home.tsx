@@ -115,6 +115,14 @@ export function StageHome({
                     Open College Explorer →
                   </Link>
                 ) : stage === "high_school" &&
+                  priority.title === "Find opportunities" ? (
+                  <Link
+                    href="/opportunities"
+                    className="mt-4 inline-flex min-h-11 items-center text-sm font-bold text-forest"
+                  >
+                    Explore opportunities →
+                  </Link>
+                ) : stage === "high_school" &&
                   priority.title === "Plan your applications" ? (
                   <Link
                     href="/admissions"

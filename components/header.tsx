@@ -186,6 +186,7 @@ function isDestinationActive(label: DestinationLabel, pathname: string) {
 }
 
 function isServerProtectedProductPath(pathname: string) {
+  if (pathname.startsWith("/opportunities/high-school--")) return false;
   return (
     pathname === "/advisor" ||
     pathname === "/build" ||
@@ -419,13 +420,13 @@ export function Header() {
                       Colleges
                     </a>
                     <a
-                      href="/colleges/saved"
+                      href="/opportunities"
                       aria-current={
-                        isCollegeListPath(pathname) ? "page" : undefined
+                        pathname.startsWith("/opportunities") ? "page" : undefined
                       }
-                      className={`inline-flex min-h-11 items-center rounded-full px-5 transition ${isCollegeListPath(pathname) ? "bg-white text-forest shadow-[0_8px_20px_rgba(43,33,26,.08)]" : "hover:bg-white/75 hover:text-forest"}`}
+                      className={`inline-flex min-h-11 items-center rounded-full px-5 transition ${pathname.startsWith("/opportunities") ? "bg-white text-forest shadow-[0_8px_20px_rgba(43,33,26,.08)]" : "hover:bg-white/75 hover:text-forest"}`}
                     >
-                      My List
+                      Opportunities
                     </a>
                     <a
                       href="/admissions"
@@ -511,13 +512,13 @@ export function Header() {
                   Colleges
                 </a>
                 <a
-                  href="/colleges/saved"
+                  href="/opportunities"
                   aria-current={
-                    isCollegeListPath(pathname) ? "page" : undefined
+                    pathname.startsWith("/opportunities") ? "page" : undefined
                   }
-                  className={`inline-flex min-h-11 items-center justify-center rounded-full ${isCollegeListPath(pathname) ? "bg-white text-forest" : "text-white/70"}`}
+                  className={`inline-flex min-h-11 items-center justify-center rounded-full ${pathname.startsWith("/opportunities") ? "bg-white text-forest" : "text-white/70"}`}
                 >
-                  My List
+                  Opportunities
                 </a>
                 <a
                   href="/admissions"

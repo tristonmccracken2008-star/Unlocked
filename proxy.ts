@@ -36,6 +36,9 @@ async function signedSessionIsValid(token: string | undefined) {
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  if (pathname.startsWith("/opportunities/high-school--")) {
+    return NextResponse.next();
+  }
   const hasValidSession = await signedSessionIsValid(request.cookies.get(sessionCookieName)?.value);
   if (hasValidSession) {
     const response = NextResponse.next();

@@ -145,6 +145,24 @@ await mergeAccountData(highSchoolUser.id, {
   },
   onboardingComplete: true,
   firstLaunchComplete: true,
+  tracker: {
+    "high-school--congressional-app-challenge-2026": {
+      id: "high-school--congressional-app-challenge-2026",
+      status: "Applying",
+      savedAt: now,
+      updatedAt: now,
+      version: 0,
+      history: [],
+    },
+    "high-school--girls-who-code-pathways-2026-27": {
+      id: "high-school--girls-who-code-pathways-2026-27",
+      status: "Saved",
+      savedAt: now,
+      updatedAt: now,
+      version: 0,
+      history: [],
+    },
+  },
 });
 await updateEducationalStage(highSchoolUser.id, "high_school");
 for (const activity of [

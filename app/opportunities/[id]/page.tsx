@@ -20,6 +20,10 @@ import {
 import { relatedDiscoverOpportunityIds } from "@/lib/discover-related";
 import { serializeJsonLd } from "@/lib/json-ld";
 import { requireCompletedOnboarding } from "@/lib/onboarding";
+import { getServerSessionForProduct } from "@/lib/onboarding";
+import { isHighSchoolOpportunity } from "@/lib/high-school-opportunities";
+import { HighSchoolOpportunityDetail } from "@/components/high-school-opportunity-detail";
+import { isProUser } from "@/lib/billing";
 import { conciseOpportunityDescription } from "@/lib/opportunity-detail";
 import { buildOpportunityDetailProjection } from "@/lib/opportunity-detail-projection";
 import { strategyOpportunityIds } from "@/lib/personal-opportunity-strategy";
@@ -115,11 +119,28 @@ export default async function Page({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const [session, item] = await Promise.all([
-    requireCompletedOnboarding(),
-    getOpportunity(id),
-  ]);
+  const item = await getOpportunity(id);
   if (!item) notFound();
+  if (isHighSchoolOpportunity(item)) {
+    const session = await getServerSessionForProduct();
+    const highSchoolAccount = session?.data.educationalStage === "high_school" ? session.data : null;
+    const tracked = highSchoolAccount?.tracker?.[item.id];
+    return (
+      <>
+        {highSchoolAccount ? <OpportunityViewTracker opportunityId={item.id} /> : null}
+        <HighSchoolOpportunityDetail
+          opportunity={item}
+          profile={highSchoolAccount?.profile ?? null}
+          authenticated={Boolean(highSchoolAccount)}
+          initialAdded={Boolean(tracked || highSchoolAccount?.savedOpportunities.some((record) => record.opportunityId === item.id))}
+          initialWatched={Boolean(highSchoolAccount?.watchedOpportunities?.some((record) => record.opportunityId === item.id))}
+          pro={isProUser(highSchoolAccount?.billing)}
+          status={tracked?.status ?? null}
+        />
+      </>
+    );
+  }
+  const session = await requireCompletedOnboarding();
   const [related, advisorExplanation, strategyCatalog] = await Promise.all([
     listPublishedOpportunitiesByIds(relatedDiscoverOpportunityIds(item, 3)),
     personalizedExplanation(item, session),

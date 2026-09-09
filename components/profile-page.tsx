@@ -248,6 +248,54 @@ function EducationSection({ session }: { session: AccountSession }) {
 function StageProfileFoundation({ session }: { session: AccountSession }) {
   const stage = session.data?.educationalStage;
   const label = stage ? educationalStageDetails[stage].label : "your current stage";
+  const original = session.data?.profile;
+  const [profile, setProfile] = useState(original);
+  const [pending, setPending] = useState(false);
+  const [message, setMessage] = useState("");
+  if (stage === "high_school" && profile) {
+    const update = (patch: Partial<StudentProfile>) =>
+      setProfile((current) => (current ? { ...current, ...patch } : current));
+    return <div>
+      <SectionHeading id="profile-heading" eyebrow="Opportunity eligibility" title="Only the facts that help you check eligibility." description="These details stay private. Add them when useful; UnlockED will show uncertainty instead of guessing when something is missing." />
+      <form className="mt-8 grid gap-5 sm:grid-cols-2" onSubmit={async (event) => {
+        event.preventDefault();
+        setPending(true);
+        setMessage("");
+        try {
+          await writeStudentProfile(profile, session.data?.updatedAt);
+          setMessage("Eligibility profile saved.");
+        } catch (error) {
+          setMessage(error instanceof Error ? error.message : "Profile could not be saved.");
+        } finally {
+          setPending(false);
+        }
+      }}>
+        <label className="grid gap-2 text-sm font-bold">Current grade
+          <select value={profile.year} onChange={(event) => update({ year: event.target.value })} className="min-h-12 rounded-xl border border-ink/15 bg-white/60 px-4 font-normal">
+            <option value="">Choose grade</option><option value="Freshman">9th grade</option><option value="Sophomore">10th grade</option><option value="Junior">11th grade</option><option value="Senior">12th grade</option>
+          </select>
+        </label>
+        <label className="grid gap-2 text-sm font-bold">Expected graduation year
+          <input inputMode="numeric" value={profile.graduationYear ?? ""} onChange={(event) => update({ graduationYear: event.target.value })} className="min-h-12 rounded-xl border border-ink/15 bg-white/60 px-4 font-normal" placeholder="2028" />
+        </label>
+        <label className="grid gap-2 text-sm font-bold">State or residency <span className="font-normal text-ink/40">Optional; used for location rules</span>
+          <input value={profile.residency ?? ""} onChange={(event) => update({ residency: event.target.value })} className="min-h-12 rounded-xl border border-ink/15 bg-white/60 px-4 font-normal" placeholder="e.g. Pennsylvania" />
+        </label>
+        <label className="grid gap-2 text-sm font-bold">Citizenship status <span className="font-normal text-ink/40">Optional; used only when required</span>
+          <select value={profile.citizenshipStatus ?? "unknown"} onChange={(event) => update({ citizenshipStatus: event.target.value as StudentProfile["citizenshipStatus"] })} className="min-h-12 rounded-xl border border-ink/15 bg-white/60 px-4 font-normal">
+            <option value="unknown">Prefer not to add / unknown</option><option value="us_citizen">U.S. citizen</option><option value="permanent_resident">Permanent resident</option><option value="international">International</option>
+          </select>
+        </label>
+        <label className="grid gap-2 text-sm font-bold">Age <span className="font-normal text-ink/40">Optional; only for age-restricted programs</span>
+          <input type="number" min="12" max="21" value={profile.age ?? ""} onChange={(event) => update({ age: event.target.value ? Number(event.target.value) : undefined })} className="min-h-12 rounded-xl border border-ink/15 bg-white/60 px-4 font-normal" />
+        </label>
+        <label className="grid gap-2 text-sm font-bold">Academic and career interests
+          <input value={profile.interests} onChange={(event) => update({ interests: event.target.value })} className="min-h-12 rounded-xl border border-ink/15 bg-white/60 px-4 font-normal" placeholder="Computer science, economics" />
+        </label>
+        <div className="sm:col-span-2"><button disabled={pending} className="min-h-11 rounded-full bg-forest px-5 text-sm font-bold text-white disabled:opacity-60">{pending ? "Saving…" : "Save eligibility profile"}</button>{message ? <p role="status" className="mt-3 text-sm text-ink/55">{message}</p> : null}</div>
+      </form>
+    </div>;
+  }
   return <div>
     <SectionHeading id="profile-heading" eyebrow="Profile" title="Your profile grows with you." description={`Stage-specific profile questions for ${label} are being prepared. Your account history and existing information remain safely connected.`} />
     <div className="mt-8 border-y border-ink/12 py-6"><p className="text-sm leading-6 text-ink/55">You can update your educational stage now. More stage-specific profile details will appear here as those experiences are introduced.</p></div>

@@ -110,6 +110,10 @@ export type OpportunityEligibilityRules = {
   ageRange?: { minimum?: number; maximum?: number };
   financialNeedRequired?: boolean;
   highSchoolSeniorOnly?: boolean;
+  highSchoolGrades?: number[];
+  expectedGraduationYears?: number[];
+  parentGuardianConsentRequired?: boolean;
+  participatingDistrictRequired?: boolean;
   recommendationEligibilityStatus?: RecommendationEligibilityStatus;
   evidence?: string[];
   fieldEvidence?: Partial<Record<OpportunityEligibilityEvidenceField, OpportunityFieldEvidence>>;
@@ -163,6 +167,19 @@ export type OpportunityMetadata = {
   verification?: OpportunityVerification;
   lifecycle?: OpportunityLifecycleMetadata;
   changelog?: OpportunityChangeEvent[];
+  highSchool?: {
+    opportunityType: "program" | "competition" | "scholarship" | "volunteering" | "research" | "arts" | "internship" | "leadership" | "career_exploration" | "academic_program" | "pre_college" | "writing" | "entrepreneurship";
+    activities: string[];
+    requirements: string[];
+    format: "Online" | "In person" | "Hybrid" | "Varies";
+    schedule: string;
+    programDates?: string;
+    cost: {
+      kind: "free" | "paid" | "stipend" | "program_fee" | "tuition" | "varies" | "not_published";
+      label: string;
+      financialAid?: string;
+    };
+  };
 };
 
 export type Opportunity = {
