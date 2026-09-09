@@ -3,12 +3,12 @@ import type { College } from "@/lib/colleges";
 import { collegeSizeLabel, collegeTypeLabel } from "@/lib/colleges";
 import { ArrowIcon } from "./icons";
 import { CollegeSaveButton } from "./college-save-button";
+import { CollegeAdmissionsInsights } from "./college-admissions-insights";
 
 const number = new Intl.NumberFormat("en-US");
 const money = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
 const pct = (value: number | null) => value === null ? "Not reported" : `${Math.round(value * 100)}%`;
 const amount = (value: number | null) => value === null ? "Not reported" : money.format(value);
-const range = (values: [number | null, number | null]) => values.every((value) => value !== null) ? `${values[0]}–${values[1]}` : "Not reported";
 
 function Fact({ label, value, note }: { label: string; value: string; note?: string }) {
   return <div className="border-t border-ink/10 py-4"><dt className="text-[10px] font-bold uppercase tracking-[.12em] text-ink/38">{label}</dt><dd className="mt-1 text-lg font-semibold text-[var(--unlocked-text)]">{value}</dd>{note ? <p className="mt-1 text-xs leading-5 text-ink/42">{note}</p> : null}</div>;
@@ -42,7 +42,7 @@ export function CollegeDetail({ college, similar, saved }: { college: College; s
 
     <Section eyebrow="Academics" title="What students study"><p className="max-w-2xl text-sm leading-7 text-ink/55">These fields show the distribution of recent credentials in federal data. They describe what students studied—not program quality.</p>{college.programs.length ? <div className="mt-6 grid gap-px overflow-hidden rounded-xl border border-ink/10 bg-ink/10 sm:grid-cols-2">{college.programs.slice(0, 12).map((program) => <Link key={program.id} href={`/colleges?program=${program.id}`} className="flex min-h-14 items-center justify-between bg-[var(--unlocked-surface)] px-4 text-sm font-bold text-[var(--unlocked-text)] hover:bg-mint/60"><span>{program.label}</span><span className="text-xs font-semibold text-ink/35">{Math.round(program.share * 100)}%</span></Link>)}</div> : <p className="mt-6 text-sm text-ink/45">Academic field distribution is not reported in this record.</p>}</Section>
 
-    <Section eyebrow="Admissions" title="Historical context, clearly labeled"><div className="grid gap-x-8 sm:grid-cols-2"><Fact label="Acceptance rate" value={college.openAdmissions ? "Open admissions reported" : pct(college.acceptanceRate)} note="Historical College Scorecard measure; not a personal probability" /><Fact label="ACT composite, middle 50%" value={range(college.actRange)} note="Historical reporting cohort" /><Fact label="SAT reading, middle 50%" value={range(college.satReadingRange)} note="Historical reporting cohort" /><Fact label="SAT math, middle 50%" value={range(college.satMathRange)} note="Historical reporting cohort" /></div><div className="mt-5 rounded-xl bg-mint/55 p-5"><p className="text-sm font-bold text-forest">Confirm the current admissions cycle</p><p className="mt-2 text-sm leading-6 text-ink/55">Deadlines, testing policies, essays, and requirements can change. Use the college’s official site for the cycle you plan to enter.</p></div></Section>
+    <CollegeAdmissionsInsights college={college} />
 
     <Section eyebrow="Cost & aid" title="Sticker price is not the whole story"><div className="grid gap-x-8 sm:grid-cols-2"><Fact label="In-state tuition" value={amount(college.tuitionInState)} /><Fact label="Out-of-state tuition" value={amount(college.tuitionOutOfState)} /><Fact label="Housing & food" value={amount(college.roomAndBoard)} /><Fact label="Published annual cost" value={amount(college.publishedTotalCost)} /><Fact label="Average net price" value={amount(college.averageNetPrice)} note="Average price after grants and scholarships in the federal dataset" /></div><p className="mt-5 max-w-2xl text-sm leading-7 text-ink/55">Published cost is the sticker price and may not reflect what a family pays. Net price subtracts grants and scholarships, but your amount can differ.</p>{college.priceCalculatorUrl ? <a href={college.priceCalculatorUrl} target="_blank" rel="noreferrer" className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-full border border-forest/20 px-4 text-sm font-bold text-forest hover:bg-mint/60">Open official Net Price Calculator <ArrowIcon /></a> : null}</Section>
 
