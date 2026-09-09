@@ -1,21 +1,30 @@
 import type { Metadata } from "next";
 import { PersonalizedHome } from "@/components/personalized-home";
-import { JourneyCommandCenter, JourneyCommandCenterUnavailable } from "@/components/journey-command-center";
+import {
+  JourneyCommandCenter,
+  JourneyCommandCenterUnavailable,
+} from "@/components/journey-command-center";
 import { getServerSessionForProduct } from "@/lib/onboarding";
 import { accountHasCompletedOnboarding } from "@/lib/auth-store";
 import { listPublishedOpportunitiesByIds } from "@/lib/content-store";
 import { buildJourneyCommandCenterModel } from "@/lib/journey-command-center";
 import { buildReturnBriefing } from "@/lib/return-experience";
-import { readReturnExperienceReceipt, returnExperienceCookieName } from "@/lib/return-experience-receipt";
+import {
+  readReturnExperienceReceipt,
+  returnExperienceCookieName,
+} from "@/lib/return-experience-receipt";
 import { readNotifications } from "@/lib/notification-store";
 import { cookies } from "next/headers";
 import { isProUser } from "@/lib/billing";
 import { redirect } from "next/navigation";
 import { StageHome } from "@/components/stage-home";
+import { commonAppActivitySetId } from "@/data/high-school-activities";
+import { normalizeResumeLabStore } from "@/data/resume-lab";
 
 export const metadata: Metadata = {
   title: { absolute: "UnlockED — Student opportunities, chosen for you" },
-  description: "Discover scholarships, internships, research, student benefits, and other opportunities from official sources.",
+  description:
+    "Discover scholarships, internships, research, student benefits, and other opportunities from official sources.",
 };
 
 export const dynamic = "force-dynamic";
@@ -30,32 +39,94 @@ async function returnNotifications(userId: string) {
     timeout = setTimeout(() => resolve({ notifications: [], unreadCount: 0, nextCursor: null }), 500);
   });
   return await Promise.race([
-    readNotifications(userId, 0, 30).catch(() => ({ notifications: [], unreadCount: 0, nextCursor: null })),
+    readNotifications(userId, 0, 30).catch(() => ({
+      notifications: [],
+      unreadCount: 0,
+      nextCursor: null,
+    })),
     fallback,
-  ]).finally(() => { if (timeout) clearTimeout(timeout); });
+  ]).finally(() => {
+    if (timeout) clearTimeout(timeout);
+  });
 }
 
-export default async function Home({ searchParams }: { searchParams?: Promise<Record<string, string | string[] | undefined>> }) {
+export default async function Home({
+  searchParams,
+}: {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const session = await getServerSessionForProduct();
-  if (session?.data.educationalStage === "high_school" || session?.data.educationalStage === "graduate") {
+  if (
+    session?.data.educationalStage === "high_school" ||
+    session?.data.educationalStage === "graduate"
+  ) {
     const collegeRecords = session.data.savedColleges ?? [];
-    return <StageHome stage={session.data.educationalStage} firstName={session.data.profile?.firstName || session.user.name.split(" ")[0] || "Student"} collegeList={session.data.educationalStage === "high_school" ? { saved: collegeRecords.length, active: collegeRecords.filter((item) => ["planning_to_apply", "applied", "decision_received"].includes(item.interestState)).length, decisions: collegeRecords.filter((item) => item.application?.decision).length } : undefined} />;
+    const resumeLab = normalizeResumeLabStore(session.data.resumeLab);
+    return (
+      <StageHome
+        stage={session.data.educationalStage}
+        firstName={
+          session.data.profile?.firstName ||
+          session.user.name.split(" ")[0] ||
+          "Student"
+        }
+        collegeList={
+          session.data.educationalStage === "high_school"
+            ? {
+                saved: collegeRecords.length,
+                active: collegeRecords.filter((item) =>
+                  [
+                    "planning_to_apply",
+                    "applied",
+                    "decision_received",
+                  ].includes(item.interestState),
+                ).length,
+                decisions: collegeRecords.filter(
+                  (item) => item.application?.decision,
+                ).length,
+              }
+            : undefined
+        }
+        experienceBank={
+          session.data.educationalStage === "high_school"
+            ? {
+                count: Object.keys(resumeLab.experiences).length,
+                applicationActivitiesReady:
+                  resumeLab.applicationActivitySets?.[commonAppActivitySetId]
+                    ?.status === "ready",
+              }
+            : undefined
+        }
+      />
+    );
   }
-  if (!session || !accountHasCompletedOnboarding(session.data) || !session.data.profile) {
+  if (
+    !session ||
+    !accountHasCompletedOnboarding(session.data) ||
+    !session.data.profile
+  ) {
     const initialSession = session
       ? { authenticated: true, user: session.user, data: session.data }
       : { authenticated: false, user: null, data: null };
-    return <div data-unlocked-home="public-or-onboarding-v1"><PersonalizedHome initialSession={initialSession} /></div>;
+    return (
+      <div data-unlocked-home="public-or-onboarding-v1">
+        <PersonalizedHome initialSession={initialSession} />
+      </div>
+    );
   }
   if (!session.data.firstLaunchComplete) redirect("/welcome");
 
-  const trackedIds = [...new Set([
-    ...Object.keys(session.data.tracker ?? {}),
-    ...Object.keys(session.data.activity?.tracked ?? {}),
-    ...(session.data.activity?.saved ?? []),
-    ...session.data.savedOpportunities.map((record) => record.opportunityId),
-    ...(session.data.watchedOpportunities ?? []).map((record) => record.opportunityId),
-  ])];
+  const trackedIds = [
+    ...new Set([
+      ...Object.keys(session.data.tracker ?? {}),
+      ...Object.keys(session.data.activity?.tracked ?? {}),
+      ...(session.data.activity?.saved ?? []),
+      ...session.data.savedOpportunities.map((record) => record.opportunityId),
+      ...(session.data.watchedOpportunities ?? []).map(
+        (record) => record.opportunityId,
+      ),
+    ]),
+  ];
   try {
     const query = await searchParams;
     const cookieStore = await cookies();
@@ -65,7 +136,13 @@ export default async function Home({ searchParams }: { searchParams?: Promise<Re
     ]);
     const appearance = session.data.preferences?.appearance ?? "light";
     const systemScheme = cookieStore.get("unlocked-color-scheme")?.value;
-    const resolvedTheme = isProUser(session.data.billing) && (appearance === "midnight" || appearance === "forest" || (appearance === "system" && systemScheme === "dark")) ? "dark" as const : "light" as const;
+    const resolvedTheme =
+      isProUser(session.data.billing) &&
+      (appearance === "midnight" ||
+        appearance === "forest" ||
+        (appearance === "system" && systemScheme === "dark"))
+        ? ("dark" as const)
+        : ("light" as const);
     const model = buildJourneyCommandCenterModel({
       user: session.user,
       account: session.data,
@@ -77,22 +154,45 @@ export default async function Home({ searchParams }: { searchParams?: Promise<Re
       historyLimit: first(query?.history) === "100" ? 100 : 24,
       activeLimit: first(query?.active) === "100" ? 100 : 6,
     });
-    const isDefaultReturnView = !["stage", "sort", "q", "history", "active", "guide"].some((key) => first(query?.[key]));
-    const freshnessCutoff = readReturnExperienceReceipt(cookieStore.get(returnExperienceCookieName)?.value, session.user.id)
-      ?? session.data.firstLaunchCompletedAt;
-    const returnBriefing = isDefaultReturnView ? buildReturnBriefing({
-      profile: session.data.profile,
-      journey: model,
-      notifications: notificationCenter.notifications,
-      freshnessCutoff,
-    }) : null;
-    return <div data-unlocked-home="journey-command-center-v1">
-      <JourneyCommandCenter model={model} returnBriefing={returnBriefing} />
-    </div>;
+    const isDefaultReturnView = ![
+      "stage",
+      "sort",
+      "q",
+      "history",
+      "active",
+      "guide",
+    ].some((key) => first(query?.[key]));
+    const freshnessCutoff =
+      readReturnExperienceReceipt(
+        cookieStore.get(returnExperienceCookieName)?.value,
+        session.user.id,
+      ) ?? session.data.firstLaunchCompletedAt;
+    const returnBriefing = isDefaultReturnView
+      ? buildReturnBriefing({
+          profile: session.data.profile,
+          journey: model,
+          notifications: notificationCenter.notifications,
+          freshnessCutoff,
+        })
+      : null;
+    return (
+      <div data-unlocked-home="journey-command-center-v1">
+        <JourneyCommandCenter model={model} returnBriefing={returnBriefing} />
+      </div>
+    );
   } catch (error) {
-    console.error("[UnlockED Journey] command center composition failed", process.env.NODE_ENV === "production"
-      ? { errorType: error instanceof Error ? error.name : "UnknownError" }
-      : { errorType: error instanceof Error ? error.name : "UnknownError", message: error instanceof Error ? error.message : "Unknown Journey composition failure" });
+    console.error(
+      "[UnlockED Journey] command center composition failed",
+      process.env.NODE_ENV === "production"
+        ? { errorType: error instanceof Error ? error.name : "UnknownError" }
+        : {
+            errorType: error instanceof Error ? error.name : "UnknownError",
+            message:
+              error instanceof Error
+                ? error.message
+                : "Unknown Journey composition failure",
+          },
+    );
     return <JourneyCommandCenterUnavailable />;
   }
 }

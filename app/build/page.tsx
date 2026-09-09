@@ -3,6 +3,8 @@ import { requireCompletedOnboarding } from "@/lib/onboarding";
 import { listPublishedOpportunitiesByIds } from "@/lib/content-store";
 import { buildBuildWorkspaceModel } from "@/lib/build-workspace";
 import { BuildWorkspace } from "@/components/build-workspace";
+import { HighSchoolBuild } from "@/components/high-school-build";
+import { normalizeResumeLabStore } from "@/data/resume-lab";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -15,6 +17,18 @@ export const metadata: Metadata = {
 
 export default async function BuildPage() {
   const session = await requireCompletedOnboarding();
+  if (session.data.educationalStage === "high_school") {
+    return (
+      <HighSchoolBuild
+        initialStore={normalizeResumeLabStore(session.data.resumeLab)}
+        accomplishmentCount={
+          Object.values(session.data.accomplishments ?? {}).filter(
+            (item) => !item.inactiveAt,
+          ).length
+        }
+      />
+    );
+  }
   const ids = [
     ...new Set([
       ...Object.keys(session.data.tracker ?? {}),

@@ -441,6 +441,7 @@ const groupOrder = [
   "Recent",
   "Quick Actions",
   "Explore",
+  "Activities & Experiences",
   "Resume Lab",
   "Materials",
   "Paths",
@@ -517,6 +518,7 @@ function ResultIcon({ kind }: { kind: CommandResult["kind"] }) {
   if (kind === "accomplishment") return <TrophyIcon />;
   if (kind === "material") return <ListIcon />;
   if (kind === "resume") return <PenLineIcon />;
+  if (kind === "experience") return <PenLineIcon />;
   if (kind === "deadline") return <CalendarIcon />;
   if (kind === "task") return <TargetIcon />;
   if (kind === "opportunity" || kind === "browse") return <SearchIcon />;
@@ -816,6 +818,7 @@ export function UniversalCommandCenter({
               <h2>
                 {group}
                 {group === "Resume Lab" ||
+                group === "Activities & Experiences" ||
                 group === "Accomplishments" ||
                 group === "Your Journey" ||
                 group === "Upcoming" ||

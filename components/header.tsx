@@ -161,9 +161,13 @@ const contextualDestinations: Record<
 
 function isDestinationActive(label: DestinationLabel, pathname: string) {
   if (label === "Discover")
-    return ["/opportunities", "/explore", "/collections", "/paths", "/careers"].some(
-      (href) => pathname.startsWith(href),
-    );
+    return [
+      "/opportunities",
+      "/explore",
+      "/collections",
+      "/paths",
+      "/careers",
+    ].some((href) => pathname.startsWith(href));
   if (label === "For You") return pathname.startsWith("/advisor");
   if (label === "Build")
     return (
@@ -209,7 +213,9 @@ function isServerProtectedProductPath(pathname: string) {
 }
 
 function isCollegeListPath(pathname: string) {
-  return pathname.startsWith("/colleges/saved") || pathname.endsWith("/application");
+  return (
+    pathname.startsWith("/colleges/saved") || pathname.endsWith("/application")
+  );
 }
 
 export function Header() {
@@ -351,7 +357,11 @@ export function Header() {
 
   if (!authenticated) {
     return (
-      <header data-product-header="" data-scrolled={scrolled ? "true" : "false"} className="sticky top-0 z-30 border-b border-ink/10 bg-paper/90 backdrop-blur-xl">
+      <header
+        data-product-header=""
+        data-scrolled={scrolled ? "true" : "false"}
+        className="sticky top-0 z-30 border-b border-ink/10 bg-paper/90 backdrop-blur-xl"
+      >
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 sm:px-8">
           <Logo className="py-4" />
           <div className="py-4">
@@ -362,34 +372,193 @@ export function Header() {
     );
   }
 
-  const educationalStage = session?.data?.educationalStage ?? (pathname === "/onboarding" ? null : "undergraduate");
+  const educationalStage =
+    session?.data?.educationalStage ??
+    (pathname === "/onboarding" ? null : "undergraduate");
   if (educationalStage !== "undergraduate") {
-    const stageLabel = educationalStage ? educationalStageDetails[educationalStage].label : null;
-    return <>
-      <header data-product-header="" data-scrolled={scrolled ? "true" : "false"} className="sticky top-0 z-30 border-b border-ink/10 bg-paper/90 backdrop-blur-xl">
-        <div data-header-layout="" className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-2 sm:px-8">
-          <Logo />
-          {stageLabel ? <nav aria-label="Primary navigation" className="hidden items-center gap-1 rounded-full bg-white/48 p-1 text-sm font-bold text-ink/55 ring-1 ring-ink/6 lg:flex">
-            <a href="/" aria-current={pathname === "/" ? "page" : undefined} className={`inline-flex min-h-11 items-center rounded-full px-5 transition ${pathname === "/" ? "bg-white text-forest shadow-[0_8px_20px_rgba(43,33,26,.08)]" : "hover:bg-white/75 hover:text-forest"}`}>Home</a>
-            {educationalStage === "high_school" ? <>
-              <a href="/colleges" aria-current={pathname === "/colleges" || (pathname.startsWith("/colleges/") && !isCollegeListPath(pathname)) ? "page" : undefined} className={`inline-flex min-h-11 items-center rounded-full px-5 transition ${pathname === "/colleges" || (pathname.startsWith("/colleges/") && !isCollegeListPath(pathname)) ? "bg-white text-forest shadow-[0_8px_20px_rgba(43,33,26,.08)]" : "hover:bg-white/75 hover:text-forest"}`}>Colleges</a>
-              <a href="/colleges/saved" aria-current={isCollegeListPath(pathname) ? "page" : undefined} className={`inline-flex min-h-11 items-center rounded-full px-5 transition ${isCollegeListPath(pathname) ? "bg-white text-forest shadow-[0_8px_20px_rgba(43,33,26,.08)]" : "hover:bg-white/75 hover:text-forest"}`}>My List</a>
-              <a href="/admissions" aria-current={pathname.startsWith("/admissions") ? "page" : undefined} className={`inline-flex min-h-11 items-center rounded-full px-5 transition ${pathname.startsWith("/admissions") ? "bg-white text-forest shadow-[0_8px_20px_rgba(43,33,26,.08)]" : "hover:bg-white/75 hover:text-forest"}`}>Journey</a>
-            </> : <span className="px-4 text-[10px] font-bold uppercase tracking-[.14em] text-ink/35">{stageLabel}</span>}
-          </nav> : null}
-          <div className="flex items-center gap-1">
-            {educationalStage === "high_school" ? <button ref={commandTrigger} type="button" onClick={() => setCommandOpen(true)} aria-label="Search UnlockED" aria-keyshortcuts="Meta+K Control+K" className="grid h-11 w-11 place-items-center rounded-full text-ink/45 transition hover:bg-white/75 hover:text-forest"><SearchIcon className="h-4 w-4" /></button> : null}
-            {stageLabel ? <a href="/profile#education" aria-current={pathname.startsWith("/profile") ? "page" : undefined} className={`hidden min-h-11 items-center rounded-full px-3 text-xs font-bold transition sm:inline-flex ${pathname.startsWith("/profile") ? "bg-white text-forest" : "text-ink/45 hover:bg-white/75 hover:text-forest"}`}>Profile</a> : null}
-            <div data-stage-header-account=""><AccountButton compact /></div>
+    const stageLabel = educationalStage
+      ? educationalStageDetails[educationalStage].label
+      : null;
+    return (
+      <>
+        <header
+          data-product-header=""
+          data-scrolled={scrolled ? "true" : "false"}
+          className="sticky top-0 z-30 border-b border-ink/10 bg-paper/90 backdrop-blur-xl"
+        >
+          <div
+            data-header-layout=""
+            className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-2 sm:px-8"
+          >
+            <Logo />
+            {stageLabel ? (
+              <nav
+                aria-label="Primary navigation"
+                className="hidden items-center gap-1 rounded-full bg-white/48 p-1 text-sm font-bold text-ink/55 ring-1 ring-ink/6 lg:flex"
+              >
+                <a
+                  href="/"
+                  aria-current={pathname === "/" ? "page" : undefined}
+                  className={`inline-flex min-h-11 items-center rounded-full px-5 transition ${pathname === "/" ? "bg-white text-forest shadow-[0_8px_20px_rgba(43,33,26,.08)]" : "hover:bg-white/75 hover:text-forest"}`}
+                >
+                  Home
+                </a>
+                {educationalStage === "high_school" ? (
+                  <>
+                    <a
+                      href="/colleges"
+                      aria-current={
+                        pathname === "/colleges" ||
+                        (pathname.startsWith("/colleges/") &&
+                          !isCollegeListPath(pathname))
+                          ? "page"
+                          : undefined
+                      }
+                      className={`inline-flex min-h-11 items-center rounded-full px-5 transition ${pathname === "/colleges" || (pathname.startsWith("/colleges/") && !isCollegeListPath(pathname)) ? "bg-white text-forest shadow-[0_8px_20px_rgba(43,33,26,.08)]" : "hover:bg-white/75 hover:text-forest"}`}
+                    >
+                      Colleges
+                    </a>
+                    <a
+                      href="/colleges/saved"
+                      aria-current={
+                        isCollegeListPath(pathname) ? "page" : undefined
+                      }
+                      className={`inline-flex min-h-11 items-center rounded-full px-5 transition ${isCollegeListPath(pathname) ? "bg-white text-forest shadow-[0_8px_20px_rgba(43,33,26,.08)]" : "hover:bg-white/75 hover:text-forest"}`}
+                    >
+                      My List
+                    </a>
+                    <a
+                      href="/admissions"
+                      aria-current={
+                        pathname.startsWith("/admissions") ? "page" : undefined
+                      }
+                      className={`inline-flex min-h-11 items-center rounded-full px-5 transition ${pathname.startsWith("/admissions") ? "bg-white text-forest shadow-[0_8px_20px_rgba(43,33,26,.08)]" : "hover:bg-white/75 hover:text-forest"}`}
+                    >
+                      Journey
+                    </a>
+                    <a
+                      href="/build"
+                      aria-current={
+                        pathname.startsWith("/build") ? "page" : undefined
+                      }
+                      className={`inline-flex min-h-11 items-center rounded-full px-5 transition ${pathname.startsWith("/build") ? "bg-white text-forest shadow-[0_8px_20px_rgba(43,33,26,.08)]" : "hover:bg-white/75 hover:text-forest"}`}
+                    >
+                      Build
+                    </a>
+                  </>
+                ) : (
+                  <span className="px-4 text-[10px] font-bold uppercase tracking-[.14em] text-ink/35">
+                    {stageLabel}
+                  </span>
+                )}
+              </nav>
+            ) : null}
+            <div className="flex items-center gap-1">
+              {educationalStage === "high_school" ? (
+                <button
+                  ref={commandTrigger}
+                  type="button"
+                  onClick={() => setCommandOpen(true)}
+                  aria-label="Search UnlockED"
+                  aria-keyshortcuts="Meta+K Control+K"
+                  className="grid h-11 w-11 place-items-center rounded-full text-ink/45 transition hover:bg-white/75 hover:text-forest"
+                >
+                  <SearchIcon className="h-4 w-4" />
+                </button>
+              ) : null}
+              {stageLabel ? (
+                <a
+                  href="/profile#education"
+                  aria-current={
+                    pathname.startsWith("/profile") ? "page" : undefined
+                  }
+                  className={`hidden min-h-11 items-center rounded-full px-3 text-xs font-bold transition sm:inline-flex ${pathname.startsWith("/profile") ? "bg-white text-forest" : "text-ink/45 hover:bg-white/75 hover:text-forest"}`}
+                >
+                  Profile
+                </a>
+              ) : null}
+              <div data-stage-header-account="">
+                <AccountButton compact />
+              </div>
+            </div>
           </div>
-        </div>
-      </header>
-      {stageLabel ? <nav aria-label="Mobile navigation" className={`fixed inset-x-4 bottom-[env(safe-area-inset-bottom)] z-40 grid ${educationalStage === "high_school" ? "grid-cols-4" : "grid-cols-2"} rounded-full bg-ink/95 p-1 text-[11px] font-bold text-white shadow-[0_20px_60px_rgba(43,33,26,.24)] backdrop-blur lg:hidden`}>
-        <a href="/" aria-current={pathname === "/" ? "page" : undefined} className={`inline-flex min-h-11 items-center justify-center rounded-full ${pathname === "/" ? "bg-white text-forest" : "text-white/70"}`}>Home</a>
-        {educationalStage === "high_school" ? <><a href="/colleges" aria-current={pathname === "/colleges" || (pathname.startsWith("/colleges/") && !isCollegeListPath(pathname)) ? "page" : undefined} className={`inline-flex min-h-11 items-center justify-center rounded-full ${pathname === "/colleges" || (pathname.startsWith("/colleges/") && !isCollegeListPath(pathname)) ? "bg-white text-forest" : "text-white/70"}`}>Colleges</a><a href="/colleges/saved" aria-current={isCollegeListPath(pathname) ? "page" : undefined} className={`inline-flex min-h-11 items-center justify-center rounded-full ${isCollegeListPath(pathname) ? "bg-white text-forest" : "text-white/70"}`}>My List</a><a href="/admissions" aria-current={pathname.startsWith("/admissions") ? "page" : undefined} className={`inline-flex min-h-11 items-center justify-center rounded-full ${pathname.startsWith("/admissions") ? "bg-white text-forest" : "text-white/70"}`}>Journey</a></> : <a href="/profile#education" aria-current={pathname.startsWith("/profile") ? "page" : undefined} className={`inline-flex min-h-11 items-center justify-center rounded-full ${pathname.startsWith("/profile") ? "bg-white text-forest" : "text-white/70"}`}>Profile</a>}
-      </nav> : null}
-      {commandOpen ? <UniversalCommandCenter onClose={() => setCommandOpen(false)} restoreFocus={() => commandTrigger.current?.focus()} /> : null}
-    </>;
+        </header>
+        {stageLabel ? (
+          <nav
+            aria-label="Mobile navigation"
+            className={`fixed inset-x-4 bottom-[env(safe-area-inset-bottom)] z-40 grid ${educationalStage === "high_school" ? "grid-cols-5" : "grid-cols-2"} rounded-full bg-ink/95 p-1 text-[11px] font-bold text-white shadow-[0_20px_60px_rgba(43,33,26,.24)] backdrop-blur lg:hidden`}
+          >
+            <a
+              href="/"
+              aria-current={pathname === "/" ? "page" : undefined}
+              className={`inline-flex min-h-11 items-center justify-center rounded-full ${pathname === "/" ? "bg-white text-forest" : "text-white/70"}`}
+            >
+              Home
+            </a>
+            {educationalStage === "high_school" ? (
+              <>
+                <a
+                  href="/colleges"
+                  aria-current={
+                    pathname === "/colleges" ||
+                    (pathname.startsWith("/colleges/") &&
+                      !isCollegeListPath(pathname))
+                      ? "page"
+                      : undefined
+                  }
+                  className={`inline-flex min-h-11 items-center justify-center rounded-full ${pathname === "/colleges" || (pathname.startsWith("/colleges/") && !isCollegeListPath(pathname)) ? "bg-white text-forest" : "text-white/70"}`}
+                >
+                  Colleges
+                </a>
+                <a
+                  href="/colleges/saved"
+                  aria-current={
+                    isCollegeListPath(pathname) ? "page" : undefined
+                  }
+                  className={`inline-flex min-h-11 items-center justify-center rounded-full ${isCollegeListPath(pathname) ? "bg-white text-forest" : "text-white/70"}`}
+                >
+                  My List
+                </a>
+                <a
+                  href="/admissions"
+                  aria-current={
+                    pathname.startsWith("/admissions") ? "page" : undefined
+                  }
+                  className={`inline-flex min-h-11 items-center justify-center rounded-full ${pathname.startsWith("/admissions") ? "bg-white text-forest" : "text-white/70"}`}
+                >
+                  Journey
+                </a>
+                <a
+                  href="/build"
+                  aria-current={
+                    pathname.startsWith("/build") ? "page" : undefined
+                  }
+                  className={`inline-flex min-h-11 items-center justify-center rounded-full ${pathname.startsWith("/build") ? "bg-white text-forest" : "text-white/70"}`}
+                >
+                  Build
+                </a>
+              </>
+            ) : (
+              <a
+                href="/profile#education"
+                aria-current={
+                  pathname.startsWith("/profile") ? "page" : undefined
+                }
+                className={`inline-flex min-h-11 items-center justify-center rounded-full ${pathname.startsWith("/profile") ? "bg-white text-forest" : "text-white/70"}`}
+              >
+                Profile
+              </a>
+            )}
+          </nav>
+        ) : null}
+        {commandOpen ? (
+          <UniversalCommandCenter
+            onClose={() => setCommandOpen(false)}
+            restoreFocus={() => commandTrigger.current?.focus()}
+          />
+        ) : null}
+      </>
+    );
   }
 
   function navigationLink(label: string, href: string, mobile = false) {
@@ -523,7 +692,10 @@ export function Header() {
         data-scrolled={scrolled ? "true" : "false"}
         className="sticky top-0 z-30 border-b border-ink/10 bg-paper/90 backdrop-blur-xl"
       >
-        <div data-header-layout="" className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-2 sm:px-5">
+        <div
+          data-header-layout=""
+          className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-2 sm:px-5"
+        >
           <Logo />
           <nav
             aria-label="Primary navigation"
@@ -568,17 +740,45 @@ export function Header() {
             >
               Profile
             </a>
-            <div data-header-account=""><AccountButton compact /></div>
+            <div data-header-account="">
+              <AccountButton compact />
+            </div>
           </div>
         </div>
       </header>
-      {destinations.filter(([label]) => label !== "Build" && isDestinationActive(label, pathname)).map(([label]) => (
-        <nav key={label} className="product-section-navigation" aria-label={`${label} sections`}>
-          {[...contextualDestinations[label]].sort((a, b) => Number(b.href === "/") - Number(a.href === "/")).map((item) => (
-            <a key={item.href} href={item.href} aria-current={pathname === item.href || (item.href !== "/" && !item.href.includes("#") && pathname?.startsWith(`${item.href}/`)) ? "page" : undefined}>{item.label === "Opportunity Passport" ? "Passport" : item.label}</a>
-          ))}
-        </nav>
-      ))}
+      {destinations
+        .filter(
+          ([label]) =>
+            label !== "Build" && isDestinationActive(label, pathname),
+        )
+        .map(([label]) => (
+          <nav
+            key={label}
+            className="product-section-navigation"
+            aria-label={`${label} sections`}
+          >
+            {[...contextualDestinations[label]]
+              .sort((a, b) => Number(b.href === "/") - Number(a.href === "/"))
+              .map((item) => (
+                <a
+                  key={item.href}
+                  href={item.href}
+                  aria-current={
+                    pathname === item.href ||
+                    (item.href !== "/" &&
+                      !item.href.includes("#") &&
+                      pathname?.startsWith(`${item.href}/`))
+                      ? "page"
+                      : undefined
+                  }
+                >
+                  {item.label === "Opportunity Passport"
+                    ? "Passport"
+                    : item.label}
+                </a>
+              ))}
+          </nav>
+        ))}
       <nav
         aria-label="Mobile navigation"
         data-primary-navigation=""
