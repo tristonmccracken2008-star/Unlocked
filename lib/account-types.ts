@@ -14,6 +14,7 @@ import type { OpportunityPassport } from "@/data/passport";
 import type { EducationalStage, EducationalStageTransition } from "./education-stages";
 import type { CollegeAdmissionsJourney, CollegeListRecord } from "@/data/college-admissions";
 import type { HighSchoolAcademicStore } from "@/data/high-school-academics";
+import type { SatPracticeStore } from "@/data/sat-practice";
 
 export type AuthUser = {
   id: string;
@@ -203,6 +204,7 @@ export type AccountData = {
   savedColleges?: SavedCollegeRecord[];
   collegeAdmissionsJourney?: CollegeAdmissionsJourney;
   highSchoolAcademics?: HighSchoolAcademicStore;
+  satPractice?: SatPracticeStore;
   watchedOpportunities?: WatchedOpportunityRecord[];
   tracker: OpportunityTrackerRecord;
   preferences: UserPreferencesRecord | null;

@@ -385,6 +385,14 @@ http
       res.end();
       return;
     }
+    if (req.url === "/__preview-sat") {
+      res.writeHead(302, {
+        "Set-Cookie": `unlocked_session=${highSchoolSession.token}; Path=/; HttpOnly; SameSite=Lax`,
+        Location: "/academics/sat",
+      });
+      res.end();
+      return;
+    }
     void app.getRequestHandler()(req, res);
   })
   .listen(4399, "127.0.0.1", () =>

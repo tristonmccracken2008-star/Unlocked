@@ -58,6 +58,7 @@
     "check:journey-board": "node scripts/check-journey-board.mjs",
     "check:college-journey": "node scripts/check-college-journey.mjs",
     "check:high-school-academics": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-high-school-academics.ts",
+    "check:sat-practice": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-sat-practice.ts",
     "check:open-line-data": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-open-line-data.ts",
     "check:pathprint-geometry": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-pathprint-geometry.ts",
     "check:open-line-renderer": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-open-line-renderer.tsx",

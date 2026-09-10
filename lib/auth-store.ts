@@ -18,6 +18,7 @@ import { emptyOpportunityPassport, normalizeOpportunityPassport, type Opportunit
 import { educationalStageSchemaVersion, normalizeEducationalStage, type EducationalStage } from "./education-stages";
 import { collegeApplicationPlans, collegeDecisionOutcomes, collegeInterestStates, collegeRequirementStatuses, type CollegeAdmissionsJourney, type CollegeListRecord } from "@/data/college-admissions";
 import { emptyHighSchoolAcademicStore, normalizeHighSchoolAcademicStore, type HighSchoolAcademicStore } from "@/data/high-school-academics";
+import { emptySatPracticeStore, normalizeSatPracticeStore, type SatPracticeStore } from "@/data/sat-practice";
 
 export const sessionCookieName = "unlocked_session";
 export const oauthStateCookieName = "unlocked_oauth_state";
@@ -42,7 +43,7 @@ const kvTimeoutMs = 2800;
 const kvRetryDelayMs = 120;
 const releaseLockScript = "if redis.call('GET',KEYS[1]) == ARGV[1] then return redis.call('DEL',KEYS[1]) else return 0 end";
 
-const emptyData = (): AccountData => ({ educationalStage: null, educationalStageSchemaVersion, educationalStageTransitions: [], profile: null, onboardingComplete: false, firstLaunchComplete: false, billing: defaultBillingRecord(), activity: null, savedOpportunities: [], savedColleges: [], collegeAdmissionsJourney: { tasks: [] }, highSchoolAcademics: emptyHighSchoolAcademicStore(), watchedOpportunities: [], tracker: {}, preferences: null, journeyProgress: {}, calendarEvents: {}, applicationWorkspaces: {}, answerBank: { records: {}, version: 0 }, applicationMaterials: emptyApplicationMaterialStore(), resumeLab: emptyResumeLabStore(), accomplishments: {}, passport: emptyOpportunityPassport(), pathPreferences: {}, guidance: {}, advisor: null, referrals: null, updatedAt: new Date().toISOString() });
+const emptyData = (): AccountData => ({ educationalStage: null, educationalStageSchemaVersion, educationalStageTransitions: [], profile: null, onboardingComplete: false, firstLaunchComplete: false, billing: defaultBillingRecord(), activity: null, savedOpportunities: [], savedColleges: [], collegeAdmissionsJourney: { tasks: [] }, highSchoolAcademics: emptyHighSchoolAcademicStore(), satPractice: emptySatPracticeStore(), watchedOpportunities: [], tracker: {}, preferences: null, journeyProgress: {}, calendarEvents: {}, applicationWorkspaces: {}, answerBank: { records: {}, version: 0 }, applicationMaterials: emptyApplicationMaterialStore(), resumeLab: emptyResumeLabStore(), accomplishments: {}, passport: emptyOpportunityPassport(), pathPreferences: {}, guidance: {}, advisor: null, referrals: null, updatedAt: new Date().toISOString() });
 
 function requireProductionStore() {
   if (!hasKv && process.env.NODE_ENV === "production") throw new Error("A production data store is required. Set KV_REST_API_URL/KV_REST_API_TOKEN or UPSTASH_REDIS_REST_URL/UPSTASH_REDIS_REST_TOKEN.");
@@ -406,6 +407,7 @@ function normalizeAccountData(value: AccountData | null | undefined): AccountDat
     savedColleges: normalizeCollegeListRecords(value.savedColleges),
     collegeAdmissionsJourney: normalizeCollegeAdmissionsJourney(value.collegeAdmissionsJourney),
     highSchoolAcademics: normalizeHighSchoolAcademicStore(value.highSchoolAcademics),
+    satPractice: normalizeSatPracticeStore(value.satPractice),
     watchedOpportunities: (value.watchedOpportunities ?? []).filter((item) => item?.opportunityId && item.watchedAt && item.updatedAt).slice(-500),
     tracker: tracked,
     preferences: value.preferences ?? null,
@@ -467,6 +469,7 @@ export async function mergeAccountData(userId: string, incoming: Partial<Account
     savedColleges: current.savedColleges ?? [],
     collegeAdmissionsJourney: current.collegeAdmissionsJourney ?? { tasks: [] },
     highSchoolAcademics: normalizeHighSchoolAcademicStore(current.highSchoolAcademics),
+    satPractice: normalizeSatPracticeStore(current.satPractice),
     // Watch is Pro-only state and may only change through updateWatchedOpportunity.
     watchedOpportunities: current.watchedOpportunities ?? [],
     tracker,
@@ -564,6 +567,26 @@ export async function mutateHighSchoolAcademics(
       updatedAt: now,
     });
     const next = { ...account, highSchoolAcademics: store, updatedAt: now };
+    await writeAccountData(userId, next);
+    return { account: next, store };
+  });
+}
+
+export async function mutateSatPractice(
+  userId: string,
+  input: { expectedVersion: number; mutate: (store: SatPracticeStore) => SatPracticeStore },
+) {
+  return await withSecurityLock("sat-practice", userId, async () => {
+    const account = await readAccountData(userId);
+    const current = normalizeSatPracticeStore(account.satPractice);
+    if (current.version !== input.expectedVersion) {
+      const error = new Error("Your SAT practice changed elsewhere. Refresh and try again.");
+      error.name = "SatPracticeConflictError";
+      throw error;
+    }
+    const now = new Date().toISOString();
+    const store = normalizeSatPracticeStore({ ...input.mutate(current), privacy: "private", version: current.version + 1, updatedAt: now });
+    const next = { ...account, satPractice: store, updatedAt: now };
     await writeAccountData(userId, next);
     return { account: next, store };
   });
