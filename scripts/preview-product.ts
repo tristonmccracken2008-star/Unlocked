@@ -42,6 +42,7 @@ const {
   updateAccountBilling,
   updateEducationalStage,
   updateSavedCollege,
+  mutateHighSchoolAcademics,
 } = await import("../lib/auth-store");
 const { updateCollegeAdmissions } =
   await import("../lib/college-admissions-service");
@@ -165,6 +166,37 @@ await mergeAccountData(highSchoolUser.id, {
   },
 });
 await updateEducationalStage(highSchoolUser.id, "high_school");
+await mutateHighSchoolAcademics(highSchoolUser.id, {
+  expectedVersion: 0,
+  mutate: () => ({
+    privacy: "private",
+    school: { name: "Lincoln High School", source: "student_reported", updatedAt: now },
+    graduationYear: "2028",
+    gradeLevel: 11,
+    gpaStatus: "reported",
+    gpas: {
+      unweighted: { id: "unweighted", value: 3.82, scale: 4, source: "student_reported", updatedAt: now },
+      weighted: { id: "weighted", value: 4.31, scale: 5, source: "school_reported", updatedAt: now },
+    },
+    classRank: { kind: "school_does_not_rank", source: "student_reported", updatedAt: now },
+    courses: Object.fromEntries([
+      ["ap-calculus", "AP Calculus BC", "Math", "ap", "A-"],
+      ["ap-english", "AP English Language", "English", "ap", "B+"],
+      ["physics", "Physics Honors", "Science", "honors", "A"],
+      ["spanish", "Spanish III", "World Language", "standard", "A-"],
+    ].map(([id, name, subject, level, grade]) => [id, { id, name, subject, gradeLevel: 11, level: level as "ap" | "honors" | "standard", gradeSystem: "letter", grade, inProgress: false, source: "student_reported", createdAt: now, updatedAt: now, version: 0 }])),
+    testing: {
+      sat: { officialAttempts: [
+        { id: "sat-march", testDate: "2026-03-14", total: 1370, readingWriting: 680, math: 690, source: "student_reported", createdAt: now, updatedAt: now, version: 0 },
+        { id: "sat-may", testDate: "2026-05-02", total: 1420, readingWriting: 700, math: 720, source: "official_score_report", createdAt: now, updatedAt: now, version: 0 },
+      ], practiceAttempts: [], goal: 1500 },
+      act: { officialAttempts: [], practiceAttempts: [] },
+      plans: [{ test: "sat", date: "2026-10-03", registrationStatus: "registered", preparationDate: "2026-09-18", createdAt: now, updatedAt: now }],
+    },
+    version: 0,
+    updatedAt: now,
+  }),
+});
 for (const activity of [
   {
     key: "newspaper",
@@ -341,6 +373,14 @@ http
       res.writeHead(302, {
         "Set-Cookie": `unlocked_session=${highSchoolSession.token}; Path=/; HttpOnly; SameSite=Lax`,
         Location: "/build/application-activities",
+      });
+      res.end();
+      return;
+    }
+    if (req.url === "/__preview-academics") {
+      res.writeHead(302, {
+        "Set-Cookie": `unlocked_session=${highSchoolSession.token}; Path=/; HttpOnly; SameSite=Lax`,
+        Location: "/academics",
       });
       res.end();
       return;

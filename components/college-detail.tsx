@@ -27,7 +27,7 @@ function identityNotes(college: College) {
   return notes;
 }
 
-export function CollegeDetail({ college, similar, saved }: { college: College; similar: Array<{ college: College; reasons: string[] }>; saved: boolean }) {
+export function CollegeDetail({ college, similar, saved, studentTesting }: { college: College; similar: Array<{ college: College; reasons: string[] }>; saved: boolean; studentTesting?: { sat?: number; act?: number } }) {
   const cost = college.publishedTotalCost ?? college.tuitionInState;
   return <main className="min-h-screen px-5 pb-24 pt-10 sm:px-8 sm:pt-14"><div className="mx-auto max-w-6xl">
     <nav aria-label="Breadcrumb" className="text-xs font-bold text-ink/40"><Link href="/colleges" className="hover:text-forest">Colleges</Link><span className="px-2">/</span><span>{college.name}</span></nav>
@@ -42,7 +42,7 @@ export function CollegeDetail({ college, similar, saved }: { college: College; s
 
     <Section eyebrow="Academics" title="What students study"><p className="max-w-2xl text-sm leading-7 text-ink/55">These fields show the distribution of recent credentials in federal data. They describe what students studied—not program quality.</p>{college.programs.length ? <div className="mt-6 grid gap-px overflow-hidden rounded-xl border border-ink/10 bg-ink/10 sm:grid-cols-2">{college.programs.slice(0, 12).map((program) => <Link key={program.id} href={`/colleges?program=${program.id}`} className="flex min-h-14 items-center justify-between bg-[var(--unlocked-surface)] px-4 text-sm font-bold text-[var(--unlocked-text)] hover:bg-mint/60"><span>{program.label}</span><span className="text-xs font-semibold text-ink/35">{Math.round(program.share * 100)}%</span></Link>)}</div> : <p className="mt-6 text-sm text-ink/45">Academic field distribution is not reported in this record.</p>}</Section>
 
-    <CollegeAdmissionsInsights college={college} />
+    <CollegeAdmissionsInsights college={college} studentTesting={studentTesting} />
 
     <Section eyebrow="Cost & aid" title="Sticker price is not the whole story"><div className="grid gap-x-8 sm:grid-cols-2"><Fact label="In-state tuition" value={amount(college.tuitionInState)} /><Fact label="Out-of-state tuition" value={amount(college.tuitionOutOfState)} /><Fact label="Housing & food" value={amount(college.roomAndBoard)} /><Fact label="Published annual cost" value={amount(college.publishedTotalCost)} /><Fact label="Average net price" value={amount(college.averageNetPrice)} note="Average price after grants and scholarships in the federal dataset" /></div><p className="mt-5 max-w-2xl text-sm leading-7 text-ink/55">Published cost is the sticker price and may not reflect what a family pays. Net price subtracts grants and scholarships, but your amount can differ.</p>{college.priceCalculatorUrl ? <a href={college.priceCalculatorUrl} target="_blank" rel="noreferrer" className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-full border border-forest/20 px-4 text-sm font-bold text-forest hover:bg-mint/60">Open official Net Price Calculator <ArrowIcon /></a> : null}</Section>
 

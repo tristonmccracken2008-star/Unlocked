@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { CollegeDetail } from "@/components/college-detail";
 import { getCollege, relatedColleges } from "@/lib/colleges";
 import { requireHighSchoolStage } from "@/lib/onboarding";
+import { bestAct, bestSat, normalizeHighSchoolAcademicStore } from "@/data/high-school-academics";
 
 export const dynamic = "force-dynamic";
 
@@ -15,5 +16,9 @@ export default async function CollegePage({ params }: { params: Promise<{ slug: 
   const session = await requireHighSchoolStage();
   const college = getCollege((await params).slug);
   if (!college) notFound();
-  return <CollegeDetail college={college} similar={relatedColleges(college)} saved={(session.data.savedColleges ?? []).some((item) => item.collegeId === college.id)} />;
+  const saved = (session.data.savedColleges ?? []).some((item) => item.collegeId === college.id);
+  const academicStore = normalizeHighSchoolAcademicStore(session.data.highSchoolAcademics);
+  const sat = bestSat(academicStore);
+  const act = bestAct(academicStore);
+  return <CollegeDetail college={college} similar={relatedColleges(college)} saved={saved} studentTesting={saved ? { sat: sat?.total, act: act?.composite } : undefined} />;
 }

@@ -57,6 +57,7 @@
     "test:for-you-webkit": "UNLOCKED_TEST_PRODUCTION_WEBKIT=1 node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/test-app-performance-browser.ts",
     "check:journey-board": "node scripts/check-journey-board.mjs",
     "check:college-journey": "node scripts/check-college-journey.mjs",
+    "check:high-school-academics": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-high-school-academics.ts",
     "check:open-line-data": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-open-line-data.ts",
     "check:pathprint-geometry": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-pathprint-geometry.ts",
     "check:open-line-renderer": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-open-line-renderer.tsx",

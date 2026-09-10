@@ -19,6 +19,7 @@ export function AdmissionsJourney({
   model,
   generalTasks: initialTasks,
   opportunityPursuits,
+  testPlans,
 }: {
   model: Model;
   generalTasks: CollegeAdmissionsTask[];
@@ -29,6 +30,7 @@ export function AdmissionsJourney({
     status: string;
     deadline: string | null;
   }>;
+  testPlans: Array<{ id: string; test: "sat" | "act"; date: string; registrationStatus: string; preparationDate?: string }>;
 }) {
   const [tasks, setTasks] = useState(initialTasks);
   const [title, setTitle] = useState("");
@@ -155,7 +157,13 @@ export function AdmissionsJourney({
                   </span>
                 </Link>
               ))}
-              {!model.deadlines.length ? (
+              {testPlans.slice(0, Math.max(0, 4 - model.deadlines.length)).map((item) => (
+                <Link key={item.id} href="/academics" className="grid grid-cols-[6rem_1fr] gap-4 py-4">
+                  <time className="text-xs font-bold text-forest">{dateLabel(item.date)}</time>
+                  <span><strong className="block text-sm">{item.test.toUpperCase()}</strong><small className="mt-1 block text-xs text-ink/42">{item.registrationStatus} · Date you added</small></span>
+                </Link>
+              ))}
+              {!model.deadlines.length && !testPlans.length ? (
                 <p className="py-4 text-sm text-ink/45">
                   No current verified dates are connected to a selected plan.
                 </p>

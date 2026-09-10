@@ -9,11 +9,13 @@ export function StageHome({
   firstName,
   collegeList,
   experienceBank,
+  academics,
 }: {
   stage: Exclude<EducationalStage, "undergraduate">;
   firstName: string;
   collegeList?: { saved: number; active: number; decisions: number };
   experienceBank?: { count: number; applicationActivitiesReady: boolean };
+  academics?: { courseCount: number; nextTest?: { test: string; date: string } };
 }) {
   const detail = educationalStageDetails[stage];
   return (
@@ -97,6 +99,25 @@ export function StageHome({
               <span className="text-sm font-bold text-forest">
                 Open Build →
               </span>
+            </Link>
+          ) : null}
+          {stage === "high_school" && academics ? (
+            <Link
+              href="/academics"
+              className="mt-4 grid gap-3 rounded-2xl border border-ink/10 bg-[var(--unlocked-surface)] p-5 transition hover:border-forest/20 hover:bg-mint/35 sm:grid-cols-[1fr_auto] sm:items-center"
+            >
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-[.14em] text-forest">Academics &amp; Testing</p>
+                <h2 className="mt-2 font-editorial text-2xl font-semibold">
+                  {academics.nextTest
+                    ? `Next ${academics.nextTest.test.toUpperCase()} · ${new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", timeZone: "UTC" }).format(new Date(`${academics.nextTest.date}T12:00:00Z`))}`
+                    : academics.courseCount
+                      ? `${academics.courseCount} course${academics.courseCount === 1 ? "" : "s"} recorded`
+                      : "Start your private academic record"}
+                </h2>
+                <p className="mt-1 text-xs text-ink/45">Coursework, GPA context, and official testing</p>
+              </div>
+              <span className="text-sm font-bold text-forest">Open Academics →</span>
             </Link>
           ) : null}
           <div className="mt-12 grid border-y border-ink/10 sm:grid-cols-2">

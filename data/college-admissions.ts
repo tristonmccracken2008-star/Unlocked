@@ -178,6 +178,34 @@ export type VerifiedCollegeAdmissions = {
   }>;
 };
 
+export type VerifiedCollegeTestingPolicy = {
+  collegeId: string;
+  cycle: string;
+  status: "required" | "test_optional" | "test_free";
+  label: string;
+  sourceUrl: string;
+  verifiedAt: string;
+};
+
+export const verifiedCollegeTestingPolicies: Record<string, VerifiedCollegeTestingPolicy> = {
+  "166683": {
+    collegeId: "166683",
+    cycle: "2026–27",
+    status: "required",
+    label: "SAT or ACT required",
+    sourceUrl: "https://mitadmissions.org/apply/firstyear/tests-scores/",
+    verifiedAt: "2026-09-10",
+  },
+  "170976": {
+    collegeId: "170976",
+    cycle: "2027 entry",
+    status: "test_optional",
+    label: "Test optional",
+    sourceUrl: "https://admissions.umich.edu/apply/first-year-applicants/requirements-deadlines/application-changes",
+    verifiedAt: "2026-09-10",
+  },
+};
+
 const verifiedAt = "2026-09-08";
 export const verifiedCollegeAdmissions: Record<
   string,

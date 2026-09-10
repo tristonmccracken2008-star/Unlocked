@@ -16,6 +16,7 @@ import {
 } from "./high-school-opportunities";
 import { isProUser } from "./billing";
 import { activeRecommendationFeedback } from "./advisor/feedback";
+import { normalizeHighSchoolAcademicStore } from "@/data/high-school-academics";
 
 export type HighSchoolForYouOpportunity = {
   opportunity: Opportunity;
@@ -202,7 +203,8 @@ export function buildHighSchoolForYou(
   });
   const collegeDates = admissions.deadlines.map((item) => ({ id: `college:${item.id}`, date: item.date, title: item.college.name, detail: `${item.label} · Official ${item.cycle}`, kind: "College application" as const, href: `/colleges/${item.college.slug}/application` }));
   const planningDates = admissions.openTasks.flatMap((task) => task.dueDate && task.dueDate >= now.toISOString().slice(0, 10) ? [{ id: `task:${task.id}`, date: task.dueDate, title: task.title, detail: "Date you added", kind: "Your planning date" as const, href: "/admissions#general-tasks" }] : []);
-  const comingUp = [...opportunityDates, ...collegeDates, ...planningDates]
+  const testingDates = normalizeHighSchoolAcademicStore(data.highSchoolAcademics).testing.plans.flatMap((plan) => plan.registrationStatus !== "completed" && plan.date >= now.toISOString().slice(0, 10) ? [{ id: `test:${plan.test}:${plan.date}`, date: plan.date, title: `${plan.test.toUpperCase()} testing`, detail: `${plan.registrationStatus} · Date you added`, kind: "Your planning date" as const, href: "/academics" }] : []);
+  const comingUp = [...opportunityDates, ...collegeDates, ...planningDates, ...testingDates]
     .sort((a, b) => a.date.localeCompare(b.date))
     .slice(0, pro ? 5 : 2);
 

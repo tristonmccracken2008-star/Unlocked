@@ -20,6 +20,7 @@ import { redirect } from "next/navigation";
 import { StageHome } from "@/components/stage-home";
 import { commonAppActivitySetId } from "@/data/high-school-activities";
 import { normalizeResumeLabStore } from "@/data/resume-lab";
+import { normalizeHighSchoolAcademicStore } from "@/data/high-school-academics";
 
 export const metadata: Metadata = {
   title: { absolute: "UnlockED — Student opportunities, chosen for you" },
@@ -62,6 +63,7 @@ export default async function Home({
   ) {
     const collegeRecords = session.data.savedColleges ?? [];
     const resumeLab = normalizeResumeLabStore(session.data.resumeLab);
+    const academics = normalizeHighSchoolAcademicStore(session.data.highSchoolAcademics);
     return (
       <StageHome
         stage={session.data.educationalStage}
@@ -94,6 +96,16 @@ export default async function Home({
                 applicationActivitiesReady:
                   resumeLab.applicationActivitySets?.[commonAppActivitySetId]
                     ?.status === "ready",
+              }
+            : undefined
+        }
+        academics={
+          session.data.educationalStage === "high_school"
+            ? {
+                courseCount: Object.keys(academics.courses).length,
+                nextTest: academics.testing.plans
+                  .filter((item) => item.registrationStatus !== "completed" && item.date >= new Date().toISOString().slice(0, 10))
+                  .sort((left, right) => left.date.localeCompare(right.date))[0],
               }
             : undefined
         }
