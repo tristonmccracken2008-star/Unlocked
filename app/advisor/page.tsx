@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { AdvisorPage } from "@/components/advisor-page";
+import { HighSchoolForYou } from "@/components/high-school-for-you";
+import { buildHighSchoolForYou } from "@/lib/high-school-for-you";
 import { requireCompletedOnboarding } from "@/lib/onboarding";
 import type { ForYouServerState } from "@/lib/for-you-snapshot";
 
@@ -13,6 +15,17 @@ export const metadata: Metadata = {
 
 export default async function Page() {
   const session = await requireCompletedOnboarding();
+  if (session.data.educationalStage === "high_school") {
+    const firstName =
+      session.data.profile?.firstName ||
+      session.user.name.split(/\s+/)[0] ||
+      "Student";
+    return (
+      <HighSchoolForYou
+        model={buildHighSchoolForYou(session.data, firstName)}
+      />
+    );
+  }
   const { resolveForYouState } = await import("@/lib/for-you-snapshot");
   const serverState: ForYouServerState = await resolveForYouState(session.user, session.data, { allowGeneration: false });
   const initialState = serverState.pageState === "preparing" ? null : serverState;

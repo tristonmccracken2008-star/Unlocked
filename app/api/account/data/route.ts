@@ -38,7 +38,14 @@ export async function PUT(request: Request) {
     if (!Object.values(body).some((value) => value !== undefined)) return NextResponse.json({ error: "No valid account fields were provided" }, { status: 400, headers: { "Cache-Control": "no-store, max-age=0" } });
     const currentAccount = body.profile || body.onboardingComplete || typeof raw.expectedUpdatedAt === "string" ? await readAccountData(session.user.id) : null;
     if (body.onboardingComplete && !currentAccount?.onboardingComplete) {
-      if (!body.profile || body.profile.onboardingSchemaVersion !== onboardingSchemaVersion || onboardingProfileV2Issues(body.profile).length) {
+      const highSchoolProfileComplete =
+        currentAccount?.educationalStage === "high_school" &&
+        Boolean(
+          body.profile?.firstName?.trim() &&
+            body.profile.graduationYear?.trim() &&
+            body.profile.interests.trim(),
+        );
+      if (!body.profile || body.profile.onboardingSchemaVersion !== onboardingSchemaVersion || (currentAccount?.educationalStage === "high_school" ? !highSchoolProfileComplete : onboardingProfileV2Issues(body.profile).length > 0)) {
         throw new SecurityError("Complete the required onboarding questions before continuing.", 400, "incomplete_onboarding");
       }
     }

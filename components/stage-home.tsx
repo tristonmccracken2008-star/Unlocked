@@ -31,6 +31,14 @@ export function StageHome({
           <p className="mt-6 max-w-2xl text-base leading-7 text-ink/55">
             {detail.homeDescription}
           </p>
+          {stage === "high_school" ? (
+            <Link
+              href="/advisor"
+              className="mt-6 inline-flex min-h-11 items-center rounded-full bg-forest px-5 text-sm font-bold text-white transition hover:bg-ink"
+            >
+              Open For You →
+            </Link>
+          ) : null}
           {stage === "high_school" && collegeList ? (
             <div className="mt-9 grid gap-px overflow-hidden rounded-2xl border border-ink/10 bg-ink/10 sm:grid-cols-[1.4fr_.6fr]">
               <Link href="/admissions" className="group bg-ink p-6 text-white">

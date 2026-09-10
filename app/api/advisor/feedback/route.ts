@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { opportunities } from "@/data/opportunities";
+import { highSchoolOpportunities } from "@/data/high-school-opportunities";
 import { cleanFeedback, requireAdvisorSession, saveAdvisorData, unauthorizedAdvisorResponse } from "@/lib/advisor/api";
 import { canUndoRecommendationFeedback, findFeedbackRequest } from "@/lib/advisor/feedback";
 import { readAccountData, withSecurityLock } from "@/lib/auth-store";
@@ -9,7 +10,11 @@ import { assertSameOrigin, enforceRateLimit, readBoundedJson, SecurityError, sec
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-const opportunityIds = new Set(opportunities.map((opportunity) => opportunity.id));
+const opportunityIds = new Set(
+  [...opportunities, ...highSchoolOpportunities].map(
+    (opportunity) => opportunity.id,
+  ),
+);
 
 function validOpportunityFeedbackTarget(recommendationId: string, actionId: string) {
   if (!actionId.startsWith("opportunity:")) return true;

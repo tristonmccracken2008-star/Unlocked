@@ -31,7 +31,7 @@ export async function requireHighSchoolStage() {
 export async function requireOnboardingSession() {
   const session = await getServerSessionForProduct();
   if (!session) redirect("/");
-  if (session.data.educationalStage && session.data.educationalStage !== "undergraduate") redirect("/");
+  if (session.data.educationalStage === "graduate") redirect("/");
   if (accountHasCompletedOnboarding(session.data)) redirect(accountHasCompletedFirstLaunch(session.data) ? "/advisor" : "/welcome");
   return session;
 }

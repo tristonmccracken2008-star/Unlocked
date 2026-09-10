@@ -89,7 +89,143 @@ function readDraft(key: string, fallback: OnboardingDraft) {
 export function OnboardingFlow({ session, initialProfile }: { session: AccountSession; initialProfile: StudentProfile | null }) {
   const [educationalStage, setEducationalStage] = useState(session.data?.educationalStage ?? null);
   if (!educationalStage) return <EducationalStageOnboarding onSaved={(data) => setEducationalStage(data.educationalStage ?? null)} />;
+  if (educationalStage === "high_school")
+    return (
+      <HighSchoolOnboardingFlow
+        session={session}
+        initialProfile={initialProfile}
+      />
+    );
   return <UndergraduateOnboardingFlow session={session} initialProfile={initialProfile} />;
+}
+
+const highSchoolInterests = [
+  "Computer science",
+  "Science and research",
+  "Business and economics",
+  "Engineering",
+  "Arts and design",
+  "Writing and journalism",
+  "Service and community",
+  "Not sure yet",
+] as const;
+
+function HighSchoolOnboardingFlow({
+  session,
+  initialProfile,
+}: {
+  session: AccountSession;
+  initialProfile: StudentProfile | null;
+}) {
+  const currentYear = new Date().getFullYear();
+  const name = session.user?.name?.split(/\s+/).filter(Boolean) ?? [];
+  const [firstName, setFirstName] = useState(
+    initialProfile?.firstName ?? name[0] ?? "",
+  );
+  const [graduationYear, setGraduationYear] = useState(
+    initialProfile?.graduationYear ?? "",
+  );
+  const [interest, setInterest] = useState(
+    highSchoolInterests.find((item) =>
+      initialProfile?.fieldInterests?.includes(item),
+    ) ?? "",
+  );
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+  const years = Array.from({ length: 5 }, (_, index) =>
+    String(currentYear + index + 1),
+  );
+
+  async function finish() {
+    if (saving) return;
+    if (!firstName.trim() || !graduationYear || !interest) {
+      setError("Add your name, graduation year, and one interest—or choose Not sure yet.");
+      return;
+    }
+    setSaving(true);
+    setError("");
+    const completionTime = new Date().toISOString();
+    const grad = Number(graduationYear);
+    const grade = Math.max(9, Math.min(12, 13 - (grad - currentYear)));
+    const exploring = interest === "Not sure yet";
+    try {
+      await writeStudentProfile({
+        ...initialProfile,
+        firstName: firstName.trim(),
+        lastName:
+          initialProfile?.lastName ?? (name.slice(1).join(" ") || undefined),
+        schoolSlug: initialProfile?.schoolSlug ?? "high-school",
+        graduationYear,
+        year: `${grade}th Grade`,
+        major: initialProfile?.major ?? "Undecided",
+        careerGoal: exploring ? "Still exploring" : `Explore ${interest}`,
+        interests: interest,
+        fieldInterests: exploring ? ["Not sure yet"] : [interest],
+        onboardingCompletedAt: completionTime,
+        onboardingSchemaVersion,
+      });
+      trackProductEvent("onboarding_completed", {
+        stepCount: "1",
+      });
+      window.location.assign("/welcome");
+    } catch {
+      setSaving(false);
+      setError("Your profile could not be saved. Please try again.");
+    }
+  }
+
+  return (
+    <main className="min-h-[calc(100vh-5rem)] px-5 py-10 sm:px-8 sm:py-16">
+      <div className="mx-auto max-w-3xl">
+        <p className="rule-label text-forest">A useful starting point</p>
+        <h1 className="mt-4 max-w-2xl font-editorial text-4xl font-semibold leading-tight text-[var(--unlocked-text)] sm:text-6xl">
+          What are you curious about right now?
+        </h1>
+        <p className="mt-5 max-w-xl text-base leading-7 text-ink/55">
+          One answer is enough to begin. You can make it more specific later.
+        </p>
+        <div className="mt-10 rounded-[1.75rem] border border-ink/10 bg-[var(--unlocked-surface)] p-6 shadow-soft sm:p-9">
+          <div className="grid gap-5 sm:grid-cols-2">
+            <label className="text-sm font-bold text-ink/70">
+              First name
+              <input
+                value={firstName}
+                onChange={(event) => setFirstName(event.target.value)}
+                autoComplete="given-name"
+                className="mt-2 min-h-12 w-full rounded-xl border border-ink/12 bg-transparent px-4 font-medium outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15"
+              />
+            </label>
+            <label className="text-sm font-bold text-ink/70">
+              Expected high-school graduation
+              <select
+                value={graduationYear}
+                onChange={(event) => setGraduationYear(event.target.value)}
+                className="mt-2 min-h-12 w-full rounded-xl border border-ink/12 bg-[var(--unlocked-surface)] px-4 font-medium outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15"
+              >
+                <option value="">Choose a year</option>
+                {years.map((year) => <option key={year}>{year}</option>)}
+              </select>
+            </label>
+          </div>
+          <fieldset className="mt-8">
+            <legend className="text-sm font-bold text-ink/70">Choose one broad interest</legend>
+            <div className="mt-3 grid gap-2 sm:grid-cols-2">
+              {highSchoolInterests.map((item) => (
+                <label key={item} className={`flex min-h-12 cursor-pointer items-center gap-3 rounded-xl border px-4 text-sm font-semibold transition ${interest === item ? "border-forest bg-mint/55 text-forest" : "border-ink/10 hover:border-forest/30"}`}>
+                  <input type="radio" name="high-school-interest" value={item} checked={interest === item} onChange={() => setInterest(item)} className="accent-forest" />
+                  {item}
+                </label>
+              ))}
+            </div>
+          </fieldset>
+          {error ? <p role="alert" className="mt-5 text-sm font-bold text-red-700">{error}</p> : null}
+          <button type="button" disabled={saving} onClick={() => void finish()} className="mt-8 inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-forest px-6 text-sm font-bold text-white transition hover:bg-ink disabled:opacity-60 sm:w-auto">
+            {saving ? "Saving…" : "Start exploring"}
+          </button>
+        </div>
+      </div>
+    </main>
+  );
 }
 
 function UndergraduateOnboardingFlow({ session, initialProfile }: { session: AccountSession; initialProfile: StudentProfile | null }) {

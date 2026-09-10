@@ -407,6 +407,15 @@ export function Header() {
                 {educationalStage === "high_school" ? (
                   <>
                     <a
+                      href="/advisor"
+                      aria-current={
+                        pathname.startsWith("/advisor") ? "page" : undefined
+                      }
+                      className={`inline-flex min-h-11 items-center rounded-full px-5 transition ${pathname.startsWith("/advisor") ? "bg-white text-forest shadow-[0_8px_20px_rgba(43,33,26,.08)]" : "hover:bg-white/75 hover:text-forest"}`}
+                    >
+                      For You
+                    </a>
+                    <a
                       href="/colleges"
                       aria-current={
                         pathname === "/colleges" ||
@@ -489,15 +498,15 @@ export function Header() {
             aria-label="Mobile navigation"
             className={`fixed inset-x-4 bottom-[env(safe-area-inset-bottom)] z-40 grid ${educationalStage === "high_school" ? "grid-cols-5" : "grid-cols-2"} rounded-full bg-ink/95 p-1 text-[11px] font-bold text-white shadow-[0_20px_60px_rgba(43,33,26,.24)] backdrop-blur lg:hidden`}
           >
-            <a
-              href="/"
-              aria-current={pathname === "/" ? "page" : undefined}
-              className={`inline-flex min-h-11 items-center justify-center rounded-full ${pathname === "/" ? "bg-white text-forest" : "text-white/70"}`}
-            >
-              Home
-            </a>
             {educationalStage === "high_school" ? (
               <>
+                <a
+                  href="/advisor"
+                  aria-current={pathname.startsWith("/advisor") ? "page" : undefined}
+                  className={`inline-flex min-h-11 items-center justify-center rounded-full ${pathname.startsWith("/advisor") ? "bg-white text-forest" : "text-white/70"}`}
+                >
+                  For You
+                </a>
                 <a
                   href="/colleges"
                   aria-current={
@@ -540,15 +549,24 @@ export function Header() {
                 </a>
               </>
             ) : (
-              <a
-                href="/profile#education"
-                aria-current={
-                  pathname.startsWith("/profile") ? "page" : undefined
-                }
-                className={`inline-flex min-h-11 items-center justify-center rounded-full ${pathname.startsWith("/profile") ? "bg-white text-forest" : "text-white/70"}`}
-              >
-                Profile
-              </a>
+              <>
+                <a
+                  href="/"
+                  aria-current={pathname === "/" ? "page" : undefined}
+                  className={`inline-flex min-h-11 items-center justify-center rounded-full ${pathname === "/" ? "bg-white text-forest" : "text-white/70"}`}
+                >
+                  Home
+                </a>
+                <a
+                  href="/profile#education"
+                  aria-current={
+                    pathname.startsWith("/profile") ? "page" : undefined
+                  }
+                  className={`inline-flex min-h-11 items-center justify-center rounded-full ${pathname.startsWith("/profile") ? "bg-white text-forest" : "text-white/70"}`}
+                >
+                  Profile
+                </a>
+              </>
             )}
           </nav>
         ) : null}

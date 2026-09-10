@@ -30,7 +30,10 @@ export function EducationStageSelector({ currentStage = null, mode = "onboarding
       const body = await response.json().catch(() => null) as { data?: AccountData; error?: string } | null;
       if (!response.ok || !body?.data) throw new Error(body?.error ?? "Your educational stage could not be saved.");
       onSaved?.(body.data);
-      if (mode === "onboarding") window.location.assign(selected === "undergraduate" ? "/onboarding" : "/");
+      if (mode === "onboarding") {
+        if (selected === "high_school" && onSaved) return;
+        window.location.assign(selected === "undergraduate" ? "/onboarding" : "/");
+      }
       else {
         setEditing(false);
         window.location.assign(selected === "undergraduate" && !body.data.onboardingComplete ? "/onboarding" : "/");
