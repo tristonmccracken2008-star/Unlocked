@@ -263,6 +263,15 @@ export function HighSchoolForYou({ model }: { model: HighSchoolForYouModel }) {
               </section>
             ) : null}
 
+            {model.satAction ? (
+              <section className="rounded-2xl border border-forest/15 bg-mint/30 p-5 sm:p-6">
+                <div className="flex items-center gap-2 text-forest"><SparkIcon className="h-4 w-4" /><p className="rule-label">SAT preparation</p></div>
+                <h2 className="mt-4 font-editorial text-xl font-semibold leading-tight">{model.satAction.title}</h2>
+                <p className="mt-2 text-sm leading-6 text-ink/52">{model.satAction.detail}</p>
+                <Link href={model.satAction.href} className="mt-4 inline-flex min-h-11 items-center gap-2 text-sm font-bold text-forest">Continue SAT <ArrowIcon /></Link>
+              </section>
+            ) : null}
+
             {model.collegeDiscovery ? (
               <section className="rounded-2xl border border-ink/10 bg-[var(--unlocked-surface)] p-5 sm:p-6">
                 <div className="flex items-center gap-2 text-forest"><SparkIcon className="h-4 w-4" /><p className="rule-label">College discovery</p></div>

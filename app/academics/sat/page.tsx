@@ -40,6 +40,7 @@ export default async function SatPracticePage() {
       initialStore={practice}
       recommendation={recommendSatDomain(practice)}
       officialScore={official?.total}
+      goal={academics.testing.sat.goal}
       nextTest={nextTest?.date}
       initialSession={activeSession}
       initialQuestions={

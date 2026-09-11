@@ -30,7 +30,7 @@ export function AdmissionsJourney({
     status: string;
     deadline: string | null;
   }>;
-  testPlans: Array<{ id: string; test: "sat" | "act"; date: string; registrationStatus: string; preparationDate?: string }>;
+  testPlans: Array<{ id: string; test: "sat" | "act"; date: string; registrationStatus: string; preparationDate?: string; href?: string }>;
 }) {
   const [tasks, setTasks] = useState(initialTasks);
   const [title, setTitle] = useState("");
@@ -158,7 +158,7 @@ export function AdmissionsJourney({
                 </Link>
               ))}
               {testPlans.slice(0, Math.max(0, 4 - model.deadlines.length)).map((item) => (
-                <Link key={item.id} href="/academics" className="grid grid-cols-[6rem_1fr] gap-4 py-4">
+                <Link key={item.id} href={item.href ?? "/academics"} className="grid grid-cols-[6rem_1fr] gap-4 py-4">
                   <time className="text-xs font-bold text-forest">{dateLabel(item.date)}</time>
                   <span><strong className="block text-sm">{item.test.toUpperCase()}</strong><small className="mt-1 block text-xs text-ink/42">{item.registrationStatus} · Date you added</small></span>
                 </Link>

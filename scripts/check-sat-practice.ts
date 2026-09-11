@@ -1,5 +1,7 @@
 import assert from "node:assert/strict";
 import { emptySatPracticeStore, normalizeSatPracticeStore, satPerformance, satQuestionBank, satTaxonomy, validateSatQuestion, validatedSatQuestions } from "../data/sat-practice";
+import { normalizeSatPreparation, satNextAction, validSectionScore } from "../data/sat-command-center";
+import { satResources, satTestConfiguration } from "../data/sat-resources";
 
 assert.equal(Object.keys(satTaxonomy.reading_writing.domains).length,4);
 assert.equal(Object.keys(satTaxonomy.math.domains).length,4);
@@ -17,5 +19,12 @@ assert.equal(satPerformance(store).mistakes.length,1);
 assert.equal(satPerformance(store).marked.length,1);
 assert.deepEqual(emptySatPracticeStore().sessions,[]);
 assert.deepEqual(normalizeSatPracticeStore({sessions:[{id:"broken",mode:"quick",questionIds:["not-real"],attempts:[],status:"active",createdAt:"bad"}]}).sessions,[]);
+assert.equal(satNextAction(emptySatPracticeStore()).kind,"bluebook","A new student should get an official diagnostic next step.");
+assert.ok(validSectionScore(800) && !validSectionScore(805));
+assert.equal(normalizeSatPreparation({studyTime:"extreme",bluebook:[]}).studyTime,"regular");
+assert.equal(satTestConfiguration.readingWriting.questions,54);
+assert.equal(satTestConfiguration.math.questions,44);
+assert.ok(satResources.some(resource=>resource.id==="bluebook"&&resource.provenance==="College Board"));
+assert.ok(satResources.every(resource=>resource.lastVerified&&resource.evidenceUrl&&resource.url));
 
 console.log("Digital SAT Practice taxonomy, content, privacy, history, and validation checks passed.");

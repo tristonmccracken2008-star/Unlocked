@@ -1,3 +1,7 @@
+import crypto from "node:crypto";
+import { mutateSatPractice } from "@/lib/auth-store";
+import { normalizeSatPreparation, validSatDate, validSectionScore } from "@/data/sat-command-center";
+import { satQuestionBank } from "@/data/sat-practice";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import {
@@ -58,6 +62,31 @@ export async function POST(request: Request) {
         ),
         { name: "SatPracticeConflictError" },
       );
+    if (["save_preparation", "save_bluebook", "delete_bluebook", "reviewed"].includes(String(body.action))) {
+      const preparation = normalizeSatPreparation(store.preparation);
+      if (body.action === "save_preparation") {
+        if (!["light", "regular", "focused"].includes(String(body.studyTime)) || (body.bluebookDate && !validSatDate(body.bluebookDate))) throw new SecurityError("Choose a valid study plan.",400,"invalid_plan");
+        preparation.studyTime = body.studyTime as typeof preparation.studyTime;
+        preparation.bluebookDate = validSatDate(body.bluebookDate) ? body.bluebookDate : undefined;
+      }
+      if (body.action === "save_bluebook") {
+        const date = body.date;
+        if (!validSatDate(date) || date > new Date().toISOString().slice(0,10) || !validSectionScore(body.readingWriting) || !validSectionScore(body.math) || !clean(body.test,80)) throw new SecurityError("Enter a completed test date and section scores from 200 to 800 in steps of 10.",400,"invalid_bluebook");
+        const domains = body.domains && typeof body.domains === "object" && !Array.isArray(body.domains) ? body.domains as Record<string,unknown> : {};
+        if (Object.entries(domains).some(([d,v])=>!Object.values(satTaxonomy).some(s=>d in s.domains) || typeof v !== "number" || !Number.isInteger(v) || v<1 || v>7)) throw new SecurityError("Domain bands must be whole numbers from 1 to 7.",400,"invalid_bands");
+        const id = safeId(body.id) || `bluebook_${crypto.randomUUID()}`;
+        preparation.bluebook = [...preparation.bluebook.filter(r=>r.id!==id), {id,test:clean(body.test,80),date,readingWriting:body.readingWriting,math:body.math,total:body.readingWriting+body.math,notes:clean(body.notes,2000),domains:domains as Record<SatDomain,number>}];
+      }
+      if (body.action === "delete_bluebook") preparation.bluebook = preparation.bluebook.filter(r=>r.id!==safeId(body.id));
+      const next = await mutateSatPractice(session.user.id, {expectedVersion:store.version, mutate:current=>({...current,preparation,sessions:body.action === "reviewed" ? current.sessions.map(s=>s.id === body.sessionId ? {...s,attempts:s.attempts.map(a=>a.questionId===body.questionId && a.attemptedAt===body.attemptedAt ? {...a,reviewedAt:body.reviewed === false ? undefined : new Date().toISOString()} : a)} : s) : current.sessions})});
+      return NextResponse.json({ok:true,store:next.store},{headers:{"Cache-Control":"no-store"}});
+    }
+    if (body.action === "review_question") {
+      const attempt = store.sessions.find(s=>s.id===body.sessionId)?.attempts.find(a=>a.questionId===body.questionId && a.attemptedAt===body.attemptedAt);
+      const question = satQuestionBank.find(q=>q.id===attempt?.questionId && q.version===attempt.questionVersion);
+      if (!question) throw new SecurityError("This question version is unavailable.",404,"missing_question");
+      return NextResponse.json({ok:true,question},{headers:{"Cache-Control":"no-store"}});
+    }
     if (body.action === "start") {
       const mode = ["quick", "focused", "reattempt"].includes(String(body.mode))
         ? (body.mode as "quick" | "focused" | "reattempt")
@@ -83,6 +112,7 @@ export async function POST(request: Request) {
         section,
         domain,
         difficulty,
+        skill: clean(body.skill,160) || undefined,
         count,
         timed: body.timed === true,
       });

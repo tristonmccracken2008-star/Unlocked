@@ -1,3 +1,4 @@
+import { normalizeSatPreparation, type SatPreparation } from "./sat-command-center";
 export const satTaxonomy = {
   reading_writing: {
     label: "Reading and Writing",
@@ -439,6 +440,7 @@ export type SatAttemptRecord = {
   elapsedSeconds?: number;
   markedForReview: boolean;
   attemptedAt: string;
+  reviewedAt?: string;
   reflection?:
     | "didnt_know"
     | "misread"
@@ -464,6 +466,7 @@ export type SatPracticeSession = {
 };
 export type SatPracticeStore = {
   privacy: "private";
+  preparation?: SatPreparation;
   sessions: SatPracticeSession[];
   version: number;
   updatedAt?: string;
@@ -522,7 +525,8 @@ export function normalizeSatPracticeStore(value: unknown): SatPracticeStore {
     typeof value === "string" && Number.isFinite(Date.parse(value))
       ? new Date(value).toISOString()
       : new Date().toISOString();
-  const sessions = (input.sessions ?? []).slice(-200).flatMap((raw) => {
+  const reflections = new Set(["didnt_know", "misread", "calculation", "time", "changed_answer", "careless", "not_sure"]);
+  const sessions = (Array.isArray(input.sessions) ? input.sessions : []).slice(-200).flatMap((raw) => {
     if (
       !raw ||
       !raw.id ||
@@ -530,11 +534,11 @@ export function normalizeSatPracticeStore(value: unknown): SatPracticeStore {
       !["active", "completed"].includes(raw.status)
     )
       return [];
-    const questionIds = raw.questionIds
+    const questionIds = (Array.isArray(raw.questionIds) ? raw.questionIds : [])
       .filter((id) => ids.has(id))
       .slice(0, 30);
     if (!questionIds.length) return [];
-    const attempts = raw.attempts
+    const attempts = (Array.isArray(raw.attempts) ? raw.attempts : [])
       .filter(
         (attempt) =>
           questionIds.includes(attempt.questionId) &&
@@ -542,11 +546,15 @@ export function normalizeSatPracticeStore(value: unknown): SatPracticeStore {
       )
       .slice(-100)
       .map((attempt) => ({
-        ...attempt,
+        questionId: attempt.questionId,
+        questionVersion: Number.isInteger(attempt.questionVersion) ? attempt.questionVersion : 1,
         answer: String(attempt.answer).slice(0, 80),
         correct: Boolean(attempt.correct),
         markedForReview: Boolean(attempt.markedForReview),
         attemptedAt: safeTime(attempt.attemptedAt),
+        elapsedSeconds: Number.isFinite(attempt.elapsedSeconds) ? Math.max(0, Math.min(7200, Number(attempt.elapsedSeconds))) : undefined,
+        reviewedAt: typeof attempt.reviewedAt === "string" && Number.isFinite(Date.parse(attempt.reviewedAt)) ? new Date(attempt.reviewedAt).toISOString() : undefined,
+        reflection: reflections.has(String(attempt.reflection)) ? attempt.reflection : undefined,
       }));
     return [
       {
@@ -562,6 +570,7 @@ export function normalizeSatPracticeStore(value: unknown): SatPracticeStore {
   return {
     privacy: "private",
     sessions,
+    preparation: normalizeSatPreparation(input.preparation),
     version: Number.isInteger(input.version) ? Number(input.version) : 0,
     updatedAt: input.updatedAt,
   };

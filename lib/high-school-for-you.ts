@@ -17,6 +17,8 @@ import {
 import { isProUser } from "./billing";
 import { activeRecommendationFeedback } from "./advisor/feedback";
 import { normalizeHighSchoolAcademicStore } from "@/data/high-school-academics";
+import { normalizeSatPracticeStore } from "@/data/sat-practice";
+import { normalizeSatPreparation, satNextAction } from "@/data/sat-command-center";
 
 export type HighSchoolForYouOpportunity = {
   opportunity: Opportunity;
@@ -45,6 +47,7 @@ export type HighSchoolForYouModel = {
     href: string;
   }>;
   nextAction: { title: string; detail: string; href: string } | null;
+  satAction: { title: string; detail: string; href: string } | null;
   profilePrompt: string | null;
 };
 
@@ -204,10 +207,16 @@ export function buildHighSchoolForYou(
   const collegeDates = admissions.deadlines.map((item) => ({ id: `college:${item.id}`, date: item.date, title: item.college.name, detail: `${item.label} · Official ${item.cycle}`, kind: "College application" as const, href: `/colleges/${item.college.slug}/application` }));
   const planningDates = admissions.openTasks.flatMap((task) => task.dueDate && task.dueDate >= now.toISOString().slice(0, 10) ? [{ id: `task:${task.id}`, date: task.dueDate, title: task.title, detail: "Date you added", kind: "Your planning date" as const, href: "/admissions#general-tasks" }] : []);
   const testingDates = normalizeHighSchoolAcademicStore(data.highSchoolAcademics).testing.plans.flatMap((plan) => plan.registrationStatus !== "completed" && plan.date >= now.toISOString().slice(0, 10) ? [{ id: `test:${plan.test}:${plan.date}`, date: plan.date, title: `${plan.test.toUpperCase()} testing`, detail: `${plan.registrationStatus} · Date you added`, kind: "Your planning date" as const, href: "/academics" }] : []);
-  const comingUp = [...opportunityDates, ...collegeDates, ...planningDates, ...testingDates]
+  const satStore = normalizeSatPracticeStore(data.satPractice);
+  const satPreparation = normalizeSatPreparation(satStore.preparation);
+  const bluebookDates = satPreparation.bluebookDate && satPreparation.bluebookDate >= now.toISOString().slice(0,10) ? [{ id:`sat-bluebook:${satPreparation.bluebookDate}`, date:satPreparation.bluebookDate, title:"Bluebook practice test", detail:"Practice date you added", kind:"Your planning date" as const, href:"/academics/sat" }] : [];
+  const comingUp = [...opportunityDates, ...collegeDates, ...planningDates, ...testingDates, ...bluebookDates]
     .sort((a, b) => a.date.localeCompare(b.date))
     .slice(0, pro ? 5 : 2);
 
+  const nextSat = normalizeHighSchoolAcademicStore(data.highSchoolAcademics).testing.plans.filter(plan=>plan.test==="sat"&&plan.registrationStatus!=="completed"&&plan.date>=now.toISOString().slice(0,10)).sort((a,b)=>a.date.localeCompare(b.date))[0];
+  const satDays = nextSat ? Math.ceil((Date.parse(nextSat.date)-Date.parse(now.toISOString().slice(0,10)))/86_400_000) : undefined;
+  const satAction = satNextAction(satStore,nextSat?.date,now.toISOString().slice(0,10));
   return {
     firstName,
     pro,
@@ -216,6 +225,7 @@ export function buildHighSchoolForYou(
     collegeDiscovery: pro ? discoverCollege(data, interests) : null,
     comingUp,
     nextAction: admissions.nextAction,
+    satAction: satDays !== undefined && satDays <= 45 ? { title:satAction.title, detail:`SAT in ${satDays} ${satDays===1?'day':'days'} · ${satAction.reason}`, href:"/academics/sat" } : null,
     profilePrompt: interests.length ? null : "Add one interest to make these discoveries more specific.",
   };
 }

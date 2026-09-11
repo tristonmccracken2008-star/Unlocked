@@ -87,6 +87,7 @@ function selectQuestions(
     mode: "quick" | "focused" | "reattempt";
     section?: SatSection;
     domain?: SatDomain;
+    skill?: string;
     difficulty?: SatDifficulty;
     count: number;
   },
@@ -104,6 +105,7 @@ function selectQuestions(
     (question) =>
       (!input.section || question.section === input.section) &&
       (!input.domain || question.domain === input.domain) &&
+      (!input.skill || question.skill === input.skill) &&
       (!input.difficulty || question.difficulty === input.difficulty),
   );
   if (input.mode === "quick" && !input.section && !input.domain) {
@@ -123,6 +125,7 @@ export async function startSatSession(
     mode: "quick" | "focused" | "reattempt";
     section?: SatSection;
     domain?: SatDomain;
+    skill?: string;
     difficulty?: SatDifficulty;
     count: number;
     timed: boolean;
@@ -176,6 +179,7 @@ export async function answerSatQuestion(
   );
   if (!question || !session?.questionIds.includes(question.id))
     throw new Error("This practice question is unavailable.");
+  if (session.attempts.some(a=>a.questionId === question.id)) throw new Error("This answer has already been recorded.");
   const answer = input.answer.trim();
   const correct =
     question.format === "multiple_choice"
