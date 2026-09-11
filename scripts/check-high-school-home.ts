@@ -80,4 +80,34 @@ const safe = buildHighSchoolHomeSummary({
 assert.equal(safe.comingUp.some((item) => item.id === `opportunity:${unverified.id}`), false, "Unverified opportunity dates must stay off Coming Up.");
 assert.equal(safe.next.id, "sat-test:2026-09-25", "An unverified deadline must not displace a trusted next step.");
 
+const writingAccount = account({
+  writing: {
+    documents: {
+      "writing-document:home": {
+        id: "writing-document:home",
+        promptId: "common-app-2026-choice",
+        cycle: "2026–27",
+        title: "Common App Personal Essay",
+        status: "drafting",
+        content: "A draft in the student’s own words.",
+        planningDate: "2026-09-20",
+        ideaIds: [],
+        versions: [],
+        createdAt: timestamp,
+        updatedAt: timestamp,
+        version: 1,
+      },
+    },
+    ideas: {},
+    assignments: {},
+    feedback: {},
+    version: 1,
+    updatedAt: timestamp,
+  },
+});
+const writing = buildHighSchoolHomeSummary({ data: writingAccount, firstName: "Avery", opportunities: [], now });
+assert.equal(writing.next.id, "writing-next:writing-document:home", "A planned writing commitment inside 14 days should become the next step when nothing more urgent exists.");
+assert.equal(writing.comingUp[0]?.label, "Writing");
+assert.equal(writing.continuing[0]?.id, "continue-writing", "A real in-progress draft should appear in Continue.");
+
 console.log("High School Home checks passed.");

@@ -15,6 +15,7 @@ import type { EducationalStage, EducationalStageTransition } from "./education-s
 import type { CollegeAdmissionsJourney, CollegeListRecord } from "@/data/college-admissions";
 import type { HighSchoolAcademicStore } from "@/data/high-school-academics";
 import type { SatPracticeStore } from "@/data/sat-practice";
+import type { WritingStore } from "@/data/writing";
 
 export type AuthUser = {
   id: string;
@@ -205,6 +206,7 @@ export type AccountData = {
   collegeAdmissionsJourney?: CollegeAdmissionsJourney;
   highSchoolAcademics?: HighSchoolAcademicStore;
   satPractice?: SatPracticeStore;
+  writing?: WritingStore;
   watchedOpportunities?: WatchedOpportunityRecord[];
   tracker: OpportunityTrackerRecord;
   preferences: UserPreferencesRecord | null;

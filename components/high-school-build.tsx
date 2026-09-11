@@ -98,6 +98,12 @@ export function HighSchoolBuild({
           >
             Application Activities
           </Link>
+          <Link
+            href="/build/writing"
+            className="shrink-0 rounded-full px-4 py-3 text-sm font-bold text-ink/45 hover:bg-forest/[.06]"
+          >
+            Writing
+          </Link>
         </nav>
         {adding ? (
           <div className="mt-6">

@@ -42,6 +42,7 @@ export async function POST(request: Request) {
       journey: { tracker: safe.tracker, progress: safe.journeyProgress, applicationWorkspaces: data.applicationWorkspaces ?? {} },
       materials: data.applicationMaterials ?? { records: {}, associations: {}, version: 0 },
       resumeLab: data.resumeLab ?? { experiences: {}, resumes: {}, version: 0 },
+      writing: data.writing ?? { documents: {}, ideas: {}, assignments: {}, feedback: {}, version: 0 },
       accomplishments,
       passport: data.passport,
       notifications: notificationData.notifications.map((item) => ({

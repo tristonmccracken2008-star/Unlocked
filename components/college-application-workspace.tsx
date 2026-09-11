@@ -16,6 +16,7 @@ import {
   type CollegeRequirement,
   type VerifiedCollegeAdmissions,
 } from "@/data/college-admissions";
+import { writingStatusLabels, type WritingStatus } from "@/data/writing";
 
 const dateLabel = (value: string) =>
   new Intl.DateTimeFormat("en-US", {
@@ -29,11 +30,13 @@ export function CollegeApplicationWorkspace({
   initialRecord,
   verified,
   applicationActivitiesReady = false,
+  writing = [],
 }: {
   college: College;
   initialRecord: CollegeListRecord;
   verified?: VerifiedCollegeAdmissions;
   applicationActivitiesReady?: boolean;
+  writing?: Array<{ id: string; title: string; status: WritingStatus; wordCount: number; wordLimit?: number }>;
 }) {
   const [record, setRecord] = useState(initialRecord);
   const [tab, setTab] = useState("overview");
@@ -202,6 +205,7 @@ export function CollegeApplicationWorkspace({
             ["overview", "Overview"],
             ["requirements", "Requirements"],
             ["tasks", "Tasks & timeline"],
+            ["writing", "Writing"],
             ["decision", "Submission & decision"],
           ].map(([id, label]) => (
             <button
@@ -348,6 +352,26 @@ export function CollegeApplicationWorkspace({
             mutate={mutate}
           />
         ) : null}
+        {tab === "writing" ? (
+          <section className="mt-6 rounded-2xl border border-ink/10 bg-[var(--unlocked-surface)] p-6">
+            <div className="flex flex-wrap items-end justify-between gap-4">
+              <div>
+                <p className="rule-label text-forest">Application writing</p>
+                <h2 className="mt-2 font-editorial text-3xl font-semibold">Essays for {college.name}</h2>
+                <p className="mt-2 text-sm leading-6 text-ink/50">Drafts live once in your private Writing workspace. UnlockED does not submit them to the application provider.</p>
+              </div>
+              <Link href={"/build/writing?college=" + encodeURIComponent(college.id)} className="inline-flex min-h-11 items-center rounded-full bg-ink px-4 text-sm font-bold text-white">Open Writing →</Link>
+            </div>
+            <div className="mt-5 divide-y divide-ink/10 border-y border-ink/10">
+              {writing.length ? writing.map((document) => (
+                <Link key={document.id} href={"/build/writing/" + encodeURIComponent(document.id)} className="flex items-center justify-between gap-4 py-4">
+                  <span><strong className="block text-sm">{document.title}</strong><small className="mt-1 block text-xs text-ink/45">{document.wordCount}{document.wordLimit ? " / " + document.wordLimit : ""} words</small></span>
+                  <span className="text-xs font-bold text-forest">{writingStatusLabels[document.status]} →</span>
+                </Link>
+              )) : <p className="py-5 text-sm text-ink/45">No writing workspace has been started for this college.</p>}
+            </div>
+          </section>
+        ) : null}
         {tab === "decision" ? (
           <Decision
             record={record}
@@ -357,7 +381,7 @@ export function CollegeApplicationWorkspace({
           />
         ) : null}
         <div className="mt-6 grid gap-px overflow-hidden rounded-xl border border-ink/10 bg-ink/10 sm:grid-cols-4">
-          {["Writing", "Recommendations", "Testing", "Financial aid"].map(
+          {["Recommendations", "Testing", "Financial aid"].map(
             (item) => (
               <div key={item} className="bg-[var(--unlocked-surface)] p-4">
                 <p className="text-sm font-bold">{item}</p>
