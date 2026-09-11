@@ -18,9 +18,8 @@ import { cookies } from "next/headers";
 import { isProUser } from "@/lib/billing";
 import { redirect } from "next/navigation";
 import { StageHome } from "@/components/stage-home";
-import { commonAppActivitySetId } from "@/data/high-school-activities";
-import { normalizeResumeLabStore } from "@/data/resume-lab";
-import { normalizeHighSchoolAcademicStore } from "@/data/high-school-academics";
+import { HighSchoolHome } from "@/components/high-school-home";
+import { buildHighSchoolHomeSummary } from "@/lib/high-school-home";
 
 export const metadata: Metadata = {
   title: { absolute: "UnlockED — Student opportunities, chosen for you" },
@@ -57,13 +56,13 @@ export default async function Home({
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const session = await getServerSessionForProduct();
-  if (
-    session?.data.educationalStage === "high_school" ||
-    session?.data.educationalStage === "graduate"
-  ) {
-    const collegeRecords = session.data.savedColleges ?? [];
-    const resumeLab = normalizeResumeLabStore(session.data.resumeLab);
-    const academics = normalizeHighSchoolAcademicStore(session.data.highSchoolAcademics);
+  if (session?.data.educationalStage === "high_school") {
+    const firstName=session.data.profile?.firstName||session.user.name.split(" ")[0]||"Student";
+    const activeIds=[...new Set([...Object.keys(session.data.tracker??{}),...Object.keys(session.data.activity?.tracked??{})])];
+    const opportunities=await listPublishedOpportunitiesByIds(activeIds,{includeArchived:true}).catch(()=>[]);
+    return <HighSchoolHome summary={buildHighSchoolHomeSummary({data:session.data,firstName,opportunities})}/>;
+  }
+  if (session?.data.educationalStage === "graduate") {
     return (
       <StageHome
         stage={session.data.educationalStage}
@@ -71,43 +70,6 @@ export default async function Home({
           session.data.profile?.firstName ||
           session.user.name.split(" ")[0] ||
           "Student"
-        }
-        collegeList={
-          session.data.educationalStage === "high_school"
-            ? {
-                saved: collegeRecords.length,
-                active: collegeRecords.filter((item) =>
-                  [
-                    "planning_to_apply",
-                    "applied",
-                    "decision_received",
-                  ].includes(item.interestState),
-                ).length,
-                decisions: collegeRecords.filter(
-                  (item) => item.application?.decision,
-                ).length,
-              }
-            : undefined
-        }
-        experienceBank={
-          session.data.educationalStage === "high_school"
-            ? {
-                count: Object.keys(resumeLab.experiences).length,
-                applicationActivitiesReady:
-                  resumeLab.applicationActivitySets?.[commonAppActivitySetId]
-                    ?.status === "ready",
-              }
-            : undefined
-        }
-        academics={
-          session.data.educationalStage === "high_school"
-            ? {
-                courseCount: Object.keys(academics.courses).length,
-                nextTest: academics.testing.plans
-                  .filter((item) => item.registrationStatus !== "completed" && item.date >= new Date().toISOString().slice(0, 10))
-                  .sort((left, right) => left.date.localeCompare(right.date))[0],
-              }
-            : undefined
         }
       />
     );
