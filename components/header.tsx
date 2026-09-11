@@ -208,6 +208,7 @@ function isServerProtectedProductPath(pathname: string) {
     pathname === "/my-opportunities" ||
     pathname.startsWith("/opportunities") ||
     pathname.startsWith("/colleges") ||
+    pathname.startsWith("/academics") ||
     pathname.startsWith("/admissions") ||
     pathname.startsWith("/admin")
   );
@@ -438,6 +439,15 @@ export function Header() {
                       Opportunities
                     </a>
                     <a
+                      href="/academics"
+                      aria-current={
+                        pathname.startsWith("/academics") ? "page" : undefined
+                      }
+                      className={`inline-flex min-h-11 items-center rounded-full px-5 transition ${pathname.startsWith("/academics") ? "bg-white text-forest shadow-[0_8px_20px_rgba(43,33,26,.08)]" : "hover:bg-white/75 hover:text-forest"}`}
+                    >
+                      Academics
+                    </a>
+                    <a
                       href="/admissions"
                       aria-current={
                         pathname.startsWith("/admissions") ? "page" : undefined
@@ -496,7 +506,7 @@ export function Header() {
         {stageLabel ? (
           <nav
             aria-label="Mobile navigation"
-            className={`fixed inset-x-4 bottom-[env(safe-area-inset-bottom)] z-40 grid ${educationalStage === "high_school" ? "grid-cols-5" : "grid-cols-2"} rounded-full bg-ink/95 p-1 text-[11px] font-bold text-white shadow-[0_20px_60px_rgba(43,33,26,.24)] backdrop-blur lg:hidden`}
+            className={`fixed inset-x-4 bottom-[env(safe-area-inset-bottom)] z-40 grid ${educationalStage === "high_school" ? "grid-cols-6" : "grid-cols-2"} rounded-full bg-ink/95 p-1 text-[11px] font-bold text-white shadow-[0_20px_60px_rgba(43,33,26,.24)] backdrop-blur lg:hidden`}
           >
             {educationalStage === "high_school" ? (
               <>
@@ -525,9 +535,18 @@ export function Header() {
                   aria-current={
                     pathname.startsWith("/opportunities") ? "page" : undefined
                   }
-                  className={`inline-flex min-h-11 items-center justify-center rounded-full ${pathname.startsWith("/opportunities") ? "bg-white text-forest" : "text-white/70"}`}
+                  className={`inline-flex min-h-11 items-center justify-center rounded-full text-center leading-tight ${pathname.startsWith("/opportunities") ? "bg-white text-forest" : "text-white/70"}`}
                 >
-                  Opportunities
+                  Opportu&shy;nities
+                </a>
+                <a
+                  href="/academics"
+                  aria-current={
+                    pathname.startsWith("/academics") ? "page" : undefined
+                  }
+                  className={`inline-flex min-h-11 items-center justify-center rounded-full text-center leading-tight ${pathname.startsWith("/academics") ? "bg-white text-forest" : "text-white/70"}`}
+                >
+                  Aca&shy;demics
                 </a>
                 <a
                   href="/admissions"
