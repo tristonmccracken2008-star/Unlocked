@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getColleges, collegeSizeLabel } from "@/lib/colleges";
 import { requireHighSchoolStage } from "@/lib/onboarding";
 import { cdsFactorLabels, derivedRate, latestCollegeCds } from "@/lib/college-admissions-insights";
+import { collegeApplicationPlanLabels, verifiedCollegeAdmissions, verifiedCollegeTestingPolicies } from "@/data/college-admissions";
 import type { CdsAdmissionFactor } from "@/data/college-cds";
 
 export const dynamic = "force-dynamic";
@@ -27,6 +28,9 @@ export default async function CompareCollegesPage({ searchParams }: { searchPara
     ["CDS enrollment yield", (college) => cdsValue(college.id, (snapshot) => { const result = derivedRate(snapshot.admissions?.enrolled, snapshot.admissions?.admitted); return result === undefined ? "Not reported" : `${Math.round(result * 1000) / 10}%`; })],
     ["Reported as Very Important", (college) => cdsValue(college.id, (snapshot) => Object.entries(snapshot.factors ?? {}).filter(([, importance]) => importance === "very_important").map(([factor]) => cdsFactorLabels[factor as CdsAdmissionFactor]).join(", ") || "None reported")],
     ["CDS test ranges", (college) => cdsValue(college.id, (snapshot) => { const tests = snapshot.testing; if (!tests) return "Not reported"; return [tests.satComposite ? `SAT ${tests.satComposite.join("–")}` : null, tests.actComposite ? `ACT ${tests.actComposite.join("–")}` : null].filter(Boolean).join(" · ") || "Not reported"; })],
+    ["Current testing policy", (college) => { const policy = verifiedCollegeTestingPolicies[college.id]; return policy ? `${policy.label} · ${policy.cycle}` : "Needs verification"; }],
+    ["Current application plans", (college) => verifiedCollegeAdmissions[college.id]?.validPlans.map((plan) => collegeApplicationPlanLabels[plan]).join(", ") || "Not verified"],
+    ["Recommendation requirements", (college) => verifiedCollegeAdmissions[college.id]?.requirements.filter((item) => /recommend|teacher evaluation|counselor/i.test(item.title)).map((item) => item.title).join(", ") || "Not verified"],
     ["Class rank reporting", (college) => cdsValue(college.id, (snapshot) => snapshot.classRank ? `${snapshot.classRank.reportingPercent}% reported rank` : "Not reported")],
     ["Published annual cost", (college) => display(college.publishedTotalCost, "money")], ["Average net price", (college) => display(college.averageNetPrice, "money")], ["Graduation rate", (college) => display(college.graduationRate, "percent")],
     ["Popular fields", (college) => college.programs.slice(0, 4).map((program) => program.label).join(", ") || "Not reported"], ["Median earnings", (college) => display(college.medianEarnings10Years, "money")],
