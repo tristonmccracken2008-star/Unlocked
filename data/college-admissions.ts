@@ -62,32 +62,57 @@ export const collegeRequirementStatusLabels: Record<
 };
 
 export const collegeDecisionOutcomes = [
+  "decision_pending",
   "accepted",
   "waitlisted",
   "deferred",
   "not_admitted",
   "withdrawn",
+  "student_withdrawn_before_decision",
 ] as const;
 export type CollegeDecisionOutcome = (typeof collegeDecisionOutcomes)[number];
 export const collegeDecisionLabels: Record<CollegeDecisionOutcome, string> = {
+  decision_pending: "Decision Pending",
   accepted: "Accepted",
   waitlisted: "Waitlisted",
   deferred: "Deferred",
   not_admitted: "Not Admitted",
   withdrawn: "Withdrawn",
+  student_withdrawn_before_decision: "Student Withdrew Before Decision",
 };
 
+export const collegeConsiderationStates = ["still_considering", "top_choice", "no_longer_considering", "enrolling"] as const;
+export type CollegeConsiderationState = (typeof collegeConsiderationStates)[number];
+export const collegeConsiderationLabels: Record<CollegeConsiderationState, string> = { still_considering:"Still considering", top_choice:"Top choice", no_longer_considering:"No longer considering", enrolling:"Enrolling" };
+export const collegeVisitTypes = ["not_visiting", "planning_visit", "visited", "virtual_visit", "admitted_student_event"] as const;
+export type CollegeVisitType = (typeof collegeVisitTypes)[number];
+export const collegeVisitLabels: Record<CollegeVisitType,string> = { not_visiting:"Not visiting", planning_visit:"Planning visit", visited:"Visited", virtual_visit:"Virtual visit", admitted_student_event:"Admitted-student event" };
+
 export const collegePriorityOptions = [
-  "Cost",
-  "Location",
+  "Affordability",
+  "Math/CS strength",
+  "Research opportunities",
+  "City environment",
+  "Campus community",
   "Academic programs",
-  "Size",
-  "Campus setting",
-  "Research",
-  "Career opportunities",
   "Distance from home",
-  "Student life",
+  "Internship access",
+  "Study abroad",
+  "Housing",
+  "Class size",
+  "Student support",
+  "Career outcomes",
 ] as const;
+
+export type AdmissionDecision = {
+  id: string; outcome: CollegeDecisionOutcome; receivedAt: string; entryTerm?: string;
+  program?: string; honorsResult?: string; scholarshipNotification?: string;
+  aidOfferStatus?: "not_received" | "received" | "incomplete" | "under_review";
+  privateNote?: string; recordedAt: string;
+};
+export type CollegeVisit = { id:string; type:CollegeVisitType; date?:string; event?:string; privateNotes?:string; createdAt:string; updatedAt:string };
+export type EnrollmentItem = { status:"not_started"|"planned"|"complete"|"waiver_requested"|"not_applicable"; amount?:number; deadline?:string; sourceUrl?:string; updatedAt:string };
+export type DecisionReflection = { mattersMost?:string; concerns?:string; excitement?:string; questions?:string; regretChoosing?:string; regretDeclining?:string; updatedAt:string };
 
 export type CollegeAdmissionsTask = {
   id: string;
@@ -125,10 +150,15 @@ export type CollegeApplicationRecord = {
   submittedAt?: string;
   applicationNotes?: string;
   decision?: {
-    outcome: CollegeDecisionOutcome;
-    receivedAt: string;
-    entryTerm?: string;
+    outcome: CollegeDecisionOutcome; receivedAt: string; entryTerm?: string; id?:string;
+    program?:string; honorsResult?:string; scholarshipNotification?:string;
+    aidOfferStatus?:"not_received"|"received"|"incomplete"|"under_review"; privateNote?:string; recordedAt?:string;
   };
+  decisionHistory?: AdmissionDecision[];
+  considerationStatus?: CollegeConsiderationState;
+  visits?: CollegeVisit[];
+  reflection?: DecisionReflection;
+  enrollment?: { expectedStart?:string; response?:EnrollmentItem; enrollmentDeposit?:EnrollmentItem; housingDeposit?:EnrollmentItem; finalTranscript?:EnrollmentItem };
   committedAt?: string;
   version: number;
   updatedAt: string;

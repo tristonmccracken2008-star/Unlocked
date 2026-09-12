@@ -90,6 +90,7 @@ export function AdmissionsJourney({
           One calm view of your applications, verified dates, and the planning
           commitments you created.
         </p>
+        {model.items.some(({record})=>Boolean(record.application?.decision))?<Link href="/admissions/decisions" className="mt-6 inline-flex min-h-11 items-center rounded-full bg-forest px-5 text-sm font-bold text-white">Open Decision Season <ArrowIcon /></Link>:null}
         <section className="mt-10 rounded-[2rem] bg-ink p-6 text-white shadow-[0_24px_70px_rgba(43,33,26,.18)] sm:p-9">
           <p className="text-[10px] font-bold uppercase tracking-[.14em] text-white/45">
             One next action

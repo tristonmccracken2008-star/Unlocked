@@ -1,7 +1,7 @@
 import "server-only";
 
 import type { Opportunity } from "@/data/opportunities";
-import { collegeApplicationPlanLabels } from "@/data/college-admissions";
+import { collegeApplicationPlanLabels, verifiedCollegeAdmissions } from "@/data/college-admissions";
 import { normalizeHighSchoolAcademicStore } from "@/data/high-school-academics";
 import { normalizeResumeLabStore } from "@/data/resume-lab";
 import { normalizeSatPracticeStore } from "@/data/sat-practice";
@@ -25,6 +25,7 @@ export type HighSchoolHomeSummary = {
   opportunities?:{active:number;next?:HighSchoolHomeItem};
   build?:{count:number;reason:string;href:string};
   financialAid?:{offers:number;estimates:number;formsToReview:number;href:string};
+  decisionSeason?:{accepted:number;waitlisted:number;notAdmitted:number;pending:number;href:string};
 };
 
 const dayMs=86_400_000;
@@ -50,10 +51,14 @@ export function buildHighSchoolHomeSummary(input:{data:AccountData;firstName:str
   const bluebookDates=satPrep.bluebookDate&&satPrep.bluebookDate>=date?[{id:`bluebook:${satPrep.bluebookDate}`,label:"SAT",title:"Bluebook practice test",detail:"Practice date you added",date:satPrep.bluebookDate,provenance:"Your date" as const,href:"/academics/sat"}]:[];
   const writingDates=Object.values(writing.documents).filter(document=>document.status!=="final"&&document.planningDate&&document.planningDate>=date).map(document=>({id:`writing:${document.id}`,label:"Writing",title:document.title,detail:"Personal planning date",date:document.planningDate!,provenance:"Your date" as const,href:`/build/writing/${document.id}`}));
   const aidDates=Object.values(financialAid.collegeWorkflows).filter(item=>item.deadline&&item.deadline>=date).flatMap(item=>{const college=colleges.find(candidate=>candidate.id===item.collegeId);return college?[{id:`aid:${item.collegeId}`,label:"Cost & Aid",title:`${college.name} aid deadline`,detail:"Financial aid date you added",date:item.deadline!,provenance:"Your date" as const,href:"/cost-aid"}]:[]});
-  const comingUp=[...verifiedCollegeDates,...verifiedAidDates,...verifiedOpportunityDates,...testDates,...journeyDates,...bluebookDates,...writingDates,...aidDates].sort((a,b)=>a.date.localeCompare(b.date)||Number(a.provenance==="Your date")-Number(b.provenance==="Your date")).slice(0,4);
+  const decisionRecords=records.filter(record=>record.application?.decision&&record.application.decision.outcome!=="decision_pending");
+  const enrollmentDates=records.flatMap(record=>{const college=colleges.find(candidate=>candidate.id===record.collegeId);if(!college||record.application?.decision?.outcome!=="accepted")return[];const official=(verifiedCollegeAdmissions[college.id]?.deadlines??[]).filter(deadline=>deadline.plan==="enrollment"&&deadline.date>=date).map(deadline=>({id:`enrollment:${college.id}:${deadline.id}`,label:"Decision Season",title:`${college.name} enrollment response`,detail:`${deadline.label} · ${deadline.cycle}`,date:deadline.date,provenance:"Verified date" as const,href:"/admissions/decisions"}));const personal=Object.entries(record.application.enrollment??{}).flatMap(([key,value])=>key!=="expectedStart"&&value&&typeof value==="object"&&"deadline" in value&&value.deadline&&value.deadline>=date?[{id:`enrollment:${college.id}:${key}`,label:"Decision Season",title:`${college.name} ${key.replace(/([A-Z])/g," $1").toLowerCase()}`,detail:"Enrollment date you added",date:value.deadline,provenance:"Your date" as const,href:"/admissions/decisions"}]:[]);return[...official,...personal]});
+  const comingUp=[...verifiedCollegeDates,...verifiedAidDates,...enrollmentDates,...verifiedOpportunityDates,...testDates,...journeyDates,...bluebookDates,...writingDates,...aidDates].sort((a,b)=>a.date.localeCompare(b.date)||Number(a.provenance==="Your date")-Number(b.provenance==="Your date")).slice(0,4);
 
   const applicationAttention=admissions.items.flatMap(({college,record})=>{const app=record.application;if(!app||["applied","decision_received","committed"].includes(app.status))return[];const missing=app.requirements.filter(r=>!["ready","submitted","not_required"].includes(r.status));const tasks=app.tasks.filter(t=>!t.completed);return [{college,record,missing,tasks}]});
-  const deadlineSoon=[...verifiedCollegeDates,...verifiedAidDates,...verifiedOpportunityDates].filter(item=>daysUntil(item.date,now)<=14).sort((a,b)=>a.date.localeCompare(b.date))[0];
+  const acceptedDecisions=decisionRecords.filter(record=>record.application?.decision?.outcome==="accepted");
+  const decisionSeasonAction=decisionRecords.length?{id:"decision-season",label:"Decision Season",title:acceptedDecisions.length>=2?"Compare your accepted colleges":"Review your admissions decisions",detail:`${acceptedDecisions.length} accepted · ${decisionRecords.filter(record=>record.application?.decision?.outcome==="waitlisted").length} waitlisted · ${records.filter(record=>!record.application?.decision||record.application.decision.outcome==="decision_pending").length} pending`,href:"/admissions/decisions"}:undefined;
+  const deadlineSoon=[...verifiedCollegeDates,...verifiedAidDates,...verifiedOpportunityDates,...enrollmentDates].filter(item=>daysUntil(item.date,now)<=14).sort((a,b)=>a.date.localeCompare(b.date))[0]??decisionSeasonAction;
   const applicationNeed=applicationAttention.sort((a,b)=>(b.missing.length+b.tasks.length)-(a.missing.length+a.tasks.length))[0];
   const satAction=satNextAction(satStore,nextTest?.date,date);
   const satRelevant=Boolean(nextTest||satPrep.bluebook.length||satStore.sessions.length||satPrep.bluebookDate);
@@ -79,5 +84,15 @@ export function buildHighSchoolHomeSummary(input:{data:AccountData;firstName:str
   const grade=academics.gradeLevel;
   const context=grade?`${grade}th grade · ${nextTest?`Your next ${nextTest.test.toUpperCase()} is ${nextTest.date}.`:applicationAttention.length?"Your active applications need a clear next step.":"Your plans and recent work are connected here."}`:"Your plans, deadlines, and recent work are connected here.";
   const hour=Number(new Intl.DateTimeFormat("en-US",{hour:"numeric",hourCycle:"h23",timeZone:data.preferences?.notifications?.timezone||"America/New_York"}).format(now));
-  return {firstName,greeting:hour<12?"Good morning":hour<18?"Good afternoon":"Good evening",context,empty:!records.length&&!activeOpportunities.length&&!satRelevant&&!admissions.openTasks.length&&!Object.keys(resume.experiences).length&&!Object.keys(academics.courses).length&&!Object.keys(writing.documents).length&&!Object.keys(writing.ideas).length,next,comingUp,continuing:continuing.slice(0,3),colleges:records.length?{saved:records.length,planning:records.filter(r=>r.interestState==="planning_to_apply").length,active:applicationAttention.length,attention:applicationAttention.slice(0,3).map(({college,missing,tasks})=>({name:college.name,detail:`${missing.length+tasks.length} ${missing.length+tasks.length===1?'item':'items'} need attention`,href:`/colleges/${college.slug}/application`}))}:undefined,sat:satRelevant?{nextTest:nextTest?.date,latestBluebook:latestBluebook?.total,focus,mistakes:satStore.sessions.flatMap(s=>s.attempts).filter(a=>!a.correct&&!a.reviewedAt).length}:undefined,opportunities:activeOpportunities.length?{active:activeOpportunities.length,next:opportunitySoon}:undefined,build:latestExperience&&latestExperience.bullets.length===0?{count:Object.keys(resume.experiences).length,reason:"Your most recent experience has no accomplishment statements yet.",href:`/build/experiences/${latestExperience.id}`}:undefined,financialAid:records.length?{offers:Object.keys(financialAid.offers).length,estimates:Object.keys(financialAid.netPriceEstimates).length,formsToReview:Math.max(0,6-aidFormsReviewed),href:"/cost-aid"}:undefined};
+  return {
+    firstName,greeting:hour<12?"Good morning":hour<18?"Good afternoon":"Good evening",context,
+    empty:!records.length&&!activeOpportunities.length&&!satRelevant&&!admissions.openTasks.length&&!Object.keys(resume.experiences).length&&!Object.keys(academics.courses).length&&!Object.keys(writing.documents).length&&!Object.keys(writing.ideas).length,
+    next,comingUp,continuing:continuing.slice(0,3),
+    colleges:records.length?{saved:records.length,planning:records.filter(r=>r.interestState==="planning_to_apply").length,active:applicationAttention.length,attention:applicationAttention.slice(0,3).map(({college,missing,tasks})=>({name:college.name,detail:`${missing.length+tasks.length} ${missing.length+tasks.length===1?'item':'items'} need attention`,href:`/colleges/${college.slug}/application`}))}:undefined,
+    sat:satRelevant?{nextTest:nextTest?.date,latestBluebook:latestBluebook?.total,focus,mistakes:satStore.sessions.flatMap(s=>s.attempts).filter(a=>!a.correct&&!a.reviewedAt).length}:undefined,
+    opportunities:activeOpportunities.length?{active:activeOpportunities.length,next:opportunitySoon}:undefined,
+    build:latestExperience&&latestExperience.bullets.length===0?{count:Object.keys(resume.experiences).length,reason:"Your most recent experience has no accomplishment statements yet.",href:`/build/experiences/${latestExperience.id}`}:undefined,
+    financialAid:records.length?{offers:Object.keys(financialAid.offers).length,estimates:Object.keys(financialAid.netPriceEstimates).length,formsToReview:Math.max(0,6-aidFormsReviewed),href:"/cost-aid"}:undefined,
+    decisionSeason:decisionRecords.length?{accepted:acceptedDecisions.length,waitlisted:decisionRecords.filter(record=>record.application?.decision?.outcome==="waitlisted").length,notAdmitted:decisionRecords.filter(record=>record.application?.decision?.outcome==="not_admitted").length,pending:records.filter(record=>!record.application?.decision||record.application.decision.outcome==="decision_pending").length,href:"/admissions/decisions"}:undefined,
+  };
 }

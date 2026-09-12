@@ -29,6 +29,8 @@ export function publicAccountData(data: AccountData): AccountData {
     writing: undefined,
     // Cost estimates, offers, family workflows, and aid review records are private.
     financialAid: undefined,
+    // Decisions, application notes, visits, reflections, and enrollment plans load only in protected admissions surfaces.
+    savedColleges: (data.savedColleges ?? []).map((record) => ({ ...record, notes: "", priorities: [], application: undefined })),
     // Application Studio drafts, notes, and recommender details load only on the authenticated application route.
     applicationWorkspaces: Object.fromEntries(Object.entries(data.applicationWorkspaces ?? {}).map(([id, workspace]) => [id, { ...workspace, writtenResponses: undefined, recommenders: undefined, privateNotes: undefined, submissionSnapshots: undefined }])),
     // Answer Bank entries contain private factual stories.

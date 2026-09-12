@@ -16,7 +16,7 @@ import { emptyApplicationMaterialStore, normalizeApplicationMaterialStore, type 
 import { emptyResumeLabStore, normalizeResumeLabStore, type ResumeLabStore } from "@/data/resume-lab";
 import { emptyOpportunityPassport, normalizeOpportunityPassport, type OpportunityPassport } from "@/data/passport";
 import { educationalStageSchemaVersion, normalizeEducationalStage, type EducationalStage } from "./education-stages";
-import { collegeApplicationPlans, collegeDecisionOutcomes, collegeInterestStates, collegeRequirementStatuses, type CollegeAdmissionsJourney, type CollegeListRecord } from "@/data/college-admissions";
+import { collegeApplicationPlans, collegeConsiderationStates, collegeDecisionOutcomes, collegeInterestStates, collegeRequirementStatuses, collegeVisitTypes, type CollegeAdmissionsJourney, type CollegeListRecord, type EnrollmentItem } from "@/data/college-admissions";
 import { emptyHighSchoolAcademicStore, normalizeHighSchoolAcademicStore, type HighSchoolAcademicStore } from "@/data/high-school-academics";
 import { emptySatPracticeStore, normalizeSatPracticeStore, type SatPracticeStore } from "@/data/sat-practice";
 import { emptyWritingStore, normalizeWritingStore, type WritingStore } from "@/data/writing";
@@ -350,12 +350,19 @@ const uniqueStrings = (items: unknown) => Array.isArray(items) ? [...new Set(ite
 function normalizeCollegeListRecords(value: AccountData["savedColleges"]): CollegeListRecord[] {
   return (value ?? []).filter((item) => item?.collegeId && item.savedAt).slice(-500).map((item) => {
     const now = item.updatedAt ?? item.savedAt;
+    const enrollmentStatuses=["not_started","planned","complete","waiver_requested","not_applicable"];
+    const enrollmentItem=(entry:EnrollmentItem|undefined):EnrollmentItem|undefined => entry&&enrollmentStatuses.includes(entry.status)?entry:undefined;
     const application = item.application ? {
       ...item.application,
       plan: collegeApplicationPlans.includes(item.application.plan) ? item.application.plan : "unknown" as const,
       requirements: (item.application.requirements ?? []).filter((record) => record?.id && record.title).map((record) => ({ ...record, status: collegeRequirementStatuses.includes(record.status) ? record.status : "needs_verification" as const })),
       tasks: (item.application.tasks ?? []).filter((task) => task?.id && task.title).slice(-200),
       decision: item.application.decision && collegeDecisionOutcomes.includes(item.application.decision.outcome) ? item.application.decision : undefined,
+      decisionHistory:(item.application.decisionHistory??[]).filter((decision)=>decision?.id&&collegeDecisionOutcomes.includes(decision.outcome)&&decision.receivedAt).slice(-30),
+      considerationStatus:collegeConsiderationStates.includes(item.application.considerationStatus as never)?item.application.considerationStatus:undefined,
+      visits:(item.application.visits??[]).filter((visit)=>visit?.id&&collegeVisitTypes.includes(visit.type)).slice(-30),
+      reflection:item.application.reflection?{...item.application.reflection,updatedAt:item.application.reflection.updatedAt??now}:undefined,
+      enrollment:item.application.enrollment?{expectedStart:typeof item.application.enrollment.expectedStart==="string"?item.application.enrollment.expectedStart.slice(0,80):undefined,response:enrollmentItem(item.application.enrollment.response),enrollmentDeposit:enrollmentItem(item.application.enrollment.enrollmentDeposit),housingDeposit:enrollmentItem(item.application.enrollment.housingDeposit),finalTranscript:enrollmentItem(item.application.enrollment.finalTranscript)}:undefined,
       version: Number.isInteger(item.application.version) ? item.application.version : 0,
       updatedAt: item.application.updatedAt ?? now,
     } : undefined;

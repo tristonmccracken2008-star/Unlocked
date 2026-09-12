@@ -1,0 +1,3 @@
+.acceptedReveal { animation: accepted-reveal 520ms cubic-bezier(.2,.8,.2,1) both; }
+@keyframes accepted-reveal { from { opacity: 0; transform: translateY(7px); } to { opacity: 1; transform: translateY(0); } }
+@media (prefers-reduced-motion: reduce) { .acceptedReveal { animation: none; } }

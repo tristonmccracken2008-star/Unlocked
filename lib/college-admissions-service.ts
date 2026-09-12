@@ -1,5 +1,5 @@
 import crypto from "node:crypto";
-import { collegePriorityOptions, verifiedCollegeAdmissions, type CollegeAdmissionsJourney, type CollegeAdmissionsTask, type CollegeApplicationPlan, type CollegeDecisionOutcome, type CollegeInterestState, type CollegeListRecord, type CollegeRequirementStatus } from "@/data/college-admissions";
+import { verifiedCollegeAdmissions, type CollegeAdmissionsJourney, type CollegeAdmissionsTask, type CollegeApplicationPlan, type CollegeConsiderationState, type CollegeDecisionOutcome, type CollegeInterestState, type CollegeListRecord, type CollegeRequirementStatus, type CollegeVisitType, type EnrollmentItem } from "@/data/college-admissions";
 import { mutateCollegeAdmissions } from "./auth-store";
 import { getCollege } from "./colleges";
 
@@ -10,8 +10,12 @@ export type CollegeAdmissionsMutation =
   | { action: "add_requirement"; collegeId: string; title: string }
   | { action: "set_requirement"; collegeId: string; requirementId: string; status: CollegeRequirementStatus }
   | { action: "mark_applied"; collegeId: string; submittedAt: string; notes?: string }
-  | { action: "record_decision"; collegeId: string; outcome: CollegeDecisionOutcome; receivedAt: string; entryTerm?: string }
-  | { action: "commit"; collegeId: string };
+  | { action: "record_decision"; collegeId: string; outcome: CollegeDecisionOutcome; receivedAt: string; entryTerm?: string; program?:string; honorsResult?:string; scholarshipNotification?:string; aidOfferStatus?:"not_received"|"received"|"incomplete"|"under_review"; privateNote?:string }
+  | { action:"set_consideration"; collegeId:string; status:CollegeConsiderationState }
+  | { action:"record_visit"; collegeId:string; visitType:CollegeVisitType; date?:string; event?:string; privateNotes?:string }
+  | { action:"save_reflection"; collegeId:string; mattersMost?:string; concerns?:string; excitement?:string; questions?:string; regretChoosing?:string; regretDeclining?:string }
+  | { action:"save_enrollment_item"; collegeId:string; item:"response"|"enrollmentDeposit"|"housingDeposit"|"finalTranscript"; status:EnrollmentItem["status"]; amount?:number; deadline?:string; sourceUrl?:string; expectedStart?:string }
+  | { action: "commit"; collegeId: string; expectedStart?:string };
 
 const now = () => new Date().toISOString();
 function application(record: CollegeListRecord) {
@@ -38,7 +42,7 @@ export async function updateCollegeAdmissions(userId: string, mutation: CollegeA
       const requirements = mutation.plan !== undefined ? [...app.requirements] : app.requirements;
       if (mutation.plan !== undefined) for (const requirement of verified?.requirements ?? []) if (!requirements.some((item) => item.id === requirement.id)) requirements.push({ ...requirement, status: "not_started", provenance: "official_verified", cycle: verified!.cycle, verifiedAt: verified!.verifiedAt, createdAt: timestamp, updatedAt: timestamp });
       const nextApplication = mutation.plan !== undefined ? { ...app, plan: mutation.plan, requirements, status: app.status === "planning" ? "preparing" as const : app.status, version: app.version + 1, updatedAt: timestamp } : current.application;
-      next = { ...current, interestState: mutation.interestState ?? current.interestState, favorite: mutation.favorite ?? current.favorite, notes: mutation.notes ?? current.notes, priorities: mutation.priorities?.filter((item) => collegePriorityOptions.includes(item as never)).slice(0, 9) ?? current.priorities, application: nextApplication, version: current.version + 1, updatedAt: timestamp };
+      next = { ...current, interestState: mutation.interestState ?? current.interestState, favorite: mutation.favorite ?? current.favorite, notes: mutation.notes ?? current.notes, priorities: mutation.priorities?.filter((item,index,items) => item.length<=60&&items.indexOf(item)===index).slice(0, 12) ?? current.priorities, application: nextApplication, version: current.version + 1, updatedAt: timestamp };
     } else if (mutation.action === "add_task") {
       const app = application(current); next = { ...current, application: { ...app, tasks: [...app.tasks, task(mutation.title, collegeId, mutation.dueDate)].slice(-200), status: "preparing", version: app.version + 1, updatedAt: timestamp }, version: current.version + 1, updatedAt: timestamp };
     } else if (mutation.action === "set_task") {
@@ -50,11 +54,20 @@ export async function updateCollegeAdmissions(userId: string, mutation: CollegeA
     } else if (mutation.action === "mark_applied") {
       const app = application(current); next = { ...current, interestState: "applied", application: { ...app, status: "applied", submittedAt: mutation.submittedAt, applicationNotes: mutation.notes, version: app.version + 1, updatedAt: timestamp }, version: current.version + 1, updatedAt: timestamp };
     } else if (mutation.action === "record_decision") {
-      const app = application(current); next = { ...current, interestState: "decision_received", application: { ...app, status: "decision_received", decision: { outcome: mutation.outcome, receivedAt: mutation.receivedAt, entryTerm: mutation.entryTerm }, version: app.version + 1, updatedAt: timestamp }, version: current.version + 1, updatedAt: timestamp };
+      const app = application(current); const decision = { id:`admission-decision:${crypto.randomUUID()}`, outcome:mutation.outcome, receivedAt:mutation.receivedAt, entryTerm:mutation.entryTerm, program:mutation.program, honorsResult:mutation.honorsResult, scholarshipNotification:mutation.scholarshipNotification, aidOfferStatus:mutation.aidOfferStatus, privateNote:mutation.privateNote, recordedAt:timestamp };
+      next = { ...current, interestState: mutation.outcome === "decision_pending" ? "applied" : "decision_received", application: { ...app, status: mutation.outcome === "decision_pending" ? "applied" : "decision_received", decision, decisionHistory:[...(app.decisionHistory??[]),decision].slice(-30), considerationStatus:mutation.outcome==="accepted"?(app.considerationStatus??"still_considering"):app.considerationStatus, version: app.version + 1, updatedAt: timestamp }, version: current.version + 1, updatedAt: timestamp };
+    } else if(mutation.action === "set_consideration") {
+      const app=application(current); if(app.decision?.outcome!=="accepted")throw new Error("Record an acceptance before changing consideration status."); next={...current,application:{...app,considerationStatus:mutation.status,version:app.version+1,updatedAt:timestamp},version:current.version+1,updatedAt:timestamp};
+    } else if(mutation.action === "record_visit") {
+      const app=application(current); const visit={id:`college-visit:${crypto.randomUUID()}`,type:mutation.visitType,date:mutation.date,event:mutation.event,privateNotes:mutation.privateNotes,createdAt:timestamp,updatedAt:timestamp}; next={...current,application:{...app,visits:[...(app.visits??[]),visit].slice(-30),version:app.version+1,updatedAt:timestamp},version:current.version+1,updatedAt:timestamp};
+    } else if(mutation.action === "save_reflection") {
+      const app=application(current); next={...current,application:{...app,reflection:{mattersMost:mutation.mattersMost,concerns:mutation.concerns,excitement:mutation.excitement,questions:mutation.questions,regretChoosing:mutation.regretChoosing,regretDeclining:mutation.regretDeclining,updatedAt:timestamp},version:app.version+1,updatedAt:timestamp},version:current.version+1,updatedAt:timestamp};
+    } else if(mutation.action === "save_enrollment_item") {
+      const app=application(current); const item={status:mutation.status,amount:mutation.amount,deadline:mutation.deadline,sourceUrl:mutation.sourceUrl,updatedAt:timestamp}; next={...current,application:{...app,enrollment:{...app.enrollment,expectedStart:mutation.expectedStart??app.enrollment?.expectedStart,[mutation.item]:item},version:app.version+1,updatedAt:timestamp},version:current.version+1,updatedAt:timestamp};
     } else if (mutation.action === "commit") {
       if (current.application?.decision?.outcome !== "accepted") throw new Error("Record an acceptance before choosing where you are going.");
-      records = records.map((item) => item.application?.status === "committed" ? { ...item, application: { ...item.application, status: "decision_received", committedAt: undefined, updatedAt: timestamp } } : item);
-      const app = application(current); next = { ...current, application: { ...app, status: "committed", committedAt: timestamp, version: app.version + 1, updatedAt: timestamp }, version: current.version + 1, updatedAt: timestamp };
+      records = records.map((item) => item.collegeId!==collegeId&&item.application?.decision?.outcome==="accepted" ? { ...item, application: { ...item.application, status: "decision_received", considerationStatus:"no_longer_considering", committedAt: undefined, updatedAt: timestamp } } : item);
+      const app = application(current); next = { ...current, application: { ...app, status: "committed", considerationStatus:"enrolling", enrollment:{...app.enrollment,expectedStart:mutation.expectedStart??app.enrollment?.expectedStart}, committedAt: timestamp, version: app.version + 1, updatedAt: timestamp }, version: current.version + 1, updatedAt: timestamp };
     }
     records[index] = next;
     return { records, journey };

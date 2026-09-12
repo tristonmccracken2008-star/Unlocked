@@ -6,6 +6,7 @@ import { buildAdmissionsJourney } from "../lib/admissions-journey";
 import { updateCollegeAdmissions } from "../lib/college-admissions-service";
 import { readAccountData, updateEducationalStage, updateSavedCollege } from "../lib/auth-store";
 import { buildUniversalSearch } from "../lib/universal-search";
+import { publicAccountData } from "../lib/public-account";
 
 const userId = `college-admissions-check:${crypto.randomUUID()}`;
 const otherUserId = `college-admissions-check:${crypto.randomUUID()}`;
@@ -44,11 +45,27 @@ assert.equal(journey.nextAction.title, "Ask counselor for transcript", "Journey 
 assert.ok(!journey.nextAction.href.includes("undefined"));
 
 await updateCollegeAdmissions(userId, { action: "mark_applied", collegeId: "144050", submittedAt: "2026-11-01" });
-await updateCollegeAdmissions(userId, { action: "record_decision", collegeId: "144050", outcome: "accepted", receivedAt: "2026-12-15" });
-await updateCollegeAdmissions(userId, { action: "commit", collegeId: "144050" });
+await updateCollegeAdmissions(userId, { action: "record_decision", collegeId: "144050", outcome: "deferred", receivedAt: "2026-12-15", privateNote:"Keep the result private." });
+await updateCollegeAdmissions(userId, { action: "record_decision", collegeId: "144050", outcome: "accepted", receivedAt: "2027-03-14", program:"Mathematics", aidOfferStatus:"received", entryTerm:"Fall 2027" });
+await updateCollegeAdmissions(userId, { action:"set_consideration", collegeId:"144050", status:"top_choice" });
+await updateCollegeAdmissions(userId, { action:"record_visit", collegeId:"144050", visitType:"admitted_student_event", date:"2027-04-10", event:"Admitted student event", privateNotes:"Liked the students I met." });
+await updateCollegeAdmissions(userId, { action:"save_reflection", collegeId:"144050", mattersMost:"Affordability and mathematics", concerns:"Distance from home" });
+await updateCollegeAdmissions(userId, { action:"save_enrollment_item", collegeId:"144050", item:"enrollmentDeposit", status:"planned", amount:500, deadline:"2027-05-01" });
+await updateSavedCollege(userId,"147767",true);
+await updateCollegeAdmissions(userId,{action:"record_decision",collegeId:"147767",outcome:"accepted",receivedAt:"2027-03-26"});
+await updateSavedCollege(userId,"214777",true);
+await updateCollegeAdmissions(userId,{action:"record_decision",collegeId:"214777",outcome:"waitlisted",receivedAt:"2027-03-28"});
+await updateCollegeAdmissions(userId, { action: "commit", collegeId: "144050", expectedStart:"Fall 2027" });
 account = await readAccountData(userId);
-assert.equal(account.savedColleges?.[0].application?.status, "committed");
+const finalChicago=account.savedColleges?.find(record=>record.collegeId==="144050");
+assert.equal(finalChicago?.application?.status, "committed");
+assert.deepEqual(finalChicago?.application?.decisionHistory?.map(item=>item.outcome),["deferred","accepted"],"Decision history must preserve later outcomes.");
+assert.equal(finalChicago?.application?.visits?.[0].privateNotes,"Liked the students I met.");
+assert.equal(finalChicago?.application?.enrollment?.expectedStart,"Fall 2027");
+assert.equal(account.savedColleges?.find(record=>record.collegeId==="147767")?.application?.considerationStatus,"no_longer_considering","Other accepted colleges should remain in history as not attending.");
+assert.equal(account.savedColleges?.find(record=>record.collegeId==="214777")?.application?.decision?.outcome,"waitlisted","Choosing a college must not close an active waitlist.");
 assert.equal(account.educationalStage, "high_school", "Committing must not switch the student's product stage automatically.");
+assert.equal(publicAccountData(account).savedColleges?.find(record=>record.collegeId==="144050")?.application,undefined,"Decision records must not enter the general client session.");
 
 const search = buildUniversalSearch({ user: { id: userId, name: "Student" }, account, opportunities, query: "University of Chicago" });
 const savedResult = search.results.find((item) => item.kind === "college_application");
