@@ -16,6 +16,7 @@ import type { CollegeAdmissionsJourney, CollegeListRecord } from "@/data/college
 import type { HighSchoolAcademicStore } from "@/data/high-school-academics";
 import type { SatPracticeStore } from "@/data/sat-practice";
 import type { WritingStore } from "@/data/writing";
+import type { FinancialAidStore } from "@/data/financial-aid";
 
 export type AuthUser = {
   id: string;
@@ -207,6 +208,7 @@ export type AccountData = {
   highSchoolAcademics?: HighSchoolAcademicStore;
   satPractice?: SatPracticeStore;
   writing?: WritingStore;
+  financialAid?: FinancialAidStore;
   watchedOpportunities?: WatchedOpportunityRecord[];
   tracker: OpportunityTrackerRecord;
   preferences: UserPreferencesRecord | null;

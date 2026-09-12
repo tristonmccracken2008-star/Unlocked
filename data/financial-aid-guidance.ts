@@ -1,0 +1,30 @@
+export const aidGuidance = {
+  aidYear: "2026–27",
+  verifiedAt: "2026-09-12",
+  fafsa: "https://studentaid.gov/h/apply-for-aid/fafsa",
+  parentWizard: "https://studentaid.gov/fafsa-apply/parents",
+  studentSteps: "https://studentaid.gov/articles/fafsa-student-steps/",
+  dependency: "https://studentaid.gov/apply-for-aid/fafsa/filling-out/dependency",
+  unusualCircumstances: "https://studentaid.gov/apply-for-aid/fafsa/filling-out/dependency#unusual-circumstances",
+  cssProfile: "https://cssprofile.collegeboard.org/",
+  cssParents: "https://cssprofile.collegeboard.org/profile-for-parents",
+  cssWaiver: "https://cssprofile.collegeboard.org/media/pdf/css-profile-waiver-request-non-custodial-parent.pdf",
+  compareOffers: "https://studentaid.gov/articles/evaluating-financial-aid-offers/",
+  workStudy: "https://studentaid.gov/articles/8-things-federal-work-study/",
+  scholarships: "https://studentaid.gov/articles/scholarship-tips/",
+  loans: "https://studentaid.gov/understand-aid/types/loans/subsidized-unsubsidized",
+  stateAid: "https://studentaid.gov/apply-for-aid/fafsa/fafsa-deadlines",
+} as const;
+
+export const glossary = [
+  ["COA", "Cost of attendance: a school’s estimate of tuition, fees, living costs, books, transportation, and other education expenses."],
+  ["Net price", "Cost of attendance minus grants and scholarships. Loans and work-study are shown separately."],
+  ["SAI", "Student Aid Index: an index calculated from FAFSA information. It is not a bill, an aid offer, or the amount your family must pay."],
+  ["Gift aid", "Grants and scholarships that generally do not need to be repaid, subject to the award’s terms."],
+  ["Work-study", "Aid earned through eligible employment. An award does not put cash on the bill automatically, and a job may still need to be found."],
+  ["Subsidized loan", "A federal student loan for eligible undergraduates where the government pays interest during certain periods."],
+  ["Unsubsidized loan", "A federal student loan where interest accrues during all periods, including while the student is in school."],
+  ["Priority deadline", "A date used for priority consideration. Missing it does not always mean all aid is unavailable; check the official policy."],
+  ["Professional judgment", "A college financial aid administrator’s case-by-case review of certain special or unusual circumstances."],
+  ["IDOC", "A College Board service some institutions use to collect financial aid documents."],
+] as const;

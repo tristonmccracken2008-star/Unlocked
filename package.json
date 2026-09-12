@@ -61,6 +61,7 @@
     "check:sat-practice": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-sat-practice.ts",
     "check:high-school-home": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-high-school-home.ts",
     "check:writing": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-writing.ts",
+    "check:cost-aid": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-cost-aid.ts",
     "check:open-line-data": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-open-line-data.ts",
     "check:pathprint-geometry": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-pathprint-geometry.ts",
     "check:open-line-renderer": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-open-line-renderer.tsx",

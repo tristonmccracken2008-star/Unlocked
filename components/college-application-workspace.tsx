@@ -380,8 +380,8 @@ export function CollegeApplicationWorkspace({
             applicationUrl={verified?.applicationUrl ?? college.website}
           />
         ) : null}
-        <div className="mt-6 grid gap-px overflow-hidden rounded-xl border border-ink/10 bg-ink/10 sm:grid-cols-4">
-          {["Recommendations", "Testing", "Financial aid"].map(
+        <div className="mt-6 grid gap-px overflow-hidden rounded-xl border border-ink/10 bg-ink/10 sm:grid-cols-3">
+          {["Recommendations", "Testing"].map(
             (item) => (
               <div key={item} className="bg-[var(--unlocked-surface)] p-4">
                 <p className="text-sm font-bold">{item}</p>
@@ -391,6 +391,10 @@ export function CollegeApplicationWorkspace({
               </div>
             ),
           )}
+          <Link href={`/cost-aid#colleges`} className="bg-[var(--unlocked-surface)] p-4 hover:text-forest">
+            <p className="text-sm font-bold">Financial aid</p>
+            <p className="mt-1 text-xs text-ink/40">Review cost, forms, calculator estimate, and offer →</p>
+          </Link>
         </div>
       </div>
     </main>

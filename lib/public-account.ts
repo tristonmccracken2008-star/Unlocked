@@ -27,6 +27,8 @@ export function publicAccountData(data: AccountData): AccountData {
     resumeLab: undefined,
     // Essay drafts, ideas, notes, and feedback only load in authenticated writing routes.
     writing: undefined,
+    // Cost estimates, offers, family workflows, and aid review records are private.
+    financialAid: undefined,
     // Application Studio drafts, notes, and recommender details load only on the authenticated application route.
     applicationWorkspaces: Object.fromEntries(Object.entries(data.applicationWorkspaces ?? {}).map(([id, workspace]) => [id, { ...workspace, writtenResponses: undefined, recommenders: undefined, privateNotes: undefined, submissionSnapshots: undefined }])),
     // Answer Bank entries contain private factual stories.
