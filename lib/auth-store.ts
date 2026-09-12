@@ -16,7 +16,7 @@ import { emptyApplicationMaterialStore, normalizeApplicationMaterialStore, type 
 import { emptyResumeLabStore, normalizeResumeLabStore, type ResumeLabStore } from "@/data/resume-lab";
 import { emptyOpportunityPassport, normalizeOpportunityPassport, type OpportunityPassport } from "@/data/passport";
 import { educationalStageSchemaVersion, normalizeEducationalStage, type EducationalStage } from "./education-stages";
-import { collegeApplicationPlans, collegeConsiderationStates, collegeDecisionOutcomes, collegeInterestStates, collegeRequirementStatuses, collegeVisitTypes, type CollegeAdmissionsJourney, type CollegeListRecord, type EnrollmentItem } from "@/data/college-admissions";
+import { applicationResponsibilities, collegeApplicationPlans, collegeConsiderationStates, collegeDecisionOutcomes, collegeInterestStates, collegeRequirementStatuses, collegeVisitTypes, commonAppSections, counselorReadinessStatuses, recommenderRoles, recommenderStatuses, schoolDocumentStatuses, schoolDocumentTypes, type CollegeAdmissionsJourney, type CollegeListRecord, type EnrollmentItem } from "@/data/college-admissions";
 import { emptyHighSchoolAcademicStore, normalizeHighSchoolAcademicStore, type HighSchoolAcademicStore } from "@/data/high-school-academics";
 import { emptySatPracticeStore, normalizeSatPracticeStore, type SatPracticeStore } from "@/data/sat-practice";
 import { emptyWritingStore, normalizeWritingStore, type WritingStore } from "@/data/writing";
@@ -371,7 +371,13 @@ function normalizeCollegeListRecords(value: AccountData["savedColleges"]): Colle
 }
 
 function normalizeCollegeAdmissionsJourney(value: AccountData["collegeAdmissionsJourney"]): CollegeAdmissionsJourney {
-  return { tasks: (value?.tasks ?? []).filter((task) => task?.id && task.title && !task.collegeId).slice(-300), updatedAt: value?.updatedAt };
+  const counselor = value?.counselor;
+  const commonApp = Object.fromEntries(Object.entries(counselor?.commonApp ?? {}).filter(([section,status]) => commonAppSections.includes(section as never) && counselorReadinessStatuses.includes(status as never)));
+  const recommenders = (counselor?.recommenders ?? []).filter((item) => item?.id && item.name && recommenderRoles.includes(item.role) && recommenderStatuses.includes(item.status)).slice(-100).map((item) => ({ ...item, collegeIds:uniqueStrings(item.collegeIds).slice(0,50), version:Number.isInteger(item.version)?item.version:0 }));
+  const schoolDocuments = (counselor?.schoolDocuments ?? []).filter((item) => item?.id && item.title && schoolDocumentTypes.includes(item.type) && schoolDocumentStatuses.includes(item.status) && applicationResponsibilities.includes(item.responsible)).slice(-200).map((item)=>({...item,collegeIds:uniqueStrings(item.collegeIds).slice(0,50),version:Number.isInteger(item.version)?item.version:0}));
+  const schoolProcesses = (counselor?.schoolProcesses ?? []).filter((item)=>item?.id&&item.title&&counselorReadinessStatuses.includes(item.status)).slice(-100).map((item)=>({...item,version:Number.isInteger(item.version)?item.version:0}));
+  const brag = counselor?.bragSheet;
+  return { tasks: (value?.tasks ?? []).filter((task) => task?.id && task.title && !task.collegeId).slice(-300), counselor: counselor ? { commonApp, recommenders, schoolDocuments, schoolProcesses, bragSheet:{ aboutMe:brag?.aboutMe, academicInterests:brag?.academicInterests, futureGoals:brag?.futureGoals, growth:brag?.growth, recommenderFocus:brag?.recommenderFocus, selectedExperienceIds:uniqueStrings(brag?.selectedExperienceIds).slice(0,100), selectedAccomplishmentIds:uniqueStrings(brag?.selectedAccomplishmentIds).slice(0,100), tailoredNotes:brag?.tailoredNotes&&typeof brag.tailoredNotes==="object"?Object.fromEntries(Object.entries(brag.tailoredNotes).filter(([,note])=>typeof note==="string").slice(0,100)):{}, updatedAt:brag?.updatedAt, version:Number.isInteger(brag?.version)?brag!.version:0 }, version:Number.isInteger(counselor.version)?counselor.version:0, updatedAt:counselor.updatedAt } : undefined, updatedAt: value?.updatedAt };
 }
 
 function normalizeAdvisorData(value: AdvisorAccountData | null | undefined): AdvisorAccountData | null {

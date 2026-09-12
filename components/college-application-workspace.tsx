@@ -129,6 +129,7 @@ export function CollegeApplicationWorkspace({
           <span className="px-2">/</span>
           {college.name}
         </nav>
+        <Link href="/admissions/counselor" className="mt-4 inline-flex text-sm font-bold text-forest">← Application Counselor</Link>
         <header className="mt-6 rounded-[2rem] border border-ink/10 bg-[var(--unlocked-surface)] p-6 shadow-soft sm:p-9">
           <div className="flex flex-wrap items-start justify-between gap-6">
             <div>

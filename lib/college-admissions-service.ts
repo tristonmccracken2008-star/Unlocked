@@ -1,5 +1,5 @@
 import crypto from "node:crypto";
-import { verifiedCollegeAdmissions, type CollegeAdmissionsJourney, type CollegeAdmissionsTask, type CollegeApplicationPlan, type CollegeConsiderationState, type CollegeDecisionOutcome, type CollegeInterestState, type CollegeListRecord, type CollegeRequirementStatus, type CollegeVisitType, type EnrollmentItem } from "@/data/college-admissions";
+import { verifiedCollegeAdmissions, type ApplicationMethod, type ApplicationRecommender, type BragSheetState, type CollegeAdmissionsJourney, type CollegeAdmissionsTask, type CollegeApplicationPlan, type CollegeConsiderationState, type CollegeDecisionOutcome, type CollegeInterestState, type CollegeListRecord, type CollegeRequirementStatus, type CollegeVisitType, type CommonAppSection, type CounselorReadinessStatus, type EnrollmentItem, type InterviewStatus, type PortalChecklistKey, type SchoolDocumentRecord, type SchoolProcessRecord, type TestSubmissionStatus } from "@/data/college-admissions";
 import { mutateCollegeAdmissions } from "./auth-store";
 import { getCollege } from "./colleges";
 
@@ -7,6 +7,15 @@ export type CollegeAdmissionsMutation =
   | { action: "update_college"; collegeId: string; interestState?: CollegeInterestState; favorite?: boolean; plan?: CollegeApplicationPlan; notes?: string; priorities?: string[] }
   | { action: "add_task"; collegeId?: string; title: string; dueDate?: string }
   | { action: "set_task"; collegeId?: string; taskId: string; completed: boolean }
+  | { action:"set_common_app"; section:CommonAppSection; status:CounselorReadinessStatus }
+  | { action:"save_recommender"; recommender:Omit<ApplicationRecommender,"createdAt"|"updatedAt"|"version"> }
+  | { action:"delete_recommender"; recommenderId:string }
+  | { action:"save_school_document"; document:Omit<SchoolDocumentRecord,"createdAt"|"updatedAt"|"version"> }
+  | { action:"delete_school_document"; documentId:string }
+  | { action:"save_school_process"; process:Omit<SchoolProcessRecord,"createdAt"|"updatedAt"|"version"> }
+  | { action:"delete_school_process"; processId:string }
+  | { action:"save_brag_sheet"; bragSheet:Omit<BragSheetState,"updatedAt"|"version"> }
+  | { action:"save_application_support"; collegeId:string; studentTargetDate?:string; applicationMethod?:ApplicationMethod; testingStatus?:TestSubmissionStatus; portal?:{url?:string;emailHint?:string;activated:boolean;lastChecked?:string;checklist:Partial<Record<PortalChecklistKey,CollegeRequirementStatus>>;missingItemNote?:string}; interview?:{status:InterviewStatus;date?:string;interviewer?:string;format?:string;notes?:string;whyCollege?:string;academicInterests?:string;activities?:string;questions?:string} }
   | { action: "add_requirement"; collegeId: string; title: string }
   | { action: "set_requirement"; collegeId: string; requirementId: string; status: CollegeRequirementStatus }
   | { action: "mark_applied"; collegeId: string; submittedAt: string; notes?: string }
@@ -29,6 +38,15 @@ export async function updateCollegeAdmissions(userId: string, mutation: CollegeA
     if ("collegeId" in mutation && mutation.collegeId && !getCollege(mutation.collegeId)) throw new Error("College not found.");
     if (mutation.action === "add_task" && !mutation.collegeId) return { records, journey: { ...journey, tasks: [...journey.tasks, task(mutation.title, undefined, mutation.dueDate)].slice(-300) } };
     if (mutation.action === "set_task" && !mutation.collegeId) return { records, journey: { ...journey, tasks: journey.tasks.map((item) => item.id === mutation.taskId ? { ...item, completed: mutation.completed, updatedAt: now() } : item) } };
+    const counselor = journey.counselor ?? { commonApp:{}, recommenders:[], schoolDocuments:[], schoolProcesses:[], bragSheet:{selectedExperienceIds:[],selectedAccomplishmentIds:[],tailoredNotes:{},version:0}, version:0 };
+    if (mutation.action === "set_common_app") return { records, journey:{...journey,counselor:{...counselor,commonApp:{...counselor.commonApp,[mutation.section]:mutation.status},version:counselor.version+1,updatedAt:now()}}};
+    if (mutation.action === "save_recommender") { const timestamp=now(); const existing=counselor.recommenders.find((item)=>item.id===mutation.recommender.id); const saved={...mutation.recommender,createdAt:existing?.createdAt??timestamp,updatedAt:timestamp,version:(existing?.version??-1)+1}; return {records,journey:{...journey,counselor:{...counselor,recommenders:[...counselor.recommenders.filter((item)=>item.id!==saved.id),saved].slice(-100),version:counselor.version+1,updatedAt:timestamp}}}; }
+    if (mutation.action === "delete_recommender") return {records,journey:{...journey,counselor:{...counselor,recommenders:counselor.recommenders.filter((item)=>item.id!==mutation.recommenderId),version:counselor.version+1,updatedAt:now()}}};
+    if (mutation.action === "save_school_document") { const timestamp=now(); const existing=counselor.schoolDocuments.find((item)=>item.id===mutation.document.id); const saved={...mutation.document,createdAt:existing?.createdAt??timestamp,updatedAt:timestamp,version:(existing?.version??-1)+1}; return {records,journey:{...journey,counselor:{...counselor,schoolDocuments:[...counselor.schoolDocuments.filter((item)=>item.id!==saved.id),saved].slice(-200),version:counselor.version+1,updatedAt:timestamp}}}; }
+    if (mutation.action === "delete_school_document") return {records,journey:{...journey,counselor:{...counselor,schoolDocuments:counselor.schoolDocuments.filter((item)=>item.id!==mutation.documentId),version:counselor.version+1,updatedAt:now()}}};
+    if (mutation.action === "save_school_process") { const timestamp=now(); const existing=counselor.schoolProcesses.find((item)=>item.id===mutation.process.id); const saved={...mutation.process,createdAt:existing?.createdAt??timestamp,updatedAt:timestamp,version:(existing?.version??-1)+1}; return {records,journey:{...journey,counselor:{...counselor,schoolProcesses:[...counselor.schoolProcesses.filter((item)=>item.id!==saved.id),saved].slice(-100),version:counselor.version+1,updatedAt:timestamp}}}; }
+    if (mutation.action === "delete_school_process") return {records,journey:{...journey,counselor:{...counselor,schoolProcesses:counselor.schoolProcesses.filter((item)=>item.id!==mutation.processId),version:counselor.version+1,updatedAt:now()}}};
+    if (mutation.action === "save_brag_sheet") { const timestamp=now(); return {records,journey:{...journey,counselor:{...counselor,bragSheet:{...mutation.bragSheet,updatedAt:timestamp,version:counselor.bragSheet.version+1},version:counselor.version+1,updatedAt:timestamp}}}; }
     const collegeId = mutation.collegeId!;
     const index = records.findIndex((item) => item.collegeId === collegeId);
     if (index < 0) throw new Error("Save this college before planning an application.");
@@ -47,6 +65,8 @@ export async function updateCollegeAdmissions(userId: string, mutation: CollegeA
       const app = application(current); next = { ...current, application: { ...app, tasks: [...app.tasks, task(mutation.title, collegeId, mutation.dueDate)].slice(-200), status: "preparing", version: app.version + 1, updatedAt: timestamp }, version: current.version + 1, updatedAt: timestamp };
     } else if (mutation.action === "set_task") {
       const app = application(current); next = { ...current, application: { ...app, tasks: app.tasks.map((item) => item.id === mutation.taskId ? { ...item, completed: mutation.completed, updatedAt: timestamp } : item), version: app.version + 1, updatedAt: timestamp }, version: current.version + 1, updatedAt: timestamp };
+    } else if (mutation.action === "save_application_support") {
+      const app=application(current); next={...current,application:{...app,studentTargetDate:mutation.studentTargetDate,applicationMethod:mutation.applicationMethod,testingStatus:mutation.testingStatus,portal:mutation.portal,interview:mutation.interview,version:app.version+1,updatedAt:timestamp},version:current.version+1,updatedAt:timestamp};
     } else if (mutation.action === "add_requirement") {
       const app = application(current); next = { ...current, application: { ...app, requirements: [...app.requirements, { id: `college-requirement:${crypto.randomUUID()}`, type: "other", title: mutation.title, status: "needs_verification", provenance: "student_added", createdAt: timestamp, updatedAt: timestamp }], version: app.version + 1, updatedAt: timestamp }, version: current.version + 1, updatedAt: timestamp };
     } else if (mutation.action === "set_requirement") {

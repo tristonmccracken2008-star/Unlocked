@@ -113,6 +113,14 @@ export type AdmissionDecision = {
 export type CollegeVisit = { id:string; type:CollegeVisitType; date?:string; event?:string; privateNotes?:string; createdAt:string; updatedAt:string };
 export type EnrollmentItem = { status:"not_started"|"planned"|"complete"|"waiver_requested"|"not_applicable"; amount?:number; deadline?:string; sourceUrl?:string; updatedAt:string };
 export type DecisionReflection = { mattersMost?:string; concerns?:string; excitement?:string; questions?:string; regretChoosing?:string; regretDeclining?:string; updatedAt:string };
+export const applicationMethods=["common_app","coalition_scoir","institutional","questbridge","other"] as const;
+export type ApplicationMethod=(typeof applicationMethods)[number];
+export const testSubmissionStatuses=["planning_sat","planning_act","self_reported","official_ordered","official_sent","not_submitting","not_required","unknown"] as const;
+export type TestSubmissionStatus=(typeof testSubmissionStatuses)[number];
+export const portalChecklistKeys=["application","transcript","recommendation","test_scores","financial_aid"] as const;
+export type PortalChecklistKey=(typeof portalChecklistKeys)[number];
+export const interviewStatuses=["not_offered","offered","optional","required","scheduled","completed","not_available"] as const;
+export type InterviewStatus=(typeof interviewStatuses)[number];
 
 export type CollegeAdmissionsTask = {
   id: string;
@@ -149,6 +157,11 @@ export type CollegeApplicationRecord = {
   tasks: CollegeAdmissionsTask[];
   submittedAt?: string;
   applicationNotes?: string;
+  studentTargetDate?:string;
+  applicationMethod?:ApplicationMethod;
+  testingStatus?:TestSubmissionStatus;
+  portal?:{ url?:string; emailHint?:string; activated:boolean; lastChecked?:string; checklist:Partial<Record<PortalChecklistKey,CollegeRequirementStatus>>; missingItemNote?:string };
+  interview?:{ status:InterviewStatus; date?:string; interviewer?:string; format?:string; notes?:string; whyCollege?:string; academicInterests?:string; activities?:string; questions?:string };
   decision?: {
     outcome: CollegeDecisionOutcome; receivedAt: string; entryTerm?: string; id?:string;
     program?:string; honorsResult?:string; scholarshipNotification?:string;
@@ -176,8 +189,36 @@ export type CollegeListRecord = {
 };
 export type CollegeAdmissionsJourney = {
   tasks: CollegeAdmissionsTask[];
+  counselor?: ApplicationCounselorState;
   updatedAt?: string;
 };
+
+export const counselorReadinessStatuses = ["not_started", "working", "ready", "needs_review"] as const;
+export type CounselorReadinessStatus = (typeof counselorReadinessStatuses)[number];
+export const counselorReadinessLabels: Record<CounselorReadinessStatus, string> = {
+  not_started: "Not started", working: "Working on it", ready: "Ready", needs_review: "Needs review",
+};
+export const commonAppSections = ["profile", "family", "education", "testing", "activities", "honors", "writing", "courses_grades", "recommenders", "college_questions"] as const;
+export type CommonAppSection = (typeof commonAppSections)[number];
+export const commonAppSectionLabels: Record<CommonAppSection, string> = {
+  profile:"Profile", family:"Family", education:"Education", testing:"Testing", activities:"Activities", honors:"Honors", writing:"Writing", courses_grades:"Courses & grades", recommenders:"Recommenders", college_questions:"College-specific questions",
+};
+export const recommenderRoles = ["teacher", "counselor", "other"] as const;
+export type RecommenderRole = (typeof recommenderRoles)[number];
+export const recommenderStatuses = ["considering", "plan_to_ask", "asked", "accepted", "submitted", "declined", "no_response", "no_longer_needed"] as const;
+export type RecommenderStatus = (typeof recommenderStatuses)[number];
+export const recommenderStatusLabels: Record<RecommenderStatus,string> = { considering:"Considering", plan_to_ask:"Plan to ask", asked:"Asked", accepted:"Accepted", submitted:"Submitted", declined:"Declined", no_response:"No response", no_longer_needed:"No longer needed" };
+export type ApplicationRecommender = { id:string; name:string; role:RecommenderRole; subject?:string; organization?:string; email?:string; relationship?:string; collegeIds:string[]; requestedAt?:string; deadline?:string; followUpAt?:string; status:RecommenderStatus; privateNotes?:string; tailoredNotes?:string; createdAt:string; updatedAt:string; version:number };
+export const schoolDocumentTypes = ["initial_transcript", "midyear_report", "school_report", "counselor_recommendation", "optional_report", "school_profile", "other"] as const;
+export type SchoolDocumentType = (typeof schoolDocumentTypes)[number];
+export const schoolDocumentStatuses = ["need_to_request", "requested", "school_processing", "sent", "received_confirmed", "not_required", "unknown"] as const;
+export type SchoolDocumentStatus = (typeof schoolDocumentStatuses)[number];
+export const applicationResponsibilities = ["student", "teacher", "counselor", "school", "parent_family", "testing_agency", "other"] as const;
+export type ApplicationResponsibility = (typeof applicationResponsibilities)[number];
+export type SchoolDocumentRecord = { id:string; type:SchoolDocumentType; title:string; collegeIds:string[]; responsible:ApplicationResponsibility; status:SchoolDocumentStatus; deadline?:string; sourceUrl?:string; provenance:"student_added"|"official_verified"; notes?:string; createdAt:string; updatedAt:string; version:number };
+export type SchoolProcessRecord = { id:string; title:string; system?:string; status:CounselorReadinessStatus; internalDeadline?:string; notes?:string; createdAt:string; updatedAt:string; version:number };
+export type BragSheetState = { aboutMe?:string; academicInterests?:string; futureGoals?:string; growth?:string; recommenderFocus?:string; selectedExperienceIds:string[]; selectedAccomplishmentIds:string[]; tailoredNotes:Record<string,string>; updatedAt?:string; version:number };
+export type ApplicationCounselorState = { commonApp:Partial<Record<CommonAppSection,CounselorReadinessStatus>>; recommenders:ApplicationRecommender[]; schoolDocuments:SchoolDocumentRecord[]; schoolProcesses:SchoolProcessRecord[]; bragSheet:BragSheetState; updatedAt?:string; version:number };
 
 export type VerifiedCollegeDeadline = {
   id: string;
