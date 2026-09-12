@@ -5,6 +5,7 @@ import { useMemo, useState, type FormEvent } from "react";
 import { aidChecklistStatusLabels, aidChecklistStatuses, financialAidChecklist, offerMath, waiverStatuses, type FinancialAidStore } from "@/data/financial-aid";
 import { aidGuidance, glossary } from "@/data/financial-aid-guidance";
 import type { VerifiedCollegeAid } from "@/data/college-financial-aid";
+import { CollegeAidFacts } from "./college-aid-facts";
 
 type CollegeView={id:string;slug:string;name:string;state:string;ownership:string;publishedTotalCost:number|null;averageNetPrice:number|null;priceCalculatorUrl:string|null;requirements?:VerifiedCollegeAid};
 const money=(amount:number|null|undefined)=>amount===null||amount===undefined?"Not available":new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",maximumFractionDigits:0}).format(amount);
@@ -15,7 +16,7 @@ export function CostAidWorkspace({initialStore,colleges}:{initialStore:Financial
   const [store,setStore]=useState(initialStore),[message,setMessage]=useState(""),[pending,setPending]=useState(false),[offerCollege,setOfferCollege]=useState(colleges[0]?.id??"");
   const offers=useMemo(()=>colleges.flatMap(college=>store.offers[college.id]?[{college,offer:store.offers[college.id],math:offerMath(store.offers[college.id])}]:[]),[colleges,store.offers]);
   const completeCount=Object.values(store.checklist).filter(value=>value==="complete"||value==="ready"||value==="not_applicable").length;
-  const cssCount=colleges.filter(c=>c.requirements?.cssProfile==="required").length;
+  const cssCount=colleges.filter(c=>["required","required_for_institutional_aid"].includes(c.requirements?.cssProfile??"")).length;
   async function save(body:Record<string,unknown>){setPending(true);setMessage("");try{const response=await fetch("/api/financial-aid",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({...body,expectedVersion:store.version})});const data=await response.json() as {store?:FinancialAidStore;error?:string};if(!response.ok||!data.store)throw new Error(data.error??"Could not save this update.");setStore(data.store);setMessage("Saved privately.");}catch(error){setMessage(error instanceof Error?error.message:"Could not save this update.");}finally{setPending(false);}}
   async function saveNpc(event:FormEvent<HTMLFormElement>,collegeId:string){event.preventDefault();const form=new FormData(event.currentTarget);await save({action:"save_npc",collegeId,amount:form.get("amount"),calculatedAt:form.get("calculatedAt"),academicYear:form.get("academicYear"),privateNote:form.get("privateNote")});}
   async function saveOffer(event:FormEvent<HTMLFormElement>){event.preventDefault();const form=new FormData(event.currentTarget);await save(Object.fromEntries([["action","save_offer"],["collegeId",offerCollege],...form.entries()]));}
@@ -49,6 +50,8 @@ export function CostAidWorkspace({initialStore,colleges}:{initialStore:Financial
       <div className="mt-12"><h3 className="font-editorial text-3xl font-semibold">Plain-language glossary</h3><dl className="mt-5 grid gap-x-8 gap-y-5 sm:grid-cols-2">{glossary.map(([term,definition])=><div key={term} className="border-t border-ink/10 pt-4"><dt className="font-bold text-forest">{term}</dt><dd className="mt-2 text-sm leading-6 text-ink/52">{definition}</dd></div>)}</dl></div>
       <footer className="mt-12 border-t border-ink/10 pt-6 text-xs leading-5 text-ink/42"><p>Federal and CSS guidance shown for aid year {aidGuidance.aidYear}; sources last reviewed {aidGuidance.verifiedAt}. College-specific rules override general guidance. Confirm current requirements and deadlines with each financial aid office.</p><p className="mt-2">Cost &amp; Aid does not provide tax, legal, or individualized financial advice. It stores workflow status and student-entered totals, never SSNs, tax returns, bank account numbers, or family circumstance narratives.</p></footer>
     </section>
+
+    {colleges.some((college)=>college.requirements)?<section className={sectionClass}><p className="rule-label text-forest">Verified college guidance</p><h2 className="mt-2 font-editorial text-4xl font-semibold">Requirements, policies, and dates</h2><p className="mt-3 max-w-3xl text-sm leading-6 text-ink/50">These records use official institutional sources. A process may remain current while a yearly deadline still requires confirmation.</p><div className="mt-6 grid gap-4">{colleges.map((college)=>college.requirements?<CollegeAidFacts key={college.id} guidance={college.requirements} heading={college.name}/>:null)}</div></section>:null}
   </div></main>;
 }
 

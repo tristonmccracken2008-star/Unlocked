@@ -12,5 +12,5 @@ export const metadata:Metadata={title:"Cost & Aid",description:"Understand colle
 export default async function CostAidPage(){
   const session=await requireHighSchoolStage();
   const colleges=getColleges((session.data.savedColleges??[]).map(item=>item.collegeId));
-  return <CostAidWorkspace initialStore={normalizeFinancialAidStore(session.data.financialAid)} colleges={colleges.map(college=>({id:college.id,slug:college.slug,name:college.name,state:college.state,ownership:college.ownership,publishedTotalCost:college.publishedTotalCost,averageNetPrice:college.averageNetPrice,priceCalculatorUrl:college.priceCalculatorUrl,requirements:verifiedCollegeAid[college.id]}))}/>;
+  return <CostAidWorkspace initialStore={normalizeFinancialAidStore(session.data.financialAid)} colleges={colleges.map(college=>{const requirements=verifiedCollegeAid[college.id];return {id:college.id,slug:college.slug,name:college.name,state:college.state,ownership:college.ownership,publishedTotalCost:college.publishedTotalCost,averageNetPrice:college.averageNetPrice,priceCalculatorUrl:requirements?.netPriceCalculator.url??college.priceCalculatorUrl,requirements};})}/>;
 }

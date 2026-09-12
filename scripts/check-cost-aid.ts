@@ -30,8 +30,9 @@ await assert.rejects(updateFinancialAid(user.id,{action:"set_checklist",expected
 const stored=await readAccountData(user.id);
 assert.equal(publicAccountData(stored).financialAid,undefined,"Financial records must not enter the general client session.");
 
-const route=readFileSync("app/api/financial-aid/route.ts","utf8"), page=readFileSync("components/cost-aid-workspace.tsx","utf8");
+const route=readFileSync("app/api/financial-aid/route.ts","utf8"), page=readFileSync("components/cost-aid-workspace.tsx","utf8"), aidFacts=readFileSync("components/college-aid-facts.tsx","utf8");
 for(const token of ["assertSameOrigin(request)","enforceRateLimit","readBoundedJson","expectedVersion","getSession"])assert.match(route,new RegExp(token.replace(/[()]/g,"\\$&")));
 for(const phrase of ["Loans are not discounts","Who’s My FAFSA Parent?","Approval is never automatic","tax returns"])assert.match(page,new RegExp(phrase.replace(/[?]/g,"\\?")));
 assert.doesNotMatch(page,/affordability score|aid probability|free money/i);
+for(const phrase of ["Noncustodial parent","Waiver process","Verified deadlines","No current-cycle deadline is verified"])assert.match(aidFacts,new RegExp(phrase));
 console.log("Cost & Aid checks passed.");

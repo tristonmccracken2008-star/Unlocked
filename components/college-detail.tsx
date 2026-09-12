@@ -6,6 +6,8 @@ import { CollegeSaveButton } from "./college-save-button";
 import { CollegeAdmissionsInsights } from "./college-admissions-insights";
 import { AdmissionsContext } from "./admissions-context";
 import type { AdmissionsIntelligenceModel } from "@/lib/admissions-intelligence";
+import { getVerifiedCollegeAid } from "@/data/college-financial-aid";
+import { CollegeAidFacts } from "./college-aid-facts";
 
 const number = new Intl.NumberFormat("en-US");
 const money = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
@@ -31,6 +33,7 @@ function identityNotes(college: College) {
 
 export function CollegeDetail({ college, similar, saved, studentTesting, admissionsContext }: { college: College; similar: Array<{ college: College; reasons: string[] }>; saved: boolean; studentTesting?: { sat?: number; act?: number }; admissionsContext?: AdmissionsIntelligenceModel }) {
   const cost = college.publishedTotalCost ?? college.tuitionInState;
+  const aidGuidance = getVerifiedCollegeAid(college.id);
   return <main className="min-h-screen px-5 pb-24 pt-10 sm:px-8 sm:pt-14"><div className="mx-auto max-w-6xl">
     <nav aria-label="Breadcrumb" className="text-xs font-bold text-ink/40"><Link href="/colleges" className="hover:text-forest">Colleges</Link><span className="px-2">/</span><span>{college.name}</span></nav>
     <header className="relative mt-7 overflow-hidden rounded-[2rem] border border-ink/10 bg-[var(--unlocked-surface)] px-6 py-10 shadow-soft sm:px-10 sm:py-12">
@@ -47,6 +50,8 @@ export function CollegeDetail({ college, similar, saved, studentTesting, admissi
     <CollegeAdmissionsInsights college={college} studentTesting={studentTesting} />
 
     {admissionsContext ? <AdmissionsContext model={admissionsContext} /> : null}
+
+    {aidGuidance ? <Section eyebrow="Verified aid guidance" title="What this college requires"><CollegeAidFacts guidance={aidGuidance} /></Section> : null}
 
     <Section eyebrow="Cost & aid" title="Sticker price is not the whole story"><div className="grid gap-x-8 sm:grid-cols-2"><Fact label="In-state tuition" value={amount(college.tuitionInState)} /><Fact label="Out-of-state tuition" value={amount(college.tuitionOutOfState)} /><Fact label="Housing & food" value={amount(college.roomAndBoard)} /><Fact label="Published annual cost" value={amount(college.publishedTotalCost)} /><Fact label="Average net price" value={amount(college.averageNetPrice)} note="Average price after grants and scholarships in the federal dataset" /></div><p className="mt-5 max-w-2xl text-sm leading-7 text-ink/55">Published cost is the sticker price and may not reflect what a family pays. Net price subtracts grants and scholarships, but your amount can differ.</p><div className="mt-5 flex flex-wrap gap-3">{college.priceCalculatorUrl ? <a href={college.priceCalculatorUrl} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center gap-2 rounded-full border border-forest/20 px-4 text-sm font-bold text-forest hover:bg-mint/60">Open official Net Price Calculator <ArrowIcon /></a> : null}<Link href="/cost-aid#colleges" className="inline-flex min-h-11 items-center gap-2 rounded-full bg-ink px-4 text-sm font-bold text-white">Open Cost &amp; Aid <ArrowIcon /></Link></div></Section>
 

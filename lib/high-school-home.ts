@@ -8,6 +8,7 @@ import { normalizeSatPracticeStore } from "@/data/sat-practice";
 import { normalizeSatPreparation, recentSatDomains, satNextAction } from "@/data/sat-command-center";
 import { normalizeWritingStore } from "@/data/writing";
 import { normalizeFinancialAidStore } from "@/data/financial-aid";
+import { getVerifiedCollegeAid } from "@/data/college-financial-aid";
 import { writingPromptById } from "@/data/writing-prompts";
 import type { AccountData } from "./account-types";
 import { buildAdmissionsJourney } from "./admissions-journey";
@@ -43,15 +44,16 @@ export function buildHighSchoolHomeSummary(input:{data:AccountData;firstName:str
   const activeOpportunities=opportunities.flatMap(op=>{const tracked=data.tracker?.[op.id];return tracked&&["Interested","Applying","Submitted","Interview","Accepted"].includes(tracked.status)?[{op,tracked}]:[]});
   const verifiedOpportunityDates=activeOpportunities.filter(({op})=>op.application_deadline&&op.application_deadline>=date&&op.metadata.verification?.deadlineVerified===true).map(({op})=>({id:`opportunity:${op.id}`,label:"Opportunity",title:op.title,detail:`${op.organization} · deadline`,date:op.application_deadline!,provenance:"Verified date" as const,href:`/opportunities/${op.id}`}));
   const verifiedCollegeDates=admissions.deadlines.map(d=>({id:`college:${d.id}`,label:"Application",title:d.college.name,detail:`${d.label} · ${d.cycle}`,date:d.date,provenance:"Verified date" as const,href:`/colleges/${d.college.slug}/application`}));
+  const verifiedAidDates=colleges.flatMap(college=>(getVerifiedCollegeAid(college.id)?.deadlines??[]).filter(deadline=>deadline.date>=date).map(deadline=>({id:`college-aid:${college.id}:${deadline.id}`,label:"Cost & Aid",title:`${college.name} aid deadline`,detail:`${deadline.label} · ${deadline.cycle}`,date:deadline.date,provenance:"Verified date" as const,href:"/cost-aid#colleges"})));
   const testDates=academics.testing.plans.filter(p=>p.registrationStatus!=="completed"&&p.date>=date).map(p=>({id:`test:${p.test}:${p.date}`,label:p.test.toUpperCase(),title:`${p.test.toUpperCase()} test`,detail:`${p.registrationStatus} · date you added`,date:p.date,provenance:"Your date" as const,href:p.test==="sat"?"/academics/sat":"/academics"}));
   const journeyDates=admissions.openTasks.filter(t=>t.dueDate&&t.dueDate>=date).map(t=>({id:`task:${t.id}`,label:"Journey",title:t.title,detail:"Planning date you added",date:t.dueDate!,provenance:"Your date" as const,href:"/admissions"}));
   const bluebookDates=satPrep.bluebookDate&&satPrep.bluebookDate>=date?[{id:`bluebook:${satPrep.bluebookDate}`,label:"SAT",title:"Bluebook practice test",detail:"Practice date you added",date:satPrep.bluebookDate,provenance:"Your date" as const,href:"/academics/sat"}]:[];
   const writingDates=Object.values(writing.documents).filter(document=>document.status!=="final"&&document.planningDate&&document.planningDate>=date).map(document=>({id:`writing:${document.id}`,label:"Writing",title:document.title,detail:"Personal planning date",date:document.planningDate!,provenance:"Your date" as const,href:`/build/writing/${document.id}`}));
   const aidDates=Object.values(financialAid.collegeWorkflows).filter(item=>item.deadline&&item.deadline>=date).flatMap(item=>{const college=colleges.find(candidate=>candidate.id===item.collegeId);return college?[{id:`aid:${item.collegeId}`,label:"Cost & Aid",title:`${college.name} aid deadline`,detail:"Financial aid date you added",date:item.deadline!,provenance:"Your date" as const,href:"/cost-aid"}]:[]});
-  const comingUp=[...verifiedCollegeDates,...verifiedOpportunityDates,...testDates,...journeyDates,...bluebookDates,...writingDates,...aidDates].sort((a,b)=>a.date.localeCompare(b.date)||Number(a.provenance==="Your date")-Number(b.provenance==="Your date")).slice(0,4);
+  const comingUp=[...verifiedCollegeDates,...verifiedAidDates,...verifiedOpportunityDates,...testDates,...journeyDates,...bluebookDates,...writingDates,...aidDates].sort((a,b)=>a.date.localeCompare(b.date)||Number(a.provenance==="Your date")-Number(b.provenance==="Your date")).slice(0,4);
 
   const applicationAttention=admissions.items.flatMap(({college,record})=>{const app=record.application;if(!app||["applied","decision_received","committed"].includes(app.status))return[];const missing=app.requirements.filter(r=>!["ready","submitted","not_required"].includes(r.status));const tasks=app.tasks.filter(t=>!t.completed);return [{college,record,missing,tasks}]});
-  const deadlineSoon=[...verifiedCollegeDates,...verifiedOpportunityDates].filter(item=>daysUntil(item.date,now)<=14).sort((a,b)=>a.date.localeCompare(b.date))[0];
+  const deadlineSoon=[...verifiedCollegeDates,...verifiedAidDates,...verifiedOpportunityDates].filter(item=>daysUntil(item.date,now)<=14).sort((a,b)=>a.date.localeCompare(b.date))[0];
   const applicationNeed=applicationAttention.sort((a,b)=>(b.missing.length+b.tasks.length)-(a.missing.length+a.tasks.length))[0];
   const satAction=satNextAction(satStore,nextTest?.date,date);
   const satRelevant=Boolean(nextTest||satPrep.bluebook.length||satStore.sessions.length||satPrep.bluebookDate);

@@ -5,7 +5,7 @@
   "scripts": {
     "prepare:brand": "node scripts/prepare-unlocked-logo.mjs",
     "dev": "next dev",
-    "validate:data": "npm run check:strategy && npm run check:opportunity-planner && npm run check:accomplishments && npm run check:opportunity-paths && npm run check:careers && npm run check:application-materials && npm run check:resume-lab && npm run check:build-workspace && npm run check:applications-workspace && npm run check:application-packets && npm run check:application-studio && npm run check:opportunity-insights && npm run check:opportunity-explorer && npm run check:opportunity-collections && node scripts/validate-data.mjs",
+    "validate:data": "npm run check:strategy && npm run check:opportunity-planner && npm run check:accomplishments && npm run check:opportunity-paths && npm run check:careers && npm run check:application-materials && npm run check:resume-lab && npm run check:build-workspace && npm run check:applications-workspace && npm run check:application-packets && npm run check:application-studio && npm run check:opportunity-insights && npm run check:opportunity-explorer && npm run check:opportunity-collections && npm run check:college-financial-aid && node scripts/validate-data.mjs",
     "check:data-enrichment": "node scripts/check-opportunity-enrichment.mjs",
     "generate:opportunity-duplicates": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/generate-opportunity-duplicates.ts",
     "check:opportunity-intelligence-platform": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-opportunity-intelligence-platform.ts",
@@ -62,6 +62,7 @@
     "check:high-school-home": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-high-school-home.ts",
     "check:writing": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-writing.ts",
     "check:cost-aid": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-cost-aid.ts",
+    "check:college-financial-aid": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-college-financial-aid.ts",
     "check:open-line-data": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-open-line-data.ts",
     "check:pathprint-geometry": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-pathprint-geometry.ts",
     "check:open-line-renderer": "node --no-warnings --loader ./scripts/ts-test-loader.mjs scripts/check-open-line-renderer.tsx",
